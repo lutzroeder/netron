@@ -5,7 +5,6 @@
 
 var sklearn = sklearn || {};
 var long = long || { Long: require('long') };
-var marked = marked || require('marked');
 
 sklearn.ModelFactory = class {
 
@@ -624,50 +623,8 @@ sklearn.Node = class {
         return this._group ? this._group : null;
     }
 
-    get documentation() {
-        let schema = this._metadata.type(this.operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this.operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                }
-            }
-            if (schema.inputs) {
-                for (const input of schema.inputs) {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (const output of schema.outputs) {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                }
-            }
-            if (schema.references) {
-                for (const reference of schema.references) {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
-    }
-
-    get category() {
-        const schema = this._metadata.type(this.operator);
-        return (schema && schema.category) ? schema.category : '';
+    get metadata() {
+        return this._metadata.type(this.operator);
     }
 
     get inputs() {
@@ -994,6 +951,7 @@ sklearn.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                     }
                 }

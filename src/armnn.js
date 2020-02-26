@@ -129,7 +129,6 @@ armnn.Node = class {
         this._name = '';
         this._outputs = [];
         this._inputs = [];
-        this._category = '';
         this._attributes = [];
 
         const base = armnn.Node.getBase(layer)
@@ -150,8 +149,6 @@ armnn.Node = class {
 
         const schema = this._metadata.type(this._operator);
         if (schema) {
-            this._category = schema.category || '';
-
             const _layer = armnn.Node.castLayer(layer);
 
             if (schema.bindings) {
@@ -192,16 +189,12 @@ armnn.Node = class {
         return null;
     }
 
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get group() {
         return null;
-    }
-
-    get category() {
-        return this._category;
     }
 
     get inputs() {
@@ -577,6 +570,7 @@ armnn.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                     }
                 }

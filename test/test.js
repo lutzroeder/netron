@@ -499,8 +499,11 @@ function loadModel(target, item) {
                 node.name.toString();
                 node.name.length;
                 node.description;
-                node.documentation.toString();
-                node.category.toString();
+                const metadata = node.metadata;
+                if (metadata !== null && metadata !== undefined && (typeof metadata !== 'object' || !metadata.name)) {
+                    throw new Error("Invalid documentation object '" + node.operator + "'.");
+                }
+                sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;

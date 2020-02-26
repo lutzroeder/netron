@@ -328,17 +328,12 @@ mnn.Node = class {
         return null;
     }
 
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this.operator);
     }
 
     get group() {
         return null;
-    }
-
-    get category() {
-        let schema = this._metadata.type(this.operator);
-        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
@@ -586,6 +581,7 @@ mnn.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map.set(item.name, item.schema);
                     }
                 }

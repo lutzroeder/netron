@@ -6,6 +6,7 @@ import onnx
 import json
 import io
 import os
+import re
 import sys
 
 from onnx import defs
@@ -118,6 +119,21 @@ def generate_json_types(types):
     r = sorted(r)
     return r
 
+def format_range(value):
+    if value == 2147483647:
+        return '&#8734;'
+    return str(value)
+
+def format_description(description):
+    def replace_line(match):
+        link = match.group(1)
+        url = match.group(2)
+        if not url.startswith("http://") and not url.startswith("https://"):
+            url = "https://github.com/onnx/onnx/blob/master/docs/" + url
+        return "[" + link + "](" + url + ")";
+    description = re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
+    return description
+
 def generate_json(schemas, json_file):
     json_root = []
     for schema in schemas:
@@ -129,13 +145,13 @@ def generate_json(schemas, json_file):
         json_schema['since_version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:
-            json_schema['description'] = schema.doc.lstrip()
+            json_schema['description'] = format_description(schema.doc.lstrip())
         if schema.inputs:
             json_schema['inputs'] = []
             for input in schema.inputs:
                 json_input = {}
                 json_input['name'] = input.name
-                json_input['description'] = input.description
+                json_input['description'] = format_description(input.description)
                 json_input['type'] = input.typeStr
                 if input.option == OpSchema.FormalParameterOption.Optional:
                     json_input['option'] = 'optional'
@@ -149,7 +165,7 @@ def generate_json(schemas, json_file):
             for output in schema.outputs:
                 json_output = {}
                 json_output['name'] = output.name
-                json_output['description'] = output.description
+                json_output['description'] = format_description(output.description)
                 json_output['type'] = output.typeStr
                 if output.option == OpSchema.FormalParameterOption.Optional:
                     json_output['option'] = 'optional'
@@ -158,12 +174,16 @@ def generate_json(schemas, json_file):
                 json_schema['outputs'].append(json_output)
         json_schema['min_output'] = schema.min_output
         json_schema['max_output'] = schema.max_output
+        if schema.min_input != schema.max_input:
+            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input);
+        if schema.min_output != schema.max_output:
+            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output);
         if schema.attributes:
             json_schema['attributes'] = []
             for _, attribute in sorted(schema.attributes.items()):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
-                json_attribute['description'] = attribute.description
+                json_attribute['description'] = format_description(attribute.description)
                 attribute_type = generate_json_attr_type(attribute.type)
                 if attribute_type:
                     json_attribute['type'] = attribute_type

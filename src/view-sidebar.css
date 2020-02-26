@@ -54,7 +54,7 @@
 .sidebar-view-documentation dl dt { font-size: 13px; font-weight: bold; padding: 0; margin-top: 16px; margin-left: 0px; }
 .sidebar-view-documentation dd { padding: 0 16px; margin-left: 0; margin-bottom: 16px; }
 .sidebar-view-documentation ul { margin-top: 6px; margin-bottom: 6px; padding-left: 20px; }
-
+.sidebar-view-documentation blockquote { margin-left: 15px; margin-right: 15px; }
 
 @media (prefers-color-scheme: dark) {
     .sidebar html { color: #dfdfdf; }

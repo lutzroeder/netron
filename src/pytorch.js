@@ -6,7 +6,6 @@
 var pytorch = pytorch || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
-var marked = marked || require('marked');
 
 pytorch.ModelFactory = class {
 
@@ -542,43 +541,8 @@ pytorch.Node = class {
         return index === -1 ? this._type : this._type.substring(0, index);
     }
 
-    get category() {
-        const schema = this._metadata.type(this._type);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        let schema = this._metadata.type(this._type);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this.operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                }
-            }
-            if (schema.inputs) {
-                for (const input of schema.inputs) {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (const output of schema.outputs) {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
+    get metadata() {
+        return this._metadata.type(this._type);
     }
 
     get function() {

@@ -185,12 +185,8 @@ mediapipe.Node = class {
         return this._type;
     }
 
-    get documentation() {
-        return '';
-    }
-
-    get category() {
-        return '';
+    get metadata() {
+        return null;
     }
 
     get inputs() {

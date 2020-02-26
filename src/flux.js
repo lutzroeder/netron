@@ -4,7 +4,6 @@
 // Experimental
 
 var flux = flux || {};
-var marked = marked || require('marked');
 
 flux.ModelFactory = class {
 

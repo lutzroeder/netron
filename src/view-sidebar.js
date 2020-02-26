@@ -4,6 +4,7 @@
 var sidebar = sidebar || {};
 var long = long || { Long: require('long') };
 var Handlebars = Handlebars || require('handlebars');
+var marked = marked || require('marked');
 
 sidebar.Sidebar = class {
 
@@ -141,7 +142,7 @@ sidebar.NodeSidebar = class {
 
         if (node.operator) {
             let showDocumentation = null;
-            if (node.documentation) {
+            if (node.metadata) {
                 showDocumentation = {};
                 showDocumentation.text = '?';
                 showDocumentation.callback = () => {
@@ -871,7 +872,7 @@ sidebar.ModelSidebar = class {
     }
 };
 
-sidebar.OperatorDocumentationSidebar = class {
+sidebar.DocumentationSidebar = class {
 
     constructor(documentation) {
         this._documentation = documentation;
@@ -880,6 +881,7 @@ sidebar.OperatorDocumentationSidebar = class {
     render() {
         if (!this._elements) {
             this._elements = [];
+            const documentation = sidebar.DocumentationSidebar.formatDocumentation(this._documentation);
             let template = `
 <div id='documentation' class='sidebar-view-documentation'>
 
@@ -957,11 +959,10 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
 
 </div>
 `;
-            let generator = Handlebars.compile(template, 'utf-8');
-            let html = generator(this._documentation);
-            let parser = new DOMParser();
-            let document = parser.parseFromString(html, 'text/html');
-            let element = document.firstChild;
+            const generator = Handlebars.compile(template, 'utf-8');
+            const html = generator(documentation);
+            const document = new DOMParser().parseFromString(html, 'text/html');
+            const element = document.body.firstChild;
             element.addEventListener('click', (e) => {
                 if (e.target && e.target.href) {
                     let link = e.target.href;
@@ -988,6 +989,48 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
                 callback(this, data);
             }
         }
+    }
+
+    static formatDocumentation(data) {
+        if (data) {
+            data = JSON.parse(JSON.stringify(data));
+            if (data.summary) {
+                data.summary = marked(data.summary);
+            }
+            if (data.description) {
+                data.description = marked(data.description);
+            }
+            if (data.attributes) {
+                for (const attribute of data.attributes) {
+                    if (attribute.description) {
+                        attribute.description = marked(attribute.description);
+                    }
+                }
+            }
+            if (data.inputs) {
+                for (const input of data.inputs) {
+                    if (input.description) {
+                        input.description = marked(input.description);
+                    }
+                }
+            }
+            if (data.outputs) {
+                for (const output of data.outputs) {
+                    if (output.description) {
+                        output.description = marked(output.description);
+                    }
+                }
+            }
+            if (data.references) {
+                for (const reference of data.references) {
+                    if (reference) {
+                        reference.description = marked(reference.description);
+                    }
+                }
+            }
+            return data;
+        }
+        return '';
     }
 };
 
@@ -1152,6 +1195,6 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Sidebar = sidebar.Sidebar;
     module.exports.ModelSidebar = sidebar.ModelSidebar;
     module.exports.NodeSidebar = sidebar.NodeSidebar;
-    module.exports.OperatorDocumentationSidebar = sidebar.OperatorDocumentationSidebar;
+    module.exports.DocumentationSidebar = sidebar.DocumentationSidebar;
     module.exports.FindSidebar = sidebar.FindSidebar;
 }

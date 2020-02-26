@@ -293,20 +293,15 @@ tflite.Node = class {
         return null;
     }
 
-    get documentation() {
-        return '';
+    get metadata() {
+        if (this._operator.custom) {
+            return { name: this.operator, category: 'custom' };
+        }
+        return this._metadata.type(this.operator);
     }
 
     get group() {
         return null;
-    }
-
-    get category() {
-        if (this._operator.custom) {
-            return 'custom';
-        }
-        const schema = this._metadata.type(this.operator);
-        return (schema && schema.category) ? schema.category : '';
     }
 
     get inputs() {
@@ -697,9 +692,8 @@ tflite.Metadata = class {
             const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
-                    if (item.name && item.schema) {
-                        this._map[item.name] = item.schema;
-                    }
+                    item.schema.name = item.name;
+                    this._map[item.name] = item.schema;
                 }
             }
         }

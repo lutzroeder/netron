@@ -345,13 +345,8 @@ dl4j.Node = class {
         return this._name;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._operator);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get inputs() {
@@ -501,12 +496,11 @@ dl4j.Metadata = class {
         this._attributeCache = {};
         if (data) {
             if (data) {
-                let items = JSON.parse(data);
+                const items = JSON.parse(data);
                 if (items) {
                     for (const item of items) {
-                        if (item.name && item.schema) {
-                            this._map[item.name] = item.schema;
-                        }
+                        item.schema.name = item.name;
+                        this._map[item.name] = item.schema;
                     }
                 }
             }

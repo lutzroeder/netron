@@ -4,7 +4,6 @@
 var caffe2 = caffe2 || {};
 var protobuf = protobuf || require('protobufjs');
 var prototxt = prototxt || require('protobufjs/ext/prototxt');
-var marked = marked || require('marked');
 
 caffe2.ModelFactory = class {
 
@@ -450,50 +449,8 @@ caffe2.Node = class {
         return this._operator;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._operator);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        let schema = this._metadata.type(this._operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this._operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                for (let attribute of schema.attributes) {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                }
-            }
-            if (schema.inputs) {
-                for (let input of schema.inputs) {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (let output of schema.outputs) {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                }
-            }
-            if (schema.references) {
-                for (let reference of schema.references) {
-                    if (reference) {
-                        reference.description = marked(reference.description);
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get inputs() {
@@ -809,6 +766,7 @@ caffe2.Metadata = class {
             if (items) {
                 for (let item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                     }
                 }

@@ -375,12 +375,8 @@ chainer.Node = class {
         return this._name;
     }
 
-    get category() {
-        return '';
-    }
-
-    get documentation() {
-        return '';
+    get metadata() {
+        return null;
     }
 
     get inputs() {

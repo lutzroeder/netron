@@ -488,13 +488,8 @@ cntk.Node = class {
         return this._function || false;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() { 
-        return '';
+    get metadata() {
+        return this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
     }
 
     get attributes() { 
@@ -807,6 +802,7 @@ cntk.Metadata = class {
                     if (item.name && item.schema) {
                         const name = item.name;
                         const schema = item.schema;
+                        schema.name = name;
                         this._map[name] = schema;
                         if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
                             this._operatorMap[schema.operator.toString()] = name;

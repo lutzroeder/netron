@@ -7,7 +7,6 @@ var tf = tf || {};
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var prototxt = prototxt || require('protobufjs/ext/prototxt');
-var marked = marked || require('marked');
 
 tf.ModelFactory = class {
 
@@ -890,79 +889,8 @@ tf.Node = class {
         return null;
     }
 
-    get documentation() {
-        let schema = this._graph.metadata.type(this.operator);
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this.operator;
-            if (schema.summary) {
-                schema.summary = marked(schema.summary);
-            }
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.inputs) {
-                for (const input of schema.inputs) {
-                    if (input.type) {
-                        input.type = tf.Tensor.formatDataType(input.type);
-                    }
-                    else if (input.typeAttr) {
-                        input.type = input.typeAttr;
-                    }
-                    else if (input.typeListAttr) {
-                        input.type = input.typeListAttr;
-                    }
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (const output of schema.outputs) {
-                    if (output.type) {
-                        output.type = tf.Tensor.formatDataType(output.type);
-                    }
-                    else if (output.typeAttr) {
-                        output.type = output.typeAttr;
-                    }
-                    else if (output.typeListAttr) {
-                        output.type = output.typeListAttr;
-                    }
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                }
-            }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    let description = attribute.description;
-                    if (attribute.allowedValues) {
-                        let allowedValues = tf.GraphMetadata._formatAttributeValue(attribute.allowedValues);
-                        allowedValues = Array.isArray(allowedValues) ? allowedValues : [ allowedValues ];
-                        allowedValues = allowedValues.map((item) => '`' + item + '`').join(', ');
-                        allowedValues = 'Must be one of the following: ' + allowedValues + '.';
-                        description = description ? (allowedValues + ' ' + description) : allowedValues;
-                    }
-                    if (attribute.defaultValue) {
-                        let defaultValue = tf.GraphMetadata._formatAttributeValue(attribute.defaultValue);
-                        defaultValue = Array.isArray(defaultValue) ? defaultValue : [ defaultValue ];
-                        defaultValue = defaultValue.map((item) => '`' + item + '`').join(', ');
-                        defaultValue = 'Defaults to ' + defaultValue + '.';
-                        description = description ? (defaultValue + ' ' + description) : defaultValue;
-                    }
-                    if (description) {
-                        attribute.description = marked(description);
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
-    }
-
-    get category() {
-        const schema = this._graph.metadata.type(this.operator);
-        return (schema && schema.category) ? schema.category : '';
+    get metadata() {
+        return this._graph.metadata.type(this.operator);
     }
 
     get inputs() {
@@ -1726,6 +1654,7 @@ tf.Metadata = class {
                 if (items) {
                     for (const item of items) {
                         if (item.name && item.schema) {
+                            item.schema.name = item.name;
                             this._map[item.name] = item.schema;
                         }
                     }

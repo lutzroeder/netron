@@ -338,7 +338,7 @@
   {
     "name": "Add",
     "schema": {
-      "description": "Performs element-wise binary addition (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Performs element-wise binary addition (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -469,7 +469,7 @@
     "name": "And",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `and` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `and` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -1950,6 +1950,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 5",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -2072,6 +2073,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 5",
       "since_version": 6,
       "support_level": "common",
       "type_constraints": [
@@ -2114,7 +2116,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out batch normalization as described in the paper\n    https://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\n    there are multiple cases for the number of outputs, which we list below:\n    \n    Output case #1: Y, mean, var, saved_mean, saved_var (training mode)\n    Output case #2: Y (test mode)\n        This operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Carries out batch normalization as described in the paper\n    https://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\n    there are multiple cases for the number of outputs, which we list below:\n    \n    Output case #1: Y, mean, var, saved_mean, saved_var (training mode)\n    Output case #2: Y (test mode)\n        This operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -2188,6 +2190,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 5",
       "since_version": 7,
       "support_level": "common",
       "type_constraints": [
@@ -2223,7 +2226,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C*D1*D2 ..*Dn) before a BatchNormalization Op.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nthere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, mean, var, saved_mean, saved_var (training mode)\nOutput case #2: Y (test mode)\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C*D1*D2 ..*Dn) before a BatchNormalization Op.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -2297,6 +2300,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 5",
       "since_version": 9,
       "support_level": "common",
       "type_constraints": [
@@ -2332,7 +2336,7 @@
         }
       ],
       "category": "Normalization",
-      "description": "Carries out batch normalization as described in the paper https://arxiv.org/abs/1502.03167.\nThere is three required inputs 'X', 'mean' and 'var', in addition to one optional input 'training_mode'.\nNote that 'mean' and 'var' are expected to be the estimated statistics in inference mode (training_mode=False, default),\nand the running statistics in training mode (traning_mode=True).\nThere is one required output 'Y' and four optional outputs : 'output_mean', 'output_var', 'saved_mean', 'saved_var' used for training.\n\nThe output and statistics are updated as follows when training_mode=True:\n```\nsaved_mean = ReducedMean(X, axis=all_except_channel_index)\nsaved_var =  ReducedVar(X, axis=all_except_channel_index)\n\noutput_mean = mean * momentum + saved_mean * (1 - momentum)\noutput_var = var * momentum + saved_var * (1 - momentum)\n\nY = (X - saved_mean) / sqrt(var + saved_epsilon) * scale + B\n```\n\nWhen training_mode=False:\n```\nsaved_mean = ReducedMean(X, axis=all_except_channel_index)\nsaved_var =  ReducedVar(X, axis=all_except_channel_index)\n\noutput_mean = mean\noutput_var = var\n\nY = (X - mean) / sqrt(var + epsilon) * scale + B\n```\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C*D1*D2 ..*Dn) before a BatchNormalization operator.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Carries out batch normalization as described in the paper https://arxiv.org/abs/1502.03167.\nThere is three required inputs 'X', 'mean' and 'var', in addition to one optional input 'training_mode'.\nNote that 'mean' and 'var' are expected to be the estimated statistics in inference mode (training_mode=False, default),\nand the running statistics in training mode (traning_mode=True).\nThere is one required output 'Y' and four optional outputs : 'output_mean', 'output_var', 'saved_mean', 'saved_var' used for training.\n\nThe output and statistics are updated as follows when training_mode=True:\n```\nsaved_mean = ReducedMean(X, axis=all_except_channel_index)\nsaved_var =  ReducedVar(X, axis=all_except_channel_index)\n\noutput_mean = mean * momentum + saved_mean * (1 - momentum)\noutput_var = var * momentum + saved_var * (1 - momentum)\n\nY = (X - saved_mean) / sqrt(var + saved_epsilon) * scale + B\n```\n\nWhen training_mode=False:\n```\nsaved_mean = ReducedMean(X, axis=all_except_channel_index)\nsaved_var =  ReducedVar(X, axis=all_except_channel_index)\n\noutput_mean = mean\noutput_var = var\n\nY = (X - mean) / sqrt(var + epsilon) * scale + B\n```\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C*D1*D2 ..*Dn) before a BatchNormalization operator.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -2377,6 +2381,7 @@
           "type": "T1"
         }
       ],
+      "inputs_range": "5 - 6",
       "max_input": 6,
       "max_output": 5,
       "min_input": 5,
@@ -2412,6 +2417,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 5",
       "since_version": 12,
       "support_level": "common",
       "type_constraints": [
@@ -2492,7 +2498,7 @@
           "type": "string"
         }
       ],
-      "description": "Bitwise shift operator performs element-wise operation. For each input element, if the\n attribute \"direction\" is \"RIGHT\", this operator moves its binary representation toward\n the right side so that the input value is effectively decreased. If the attribute \"direction\"\n is \"LEFT\", bits of binary representation moves toward the left side, which results the\n increase of its actual value. The input X is the tensor to be shifted and another input\n Y specifies the amounts of shifting. For example, if \"direction\" is \"Right\", X is [1, 4],\n and S is [1, 1], the corresponding output Z would be [0, 2]. If \"direction\" is \"LEFT\" with\n X=[1, 2] and S=[1, 2], the corresponding output Y would be [2, 8].\n \n Because this operator supports Numpy-style broadcasting, X's and Y's shapes are\n not necessarily identical.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).",
+      "description": "Bitwise shift operator performs element-wise operation. For each input element, if the\n attribute \"direction\" is \"RIGHT\", this operator moves its binary representation toward\n the right side so that the input value is effectively decreased. If the attribute \"direction\"\n is \"LEFT\", bits of binary representation moves toward the left side, which results the\n increase of its actual value. The input X is the tensor to be shifted and another input\n Y specifies the amounts of shifting. For example, if \"direction\" is \"Right\", X is [1, 4],\n and S is [1, 1], the corresponding output Z would be [0, 2]. If \"direction\" is \"LEFT\" with\n X=[1, 2] and S=[1, 2], the corresponding output Y would be [2, 8].\n \n Because this operator supports Numpy-style broadcasting, X's and Y's shapes are\n not necessarily identical.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -3060,7 +3066,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Celu',\n    inputs=['X'],\n    outputs=['Y']\n)\n\ninput_data = np.array([[[[0.8439683], [0.5665144], [0.05836735]],\n    [[0.02916367], [0.12964272], [0.5060197]],\n    [[0.79538304], [0.9411346], [0.9546573]]],\n    [[[0.17730942], [0.46192095], [0.26480448]],\n    [[0.6746842], [0.01665257], [0.62473077]],\n    [[0.9240844], [0.9722341], [0.11965699]]],\n    [[[0.41356155], [0.9129373], [0.59330076]],\n    [[0.81929934], [0.7862604], [0.11799799]],\n    [[0.69248444], [0.54119414], [0.07513223]]]], dtype=np.float32)\n\nalpha = 2\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_celu')",
+          "code": "alpha = 2.0\nnode = onnx.helper.make_node(\n    'Celu',\n    inputs=['X'],\n    outputs=['Y'],\n    alpha=alpha,\n)\n\ninput_data = np.array([[[[0.8439683], [0.5665144], [0.05836735]],\n    [[0.02916367], [0.12964272], [0.5060197]],\n    [[0.79538304], [0.9411346], [0.9546573]]],\n    [[[0.17730942], [0.46192095], [0.26480448]],\n    [[0.6746842], [0.01665257], [0.62473077]],\n    [[0.9240844], [0.9722341], [0.11965699]]],\n    [[[0.41356155], [0.9129373], [0.59330076]],\n    [[0.81929934], [0.7862604], [0.11799799]],\n    [[0.69248444], [0.54119414], [0.07513223]]]], dtype=np.float32)\n\n# Calculate expected output data\npositive_input = np.maximum(0, input_data)\nnegative_input = np.minimum(0, alpha * (np.exp(input_data / alpha) - 1))\nexpected_output = positive_input + negative_input\n\nexpect(node, inputs=[input_data], outputs=[expected_output],\n       name='test_celu')",
           "summary": "celu"
         }
       ],
@@ -3263,6 +3269,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 1,
@@ -3493,6 +3500,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -3547,6 +3555,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -3613,6 +3622,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -4152,6 +4162,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -4252,6 +4263,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -4353,6 +4365,7 @@
           "type": "T2"
         }
       ],
+      "inputs_range": "2 - 4",
       "max_input": 4,
       "max_output": 1,
       "min_input": 2,
@@ -4495,6 +4508,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -4623,6 +4637,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -5007,6 +5022,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -5293,7 +5309,7 @@
   {
     "name": "Div",
     "schema": {
-      "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5416,6 +5432,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -5494,6 +5511,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 6,
       "support_level": "common",
       "type_constraints": [
@@ -5522,7 +5540,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes one input data (Tensor<float>) and produces two Tensor outputs,\noutput (Tensor<float>) and mask (Tensor<bool>). Depending on whether it is in\ntest mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5566,6 +5584,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 7,
       "support_level": "common",
       "type_constraints": [
@@ -5594,7 +5613,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes one input floating tensor and produces two tensor outputs,\noutput (floating tensor) and mask (`Tensor<bool>`). Depending on whether it is\nin test mode or not, the output Y will either be a random dropout, or a simple\ncopy of the input. Note that our implementation of Dropout does scaling in\nthe training phase, so during testing nothing needs to be done.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5638,6 +5657,7 @@
           "type": "T1"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 10,
       "support_level": "common",
       "type_constraints": [
@@ -5672,7 +5692,7 @@
         }
       ],
       "category": "Dropout",
-      "description": "Dropout takes an input floating-point tensor and an input ratio (floating-point scalar), and produces two tensor outputs,\noutput (floating-point tensor) and mask (`Tensor<bool>`). The output Y will be a random dropout;\nNote that this Dropout scales the masked input data by the following equation, so to convert the trained model into inference mode,\nthe user can simply replace this Dropout with an Identity operator.\n```\noutput = scale * data * mask,\n```\nwhere\n```\nscale = 1. / (1. - ratio).\n```\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Dropout takes an input floating-point tensor and an input ratio (floating-point scalar), and produces two tensor outputs,\noutput (floating-point tensor) and mask (`Tensor<bool>`). The output Y will be a random dropout;\nNote that this Dropout scales the masked input data by the following equation, so to convert the trained model into inference mode,\nthe user can simply replace this Dropout with an Identity operator.\n```\noutput = scale * data * mask,\n```\nwhere\n```\nscale = 1. / (1. - ratio).\n```\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -5705,6 +5725,7 @@
           "type": "T1"
         }
       ],
+      "inputs_range": "1 - 2",
       "max_input": 2,
       "max_output": 2,
       "min_input": 1,
@@ -5722,6 +5743,7 @@
           "type": "T2"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 12,
       "support_level": "common",
       "type_constraints": [
@@ -5855,6 +5877,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -6090,7 +6113,7 @@
     "name": "Equal",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -6151,7 +6174,7 @@
     "name": "Equal",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `equal` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -6544,6 +6567,7 @@
           "type": "T1"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -6977,6 +7001,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 6",
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
@@ -7122,6 +7147,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 6",
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
@@ -7140,6 +7166,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 2",
       "since_version": 3,
       "support_level": "common",
       "type_constraints": [
@@ -7211,7 +7238,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*(Rz^T) + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*(Rr^T) + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*(Rh^T) + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*(Rh^T) + Rbh)) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*(Rz^T) + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*(Rr^T) + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*(Rh^T) + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*(Rh^T) + Rbh)) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7262,6 +7289,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 6",
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
@@ -7280,6 +7308,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 2",
       "since_version": 7,
       "support_level": "common",
       "type_constraints": [
@@ -7995,7 +8024,7 @@
         }
       ],
       "category": "Layer",
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](Broadcasting.md).",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8118,7 +8147,7 @@
         }
       ],
       "category": "Layer",
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](Broadcasting.md).",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8245,7 +8274,7 @@
         }
       ],
       "category": "Layer",
-      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](Broadcasting.md).\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "General Matrix multiplication:\nhttps://en.wikipedia.org/wiki/Basic_Linear_Algebra_Subprograms#Level_3\n\nA' = transpose(A) if transA else A\n\nB' = transpose(B) if transB else B\n\nCompute Y = alpha * A' * B' + beta * C, where input tensor A has shape (M, K) or (K, M),\ninput tensor B has shape (K, N) or (N, K), input tensor C is broadcastable to shape (M, N),\nand output tensor Y has shape (M, N). A will be transposed before doing the\ncomputation if attribute transA is non-zero, same for B and transB.\nThis operator supports **unidirectional broadcasting** (tensor C should be unidirectional broadcastable to tensor A * B); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8311,6 +8340,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -8578,6 +8608,7 @@
           "type": "T1"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 1,
@@ -8590,6 +8621,7 @@
           "type": "T2"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -8647,6 +8679,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 1,
@@ -8659,6 +8692,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -8765,7 +8799,7 @@
     "name": "Greater",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -8826,7 +8860,7 @@
     "name": "Greater",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `greater` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -9235,6 +9269,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -9307,6 +9342,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -9917,6 +9953,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 8",
       "max_input": 8,
       "max_output": 3,
       "min_input": 3,
@@ -9941,6 +9978,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 3",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -10012,7 +10050,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh, h=Tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*(Rf^T) + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*(Rc^T) + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*(Ro^T) + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh, h=Tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*(Rf^T) + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*(Rc^T) + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*(Ro^T) + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10075,6 +10113,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 8",
       "max_input": 8,
       "max_output": 3,
       "min_input": 3,
@@ -10099,6 +10138,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 3",
       "since_version": 7,
       "support_level": "common",
       "type_constraints": [
@@ -10494,7 +10534,7 @@
     "name": "Less",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -10555,7 +10595,7 @@
     "name": "Less",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `less` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -11023,6 +11063,7 @@
           "type": "V"
         }
       ],
+      "inputs_range": "3 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 3,
@@ -11035,6 +11076,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -11109,6 +11151,7 @@
           "type": "V"
         }
       ],
+      "inputs_range": "2 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 2,
@@ -11121,6 +11164,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -11573,6 +11617,7 @@
           "type": "T2"
         }
       ],
+      "inputs_range": "2 - 4",
       "max_input": 4,
       "max_output": 1,
       "min_input": 2,
@@ -11630,6 +11675,10 @@
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
           "summary": "max"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([3, 4, 4]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_max_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "max_all_numeric_types"
         }
       ],
       "inputs": [
@@ -11640,6 +11689,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -11675,6 +11725,10 @@
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
           "summary": "max"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([3, 4, 4]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_max_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "max_all_numeric_types"
         }
       ],
       "inputs": [
@@ -11685,6 +11739,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -11714,12 +11769,16 @@
   {
     "name": "Max",
     "schema": {
-      "description": "Element-wise max of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Element-wise max of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
           "summary": "max"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([3, 4, 4]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_max_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "max_all_numeric_types"
         }
       ],
       "inputs": [
@@ -11730,6 +11789,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -11751,6 +11811,64 @@
             "tensor(double)"
           ],
           "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Max",
+    "schema": {
+      "description": "Element-wise max of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 3]).astype(np.float32)\nresult = np.array([3, 5, 4]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_max_example')\n\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_max_one_input')\n\nresult = np.maximum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Max',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_max_two_inputs')",
+          "summary": "max"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([3, 4, 4]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_max_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "max_all_numeric_types"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for max.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "1 - &#8734;",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "max",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to numeric tensors.",
           "type_param_str": "T"
         }
       ]
@@ -12009,6 +12127,7 @@
           "type": "I"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 8,
       "support_level": "common",
       "type_constraints": [
@@ -12168,6 +12287,7 @@
           "type": "I"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 10,
       "support_level": "common",
       "type_constraints": [
@@ -12327,6 +12447,7 @@
           "type": "I"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -12486,6 +12607,7 @@
           "type": "I"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 12,
       "support_level": "common",
       "type_constraints": [
@@ -12622,6 +12744,7 @@
           "type": "T2"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -12708,6 +12831,7 @@
           "type": "T2"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -12768,6 +12892,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -12813,6 +12938,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -12842,7 +12968,7 @@
   {
     "name": "Mean",
     "schema": {
-      "description": "Element-wise mean of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Element-wise mean of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -12858,6 +12984,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -12942,6 +13069,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -13037,6 +13165,10 @@
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
           "summary": "min"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "min_all_numeric_types"
         }
       ],
       "inputs": [
@@ -13047,6 +13179,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -13082,6 +13215,10 @@
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
           "summary": "min"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "min_all_numeric_types"
         }
       ],
       "inputs": [
@@ -13092,6 +13229,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -13121,12 +13259,16 @@
   {
     "name": "Min",
     "schema": {
-      "description": "Element-wise min of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Element-wise min of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
           "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
           "summary": "min"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "min_all_numeric_types"
         }
       ],
       "inputs": [
@@ -13137,6 +13279,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -13164,6 +13307,64 @@
     }
   },
   {
+    "name": "Min",
+    "schema": {
+      "description": "Element-wise min of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "data_0 = np.array([3, 2, 1]).astype(np.float32)\ndata_1 = np.array([1, 4, 4]).astype(np.float32)\ndata_2 = np.array([2, 5, 0]).astype(np.float32)\nresult = np.array([1, 2, 0]).astype(np.float32)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1', 'data_2'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1, data_2], outputs=[result],\n       name='test_min_example')\n\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0], outputs=[data_0],\n       name='test_min_one_input')\n\nresult = np.minimum(data_0, data_1)\nnode = onnx.helper.make_node(\n    'Min',\n    inputs=['data_0', 'data_1'],\n    outputs=['result'],\n)\nexpect(node, inputs=[data_0, data_1], outputs=[result],\n       name='test_min_two_inputs')",
+          "summary": "min"
+        },
+        {
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "summary": "min_all_numeric_types"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "List of tensors for min.",
+          "name": "data_0",
+          "option": "variadic",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "1 - &#8734;",
+      "max_input": 2147483647,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor.",
+          "name": "min",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Mod",
     "schema": {
       "attributes": [
@@ -13174,7 +13375,7 @@
           "type": "int64"
         }
       ],
-      "description": "Performs element-wise binary modulus (with Numpy-style broadcasting support). \n    The sign of the remainder is the same as that of the Divisor.\n  \n    Mod operator can also behave like C fmod() or numpy.fmod. In this case, the sign of the remainder however, will be the same as the Dividend \n    (in contrast to integer mod). To force a behavior like numpy.fmod() an 'fmod' Attribute is provided.\n    This attribute is set to 0 by default causing the behavior to be like integer mod. \n    Setting this attribute to 1 causes the remainder to be calculated similar to that of numpy.fmod().\n\n    If the input type is floating point, then `fmod` attribute must be set to 1.\n  \n    In case of dividend being zero, the results will be platform dependent.\n\n  This operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Performs element-wise binary modulus (with Numpy-style broadcasting support). \n    The sign of the remainder is the same as that of the Divisor.\n  \n    Mod operator can also behave like C fmod() or numpy.fmod. In this case, the sign of the remainder however, will be the same as the Dividend \n    (in contrast to integer mod). To force a behavior like numpy.fmod() an 'fmod' Attribute is provided.\n    This attribute is set to 0 by default causing the behavior to be like integer mod. \n    Setting this attribute to 1 causes the remainder to be calculated similar to that of numpy.fmod().\n\n    If the input type is floating point, then `fmod` attribute must be set to 1.\n  \n    In case of dividend being zero, the results will be platform dependent.\n\n  This operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -13423,7 +13624,7 @@
   {
     "name": "Mul",
     "schema": {
-      "description": "Performs element-wise binary multiplication (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Performs element-wise binary multiplication (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -13707,6 +13908,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -13822,6 +14024,7 @@
           "type": "tensor(float)"
         }
       ],
+      "inputs_range": "2 - 5",
       "max_input": 5,
       "max_output": 1,
       "min_input": 2,
@@ -13918,6 +14121,7 @@
           "type": "tensor(float)"
         }
       ],
+      "inputs_range": "2 - 5",
       "max_input": 5,
       "max_output": 1,
       "min_input": 2,
@@ -14460,7 +14664,7 @@
     "name": "Or",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `or` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `or` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -14635,7 +14839,7 @@
     "name": "PRelu",
     "schema": {
       "category": "Activation",
-      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](Broadcasting.md).",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -14689,7 +14893,7 @@
     "name": "PRelu",
     "schema": {
       "category": "Activation",
-      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](Broadcasting.md).",
+      "description": "PRelu takes input data (Tensor<T>) and slope tensor as input, and produces one\noutput data (Tensor<T>) where the function `f(x) = slope * x for x < 0`,\n`f(x) = x for x >= 0`., is applied to the data tensor elementwise.\nThis operator supports **unidirectional broadcasting** (tensor slope should be unidirectional broadcastable to input tensor X); for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -14926,6 +15130,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -15030,7 +15235,7 @@
   {
     "name": "Pow",
     "schema": {
-      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).",
+      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -15179,6 +15384,7 @@
           "type": "T4"
         }
       ],
+      "inputs_range": "8 - 9",
       "max_input": 9,
       "max_output": 1,
       "min_input": 8,
@@ -15350,6 +15556,7 @@
           "type": "T2"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -15483,6 +15690,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 6",
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
@@ -15501,6 +15709,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 2",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -15566,7 +15775,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Wbi + Rbi)\nThis operator has **optional** inputs/outputs. See [the doc](IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Wbi + Rbi)\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -15617,6 +15826,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "3 - 6",
       "max_input": 6,
       "max_output": 2,
       "min_input": 3,
@@ -15635,6 +15845,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "0 - 2",
       "since_version": 7,
       "support_level": "common",
       "type_constraints": [
@@ -18310,6 +18521,7 @@
           "type": "tensor(int64)"
         }
       ],
+      "inputs_range": "3 - 4",
       "max_input": 4,
       "max_output": 1,
       "min_input": 3,
@@ -18893,6 +19105,7 @@
           "type": "V"
         }
       ],
+      "inputs_range": "2 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 2,
@@ -18905,6 +19118,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 8,
       "support_level": "common",
       "type_constraints": [
@@ -19000,6 +19214,7 @@
           "type": "V"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 1,
@@ -19012,6 +19227,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 9,
       "support_level": "common",
       "type_constraints": [
@@ -19107,6 +19323,7 @@
           "type": "V"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 2147483647,
       "min_input": 1,
@@ -19119,6 +19336,7 @@
           "type": "V"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -19714,6 +19932,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -19842,6 +20061,7 @@
           "type": "I"
         }
       ],
+      "inputs_range": "1 - 2",
       "max_input": 2,
       "max_output": 1,
       "min_input": 1,
@@ -19911,6 +20131,7 @@
           "type": "I"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 1,
       "min_input": 2,
@@ -20644,6 +20865,7 @@
           "type": "Tind"
         }
       ],
+      "inputs_range": "3 - 5",
       "max_input": 5,
       "max_output": 1,
       "min_input": 3,
@@ -20759,6 +20981,7 @@
           "type": "Tind"
         }
       ],
+      "inputs_range": "3 - 5",
       "max_input": 5,
       "max_output": 1,
       "min_input": 3,
@@ -20979,6 +21202,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "2 - 3",
       "max_input": 3,
       "max_output": 2,
       "min_input": 2,
@@ -20996,6 +21220,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - 2",
       "since_version": 12,
       "support_level": "common",
       "type_constraints": [
@@ -21210,6 +21435,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - 2",
       "max_input": 2,
       "max_output": 2147483647,
       "min_input": 1,
@@ -21222,6 +21448,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 1,
       "support_level": "common",
       "type_constraints": [
@@ -21294,6 +21521,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 2,
       "support_level": "common",
       "type_constraints": [
@@ -21378,6 +21606,7 @@
           "type": "T"
         }
       ],
+      "outputs_range": "1 - &#8734;",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -21438,6 +21667,7 @@
           "type": "I"
         }
       ],
+      "inputs_range": "1 - 2",
       "max_input": 2,
       "max_output": 1,
       "min_input": 1,
@@ -21966,7 +22196,7 @@
   {
     "name": "Sub",
     "schema": {
-      "description": "Performs element-wise binary subtraction (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Performs element-wise binary subtraction (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -22047,6 +22277,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -22092,6 +22323,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -22121,7 +22353,7 @@
   {
     "name": "Sum",
     "schema": {
-      "description": "Element-wise sum of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Element-wise sum of each of the input tensors (with Numpy-style broadcasting support).\nAll inputs and outputs must have the same data type.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -22137,6 +22369,7 @@
           "type": "T"
         }
       ],
+      "inputs_range": "1 - &#8734;",
       "max_input": 2147483647,
       "max_output": 1,
       "min_input": 1,
@@ -23339,6 +23572,7 @@
           "type": "tensor(int64)"
         }
       ],
+      "outputs_range": "1 - 4",
       "since_version": 11,
       "support_level": "common",
       "type_constraints": [
@@ -23965,7 +24199,7 @@
     "name": "Xor",
     "schema": {
       "category": "Logic",
-      "description": "Returns the tensor resulted from performing the `xor` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](Broadcasting.md).\n",
+      "description": "Returns the tensor resulted from performing the `xor` logical operation\nelementwise on the input tensors `A` and `B` (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n",
       "domain": "ai.onnx",
       "examples": [
         {

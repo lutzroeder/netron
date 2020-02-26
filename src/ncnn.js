@@ -473,13 +473,8 @@ ncnn.Node = class {
         return this._name;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._operator);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get attributes() {
@@ -730,6 +725,7 @@ ncnn.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                         if (Object.prototype.hasOwnProperty.call(item.schema, 'operator')) {
                             this._operatorMap[item.schema.operator.toString()] = item.name;

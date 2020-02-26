@@ -6,7 +6,6 @@
 var bigdl = bigdl || {};
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
-var marked = marked || require('marked');
 
 bigdl.ModelFactory = class {
 
@@ -239,13 +238,8 @@ bigdl.Node = class {
         return this._type;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._type);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this._type);
     }
 
     get name() {
@@ -455,6 +449,7 @@ bigdl.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                     }
                 }

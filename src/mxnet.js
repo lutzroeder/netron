@@ -2,7 +2,6 @@
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var mxnet = mxnet || {};
-var marked = marked || require('marked');
 var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var ndarray = ndarray || {};
@@ -748,43 +747,8 @@ mxnet.Node = class {
         return this._operator;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._operator); 
-        return schema && schema.category ? schema.category : '';
-    }
-
-    get documentation() {
-        let schema = this._metadata.type(this._operator); 
-        if (schema) {
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this._operator;
-            if (schema.description) {
-                schema.description = marked(schema.description);
-            }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description);
-                    }
-                }
-            }
-            if (schema.inputs) {
-                for (const input of schema.inputs) {
-                    if (input.description) {
-                        input.description = marked(input.description);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (const output of schema.outputs) {
-                    if (output.description) {
-                        output.description = marked(output.description);
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator); 
     }
 
     get name() {
@@ -1118,6 +1082,7 @@ mxnet.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                     }
                 }

@@ -487,64 +487,12 @@ onnx.Node = class {
         return this._description;
     }
 
-    get documentation() {
-        let schema = this._metadata.type(this._operator);
-        if (schema) {
-            const options = { baseUrl: 'https://github.com/onnx/onnx/blob/master/docs/' };
-            schema = JSON.parse(JSON.stringify(schema));
-            schema.name = this._operator;
-            if (schema.description) {
-                schema.description = marked(schema.description, options);
-            }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
-                    if (attribute.description) {
-                        attribute.description = marked(attribute.description, options);
-                    }
-                }
-            }
-            if (schema.inputs) {
-                for (const input of schema.inputs) {
-                    if (input.description) {
-                        input.description = marked(input.description, options);
-                    }
-                }
-            }
-            if (schema.outputs) {
-                for (const output of schema.outputs) {
-                    if (output.description) {
-                        output.description = marked(output.description, options);
-                    }
-                }
-            }
-            let formatRange = (value) => {
-                return (value == 2147483647) ? '&#8734;' : value.toString();
-            };
-            if (schema.min_input != schema.max_input) {
-                schema.inputs_range = formatRange(schema.min_input) + ' - ' + formatRange(schema.max_input);
-            }
-            if (schema.min_output != schema.max_output) {
-                schema.outputs_range = formatRange(schema.min_output) + ' - ' + formatRange(schema.max_output);
-            }
-            if (schema.type_constraints) {
-                for (const type_constraint of schema.type_constraints) {
-                    if (type_constraint.allowed_type_strs) {
-                        type_constraint.allowed_type_strs_display = type_constraint.allowed_type_strs.map((type) => { return type; }).join(', ');
-                    }
-                }
-            }
-            return schema;
-        }
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get domain() {
         return this._domain;
-    }
-
-    get category() {
-        const schema = this._metadata.type(this._operator);
-        return (schema && schema.category) ? schema.category : '';
     }
 
     get group() {
@@ -1193,11 +1141,12 @@ onnx.Metadata = class {
     constructor(data) {
         this._map = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
-                        let name = item.name;
+                        const name = item.name;
+                        item.schema.name = name;
                         this._map[name] = this._map[name] || [];
                         this._map[name].push(item.schema);
                     }

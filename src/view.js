@@ -426,7 +426,8 @@ view.View = class {
 
                         let header =  element.block('header');
                         let styles = [ 'node-item-operator' ];
-                        const category = node.category;
+                        const metadata = node.metadata;
+                        const category = metadata && metadata.category ? metadata.category : '';
                         if (category) {
                             styles.push('node-item-operator-' + category.toLowerCase());
                         }
@@ -936,9 +937,9 @@ view.View = class {
     }
 
     showOperatorDocumentation(node) {
-        let documentation = node.documentation;
-        if (documentation) {
-            const documentationSidebar = new sidebar.OperatorDocumentationSidebar(documentation);
+        let metadata = node.metadata;
+        if (metadata) {
+            const documentationSidebar = new sidebar.DocumentationSidebar(metadata);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
