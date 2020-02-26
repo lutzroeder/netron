@@ -8725,7 +8725,7 @@
           "option": "optional"
         },
         {
-          "description": "An error log is triggered when ratio of empty ranges exceeds this.",
+          "description": "An error is raised when ratio of empty ranges exceeds this (default is 1, which means by default no error will be triggered).",
           "name": "max_empty_ratio",
           "option": "optional"
         },
