@@ -3111,6 +3111,13 @@
   },
   {
     "type":   "onnx",
+    "target": "netron_issue_119.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/4260629/netron_issue_119.zip[netron_issue_119.onnx]",
+    "format": "ONNX v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/119"
+  },
+  {
+    "type":   "onnx",
     "target": "netron_issue168_onnx_if.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/3239859/netron_issue168_onnx.zip[netron_issue168_onnx_if.pbtxt]",
     "format": "ONNX v3",

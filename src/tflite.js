@@ -535,7 +535,6 @@ tflite.Tensor = class {
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
 
         if (this._type.dataType == 'string') {
-            const utf8Decoder = new TextDecoder('utf-8');
             let offset = 0;
             const count = context.data.getInt32(0, true);
             offset += 4;
@@ -546,14 +545,10 @@ tflite.Tensor = class {
             }
             offsetTable.push(this._data.length);
             let stringTable = [];
+            const utf8Decoder = new TextDecoder('utf-8');
             for (let k = 0; k < count; k++) {
                 const textArray = this._data.subarray(offsetTable[k], offsetTable[k + 1]);
-                if (utf8Decoder) {
-                    stringTable.push(utf8Decoder.decode(textArray));
-                }
-                else {
-                    stringTable.push(String.fromCharCode.apply(null, textArray));
-                }
+                stringTable.push(utf8Decoder.decode(textArray));
             }
             context.data = stringTable;
         }

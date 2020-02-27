@@ -470,7 +470,7 @@ onnx.Node = class {
             for (const attribute of attributes) {
                 this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.operator, attribute));
             }
-        }            
+        }
         this._inputs = inputs;
         this._outputs = outputs;
     }
@@ -527,26 +527,14 @@ onnx.Attribute = class {
             this._value = attribute.floats;
         }
         else if (attribute.strings && attribute.strings.length > 0) {
-            this._value = attribute.strings.map((s) => {
-                if (s.filter(c => c <= 32 && c >= 128).length == 0) {
-                    return String.fromCharCode.apply(null, s);
-                }
-                else {
-                    return s.map(v => v.toString()).join(', ');
-                }
-            });
+            this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
         }
         else if (attribute.graphs && attribute.graphs.length > 0) {
             this._value = attribute.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
             this._type = 'graph[]';
         }
         else if (attribute.s && attribute.s.length > 0) {
-            if (attribute.s.filter(c => c <= 32 && c >= 128).length == 0) {
-                this._value = String.fromCharCode.apply(null, attribute.s);
-            }
-            else {
-                this._value = attribute.s;
-            }
+            this._value = onnx.Utility.decodeText(attribute.s);
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
             this._value = attribute.f;
@@ -1173,6 +1161,17 @@ onnx.Metadata = class {
         return result;
     }
 };
+
+onnx.Utility = class {
+
+    static decodeText(value) {
+        if (!value.some(c => c <= 32 || c >= 128)) {
+            onnx.Utility._asciiDecoder = onnx.Utility._asciiDecoder || new TextDecoder('ascii');
+            return onnx.Utility._asciiDecoder.decode(value)
+        }
+        return [...value];
+    }
+}
 
 onnx.Error = class extends Error {
     constructor(message) {
