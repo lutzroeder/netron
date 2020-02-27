@@ -2164,10 +2164,35 @@ MNN.Convolution2DCommon.prototype.relu6 = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+MNN.Convolution2DCommon.prototype.pads = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Convolution2DCommon.prototype.padsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+MNN.Convolution2DCommon.prototype.padsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Convolution2DCommon.startConvolution2DCommon = function(builder) {
-  builder.startObject(14);
+  builder.startObject(15);
 };
 
 /**
@@ -2284,6 +2309,35 @@ MNN.Convolution2DCommon.addRelu6 = function(builder, relu6) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} padsOffset
+ */
+MNN.Convolution2DCommon.addPads = function(builder, padsOffset) {
+  builder.addFieldOffset(14, padsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.Convolution2DCommon.createPadsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.Convolution2DCommon.startPadsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.Convolution2DCommon.endConvolution2DCommon = function(builder) {
@@ -2307,9 +2361,10 @@ MNN.Convolution2DCommon.endConvolution2DCommon = function(builder) {
  * @param {number} inputCount
  * @param {boolean} relu
  * @param {boolean} relu6
+ * @param {flatbuffers.Offset} padsOffset
  * @returns {flatbuffers.Offset}
  */
-MNN.Convolution2DCommon.createConvolution2DCommon = function(builder, padX, padY, kernelX, kernelY, strideX, strideY, dilateX, dilateY, padMode, group, outputCount, inputCount, relu, relu6) {
+MNN.Convolution2DCommon.createConvolution2DCommon = function(builder, padX, padY, kernelX, kernelY, strideX, strideY, dilateX, dilateY, padMode, group, outputCount, inputCount, relu, relu6, padsOffset) {
   MNN.Convolution2DCommon.startConvolution2DCommon(builder);
   MNN.Convolution2DCommon.addPadX(builder, padX);
   MNN.Convolution2DCommon.addPadY(builder, padY);
@@ -2325,6 +2380,7 @@ MNN.Convolution2DCommon.createConvolution2DCommon = function(builder, padX, padY
   MNN.Convolution2DCommon.addInputCount(builder, inputCount);
   MNN.Convolution2DCommon.addRelu(builder, relu);
   MNN.Convolution2DCommon.addRelu6(builder, relu6);
+  MNN.Convolution2DCommon.addPads(builder, padsOffset);
   return MNN.Convolution2DCommon.endConvolution2DCommon(builder);
 }
 
@@ -4145,10 +4201,35 @@ MNN.Pool.prototype.ceilModel = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+MNN.Pool.prototype.pads = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.readInt32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Pool.prototype.padsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Int32Array}
+ */
+MNN.Pool.prototype.padsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? new Int32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Pool.startPool = function(builder) {
-  builder.startObject(11);
+  builder.startObject(12);
 };
 
 /**
@@ -4241,6 +4322,35 @@ MNN.Pool.addCeilModel = function(builder, ceilModel) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} padsOffset
+ */
+MNN.Pool.addPads = function(builder, padsOffset) {
+  builder.addFieldOffset(11, padsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+MNN.Pool.createPadsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+MNN.Pool.startPadsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.Pool.endPool = function(builder) {
@@ -4261,9 +4371,10 @@ MNN.Pool.endPool = function(builder) {
  * @param {MNN.PoolPadType} padType
  * @param {MNN.DataType} dataType
  * @param {boolean} ceilModel
+ * @param {flatbuffers.Offset} padsOffset
  * @returns {flatbuffers.Offset}
  */
-MNN.Pool.createPool = function(builder, padX, padY, isGlobal, kernelX, kernelY, strideX, strideY, type, padType, dataType, ceilModel) {
+MNN.Pool.createPool = function(builder, padX, padY, isGlobal, kernelX, kernelY, strideX, strideY, type, padType, dataType, ceilModel, padsOffset) {
   MNN.Pool.startPool(builder);
   MNN.Pool.addPadX(builder, padX);
   MNN.Pool.addPadY(builder, padY);
@@ -4276,6 +4387,7 @@ MNN.Pool.createPool = function(builder, padX, padY, isGlobal, kernelX, kernelY, 
   MNN.Pool.addPadType(builder, padType);
   MNN.Pool.addDataType(builder, dataType);
   MNN.Pool.addCeilModel(builder, ceilModel);
+  MNN.Pool.addPads(builder, padsOffset);
   return MNN.Pool.endPool(builder);
 }
 
