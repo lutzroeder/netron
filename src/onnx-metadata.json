@@ -21440,7 +21440,7 @@
           "type": "T"
         },
         {
-          "description": "The ground truth output tensor, with shape [batch_size], or [batch_size, D1, D2, ..., Dk], where K is the number of dimensions.Usualy, it's a one-hot representation of ground-truth class.",
+          "description": "The ground truth output tensor, with shape [batch_size], or [batch_size, D1, D2, ..., Dk], where K is the number of dimensions.",
           "name": "labels",
           "type": "T"
         },
