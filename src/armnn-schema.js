@@ -19,7 +19,8 @@ armnnSerializer.ActivationFunction = {
   LeakyReLu: 6,
   Abs: 7,
   Sqrt: 8,
-  Square: 9
+  Square: 9,
+  Elu: 10
 };
 
 /**
@@ -35,7 +36,8 @@ armnnSerializer.ActivationFunctionName = {
   6: 'LeakyReLu',
   7: 'Abs',
   8: 'Sqrt',
-  9: 'Square'
+  9: 'Square',
+  10: 'Elu'
 };
 
 /**
