@@ -611,14 +611,17 @@ class View {
         this._properties = new Map();
 
         const size = electron.screen.getPrimaryDisplay().workAreaSize;
-        let options = {};
-        options.title = electron.app.name; 
-        options.backgroundColor = electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6';
-        options.icon = electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png'));
-        options.minWidth = 600;
-        options.minHeight = 400;
-        options.width = size.width > 1024 ? 1024 : size.width;
-        options.height = size.height > 768 ? 768 : size.height;
+        let options = {
+            show: false,
+            title: electron.app.name,
+            backgroundColor: electron.nativeTheme.shouldUseDarkColors ? '#1d1d1d' : '#e6e6e6',
+            icon: electron.nativeImage.createFromPath(path.join(__dirname, 'icon.png')),
+            minWidth: 600,
+            minHeight: 400,
+            width: size.width > 1024 ? 1024 : size.width,
+            height: size.height > 768 ? 768 : size.height,
+            webPreferences: { nodeIntegration: true }
+        };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
             options.y = View._position[1] + 30;
@@ -629,7 +632,6 @@ class View {
                 options.y = 0;
             }
         }
-        options.webPreferences = { nodeIntegration: true };
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
         this._updateCallback = (e, data) => { 
@@ -658,6 +660,9 @@ class View {
                 electron.shell.openExternal(url);
             }
         });
+        this._window.once('ready-to-show', () => {
+            this._window.show();
+        });
         const location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
         this._window.loadURL(location);
     }
@@ -679,11 +684,7 @@ class View {
             this._window.webContents.on('dom-ready', () => {
                 this._window.webContents.send("open", { file: file });
             });
-            const location = url.format({
-                pathname: path.join(__dirname, 'electron.html'),
-                protocol: 'file:',
-                slashes: true
-            });
+            const location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
             this._window.loadURL(location);
         }
     }
@@ -699,14 +700,14 @@ class View {
 
     match(path) {
         if (this._openPath) {
-            if (path == null) {
+            if (path === null) {
                 return false;
             }
-            if (path == this._openPath) {
+            if (path === this._openPath) {
                 return true;
             }
         }
-        return (this._path == path);
+        return this._path == path;
     }
 
     execute(command, data) {
@@ -719,11 +720,8 @@ class View {
         if (name === 'path') {
             if (value) {
                 this._path = value;
-                let title = Application.minimizePath(this._path);
-                if (process.platform !== 'darwin') {
-                    title = title + ' - ' + electron.app.name;
-                }
-                this._window.setTitle(title);
+                const title = Application.minimizePath(this._path);
+                this._window.setTitle(process.platform !== 'darwin' ? title + ' - ' + electron.app.name : title);
                 this._window.focus();
             }
             this._openPath = null;
