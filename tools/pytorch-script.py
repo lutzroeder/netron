@@ -45,12 +45,10 @@ def metadata():
             fout.write('\n')
 
 def download_torchvision_model(name, input):
-    print(name)
     folder = os.path.expandvars('${test}/data/pytorch')
     if not os.path.exists(folder):
         os.makedirs(folder)
     base = folder + '/' + name.split('.')[-1]
-    print(base)
     model = pydoc.locate(name)(pretrained=True)
     import torch
     torch.save(model, base + '.pkl.pth', _use_new_zipfile_serialization=False);
