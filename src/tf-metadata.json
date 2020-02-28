@@ -33299,6 +33299,93 @@
     }
   },
   {
+    "name": "QuantizedMatMulWithBiasAndDequantize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `qint8`, `quint8`, `qint32`, `qint16`, `quint16`.",
+          "name": "T1",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `qint8`, `quint8`, `qint32`, `qint16`, `quint16`.",
+          "name": "T2",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `float32`, `qint32`.",
+          "name": "Tbias",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `float32`.",
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "default": "MIN_FIRST",
+          "description": "Must be one of the following: `MIN_FIRST`, `SCALED`.",
+          "name": "input_quant_mode",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "typeAttr": "T1"
+        },
+        {
+          "name": "b",
+          "typeAttr": "T2"
+        },
+        {
+          "name": "bias",
+          "typeAttr": "Tbias"
+        },
+        {
+          "name": "min_a",
+          "type": 1
+        },
+        {
+          "name": "max_a",
+          "type": 1
+        },
+        {
+          "name": "min_b",
+          "type": 1
+        },
+        {
+          "name": "max_b",
+          "type": 1
+        },
+        {
+          "name": "min_freezed_output",
+          "type": 1
+        },
+        {
+          "name": "max_freezed_output",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out",
+          "typeAttr": "Toutput"
+        }
+      ]
+    }
+  },
+  {
     "name": "QuantizedMatMulWithBiasAndRelu",
     "schema": {
       "attributes": [
