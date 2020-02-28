@@ -1046,6 +1046,47 @@
     }
   },
   {
+    "name": "torch.max_pool3d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.max_pool1d_with_indices",
     "schema": {
       "attributes": [
@@ -1167,6 +1208,81 @@
     }
   },
   {
+    "name": "torch.adaptive_avg_pool3d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.adaptive_max_pool2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.adaptive_max_pool3d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.avg_pool1d",
     "schema": {
       "attributes": [
@@ -1238,6 +1354,50 @@
         },
         {
           "name": "divisor_override"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.avg_pool3d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        },
+        {
+          "default": true,
+          "name": "count_include_pad",
+          "type": "boolean"
+        },
+        {
+          "name": "divisor_override",
+          "type": "int64"
         }
       ],
       "category": "Pool",
@@ -1821,7 +1981,57 @@
     }
   },
   {
+    "name": "torch.rsub:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        },
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.sub:Tensor",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.rsub:Tensor",
     "schema": {
       "attributes": [
         {
@@ -2516,6 +2726,34 @@
     }
   },
   {
+    "name": "torch.min",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim_or_y",
+          "type": "int64"
+        },
+        {
+          "name": "dim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.cat",
     "schema": {
       "attributes": [
@@ -3176,6 +3414,380 @@
         {
           "name": "pin_memory",
           "option": "optional"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.clamp",
+    "schema": {
+      "attributes": [
+        {
+          "name": "min"
+        },
+        {
+          "name": "max"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.floor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.abs_",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.leaky_relu_",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0.01,
+          "name": "negative_slope"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.instance_norm",
+    "schema": {
+      "attributes": [
+        {
+          "name": "use_input_stats",
+          "type": "boolean"
+        },
+        {
+          "name": "momentum",
+          "type": "float32"
+        },
+        {
+          "name": "eps",
+          "type": "float32"
+        },
+        {
+          "name": "cudnn_enabled",
+          "type": "boolean"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "weight",
+          "option": "optional"
+        },
+        {
+          "name": "bias",
+          "option": "optional"
+        },
+        {
+          "name": "running_mean",
+          "option": "optional"
+        },
+        {
+          "name": "running_var",
+          "option": "optional"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.reflection_pad1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.reflection_pad2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.reflection_pad3d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.rnn_relu:input",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float32"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        },
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "hx"
+        },
+        {
+          "name": "params",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.rnn_tanh:input",
+    "schema": {
+      "attributes": [
+        {
+          "name": "has_biases",
+          "type": "boolean"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float32"
+        },
+        {
+          "name": "train",
+          "type": "boolean"
+        },
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        },
+        {
+          "name": "batch_first",
+          "type": "boolean"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "hx"
+        },
+        {
+          "name": "params",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.detach",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_bilinear2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "align_corners",
+          "type": "boolean"
+        },
+        {
+          "name": "scales_h",
+          "type": "float32"
+        },
+        {
+          "name": "scales_w",
+          "type": "float32"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_nearest2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "scales_h",
+          "type": "float32"
+        },
+        {
+          "name": "scales_w",
+          "type": "float32"
+        }
+      ],
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "input"
         }
       ],
       "outputs": [
