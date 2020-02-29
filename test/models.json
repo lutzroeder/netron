@@ -2177,6 +2177,13 @@
   },
   {
     "type":   "keras",
+    "target": "netron_issue_435.h5",
+    "source": "https://github.com/lutzroeder/netron/files/4269953/netron_issue_435.zip[netron_issue_435.h5]",
+    "format": "Keras v2.2.4",
+    "link":   "https://github.com/lutzroeder/netron/issues/435"
+  },
+  {
+    "type":   "keras",
     "target": "nietzsche.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[nietzsche.h5]",
     "format": "Keras v2.1.3",

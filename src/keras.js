@@ -18,7 +18,7 @@ keras.ModelFactory = class {
             const json = context.text;
             if (json.indexOf('"mxnet_version":', 0) == -1) {
                 try {
-                    let root = JSON.parse(json);
+                    let root = keras.JsonParser.parse(json);
                     if (root && root.nodes && root.arg_nodes && root.heads) {
                         return false;
                     }
@@ -62,16 +62,17 @@ keras.ModelFactory = class {
                         if (!rootGroup.attribute('model_config') && !rootGroup.attribute('layer_names')) {
                             throw new keras.Error("File format is not Keras HDF5.");
                         }
-                        if (rootGroup.attribute('model_config')) {
-                            model_config = JSON.parse(rootGroup.attribute('model_config'));
+                        const json = rootGroup.attribute('model_config');
+                        if (json) {
+                            model_config = keras.JsonParser.parse(json);
                         }
                         backend = rootGroup.attribute('backend') || '';
                         version = rootGroup.attribute('keras_version') || '';
-                        format = format + (version ? (' v' + version) : '');
+                        format = format + (version ? ' v' + version : '');
                         break;
                     }
                     case 'json': {
-                        model_config = JSON.parse(context.text);
+                        model_config = keras.JsonParser.parse(context.text);
                         if (model_config.keras_version) {
                             version = model_config.keras_version;
                             format = format + (version ? (' v' + version) : '');
@@ -686,8 +687,8 @@ keras.Attribute = class {
             case 'dtype':
                 this._visible = false;
                 break;
-            default:
-                var schema = metadata.attribute(operator, this._name);
+            default: {
+                const schema = metadata.attribute(operator, this._name);
                 if (schema) {
                     if (schema.type) {
                         this._type = schema.type;
@@ -702,6 +703,7 @@ keras.Attribute = class {
                     }
                 }
                 break;
+            }
         }
     }
 
@@ -1067,6 +1069,214 @@ keras.Group = class {
         return this._group.value;
     }
 };
+
+keras.JsonParser = class {
+
+    static parse(text) {
+        if (text && text.indexOf('NaN') !== -1) {
+            try {
+                return JSON.parse(text);
+            }
+            catch (err) {
+                try {
+                    return new keras.JsonParser(text)._read();
+                }
+                catch (err) {
+                    // continue regardless of error
+                }
+            }
+        }
+        return JSON.parse(text);
+    }
+
+    constructor(text) {
+        this._text = text;
+        this._position = 0;
+        this._ch = ' ';
+        this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
+    }
+
+    _read() {
+        const result = this._value();
+        this._whitespace();
+        if (this._ch) {
+            this._error("Syntax error");
+        }
+        return result;
+    }
+
+    _next() {
+        return this._ch = this._text.charAt(this._position++);
+    }
+
+    _expect(text) {
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] !== this._ch) {
+                this._error("Expected '" + text[i] + "' instead of '" + this._ch + "'");
+            }
+            this._ch = this._text.charAt(this._position++);
+        }
+    }
+
+    _whitespace() {
+        while (this._ch && this._ch <= ' ') {
+            this._next();
+        }
+    }
+
+    _number() {
+        let value = '';
+        if (this._ch === '-') {
+            value = '-';
+            this._expect('-');
+        }
+        if (this._ch === 'I') {
+            this._expect('Infinity');
+            return -Infinity;
+        }
+        while (this._ch >= '0' && this._ch <= '9') {
+            value += this._ch;
+            this._next();
+        }
+        if (this._ch === '.') {
+            value += '.';
+            while (this._next() && this._ch >= '0' && this._ch <= '9') {
+                value += this._ch;
+            }
+        }
+        if (this._ch === 'e' || this._ch === 'E') {
+            value += this._ch;
+            this._next();
+            if (this._ch === '-' || this._ch === '+') {
+                value += this._ch;
+                this._next();
+            }
+            while (this._ch >= '0' && this._ch <= '9') {
+                value += this._ch;
+                this._next();
+            }
+        }
+        return +value;
+    }
+
+    _string() {
+        let hex;
+        let i;
+        let value = '';
+        let uffff;
+        if (this._ch === '"') {
+            while (this._next()) {
+                if (this._ch === '"') {
+                    this._next();
+                    return value;
+                }
+                if (this._ch === '\\') {
+                    this._next();
+                    if (this._ch === 'u') {
+                        uffff = 0;
+                        for (i = 0; i < 4; i ++) {
+                            hex = parseInt(this._next(), 16);
+                            if (!isFinite(hex)) {
+                                break;
+                            }
+                            uffff = uffff * 16 + hex;
+                        }
+                        value += String.fromCharCode(uffff);
+                    }
+                    else if (this._escape[this._ch]) {
+                        value += this._escape[this._ch];
+                    }
+                    else {
+                        break;
+                    }
+                }
+                else {
+                    value += this._ch;
+                }
+            }
+        }
+        this._error("Invalid string");
+    }
+
+    _literal() {
+        switch (this._ch) {
+            case 't': this._expect('true'); return true;
+            case 'f': this._expect('false'); return false;
+            case 'n': this._expect('null'); return null;
+            case 'N': this._expect('NaN'); return NaN;
+            case 'I': this._expect('Infinity'); return Infinity;
+        }
+        this._error("Unexpected '" + this._ch + "'");
+    }
+
+    _array() {
+        let arr = [];
+        if (this._ch === '[') {
+            this._expect('[');
+            this._whitespace();
+            if (this._ch === ']') {
+                this._expect(']');
+                return arr;
+            }
+            while (this._ch) {
+                arr.push(this._value());
+                this._whitespace();
+                if (this._ch === ']') {
+                    this._expect(']');
+                    return arr;
+                }
+                this._expect(',');
+                this._whitespace();
+            }
+        }
+        this._error("Invalid array");
+    }
+
+    _object() {
+        let key;
+        let obj = {};
+        if (this._ch === '{') {
+            this._expect('{');
+            this._whitespace();
+            if (this._ch === '}') {
+                this._expect('}');
+                return obj;   // empty object
+            }
+            while (this._ch) {
+                key = this._string();
+                this._whitespace();
+                this._expect(':');
+                if (Object.hasOwnProperty.call(obj, key)) {
+                    this._error('Duplicate key "' + key + '"');
+                }
+                obj[key] = this._value();
+                this._whitespace();
+                if (this._ch === '}') {
+                    this._expect('}');
+                    return obj;
+                }
+                this._expect(',');
+                this._whitespace();
+            }
+        }
+        this._error("Invalid object");
+    }
+
+    _value() {
+        this._whitespace();
+        switch (this._ch) {
+            case '{': return this._object();
+            case '[': return this._array();
+            case '"': return this._string();
+            case '-': return this._number();
+            default:  return this._ch >= '0' && this._ch <= '9' ? this._number() : this._literal();
+        }
+    }
+
+    _error(message) {
+        throw new Error(message + ' at ' + this._position + '.');
+    }
+}
 
 keras.Error = class extends Error {
 
