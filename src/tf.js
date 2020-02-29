@@ -1454,6 +1454,9 @@ tf.TensorBundle = class {
                         let tensor = new tf.proto.TensorProto();
                         tensor.dtype = entry.dtype;
                         tensor.tensor_shape = entry.shape;
+                        if (!(entry.offset instanceof long.Long)) {
+                            throw new tf.Error("Invalid bundle entry '" + JSON.stringify(entry.offset) + "-" + JSON.stringify(entry.size) + "'.");
+                        }
                         const offset = entry.offset.toNumber();
                         const size = entry.size.toNumber();
                         if (shards) {
