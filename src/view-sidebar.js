@@ -3,7 +3,6 @@
 
 var sidebar = sidebar || {};
 var long = long || { Long: require('long') };
-var Handlebars = Handlebars || require('handlebars');
 var marked = marked || require('marked');
 
 sidebar.Sidebar = class {
@@ -874,95 +873,88 @@ sidebar.ModelSidebar = class {
 
 sidebar.DocumentationSidebar = class {
 
-    constructor(documentation) {
-        this._documentation = documentation;
+    constructor(host, metadata) {
+        this._host = host;
+        this._metadata = metadata;
     }
 
     render() {
         if (!this._elements) {
             this._elements = [];
-            const documentation = sidebar.DocumentationSidebar.formatDocumentation(this._documentation);
-            let template = `
-<div id='documentation' class='sidebar-view-documentation'>
 
-<h1>{{{name}}}</h1>
-{{#if summary}}
-<p>{{{summary}}}</p>
-{{/if}}
-{{#if description}}
-<p>{{{description}}}</p>
-{{/if}}
+            const documentation = sidebar.DocumentationSidebar.formatDocumentation(this._metadata);
 
-{{#if attributes}}
-<h2>Attributes</h2>
-<dl>
-{{#attributes}}
-<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}}</dt>
-<dd>{{{description}}}</dd>
-{{/attributes}}
-</dl>
-{{/if}}
+            const element = this._host.document.createElement('div');
+            element.setAttribute('class', 'sidebar-view-documentation');
 
-{{#if inputs}}
-<h2>Inputs{{#if inputs_range}} ({{{inputs_range}}}){{/if}}</h2>
-<dl>
-{{/if}}
-{{#inputs}}
-<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}} {{#if option}}({{{option}}}){{/if}}</dt>
-<dd>{{{description}}}</dd>
-{{/inputs}}
-</dl>
+            this._append(element, 'h1', documentation.name);
 
-{{#if outputs.length}}
-<h2>Outputs{{#if outputs_range}} ({{{outputs_range}}}){{/if}}</h2>
-<dl>
-{{/if}}
-{{#outputs}}
-<dt>{{{name}}}{{#if type}}: <tt>{{{type}}}</tt>{{/if}} {{#if option}}({{{option}}}){{/if}}</dt>
-<dd>{{{description}}}</dd>
-{{/outputs}}
-</dl>
+            if (documentation.summary) {
+                this._append(element, 'p', documentation.summary);
+            }
 
-{{#if type_constraints}}
-<h2>Type Constraints</h2>
-<dl>
-{{#type_constraints}}
-<dt>{{{type_param_str}}}: {{#allowed_type_strs}}<tt>{{this}}</tt>{{#unless @last}}, {{/unless}}{{/allowed_type_strs}}</dt>
-<dd>{{{description}}}</dd>
-{{/type_constraints}}
-</dl>
-{{/if}}
+            if (documentation.description) {
+                this._append(element, 'p', documentation.description);
+            }
 
-{{#if examples}}
-<h2>Examples</h2>
-{{#examples}}
-<h3>{{{summary}}}</h3>
-<pre>{{{code}}}</pre>
-{{/examples}}
-{{/if}}
+            if (documentation.attributes) {
+                this._append(element, 'h2', 'Attributes');
+                const attributes = this._append(element, 'dl');
+                for (const attribute of documentation.attributes) {
+                    this._append(attributes, 'dt', attribute.name + (attribute.type ? ': <tt>' + attribute.type + '</tt>' : ''));
+                    this._append(attributes, 'dd', attribute.description);
+                }
+                element.appendChild(attributes);
+            }
 
-{{#if references}}
-<h2>References</h2>
-<ul>
-{{#references}}
-<li>{{{description}}}</li>
-{{/references}}
-</ul>
-{{/if}}
+            if (documentation.inputs) {
+                this._append(element, 'h2', 'Inputs' + (documentation.inputs_range ? ' (' + documentation.inputs_range + ')' : ''));
+                const inputs = this._append(element, 'dl');
+                for (const input of documentation.inputs) {
+                    this._append(inputs, 'dt', input.name + (input.type ? ': <tt>' + input.type + '</tt>' : '') + (input.option ? ' (' + input.option + ')' : ''));
+                    this._append(inputs, 'dd', input.description);
+                }
+            }
 
-{{#if domain}}{{#if since_version}}{{#if support_level}}
-<h2>Support</h2>
-<dl>
-In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at support level <tt>{{{support_level}}}</tt>.
-</dl>
-{{/if}}{{/if}}{{/if}}
+            if (documentation.outputs) {
+                this._append(element, 'h2', 'Outputs' + (documentation.outputs_range ? ' (' + documentation.outputs_range + ')' : ''));
+                const outputs = this._append(element, 'dl');
+                for (const output of documentation.outputs) {
+                    this._append(outputs, 'dt', output.name + (output.type ? ': <tt>' + output.type + '</tt>' : '') + (output.option ? ' (' + output.option + ')' : ''));
+                    this._append(outputs, 'dd', output.description);
+                }
+            }
 
-</div>
-`;
-            const generator = Handlebars.compile(template, 'utf-8');
-            const html = generator(documentation);
-            const document = new DOMParser().parseFromString(html, 'text/html');
-            const element = document.body.firstChild;
+            if (documentation.type_constraints) {
+                this._append(element, 'h2', 'Type Constraints');
+                const type_constraints = this._append(element, 'dl');
+                for (const type_constraint of documentation.type_constraints) {
+                    this._append(type_constraints, 'dt', type_constraint.type_param_str + ': ' + type_constraint.allowed_type_strs.map((item) => '<tt>' + item + '</tt>').join(', '));
+                    this._append(type_constraints, 'dd', type_constraint.description);
+                }
+            }
+
+            if (documentation.examples) {
+                this._append(element, 'h2', 'Examples');
+                for (const example of documentation.examples) {
+                    this._append(element, 'h3', example.summary);
+                    this._append(element, 'pre', example.code);
+                }
+            }
+
+            if (documentation.references) {
+                this._append(element, 'h2', 'References');
+                const references = this._append(element, 'ul');
+                for (const reference of documentation.references) {
+                    this._append(references, 'li', reference.description);
+                }
+            }
+
+            if (documentation.domain && documentation.since_version && documentation.support_level) {
+                this._append(element, 'h2', 'Support');
+                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.since_version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
+            }
+
             element.addEventListener('click', (e) => {
                 if (e.target && e.target.href) {
                     let link = e.target.href;
@@ -972,9 +964,9 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
                     }
                 }
             });
-            this._elements.push(element);
-            return this._elements;
+            this._elements = [ element ];
         }
+        return this._elements;
     }
 
     on(event, callback) {
@@ -989,6 +981,15 @@ In domain <tt>{{{domain}}}</tt> since version <tt>{{{since_version}}}</tt> at su
                 callback(this, data);
             }
         }
+    }
+
+    _append(parent, type, content) {
+        const element = this._host.document.createElement(type);
+        if (content) {
+            element.innerHTML = content;
+        }
+        parent.appendChild(element);
+        return element;
     }
 
     static formatDocumentation(data) {

@@ -939,7 +939,7 @@ view.View = class {
     showOperatorDocumentation(node) {
         let metadata = node.metadata;
         if (metadata) {
-            const documentationSidebar = new sidebar.DocumentationSidebar(metadata);
+            const documentationSidebar = new sidebar.DocumentationSidebar(this._host, metadata);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
