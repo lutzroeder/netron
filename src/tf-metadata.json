@@ -1562,12 +1562,12 @@
           "typeAttr": "T"
         },
         {
-          "description": "L1 regulariation. Must be a scalar.",
+          "description": "L1 regularization. Must be a scalar.",
           "name": "l1",
           "typeAttr": "T"
         },
         {
-          "description": "L2 regulariation. Must be a scalar.",
+          "description": "L2 regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -1635,12 +1635,12 @@
           "typeAttr": "T"
         },
         {
-          "description": "L1 regulariation. Must be a scalar.",
+          "description": "L1 regularization. Must be a scalar.",
           "name": "l1",
           "typeAttr": "T"
         },
         {
-          "description": "L2 shrinkage regulariation. Must be a scalar.",
+          "description": "L2 shrinkage regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -5359,7 +5359,7 @@
           "type": 1
         },
         {
-          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "description": "minimum avg of hessians in a node before required for the node to be considered for splitting.",
           "name": "min_node_weight",
           "type": 1
         }
@@ -5556,7 +5556,7 @@
           "type": 1
         },
         {
-          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "description": "minimum avg of hessians in a node before required for the node to be considered for splitting.",
           "name": "min_node_weight",
           "type": 1
         }
@@ -6268,7 +6268,7 @@
           "type": 1
         },
         {
-          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "description": "minimum avg of hessians in a node before required for the node to be considered for splitting.",
           "name": "min_node_weight",
           "type": 1
         }
@@ -9999,7 +9999,7 @@
           "type": "int64"
         }
       ],
-      "description": "Writes a set of weights into the opaque params buffer so they can be used in\nupcoming training or inferences.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nnum_params_weigths: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
+      "description": "Writes a set of weights into the opaque params buffer so they can be used in\nupcoming training or inferences.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nnum_params_weights: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
       "inputs": [
         {
           "name": "num_layers",
@@ -10250,7 +10250,7 @@
           "type": "int64"
         }
       ],
-      "description": "Retrieves a set of weights from the opaque params buffer that can be saved and\nrestored in a way compatible with future runs.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nnum_params_weigths: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
+      "description": "Retrieves a set of weights from the opaque params buffer that can be saved and\nrestored in a way compatible with future runs.\n\nNote that the params buffer may not be compatible across different GPUs. So any\nsave and restoration should be converted to and from the canonical weights and\nbiases.\n\nnum_layers: Specifies the number of layers in the RNN model.\nnum_units: Specifies the size of the hidden state.\ninput_size: Specifies the size of the input state.\nnum_params_weights: number of weight parameter matrix for all layers.\nnum_params_biases: number of bias parameter vector for all layers.\nweights: the canonical form of weights that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nbiases: the canonical form of biases that can be used for saving\n    and restoration. They are more likely to be compatible across different\n    generations.\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n    The actual computation before the first layer. 'skip_input' is only allowed\n    when input_size == num_units; 'auto_select' implies 'skip_input' when\n    input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used.\n    dir = (direction == bidirectional) ? 2 : 1\ndropout: dropout probability. When set to 0., dropout is disabled.\nseed: the 1st part of a seed to initialize dropout.\nseed2: the 2nd part of a seed to initialize dropout.\nnum_proj: The output dimensionality for the projection matrices. If None or 0,\n    no projection is performed.",
       "inputs": [
         {
           "name": "num_layers",
@@ -11215,7 +11215,7 @@
         },
         {
           "default": -1,
-          "description": "Tensor debug mode: the mode in which the input tensor is summarized\n  by the op. See the TensorDebugMode enum in\n  tensorflow/core/protobuf/debug_event.proto for details.\n\nSupported values:\n  2 (CURT_HEALTH): Output a float32/64 tensor of shape [2]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is a bit which is set to 1 if the input tensor has an\n  infinity or nan value, or zero otherwise.\n\n  3 (CONCISE_HEALTH): Ouput a float32/64 tensor of shape [5]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The\n  remaining four slots are the total number of elements, -infs,\n  +infs, and nans in the input tensor respectively.\n\n  4 (FULL_HEALTH): Output a float32/64 tensor of shape [11]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is the device_id, if provided, and -1 otherwise. The 3rd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The remaining elements hold the total number of elements, -infs,\n  +infs, nans, negative finite numbers, zeros, and positive finite\n  numbers in the input tensor respectively.\n\n  5 (SHAPE): Output a float32/64 tensor of shape [10]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The 3rd element holds the rank of the tensor. The 4th element holds\n  the number of elements within the tensor. Finally the remaining 6\n  elements hold the shape of the tensor. If the rank of the tensor\n  is lower than 6, the shape is right padded with zeros. If the rank\n  is greater than 6, the head of the shape is truncated.\n\n  6 (FULL_NUMERICS): Output a float32/64 tensor of shape [22]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is the device_id, if provided, and -1 otherwise. The 3rd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The 4th element holds the rank of the tensor. The 5th to 11th\n  elements hold the shape of the tensor. If the rank of the tensor\n  is lower than 6, the shape is right padded with zeros. If the rank\n  is greater than 6, the head of the shape is truncated. The 12th to\n  18th elements hold the number of elements, -infs, +infs, nans,\n  denormal floats, negative finite numbers, zeros, and positive\n  finite numbers in the input tensor respectively. The final four\n  elements hold the min value, max value, mean, and variance of the\n  input tensor.\n\n  8 (REDUCE_INF_NAN_THREE_SLOTS): Output a float32/64 tensor of shape\n  [3]. The 1st element is -inf if any elements of the input tensor\n  is -inf, or zero otherwise. The 2nd element is +inf if any elements\n  of the input tensor is +inf, or zero otherwise.  The 3rd element is\n  nan if any element of the input tensor is nan, or zero otherwise.",
+          "description": "Tensor debug mode: the mode in which the input tensor is summarized\n  by the op. See the TensorDebugMode enum in\n  tensorflow/core/protobuf/debug_event.proto for details.\n\nSupported values:\n  2 (CURT_HEALTH): Output a float32/64 tensor of shape [2]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is a bit which is set to 1 if the input tensor has an\n  infinity or nan value, or zero otherwise.\n\n  3 (CONCISE_HEALTH): Output a float32/64 tensor of shape [5]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The\n  remaining four slots are the total number of elements, -infs,\n  +infs, and nans in the input tensor respectively.\n\n  4 (FULL_HEALTH): Output a float32/64 tensor of shape [11]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is the device_id, if provided, and -1 otherwise. The 3rd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The remaining elements hold the total number of elements, -infs,\n  +infs, nans, negative finite numbers, zeros, and positive finite\n  numbers in the input tensor respectively.\n\n  5 (SHAPE): Output a float32/64 tensor of shape [10]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The 3rd element holds the rank of the tensor. The 4th element holds\n  the number of elements within the tensor. Finally the remaining 6\n  elements hold the shape of the tensor. If the rank of the tensor\n  is lower than 6, the shape is right padded with zeros. If the rank\n  is greater than 6, the head of the shape is truncated.\n\n  6 (FULL_NUMERICS): Output a float32/64 tensor of shape [22]. The 1st\n  element is the tensor_id, if provided, and -1 otherwise. The 2nd\n  element is the device_id, if provided, and -1 otherwise. The 3rd\n  element holds the datatype value of the input tensor as according\n  to the enumerated type in tensorflow/core/framework/types.proto.\n  The 4th element holds the rank of the tensor. The 5th to 11th\n  elements hold the shape of the tensor. If the rank of the tensor\n  is lower than 6, the shape is right padded with zeros. If the rank\n  is greater than 6, the head of the shape is truncated. The 12th to\n  18th elements hold the number of elements, -infs, +infs, nans,\n  denormal floats, negative finite numbers, zeros, and positive\n  finite numbers in the input tensor respectively. The final four\n  elements hold the min value, max value, mean, and variance of the\n  input tensor.\n\n  8 (REDUCE_INF_NAN_THREE_SLOTS): Output a float32/64 tensor of shape\n  [3]. The 1st element is -inf if any elements of the input tensor\n  is -inf, or zero otherwise. The 2nd element is +inf if any elements\n  of the input tensor is +inf, or zero otherwise.  The 3rd element is\n  nan if any element of the input tensor is nan, or zero otherwise.",
           "name": "tensor_debug_mode",
           "type": "int64"
         },
@@ -20304,7 +20304,7 @@
     "schema": {
       "inputs": [
         {
-          "description": "Handle to the tree ensemble resouce.",
+          "description": "Handle to the tree ensemble resource.",
           "name": "tree_ensemble_handle",
           "type": 20
         }
@@ -38404,12 +38404,12 @@
           "typeAttr": "T"
         },
         {
-          "description": "L1 regulariation. Must be a scalar.",
+          "description": "L1 regularization. Must be a scalar.",
           "name": "l1",
           "typeAttr": "T"
         },
         {
-          "description": "L2 regulariation. Must be a scalar.",
+          "description": "L2 regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -38466,12 +38466,12 @@
           "typeAttr": "T"
         },
         {
-          "description": "L1 regulariation. Must be a scalar.",
+          "description": "L1 regularization. Must be a scalar.",
           "name": "l1",
           "typeAttr": "T"
         },
         {
-          "description": "L2 shrinkage regulariation. Must be a scalar.",
+          "description": "L2 shrinkage regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -39835,7 +39835,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "L2 shrinkage regulariation. Must be a scalar.",
+          "description": "L2 shrinkage regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -45661,7 +45661,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "L2 shrinkage regulariation. Must be a scalar.",
+          "description": "L2 shrinkage regularization. Must be a scalar.",
           "name": "l2",
           "typeAttr": "T"
         },
@@ -54405,7 +54405,7 @@
       "description": "Calculates product of two matrices, where left matrix is a tridiagonal matrix.",
       "inputs": [
         {
-          "description": "Tensor of shape `[..., 1, M]`, representing superdiagonals of\ntri-diagonal matrices to the left of multiplication. Last element is ingored.",
+          "description": "Tensor of shape `[..., 1, M]`, representing superdiagonals of\ntri-diagonal matrices to the left of multiplication. Last element is ignored.",
           "name": "superdiag",
           "typeAttr": "T"
         },
@@ -54415,7 +54415,7 @@
           "typeAttr": "T"
         },
         {
-          "description": "Tensor of shape `[..., 1, M]`, representing subdiagonals of tri-diagonal\nmatrices to the left of multiplication. First element is ingored.",
+          "description": "Tensor of shape `[..., 1, M]`, representing subdiagonals of tri-diagonal\nmatrices to the left of multiplication. First element is ignored.",
           "name": "subdiag",
           "typeAttr": "T"
         },
