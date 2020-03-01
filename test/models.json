@@ -2177,6 +2177,13 @@
   },
   {
     "type":   "keras",
+    "target": "netron_issue_428.h5",
+    "source": "https://github.com/lutzroeder/netron/files/4221535/netron_issue_428.zip[netron_issue_428.h5]",
+    "format": "Keras v2.2.4-tf",
+    "link":   "https://github.com/lutzroeder/netron/issues/428"
+  },
+  {
+    "type":   "keras",
     "target": "netron_issue_435.h5",
     "source": "https://github.com/lutzroeder/netron/files/4269953/netron_issue_435.zip[netron_issue_435.h5]",
     "format": "Keras v2.2.4",
