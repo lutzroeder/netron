@@ -23744,6 +23744,84 @@
     }
   },
   {
+    "name": "UnfoldToDepth",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The size of the extracted blocks [D1, D2, ..., Dn].",
+          "name": "block_size",
+          "required": true,
+          "type": "int64[]"
+        },
+        {
+          "description": "Dilation value along each spatial axis of the extracted blocks. If not present, the dilation defaults is 1 along each spatial axis.",
+          "name": "dilations",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Padding for the beginning and ending along each spatial axis, it can take any value greater than or equal to 0. The value represent the number of pixels added to the beginning and end part of the corresponding axis. `pads` format should be as follow [x1_begin, x2_begin...x1_end, x2_end,...], where xi_begin the number of pixels added at the beginning of axis `i` and xi_end, the number of pixels added at the end of axis `i`. If not present, the padding defaults to 0 along start and end of each spatial axis.",
+          "name": "pads",
+          "required": false,
+          "type": "int64[]"
+        },
+        {
+          "description": "Stride along each spatial axis of the input image. If not present, the stride defaults is 1 along each spatial axis.",
+          "name": "strides",
+          "required": false,
+          "type": "int64[]"
+        }
+      ],
+      "description": "The UnfoldToDepth operator extracts sliding blocks from an input tensor, and concatenates these blocks\nin the last dimension.\nGiven an input of shape (N x C x D1 x D2 ... x Dn), output would be a 3-D tensor of shape:<br/>\n\n```(N, C * reduce-mul(block_size), reduce-mul(num_blocks))```\n<br/>\nWhere number of blocks extracted from each spatial dimension d is:\n```\nnum_blocks[d] = floor((input_spatial_shape[d] + 2 * padding[d] \u2212 dilation[d] * (kernel_size[d] \u2212 1) \u2212 1) / stride[d]) + 1\n```\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "x = np.array([[[[0., 1., 2., 3., 4.],\n                [5., 6., 7., 8., 9.],\n                [10., 11., 12., 13., 14.],\n                [15., 16., 17., 18., 19.],\n                [20., 21., 22., 23., 24.]]]]).astype(np.float32)\n\n# UnfoldToDepth without padding\nnode_without_padding = onnx.helper.make_node(\n    'UnfoldToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    block_size=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1]\n    pads=[0, 0, 0, 0],\n)\ny_without_padding = unfoldtodepth_2d_reference_implementation(x, shape=[3, 3])\n# expected [[[0., 1., 2., 5., 6., 7., 10., 11., 12.],  # (1, 9, 9) output tensor\n#            [1., 2., 3., 6., 7., 8., 11., 12., 13.],\n#            [2., 3., 4., 7., 8., 9., 12., 13., 14.],\n#            [5., 6., 7., 10., 11., 12., 15., 16., 17.],\n#            [6., 7., 8., 11., 12., 13., 16., 17., 18.],\n#            [7., 8., 9., 12., 13., 14., 17., 18., 19.],\n#            [10., 11., 12., 15., 16., 17., 20., 21., 22.],\n#            [11., 12., 13., 16., 17., 18., 21., 22., 23.],\n#            [12., 13., 14., 17., 18., 19., 22., 23., 24.]]]\n\nexpect(node_without_padding, inputs=[x], outputs=[y_without_padding],\n       name='test_unfoldtodepth_without_padding')\n\n# UnfoldToDepth with padding\nnode_without_padding = onnx.helper.make_node(\n    'UnfoldToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    block_size=[3, 3],\n    # Default values for other attributes: strides=[1, 1], dilations=[1, 1]\n    pads=[1, 1, 1, 1],\n)\ny_with_padding = unfoldtodepth_2d_reference_implementation(x, shape=[3, 3], padding=[1, 1, 1, 1])\n# expected [[[0., 0., 0., 0., 0., 0., 0., 1., 2., 3., 0., 5., 6., 7.,  # (1, 9, 25) output tensor\n#             8., 0., 10., 11., 12., 13., 0., 15., 16., 17., 18.],\n#            [0., 0., 0., 0., 0., 0., 1., 2., 3., 4., 5., 6., 7., 8.,\n#             9., 10., 11., 12., 13., 14., 15., 16., 17., 18., 19.],\n#            [0., 0., 0., 0., 0., 1., 2., 3., 4., 0., 6., 7., 8., 9.,\n#             0., 11., 12., 13., 14., 0., 16., 17., 18., 19., 0.],\n#            [0., 0., 1., 2., 3., 0., 5., 6., 7., 8., 0., 10., 11., 12.,\n#             3., 0., 15., 16., 17., 18., 0., 20., 21., 22., 23.],\n#            [0., 1., 2., 3., 4., 5., 6., 7., 8., 9., 10., 11., 12., 13.,\n#             4., 15., 16., 17., 18., 19., 20., 21., 22., 23., 24.],\n#            [1., 2., 3., 4., 0., 6., 7., 8., 9., 0., 11., 12., 13., 14.,\n#             0., 16., 17., 18., 19., 0., 21., 22., 23., 24., 0.],\n#            [0., 5., 6., 7., 8., 0., 10., 11., 12., 13., 0., 15., 16., 17.,\n#             8., 0., 20., 21., 22., 23., 0., 0., 0., 0., 0.],\n#            [5., 6., 7., 8., 9., 10., 11., 12., 13., 14., 15., 16., 17., 18.,\n#             9., 20., 21., 22., 23., 24., 0., 0., 0., 0., 0.],\n#            [6., 7., 8., 9., 0., 11., 12., 13., 14., 0., 16., 17., 18., 19.,\n#             0., 21., 22., 23., 24., 0., 0., 0., 0., 0., 0.]]]\n\nexpect(node_without_padding, inputs=[x], outputs=[y_with_padding],\n       name='test_unfoldtodepth_with_padding')\n\n# UnfoldToDepth with padding and strides\nnode_without_padding = onnx.helper.make_node(\n    'UnfoldToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    block_size=[3, 3],\n    # Default values for other attributes: dilations=[1, 1]\n    pads=[2, 2, 2, 2],\n    strides=[3, 3]\n)\ny_with_padding = unfoldtodepth_2d_reference_implementation(x, shape=[3, 3], padding=[2, 2, 2, 2], stride=[3, 3])\n# expected [[[ 0.,  0.,  0.,  0.,  6.,  9.,  0., 21., 24.],  # (1, 9, 9) output tensor\n#            [ 0.,  0.,  0.,  0.,  7.,  0.,  0., 22.,  0.],\n#            [ 0.,  0.,  0.,  5.,  8.,  0., 20., 23.,  0.],\n#            [ 0.,  0.,  0.,  0., 11., 14.,  0.,  0.,  0.],\n#            [ 0.,  0.,  0.,  0., 12.,  0.,  0.,  0.,  0.],\n#            [ 0.,  0.,  0., 10., 13.,  0.,  0.,  0.,  0.],\n#            [ 0.,  1.,  4.,  0., 16., 19.,  0.,  0.,  0.],\n#            [ 0.,  2.,  0.,  0., 17.,  0.,  0.,  0.,  0.],\n#            [ 0.,  3.,  0., 15., 18.,  0.,  0.,  0.,  0.]]]\n\nexpect(node_without_padding, inputs=[x], outputs=[y_with_padding],\n       name='test_unfoldtodepth_with_padding_stride')",
+          "summary": "unfoldtodepth"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input data tensor from previous layer; has size (N x C x H x W), where N is the batch size, C is the number of channels, and H and W are the height and width. Note that this is for the 2D image. Otherwise the size is (N x C x D1 x D2 ... x Dn). ",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output data tensor that contains the result of the unfold. The output has three dimensions, and dimension values are funciton of the kernel size, stride size, and pad lengths.",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Unique",
     "schema": {
       "attributes": [
