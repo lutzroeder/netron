@@ -6,7 +6,6 @@ var base = base || require('./base');
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('protobufjs');
 var prototxt = prototxt || require('protobufjs/ext/prototxt');
-var marked = marked || require('marked');
 
 onnx.ModelFactory = class {
 
