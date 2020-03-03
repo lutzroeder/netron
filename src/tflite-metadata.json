@@ -664,5 +664,51 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "Quantize",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Dequantize",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Minimum",
+    "schema": {
+      "inputs": [
+        { "name": "input1" },
+        { "name": "input2" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
+    "name": "Maximum",
+    "schema": {
+      "inputs": [
+        { "name": "input1" },
+        { "name": "input2" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]

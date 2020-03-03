@@ -229,6 +229,10 @@ tflite.Node = class {
                 case 'Sum':
                     optionsTypeName = 'ReducerOptions';
                     break;
+                case 'Minimum':
+                case 'Maximum':
+                    optionsTypeName = 'MaximumMinimumOptions';
+                    break;
             }
             const optionsType = tflite.Node._getType(optionsTypeName);
             if (typeof optionsType === 'function') {
@@ -574,6 +578,11 @@ tflite.Tensor = class {
                     case 'int8':
                         results.push(context.data.getInt8(context.index));
                         context.index += 1;
+                        context.count++;
+                        break;
+                    case 'int16':
+                        results.push(context.data.getInt16(context.index));
+                        context.index += 2;
                         context.count++;
                         break;
                     case 'int32':

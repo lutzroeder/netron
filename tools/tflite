@@ -76,15 +76,6 @@ EOT
     fi
 }
 
-visualize() {
-    bold "tflite visualize"
-    venv
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} -m pip install --quiet tensorflow
-    ${python} ./third_party/src/tensorflow/tensorflow/lite/tools/visualize.py $@
-    deactivate
-}
-
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -92,6 +83,5 @@ while [ "$#" != 0 ]; do
         "sync") sync;;
         "install") install;;
         "schema") schema;;
-        "visualize") visualize ${1} ${2} && shift && shift;;
     esac
 done
