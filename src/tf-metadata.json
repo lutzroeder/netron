@@ -19899,6 +19899,21 @@
     }
   },
   {
+    "name": "InitializeTableFromDataset",
+    "schema": {
+      "inputs": [
+        {
+          "name": "table_handle",
+          "type": 20
+        },
+        {
+          "name": "dataset",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "InitializeTableFromTextFile",
     "schema": {
       "attributes": [
@@ -34760,7 +34775,7 @@
           "type": "type"
         }
       ],
-      "description": "Outputs a tensor of the same shape as the `images` tensor, containing the HSV\nvalue of the pixels. The output is only well defined if the value in `images`\nare in `[0,1]`.\n\n`output[..., 0]` contains hue, `output[..., 1]` contains saturation, and\n`output[..., 2]` contains value. All HSV values are in `[0,1]`. A hue of 0\ncorresponds to pure red, hue 1/3 is pure green, and 2/3 is pure blue.",
+      "description": "Outputs a tensor of the same shape as the `images` tensor, containing the HSV\nvalue of the pixels. The output is only well defined if the value in `images`\nare in `[0,1]`.\n\n`output[..., 0]` contains hue, `output[..., 1]` contains saturation, and\n`output[..., 2]` contains value. All HSV values are in `[0,1]`. A hue of 0\ncorresponds to pure red, hue 1/3 is pure green, and 2/3 is pure blue.\n\nUsage Example:\n\n>>> blue_image = tf.stack([\n...    tf.zeros([5,5]),\n...    tf.zeros([5,5]),\n...    tf.ones([5,5])],\n...    axis=-1)\n>>> blue_hsv_image = tf.image.rgb_to_hsv(blue_image)\n>>> blue_hsv_image[0,0].numpy()\narray([0.6666667, 1. , 1. ], dtype=float32)\n",
       "inputs": [
         {
           "description": "1-D or higher rank. RGB data to convert. Last dimension must be size 3.",
@@ -34776,6 +34791,117 @@
         }
       ],
       "summary": "Converts one or more images from RGB to HSV."
+    }
+  },
+  {
+    "name": "RaggedCross",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "Nsparse",
+          "type": "int64"
+        },
+        {
+          "description": "String specifying the tensor type for each input.  The `i`th character in\nthis string specifies the type of the `i`th input, and is one of: 'R' (ragged),\n'D' (dense), or 'S' (sparse).  This attr is used to ensure that the crossed\nvalues are combined in the order of the inputs from the call to tf.ragged.cross.",
+          "name": "input_order",
+          "type": "string"
+        },
+        {
+          "name": "hashed_output",
+          "type": "boolean"
+        },
+        {
+          "minimum": 0,
+          "name": "num_buckets",
+          "type": "int64"
+        },
+        {
+          "name": "hash_key",
+          "type": "int64"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "ragged_values_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "minimum": 0,
+          "name": "ragged_splits_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "sparse_values_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "dense_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "name": "out_values_type",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "out_row_splits_type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The values tensor for each RaggedTensor input.",
+          "name": "ragged_values",
+          "typeListAttr": "ragged_values_types"
+        },
+        {
+          "description": "The row_splits tensor for each RaggedTensor input.",
+          "name": "ragged_row_splits",
+          "typeListAttr": "ragged_splits_types"
+        },
+        {
+          "description": "The indices tensor for each SparseTensor input.",
+          "name": "sparse_indices",
+          "numberAttr": "Nsparse",
+          "type": 9
+        },
+        {
+          "description": "The values tensor for each SparseTensor input.",
+          "name": "sparse_values",
+          "typeListAttr": "sparse_values_types"
+        },
+        {
+          "description": "The dense_shape tensor for each SparseTensor input.",
+          "name": "sparse_shape",
+          "numberAttr": "Nsparse",
+          "type": 9
+        },
+        {
+          "description": "The tf.Tensor inputs.",
+          "name": "dense_inputs",
+          "typeListAttr": "dense_types"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The `values` for the returned `RaggedTensor`.",
+          "name": "output_values",
+          "typeAttr": "out_values_type"
+        },
+        {
+          "description": "The `row_splits` for the returned `RaggedTensor`.",
+          "name": "output_row_splits",
+          "typeAttr": "out_row_splits_type"
+        }
+      ],
+      "summary": "Generates a feature cross from a list of tensors, and returns it as a\nRaggedTensor.  See `tf.ragged.cross` for more details."
     }
   },
   {
