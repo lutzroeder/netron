@@ -196,7 +196,8 @@ armnnSerializer.LayerType = {
   LogSoftmax: 51,
   Comparison: 52,
   StandIn: 53,
-  ElementwiseUnary: 54
+  ElementwiseUnary: 54,
+  Transpose: 55
 };
 
 /**
@@ -257,7 +258,8 @@ armnnSerializer.LayerTypeName = {
   51: 'LogSoftmax',
   52: 'Comparison',
   53: 'StandIn',
-  54: 'ElementwiseUnary'
+  54: 'ElementwiseUnary',
+  55: 'Transpose'
 };
 
 /**
@@ -447,7 +449,8 @@ armnnSerializer.Layer = {
   LogSoftmaxLayer: 52,
   ComparisonLayer: 53,
   StandInLayer: 54,
-  ElementwiseUnaryLayer: 55
+  ElementwiseUnaryLayer: 55,
+  TransposeLayer: 56
 };
 
 /**
@@ -509,7 +512,8 @@ armnnSerializer.LayerName = {
   52: 'LogSoftmaxLayer',
   53: 'ComparisonLayer',
   54: 'StandInLayer',
-  55: 'ElementwiseUnaryLayer'
+  55: 'ElementwiseUnaryLayer',
+  56: 'TransposeLayer'
 };
 
 /**
@@ -12220,6 +12224,220 @@ armnnSerializer.TransposeConvolution2dDescriptor.createTransposeConvolution2dDes
   armnnSerializer.TransposeConvolution2dDescriptor.addBiasEnabled(builder, biasEnabled);
   armnnSerializer.TransposeConvolution2dDescriptor.addDataLayout(builder, dataLayout);
   return armnnSerializer.TransposeConvolution2dDescriptor.endTransposeConvolution2dDescriptor(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.TransposeLayer = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.TransposeLayer}
+ */
+armnnSerializer.TransposeLayer.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.TransposeLayer=} obj
+ * @returns {armnnSerializer.TransposeLayer}
+ */
+armnnSerializer.TransposeLayer.getRootAsTransposeLayer = function(bb, obj) {
+  return (obj || new armnnSerializer.TransposeLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.LayerBase=} obj
+ * @returns {armnnSerializer.LayerBase|null}
+ */
+armnnSerializer.TransposeLayer.prototype.base = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.LayerBase).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.TransposeDescriptor=} obj
+ * @returns {armnnSerializer.TransposeDescriptor|null}
+ */
+armnnSerializer.TransposeLayer.prototype.descriptor = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.TransposeDescriptor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.TransposeLayer.startTransposeLayer = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ */
+armnnSerializer.TransposeLayer.addBase = function(builder, baseOffset) {
+  builder.addFieldOffset(0, baseOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptorOffset
+ */
+armnnSerializer.TransposeLayer.addDescriptor = function(builder, descriptorOffset) {
+  builder.addFieldOffset(1, descriptorOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TransposeLayer.endTransposeLayer = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ * @param {flatbuffers.Offset} descriptorOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TransposeLayer.createTransposeLayer = function(builder, baseOffset, descriptorOffset) {
+  armnnSerializer.TransposeLayer.startTransposeLayer(builder);
+  armnnSerializer.TransposeLayer.addBase(builder, baseOffset);
+  armnnSerializer.TransposeLayer.addDescriptor(builder, descriptorOffset);
+  return armnnSerializer.TransposeLayer.endTransposeLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.TransposeDescriptor = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.TransposeDescriptor}
+ */
+armnnSerializer.TransposeDescriptor.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.TransposeDescriptor=} obj
+ * @returns {armnnSerializer.TransposeDescriptor}
+ */
+armnnSerializer.TransposeDescriptor.getRootAsTransposeDescriptor = function(bb, obj) {
+  return (obj || new armnnSerializer.TransposeDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @returns {number}
+ */
+armnnSerializer.TransposeDescriptor.prototype.dimMappings = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readUint32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.TransposeDescriptor.prototype.dimMappingsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Uint32Array}
+ */
+armnnSerializer.TransposeDescriptor.prototype.dimMappingsArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? new Uint32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.TransposeDescriptor.startTransposeDescriptor = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} dimMappingsOffset
+ */
+armnnSerializer.TransposeDescriptor.addDimMappings = function(builder, dimMappingsOffset) {
+  builder.addFieldOffset(0, dimMappingsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TransposeDescriptor.createDimMappingsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addInt32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+armnnSerializer.TransposeDescriptor.startDimMappingsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TransposeDescriptor.endTransposeDescriptor = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} dimMappingsOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TransposeDescriptor.createTransposeDescriptor = function(builder, dimMappingsOffset) {
+  armnnSerializer.TransposeDescriptor.startTransposeDescriptor(builder);
+  armnnSerializer.TransposeDescriptor.addDimMappings(builder, dimMappingsOffset);
+  return armnnSerializer.TransposeDescriptor.endTransposeDescriptor(builder);
 }
 
 /**
