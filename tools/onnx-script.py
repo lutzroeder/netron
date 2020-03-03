@@ -224,16 +224,6 @@ def generate_json(schemas, json_file):
             fout.write(line)
             fout.write('\n')
 
-def pip_import(package):
-    import importlib
-    try:
-        importlib.import_module(package)
-    except:
-        import subprocess
-        subprocess.call([ 'pip', 'install', '--quiet', package ])
-    finally:
-        globals()[package] = importlib.import_module(package)
-
 def metadata():
     schemas = defs.get_all_schemas_with_history()
     schemas = sorted(schemas, key=lambda schema: schema.name)
@@ -241,6 +231,15 @@ def metadata():
     generate_json(schemas, json_file)
 
 def convert():
+    def pip_import(package):
+        import importlib
+        try:
+            importlib.import_module(package)
+        except:
+            import subprocess
+            subprocess.call([ 'pip', 'install', '--quiet', package ])
+        finally:
+            globals()[package] = importlib.import_module(package)
     file = sys.argv[2]
     base, extension = os.path.splitext(file)
     if extension == '.mlmodel':
