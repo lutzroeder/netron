@@ -20,7 +20,8 @@ armnnSerializer.ActivationFunction = {
   Abs: 7,
   Sqrt: 8,
   Square: 9,
-  Elu: 10
+  Elu: 10,
+  HardSwish: 11
 };
 
 /**
@@ -37,7 +38,8 @@ armnnSerializer.ActivationFunctionName = {
   7: 'Abs',
   8: 'Sqrt',
   9: 'Square',
-  10: 'Elu'
+  10: 'Elu',
+  11: 'HardSwish'
 };
 
 /**
