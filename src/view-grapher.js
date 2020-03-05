@@ -459,8 +459,8 @@ grapher.NodeElement.List = class {
         this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
         this._height += 3;
         for (const item of this._items) {
-            let yPadding = 1;
-            let xPadding = 6;
+            const yPadding = 1;
+            const xPadding = 6;
             let textElement = this.createElement('text');
             if (item.id) {
                 textElement.setAttribute('id', item.id);
@@ -481,8 +481,8 @@ grapher.NodeElement.List = class {
             let textValueElement = this.createElement('tspan');
             textValueElement.textContent = item.separator + item.value;
             textElement.appendChild(textValueElement);
-            let size = textElement.getBBox();
-            let width = xPadding + size.width + xPadding;
+            const size = textElement.getBBox();
+            const width = xPadding + size.width + xPadding;
             if (this._width < width) {
                 this._width = width;
             }

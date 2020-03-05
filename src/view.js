@@ -296,13 +296,12 @@ view.View = class {
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
-                let format = model.format;
+                const format = model.format;
                 if (format) {
-                    format = format + (model.producer ? ' (' + model.producer + ')' : '');
-                    this._host.event('Model', 'Format', format);
+                    this._host.event('Model', 'Format', format + (model.producer ? ' (' + model.producer + ')' : ''));
                 }
                 return this._timeout(20).then(() => {
-                    let graph = model.graphs.length > 0 ? model.graphs[0] : null;
+                    const graph = model.graphs.length > 0 ? model.graphs[0] : null;
                     return this._updateGraph(model, graph);
                 });
             });
@@ -419,7 +418,7 @@ view.View = class {
 
                 const self = this;
                 for (const node of nodes) {
-    
+
                     let element = new grapher.NodeElement(this._host.document);
 
                     const addNode = function(element, node, edges) {
@@ -545,7 +544,7 @@ view.View = class {
                                 }
                             }
                         }
-    
+
                         if (node.chain && node.chain.length > 0) {
                             for (const innerNode of node.chain) {
                                 addNode(element, innerNode, false);
@@ -556,7 +555,7 @@ view.View = class {
                             addNode(element, node.inner, false);
                         }
                     }
-    
+
                     addNode(element, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
@@ -582,7 +581,7 @@ view.View = class {
                         g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString() });
                         id++;
                     }
-            
+
                     const createCluster = function(name) {
                         if (!clusterMap[name]) {
                             g.setNode(name, { rx: 5, ry: 5});
@@ -616,7 +615,7 @@ view.View = class {
                             }
                         }
                     }
-                
+
                     nodeId++;
                 }
 
@@ -632,7 +631,7 @@ view.View = class {
                             type: argument.type
                         };
                     }
-                    let types = input.arguments.map((argument) => argument.type || '').join('\n');
+                    const types = input.arguments.map((argument) => argument.type || '').join('\n');
                     let inputName = input.name || '';
                     if (inputName.length > 16) {
                         inputName = inputName.split('/').pop();
