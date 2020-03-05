@@ -3,7 +3,7 @@
 .node line { stroke: #333; fill: none; stroke-width: 1px; }
 
 .node-item path { stroke-width: 0; stroke: #000; fill: #fff; }
-.node-item text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 11px; text-rendering: geometricPrecision; }
+.node-item text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 11px; text-rendering: geometricPrecision; }
 
 .node-item-function path { fill: #fff; }
 .node-item-function text { fill: #000; }
@@ -50,7 +50,7 @@
 .node-item-undefined:hover path { fill: #fff; }
 
 .node-attribute:hover { cursor: hand; }
-.node-attribute text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; }
+.node-attribute text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; }
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
@@ -62,7 +62,7 @@
 .graph-item-output:hover { cursor: hand; }
 .graph-item-output:hover path { fill: #fff; }
 
-.edge-label text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 10px; }
+.edge-label text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; }
 #arrowhead-vee { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
