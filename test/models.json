@@ -820,6 +820,13 @@
   },
   {
     "type":   "caffe2",
+    "target": "mobilenet/predict_net_int8.pbtxt,mobilenet/init_net_int8.pbtxt",
+    "source": "https://raw.githubusercontent.com/cuiyanx/dnnl-models/master/Image%20Classification/mobilenet/predict_net_int8.pbtxt,https://raw.githubusercontent.com/cuiyanx/dnnl-models/master/Image%20Classification/mobilenet/init_net_int8.pbtxt",
+    "format": "Caffe2",
+    "link":   "https://github.com/lutzroeder/netron/issues/437"
+  },
+  {
+    "type":   "caffe2",
     "target": "mobilenet_v2/predict_net.pb,mobilenet_v2/init_net.pb",
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2/init_net.pb",
     "format": "Caffe2",
@@ -838,6 +845,13 @@
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2_1.0_224_quant/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/mobilenet_v2_1.0_224_quant/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "type":   "caffe2",
+    "target": "resnet50_quantized/resnet50_quantized_predict_net.pb,resnet50_quantized/resnet50_quantized_init_net.pb",
+    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/resnet50_quantized/resnet50_quantized_predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/resnet50_quantized/resnet50_quantized_init_net.pb",
+    "format": "Caffe2",
+    "link":   "https://github.com/caffe2/models/tree/master/resnet50_quantized"
   },
   {
     "type":   "caffe2",
