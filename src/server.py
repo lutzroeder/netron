@@ -215,7 +215,7 @@ def serve(file, data, log=False, browse=False, port=8080, host='localhost'):
     if browse:
         webbrowser.open(url)
 
-def start(file, log=False, browse=True, port=8080, host='localhost'):
+def start(file=None, log=False, browse=True, port=8080, host='localhost'):
     '''Start serving model file at host:port and open in web browser
     
     Args:
