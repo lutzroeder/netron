@@ -1554,6 +1554,12 @@ pytorch.Execution = class {
         this._registerFunction('torch.jit._pickle.build_tensorlist', function(data) {
             return data;
         });
+        this._registerFunction('torch.jit._pickle.build_tensor_from_id', function(data) {
+            return data;
+        });
+        this._registerFunction('torch.jit._pickle.restore_type_tag', function(value /*, type_str */) {
+            return value;
+        });
         this._registerFunction('torch.keys', function(dict) {
             return Object.keys(dict);
         });
@@ -2621,33 +2627,18 @@ pytorch.Container.Zip = class {
 
     get format() {
         if (this._format === undefined) {
-            const versionEntry = this._entry('version');
-            const version = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
-            if (version === '' || version === '1' || version === '2') {
-                if (this._entry('model.json')) {
-                    if (this._entry('attributes.pkl')) {
-                        this._format = 'TorchScript v1.1';
-                    }
-                    else {
-                        this._format = 'TorchScript v1.0';
-                    }
-                }
-                else if (this._entry('data.pkl')) {
-                    if (this._entry('constants.pkl')) {
-                        if (version === '2') {
-                            this._format = 'TorchScript v1.4';
-                        }
-                        else {
-                            this._format = 'TorchScript v1.3';
-                        }
-                    }
-                    else {
-                        this._format = 'PyTorch v1.4';
-                    }
-                }
+            if (this._entry('model.json')) {
+                this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
-            else {
-                throw new pytorch.Error("Unsupported PyTorch ZIP version '" + version + "'.");
+            else if (this._entry('data.pkl')) {
+                const versionEntry = this._entry('version');
+                const versionNumber = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
+                const versionTable = { '1': 'v1.3', '2': 'v1.4', '3': 'v1.5' };
+                const version = versionTable[versionNumber];
+                if (!version) {
+                    this._exceptionCallback(new pytorch.Error("Unsupported PyTorch ZIP version '" + versionNumber + "'."));
+                }
+                this._format = (this._entry('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v#' + versionNumber.toString() );
             }
         }
         return this._format;
