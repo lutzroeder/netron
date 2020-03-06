@@ -169,6 +169,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
                 constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
                 constructorTable['sklearn.compose._target.TransformedTargetRegressor'] = function() {};
+                constructorTable['sklearn.cluster._dbscan.DBSCAN'] = function() {};
                 constructorTable['sklearn.decomposition.PCA'] = function() {};
                 constructorTable['sklearn.decomposition.pca.PCA'] = function() {};
                 constructorTable['sklearn.decomposition.truncated_svd.TruncatedSVD'] = function() {};
