@@ -336,8 +336,15 @@ sklearn.ModelFactory = class {
                     }
                     return obj;
                 };
-                functionTable['__builtin__.bytearray'] = function(data, encoding) {
-                    return { data: data, encoding: encoding };
+                functionTable['__builtin__.bytearray'] = function(source, encoding /*, errors */) {
+                    if (encoding === 'latin-1') {
+                        let array = new Uint8Array(source.length);
+                        for (let i = 0; i < source.length; i++) {
+                            array[i] = source.charCodeAt(i);
+                        }
+                        return array;
+                    }
+                    throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
                 };
                 functionTable['builtins.bytearray'] = function(data) {
                     return { data: data };
@@ -375,40 +382,62 @@ sklearn.ModelFactory = class {
                 };
 
                 obj = unpickler.load(function_call, null);
-                if (obj && Array.isArray(obj)) {
-                    throw new sklearn.Error('Array is not a valid root object.');
-                }
 
-                let find_weight_dict = function(dicts) {
+                const find_weights = function(objs) {
 
-                    for (const dict of dicts) {
+                    for (const dict of objs) {
                         if (dict && !Array.isArray(dict)) {
-                            let list = [];
+                            let weights = [];
                             for (const key in dict) {
                                 const value = dict[key]
                                 if (key != 'weight_order' && key != 'lr') {
                                     if (!key ||
                                         !value.__type__ || !value.__type__ == 'numpy.ndarray') {
-                                        list = null;
+                                        weights = null;
                                         break;
                                     }
-                                    list.push({ key: key, value: value });
+                                    weights.push({ key: key, value: value });
                                 }
                             }
-                            if (list) {
-                                return list;
+                            if (weights) {
+                                return weights;
+                            }
+                        }
+                    }
+
+                    for (const list of objs) {
+                        if (list && Array.isArray(list)) {
+                            let weights = [];
+                            for (let i = 0; i < list.length; i++) {
+                                const value = list[i];
+                                if (!value.__type__ || !value.__type__ == 'numpy.ndarray') {
+                                    weights = null;
+                                    break;
+                                }
+                                weights.push({ key: i.toString(), value: value });
+                            }
+                            if (weights) {
+                                return weights;
                             }
                         }
                     }
                     return null;
                 }
 
-                weights = find_weight_dict([ obj, obj.blobs ]);
+                weights = find_weights([ obj, obj.blobs ]);
                 if (weights) {
                     obj = null;
                 }
-                if (!weights && (!obj || !obj.__type__)) {
-                    throw new sklearn.Error('Root object has no type.');
+                if (!weights) {
+                    if (!obj) {
+                        throw new sklearn.Error('No root object.');
+                    }
+                    if (Array.isArray(obj)) {
+                        throw new sklearn.Error('Root is nullArray is not a valid root object.');
+                    }                    
+                    if (!obj.__type__) {
+                        throw new sklearn.Error('Root object has no type.');
+                    }
                 }
             }
             catch (error) {

@@ -4528,6 +4528,12 @@
   },
   {
     "type":   "sklearn",
+    "target": "curvrank.localization.dorsal.weights.pkl",
+    "source": "https://lev.cs.rpi.edu/public/models/curvrank.localization.dorsal.weights.pkl",
+    "format": "scikit-learn"
+  },
+  {
+    "type":   "sklearn",
     "target": "LDA_model.pkl",
     "source": "https://raw.githubusercontent.com/rainer85ah/DCS/master/Output/LDA_model.pkl",
     "format": "scikit-learn",

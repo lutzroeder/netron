@@ -15,8 +15,7 @@ pickle.Unpickler = class {
         let stack = [];
         let memo = new Map();
         while (reader.position < reader.length) {
-            let opcode = reader.byte();
-            // console.log(reader.position.toString() + ': ' + opcode.toString());
+            const opcode = reader.byte();
             switch (opcode) {
                 case pickle.OpCode.PROTO: {
                     const version = reader.byte();
@@ -37,7 +36,7 @@ pickle.Unpickler = class {
                     break;
                 }
                 case pickle.OpCode.OBJ: {
-                    let items = stack;
+                    const items = stack;
                     stack = marker.pop();
                     stack.push(function_call(items.pop(), items));
                     break;
@@ -533,20 +532,19 @@ pickle.Reader = class {
     }
 
     string(size, encoding) {
-        let data = this.bytes(size);
-        let text = (encoding == 'utf-8') ?
+        const data = this.bytes(size);
+        return (encoding == 'utf-8') ?
             pickle.Reader._utf8Decoder.decode(data) :
             pickle.Reader._asciiDecoder.decode(data);
-        return text;
     }
 
     line() {
-        let index = this._buffer.indexOf(0x0A, this._position);
+        const index = this._buffer.indexOf(0x0A, this._position);
         if (index == -1) {
             throw new pickle.Error("Could not find end of line.");
         }
-        let size = index - this._position;
-        let text = this.string(size, 'ascii');
+        const size = index - this._position;
+        const text = this.string(size, 'ascii');
         this.seek(1);
         return text;
     }
