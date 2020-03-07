@@ -13416,7 +13416,7 @@
           "summary": "min"
         },
         {
-          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Min',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
           "summary": "min_all_numeric_types"
         }
       ],
@@ -13466,7 +13466,7 @@
           "summary": "min"
         },
         {
-          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Min',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
           "summary": "min_all_numeric_types"
         }
       ],
@@ -13516,7 +13516,7 @@
           "summary": "min"
         },
         {
-          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Min',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
           "summary": "min_all_numeric_types"
         }
       ],
@@ -13566,7 +13566,7 @@
           "summary": "min"
         },
         {
-          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Max',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
+          "code": "for op_dtype in all_numeric_dtypes:\n    data_0 = np.array([3, 2, 1]).astype(op_dtype)\n    data_1 = np.array([1, 4, 4]).astype(op_dtype)\n    result = np.array([1, 2, 1]).astype(op_dtype)\n    node = onnx.helper.make_node(\n        'Min',\n        inputs=['data_0', 'data_1'],\n        outputs=['result'],\n    )\n    expect(node, inputs=[data_0, data_1], outputs=[result],\n           name='test_min_{0}'.format(np.dtype(op_dtype).name))",
           "summary": "min_all_numeric_types"
         }
       ],
