@@ -845,7 +845,7 @@ torch.T7Reader = class {
     }
 
     read() {
-        let type = this.int32();
+        const type = this.int32();
         switch (type) {
             case 0: return null;
             case 1: return this.float64();
@@ -923,13 +923,13 @@ torch.T7Reader = class {
     }
 
     table() {
-        let index = this.int32();
+        const index = this.int32();
         if (this._memo.has(index)) {
             return this._memo.get(index);
         }
         let table = {};
         this._memo.set(index, table);
-        let size = this.int32();
+        const size = this.int32();
         let convert = true;
         let sum = 0;
         for (let i = 0; i < size; i++) {
@@ -960,20 +960,20 @@ torch.T7Reader = class {
     }
 
     function() {
-        let index = this.int32();
+        const index = this.int32();
         if (this._memo.has(index)) {
             return this._memo.get(index);
         }
-        let size = this.int32();
-        let dumped = this.bytes(size);
-        let upvalues = this.read();
-        let func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
+        const size = this.int32();
+        const dumped = this.bytes(size);
+        const upvalues = this.read();
+        const func = { __type__: 'Function', size: size, dumped: dumped, upvalues: upvalues };
         this._memo.set(index, func);
         return func;
     }
 
     nn(obj) {
-        let attributes = this.read();
+        const attributes = this.read();
         if (attributes != null) {
             for (const key of Object.keys(attributes)) {
                 obj[key] = attributes[key];
@@ -982,7 +982,7 @@ torch.T7Reader = class {
     }
 
     tensor(obj, dataType) {
-        let dim = this.int32();
+        const dim = this.int32();
         obj.dataType = dataType;
         obj.size = this.int64s(dim);
         obj.stride = this.int64s(dim);
@@ -1038,32 +1038,32 @@ torch.BinaryReader = class {
     }
 
     bytes(size) {
-        let data = this._buffer.subarray(this._position, this._position + size);
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     int8() {
-        let value = this._dataView.getInt8(this._position, true);
+        const value = this._dataView.getInt8(this._position, true);
         this._position += 1;
         return value;
     }
 
     int16() {
-        let value = this._dataView.getInt16(this._position, true);
+        const value = this._dataView.getInt16(this._position, true);
         this._position += 2;
         return value;
     }
 
     int32() {
-        let value = this._dataView.getInt32(this._position, true);
+        const value = this._dataView.getInt32(this._position, true);
         this._position += 4;
         return value;
     }
 
     int64() {
-        let lo = this._dataView.getUint32(this._position, true);
-        let hi = this._dataView.getUint32(this._position + 4, true);
+        const lo = this._dataView.getUint32(this._position, true);
+        const hi = this._dataView.getUint32(this._position + 4, true);
         this._position += 8;
         return new long.Long(lo, hi, false).toNumber();
     }
@@ -1077,21 +1077,19 @@ torch.BinaryReader = class {
     }
     
     float32() {
-        let value = this._dataView.getFloat32(this._position, true);
+        const value = this._dataView.getFloat32(this._position, true);
         this._position += 4;
         return value;
     }
 
     float64() {
-        let value = this._dataView.getFloat64(this._position, true);
+        const value = this._dataView.getFloat64(this._position, true);
         this._position += 8;
         return value;
     }
 
     string() {
-        let size = this.int32();
-        let buffer = this.bytes(size);
-        return this._textDecoder.decode(buffer);
+        return this._textDecoder.decode(this.bytes(this.int32()));
     }
 
     storage(size, itemSize) {
@@ -1114,9 +1112,9 @@ torch.TextReader = class {
     }
 
     line(size) {
-        let start = this._position;
+        const start = this._position;
         while (this._position < this._buffer.length && size > -1) {
-            let c = this._buffer[this._position++];
+            const c = this._buffer[this._position++];
             if (c == this._separator) {
                 return this._buffer.slice(start, this._position - 1);
             }
@@ -1192,7 +1190,7 @@ torch.TextReader = class {
         }
         const number = Number.parseFloat(token);
         if (Number.isNaN(token - number)) {
-            throw new Error("Couldn't parse float '" + token + "'.");
+            throw new torch.Error("Couldn't parse float '" + token + "'.");
         }
         return number;
     }

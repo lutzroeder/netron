@@ -1338,7 +1338,7 @@ tf.TensorBundle = class {
         let indexData = reader.bytes(indexSize);
         let indexCompression = reader.byte();
         if (indexCompression !== 0) { // kNoCompression
-            throw new Error("Unsupported block compression '" + indexCompression + "'.");
+            throw new tf.Error("Unsupported block compression '" + indexCompression + "'.");
         }
         let indexReader = new tf.TensorBundle.BinaryReader(indexData);
         indexReader.seek(-4);

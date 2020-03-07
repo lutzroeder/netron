@@ -36,8 +36,8 @@ zip.Archive = class {
 zip.Entry = class {
 
     constructor(reader) {
-        reader.uint16(); // version
-        reader.skip(2);
+        reader.uint16(); // version made by
+        reader.skip(2); // version needed to extract
         this._flags = reader.uint16();
         if ((this._flags & 1) == 1) {
             throw new zip.Error('Encrypted entries not supported.');
@@ -49,7 +49,7 @@ zip.Entry = class {
         this._size = reader.uint32();
         let nameLength = reader.uint16(); // file name length
         let extraDataLength = reader.uint16();
-        let commentLength = reader.uint16();
+        const commentLength = reader.uint16();
         reader.uint16(); // disk number start
         reader.uint16(); // internal file attributes
         reader.uint32(); // external file attributes
@@ -194,7 +194,7 @@ zip.Inflater = class {
                     this._inflateBlockData(reader, output, literalLengthTree, distanceTree);
                     break;
                 default:
-                    throw new Error('Unknown block type.');
+                    throw new zip.Error('Unknown block type.');
             }
         } while ((type & 1) == 0);
 
@@ -210,7 +210,7 @@ zip.Inflater = class {
         const length = reader.uint16(); 
         const inverseLength = reader.uint16();
         if (length !== (~inverseLength & 0x0000ffff)) {
-            throw new Error('Invalid uncompressed block length.');
+            throw new zip.Error('Invalid uncompressed block length.');
         }
 
         const block = reader.bytes(length);
@@ -273,7 +273,7 @@ zip.Inflater = class {
     }
 
     _inflateBlockData(reader, output, lengthTree, distanceTree) {
-        let buffer = output.buffer;
+        const buffer = output.buffer;
         let position = output.position;
         let start = position;
         for (;;) {
@@ -411,7 +411,7 @@ zip.BitReader = class {
         let current = 0;
         let length = 0;
         let value = this.value;
-        let table = tree.table;
+        const table = tree.table;
         do {
             current = (current << 1) + (value & 1);
             value >>>= 1;
