@@ -1317,6 +1317,16 @@ pytorch.Execution = class {
                 return array;
             };
         });
+        this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
+            if (encoding === 'latin-1') {
+                let array = new Uint8Array(source.length);
+                for (let i = 0; i < source.length; i++) {
+                    array[i] = source.charCodeAt(i);
+                }
+                return array;
+            }
+            throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+        });
         this._registerFunction('collections.Counter', function(/* iterable */) {
             return {};
         });
@@ -2564,6 +2574,7 @@ pytorch.Container.Pickle = class {
             if (!item) {
                 return null;
             }
+            console.log(item instanceof Uint8Array)
             if (Array.isArray(item)) {
                 for (const entry of item) {
                     if (!entry || !entry.key || !entry.value || !pytorch.Utility.isTensor(entry.value)) {
@@ -2575,6 +2586,9 @@ pytorch.Container.Pickle = class {
                         value: entry.value
                     });
                 }
+            }
+            else if (item instanceof Uint8Array) {
+                return null;
             }
             else if (Object(item) === item) {
                 let hasTensors = false;
