@@ -715,7 +715,13 @@ sidebar.ArgumentView = class {
                     let valueLine = this._host.document.createElement('div');
                     valueLine.className = 'sidebar-view-item-value-line-border';
                     let contentLine = this._host.document.createElement('pre');
-                    contentLine.innerHTML = state || initializer.toString();
+                    try {
+                        contentLine.innerHTML = state || initializer.toString();
+                    }
+                    catch (err) {
+                        contentLine.innerHTML = err.toString();
+                        this._host.exception(err, false);
+                    }
                     valueLine.appendChild(contentLine);
                     this._element.appendChild(valueLine);
                 }
