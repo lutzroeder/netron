@@ -355,7 +355,6 @@ def zoo():
     download_model('keras.applications.mobilenet_v2.MobileNetV2', '${test}/data/keras/MobileNetV2.h5')
     download_model('keras.applications.nasnet.NASNetMobile', '${test}/data/keras/NASNetMobile.h5')
     download_model('keras.applications.resnet50.ResNet50', '${test}/data/keras/ResNet50.h5')
-    download_model('keras.applications.vgg16.VGG16', '${test}/data/keras/VGG16.h5')
     download_model('keras.applications.vgg19.VGG19', '${test}/data/keras/VGG19.h5')
     download_model('keras.applications.xception.Xception', '${test}/data/keras/Xception.h5')
 

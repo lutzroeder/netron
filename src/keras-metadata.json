@@ -3777,7 +3777,8 @@
       "inputs": [
         {
           "description": "\nArbitrary. Use the keyword argument input_shape\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
-          "name": "input"
+          "name": "inputs",
+          "option": "variadic"
         }
       ],
       "outputs": [
