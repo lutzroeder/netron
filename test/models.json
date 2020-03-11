@@ -1239,13 +1239,6 @@
   },
   {
     "type":   "coreml",
-    "target": "digit_recognizer.mlmodel",
-    "source": "https://media.githubusercontent.com/media/erkandiken/mnist-scikit-svm-to-coreml/master/digit_recognizer.mlmodel",
-    "format": "Core ML v1",
-    "link":   "https://github.com/erkandiken/mnist-scikit-svm-to-coreml"
-  },
-  {
-    "type":   "coreml",
     "target": "Exermote.mlmodel",
     "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel",
     "format": "Core ML v1"
