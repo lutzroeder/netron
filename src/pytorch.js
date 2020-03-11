@@ -999,7 +999,7 @@ pytorch.Execution = class {
         });
         this._registerConstructor('torch.distributions.multivariate_normal.MultivariateNormal', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
-        this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
+        this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GLU', function() {});
@@ -1094,6 +1094,7 @@ pytorch.Execution = class {
             this.data = data;
             this.requires_grad = requires_grad;
         });
+        this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNorm', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', function() {});
@@ -1419,10 +1420,10 @@ pytorch.Execution = class {
             throw new pytorch.Error(message);
         });
         this._registerFunction('range', function(start, stop, step) {
-            if (stop === undefined && step === undefined) {
+            if (start !== undefined && stop === undefined && step === undefined) {
                 return Array(start).keys();
             }
-            throw new pytorch.Error('Unsupported range function.');
+            throw new pytorch.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });
         this._registerFunction('torch._utils._rebuild_tensor', function (storage, storage_offset, size, stride) {
             return {
@@ -2574,7 +2575,6 @@ pytorch.Container.Pickle = class {
             if (!item) {
                 return null;
             }
-            console.log(item instanceof Uint8Array)
             if (Array.isArray(item)) {
                 for (const entry of item) {
                     if (!entry || !entry.key || !entry.value || !pytorch.Utility.isTensor(entry.value)) {
@@ -3034,7 +3034,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 break;
                             }
                             case 'torch.ones':
-                            case 'torch.zeros': {
+                            case 'torch.zeros':
+                            case 'torch.zeros_like': {
                                 parameter.size = this.expression(args[0], context);
                                 break;
                             }

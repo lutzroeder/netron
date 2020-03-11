@@ -3424,6 +3424,34 @@
     }
   },
   {
+    "name": "torch.zeros_like",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dtype"
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "device"
+        },
+        {
+          "name": "pin_memory",
+          "type": "boolean"
+        },
+        {
+          "name": "memory_format"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.clamp",
     "schema": {
       "attributes": [
