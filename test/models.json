@@ -2937,8 +2937,8 @@
   },
   {
     "type":   "onnx",
-    "target": "bertsquad10.onnx",
-    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad10.onnx?raw=true",
+    "target": "bertsquad-10.onnx",
+    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad-10.onnx?raw=true",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
     "render": "skip",
     "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
@@ -3878,21 +3878,21 @@
     "type":   "pytorch",
     "target": "alexnet.zip.pth",
     "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v1.5",
+    "format": "PyTorch v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "alexnet.pt",
     "script": "./tools/pytorch sync install zoo",
-    "format": "TorchScript v1.5",
+    "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "alexnet_traced.pt",
     "script": "./tools/pytorch sync install zoo",
-    "format": "TorchScript v1.5",
+    "format": "TorchScript v1.4",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
