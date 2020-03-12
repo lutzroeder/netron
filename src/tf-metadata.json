@@ -4344,6 +4344,32 @@
     }
   },
   {
+    "name": "BeginEpoch",
+    "schema": {
+      "inputs": [
+        {
+          "name": "dataset_id",
+          "type": 9
+        },
+        {
+          "name": "address",
+          "type": 7
+        },
+        {
+          "name": "protocol",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "epoch_id",
+          "type": 9
+        }
+      ],
+      "summary": "Begins a tf.data service dataset epoch."
+    }
+  },
+  {
     "name": "BesselI0e",
     "schema": {
       "attributes": [
@@ -10727,6 +10753,44 @@
         }
       ],
       "summary": "Returns the permuted vector/tensor in the destination data format given the"
+    }
+  },
+  {
+    "name": "DataServiceDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "address",
+          "type": 7
+        },
+        {
+          "name": "protocol",
+          "type": 7
+        },
+        {
+          "name": "max_outstanding_requests",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that reads data from the tf.data service."
     }
   },
   {
@@ -19501,11 +19565,6 @@
           "description": "Interpolation method, \"NEAREST\" or \"BILINEAR\".",
           "name": "interpolation",
           "type": "string"
-        },
-        {
-          "default": "constant",
-          "name": "fill_mode",
-          "type": "string"
         }
       ],
       "description": "If one row of `transforms` is `[a0, a1, a2, b0, b1, b2, c0, c1]`, then it maps\nthe *output* point `(x, y)` to a transformed *input* point\n`(x', y') = ((a0 x + a1 y + a2) / k, (b0 x + b1 y + b2) / k)`, where\n`k = c0 x + c1 y + 1`. If the transformed point lays outside of the input\nimage, the output pixel is set to 0.",
@@ -23309,6 +23368,26 @@
         }
       ],
       "summary": "Computes the LU decomposition of one or more square matrices."
+    }
+  },
+  {
+    "name": "MakeDataServiceIterator",
+    "schema": {
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": 21
+        },
+        {
+          "name": "epoch_id",
+          "type": 9
+        },
+        {
+          "name": "iterator",
+          "type": 20
+        }
+      ],
+      "summary": "Creates an iterator for reading from the tf.data service."
     }
   },
   {
@@ -37030,6 +37109,38 @@
     }
   },
   {
+    "name": "RegisterDataset",
+    "schema": {
+      "attributes": [
+        {
+          "name": "external_state_policy",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "dataset",
+          "type": 21
+        },
+        {
+          "name": "address",
+          "type": 7
+        },
+        {
+          "name": "protocol",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "dataset_id",
+          "type": 9
+        }
+      ],
+      "summary": "Registers a dataset with the tf.data service."
+    }
+  },
+  {
     "name": "Relu",
     "schema": {
       "attributes": [
@@ -37532,7 +37643,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`, `bfloat16`.",
           "name": "T",
           "type": "type"
         },
@@ -37571,7 +37682,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`, `bfloat16`.",
           "name": "T",
           "type": "type"
         },
@@ -37658,7 +37769,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `bfloat16`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `bfloat16`, `float16`, `float32`, `float64`, `bfloat16`.",
           "name": "T",
           "type": "type"
         },
@@ -37745,7 +37856,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `float16`, `float32`, `float64`, `bfloat16`.",
           "name": "T",
           "type": "type"
         },
@@ -55899,6 +56010,12 @@
           "description": "The (possibly partially specified) shape of this variable.",
           "name": "shape",
           "type": "shape"
+        },
+        {
+          "default": [],
+          "description": "The allowed devices containing the resource variable. Set when the output\nResourceHandle represents a per-replica/partitioned resource variable.",
+          "name": "allowed_devices",
+          "type": "string[]"
         }
       ],
       "outputs": [
