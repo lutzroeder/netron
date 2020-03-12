@@ -69,7 +69,8 @@ armnnSerializer.DataType = {
   Boolean: 4,
   QuantisedSymm16: 5,
   QAsymmU8: 6,
-  QSymmS16: 7
+  QSymmS16: 7,
+  QAsymmS8: 8
 };
 
 /**
@@ -83,7 +84,8 @@ armnnSerializer.DataTypeName = {
   4: 'Boolean',
   5: 'QuantisedSymm16',
   6: 'QAsymmU8',
-  7: 'QSymmS16'
+  7: 'QSymmS16',
+  8: 'QAsymmS8'
 };
 
 /**
