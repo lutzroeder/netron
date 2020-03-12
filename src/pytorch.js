@@ -1403,6 +1403,9 @@ pytorch.Execution = class {
         this._registerFunction('ops.prim.NumToTensor', function(value) {
             return { __module__: 'torch', __name__: 'Tensor', value: value }; // TODO
         });
+        this._registerFunction('ops.prim.min', function(value) {
+            return Math.min.apply(null, value);
+        });
         this._registerFunction('ops.prim.shape', function(value) {
             return value.size;
         });
@@ -1580,6 +1583,15 @@ pytorch.Execution = class {
             }
             return NaN;
         });
+        this._registerFunction('torch.le', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                if (isNaN(left) || isNaN(right)) {
+                    return false;
+                }
+                return left <= right;
+            }
+            throw new pytorch.Error("Unknown 'torch.le' expression type.");
+        });
         this._registerFunction('torch.list', function(args) {
             return args;
         });
@@ -1609,6 +1621,12 @@ pytorch.Execution = class {
                 return false;
             }
             throw new pytorch.Error("Unknown 'torch.ne' expression type.");
+        });
+        this._registerFunction('torch.neg', function(value) {
+            if (typeof value === 'number') {
+                return -value;
+            }
+            throw new pytorch.Error("Unknown 'torch.neg' expression type.");
         });
         this._registerFunction('torch.q_scale', function(/* tensor */) {
             return -1; // TODO
@@ -2645,6 +2663,7 @@ pytorch.Container.Zip = class {
                 this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
             else if (this._entry('data.pkl')) {
+                // kProducedFileFormatVersion in ./third_party/src/pytorch/caffe2/serialize/inline_container.h
                 const versionEntry = this._entry('version');
                 const versionNumber = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
                 const versionTable = { '1': 'v1.3', '2': 'v1.4', '3': 'v1.5' };
