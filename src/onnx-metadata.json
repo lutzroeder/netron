@@ -192,6 +192,103 @@
     }
   },
   {
+    "name": "Adagrad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The decay factor of learning rate after one update.The effective learning rate is computed by r = R / (1 + T * decay_factor). Default to 0 so that increasing update counts doesn't reduce the learning rate.",
+          "name": "decay_factor",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "default": 9.999999974752427e-07,
+          "description": "Small scalar to avoid dividing by zero.",
+          "name": "epsilon",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "description": "Regularization coefficient in 0.5 * norm_coefficient * ||X||_2^2. Default to 0, which means no regularization.",
+          "name": "norm_coefficient",
+          "required": false,
+          "type": "float32"
+        }
+      ],
+      "description": "Compute one iteration of ADAGRAD, a stochastic gradient based optimization\n    algorithm. This operator can conduct the optimization of multiple tensor variables.\n\n    Let's define the behavior of this operator. As you can imagine, ADAGRAD requires\n    some parameters:\n     \n     - The initial learning-rate \"R\".\n     - The update count \"T\". That is, the number of training iterations conducted.\n     - A L2-norm regularization coefficient \"norm_coefficient\".\n     - A learning-rate decay factor \"decay_factor\".\n     - A small constant \"epsilon\" to avoid dividing-by-zero. \n\n    At each ADAGRAD iteration, the optimized tensors are moved along a direction\n    computed based on their estimated gradient and accumulated squared gradient. Assume\n    that only a single tensor \"X\" is updated by this operator. We need the value of \"X\",\n    its gradient \"G\", and its accumulated squared gradient \"H\". Therefore, variables in\n    this operator's input list are sequentially \"R\", \"T\", \"X\", \"G\", and \"H\". Other\n    parameters are given as attributes because they are usually constants. Also, the\n    corresponding output tensors are the new value of \"X\" (called \"X_new\"), and then\n    the new accumulated squared gradient (called \"H_new\"). Those outputs are computed\n    from the given inputs following the pseudo code below.\n\n    Let \"+\", \"-\", \"*\", and \"/\" are all element-wise arithmetic operations with\n    numpy-style broadcasting support. The pseudo code to compute those outputs is:\n\n      // Compute a scalar learning-rate factor. At the first update of X, T is generally\n      // 0 (0-based update index) or 1 (1-based update index).\n      r = R / (1 + T * decay_factor);\n\n      // Add gradient of 0.5 * norm_coefficient * ||X||_2^2, where ||X||_2 is the 2-norm.\n      G_regularized = norm_coefficient * X + G;\n\n      // Compute new accumulated squared gradient.\n      H_new = H + G_regularized * G_regularized;\n\n      // Compute the adaptive part of per-coordinate learning rate. Note that Sqrt(...)\n      // computes element-wise square-root.\n      H_adaptive = Sqrt(H_new) + epsilon\n\n      // Compute the new value of \"X\".\n      X_new = X - r * G_regularized / H_adaptive;\n\n    If one assign this operators to optimize multiple inputs, for example, \"X_1\" and \"X_2\", the same\n    pseudo code may be extended to handle all tensors jointly. More specifically, we can view \"X\" as a\n    concatenation of \"X_1\" and \"X_2\" (of course, their gradient and accumulate gradient should\n    be concatenated too) and then just reuse the entire pseudo code.\n\n    Note that ADAGRAD was first proposed in http://jmlr.org/papers/volume12/duchi11a/duchi11a.pdf.\n    In that reference paper, this operator is a special case of the Figure 1's composite mirror\n    descent update.\n",
+      "domain": "ai.onnx.training",
+      "examples": [
+        {
+          "code": "# Define operator attributes.\nnorm_coefficient = 0.001\nepsilon = 1e-5\ndecay_factor = 0.1\n\n# Create operator.\nnode = onnx.helper.make_node('Adagrad',\n                             inputs=['R', 'T', 'X', 'G', 'H'],\n                             outputs=['X_new', 'H_new'],\n                             norm_coefficient=norm_coefficient,\n                             epsilon=epsilon,\n                             decay_factor=decay_factor,\n                             domain='ai.onnx.training'\n                             )\n\n# Define operator inputs.\nr = np.array(0.1, dtype=np.float32)  # scalar\nt = np.array(0, dtype=np.int64)  # scalar\nx = np.array([1.0], dtype=np.float32)\ng = np.array([-1.0], dtype=np.float32)\nh = np.array([2.0], dtype=np.float32)\n\n# Compute expected outputs of Adagrad.\nx_new, h_new = apply_adagrad(r, t, x, g, h,\n                             norm_coefficient, epsilon, decay_factor)\n\n# Check results.\nexpect(node, inputs=[r, t, x, g, h],\n       outputs=[x_new, h_new], name='test_adagrad',\n       opset_imports=[onnx.helper.make_opsetid('ai.onnx.training', 1)])",
+          "summary": "adagrad"
+        },
+        {
+          "code": "# Define operator attributes.\nnorm_coefficient = 0.001\nepsilon = 1e-5\ndecay_factor = 0.1\n\nnode = onnx.helper.make_node('Adagrad',\n                             inputs=['R', 'T', 'X1', 'X2',\n                                     'G1', 'G2', 'H1', 'H2'],\n                             outputs=['X1_new', 'X2_new',\n                                      'H1_new', 'H2_new'],\n                             norm_coefficient=norm_coefficient,\n                             epsilon=epsilon,\n                             decay_factor=decay_factor,\n                             domain='ai.onnx.training'\n                             )\n\n# Define operator inputs.\nr = np.array(0.1, dtype=np.float32)  # scalar\nt = np.array(0, dtype=np.int64)  # scalar\n\nx1 = np.array([1.0], dtype=np.float32)\ng1 = np.array([-1.0], dtype=np.float32)\nh1 = np.array([2.0], dtype=np.float32)\n\nx2 = np.array([1.0, 2.0], dtype=np.float32)\ng2 = np.array([-1.0, -3.0], dtype=np.float32)\nh2 = np.array([4.0, 1.0], dtype=np.float32)\n\n# Compute expected outputs of Adagrad.\nx1_new, h1_new = apply_adagrad(r, t, x1, g1, h1,\n                               norm_coefficient, epsilon, decay_factor)\nx2_new, h2_new = apply_adagrad(r, t, x2, g2, h2,\n                               norm_coefficient, epsilon, decay_factor)\n\n# Check results.\nexpect(node, inputs=[r, t, x1, x2, g1, g2, h1, h2],\n       outputs=[x1_new, x2_new, h1_new, h2_new], name='test_adagrad_multiple',\n       opset_imports=[onnx.helper.make_opsetid('ai.onnx.training', 1)])",
+          "summary": "adagrad_multiple"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The initial learning rate.",
+          "name": "R",
+          "type": "T1"
+        },
+        {
+          "description": "The update count of \"X\". It should be a scalar.",
+          "name": "T",
+          "type": "T2"
+        },
+        {
+          "description": "The current values of optimized tensors, followed by their respective gradients, followed by their respective accumulated squared gradients.For example, if two tensor \"X_1\" and \"X_2\" are optimized, The input list would be [\"X_1\", \"X_2\", gradient of \"X_1\", gradient of \"X_2\", accumulated squared gradient of \"X_1\", accumulated squared gradient of \"X_2\"].",
+          "name": "inputs",
+          "option": "variadic",
+          "type": "T3"
+        }
+      ],
+      "inputs_range": "3 - &#8734;",
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Updated values of optimized tensors, followed by their updated values of accumulated squared gradients. For example, if two tensor \"X_1\" and \"X_2\" are optimized, the output list would be [new value of \"X_1,\" new value of \"X_2\" new accumulated squared gradient of \"X_1\", new accumulated squared gradient of \"X_2\"].",
+          "name": "outputs",
+          "option": "variadic",
+          "type": "T3"
+        }
+      ],
+      "outputs_range": "1 - &#8734;",
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input types to float scalars.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain input types to 64-bit integer scalars.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T3"
+        }
+      ]
+    }
+  },
+  {
     "name": "Add",
     "schema": {
       "attributes": [
@@ -13727,6 +13824,112 @@
     }
   },
   {
+    "name": "Momentum",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The decay factor of momentum. It should be a scalar.",
+          "name": "alpha",
+          "required": true,
+          "type": "float32"
+        },
+        {
+          "description": "The coefficient of gradient in computing new momentum. It should be a scalar.",
+          "name": "beta",
+          "required": true,
+          "type": "float32"
+        },
+        {
+          "description": "Its value should be either \"nesterov\" or \"standard\". The value \"nesterov\" leads to the use of Nesterov's momentum while \"standard\" invokes stochastic gradient method using standard momentum",
+          "name": "mode",
+          "required": true,
+          "type": "string"
+        },
+        {
+          "description": "Coefficient of 0.5 * norm_coefficient * ||X||^2.",
+          "name": "norm_coefficient",
+          "required": true,
+          "type": "float32"
+        }
+      ],
+      "description": "Compute one iteration of stochastic gradient update with momentum.\n    This operator can conduct the optimization of multiple tensor variables.\n\n    Let's define the behavior of this operator. As you can imagine, SG with momentum requires\n    several parameters:\n     \n     - The learning-rate \"R\".\n     - The update count \"T\". That is, the number of conducted training iterations. It should\n       be zero in the first training iteration.\n     - A L2-norm regularization coefficient \"norm_coefficient\".\n     - A decay coefficient of previous accumulated gradient (i.e., momentum) \"alpha\".\n     - The scaling coefficient of current gradient \"beta\".\n     - An attribute to choose either standard momentum or Nesterov's momentum \"mode\" should\n       be used.\n\n    For the sake of simplicity, assume that there is only one tensor (called \"X\") to be optimized.\n    Other necessary inputs are \"X\"'s gradient (called \"G\") and \"X\"'s momentum (called \"V\"). This\n    Momentum operator maps all these inputs to the new value of \"X\" (called \"X_new\") and its new\n    momentum (called \"V_new\").\n    \n    This operator supports two different momentum algorithms. Set the attribute \"mode\" to\n    \"nesterov\" if Nesterov's momentum is desired. Otherwise, set the attribute \"model\" to\n    \"standard\" to use standard momentum. Computation details are described subsequently.\n\n    Let \"+\", \"-\", \"*\", and \"/\" are all element-wise operations with numpy-style broadcasting.\n\n    Pseudo code for SG with standard momentum:\n\n      // Add gradient of 0.5 * norm_coefficient * ||X||^2, where ||X|| is the sum of squared\n      // values of all elements in X.\n      G_regularized = norm_coefficient * X + G\n\n      // In the first training iteration, beta should always be 1.\n      beta_adjusted = T > 0 ? beta : 1\n\n      // Compute the current momentum based on previous momentum and the current gradient.\n      V_new = alpha * V + beta_adjusted * G_regularized\n\n      // Update X.\n      X_new = X - R * V_new\n\n    Pseudo code for SG with Nesterov's momentum:\n\n      // Add gradient of 0.5 * norm_coefficient * ||X||^2, where ||X|| is the sum of squared\n      // values of all elements in X.\n      G_regularized = norm_coefficient * X + G;\n\n      // In the first training iteration, beta should always be 1.\n      beta_adjusted = T > 0 ? beta : 1\n\n      // Compute the current momentum based on previous momentum and the current gradient.\n      V_new = alpha * V + beta_adjusted * G_regularized;\n\n      // Compute final update direction and then update X.\n      X_new = X - R * (G_regularized + alpha * V_new)\n\n    If one assign this operators to optimize multiple inputs, for example, \"X_1\" and \"X_2\". The same\n    pseudo code would be extended to handle all tensors jointly. More specifically, we can view \"X\" as a\n    concatenation of \"X_1\" and \"X_2\" (of course, their gradient and accumulate gradient should\n    be concatenated too) and then our pseudo code becomes applicable.\n",
+      "domain": "ai.onnx.training",
+      "examples": [
+        {
+          "code": "# Define operator attributes.\nnorm_coefficient = 0.001\nalpha = 0.95\nbeta = 0.1\n\n# Create operator.\nnode = onnx.helper.make_node('Momentum',\n                             inputs=['R', 'T', 'X', 'G', 'V'],\n                             outputs=['X_new', 'V_new'],\n                             norm_coefficient=norm_coefficient,\n                             alpha=alpha,\n                             beta=beta,\n                             mode='standard',\n                             domain='ai.onnx.training'\n                             )\n\n# Define operator inputs.\nr = np.array(0.1, dtype=np.float32)  # scalar\nt = np.array(0, dtype=np.int64)  # scalar\nx = np.array([1.2, 2.8], dtype=np.float32)\ng = np.array([-0.94, -2.5], dtype=np.float32)\nv = np.array([1.7, 3.6], dtype=np.float32)\n\n# Compute expected outputs of Momentum.\nx_new, v_new = apply_momentum(r, t, x, g, v,\n                              norm_coefficient, alpha, beta)\n\n# Check results.\nexpect(node, inputs=[r, t, x, g, v],\n       outputs=[x_new, v_new], name='test_momentum',\n       opset_imports=[onnx.helper.make_opsetid('ai.onnx.training', 1)])",
+          "summary": "momentum"
+        },
+        {
+          "code": "# Define operator attributes.\nnorm_coefficient = 0.001\nalpha = 0.95\nbeta = 0.85\n\nnode = onnx.helper.make_node('Momentum',\n                             inputs=['R', 'T', 'X1', 'X2',\n                                     'G1', 'G2', 'H1', 'H2'],\n                             outputs=['X1_new', 'X2_new',\n                                      'V1_new', 'V2_new'],\n                             norm_coefficient=norm_coefficient,\n                             alpha=alpha,\n                             beta=beta,\n                             mode='standard',\n                             domain='ai.onnx.training'\n                             )\n\n# Define operator inputs.\nr = np.array(0.1, dtype=np.float32)  # scalar\nt = np.array(0, dtype=np.int64)  # scalar\n\nx1 = np.array([1.0], dtype=np.float32)\ng1 = np.array([-1.0], dtype=np.float32)\nv1 = np.array([2.0], dtype=np.float32)\n\nx2 = np.array([1.0, 2.0], dtype=np.float32)\ng2 = np.array([-1.0, -3.0], dtype=np.float32)\nv2 = np.array([4.0, 1.0], dtype=np.float32)\n\n# Compute expected outputs of Momentum.\nx1_new, v1_new = apply_momentum(r, t, x1, g1, v1,\n                                norm_coefficient, alpha, beta)\nx2_new, v2_new = apply_momentum(r, t, x2, g2, v2,\n                                norm_coefficient, alpha, beta)\n\n# Check results.\nexpect(node, inputs=[r, t, x1, x2, g1, g2, v1, v2],\n       outputs=[x1_new, x2_new, v1_new, v2_new], name='test_momentum_multiple',\n       opset_imports=[onnx.helper.make_opsetid('ai.onnx.training', 1)])",
+          "summary": "momentum_multiple"
+        },
+        {
+          "code": "# Define operator attributes.\nnorm_coefficient = 0.01\nalpha = 0.95\nbeta = 1.0\n\n# Create operator.\nnode = onnx.helper.make_node('Momentum',\n                             inputs=['R', 'T', 'X', 'G', 'V'],\n                             outputs=['X_new', 'V_new'],\n                             norm_coefficient=norm_coefficient,\n                             alpha=alpha,\n                             beta=beta,\n                             mode='nesterov',\n                             domain='ai.onnx.training'\n                             )\n\n# Define operator inputs.\nr = np.array(0.1, dtype=np.float32)  # scalar\nt = np.array(0, dtype=np.int64)  # scalar\nx = np.array([1.2, 2.8], dtype=np.float32)\ng = np.array([-0.94, -2.5], dtype=np.float32)\nv = np.array([1.7, 3.6], dtype=np.float32)\n\n# Compute expected outputs of Adagrad.\nx_new, v_new = apply_nesterov(r, t, x, g, v,\n                              norm_coefficient, alpha, beta)\n\n# Check results.\nexpect(node, inputs=[r, t, x, g, v],\n       outputs=[x_new, v_new], name='test_nesterov_momentum',\n       opset_imports=[onnx.helper.make_opsetid('ai.onnx.training', 1)])",
+          "summary": "nesterov_momentum"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The learning rate.",
+          "name": "R",
+          "type": "T1"
+        },
+        {
+          "description": "Update count of \"X\". It should be a scalar.",
+          "name": "T",
+          "type": "T2"
+        },
+        {
+          "description": "It sequentially contains the current values of optimized tensors, then their gradient tensors, and finally their momentum tensors. For example, if two tensors \"X_1\" and \"X_2\" are optimized, The expected input list would be [\"X_1\", \"X_2\", gradient of \"X_1\", gradient of \"X_2\", momentum of \"X_1\", momentum of \"X_2\"].",
+          "name": "inputs",
+          "option": "variadic",
+          "type": "T3"
+        }
+      ],
+      "inputs_range": "3 - &#8734;",
+      "max_input": 2147483647,
+      "max_output": 2147483647,
+      "min_input": 3,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "It sequentially contains the new values of optimized tensors and then the new values of their momentum tensors. For example, if two tensors \"X_1\" and \"X_2\" are optimized, the output list would be [new value of \"X_1,\" new value of \"X_2\" new momentum of \"X_1\", new momentum of \"X_2\"].",
+          "name": "outputs",
+          "option": "variadic",
+          "type": "T3"
+        }
+      ],
+      "outputs_range": "1 - &#8734;",
+      "since_version": 1,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input types to float scalars.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int64)"
+          ],
+          "description": "Constrain input types to 64-bit integer scalars.",
+          "type_param_str": "T2"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input types to float tensors.",
+          "type_param_str": "T3"
+        }
+      ]
+    }
+  },
+  {
     "name": "Mul",
     "schema": {
       "attributes": [
@@ -23772,7 +23975,7 @@
           "type": "int64[]"
         }
       ],
-      "description": "The UnfoldToDepth operator extracts sliding blocks from an input tensor, and concatenates these blocks\nin the last dimension.\nGiven an input of shape (N x C x D1 x D2 ... x Dn), output would be a 3-D tensor of shape:<br/>\n\n```(N, C * reduce-mul(block_size), reduce-mul(num_blocks))```\n<br/>\nWhere number of blocks extracted from each spatial dimension d is:\n```\nnum_blocks[d] = floor((input_spatial_shape[d] + 2 * padding[d] \u2212 dilation[d] * (kernel_size[d] \u2212 1) \u2212 1) / stride[d]) + 1\n```\n",
+      "description": "The UnfoldToDepth operator extracts sliding blocks from an input tensor, and concatenates these blocks\nin the last dimension.\nGiven an input of shape (N x C x D1 x D2 ... x Dn), output would be a 3-D tensor of shape:<br/>\n\n```(N, C * reduce-mul(block_size), reduce-mul(num_blocks))```\n<br/>\nWhere number of blocks extracted from each spatial dimension d is:\n```\nnum_blocks[d] = floor((input_spatial_shape[d] + 2 * padding[d] - dilation[d] * (kernel_size[d] - 1) - 1) / stride[d]) + 1\n```\n",
       "domain": "ai.onnx",
       "examples": [
         {
