@@ -19,7 +19,7 @@
         "d3": "5.15.0",
         "dagre": "0.8.5",
         "electron-updater": "4.2.5",
-        "flatbuffers": "1.11.0",
+        "flatbuffers": "1.12.0",
         "long": "4.0.0",
         "marked": "0.8.0",
         "pako": "1.0.11",
