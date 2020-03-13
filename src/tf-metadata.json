@@ -19565,6 +19565,12 @@
           "description": "Interpolation method, \"NEAREST\" or \"BILINEAR\".",
           "name": "interpolation",
           "type": "string"
+        },
+        {
+          "default": "CONSTANT",
+          "description": "Fill mode, \"REFLECT\", \"WRAP\", or \"CONSTANT\".",
+          "name": "fill_mode",
+          "type": "string"
         }
       ],
       "description": "If one row of `transforms` is `[a0, a1, a2, b0, b1, b2, c0, c1]`, then it maps\nthe *output* point `(x, y)` to a transformed *input* point\n`(x', y') = ((a0 x + a1 y + a2) / k, (b0 x + b1 y + b2) / k)`, where\n`k = c0 x + c1 y + 1`. If the transformed point lays outside of the input\nimage, the output pixel is set to 0.",
