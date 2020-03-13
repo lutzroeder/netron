@@ -53,6 +53,8 @@ fileAssociations:
     ext: tflite
   - name: "TensorFlow Lite Model"
     ext: tfl
+  - name: "Tengine"
+    ext: tmfile
 afterSign: "./setup/notarize.js"
 publish:
   - provider: github
