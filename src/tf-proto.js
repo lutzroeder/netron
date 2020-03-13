@@ -5445,6 +5445,7 @@
                 values[valuesById[7] = "OPTIONAL_SPEC"] = 7;
                 values[valuesById[8] = "PER_REPLICA_SPEC"] = 8;
                 values[valuesById[9] = "VARIABLE_SPEC"] = 9;
+                values[valuesById[10] = "ROW_PARTITION_SPEC"] = 10;
                 return values;
             })();
     
