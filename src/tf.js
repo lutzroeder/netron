@@ -979,7 +979,7 @@ tf.Attribute = class {
             }
         }
         else if (Object.prototype.hasOwnProperty.call(value, 'func')) {
-            let func = value.func;
+            const func = value.func;
             this._type = 'function';
             this._value = func.name;
         }
@@ -999,8 +999,8 @@ tf.Attribute = class {
                         temp[0] = defaultValue;
                         defaultValue = temp[0];
                     }
-                    let valueText = tf.GraphMetadata._formatAttributeValue(value);
-                    let defaultValueText = tf.GraphMetadata._formatAttributeValue(defaultValue);
+                    const valueText = tf.GraphMetadata._formatAttributeValue(value);
+                    const defaultValueText = tf.GraphMetadata._formatAttributeValue(defaultValue);
                     if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
                         this._visible = false;
                     }
@@ -1081,7 +1081,7 @@ tf.Tensor = class {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
@@ -1096,7 +1096,7 @@ tf.Tensor = class {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        let shape = this._tensor.tensor_shape || this._tensor.tensorShape; 
+        const shape = this._tensor.tensor_shape || this._tensor.tensorShape; 
         if (!shape || !shape.dim) {
             context.state = 'Tensor has no dimensions.';
             return context;
@@ -1169,7 +1169,7 @@ tf.Tensor = class {
             shape = [ 1 ];
         }
         let results = [];
-        let size = shape[dimension];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -1229,7 +1229,7 @@ tf.Tensor = class {
     }
 
     _decodeDataValue(context) {
-        let value = context.data[context.index++];
+        const value = context.data[context.index++];
         if (this._tensor.dtype == tf.proto.DataType.DT_STRING) {
             return tf.Metadata.textDecoder.decode(value);
         }
@@ -1240,7 +1240,7 @@ tf.Tensor = class {
         if (!tf.Tensor.dataType) {
             tf.Tensor.dataType = {};
             for (let key of Object.keys(tf.proto.DataType)) {
-                let value = tf.proto.DataType[key];
+                const value = tf.proto.DataType[key];
                 key = key.startsWith('DT_') ? key.substring(3) : key;
                 tf.Tensor.dataType[value] = key.toLowerCase();
             }
@@ -1249,11 +1249,7 @@ tf.Tensor = class {
             tf.Tensor.dataType[tf.proto.DataType.DT_DOUBLE] = 'float64';
             tf.Tensor.dataType['DT_FLOAT'] = 'float32';
         }
-        let text = tf.Tensor.dataType[type];
-        if (text) { 
-            return text;
-        }
-        return '?';
+        return tf.Tensor.dataType[type] || '?';
     }
 };
 
