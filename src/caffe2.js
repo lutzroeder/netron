@@ -228,6 +228,10 @@ caffe2.Graph = class {
                         case 'GivenTensorByteStringToUInt8Fill':
                             initializer.dataType = 'uint8';
                             break;
+                        case 'GivenTensorInt16Fill':
+                        case 'GivenTensorSInt16Fill':
+                            initializer.dataType = 'int16';
+                            break;
                         case 'GivenTensorIntFill':
                             initializer.dataType = 'int32';
                             break;
