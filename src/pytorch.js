@@ -1423,7 +1423,7 @@ pytorch.Execution = class {
             throw new pytorch.Error(message);
         });
         this._registerFunction('range', function(start, stop, step) {
-            if (start !== undefined && stop === undefined && step === undefined) {
+            if (start !== undefined && Number.isInteger(start) && stop === undefined && step === undefined) {
                 return Array(start).keys();
             }
             throw new pytorch.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
