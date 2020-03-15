@@ -208,8 +208,7 @@ hdf5.Variable = class {
         if (data) {
             const reader = new hdf5.Reader(data);
             const array = this._dataspace.read(this._datatype, reader);
-            const value = this._dataspace.decode(this._datatype, array, array, this._globalHeap);
-            return value;
+            return this._dataspace.decode(this._datatype, array, array, this._globalHeap);
         }
         return null;
     }
@@ -251,14 +250,16 @@ hdf5.Variable = class {
                 }
                 break;
             }
-            default:
+            default: {
                 throw new hdf5.Error("Unknown data layout class '" + this.layoutClass + "'.");
+            }
         } 
         return null;
     }
 };
 
 hdf5.Reader = class {
+
     constructor(buffer) {
         if (buffer) {
             this._buffer = buffer;
@@ -494,6 +495,7 @@ hdf5.Reader = class {
 };
 
 hdf5.SymbolTableNode = class {
+
     constructor(reader) {
         if (!reader.match('SNOD')) {
             throw new hdf5.Error("Not a valid 'SNOD' block.");
@@ -514,6 +516,7 @@ hdf5.SymbolTableNode = class {
 };
 
 hdf5.SymbolTableEntry = class {
+
     constructor(reader) {
         this.linkNameOffset = reader.offset();
         this.objectHeaderAddress = reader.offset();
@@ -544,75 +547,70 @@ hdf5.DataObjectHeader = class {
         this.continuations = [];
         const version = reader.match('OHDR') ? reader.byte() : reader.byte();
         switch (version) {
-            case 1:
-                this.constructor_v1(reader);
-                break;
-            case 2:
-                this.constructor_v2(reader);
-                break;
-            default:
-                throw new hdf5.Error('Unsupported data object header version \'' + version + '\'.');
-        }
-    }
-
-    constructor_v1(reader) {
-        reader.seek(1);
-        const messageCount = reader.uint16();
-        reader.uint32();
-        const objectHeaderSize = reader.uint32();
-        reader.align(8);
-        let end = reader.position + objectHeaderSize;
-        for (let i = 0; i < messageCount; i++) {
-            const messageType = reader.uint16();
-            const messageSize = reader.uint16();
-            const messageFlags = reader.byte();
-            reader.seek(3);
-            reader.align(8);
-            let next = this._readMessage(reader, messageType, messageSize, messageFlags);
-            if ((!next || reader.position >= end) && this.continuations.length > 0) {
-                const continuation = this.continuations.shift();
-                reader = reader.at(continuation.offset);
-                end = continuation.offset + continuation.length;
-            }
-            else {
+            case 1: {
+                reader.seek(1);
+                const messageCount = reader.uint16();
+                reader.uint32();
+                const objectHeaderSize = reader.uint32();
                 reader.align(8);
+                let end = reader.position + objectHeaderSize;
+                for (let i = 0; i < messageCount; i++) {
+                    const messageType = reader.uint16();
+                    const messageSize = reader.uint16();
+                    const messageFlags = reader.byte();
+                    reader.seek(3);
+                    reader.align(8);
+                    const next = this._readMessage(reader, messageType, messageSize, messageFlags);
+                    if ((!next || reader.position >= end) && this.continuations.length > 0) {
+                        const continuation = this.continuations.shift();
+                        reader = reader.at(continuation.offset);
+                        end = continuation.offset + continuation.length;
+                    }
+                    else {
+                        reader.align(8);
+                    }
+                }
+                break;
             }
-        }
-    } 
-
-    constructor_v2(reader) {
-        const flags = reader.byte();
-        if ((flags & 0x20) != 0) {
-            reader.uint32();
-            reader.uint32();
-            reader.uint32();
-            reader.uint32();
-        }
-        if ((flags & 0x10) != 0) {
-            reader.uint16();
-            reader.uint16();
-        }
-        const size = reader.uint(flags & 0x03);
-        let next = true;
-        let end = reader.position + size;
-        while (next && reader.position < end) {
-            const messageType = reader.byte();
-            const messageSize = reader.uint16();
-            const messageFlags = reader.byte();
-            if (reader.position < end) {
-                if ((flags & 0x04) != 0) {
+            case 2: {
+                const flags = reader.byte();
+                if ((flags & 0x20) != 0) {
+                    reader.uint32();
+                    reader.uint32();
+                    reader.uint32();
+                    reader.uint32();
+                }
+                if ((flags & 0x10) != 0) {
+                    reader.uint16();
                     reader.uint16();
                 }
-                next = this._readMessage(reader, messageType, messageSize, messageFlags);
-            } 
-            if ((!next || reader.position >= end) && this.continuations.length > 0) {
-                const continuation = this.continuations.shift();
-                reader = reader.at(continuation.offset);
-                end = continuation.offset + continuation.length;
-                if (!reader.match('OCHK')) {
-                    throw new hdf5.Error("Invalid continuation block signature.");
+                const size = reader.uint(flags & 0x03);
+                let next = true;
+                let end = reader.position + size;
+                while (next && reader.position < end) {
+                    const messageType = reader.byte();
+                    const messageSize = reader.uint16();
+                    const messageFlags = reader.byte();
+                    if (reader.position < end) {
+                        if ((flags & 0x04) != 0) {
+                            reader.uint16();
+                        }
+                        next = this._readMessage(reader, messageType, messageSize, messageFlags);
+                    } 
+                    if ((!next || reader.position >= end) && this.continuations.length > 0) {
+                        const continuation = this.continuations.shift();
+                        reader = reader.at(continuation.offset);
+                        end = continuation.offset + continuation.length;
+                        if (!reader.match('OCHK')) {
+                            throw new hdf5.Error("Invalid continuation block signature.");
+                        }
+                        next = true;
+                    }
                 }
-                next = true;
+                break;
+            }
+            default: {
+                throw new hdf5.Error('Unsupported data object header version \'' + version + '\'.');
             }
         }
     }
@@ -1150,45 +1148,39 @@ hdf5.Attribute = class {
     constructor(reader) {
         const version = reader.byte();
         switch (version) {
-            case 1:
-                this.constructor_v1(reader);
+            case 1: {
+                reader.seek(1);
+                const nameSize = reader.uint16();
+                const datatypeSize = reader.uint16();
+                const dataspaceSize = reader.uint16();
+                this.name = reader.string(nameSize, 'utf-8');
+                reader.align(8);
+                this._datatype = new hdf5.Datatype(reader.clone());
+                reader.seek(datatypeSize);
+                reader.align(8);
+                this._dataspace = new hdf5.Dataspace(reader.clone());
+                reader.seek(dataspaceSize);
+                reader.align(8);
+                this._data = this._dataspace.read(this._datatype, reader);
                 break;
-            case 3:
-                this.constructor_v3(reader);
+            }
+            case 3: {
+                reader.byte();
+                const nameSize = reader.uint16();
+                const datatypeSize = reader.uint16();
+                const dataspaceSize = reader.uint16();
+                const encoding = reader.byte() == 1 ? 'utf-8' : 'ascii';
+                this.name = reader.string(nameSize, encoding);
+                this._datatype = new hdf5.Datatype(reader.clone());
+                reader.seek(datatypeSize);
+                this._dataspace = new hdf5.Dataspace(reader.clone());
+                reader.seek(dataspaceSize);
+                this._data = this._dataspace.read(this._datatype, reader);
                 break;
+            }
             default:
                 throw new hdf5.Error('Unsupported attribute message version \'' + version + '\'.'); 
         }
-    }
-
-    constructor_v1(reader) {
-        reader.seek(1);
-        const nameSize = reader.uint16();
-        const datatypeSize = reader.uint16();
-        const dataspaceSize = reader.uint16();
-        this.name = reader.string(nameSize, 'utf-8');
-        reader.align(8);
-        this._datatype = new hdf5.Datatype(reader.clone());
-        reader.seek(datatypeSize);
-        reader.align(8);
-        this._dataspace = new hdf5.Dataspace(reader.clone());
-        reader.seek(dataspaceSize);
-        reader.align(8);
-        this._data = this._dataspace.read(this._datatype, reader);
-    }
-
-    constructor_v3(reader) {
-        reader.byte();
-        const nameSize = reader.uint16();
-        const datatypeSize = reader.uint16();
-        const dataspaceSize = reader.uint16();
-        const encoding = reader.byte() == 1 ? 'utf-8' : 'ascii';
-        this.name = reader.string(nameSize, encoding);
-        this._datatype = new hdf5.Datatype(reader.clone());
-        reader.seek(datatypeSize);
-        this._dataspace = new hdf5.Dataspace(reader.clone());
-        reader.seek(dataspaceSize);
-        this._data = this._dataspace.read(this._datatype, reader);
     }
 
     decodeValue(globalHeap) {
@@ -1329,15 +1321,17 @@ hdf5.Heap = class {
             throw new hdf5.Error("Not a valid 'HEAP' block.");
         }
         const version = reader.byte();
-        if (version == 0) {
-            reader.seek(3);
-            this._dataSize = reader.length();
-            this._offsetToHeadOfFreeList = reader.length();
-            this._dataAddress = reader.offset();
-        }
-        else {
-            throw new hdf5.Error('Unsupported Local Heap version \'' + version + '\'.');
-
+        switch (version) {
+            case 0: {
+                reader.seek(3);
+                this._dataSize = reader.length();
+                this._offsetToHeadOfFreeList = reader.length();
+                this._dataAddress = reader.offset();
+                break;
+            }
+            default: {
+                throw new hdf5.Error('Unsupported Local Heap version \'' + version + '\'.');
+            }
         }
     }
 
@@ -1348,61 +1342,54 @@ hdf5.Heap = class {
 };
 
 hdf5.GlobalHeap = class {
+
     constructor(reader) {
         this._reader = reader; 
-        this._collections = {};
-    }
-
-    getCollection(address) {
-        let globalHeapCollection = this._collections[address];
-        if (!globalHeapCollection) {
-            globalHeapCollection = new hdf5.GlobalHeapCollection(this._reader.at(address));
-            this._collections[address] = globalHeapCollection;
-        }
-        return globalHeapCollection;
+        this._collections = new Map();
     }
 
     get(globalHeapID) {
-        let globalHeapObject = null;
-        const globalHeapCollection = this.getCollection(globalHeapID.address);
-        if (globalHeapCollection != null) {
-            globalHeapObject = globalHeapCollection.getObject(globalHeapID.objectIndex);
+        const address = globalHeapID.address;
+        if (!this._collections.has(address)) {
+            this._collections.set(address, new hdf5.GlobalHeapCollection(this._reader.at(address)));
         }
-        return globalHeapObject;
+        return this._collections.get(globalHeapID.address).getObject(globalHeapID.objectIndex);
     }
 };
 
 hdf5.GlobalHeapCollection = class {
+
     constructor(reader) {
         const startPosition = reader.position;
         if (!reader.match('GCOL')) {
             throw new hdf5.Error("Not a valid 'GCOL' block.");
         }
         const version = reader.byte();
-        if (version == 1) {
-            reader.seek(3);
-            this._objects = {};
-            const size = reader.length();
-            const endPosition = startPosition + size;
-            while (reader.position < endPosition) {
-                const index = reader.uint16();
-                if (index == 0) {
-                    break;
+        switch (version) {
+            case 1: {
+                reader.seek(3);
+                this._objects = new Map();
+                const size = reader.length();
+                const endPosition = startPosition + size;
+                while (reader.position < endPosition) {
+                    const index = reader.uint16();
+                    if (index == 0) {
+                        break;
+                    }
+                    this._objects.set(index, new hdf5.GlobalHeapObject(reader));
+                    reader.align(8);
                 }
-                const heapObject = new hdf5.GlobalHeapObject(reader);
-                this._objects[index] = heapObject;
-                reader.align(8);
+                break;
             }
-        }
-        else {
-            throw new hdf5.Error('Unsupported global heap collection version \'' + version + '\'.');
+            default: {
+                throw new hdf5.Error('Unsupported global heap collection version \'' + version + '\'.');
+            }
         }
     }
 
     getObject(objectIndex) {
-        const globalHeapObject = this._objects[objectIndex];
-        if (globalHeapObject) {
-            return globalHeapObject;
+        if (this._objects.has(objectIndex)) {
+            return this._objects.get(objectIndex);
         }
         return null;
     }
@@ -1413,8 +1400,7 @@ hdf5.GlobalHeapObject = class {
     constructor(reader) {
         reader.uint16();
         reader.seek(4);
-        const size = reader.length();
-        this.data = reader.bytes(size);
+        this.data = reader.bytes(reader.length());
     }
 };
 
