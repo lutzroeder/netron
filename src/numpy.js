@@ -41,10 +41,7 @@ numpy.Array = class {
                         throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
                     }
                     this._dataType = header.descr.substring(1);
-                    let size = parseInt(header.descr[2]);
-                    for (const dimension of this._shape) {
-                        size *= dimension;
-                    }
+                    const size = parseInt(header.descr[2]) * this._shape.reduce((a, b) => a * b);
                     this._data = reader.bytes(size);
                     break;
                 }
@@ -133,11 +130,7 @@ numpy.Array = class {
         header += ' '.repeat(16 - ((header.length + 2 + 8 + 1) & 0x0f)) + '\n';
         writer.string(header);
 
-        let size = context.itemSize;
-        for (const dimension of this._shape) {
-            size *= dimension;
-        }
-
+        const size = context.itemSize * this._shape.reduce((a, b) => a * b)
         context.data = new Uint8Array(size);
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);
@@ -270,7 +263,7 @@ numpy.Writer = class {
     }
 
     _write(array) {
-        let node = { buffer: array, next: null };
+        const node = { buffer: array, next: null };
         if (this._tail) {
             this._tail.next = node;
         }
@@ -295,6 +288,7 @@ numpy.Writer = class {
 };
 
 numpy.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'NumPy Error';

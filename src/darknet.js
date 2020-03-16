@@ -115,14 +115,7 @@ darknet.Graph = class {
         };
 
         const load_weights = (name, shape, visible) => {
-            let data = null;
-            if (weights) {
-                let size = 1;
-                for (const dim of shape) {
-                    size *= dim;
-                }
-                data = weights.bytes(4 * size);
-            }
+            let data = weights ? weights.bytes(4 * shape.reduce((a, b) => a * b)) : null;
             const type = new darknet.TensorType('float32', new darknet.TensorShape(shape));
             const initializer = new darknet.Tensor(type, data);
             const argument = new darknet.Argument('', null, initializer);

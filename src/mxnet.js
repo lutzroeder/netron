@@ -1251,11 +1251,7 @@ ndarray.Shape = class {
     }
 
     size() {
-        let result = 1;
-        for (const dimension of this._dimensions) {
-            result *= dimension;
-        }
-        return result;
+        return this._dimensions.reduce((a, b) => a * b);
     }
 };
 

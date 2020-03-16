@@ -141,23 +141,20 @@ sklearn.ModelFactory = class {
                         this.allow_mmap = state.allow_mmap;
                     };
                     this.__read__ = function(unpickler) {
-                        let size = 1;
-                        for (const dimension of this.shape) {
-                            size *= dimension;
-                        }
                         if (this.dtype.name == 'object') {
                             return unpickler.load(function_call, null);
                         }
                         else {
-                            this.data = unpickler.read(size * this.dtype.itemsize);
+                            const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                            this.data = unpickler.read(size);
                         }
 
-                        let array = {};
-                        array.__type__ = this.subclass;
-                        array.dtype = this.dtype;
-                        array.shape = this.shape;
-                        array.data = this.data;
-                        return array;
+                        return {
+                            __type__: this.subclass,
+                            dtype: this.dtype,
+                            shape: this.shape,
+                            data: this.data,
+                        };
                     };
                 };
 
