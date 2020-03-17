@@ -11509,7 +11509,7 @@
   {
     "name": "DecodeGif",
     "schema": {
-      "description": "GIF images with frame or transparency compression are not supported.\nOn Linux and MacOS systems, convert animated GIFs from compressed to\nuncompressed by running:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.image.decode_image`.",
+      "description": "GIF images with frame or transparency compression are not supported.\nOn Linux and MacOS systems, convert animated GIFs from compressed to\nuncompressed by running:\n\n    convert $src.gif -coalesce $dst.gif\n\nThis op also supports decoding JPEGs and PNGs, though it is cleaner to use\n`tf.io.decode_image`.",
       "inputs": [
         {
           "description": "0-D.  The GIF-encoded image.",
@@ -11589,7 +11589,7 @@
           "type": "string"
         }
       ],
-      "description": "The attr `channels` indicates the desired number of color channels for the\ndecoded image.\n\nAccepted values are:\n\n*   0: Use the number of channels in the JPEG-encoded image.\n*   1: output a grayscale image.\n*   3: output an RGB image.\n\nIf needed, the JPEG-encoded image is transformed to match the requested number\nof color channels.\n\nThe attr `ratio` allows downscaling the image by an integer factor during\ndecoding.  Allowed values are: 1, 2, 4, and 8.  This is much faster than\ndownscaling the image later.\n\n\nThis op also supports decoding PNGs and non-animated GIFs since the interface is\nthe same, though it is cleaner to use `tf.image.decode_image`.",
+      "description": "The attr `channels` indicates the desired number of color channels for the\ndecoded image.\n\nAccepted values are:\n\n*   0: Use the number of channels in the JPEG-encoded image.\n*   1: output a grayscale image.\n*   3: output an RGB image.\n\nIf needed, the JPEG-encoded image is transformed to match the requested number\nof color channels.\n\nThe attr `ratio` allows downscaling the image by an integer factor during\ndecoding.  Allowed values are: 1, 2, 4, and 8.  This is much faster than\ndownscaling the image later.\n\n\nThis op also supports decoding PNGs and non-animated GIFs since the interface is\nthe same, though it is cleaner to use `tf.io.decode_image`.",
       "inputs": [
         {
           "description": "0-D.  The JPEG-encoded image.",
@@ -11665,7 +11665,7 @@
           "type": "type"
         }
       ],
-      "description": "The attr `channels` indicates the desired number of color channels for the\ndecoded image.\n\nAccepted values are:\n\n*   0: Use the number of channels in the PNG-encoded image.\n*   1: output a grayscale image.\n*   3: output an RGB image.\n*   4: output an RGBA image.\n\nIf needed, the PNG-encoded image is transformed to match the requested number\nof color channels.\n\nThis op also supports decoding JPEGs and non-animated GIFs since the interface\nis the same, though it is cleaner to use `tf.image.decode_image`.",
+      "description": "The attr `channels` indicates the desired number of color channels for the\ndecoded image.\n\nAccepted values are:\n\n*   0: Use the number of channels in the PNG-encoded image.\n*   1: output a grayscale image.\n*   3: output an RGB image.\n*   4: output an RGBA image.\n\nIf needed, the PNG-encoded image is transformed to match the requested number\nof color channels.\n\nThis op also supports decoding JPEGs and non-animated GIFs since the interface\nis the same, though it is cleaner to use `tf.io.decode_image`.",
       "inputs": [
         {
           "description": "0-D.  The PNG-encoded image.",
