@@ -12175,9 +12175,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -12233,9 +12238,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -12297,9 +12307,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
