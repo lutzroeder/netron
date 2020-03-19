@@ -763,6 +763,9 @@ sidebar.ModelSidebar = class {
         if (this._model.producer) {
             this._addProperty('producer', new sidebar.ValueTextView(this._host, this._model.producer));
         }
+        if (this._model.origFormat) {
+            this._addProperty('original format', new sidebar.ValueTextView(this._host, this._model.origFormat));
+        }
         if (this._model.source) {
             this._addProperty('source', new sidebar.ValueTextView(this._host, this._model.source));
         }

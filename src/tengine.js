@@ -7,6 +7,90 @@ var base = base || require('./base');
 
 let buffers = [];
 let tensors = [];
+let modelLayout = 0;
+
+var opType = {
+    Accuracy : 0,
+    BatchNormalization : 1,
+    BilinearResize : 2,
+    Concat : 3,
+    Const : 4,
+    Convolution : 5,
+    DeConvolution : 6,
+    DetectionOutput : 7,
+    DropOut : 8,
+    Eltwise : 9,
+    Flatten : 10,
+    FullyConnected : 11,
+    INPUT : 12,
+    LRN : 13,
+    Normalize : 14,
+    Permute : 15,
+    Pooling : 16,
+    Prelu : 17,
+    PriorBox : 18,
+    Region : 19,
+    ReLU : 20,
+    ReLU6 : 21,
+    Reorg : 22,
+    Reshape : 23,
+    RoiPooling : 24,
+    RPN : 25,
+    Scale : 26,
+    Slice : 27,
+    SoftMax : 28,
+    Split : 29,
+    DetectionPostProcess : 30,
+    Gemm : 31,
+    Generic : 32,
+    Logistic : 33,
+    LSTM : 34,
+    RNN : 35,
+    TanH : 36,
+    Sigmoid : 37,
+    Squeeze : 38,
+    FusedbnScaleRelu : 39,
+    Pad : 40,
+    StridedSlice : 41,
+    ArgMax : 42,
+    ArgMin : 43,
+    TopKV2 : 44,
+    Reduction : 45,
+    Max : 46,
+    Min : 47,
+    GRU : 48,
+    Addn : 49,
+    SwapAxis : 50,
+    Upsample : 51,
+    SpaceToBatchND : 52,
+    BatchToSpaceND : 53,
+    Resize : 54,
+    ShuffleChannel : 55,
+    Crop : 56,
+    ROIAlign : 57,
+    Psroipooling : 58,
+    Unary : 59,
+    Expanddims : 60,
+    Bias : 61,
+    Noop : 62,
+    Threshold : 63,
+    Hardsigmoid : 64,
+    Embed : 65,
+    InstanceNorm : 66,
+    MVN : 67,
+    Absval : 68,
+    Cast : 69,
+    HardSwish : 70,
+    Interp : 71,
+    SELU : 72, 
+    ELU : 73,
+    BroadMul : 74,
+    Logical : 75,
+    Gather : 76,
+    Transpose : 77,
+    Num : 78
+
+}
 
 tengine.ModelFactory = class {
 
@@ -56,7 +140,7 @@ tengine.Model = class {
         return "Tengine";
     }
 
-    get producer(){   
+    get origFormat(){   
         let rootTable = (this._header[8] | this._header[9] << 8 | this._header[10] << 16 | this._header[11] << 24);
         this._origFormat= (this._header[rootTable] | this._header[rootTable+1] << 8 
             | this._header[rootTable+2] << 16 | this._header[rootTable+3] << 24);
@@ -91,8 +175,7 @@ tengine.Model = class {
                 break;
         }
         return format;
-            
-
+        
     }
     
     get version() {
@@ -163,6 +246,7 @@ tengine.Graph = class {
         let subgraph = {};
         subgraph.id = tm2_model.read4Bytes(subgraphVec.addr);
         subgraph.graphLayout = tm2_model.read4Bytes(subgraphVec.addr+4);    // layout, 1 for NHWC, 2 for NCHW
+        modelLayout = subgraph.graphLayout;
         subgraph.nodesVecOffset = tm2_model.read4Bytes(subgraphVec.addr+20);      // offset to vector of nodes
         subgraph.tensorsVecOffset = tm2_model.read4Bytes(subgraphVec.addr+24);    // offset to vector of tensors
         subgraph.buffersVecOffset = tm2_model.read4Bytes(subgraphVec.addr+28);    // offset to vector of buffers
@@ -403,6 +487,9 @@ tengine.Graph = class {
                 || 33 || 36 || 37 || 39 || 49 || 47 || 62 || 68 || 74 || 78){
                     node.opParam = tm2_model.readParams(node.paramAddr,node.attrCount);
                 }
+            // if(node.opType = 5){
+            //     node.opParam[6] = ;
+            // }
 
             nodes.push(node);
         }
@@ -483,12 +570,22 @@ tengine.Graph = class {
             let attr = {};
             layer.attributes = [];
 
-            if(nodes[i].opType != 0 || 4 || 8 || 12 || 17 || 21 || 29
+            if(layer.type != 0 || 4 || 8 || 12 || 17 || 21 || 29
                 || 33 || 36 || 37 || 39 || 49 || 47 || 62 || 68 || 74 || 78) {
                 for (let t = 0; t<nodes[i].attrCount; t++){
                     attr = {key: t, value: nodes[i].opParam[t]};
                     layer.attributes.push(attr);
                 }
+            }
+
+            if(layer.type == opType.Convolution){
+                if(modelLayout == 1){
+                    attr = {key: 6, value: tensors[layer.input_tensorID].dims[3]};      // NHWC
+                    }
+                else{
+                    attr = {key: 6, value: tensors[layer.input_tensorID].dims[1]};      // NCHW
+                }
+                layer.attributes[6] = attr;
             }
 
             if(layer.type != 4)
