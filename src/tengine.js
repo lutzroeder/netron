@@ -383,7 +383,7 @@ tengine.Graph = class {
                     node.attrCount = 1;
                     break;
                 case opType.Reshape:
-                    node.attrCount = 6;
+                    node.attrCount = 3;
                     break;
                 case opType.RoiPooling:
                     node.attrCount = 3;
@@ -515,7 +515,7 @@ tengine.Graph = class {
                     node.attrCount = 2;
                     break;
                 case opType.Transpose:
-                    node.attrCount = 4;
+                    node.attrCount = 1;
                     break;
             }
             if(node.opType != opType.Accuracy || opType.Const || 
@@ -627,16 +627,21 @@ tengine.Graph = class {
                 layer.attributes[6] = attr;
             }
 
-            if(layer.type == opType.Slice){ // 4--iscaffe 5--ismxnet
-                attr = (nodes[i].opParam[4] == 1) ?  // 4 -- iscaffe
+            if(layer.type == opType.Slice){ // [4]--iscaffe [5]--ismxnet
+                attr = (nodes[i].opParam[4] == 1) ?  // [4] -- iscaffe
                 {key: 4, value: 1 } : {key: 4, value: 0};
                 layer.attributes[4] = attr;
-                attr = (nodes[i].opParam[5] == 1) ?  // 5 -- ismxnet
+                attr = (nodes[i].opParam[5] == 1) ?  // [5] -- ismxnet
                 {key: 5, value: 1} : {key: 5, value: 0};
                 layer.attributes[5] = attr;
-                attr = (origFormat == modelFormat.TensorFlow) ?  // 5 -- ismxnet
+                attr = (origFormat == modelFormat.TensorFlow) ?  // [5] -- ismxnet
                 {key: 6, value: nodes[i].opParam[6]} : {key: 6, value: 0};
                 layer.attributes[6] = attr;
+            }
+
+            if(layer.type == opType.Reshape){
+                attr = (nodes[i].opParam[0] == 1) ?  // [0] -- isMxNet
+                {key: 0, value: 1 } : {key: 0, value: 0};
             }
             
             if(layer.type != opType.Const)

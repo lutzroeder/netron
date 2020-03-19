@@ -285,12 +285,9 @@
       "operator": 23,
       "category": "Shape",
       "attributes": [
-        { "name": "dim_0", "type": "int32", "default": 0 },
-        { "name": "dim_1", "type": "int32", "default": 0 },
-        { "name": "dim_2", "type": "int32", "default": 0 },
-        { "name": "dim_3", "type": "int32", "default": 0 },
-        { "name": "dim_size", "type": "int32", "default": 0 },
-        { "name": "axis", "type": "int32", "default": 0 }
+        { "name": "is_mxnet", "type": "int32", "default": 0 },
+        { "name": "reverse", "type": "int32", "default": 0 },
+        { "name": "offset_re_shape", "type": "int32", "default": 0 }
       ]
     }
   },
@@ -923,10 +920,7 @@
       "operator": 77,
       "category": "Transform",
       "attributes": [
-        { "name": "dim0", "type": "int32", "default": 0 },
-        { "name": "dim1", "type": "int32", "default": 0 },
-        { "name": "dim2", "type": "int32", "default": 0 },
-        { "name": "dim3", "type": "int32", "default": 0 }
+        { "name": "offset_tr_shape", "type": "int32", "default": 0 }
       ]
     }
   },  
