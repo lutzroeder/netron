@@ -637,7 +637,7 @@
       "operator": 51,
       "category": "Data",
       "attributes": [
-        { "name": "scale", "type": "int32", "default": 0 }
+        { "name": "scale", "type": "float32", "default": 0 }
       ]
     }
   },

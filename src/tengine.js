@@ -8,6 +8,30 @@ var base = base || require('./base');
 let buffers = [];
 let tensors = [];
 let modelLayout = 0;
+let origFormat = 0;
+
+var modelVersion = {
+    V2 : 2,
+    v1 : 1
+}
+
+var dataFormat = {
+    NCHW : 0,
+    NHWC : 1
+}
+
+var modelFormat = {
+    unknown : 0,
+    Tengine : 1,
+    Caffe : 2,
+    ONNX : 3,
+    MxNet : 4,
+    TensorFlow : 5,
+    Tflite : 6,
+    DarkNet : 7,
+    DLA : 8
+
+}
 
 var opType = {
     Accuracy : 0,
@@ -140,37 +164,45 @@ tengine.Model = class {
         return "Tengine";
     }
 
+    get dataFormat(){
+        
+        if(modelLayout == dataFormat.NCHW)
+            return "NCHW";
+        else if(modelLayout == dataFormat.NHWC)
+            return "NHWC";
+    }
+
     get origFormat(){   
         let rootTable = (this._header[8] | this._header[9] << 8 | this._header[10] << 16 | this._header[11] << 24);
-        this._origFormat= (this._header[rootTable] | this._header[rootTable+1] << 8 
+        origFormat= (this._header[rootTable] | this._header[rootTable+1] << 8 
             | this._header[rootTable+2] << 16 | this._header[rootTable+3] << 24);
         let format;
-        switch(this._origFormat){
-            case 1:
+        switch(origFormat){
+            case modelFormat.Tengine:
                 format = 'Tengine';
                 break;
-            case 2:
+            case modelFormat.Caffe:
                 format = 'Caffe';
                 break;
-            case 3:
+            case modelFormat.ONNX:
                 format = 'ONNX';
                 break;
-            case 4:
+            case modelFormat.MxNet:
                 format = 'MxNet';
                 break;
-            case 5:
+            case modelFormat.TensorFlow:
                 format = 'TensorFlow';
                 break;
-            case 6:
+            case modelFormat.Tflite:
                 format = 'Tflite';
                 break;
-            case 7:
+            case modelFormat.DarkNet:
                 format = 'DarkNet';
                 break;
-            case 8:
+            case modelFormat.DLA:
                 format = 'DLA';
                 break;
-            case 0:
+            case modelFormat.unknown:
                 format = 'unknown';
                 break;
         }
@@ -179,9 +211,9 @@ tengine.Model = class {
     }
     
     get version() {
-      if(this._mainVer == 2)
+      if(this._mainVer == modelVersion.V2)
             return 'TMFILE V2';
-        else if(this._mainVer == 1)
+        else if(this._mainVer == modelVersion.v1)
             return 'TMFILE V1';
         else   
             return false;
@@ -204,11 +236,11 @@ tengine.Graph = class {
         const data2 = new tengine.BlobReader(tmfile);
 
          for (const layer of layers) {
-            if (layer.type == 12 ) {
+            if (layer.type == opType.INPUT ) {
                 let dimensions = [];
                 dimensions = tensors[layer.output_tensorID].dims;
                 for(let i =0; i< dimensions.length; i++){
-                    if(dimensions[i] == -1 ){
+                    if(dimensions[i] == -1 ){           // -1 == ?
                     dimensions.shift();
                     }
                 }
@@ -299,198 +331,201 @@ tengine.Graph = class {
 
              
             switch(node.opType){
-                case 1:
+                case opType.BatchNormalization:
                     node.attrCount = 3;
                     break;
-                case 2:
+                case opType.BilinearResize:
                     node.attrCount = 3;
                     break;
-                case 3:
+                case opType.Concat:
                     node.attrCount = 1;
                     break;
-                case 5:
+                case opType.Convolution:
                     node.attrCount = 14;
                     break;
-                case 6:
+                case opType.DeConvolution:
                     node.attrCount = 13;
                     break;
-                case 7:
+                case opType.DetectionOutput:
                     node.attrCount = 5;
                     break;
-                case 9:
+                case opType.Eltwise:
                     node.attrCount = 2;
                     break;
-                case 10:
+                case opType.Flatten:
                     node.attrCount = 2;
                     break;
-                case 11:
+                case opType.FullyConnected:
                     node.attrCount = 1;
                     break;
-                case 13:
+                case opType.LRN:
                     node.attrCount = 5;
                     break;
-                case 14:
+                case opType.Normalize:
                     node.attrCount = 2;
                     break;
-                case 15:
+                case opType.Permute:
                     node.attrCount = 5;
                     break;
-                case 16:
+                case opType.Pooling:
                     node.attrCount = 11;
                     break;
-                case 18:
+                case opType.PriorBox:
                     node.attrCount = 14;
                     break;
-                case 19:
+                case opType.Region:
                     node.attrCount = 7;
                     break;
-                case 20:
+                case opType.ReLU:
                     node.attrCount = 1;
                     break;
-                case 22:
+                case opType.Reorg:
                     node.attrCount = 1;
                     break;
-                case 23:
+                case opType.Reshape:
                     node.attrCount = 6;
                     break;
-                case 24:
+                case opType.RoiPooling:
                     node.attrCount = 3;
                     break;
-                case 25:
-                    node.attrCount = 29;
+                case opType.RPN:
+                    node.attrCount = 9;
                     break;
-                case 26:
+                case opType.Scale:
                     node.attrCount = 3;
                     break;
-                case 27:
+                case opType.Slice:
                     node.attrCount = 8;
                     break;
-                case 28:
+                case opType.SoftMax:
                     node.attrCount = 1;
                     break;
-                case 30:
+                case opType.DetectionPostProcess:
                     node.attrCount = 6;
                     break;
-                case 31:
+                case opType.Gemm:
                     node.attrCount = 4;
                     break;
-                case 32:
+                case opType.Generic:
                     node.attrCount = 3;
                     break;
-                case 34:
+                case opType.LSTM:
                     node.attrCount = 18;
                     break;
-                case 35:
+                case opType.RNN:
                     node.attrCount = 9;
                     break;
-                case 38:
+                case opType.Squeeze:
                     node.attrCount = 4;
                     break;
-                case 40:
+                case opType.Pad:
                     node.attrCount = 10;
                     break;
-                case 41:
+                case opType.StridedSlice:
                     node.attrCount = 12;
                     break;
-                case 42:
+                case opType.ArgMax:
                     node.attrCount = 1;
                     break;
-                case 43:
+                case opType.ArgMin:
                     node.attrCount = 1;
                     break;
-                case 44:
+                case opType.TopKV2:
                     node.attrCount = 2;
                     break;
-                case 45:
+                case opType.Reduction:
                     node.attrCount = 6;
                     break;
-                case 48:
+                case opType.GRU:
                     node.attrCount = 10;
                     break;
-                case 49:
+                case opType.Addn:
                     node.attrCount = 1;
                     break;
-                case 50:
+                case opType.SwapAxis:
                     node.attrCount = 2;
                     break;
-                case 51:
+                case opType.Upsample:
                     node.attrCount = 1;
                     break;
-                case 52:
+                case opType.SpaceToBatchND:
                     node.attrCount = 6;
                     break;
-                case 53:
+                case opType.BatchToSpaceND:
                     node.attrCount = 6;
                     break;
-                case 54:
+                case opType.Resize:
                     node.attrCount = 3;
                     break;
-                case 55:
+                case opType.ShuffleChannel:
                     node.attrCount = 1;
                     break;
-                case 56:
+                case opType.Crop:
                     node.attrCount = 9;
                     break;
-                case 57:
+                case opType.ROIAlign:
                     node.attrCount = 3;
                     break;
-                case 58:
+                case opType.Psroipooling:
                     node.attrCount = 4;
                     break;
-                case 60:
+                case opType.Unary:
                     node.attrCount = 1;
                     break;
-                case 61:
+                case opType.Expanddims:
                     node.attrCount = 1;
                     break;
-                case 63:
+                case opType.Bias:
                     node.attrCount = 1;
                     break;
-                case 64:
+                case opType.Threshold:
+                    node.attrCount = 1;
+                    break;
+                case opType.Hardsigmoid:
                     node.attrCount = 2;
                     break;
-                case 65:
+                case opType.Embed:
                     node.attrCount = 4;
                     break;
-                case 66:
+                case opType.InstanceNorm:
                     node.attrCount = 1;
                     break;
-                case 67:
+                case opType.MVN:
                     node.attrCount = 3;
                     break;
-                case 69:
+                case opType.Cast:
                     node.attrCount = 2;
                     break;
-                case 70:
+                case opType.HardSwish:
                     node.attrCount = 2;
                     break;
-                case 71:
+                case opType.Interp:
                     node.attrCount = 5;
                     break;
-                case 72:
+                case opType.SELU:
                     node.attrCount = 2;
                     break;
-                case 73:
+                case opType.ELU:
                     node.attrCount = 1;
                     break;
-                case 75:
+                case opType.Logical:
                     node.attrCount = 1;
                     break;
-                case 76:
+                case opType.Gather:
                     node.attrCount = 2;
                     break;
-                case 77:
+                case opType.Transpose:
                     node.attrCount = 4;
                     break;
             }
-            if(node.opType != 0 || 4 || 8 || 12 || 17 || 21 || 29
-                || 33 || 36 || 37 || 39 || 49 || 47 || 62 || 68 || 74 || 78){
+            if(node.opType != opType.Accuracy || opType.Const || 
+                opType.DropOut || opType.Input || opType.Prelu || 
+                opType.ReLU6 || opType.Split || opType.Logistic || 
+                opType.TanH || opType.Sigmoid || opType.FusedbnScaleRelu || 
+                opType.Max || opType.Min || opType.Noop || 
+                opType.Absval || opType.BroadMul || opType.Num){
                     node.opParam = tm2_model.readParams(node.paramAddr,node.attrCount);
                 }
-            // if(node.opType = 5){
-            //     node.opParam[6] = ;
-            // }
-
             nodes.push(node);
         }
 
@@ -570,8 +605,12 @@ tengine.Graph = class {
             let attr = {};
             layer.attributes = [];
 
-            if(layer.type != 0 || 4 || 8 || 12 || 17 || 21 || 29
-                || 33 || 36 || 37 || 39 || 49 || 47 || 62 || 68 || 74 || 78) {
+            if(layer.type != opType.Accuracy || opType.Const || 
+                    opType.DropOut || opType.Input || opType.Prelu || 
+                    opType.ReLU6 || opType.Split || opType.Logistic || 
+                    opType.TanH || opType.Sigmoid || opType.FusedbnScaleRelu || 
+                    opType.Max || opType.Min || opType.Noop || 
+                    opType.Absval || opType.BroadMul || opType.Num) {
                 for (let t = 0; t<nodes[i].attrCount; t++){
                     attr = {key: t, value: nodes[i].opParam[t]};
                     layer.attributes.push(attr);
@@ -588,7 +627,19 @@ tengine.Graph = class {
                 layer.attributes[6] = attr;
             }
 
-            if(layer.type != 4)
+            if(layer.type == opType.Slice){ // 4--iscaffe 5--ismxnet
+                attr = (nodes[i].opParam[4] == 1) ?  // 4 -- iscaffe
+                {key: 4, value: 1 } : {key: 4, value: 0};
+                layer.attributes[4] = attr;
+                attr = (nodes[i].opParam[5] == 1) ?  // 5 -- ismxnet
+                {key: 5, value: 1} : {key: 5, value: 0};
+                layer.attributes[5] = attr;
+                attr = (origFormat == modelFormat.TensorFlow) ?  // 5 -- ismxnet
+                {key: 6, value: nodes[i].opParam[6]} : {key: 6, value: 0};
+                layer.attributes[6] = attr;
+            }
+            
+            if(layer.type != opType.Const)
                 layers.push(layer);
         }
         return layers;
@@ -667,7 +718,7 @@ tengine.Node2 = class {
         this._tensorIn2 = layer.input2_tensorID;
         this._tensorOut = layer.output_tensorID;
         this._is
-        console.log("The tensor's id is: %s",this._tensorIn);
+        // console.log("The tensor's id is: %s",this._tensorIn);
 
         const operator = metadata.getOperatorName(this._operator);
         
@@ -780,7 +831,7 @@ tengine.Node2 = class {
 
     _weight( name, dimensions, dataType, data2) {        
         const blob = data2.read(dimensions, dataType);
-        console.log("%o",blob);
+        // console.log("%o",blob);
         this._inputs.push(new tengine.Parameter(name, true, [
             new tengine.Argument('', null, new tengine.Tensor(new tengine.TensorType(dataType, new tengine.TensorShape(dimensions)), blob ))
         ]));
