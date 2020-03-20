@@ -140,7 +140,7 @@
         },
         {
           "default": null,
-          "description": "Controls the pseudo random number generation for shuffling the data for\nprobability estimates.\nPass an int for reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`.\n",
+          "description": "The seed of the pseudo random number generator used when shuffling\nthe data for probability estimates. If int, random_state is the\nseed used by the random number generator; If RandomState instance,\nrandom_state is the random number generator; If None, the random\nnumber generator is the RandomState instance used by `np.random`.\n",
           "name": "random_state",
           "option": "optional",
           "type": "int32"
@@ -250,7 +250,7 @@
         },
         {
           "default": null,
-          "description": "Controls the pseudo random number generation for shuffling the data for\nprobability estimates.\nPass an int for reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`.\n",
+          "description": "The seed of the pseudo random number generator used when shuffling\nthe data for probability estimates. If int, random_state is the\nseed used by the random number generator; If RandomState instance,\nrandom_state is the random number generator; If None, the random\nnumber generator is the RandomState instance used by `np.random`.\n",
           "name": "random_state",
           "option": "optional"
         },
@@ -319,7 +319,7 @@
         },
         {
           "default": null,
-          "description": "Used when ``solver`` == 'sag', 'saga' or 'liblinear' to shuffle the\ndata. See :term:`Glossary <random_state>` for details.\n",
+          "description": "The seed of the pseudo random number generator to use when shuffling\nthe data.  If int, random_state is the seed used by the random number\ngenerator; If RandomState instance, random_state is the random number\ngenerator; If None, the random number generator is the RandomState\ninstance used by `np.random`. Used when ``solver`` == 'sag' or\n'liblinear'.\n",
           "name": "random_state",
           "option": "optional",
           "type": "int32"
@@ -366,7 +366,7 @@
         },
         {
           "default": null,
-          "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'``. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
+          "description": "The Elastic-Net mixing parameter, with ``0 <= l1_ratio <= 1``. Only\nused if ``penalty='elasticnet'`. Setting ``l1_ratio=0`` is equivalent\nto using ``penalty='l2'``, while setting ``l1_ratio=1`` is equivalent\nto using ``penalty='l1'``. For ``0 < l1_ratio <1``, the penalty is a\ncombination of L1 and L2.\n",
           "name": "l1_ratio",
           "option": "optional",
           "type": "float32"
@@ -507,7 +507,7 @@
           "type": "int32"
         },
         {
-          "default": 2,
+          "default": "2",
           "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
           "name": "p",
           "option": "optional",
@@ -565,7 +565,7 @@
           "type": "int32"
         },
         {
-          "default": 2,
+          "default": "2",
           "description": "Power parameter for the Minkowski metric. When p = 1, this is\nequivalent to using manhattan_distance (l1), and euclidean_distance\n(l2) for p = 2. For arbitrary p, minkowski_distance (l_p) is used.\n",
           "name": "p",
           "option": "optional",
@@ -705,7 +705,7 @@
         },
         {
           "default": null,
-          "description": "Used when ``svd_solver`` == 'arpack' or 'randomized'. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
+          "description": "If int, random_state is the seed used by the random number generator;\nIf RandomState instance, random_state is the random number generator;\nIf None, the random number generator is the RandomState instance used\nby `np.random`. Used when ``svd_solver`` == 'arpack' or 'randomized'.\n\n.. versionadded:: 0.18.0\n",
           "name": "random_state",
           "option": "optional",
           "type": "int32"
@@ -720,20 +720,20 @@
     "schema": {
       "attributes": [
         {
-          "description": "The classifier whose output need to be calibrated to provide more\naccurate `predict_proba` outputs.\n",
+          "description": "The classifier whose output decision function needs to be calibrated\nto offer more accurate predict_proba outputs. If cv=prefit, the\nclassifier must have been fit already on data.\n",
           "name": "base_estimator"
         },
         {
-          "description": "The method to use for calibration. Can be 'sigmoid' which\ncorresponds to Platt's method (i.e. a logistic regression model) or\n'isotonic' which is a non-parametric approach. It is not advised to\nuse isotonic calibration with too few calibration samples\n``(<<1000)`` since it tends to overfit.\n",
+          "description": "The method to use for calibration. Can be 'sigmoid' which\ncorresponds to Platt's method or 'isotonic' which is a\nnon-parametric approach. It is not advised to use isotonic calibration\nwith too few calibration samples ``(<<1000)`` since it tends to\noverfit.\nUse sigmoids (Platt's calibration) in this case.\n",
           "name": "method"
         },
         {
-          "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`sklearn.model_selection.KFold`\nis used.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that `base_estimator` has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
+          "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`sklearn.model_selection.KFold`\nis used.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that base_estimator has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
           "name": "cv",
           "option": "optional"
         }
       ],
-      "description": "Probability calibration with isotonic regression or logistic regression.\n\nThe calibration is based on the :term:`decision_function` method of the\n`base_estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n",
+      "description": "Probability calibration with isotonic regression or sigmoid.\n\nSee glossary entry for :term:`cross-validation estimator`.\n\nWith this class, the base_estimator is fit on the train set of the\ncross-validation generator and the test set is used for calibration.\nThe probabilities for each of the folds are then averaged\nfor prediction. In case that cv=\"prefit\" is passed to __init__,\nit is assumed that base_estimator has been fitted already and all\ndata is used for calibration. Note that data for fitting the\nclassifier and for calibrating it must be disjoint.\n\nRead more in the :ref:`User Guide <calibration>`.\n",
       "package": "sklearn.calibration"
     }
   },
@@ -903,12 +903,12 @@
         },
         {
           "default": "1.0",
-          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float in range [0.0, 1.0], the parameter represents a proportion of\ndocuments, integer absolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly higher than the given threshold (corpus-specific\nstop words).\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
           "name": "max_df"
         },
         {
           "default": "1",
-          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float in range of [0.0, 1.0], the parameter represents a proportion\nof documents, integer absolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
+          "description": "When building the vocabulary ignore terms that have a document\nfrequency strictly lower than the given threshold. This value is also\ncalled cut-off in the literature.\nIf float, the parameter represents a proportion of documents, integer\nabsolute counts.\nThis parameter is ignored if vocabulary is not None.\n",
           "name": "min_df"
         },
         {
