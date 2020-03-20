@@ -1,6 +1,9 @@
 /* jshint esversion: 6 */
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
+// https://github.com/OAID/Tengine
+// http://www.tengine.org.cn/
+
 var tengine = tengine || {};
 var base = base || require('./base');
 
@@ -545,6 +548,18 @@ tengine.Graph = class {
             tensor.name = tm2_model.readString(tensorNameAddr, tensorNameSize);        // The name of this tensor into tensor.name
 
             tensor.quantParamsOffset = tm2_model.read4Bytes(tensorsAddr[i]+16);        // The offset to the quant params of the tensor, 0 for QUANT_FP16; 1 for QUANT_INT8; 2 for QUANT_UINT8
+            if(tensor.quantParamsOffset == 0)
+            {
+                tensor.quantParamSize = 0;
+            }
+            else
+            {
+                tensor.quantParamSize = tm2_model.read4Bytes(tensor.quantParamsOffset);
+                tensor.quantZeroPoint = tm2_model.read4Bytes(tensor.quantParamsOffset+4);
+                tensor.quantScale = tm2_model.read4Bytes(tensor.quantParamsOffset+8);
+                tensor.quantWidth = tm2_model.read4Bytes(tensor.quantParamsOffset+12);
+            }
+            
             tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);                   // The layout of this tensor
             tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24);                     // The type of this tensor
             tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);                 // The data type of this tensor, 
@@ -583,10 +598,12 @@ tengine.Graph = class {
             let inputCount = nodes[i].input.length;
             for(let j = 0; j< inputCount; j++){
                 let name_temp = tensors[nodes[i].input[j]].name;
-                 if(j ==1)
-                layer.input_tensorID = tensors[nodes[i].input[1]].id;
+                if(j ==1){
+                    layer.input_tensorID = tensors[nodes[i].input[1]].id;               // weights维度使用; weights链接buffer使用;
+                }
                 if(j ==0)
                 layer.input2_tensorID = tensors[nodes[i].input[0]].id;
+
                 layer.inputs.push(name_temp);
             }
 
@@ -599,6 +616,7 @@ tengine.Graph = class {
                 layer.outputs.push(name_temp);
                 
             }
+
 
             layer.type = nodes[i].opType;
 
@@ -722,7 +740,7 @@ tengine.Node2 = class {
         this._tensorIn = layer.input_tensorID;
         this._tensorIn2 = layer.input2_tensorID;
         this._tensorOut = layer.output_tensorID;
-        this._is
+        
         // console.log("The tensor's id is: %s",this._tensorIn);
 
         const operator = metadata.getOperatorName(this._operator);
@@ -859,7 +877,9 @@ tengine.Attribute = class {
                     this._value = parseInt(this._value, 10);  
                     break;
                 case 'float32':
+                    this._value = Bytes2Float32(this._value).toPrecision(7);
                     this._value = parseFloat(this._value);
+                    console.log("Here the float32 data is %f",this._value);
                     break;
                 case 'float32[]':
                     this._value = this._value.map((v) => parseFloat(v));
@@ -1232,4 +1252,21 @@ tengine.Error = class extends Error {
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = tengine.ModelFactory;
+}
+
+function Bytes2Float32(bytes) {
+    var sign = (bytes & 0x80000000) ? -1 : 1;
+    var exponent = ((bytes >> 23) & 0xFF) - 127;
+    var significand = (bytes & ~(-1 << 23));
+
+    if (exponent == 128) 
+        return sign * ((significand) ? Number.NaN : Number.POSITIVE_INFINITY);
+
+    if (exponent == -127) {
+        if (significand == 0) return sign * 0.0;
+        exponent = -126;
+        significand /= (1 << 22);
+    } else significand = (significand | (1 << 23)) / (1 << 23);
+
+    return sign * significand * Math.pow(2, exponent);
 }
