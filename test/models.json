@@ -4084,6 +4084,14 @@
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
+
+  {
+    "type":   "pytorch",
+    "target": "mobilefacenet_scripted.pt",
+    "source": "https://github.com/foamliu/MobileFaceNet/releases/download/v1.0/mobilefacenet_scripted.pt",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/foamliu/MobileFaceNet"
+  },
   {
     "type":   "pytorch",
     "target": "Mobilenet_se_focal_121000.pt",

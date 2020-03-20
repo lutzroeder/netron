@@ -1608,6 +1608,9 @@ pytorch.Execution = class {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left * right;
             }
+            if (isNaN(left) || isNaN(right)) {
+                return NaN;
+            }
             throw new pytorch.Error("Unknown 'torch.mul' expression type.");
         });
         this._registerFunction('torch.ne', function(left, right) {

@@ -1860,7 +1860,7 @@
     }
   },
   {
-    "name": "torch.add_",
+    "name": "torch.add_:Tensor",
     "schema": {
       "attributes": [
         {
@@ -1875,6 +1875,31 @@
         },
         {
           "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.add_:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        },
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
         }
       ],
       "outputs": [
