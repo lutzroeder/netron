@@ -61,32 +61,44 @@ mediapipe.Graph = class {
             if (root.input_stream) {
                 const inputs = Array.isArray(root.input_stream) ? root.input_stream : [ root.input_stream ];
                 for (const input of inputs) {
-                    this._inputs.push(new mediapipe.Parameter(input, [
-                        new mediapipe.Argument(input, null, null)
+                    let parts = input.split(':');
+                    const type = (parts.length > 1) ? parts.shift() : '';
+                    const name = parts.shift();
+                    this._inputs.push(new mediapipe.Parameter(name, [
+                        new mediapipe.Argument(name, type, null)
                     ]));
                 }
             }
             if (root.output_stream) {
                 const outputs = Array.isArray(root.output_stream) ? root.output_stream : [ root.output_stream ];
                 for (const output of outputs) {
-                    this._outputs.push(new mediapipe.Parameter(output, [
-                        new mediapipe.Argument(output, null, null)
+                    let parts = output.split(':');
+                    const type = (parts.length > 1) ? parts.shift() : '';
+                    const name = parts.shift();
+                    this._outputs.push(new mediapipe.Parameter(name, [
+                        new mediapipe.Argument(name, type, null)
                     ]));
                 }
             }
             if (root.input_side_packet) {
                 const inputs = Array.isArray(root.input_side_packet) ? root.input_side_packet : [ root.input_side_packet ];
                 for (const input of inputs) {
-                    this._inputs.push(new mediapipe.Parameter(input, [
-                        new mediapipe.Argument(input, null, null)
+                    let parts = input.split(':');
+                    const type = (parts.length > 1) ? parts.shift() : '';
+                    const name = parts.shift();
+                    this._inputs.push(new mediapipe.Parameter(name, [
+                        new mediapipe.Argument(name, type, null)
                     ]));
                 }
             }
             if (root.output_side_packet) {
                 const outputs = Array.isArray(root.output_side_packet) ? root.output_side_packet : [ root.output_side_packet ];
                 for (const output of outputs) {
+                    let parts = output.split(':');
+                    const type = (parts.length > 1) ? parts.shift() : '';
+                    const name = parts.shift();
                     this._outputs.push(new mediapipe.Parameter(output, [
-                        new mediapipe.Argument(output, null, null)
+                        new mediapipe.Argument(name, type, null)
                     ]));
                 }
             }
@@ -283,6 +295,7 @@ mediapipe.Object = class {
             reader.start();
             close = true;
         }
+        let arrayTags = new Set();
         while (!reader.end()) {
             var tag = reader.tag();
             var next = reader.peek();
@@ -296,19 +309,32 @@ mediapipe.Object = class {
             else if (next === 'true' || next === 'false') {
                 obj = reader.read();
             }
+            else if (reader.first()) {
+                obj = [];
+                while (!reader.last()) {
+                    const data = reader.read();
+                    if (!isNaN(data)) {
+                        obj.push(parseFloat(data))
+                    }
+                }
+            }
             else if (!isNaN(next)) {
                 obj = parseFloat(reader.read());
             }
             else {
                 obj = reader.read();
             }
-            if (this[tag] && !Array.isArray(this[tag])) {
+            if (this[tag] && (!Array.isArray(this[tag]) || arrayTags.has(tag))) {
                 this[tag] = [ this[tag] ];
+                arrayTags.delete(tag);
             }
             if (this[tag]) {
                 this[tag].push(obj);
             }
             else {
+                if (Array.isArray(obj)) {
+                    arrayTags.add(tag);
+                }
                 this[tag] = obj;
             }
         }
