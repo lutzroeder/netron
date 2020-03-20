@@ -19,6 +19,7 @@
       { "files": ["src/*-schema.js"], "rules": { "indent": "off" } }
     ],
     "globals": {
+        "flatbuffers": "readonly",
         "protobuf": "readonly"
     }
 }
