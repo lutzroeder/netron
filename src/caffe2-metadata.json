@@ -17253,5 +17253,694 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "SparseLengthsSumFused2BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsSum, but operating on\n2-bit rowwise quantized matrices with fused storage (where each row\nstores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FloatToFused4BitRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 4-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 4-bit number between 0 and\n15. To later de-quantize values, the scale (range / 15) and zero_point\nare stored alongside the data. More precisely, each row first has quantized\nvalues, and then 2-byte fp16 scale and 2-byte zero_offset.)\n",
+      "inputs": [
+        {
+          "description": "Float32 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsWeightedSum2BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsWeightedSum, but operating on 2-bit rowwise quantized\nmatrices with fused storage (where each row stores quantized values, and then\n2-byte fp16 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction",
+          "name": "WEIGHTS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FloatToFused2BitRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 2-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 2-bit number between 0 and\n3. To later de-quantize values, the scale (range / 3) and zero_point\nare stored alongside the data. More precisely, each row first has quantized\nvalues, and then 2-byte fp16 scale and 2-byte zero_offset.)\n",
+      "inputs": [
+        {
+          "description": "Float32 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsWeightedSum4BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsWeightedSum, but operating on 4-bit rowwise quantized\nmatrices with fused storage (where each row stores quantized values, and then\n2-byte fp16 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction",
+          "name": "WEIGHTS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsMean4BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsMean, but operating on 4-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 2-byte\nfp16 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsMean2BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsMean, but operating on 2-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 2-byte\nfp16 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsWeightedSumFused2BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsWeightedSum,\nbut operating on 2-bit rowwise quantized matrices with fused storage\n(where each row stores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction",
+          "name": "WEIGHTS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused4BitRowwiseQuantizedToFloat",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused4BitRowwiseQuantized operator. The input is expected to first have\nquantized values, then 2-byte fp16 scale and 1-byte zero_offset. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and zero_point\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float32 data",
+          "name": "float_output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsMean8BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsMean, but operating on 8-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 4-byte\nfp32 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "HalfToFused4BitRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 4-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 4-bit number between 0 and\n15. To later de-quantize values, the scale (range / 15) and zero_point\nare stored alongside the data. More precisely, each row first has quantized\nvalues, and then 2-byte fp16 scale and 2-byte zero_offset.)\n",
+      "inputs": [
+        {
+          "description": "Float16 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsSumFused4BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsSum, but operating on\n4-bit rowwise quantized matrices with fused storage (where each row\nstores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused4BitRowwiseQuantizedToHalf",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused4BitRowwiseQuantized operator. The input is expected to first have\nquantized values, then 2-byte fp16 scale and 1-byte zero_offset. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and zero_point\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float16 data",
+          "name": "float16_output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsMeanFused4BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsMean, but\noperating on 4-bit rowwise quantized matrices with fused storage\n(where each row stores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "HalfToFused2BitFakeRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 2-bit row-wise fake quantization to a tensor of half floats.\nThe output looks like an int8 rowwise quantized blob with\nscale and biases in half float.\n",
+      "inputs": [
+        {
+          "description": "Float16 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FloatToFused2BitFakeRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 2-bit row-wise fake quantization to a tensor of floats.\nThe output looks like an int8 rowwise quantized blob with\nscale and biases in half float.\n",
+      "inputs": [
+        {
+          "description": "Float32 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FloatToFused4BitFakeRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 4-bit row-wise fake quantization to a tensor of floats.\nThe output looks like an int8 rowwise quantized blob with\nscale and biases in half float.\n",
+      "inputs": [
+        {
+          "description": "Float32 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused2BitRowwiseQuantizedToFloat",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused2BitRowwiseQuantized operator. The input is expected to first have\nquantized values, then 2-byte fp16 scale and 1-byte zero_offset. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and zero_point\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float32 data",
+          "name": "float_output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsSum4BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsSum, but operating on 4-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 2-byte\nfp16 scale and 2-byte fp16 bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "HalfToFused2BitRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 2-bit row-wise quantization by determining the range\n(maximum - minimum) and offset (minimum value) of each row in the input\nmatrix, and then scaling each element to an 2-bit number between 0 and\n3. To later de-quantize values, the scale (range / 3) and zero_point\nare stored alongside the data. More precisely, each row first has quantized\nvalues, and then 2-byte fp16 scale and 2-byte zero_offset.)\n",
+      "inputs": [
+        {
+          "description": "Float16 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsMeanFused2BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsMean, but\noperating on 2-bit rowwise quantized matrices with fused storage\n(where each row stores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsWeightedSumFused4BitRowwise",
+    "schema": {
+      "description": "\nPerforms the same operation as SparseLengthsWeightedSum,\nbut operating on 4-bit rowwise quantized matrices with fused storage\n(where each row stores quantized values, and then 2-byte fp16 scale and bias).\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction",
+          "name": "WEIGHTS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsSum8BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsSum, but operating on 8-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 4-byte\nfp32 scale and 4-byte fp32 bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsSum2BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsSum, but operating on 2-bit rowwise quantized matrices\nwith fused storage (where each row stores quantized values, and then 2-byte\nfp16 scale and 2-byte fp16 bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused2BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "HalfToFused4BitFakeRowwiseQuantized",
+    "schema": {
+      "description": "\nApplies 4-bit row-wise fake quantization to a tensor of half floats.\nThe output looks like an int8 rowwise quantized blob with\nscale and biases in half float.\n",
+      "inputs": [
+        {
+          "description": "Float16 input data",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseLengthsWeightedSum8BitRowwiseSparse",
+    "schema": {
+      "description": "\nPerforms SparseLengthsWeightedSum, but operating on 8-bit rowwise quantized\nmatrices with fused storage (where each row stores quantized values, and then\n4-byte fp32 scale and bias), and where rows are pruned.\n",
+      "inputs": [
+        {
+          "description": "uint8 tensor obtained with operator FloatToFused4BitRowwiseQuantized",
+          "name": "DATA"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of DATA",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction",
+          "name": "WEIGHTS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "output",
+          "name": "output"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Fused2BitRowwiseQuantizedToHalf",
+    "schema": {
+      "description": "\nDe-quantizes the result of the\nFloatToFused2BitRowwiseQuantized operator. The input is expected to first have\nquantized values, then 2-byte fp16 scale and 1-byte zero_offset. The output is a\nmatrix containing only the values, but de-quantized. De-quantization is\nperformed by multiplying each value by its row's scale and zero_point\nparameters. The de-quantized values will thus not be exactly equal to\nthe original, un-quantized floating point values.\n",
+      "inputs": [
+        {
+          "description": "Fused scale, bias and quantized data",
+          "name": "scale_bias_quantized_input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Float16 data",
+          "name": "float16_output"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
