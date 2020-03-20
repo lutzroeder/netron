@@ -21645,7 +21645,7 @@
         {
           "description": "The ground truth output tensor, with shape [batch_size], or [batch_size, D1, D2, ..., Dk], where K is the number of dimensions.",
           "name": "labels",
-          "type": "T"
+          "type": "Tind"
         },
         {
           "description": "A manual rescaling weight given to each class. If given, it has to be a 1D Tensor assigning weight to each of the classes. Otherwise, it is treated as if having all ones.",
@@ -21684,6 +21684,14 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)"
+          ],
+          "description": "Constrain target to integer types",
+          "type_param_str": "Tind"
         }
       ]
     }
