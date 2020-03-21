@@ -15638,12 +15638,16 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
           "summary": "pow"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_scalar')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([1, 2, 3]).astype(np.float32)\n# expected output [[1, 4, 27], [4, 25, 216]]\nz = np.power(x, y).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_array')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = pow(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_scalar')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([1, 2, 3]).astype(np.float32)\n# expected output [[1, 4, 27], [4, 25, 216]]\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_array')",
           "summary": "pow_broadcast"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int64')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int32')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint64')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint32')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_int64')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_int32')",
+          "summary": "types"
         }
       ],
       "inputs": [
@@ -15691,12 +15695,16 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = np.power(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
           "summary": "pow"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = np.power(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_scalar')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([1, 2, 3]).astype(np.float32)\n# expected output [[1, 4, 27], [4, 25, 216]]\nz = np.power(x, y).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_array')",
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = pow(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_scalar')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([1, 2, 3]).astype(np.float32)\n# expected output [[1, 4, 27], [4, 25, 216]]\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_array')",
           "summary": "pow_broadcast"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int64')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int32')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint64')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint32')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_int64')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_int32')",
+          "summary": "types"
         }
       ],
       "inputs": [
@@ -15733,6 +15741,82 @@
           ],
           "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Pow",
+    "schema": {
+      "description": "Pow takes input data (Tensor<T>) and exponent Tensor, and\nproduces one output data (Tensor<T>) where the function `f(x) = x^exponent`,\nis applied to the data tensor elementwise.\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_example')\n\nx = np.arange(60).reshape(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow')",
+          "summary": "pow"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array(2).astype(np.float32)\nz = pow(x, y)  # expected output [1., 4., 9.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_scalar')\n\nnode = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\nx = np.array([[1, 2, 3], [4, 5, 6]]).astype(np.float32)\ny = np.array([1, 2, 3]).astype(np.float32)\n# expected output [[1, 4, 27], [4, 25, 216]]\nz = pow(x, y)\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_bcast_array')",
+          "summary": "pow_broadcast"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Pow',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int64')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_int32')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_float32')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint64)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint64')\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.uint32)\nz = pow(x, y)  # expected output [1., 32., 729.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_float32_uint32')\n\nx = np.array([1, 2, 3]).astype(np.int64)\ny = np.array([4, 5, 6]).astype(np.int64)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int64_int64')\n\nx = np.array([1, 2, 3]).astype(np.int32)\ny = np.array([4, 5, 6]).astype(np.int32)\nz = pow(x, y)  # expected output [1, 32, 729]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_pow_types_int32_int32')",
+          "summary": "types"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "First operand, base of the exponent.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "Second operand, power of the exponent.",
+          "name": "Y",
+          "type": "T1"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor (same size as X)",
+          "name": "Z",
+          "type": "T"
+        }
+      ],
+      "since_version": 12,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input X and output types to float/int tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input Y types to float/int tensors.",
+          "type_param_str": "T1"
         }
       ]
     }
