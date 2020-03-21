@@ -114,9 +114,16 @@ darknet.Graph = class {
             return value !== undefined ? value : defaultValue;
         };
 
+        const make_shape = (dimensions, source) => {
+            if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
+                throw new darknet.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "' in '" + source + "'.");
+            }
+            return new darknet.TensorShape(dimensions);
+        }
+
         const load_weights = (name, shape, visible) => {
             let data = weights ? weights.bytes(4 * shape.reduce((a, b) => a * b)) : null;
-            const type = new darknet.TensorType('float32', new darknet.TensorShape(shape));
+            const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
             const argument = new darknet.Argument('', null, initializer);
             return new darknet.Parameter(name, visible === false ? false : true, [ argument ]);
@@ -138,7 +145,7 @@ darknet.Graph = class {
                 load_batch_normalize_weights(layer, prefix, n);
             }
             layer.weights.push(load_weights(prefix + 'weights', [ Math.floor(c / groups), n, size, size ], prefix === ''));
-            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'make_convolutional_layer'));
         }
 
         const make_connected_layer = (layer, prefix, inputs, outputs, batch_normalize) => {
@@ -151,7 +158,7 @@ darknet.Graph = class {
                 load_batch_normalize_weights(layer, prefix, outputs);
             }
             layer.weights.push(load_weights(prefix + 'weights', [ inputs, outputs ], prefix === ''));
-            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ outputs ]));
+            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'make_connected_layer'));
         }
 
         let params = {};
@@ -168,8 +175,8 @@ darknet.Graph = class {
         }
 
         const inputType = params.w && params.h && params.c ?
-            new darknet.TensorType('float32', new darknet.TensorShape([ params.w, params.h, params.c ])) :
-            new darknet.TensorType('float32', new darknet.TensorShape([ params.inputs ]));
+            new darknet.TensorType('float32', make_shape([ params.w, params.h, params.c ], 'params-if')) :
+            new darknet.TensorType('float32', make_shape([ params.inputs ], 'params-else'));
         const inputName = 'input';
         params.arguments = [ new darknet.Argument(inputName, inputType, null) ];
         this._inputs.push(new darknet.Parameter(inputName, true, params.arguments));
@@ -284,7 +291,7 @@ darknet.Graph = class {
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
                         layer.weights.push(load_weights('weights', [ params.c, n, size, size, layer.out_h * layer.out_w ]));
                         layer.weights.push(load_weights('biases',[ layer.out_w * layer.out_h * layer.out_c ]));
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'local'));
                         if (activation !== 'logistic') {
                             section.chain.push({ type: activation });
                         }
@@ -296,7 +303,7 @@ darknet.Graph = class {
                         layer.out_c = params.c;
                         layer.out = layer.in;
                         load_batch_normalize_weights(weights, section, '', layer.out);
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.ouputs ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.ouputs ], 'batchnorm'));
                         break;
                     }
                     case 'activation': {
@@ -304,7 +311,7 @@ darknet.Graph = class {
                         layer.out_w = params.w;
                         layer.out_c = params.c;
                         layer.out = layer.in;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.ouputs ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.ouputs ], 'activation'));
                         break;
                     }
                     case 'max':
@@ -343,7 +350,7 @@ darknet.Graph = class {
                             layer.out_c = layer.input_layer.out_c;
                         }
                         else {
-                            layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'maxpool'));
                         }
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
                         break;
@@ -357,7 +364,7 @@ darknet.Graph = class {
                         layer.out_h = 1;
                         layer.out_c = params.c;
                         layer.out = layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'avgpool'));
                         break;
                     }
                     case 'crnn': {
@@ -427,7 +434,7 @@ darknet.Graph = class {
                         layer.weights = layer.weights.concat(layer.input_h_layer.weights);
                         layer.weights = layer.weights.concat(layer.state_h_layer.weights);
                         layer.out = outputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ outputs ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'gru'));
                         break;
                     }
                     case 'lstm': {
@@ -462,7 +469,7 @@ darknet.Graph = class {
                         layer.out_h = 1;
                         layer.out_c = outputs;
                         layer.out = outputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ outputs ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'lstm'));
                         weights = null;
                         break;
                     }
@@ -471,7 +478,7 @@ darknet.Graph = class {
                         layer.out_h = params.h;
                         layer.out_c = params.c;
                         layer.out = params.inputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'softmax'));
                         break;
                     }
                     case 'dropout': {
@@ -479,7 +486,7 @@ darknet.Graph = class {
                         layer.out_h = params.h;
                         layer.out_c = params.c;
                         layer.out = params.inputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'dropout'));
                         break;
                     }
                     case 'upsample': {
@@ -488,7 +495,7 @@ darknet.Graph = class {
                         layer.out_h = params.h * stride;
                         layer.out_c = params.c;
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'upsample'));
                         break;
                     }
                     case 'crop': {
@@ -502,7 +509,7 @@ darknet.Graph = class {
                         layer.out_h = crop_height;
                         layer.out_c = params.c;
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'crop'));
                         break;
                     }
                     case 'yolo': {
@@ -512,7 +519,7 @@ darknet.Graph = class {
                         layer.out_w = params.w;
                         layer.out_c = n * (classes + 4 + 1);
                         layer.out = layer.out_h * layer.out_w * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'yolo'));
                         break;
                     }
                     case 'Gaussian_yolo': {
@@ -522,7 +529,7 @@ darknet.Graph = class {
                         layer.out_w = params.w;
                         layer.out_c = n * (classes + 8 + 1);
                         layer.out = layer.out_h * layer.out_w * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'Gaussian_yolo'));
                         break;
                     }
                     case 'region': {
@@ -530,12 +537,12 @@ darknet.Graph = class {
                         const classes = option_find_int(options, 'classes', 20);
                         const num = option_find_int(options, 'num', 1);
                         layer.out = params.h * params.w * num * (classes + coords + 1);
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ params.h, params.w, num, (classes + coords + 1) ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ params.h, params.w, num, (classes + coords + 1) ], 'region'));
                         break;
                     }
                     case 'cost': {
                         layer.out = params.inputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'cost'));
                         break;
                     }
                     case 'reorg': {
@@ -559,7 +566,7 @@ darknet.Graph = class {
                             layer.out_c = 0;
                             layer.out = (params.h * params.w * params.c) + extra;
                         }
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'reorg'));
                         break;
                     }
                     case 'route': {
@@ -583,7 +590,7 @@ darknet.Graph = class {
                                 layer.out_c = 0;
                             }
                         }
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out_w, layer.out_h, layer.out_c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'route'));
                         break;
                     }
                     case 'shortcut':
@@ -594,7 +601,7 @@ darknet.Graph = class {
                         layer.out_h = params.h;
                         layer.out_c = params.c;
                         layer.out = params.w * params.h * params.c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ params.w, params.h, params.c ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ params.w, params.h, params.c ], 'shortcut|scale_channels|sam'));
                         if (activation !== 'linear') {
                             section.chain.push({ type: activation });
                         }
@@ -605,7 +612,7 @@ darknet.Graph = class {
                         layer.out_h = params.h;
                         layer.out_c = params.c;
                         layer.out = params.inputs;
-                        layer.outputs[0].type = new darknet.TensorType('float32', new darknet.TensorShape([ layer.out ]));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'detection'));
                         break;
                     }
                     default: {
@@ -919,7 +926,7 @@ darknet.TensorShape = class {
 
     constructor(dimensions) {
         if (dimensions.some((dimension) => dimension === 0 || dimension === undefined || isNaN(dimension))) {
-            throw new darknet.Error('Invalid tensor shape.');
+            throw new darknet.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "'.");
         }
         this._dimensions = dimensions;
     }
