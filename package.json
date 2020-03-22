@@ -21,7 +21,7 @@
         "electron-updater": "4.2.5",
         "flatbuffers": "1.12.0",
         "long": "4.0.0",
-        "marked": "0.8.1",
+        "marked": "0.8.2",
         "pako": "1.0.11",
         "protobufjs": "github:lutzroeder/protobuf.js",
         "universal-analytics": "0.4.20"
