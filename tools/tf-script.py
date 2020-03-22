@@ -22,6 +22,7 @@ def metadata():
         'Elu': 'Activation',
         'Softmax': 'Activation',
         'Sigmoid': 'Activation',
+        'swish_f32': 'Activation',
         'LRN': 'Normalization',
         'MaxPool': 'Pool',
         'MaxPoolV2': 'Pool',
@@ -37,6 +38,8 @@ def metadata():
         'Assign': 'Control',
         'BatchNormWithGlobalNormalization': 'Normalization',
         'FusedBatchNorm': 'Normalization',
+        'FusedBatchNormV2': 'Normalization',
+        'FusedBatchNormV3': 'Normalization',
         # 'VariableV2':
         # 'Assign':
         # 'BiasAdd':
