@@ -17942,5 +17942,45 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "WeightScale",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Every iteration number to do weight scaling",
+          "name": "stepsize",
+          "option": "optional"
+        },
+        {
+          "description": "After iter passes this bound, do not perform the weight rescaling",
+          "name": "upper_bound_iter",
+          "option": "optional"
+        },
+        {
+          "description": "The multiplicative factor applied to weights.",
+          "name": "scale",
+          "option": "optional"
+        }
+      ],
+      "description": "\nEvery `stepsize` iterations, multiply the weights by a constant `scale`:\n    nw = w * scale\n",
+      "inputs": [
+        {
+          "description": "Current weights",
+          "name": "w"
+        },
+        {
+          "description": "Training Iteration",
+          "name": "iter"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated weights",
+          "name": "nw"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
