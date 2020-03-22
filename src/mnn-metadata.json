@@ -572,7 +572,8 @@
   {
     "name": "Slice",
     "schema": {
-      "operator": 83
+      "operator": 83,
+      "category": "Tensor"
     }
   },
   {

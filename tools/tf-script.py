@@ -13,34 +13,36 @@ from google.protobuf import text_format
 
 def metadata():
     categories = {
+        'Assign': 'Control',
+        'AvgPool': 'Pool',
+        'BatchNormWithGlobalNormalization': 'Normalization',
+        'BiasAdd': 'Layer',
+        'ConcatV2': 'Tensor',
         'Const': 'Constant',
         'Conv2D': 'Layer',
-        'BiasAdd': 'Layer',
         'DepthwiseConv2dNative': 'Layer',
-        'Relu': 'Activation',
-        'Relu6': 'Activation',
+        'Dequantize': 'Tensor',
         'Elu': 'Activation',
-        'Softmax': 'Activation',
-        'Sigmoid': 'Activation',
+        'FusedBatchNorm': 'Normalization',
+        'FusedBatchNormV2': 'Normalization',
+        'FusedBatchNormV3': 'Normalization',
+        'Identity': 'Control',
         'LRN': 'Normalization',
         'MaxPool': 'Pool',
         'MaxPoolV2': 'Pool',
-        'AvgPool': 'Pool',
+        'Relu': 'Activation',
+        'Relu6': 'Activation',
         'Reshape': 'Shape',
-        'Squeeze': 'Shape',
-        'ConcatV2': 'Tensor',
+        'Sigmoid': 'Activation',
+        'Slice': 'Tensor',
+        'Softmax': 'Activation',
         'Split': 'Tensor',
-        'Dequantize': 'Tensor',
-        'Identity': 'Control',
+        'Squeeze': 'Shape',
+        'StridedSlice': 'Tensor',
+        'swish_f32': 'Activation',
         'Variable': 'Control',
         'VariableV2': 'Control',
-        'Assign': 'Control',
-        'BatchNormWithGlobalNormalization': 'Normalization',
-        'FusedBatchNorm': 'Normalization',
-        # 'VariableV2':
-        # 'Assign':
-        # 'BiasAdd':
-    }
+    };
 
     def find_multiline(line, colon):
         if colon == -1:
