@@ -13,6 +13,17 @@ let tensors = [];
 let modelLayout = 0;
 let origFormat = 0;
 
+var data_Type = {
+    float32 : 0,
+    float16 : 1,
+    int8 : 2,
+    uint8 : 3,
+    int32 : 4,
+    int16 : 5
+     
+}
+
+
 var modelVersion = {
     V2 : 2,
     v1 : 1
@@ -128,7 +139,7 @@ tengine.ModelFactory = class {
             if (buffer.length > 4) {
                 const mainVer = buffer[0] | buffer[1] << 8 ;
                 if(mainVer === 0x0002 | mainVer === 0x0001) 
-                return true;
+                    return true;
                             }
         }   
         return false;
@@ -173,6 +184,8 @@ tengine.Model = class {
             return "NCHW";
         else if(modelLayout == dataFormat.NHWC)
             return "NHWC";
+        else
+            return false;
     }
 
     get origFormat(){   
@@ -289,6 +302,7 @@ tengine.Graph = class {
         const tm_nodesCount = tm2_model.read4Bytes(subgraph.nodesVecOffset);      // The number of nodes from the vector of nodes 
         const tm_tensorCount = tm2_model.read4Bytes(subgraph.tensorsVecOffset);   // The number of tensors from the vector of tensors
         const tm_buffersCount = tm2_model.read4Bytes(subgraph.buffersVecOffset);  // The number of buffers from the vector of buffers
+        // console.log("Here the tm_buffersCount is %d.",tm_buffersCount);
    
         // Read all nodes address into nodesAddr[], all nodes into nodes[]
         let nodesAddr = [];
@@ -546,11 +560,10 @@ tengine.Graph = class {
             let tensorNameSize = tm2_model.read4Bytes(tensor.tensorNameOffset);
             let tensorNameAddr = tm2_model.read4Bytes(tensor.tensorNameOffset+4);
             tensor.name = tm2_model.readString(tensorNameAddr, tensorNameSize);        // The name of this tensor into tensor.name
-            console.log("This is tensor: %s, the buffer id is %d",tensor.name,tensor.bufferID);
+            // console.log("This is tensor: %s, the buffer id is %d",tensor.name,tensor.bufferID);
             
             tensor.quantParamsOffset = tm2_model.read4Bytes(tensorsAddr[i]+16);        // The offset to the quant params of the tensor, 0 for QUANT_FP16; 1 for QUANT_INT8; 2 for QUANT_UINT8
-            if(tensor.quantParamsOffset == 0)
-            {
+            if(tensor.quantParamsOffset == 0){
                 tensor.quantParamSize = 0;
             }
             else
@@ -563,8 +576,28 @@ tengine.Graph = class {
             
             tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);                   // The layout of this tensor
             tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24);                     // The type of this tensor
-            tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);                 // The data type of this tensor, 
-            
+            tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);
+            switch(tensor.dataType){
+                case data_Type.float32:
+                    tensor.dataType = 'float32';
+                    break;
+                case data_Type.float16:
+                    tensor.dataType = 'float16';
+                    break;
+                case data_Type.int8:
+                    tensor.dataType = 'int8';
+                    break;
+                case data_Type.uint8:
+                    tensor.dataType = 'uint8';
+                    break;
+                case data_Type.int32:
+                    tensor.dataType = 'int32';
+                    break;
+                case data_Type.int16:
+                    tensor.dataType = 'int16';
+                    break;
+                
+            }
             // get the dims into tensor.dims
             tensor.dims = [];
             if(tensor.dimsVecOffset != 0x0000){
@@ -585,6 +618,7 @@ tengine.Graph = class {
             buffersAddr.push(tm2_model.read4Bytes(subgraph.buffersVecOffset + 4*(i+1)));
             buffer.size = tm2_model.read4Bytes(buffersAddr[i]);                         // The size of the buffer[i]
             buffer.offset = tm2_model.read4Bytes(buffersAddr[i]+4);                     // The offset to the real buffer from the vector of buffer[i]
+            console.log("In this buffer: %d, the offset is %d.",i, buffer.offset)
             //buffer.data = tm2_model.readBuffers(buffer.offset, buffer.size);          // The buffer data of the buffer[i]
             buffers.push(buffer);
         }
@@ -637,10 +671,10 @@ tengine.Graph = class {
             }
 
             if(layer.type == opType.Convolution){
-                if(modelLayout == 1){
+                if(modelLayout == dataFormat.NHWC){
                     attr = {key: 6, value: tensors[layer.input_tensorID].dims[3]};      // NHWC
                     }
-                else{
+                else if(modelLayout == dataFormat.NCHW){
                     attr = {key: 6, value: tensors[layer.input_tensorID].dims[1]};      // NCHW
                 }
                 layer.attributes[6] = attr;
@@ -815,9 +849,34 @@ tengine.Node2 = class {
             case 'Convolution':{
                 let bufferID = tensors[this._tensorIn].bufferID;
                 let bufferID2 = tensors[this._tensorIn2].bufferID;
-                this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
-                tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],'float32',data2, buffers[bufferID].offset);
-                this._weight('bias',[tensors[this._tensorIn].dims[0]],'float32',data2, buffers[bufferID2].offset);
+                let bufferQuant = tensors[this._tensorIn].quantParamsOffset ? true : false ;
+                let tensor1DataType = tensors[this._tensorIn].dataType;
+                let tensor2DataType = tensors[this._tensorIn2].dataType;
+                
+                if(bufferQuant){
+                    console.log("Here is: %s, and buffer offset is %d.",this._name,buffers[bufferID].offset);
+                    this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
+                    tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
+                    // this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
+                    // tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
+                    console.log("Here is: %s, and buffer offset is %d.",this._name,buffers[bufferID2].offset);
+                    this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
+                    // this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
+                }
+                else {
+                    this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
+                    tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],'float32',data2, buffers[bufferID].offset);
+                    this._weight('bias',[tensors[this._tensorIn].dims[0]],'float32',data2, buffers[bufferID2].offset);
+                }
+                break;
+            }
+
+            case 'FullyConnected':{
+                let bufferID = tensors[this._tensorIn].bufferID;
+                let bufferID2 = tensors[this._tensorIn2].bufferID;
+                this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1]],
+                'int8',data2, buffers[bufferID].offset);
+                this._weight('bias',[tensors[this._tensorIn].dims[0]],'int8',data2, buffers[bufferID2].offset);
                 break;
             }
             
@@ -835,13 +894,8 @@ tengine.Node2 = class {
         return this._name;
     }
 
-    get category() {
-        const schema = this._metadata.type(this._operator);
-        return (schema && schema.category) ? schema.category : '';
-    }
-
-    get documentation() {
-        return '';
+    get metadata() {
+        return this._metadata.type(this._operator);
     }
 
     get attributes() {
@@ -858,10 +912,6 @@ tengine.Node2 = class {
 
     _weight( name, dimensions, dataType, data2 ,position) {        
         const blob = data2.read(dimensions, dataType , position);
-        // console.log("here the dimension is %o",dimensions);
-        // console.log("here the dataType is %o",dataType);
-        // console.log("here the blob is %o",blob);
-        // console.log("%o",blob);
         const data = blob ? blob.data : null;
         this._inputs.push(new tengine.Parameter(name, true, [
             new tengine.Argument('', null, new tengine.Tensor(new tengine.TensorType(dataType, new tengine.TensorShape(dimensions)), data ))
@@ -887,7 +937,6 @@ tengine.Attribute = class {
                 case 'float32':
                     this._value = Bytes2Float32(this._value).toPrecision(7);
                     this._value = parseFloat(this._value);
-                    //console.log("Here the float32 data is %f",this._value);
                     break;
                 case 'float32[]':
                     this._value = this._value.map((v) => parseFloat(v));
@@ -980,8 +1029,12 @@ tengine.Tensor = class {
         }
 
         switch (this._type.dataType) {
+            case 'int8':
+            case 'uint8':
             case 'float16':
             case 'float32':
+            case 'int32':
+            case 'int16':
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 break;
             default:
@@ -1015,6 +1068,26 @@ tengine.Tensor = class {
                         break;
                     case 'float16':
                         results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
+                    case 'int8':
+                        results.push(context.data.getInt8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                    case 'uint8':
+                        results.push(context.data.getUint8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
+                    case 'int32':
+                        results.push(context.data.getInt32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'int16':
+                        results.push(context.data.getInt16(context.index, true));
                         context.index += 2;
                         context.count++;
                         break;
@@ -1097,6 +1170,7 @@ tengine.Metadata = class {
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
+                        item.schema.name = item.name;
                         this._map[item.name] = item.schema;
                         if (Object.prototype.hasOwnProperty.call(item.schema, 'operator')) {
                             this._operatorMap[item.schema.operator.toString()] = item.name;
@@ -1189,7 +1263,7 @@ tengine.tmfileReader = class {
     readString(offset,size){
         let string = [];
         let position = offset;
-        for(let i=0; i < size; i++){
+        for(let i=0; i < (size-1); i++){
         string.push(String.fromCharCode(this._header[position++]));
         }
         return string.join("").toString();
@@ -1220,9 +1294,14 @@ tengine.BlobReader = class {
             }
             if (this._buffer) {
                 if (dataType) {
-                    let position = this._position
+                    let position = this._position;
                     switch (dataType) {
                         case 'float32': 
+                            size *= 4;
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        case 'int32': 
                             size *= 4;
                             this._position += size;
                             data = this._buffer.subarray(position, this._position);
@@ -1232,10 +1311,22 @@ tengine.BlobReader = class {
                             this._position += size;
                             data = this._buffer.subarray(position, this._position);
                             break;
-                        case 'int8':
+                        case 'uint8':
+                            size *= 1;
                             this._position += size;
                             data = this._buffer.subarray(position, this._position);
                             break;
+                        case 'int8':
+                            size *= 1;
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        case 'int16':
+                            size *= 2;
+                            this._position += size;
+                            data = this._buffer.subarray(position, this._position);
+                            break;
+                        
                         case 'qint8':
                             this._position += size + 1024;
                             data = null;
@@ -1275,7 +1366,8 @@ function Bytes2Float32(bytes) {
         if (significand == 0) return sign * 0.0;
         exponent = -126;
         significand /= (1 << 22);
-    } else significand = (significand | (1 << 23)) / (1 << 23);
+    } 
+    else significand = (significand | (1 << 23)) / (1 << 23);
 
     return sign * significand * Math.pow(2, exponent);
 }
