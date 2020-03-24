@@ -4218,6 +4218,31 @@
   },
   {
     "type":   "pytorch",
+    "target": "r3d_18.pkl.pth",
+    "script": "./tools/pytorch sync install zoo",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "r3d_18.zip.pth",
+    "script": "./tools/pytorch sync install zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "r3d_18.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "r3d_18_traced.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet18.pkl.pth",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch v0.1.10",

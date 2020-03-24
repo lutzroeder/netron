@@ -69,6 +69,7 @@ def zoo():
     download_torchvision_model('torchvision.models.resnet101', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.squeezenet1_1', [ 1, 3, 224, 224 ])
+    download_torchvision_model('torchvision.models.video.r3d_18', [ 1, 3, 4, 112, 112 ])
     download_torchvision_model('torchvision.models.vgg11_bn', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.vgg16', [ 1, 3, 224, 224 ])
 

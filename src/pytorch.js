@@ -1154,6 +1154,11 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.squeezenet.SqueezeNet', function() {});
         this._registerConstructor('torchvision.models.resnet.ResNet', function() {});
         this._registerConstructor('torchvision.models.vgg.VGG', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.BasicBlock', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.BasicStem', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.Conv3DNoTemporal', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.Conv3DSimple', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.VideoResNet', function() {});
         this._registerConstructor('torchvision.models._utils.IntermediateLayerGetter', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.LastLevelMaxPool', function() {});
@@ -2970,7 +2975,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
         let callArgs = Array.prototype.slice.call(args);
         if (callTarget) {
             const type = callTarget + '.' + name;
-            // ./aten/src/ATen/native/native_functions.yaml
+            // ./third_party/src/pytorch/aten/src/ATen/native/native_functions.yaml
             let schemas = this._metadata.type(type);
             if (schemas) {
                 if (!Array.isArray(schemas)) {
@@ -3049,6 +3054,10 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             case 'torch.hardtanh_':
                             case 'torch.slice': {
                                 parameter.size = [ NaN, NaN, NaN, NaN ];
+                                break;
+                            }
+                            case 'torch.conv3d': {
+                                parameter.size = [ NaN, NaN, NaN, NaN, NaN ];
                                 break;
                             }
                             case 'torch.embedding': {
