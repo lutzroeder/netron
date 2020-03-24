@@ -302,8 +302,8 @@ tengine.Graph = class {
         const tm_nodesCount = tm2_model.read4Bytes(subgraph.nodesVecOffset);      // The number of nodes from the vector of nodes 
         const tm_tensorCount = tm2_model.read4Bytes(subgraph.tensorsVecOffset);   // The number of tensors from the vector of tensors
         const tm_buffersCount = tm2_model.read4Bytes(subgraph.buffersVecOffset);  // The number of buffers from the vector of buffers
-        // console.log("Here the tm_buffersCount is %d.",tm_buffersCount);
-   
+        // console.log("The buffer count is : %d",tm_buffersCount);
+
         // Read all nodes address into nodesAddr[], all nodes into nodes[]
         let nodesAddr = [];
         let nodes = [];
@@ -553,6 +553,7 @@ tengine.Graph = class {
             tensorsAddr.push(tm2_model.read4Bytes(subgraph.tensorsVecOffset + 4*(i+1)));
             tensor.id = tm2_model.read4Bytes(tensorsAddr[i]);
             tensor.bufferID = tm2_model.read4Bytes(tensorsAddr[i]+4);                  // The buffer ID used by this tensor
+            
             tensor.dimsVecOffset = tm2_model.read4Bytes(tensorsAddr[i]+8);             // The offset to the vector of dims
             tensor.tensorNameOffset = tm2_model.read4Bytes(tensorsAddr[i]+12);         // The offset to the string of tensor name
             
@@ -560,7 +561,7 @@ tengine.Graph = class {
             let tensorNameSize = tm2_model.read4Bytes(tensor.tensorNameOffset);
             let tensorNameAddr = tm2_model.read4Bytes(tensor.tensorNameOffset+4);
             tensor.name = tm2_model.readString(tensorNameAddr, tensorNameSize);        // The name of this tensor into tensor.name
-            // console.log("This is tensor: %s, the buffer id is %d",tensor.name,tensor.bufferID);
+            
             
             tensor.quantParamsOffset = tm2_model.read4Bytes(tensorsAddr[i]+16);        // The offset to the quant params of the tensor, 0 for QUANT_FP16; 1 for QUANT_INT8; 2 for QUANT_UINT8
             if(tensor.quantParamsOffset == 0){
@@ -576,6 +577,7 @@ tengine.Graph = class {
             
             tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);                   // The layout of this tensor
             tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24);                     // The type of this tensor
+            console.log("tensor name is %s, \ntensorID is %d, \ntensor.type is %d, \ntensor.bufferID is %o.",tensor.name, tensor.id,tensor.type,tensor.bufferID);
             tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);
             switch(tensor.dataType){
                 case data_Type.float32:
@@ -617,9 +619,8 @@ tengine.Graph = class {
             let buffer = {};
             buffersAddr.push(tm2_model.read4Bytes(subgraph.buffersVecOffset + 4*(i+1)));
             buffer.size = tm2_model.read4Bytes(buffersAddr[i]);                         // The size of the buffer[i]
+            // console.log("The buffer size is %d.",buffer.size);
             buffer.offset = tm2_model.read4Bytes(buffersAddr[i]+4);                     // The offset to the real buffer from the vector of buffer[i]
-            console.log("In this buffer: %d, the offset is %d.",i, buffer.offset)
-            //buffer.data = tm2_model.readBuffers(buffer.offset, buffer.size);          // The buffer data of the buffer[i]
             buffers.push(buffer);
         }
         
@@ -636,9 +637,18 @@ tengine.Graph = class {
                 if(j ==1){
                     layer.input_tensorID = tensors[nodes[i].input[1]].id;               // weights维度使用; weights链接buffer使用;
                 }
-                if(j ==0)
-                layer.input2_tensorID = tensors[nodes[i].input[0]].id;
-
+                if(j == 0 && tensors[nodes[i].input[0]].type != 3){
+                    layer.input2_tensorID = tensors[nodes[i].input[0]].id;
+                    
+                }
+                else if( j == 2 && tensors[nodes[i].input[2]].type == 2)
+                    layer.input2_tensorID = tensors[nodes[i].input[2]].id;
+                
+                // if(j == 0){
+                //     layer.input2_tensorID = tensors[nodes[i].input[0]].id;
+                // }
+                
+                console.log("In this layer %s, \nthe input2_tensorID is %d.",layer.name,layer.input2_tensorID);
                 layer.inputs.push(name_temp);
             }
 
@@ -697,7 +707,7 @@ tengine.Graph = class {
                 {key: 0, value: 1 } : {key: 0, value: 0};
             }
             
-            if(layer.type != opType.Const)
+            // if(layer.type != opType.Const)
                 layers.push(layer);
         }
         return layers;
@@ -775,8 +785,6 @@ tengine.Node2 = class {
         this._tensorIn = layer.input_tensorID;
         this._tensorIn2 = layer.input2_tensorID;
         this._tensorOut = layer.output_tensorID;
-        
-        // console.log("The tensor's id is: %s",this._tensorIn);
 
         const operator = metadata.getOperatorName(this._operator);
         
@@ -854,14 +862,11 @@ tengine.Node2 = class {
                 let tensor2DataType = tensors[this._tensorIn2].dataType;
                 
                 if(bufferQuant){
-                    console.log("Here is: %s, and buffer offset is %d.",this._name,buffers[bufferID].offset);
+                     console.log("Here is: %s, and weights buffer ID is %d.",this._name, bufferID);
+                     console.log("Here is: %s, and bias buffer ID is %d.",this._name, bufferID2);
                     this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
                     tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
-                    // this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
-                    // tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
-                    console.log("Here is: %s, and buffer offset is %d.",this._name,buffers[bufferID2].offset);
                     this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
-                    // this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
                 }
                 else {
                     this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
