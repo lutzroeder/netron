@@ -306,7 +306,7 @@
     "name": "Scale",
     "schema": {
       "operator": 29,
-      "category": "Data",
+      "category": "Layer",
       "attributes": [
         { "name": "scale_data_size", "default": 0, "visible": false },
         { "name": "bias_term", "default": 0, "visible": false }
