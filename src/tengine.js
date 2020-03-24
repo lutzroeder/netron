@@ -577,7 +577,7 @@ tengine.Graph = class {
             
             tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);                   // The layout of this tensor
             tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24);                     // The type of this tensor
-            console.log("tensor name is %s, \ntensorID is %d, \ntensor.type is %d, \ntensor.bufferID is %o.",tensor.name, tensor.id,tensor.type,tensor.bufferID);
+            // console.log("tensor name is %s, \ntensorID is %d, \ntensor.type is %d, \ntensor.bufferID is %o.",tensor.name, tensor.id,tensor.type,tensor.bufferID);
             tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);
             switch(tensor.dataType){
                 case data_Type.float32:
@@ -648,7 +648,7 @@ tengine.Graph = class {
                 //     layer.input2_tensorID = tensors[nodes[i].input[0]].id;
                 // }
                 
-                console.log("In this layer %s, \nthe input2_tensorID is %d.",layer.name,layer.input2_tensorID);
+                // console.log("In this layer %s, \nthe input2_tensorID is %d.",layer.name,layer.input2_tensorID);
                 layer.inputs.push(name_temp);
             }
 
@@ -862,8 +862,8 @@ tengine.Node2 = class {
                 let tensor2DataType = tensors[this._tensorIn2].dataType;
                 
                 if(bufferQuant){
-                     console.log("Here is: %s, and weights buffer ID is %d.",this._name, bufferID);
-                     console.log("Here is: %s, and bias buffer ID is %d.",this._name, bufferID2);
+                    //  console.log("Here is: %s, and weights buffer ID is %d.",this._name, bufferID);
+                    //  console.log("Here is: %s, and bias buffer ID is %d.",this._name, bufferID2);
                     this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
                     tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
                     this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
