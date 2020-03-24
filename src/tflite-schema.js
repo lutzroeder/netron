@@ -219,7 +219,8 @@ TFLITE.BuiltinOperator = {
   SCATTER_ND: 122,
   SELECT_V2: 123,
   DENSIFY: 124,
-  SEGMENT_SUM: 125
+  SEGMENT_SUM: 125,
+  BATCH_MATMUL: 126
 };
 
 /**
@@ -351,7 +352,8 @@ TFLITE.BuiltinOperatorName = {
   '122': 'SCATTER_ND',
   '123': 'SELECT_V2',
   '124': 'DENSIFY',
-  '125': 'SEGMENT_SUM'
+  '125': 'SEGMENT_SUM',
+  '126': 'BATCH_MATMUL'
 };
 
 /**
@@ -458,7 +460,8 @@ TFLITE.BuiltinOptions = {
   ScatterNdOptions: 97,
   SelectV2Options: 98,
   DensifyOptions: 99,
-  SegmentSumOptions: 100
+  SegmentSumOptions: 100,
+  BatchMatMulOptions: 101
 };
 
 /**
@@ -565,7 +568,8 @@ TFLITE.BuiltinOptionsName = {
   '97': 'ScatterNdOptions',
   '98': 'SelectV2Options',
   '99': 'DensifyOptions',
-  '100': 'SegmentSumOptions'
+  '100': 'SegmentSumOptions',
+  '101': 'BatchMatMulOptions'
 };
 
 /**
@@ -11331,6 +11335,76 @@ TFLITE.SegmentSumOptions.endSegmentSumOptions = function(builder) {
 TFLITE.SegmentSumOptions.createSegmentSumOptions = function(builder) {
   TFLITE.SegmentSumOptions.startSegmentSumOptions(builder);
   return TFLITE.SegmentSumOptions.endSegmentSumOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+TFLITE.BatchMatMulOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {TFLITE.BatchMatMulOptions}
+ */
+TFLITE.BatchMatMulOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.BatchMatMulOptions=} obj
+ * @returns {TFLITE.BatchMatMulOptions}
+ */
+TFLITE.BatchMatMulOptions.getRootAsBatchMatMulOptions = function(bb, obj) {
+  return (obj || new TFLITE.BatchMatMulOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {TFLITE.BatchMatMulOptions=} obj
+ * @returns {TFLITE.BatchMatMulOptions}
+ */
+TFLITE.BatchMatMulOptions.getSizePrefixedRootAsBatchMatMulOptions = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new TFLITE.BatchMatMulOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+TFLITE.BatchMatMulOptions.startBatchMatMulOptions = function(builder) {
+  builder.startObject(0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.BatchMatMulOptions.endBatchMatMulOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+TFLITE.BatchMatMulOptions.createBatchMatMulOptions = function(builder) {
+  TFLITE.BatchMatMulOptions.startBatchMatMulOptions(builder);
+  return TFLITE.BatchMatMulOptions.endBatchMatMulOptions(builder);
 }
 
 /**
