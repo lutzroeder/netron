@@ -54718,7 +54718,7 @@
           "type": "type"
         }
       ],
-      "description": "  Solves tridiagonal systems of equations.\n  Supports batch dimensions and multiple right-hand sides per each left-hand\n  side.\n  On CPU, solution is computed via Gaussian elimination with or without partial\n  pivoting, depending on `partial_pivoting` attribute. On GPU, Nvidia's cuSPARSE\n  library is used: https://docs.nvidia.com/cuda/cusparse/index.html#gtsv",
+      "description": "  Solves tridiagonal systems of equations.\n  Supports batch dimensions and multiple right-hand sides per each left-hand\n  side.\n  On CPU, solution is computed via Gaussian elimination with or without partial\n  pivoting, depending on `partial_pivoting` attribute. On GPU, Nvidia's cuSPARSE\n  library is used: https://docs.nvidia.com/cuda/cusparse/index.html#gtsv\n  Partial pivoting is not yet supported by XLA backends.",
       "inputs": [
         {
           "description": "Tensor of shape `[..., 3, M]` whose innermost 2 dimensions represent the\ntridiagonal matrices with three rows being the superdiagonal, diagonals, and\nsubdiagonals, in order. The last element of the superdiagonal and the first\nelement of the subdiagonal is ignored.",
