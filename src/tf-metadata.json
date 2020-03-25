@@ -902,6 +902,35 @@
     }
   },
   {
+    "name": "AnonymousSeedGenerator",
+    "schema": {
+      "inputs": [
+        {
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "name": "seed2",
+          "type": 9
+        },
+        {
+          "name": "reshuffle",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "Any",
     "schema": {
       "attributes": [
@@ -11924,6 +11953,21 @@
     }
   },
   {
+    "name": "DeleteSeedGenerator",
+    "schema": {
+      "inputs": [
+        {
+          "name": "handle",
+          "type": 20
+        },
+        {
+          "name": "deleter",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "DeleteSessionTensor",
     "schema": {
       "inputs": [
@@ -16954,7 +16998,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `int32`, `int64`, `bfloat16`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `int32`, `int64`, `uint64`, `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -21837,7 +21881,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -21887,7 +21930,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -21942,7 +21984,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -21992,7 +22033,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22047,7 +22087,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22092,7 +22131,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22142,7 +22180,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22197,7 +22234,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22247,7 +22283,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22302,7 +22337,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22357,7 +22391,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22402,7 +22435,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22452,7 +22484,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22497,7 +22528,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22542,12 +22572,103 @@
     }
   },
   {
+    "name": "LoadTPUEmbeddingProximalYogiParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "name": "v",
+          "type": 1
+        },
+        {
+          "name": "m",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingProximalYogiParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "name": "v",
+          "type": 1
+        },
+        {
+          "name": "m",
+          "type": 1
+        },
+        {
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
     "name": "LoadTPUEmbeddingRMSPropParameters",
     "schema": {
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22597,7 +22718,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22652,7 +22772,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -22680,6 +22799,50 @@
         {
           "description": "Value of parameters used in the stochastic gradient descent optimization algorithm.",
           "name": "parameters",
+          "type": 1
+        }
+      ],
+      "summary": "Load SGD embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingStochasticGradientDescentParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the stochastic gradient descent optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the Adadelta optimization algorithm.",
+          "name": "gradient_accumulators",
           "type": 1
         }
       ],
@@ -40626,7 +40789,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40676,7 +40838,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40731,7 +40892,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40781,7 +40941,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40836,7 +40995,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40881,7 +41039,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40931,7 +41088,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -40986,7 +41142,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41036,7 +41191,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41091,7 +41245,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41146,7 +41299,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41191,7 +41343,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41241,7 +41392,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41286,7 +41436,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41331,12 +41480,103 @@
     }
   },
   {
+    "name": "RetrieveTPUEmbeddingProximalYogiParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "name": "v",
+          "type": 1
+        },
+        {
+          "name": "m",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingProximalYogiParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "name": "v",
+          "type": 1
+        },
+        {
+          "name": "m",
+          "type": 1
+        },
+        {
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
     "name": "RetrieveTPUEmbeddingRMSPropParameters",
     "schema": {
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41386,7 +41626,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41441,7 +41680,6 @@
       "attributes": [
         {
           "default": -1,
-          "minimum": -1,
           "name": "table_id",
           "type": "int64"
         },
@@ -41473,6 +41711,50 @@
         }
       ],
       "summary": "Retrieve SGD embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingStochasticGradientDescentParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the stochastic gradient descent optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the Adadelta optimization algorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve SGD embedding parameters with debug support."
     }
   },
   {
@@ -53893,7 +54175,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation creates a new tensor by adding sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd_add`, except that the updates\nare added onto an existing tensor (as opposed to a variable). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of tensor_scatter_add is to add individual elements to a\ntensor by index. For example, say we want to add 4 elements in a rank-1\ntensor with 8 elements.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    tensor = tf.ones([8], dtype=tf.int32)\n    updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n    print(updated)\n```\n\nThe resulting tensor would look like this:\n\n    [1, 12, 1, 11, 10, 1, 1, 13]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    tensor = tf.ones([4, 4, 4],dtype=tf.int32)\n    updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n    print(updated)\n```\n\nThe resulting tensor would look like this:\n\n    [[[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n     [[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
+      "description": "This operation creates a new tensor by adding sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd_add`, except that the updates\nare added onto an existing tensor (as opposed to a variable). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`tensor.shape`.  The last dimension of `indices` can be at most the rank of\n`tensor.shape`:\n\n    indices.shape[-1] <= tensor.shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = tensor.shape.rank`) or slices\n(if `indices.shape[-1] < tensor.shape.rank`) along dimension\n`indices.shape[-1]` of `tensor.shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n\nThe simplest form of tensor_scatter_add is to add individual elements to a\ntensor by index. For example, say we want to add 4 elements in a rank-1\ntensor with 8 elements.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[4], [3], [1], [7]])\n    updates = tf.constant([9, 10, 11, 12])\n    tensor = tf.ones([8], dtype=tf.int32)\n    updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n    print(updated)\n```\n\nThe resulting tensor would look like this:\n\n    [1, 12, 1, 11, 10, 1, 1, 13]\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter add operation would look like this:\n\n```python\n    indices = tf.constant([[0], [2]])\n    updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]],\n                           [[5, 5, 5, 5], [6, 6, 6, 6],\n                            [7, 7, 7, 7], [8, 8, 8, 8]]])\n    tensor = tf.ones([4, 4, 4],dtype=tf.int32)\n    updated = tf.tensor_scatter_nd_add(tensor, indices, updates)\n    print(updated)\n```\n\nThe resulting tensor would look like this:\n\n    [[[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]],\n     [[6, 6, 6, 6], [7, 7, 7, 7], [8, 8, 8, 8], [9, 9, 9, 9]],\n     [[1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1], [1, 1, 1, 1]]]\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, the index is ignored.",
       "inputs": [
         {
           "description": "Tensor to copy/update.",
