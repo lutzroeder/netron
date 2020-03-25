@@ -414,7 +414,7 @@ ncnn.Node = class {
             case 'DeconvolutionDepthWise': {
                 num_output = parseInt(layer.attr['0'] || 0, 10);
                 const kernel_w = parseInt(layer.attr['1'] || 0, 10);
-                const kernel_h = parseInt(layer.attr['1'] || kernel_w, 10);
+                const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
                 weight_data_size = parseInt(layer.attr['6'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
                 if (layer.attr['5'] == '1') {
