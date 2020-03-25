@@ -211,7 +211,7 @@ openvino.Graph = class {
         let argument = this._arguments[id];
         if (!argument) {
             let dimensions = [];
-            for (const  dimElement of Array.prototype.slice.call(port.getElementsByTagName('dim'))) {
+            for (const dimElement of Array.prototype.slice.call(port.getElementsByTagName('dim'))) {
                 dimensions.push(parseInt(dimElement.textContent.trim()));
             }
             const shape = (dimensions.length == 0) ? null : new openvino.TensorShape(dimensions);
@@ -482,6 +482,16 @@ openvino.Node = class {
                                 case 'ScaleShift:biases': 
                                 case 'Convolution:biases': {
                                     shape = [ Math.floor(size / itemSize) ];
+                                    break;
+                                }
+                                case 'Const:custom': {
+                                    if (this._outputs.length > 0 &&
+                                        this._outputs[0].arguments.length > 0 &&
+                                        this._outputs[0].arguments[0].type &&
+                                        this._outputs[0].arguments[0].type.shape &&
+                                        this._outputs[0].arguments[0].type.shape.dimensions) {
+                                        shape = this._outputs[0].arguments[0].type.shape.dimensions;
+                                    }
                                     break;
                                 }
                             }
