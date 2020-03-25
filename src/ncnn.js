@@ -409,14 +409,25 @@ ncnn.Node = class {
                 break;
             }
             case 'Convolution':
-            case 'ConvolutionDepthWise':
-            case 'Deconvolution':
-            case 'DeconvolutionDepthWise': {
+            case 'Deconvolution': {
                 num_output = parseInt(layer.attr['0'] || 0, 10);
                 const kernel_w = parseInt(layer.attr['1'] || 0, 10);
                 const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
                 weight_data_size = parseInt(layer.attr['6'] || 0, 10);
-                this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                this._weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                if (layer.attr['5'] == '1') {
+                    this._weight(blobReader, 'bias', [ num_output ], 'float32');
+                }
+                break;
+            }
+            case 'ConvolutionDepthWise':
+            case 'DeconvolutionDepthWise': {
+                num_output = parseInt(layer.attr['0'] || 0, 10);
+                const kernel_w = parseInt(layer.attr['1'] || 0, 10);
+                const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
+                const group = parseInt(layer.attr['7'] || 0, 10);
+                weight_data_size = parseInt(layer.attr['6'] || 0, 10);
+                this._weight(blobReader, 'weight', [ group, num_output / group, weight_data_size / (num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
                 if (layer.attr['5'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
