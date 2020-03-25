@@ -55,16 +55,16 @@
         { "name": "kernel_w", "type": "int32", "default": 0 },
         { "name": "stride_h", "type": "int32", "default": 0 },
         { "name": "stride_w", "type": "int32", "default": 0 },
-        { "name": "dilation_h", "type": "int32", "default": 0 },
-        { "name": "dilation_w", "type": "int32", "default": 0 },
+        { "name": "dilation_h", "type": "int32", "default": 0, "visible": false },
+        { "name": "dilation_w", "type": "int32", "default": 0, "visible": false },
         { "name": "input_channel", "type": "int32", "default": 0 },
         { "name": "output_channel", "type": "int32", "default": 0 },
-        { "name": "group", "type": "int32", "default": 0 },
+        { "name": "group", "type": "int32", "default": 0, "visible": false },
         { "name": "activation","type": "int32", "default": 0 },
-        { "name": "pad_h0", "type": "int32", "default": 0 },
-        { "name": "pad_w0", "type": "int32", "default": 0 },
-        { "name": "pad_h1", "type": "int32", "default": 0 },
-        { "name": "pad_w1", "type": "int32", "default": 0 }
+        { "name": "pad_h0", "type": "int32", "default": 0, "visible": false },
+        { "name": "pad_w0", "type": "int32", "default": 0, "visible": false },
+        { "name": "pad_h1", "type": "int32", "default": 0, "visible": false },
+        { "name": "pad_w1", "type": "int32", "default": 0, "visible": false }
       ]
     }
   },

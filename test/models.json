@@ -5626,13 +5626,6 @@
   },
   {
     "type":   "tengine",
-    "target": "nasnet_tf.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/nasnet_tf.tmfile?raw=true",
-    "format": "Tengine",
-    "link":   "https://github.com/pierricklee/tmfile-sample"
-  },
-  {
-    "type":   "tengine",
     "target": "squeezenet.tmfile",
     "source": "https://github.com/pierricklee/tmfile-sample/blob/master/squeezenet.tmfile?raw=true",
     "format": "Tengine",

@@ -12,28 +12,39 @@ let buffers = [];
 let tensors = [];
 let modelLayout = 0;
 let origFormat = 0;
+const tengineNotSet = 0x0000;
 
+/**
+ * @enum {number}
+ */
 var data_Type = {
     float32 : 0,
     float16 : 1,
     int8 : 2,
     uint8 : 3,
     int32 : 4,
-    int16 : 5
-     
+    int16 : 5 
 }
 
-
+/**
+ * @enum {number}
+ */
 var modelVersion = {
     V2 : 2,
     v1 : 1
 }
 
+/**
+ * @enum {number}
+ */
 var dataFormat = {
     NCHW : 0,
     NHWC : 1
 }
 
+/**
+ * @enum {number}
+ */
 var modelFormat = {
     unknown : 0,
     Tengine : 1,
@@ -44,9 +55,11 @@ var modelFormat = {
     Tflite : 6,
     DarkNet : 7,
     DLA : 8
-
 }
 
+/**
+ * @enum {number}
+ */
 var opType = {
     Accuracy : 0,
     BatchNormalization : 1,
@@ -127,7 +140,6 @@ var opType = {
     Gather : 76,
     Transpose : 77,
     Num : 78
-
 }
 
 tengine.ModelFactory = class {
@@ -138,9 +150,9 @@ tengine.ModelFactory = class {
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const mainVer = buffer[0] | buffer[1] << 8 ;
-                if(mainVer === 0x0002 | mainVer === 0x0001) 
+                if(mainVer === modelVersion.V2)     // only tmfile V2 is supported 
                     return true;
-                            }
+            }
         }   
         return false;
     }
@@ -170,8 +182,7 @@ tengine.Model = class {
         this._graphs.push(new tengine.Graph(metadata, tmfile)); 
 
         this._header = tmfile;
-        this._mainVer = ((this._header[0] | this._header[1] << 8 ) == 0x0002) ? 2:1;
-        
+        this._mainVer = ((this._header[0] | this._header[1] << 8 ) == modelVersion.V2) ? 2:1;
     }
 
     get format() {
@@ -188,7 +199,7 @@ tengine.Model = class {
             return false;
     }
 
-    get origFormat(){   
+    get origFormat(){ 
         let rootTable = (this._header[8] | this._header[9] << 8 | this._header[10] << 16 | this._header[11] << 24);
         origFormat= (this._header[rootTable] | this._header[rootTable+1] << 8 
             | this._header[rootTable+2] << 16 | this._header[rootTable+3] << 24);
@@ -227,7 +238,7 @@ tengine.Model = class {
     }
     
     get version() {
-      if(this._mainVer == modelVersion.V2)
+        if(this._mainVer == modelVersion.V2)
             return 'TMFILE V2';
         else if(this._mainVer == modelVersion.v1)
             return 'TMFILE V1';
@@ -249,15 +260,15 @@ tengine.Graph = class {
         this._nodes = [];
 
         let layers = this._tmfile_bin(tmfile);
-        const data2 = new tengine.BlobReader(tmfile);
+        const blobData = new tengine.BlobReader(tmfile);
 
-         for (const layer of layers) {
+        for (const layer of layers) {
             if (layer.type == opType.INPUT ) {
                 let dimensions = [];
                 dimensions = tensors[layer.output_tensorID].dims;
                 for(let i =0; i< dimensions.length; i++){
-                    if(dimensions[i] == -1 ){           // -1 == ?
-                    dimensions.shift();
+                    if(dimensions[i] == -1 ){
+                        dimensions.shift();
                     }
                 }
                 if(dimensions[0] == 1)
@@ -267,7 +278,7 @@ tengine.Graph = class {
                 this._inputs.push(new tengine.Parameter(layer.name, true, layer.outputs.map((output) => new tengine.Argument(output, type, null))));
             }
             else {
-                this._nodes.push(new tengine.Node2(metadata,layer,data2));
+                this._nodes.push(new tengine.Node(metadata,layer,blobData));
             }
         }        
     }
@@ -275,78 +286,60 @@ tengine.Graph = class {
     _tmfile_bin(tmfile){ 
         let layers = [];
         const tm2_model = new tengine.tmfileReader(tmfile);
-        let rootTable = tm2_model.read4Bytes(8);           // offset to Root Table (model)
+        let rootTable = tm2_model.read4Bytes(8); 
 
-        // model is Root Table, contains format and subgraph info
+        // root table (model)
         let model = {};
-
-        model.subgraphVecOffset = tm2_model.read4Bytes(rootTable+8);     // offset to vector of subgraphs 
-
-        // subgraphVes is the vector to subgraphs, contains sizes and offsets
+        model.subgraphVecOffset = tm2_model.read4Bytes(rootTable+8);
         let subgraphVec = {};
-        subgraphVec.size = tm2_model.read4Bytes(model.subgraphVecOffset);      // Only one subgraph supported right now 
-
-        if(subgraphVec.size != 1)
+        subgraphVec.size = tm2_model.read4Bytes(model.subgraphVecOffset);
+        if(subgraphVec.size != 1)                           // only one subgraph is supported 
             return false;
-        subgraphVec.addr = tm2_model.read4Bytes(model.subgraphVecOffset+4);    //
-     
-        // subgraph is the TM_Subgraph object, contains nodes vec, tensors vec, buffers vec
+        subgraphVec.addr = tm2_model.read4Bytes(model.subgraphVecOffset+4);  
+        
+        // subgraph
         let subgraph = {};
         subgraph.id = tm2_model.read4Bytes(subgraphVec.addr);
-        subgraph.graphLayout = tm2_model.read4Bytes(subgraphVec.addr+4);    // layout, 1 for NHWC, 2 for NCHW
+        subgraph.graphLayout = tm2_model.read4Bytes(subgraphVec.addr+4);
         modelLayout = subgraph.graphLayout;
-        subgraph.nodesVecOffset = tm2_model.read4Bytes(subgraphVec.addr+20);      // offset to vector of nodes
-        subgraph.tensorsVecOffset = tm2_model.read4Bytes(subgraphVec.addr+24);    // offset to vector of tensors
-        subgraph.buffersVecOffset = tm2_model.read4Bytes(subgraphVec.addr+28);    // offset to vector of buffers
+        subgraph.nodesVecOffset = tm2_model.read4Bytes(subgraphVec.addr+20);
+        subgraph.tensorsVecOffset = tm2_model.read4Bytes(subgraphVec.addr+24);
+        subgraph.buffersVecOffset = tm2_model.read4Bytes(subgraphVec.addr+28);
       
-        const tm_nodesCount = tm2_model.read4Bytes(subgraph.nodesVecOffset);      // The number of nodes from the vector of nodes 
-        const tm_tensorCount = tm2_model.read4Bytes(subgraph.tensorsVecOffset);   // The number of tensors from the vector of tensors
-        const tm_buffersCount = tm2_model.read4Bytes(subgraph.buffersVecOffset);  // The number of buffers from the vector of buffers
-        // console.log("The buffer count is : %d",tm_buffersCount);
-
-        // Read all nodes address into nodesAddr[], all nodes into nodes[]
+        const tm_nodesCount = tm2_model.read4Bytes(subgraph.nodesVecOffset);
+        const tm_tensorCount = tm2_model.read4Bytes(subgraph.tensorsVecOffset);
+        const tm_buffersCount = tm2_model.read4Bytes(subgraph.buffersVecOffset); 
+        
+        // nodes
         let nodesAddr = [];
         let nodes = [];
         for(let i=0; i<tm_nodesCount; i++){
             let node = {};
             nodesAddr.push(tm2_model.read4Bytes(subgraph.nodesVecOffset + 4*(i+1)));
             node.id = tm2_model.read4Bytes(nodesAddr[i]);
-            node.inputTensorsOffset = tm2_model.read4Bytes(nodesAddr[i]+4);            // The offset to the vector of input tensors 
-            node.outputTensorsOffset = tm2_model.read4Bytes(nodesAddr[i]+8);           // The offset to the vector of output tensors
-            node.operatorOffset = tm2_model.read4Bytes(nodesAddr[i]+12);               // The offset to TM_Operator
-            node.nodeNameOffset = tm2_model.read4Bytes(nodesAddr[i]+16);               // The offset to TM_String
-            node.attrsVecOffset = tm2_model.read4Bytes(nodesAddr[i]+20);               // The offset to the vector of attributes (always 0)
-            node.dynamicShape = tm2_model.readBool(nodesAddr[i]+24) ? true : false;    // If dynamic shape? Bool
-            
-            // get the name of this node into node.name
-            let nodeNameSize = tm2_model.read4Bytes(node.nodeNameOffset);               // From the TM_String, first the size of this string
+            node.inputTensorsOffset = tm2_model.read4Bytes(nodesAddr[i]+4);
+            node.outputTensorsOffset = tm2_model.read4Bytes(nodesAddr[i]+8);
+            node.operatorOffset = tm2_model.read4Bytes(nodesAddr[i]+12);
+            node.nodeNameOffset = tm2_model.read4Bytes(nodesAddr[i]+16);
+            node.attrsVecOffset = tm2_model.read4Bytes(nodesAddr[i]+20);
+            node.dynamicShape = tm2_model.readBool(nodesAddr[i]+24) ? true : false;
+            let nodeNameSize = tm2_model.read4Bytes(node.nodeNameOffset);
             let nodeNameAddr = tm2_model.read4Bytes(node.nodeNameOffset+4);
             node.name = tm2_model.readString(nodeNameAddr, nodeNameSize);
-            
-            // get all the input tensor names into node.input[]
             node.input = [];
-
             let nodeInputSize = node.inputTensorsOffset ? tm2_model.read4Bytes(node.inputTensorsOffset) : 0;
             for (let j = 0; j<nodeInputSize; j++){
-                node.input.push(tm2_model.read4Bytes(node.inputTensorsOffset+(j+1)*4));   // just number -- tensor[number]
+                node.input.push(tm2_model.read4Bytes(node.inputTensorsOffset+(j+1)*4));
             }
-
-            // get all the output tensor names into node.output[]
             node.output = [];
             let nodeOutputSize = tm2_model.read4Bytes(node.outputTensorsOffset);
             for (let j = 0; j<nodeOutputSize; j++){
                 let address_temp = (node.outputTensorsOffset + 4*(j+1));
-                //node.output.push(tm2_model.read4Bytes(node.OutputTensorsOffset + (j+1)*4 ) );   // just number -- tensor[number]
-                node.output.push(tm2_model.read4Bytes(address_temp) );   // just number -- tensor[number]
+                node.output.push(tm2_model.read4Bytes(address_temp) );
             }
-
             node.opType = tm2_model.read4Bytes(node.operatorOffset+4);
             node.paramAddr = tm2_model.read4Bytes(node.operatorOffset+8);
-            // if(node.opType == 5) {
-            //     node.opParam = tm2_model.readParams(node.paramAddr,14);
-            // } 
-
-             
+            
             switch(node.opType){
                 case opType.BatchNormalization:
                     node.attrCount = 3;
@@ -541,43 +534,39 @@ tengine.Graph = class {
                 opType.TanH || opType.Sigmoid || opType.FusedbnScaleRelu || 
                 opType.Max || opType.Min || opType.Noop || 
                 opType.Absval || opType.BroadMul || opType.Num){
-                    node.opParam = tm2_model.readParams(node.paramAddr,node.attrCount);
-                }
+                node.opParam = tm2_model.readParams(node.paramAddr,node.attrCount);
+            }
             nodes.push(node);
         }
-
-        // Read all tensors address into tensorsAddr[], all tensors into tensors[]
+        
+        // tensors
         let tensorsAddr = [];
         for (let i = 0; i < tm_tensorCount ; i++){
             let tensor = {};
             tensorsAddr.push(tm2_model.read4Bytes(subgraph.tensorsVecOffset + 4*(i+1)));
             tensor.id = tm2_model.read4Bytes(tensorsAddr[i]);
-            tensor.bufferID = tm2_model.read4Bytes(tensorsAddr[i]+4);                  // The buffer ID used by this tensor
+            tensor.bufferID = tm2_model.read4Bytes(tensorsAddr[i]+4);
             
-            tensor.dimsVecOffset = tm2_model.read4Bytes(tensorsAddr[i]+8);             // The offset to the vector of dims
-            tensor.tensorNameOffset = tm2_model.read4Bytes(tensorsAddr[i]+12);         // The offset to the string of tensor name
+            tensor.dimsVecOffset = tm2_model.read4Bytes(tensorsAddr[i]+8);
+            tensor.tensorNameOffset = tm2_model.read4Bytes(tensorsAddr[i]+12); 
             
-            // get the name of this tensor
             let tensorNameSize = tm2_model.read4Bytes(tensor.tensorNameOffset);
             let tensorNameAddr = tm2_model.read4Bytes(tensor.tensorNameOffset+4);
-            tensor.name = tm2_model.readString(tensorNameAddr, tensorNameSize);        // The name of this tensor into tensor.name
+            tensor.name = tm2_model.readString(tensorNameAddr, tensorNameSize); 
             
-            
-            tensor.quantParamsOffset = tm2_model.read4Bytes(tensorsAddr[i]+16);        // The offset to the quant params of the tensor, 0 for QUANT_FP16; 1 for QUANT_INT8; 2 for QUANT_UINT8
-            if(tensor.quantParamsOffset == 0){
+            tensor.quantParamsOffset = tm2_model.read4Bytes(tensorsAddr[i]+16); 
+            if(tensor.quantParamsOffset == tengineNotSet){
                 tensor.quantParamSize = 0;
             }
-            else
-            {
+            else{
                 tensor.quantParamSize = tm2_model.read4Bytes(tensor.quantParamsOffset);
                 tensor.quantZeroPoint = tm2_model.read4Bytes(tensor.quantParamsOffset+4);
                 tensor.quantScale = tm2_model.read4Bytes(tensor.quantParamsOffset+8);
                 tensor.quantWidth = tm2_model.read4Bytes(tensor.quantParamsOffset+12);
             }
             
-            tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);                   // The layout of this tensor
-            tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24);                     // The type of this tensor
-            // console.log("tensor name is %s, \ntensorID is %d, \ntensor.type is %d, \ntensor.bufferID is %o.",tensor.name, tensor.id,tensor.type,tensor.bufferID);
+            tensor.layout = tm2_model.read4Bytes(tensorsAddr[i]+20);
+            tensor.type = tm2_model.read4Bytes(tensorsAddr[i]+24); 
             tensor.dataType = tm2_model.read4Bytes(tensorsAddr[i]+28);
             switch(tensor.dataType){
                 case data_Type.float32:
@@ -600,42 +589,37 @@ tengine.Graph = class {
                     break;
                 
             }
-            // get the dims into tensor.dims
+            
             tensor.dims = [];
-            if(tensor.dimsVecOffset != 0x0000){
-            tensor.dimsNum = tm2_model.read4Bytes(tensor.dimsVecOffset);                // The number of dimensions
-            for (let j = 0; j<tensor.dimsNum; j++){
-                tensor.dims.push(tm2_model.read4Bytes(tensor.dimsVecOffset+(j+1)*4));       // The elements of every dim
+            if(tensor.dimsVecOffset != tengineNotSet){
+                tensor.dimsNum = tm2_model.read4Bytes(tensor.dimsVecOffset); 
+                for (let j = 0; j<tensor.dimsNum; j++){
+                    tensor.dims.push(tm2_model.read4Bytes(tensor.dimsVecOffset+(j+1)*4)); 
                 }
             }
 
             tensors.push(tensor);
         }
 
-        // Read all buffers address into buffersAddr[], all tensors into buffers[]
+        // buffers
         let buffersAddr = [];
-        // let buffers = [];
         for (let i = 0; i < tm_buffersCount ; i++){
             let buffer = {};
             buffersAddr.push(tm2_model.read4Bytes(subgraph.buffersVecOffset + 4*(i+1)));
-            buffer.size = tm2_model.read4Bytes(buffersAddr[i]);                         // The size of the buffer[i]
-            // console.log("The buffer size is %d.",buffer.size);
-            buffer.offset = tm2_model.read4Bytes(buffersAddr[i]+4);                     // The offset to the real buffer from the vector of buffer[i]
+            buffer.size = tm2_model.read4Bytes(buffersAddr[i]);
+            buffer.offset = tm2_model.read4Bytes(buffersAddr[i]+4);
             buffers.push(buffer);
         }
         
-        for(let i = 0; i< tm_nodesCount; i++)
-        {
+        for(let i = 0; i< tm_nodesCount; i++){
             let layer = {};
-            layer.name =  nodes[i].name;                                // tensors name []
-            
-            // The input of this layer
+            layer.name =  nodes[i].name;
             layer.inputs = [];
             let inputCount = nodes[i].input.length;
             for(let j = 0; j< inputCount; j++){
                 let name_temp = tensors[nodes[i].input[j]].name;
                 if(j ==1){
-                    layer.input_tensorID = tensors[nodes[i].input[1]].id;               // weights维度使用; weights链接buffer使用;
+                    layer.input_tensorID = tensors[nodes[i].input[1]].id;
                 }
                 if(j == 0 && tensors[nodes[i].input[0]].type != 3){
                     layer.input2_tensorID = tensors[nodes[i].input[0]].id;
@@ -644,15 +628,9 @@ tengine.Graph = class {
                 else if( j == 2 && tensors[nodes[i].input[2]].type == 2)
                     layer.input2_tensorID = tensors[nodes[i].input[2]].id;
                 
-                // if(j == 0){
-                //     layer.input2_tensorID = tensors[nodes[i].input[0]].id;
-                // }
-                
-                // console.log("In this layer %s, \nthe input2_tensorID is %d.",layer.name,layer.input2_tensorID);
                 layer.inputs.push(name_temp);
             }
-
-            // The outputs of this layer
+            
             layer.outputs = [];
             let outputCount = nodes[i].output.length;
             for(let j = 0; j< outputCount; j++){
@@ -683,31 +661,31 @@ tengine.Graph = class {
             if(layer.type == opType.Convolution){
                 if(modelLayout == dataFormat.NHWC){
                     attr = {key: 6, value: tensors[layer.input_tensorID].dims[3]};      // NHWC
-                    }
+                }
                 else if(modelLayout == dataFormat.NCHW){
                     attr = {key: 6, value: tensors[layer.input_tensorID].dims[1]};      // NCHW
                 }
                 layer.attributes[6] = attr;
             }
 
-            if(layer.type == opType.Slice){ // [4]--iscaffe [5]--ismxnet
-                attr = (nodes[i].opParam[4] == 1) ?  // [4] -- iscaffe
-                {key: 4, value: 1 } : {key: 4, value: 0};
+            if(layer.type == opType.Slice){                                 // [4]--iscaffe [5]--ismxnet
+                attr = (nodes[i].opParam[4] == 1) ?                         // [4] -- iscaffe
+                    {key: 4, value: 1 } : {key: 4, value: 0};
                 layer.attributes[4] = attr;
-                attr = (nodes[i].opParam[5] == 1) ?  // [5] -- ismxnet
-                {key: 5, value: 1} : {key: 5, value: 0};
+                attr = (nodes[i].opParam[5] == 1) ?                         // [5] -- ismxnet
+                    {key: 5, value: 1} : {key: 5, value: 0};
                 layer.attributes[5] = attr;
-                attr = (origFormat == modelFormat.TensorFlow) ?  // [5] -- ismxnet
-                {key: 6, value: nodes[i].opParam[6]} : {key: 6, value: 0};
+                attr = (origFormat == modelFormat.TensorFlow) ?             // [5] -- ismxnet
+                    {key: 6, value: nodes[i].opParam[6]} : {key: 6, value: 0};
                 layer.attributes[6] = attr;
             }
 
             if(layer.type == opType.Reshape){
-                attr = (nodes[i].opParam[0] == 1) ?  // [0] -- isMxNet
-                {key: 0, value: 1 } : {key: 0, value: 0};
+                attr = (nodes[i].opParam[0] == 1) ?                         // [0] -- isMxNet
+                    {key: 0, value: 1 } : {key: 0, value: 0};
             }
             
-            // if(layer.type != opType.Const)
+            if(layer.type != opType.Const)
                 layers.push(layer);
         }
         return layers;
@@ -729,10 +707,10 @@ tengine.Graph = class {
 
 tengine.Parameter = class {
 
-    constructor(name, visible, args) {              //(inputName, true, argument(input, null, null))
+    constructor(name, visible, args) { 
         this._name = name;
-        this._visible = visible;                    // True
-        this._arguments = args;                     // tengine.Argument(input, null, null)
+        this._visible = visible;
+        this._arguments = args;
     }
 
     get name() {
@@ -773,9 +751,9 @@ tengine.Argument = class {
 };
 
 
-tengine.Node2 = class {
+tengine.Node = class {
 
-    constructor(metadata, layer,data2) {
+    constructor(metadata, layer,blobData) {
         this._metadata = metadata;
         this._inputs = [];
         this._outputs = [];
@@ -862,32 +840,29 @@ tengine.Node2 = class {
                 let tensor2DataType = tensors[this._tensorIn2].dataType;
                 
                 if(bufferQuant){
-                    //  console.log("Here is: %s, and weights buffer ID is %d.",this._name, bufferID);
-                    //  console.log("Here is: %s, and bias buffer ID is %d.",this._name, bufferID2);
                     this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
-                    tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,data2, buffers[bufferID].offset);
-                    this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,data2, buffers[bufferID2].offset);
+                        tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],tensor1DataType,blobData, buffers[bufferID].offset);
+                    this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType,blobData, buffers[bufferID2].offset);
                 }
                 else {
                     this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1],
-                    tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],'float32',data2, buffers[bufferID].offset);
-                    this._weight('bias',[tensors[this._tensorIn].dims[0]],'float32',data2, buffers[bufferID2].offset);
+                        tensors[this._tensorIn].dims[2],tensors[this._tensorIn].dims[3]],'float32',blobData, buffers[bufferID].offset);
+                    this._weight('bias',[tensors[this._tensorIn].dims[0]],'float32',blobData, buffers[bufferID2].offset);
                 }
                 break;
             }
 
             case 'FullyConnected':{
+                let tensor1DataType = tensors[this._tensorIn].dataType;
+                let tensor2DataType = tensors[this._tensorIn2].dataType;
                 let bufferID = tensors[this._tensorIn].bufferID;
                 let bufferID2 = tensors[this._tensorIn2].bufferID;
                 this._weight('filters',[tensors[this._tensorIn].dims[0],tensors[this._tensorIn].dims[1]],
-                'int8',data2, buffers[bufferID].offset);
-                this._weight('bias',[tensors[this._tensorIn].dims[0]],'int8',data2, buffers[bufferID2].offset);
+                    tensor1DataType, blobData, buffers[bufferID].offset);
+                this._weight('bias',[tensors[this._tensorIn].dims[0]],tensor2DataType, blobData, buffers[bufferID2].offset);
                 break;
             }
             
-            case 'PReLU': {
-                break;
-            }
         }
     }
 
@@ -915,11 +890,11 @@ tengine.Node2 = class {
         return this._outputs;
     }
 
-    _weight( name, dimensions, dataType, data2 ,position) {        
-        const blob = data2.read(dimensions, dataType , position);
+    _weight( name, dimensions, dataType, blobData ,position) {        
+        const blob = blobData.read(dimensions, dataType , position);
         const data = blob ? blob.data : null;
         this._inputs.push(new tengine.Parameter(name, true, [
-            new tengine.Argument('', null, new tengine.Tensor(new tengine.TensorType(dataType, new tengine.TensorShape(dimensions)), data ))
+            new tengine.Argument('', null, new tengine.Tensor(new tengine.TensorType(dataType, new tengine.TensorShape(dimensions)), data, name))
         ]));
     }
 }
@@ -977,13 +952,14 @@ tengine.Attribute = class {
 
 tengine.Tensor = class {
 
-    constructor(type, data) {
+    constructor(type, data, kind) {
         this._type = type;
         this._data = data;
+        this._kind = kind;
     }
 
     get kind() {
-        return 'Weight';
+        return this._kind;
     }
 
     get type() {
@@ -1256,11 +1232,11 @@ tengine.tmfileReader = class {
         let param = [];
         let position = offset;
         for(let i=0; i < size; i++){
-        let f0 = this._header[position++];
-        let f1 = this._header[position++];
-        let f2 = this._header[position++];
-        let f3 = this._header[position++];
-        param.push(f0 | f1 << 8 | f2 << 16 | f3 << 24);
+            let f0 = this._header[position++];
+            let f1 = this._header[position++];
+            let f2 = this._header[position++];
+            let f3 = this._header[position++];
+            param.push(f0 | f1 << 8 | f2 << 16 | f3 << 24);
         }
         return param;
     }
@@ -1269,7 +1245,7 @@ tengine.tmfileReader = class {
         let string = [];
         let position = offset;
         for(let i=0; i < (size-1); i++){
-        string.push(String.fromCharCode(this._header[position++]));
+            string.push(String.fromCharCode(this._header[position++]));
         }
         return string.join("").toString();
     }
