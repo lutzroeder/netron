@@ -4671,6 +4671,76 @@
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
+    "type":   "tengine",
+    "target": "mobilenet_v2.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v2.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "detect_tflite.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/detect_tflite.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "lighten_cnn.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/lighten_cnn.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "mobilenet.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "mobilenet_quant_tflite.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_quant_tflite.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "mobilenet_v1_tf.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v1_tf.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "mobilenet_v2_tf.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v2_tf.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "mobolenet_ssd_v1_quant_tflite.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobolenet_ssd_v1_quant_tflite.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "squeezenet.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/squeezenet.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
+    "type":   "tengine",
+    "target": "squeezenet_on.tmfile",
+    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/squeezenet_on.tmfile?raw=true",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/pierricklee/tmfile-sample"
+  },
+  {
       "type":   "tf",
       "target": "bert_uncased_L-12_H-768_A-12.meta",
       "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",

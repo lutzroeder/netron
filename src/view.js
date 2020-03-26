@@ -1145,6 +1145,7 @@ view.ModelFactoryService = class {
         this.register('./darknet', [ '.cfg' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
+        this.register('./tengine', ['.tmfile']);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
