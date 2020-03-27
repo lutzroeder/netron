@@ -1476,37 +1476,44 @@ tf.TensorBundle.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._position = 0;
     }
 
-    seek(offset) {
-        this._position = offset >= 0 ? offset : this._buffer.length + offset;
+    seek(position) {
+        this._position = position >= 0 ? position : this._buffer.length + position;
+        if (this._position > this._buffer.length) {
+            throw new tf.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new tf.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     end() {
         return this._position >= this._buffer.length;
     }
 
-    skip(size) {
-        this._position += size;
-    }
-
-    bytes(size) {
-        const data = this._buffer.subarray(this._position, this._position + size);
-        this._position += size;
-        return data;
+    bytes(length) {
+        const position = this._position;
+        this.skip(length);
+        return this._buffer.subarray(position, this._position);
     }
 
     byte() {
-        return this._buffer[this._position++];
+        const position = this._position;
+        this.skip(1);
+        return this._dataView.getUint8(position);
     }
 
     int32() {
-        let i0 = this._buffer[this._position++];
-        let i1 = this._buffer[this._position++];
-        let i2 = this._buffer[this._position++];
-        let i3 = this._buffer[this._position++];
-        return i0 | i1 << 8 | i2 << 16 | i3 << 24;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getInt32(position, true);
     }
 
     varint32() {
@@ -1516,7 +1523,7 @@ tf.TensorBundle.BinaryReader = class {
     varint64() {
         let result = 0;
         for (let shift = 0; shift <= 63; shift += 7) {
-            let byte = this._buffer[this._position++];
+            let byte = this.byte();
             if (byte & 128) {
                 result |= (byte & 127) << shift;
             }

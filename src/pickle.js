@@ -484,47 +484,47 @@ pickle.Reader = class {
 
     byte() {
         const position = this._position;
-        this.seek(1);
+        this.skip(1);
         return this._dataView.getUint8(position);
     }
 
     bytes(length) {
         const position = this._position;
-        this.seek(length);
+        this.skip(length);
         return this._buffer.subarray(position, this._position);
     }
 
     uint16() {
         const position = this.position;
-        this.seek(2);
+        this.skip(2);
         return this._dataView.getUint16(position, true);
     }
 
     int32() {
         const position = this.position;
-        this.seek(4);
+        this.skip(4);
         return this._dataView.getInt32(position, true);
     }
 
     uint32() {
         const position = this.position;
-        this.seek(4);
+        this.skip(4);
         return this._dataView.getUint32(position, true);
     }
 
     float32() {
         const position = this.position;
-        this.seek(4);
+        this.skip(4);
         return this._dataView.getFloat32(position, true);
     }
 
     float64() {
         const position = this.position;
-        this.seek(8);
+        this.skip(8);
         return this._dataView.getFloat64(position, true);
     }
 
-    seek(offset) {
+    skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
             throw new pickle.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
@@ -545,7 +545,7 @@ pickle.Reader = class {
         }
         const size = index - this._position;
         const text = this.string(size, 'ascii');
-        this.seek(1);
+        this.skip(1);
         return text;
     }
 };

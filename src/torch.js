@@ -1024,8 +1024,8 @@ torch.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
-        this._position = 0;
         this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        this._position = 0;
         this._textDecoder = new TextDecoder('ascii');
     }
 
@@ -1033,38 +1033,46 @@ torch.BinaryReader = class {
         this._position = 0;
     }
 
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new torch.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
     boolean() {
         return this.int32() == 1;
     }
 
-    bytes(size) {
-        const data = this._buffer.subarray(this._position, this._position + size);
-        this._position += size;
-        return data;
+    bytes(length) {
+        const position = this._position;
+        this.skip(length);
+        return this._buffer.subarray(position, this._position);
     }
 
     int8() {
-        const value = this._dataView.getInt8(this._position, true);
-        this._position += 1;
-        return value;
+        const position = this._position;
+        this.skip(1);
+        return this._dataView.getInt8(position, true);
     }
 
     int16() {
-        const value = this._dataView.getInt16(this._position, true);
-        this._position += 2;
-        return value;
+        const position = this._position;
+        this.skip(2);
+        return this._dataView.getInt16(position, true);
     }
 
     int32() {
-        const value = this._dataView.getInt32(this._position, true);
-        this._position += 4;
-        return value;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getInt32(position, true);
     }
 
     int64() {
-        const lo = this._dataView.getUint32(this._position, true);
-        const hi = this._dataView.getUint32(this._position + 4, true);
-        this._position += 8;
+        const position = this._position;
+        this.skip(8);
+        const lo = this._dataView.getUint32(position, true);
+        const hi = this._dataView.getUint32(position + 4, true);
         return new long.Long(lo, hi, false).toNumber();
     }
 
@@ -1077,15 +1085,15 @@ torch.BinaryReader = class {
     }
     
     float32() {
-        const value = this._dataView.getFloat32(this._position, true);
-        this._position += 4;
-        return value;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getFloat32(position, true);
     }
 
     float64() {
-        const value = this._dataView.getFloat64(this._position, true);
-        this._position += 8;
-        return value;
+        const position = this._position;
+        this.skip(8);
+        return this._dataView.getFloat64(position, true);
     }
 
     string() {

@@ -186,8 +186,8 @@ ncnn.Graph = class {
     }
 
     _param_bin(metadata, param) {
-        const reader = new ncnn.BinaryParamReader(param);
-        if (!reader.signature()) {
+        const reader = new ncnn.BinaryReader(param);
+        if (reader.int32() !== 0x007685DD) {
             throw new ncnn.Error('Invalid signature.')
         }
         const layerCount = reader.int32();
@@ -760,33 +760,21 @@ ncnn.Metadata = class {
     }
 };
 
-ncnn.BinaryParamReader = class {
+ncnn.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._position = 0;
-        this._f32 = new Float32Array([ 0 ]);
-        this._f8b = new Uint8Array(this._f32.buffer);
-    }
-
-    signature() {
-        return this.int32() === 0x007685DD;
     }
 
     int32() {
-        let i0 = this._buffer[this._position++];
-        let i1 = this._buffer[this._position++];
-        let i2 = this._buffer[this._position++];
-        let i3 = this._buffer[this._position++];
-        return i0 | i1 << 8 | i2 << 16 | i3 << 24;
-    }
-
-    float32() {
-        this._f8b[0] = this._buffer[this._position++];
-        this._f8b[1] = this._buffer[this._position++];
-        this._f8b[2] = this._buffer[this._position++];
-        this._f8b[3] = this._buffer[this._position++];
-        return this._f32[0];
+        const position = this._position;
+        this._position += 4;
+        if (this._position > this._buffer.length) {
+            throw new ncnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+        return this._dataView.getInt32(position, true);
     }
 }
 

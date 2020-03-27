@@ -24,7 +24,7 @@ tar.Entry = class {
 
     constructor(reader) {
         const header = reader.bytes(512);
-        reader.seek(-512);
+        reader.skip(-512);
         let sum = 0;
         for (let i = 0; i < header.length; i++) {
             sum += (i >= 148 && i < 156) ? 32 : header[i];
@@ -63,7 +63,7 @@ tar.Reader = class {
         this._end = buffer.length;
     }
 
-    seek(offset) {
+    skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
             throw new tar.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
@@ -86,7 +86,7 @@ tar.Reader = class {
 
     bytes(size) {
         const position = this._position;
-        this.seek(size);
+        this.skip(size);
         return this._buffer.subarray(position, this._position);
     }
 
