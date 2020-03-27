@@ -105,8 +105,19 @@ darknet.Graph = class {
         }
 
         const option_find_int = (options, key, defaultValue) => {
-            const value = options[key];
-            return value !== undefined ? parseInt(value, 10) : defaultValue;
+            let value = options[key];
+            if (typeof value === 'string' && value.startsWith('$')) {
+                const key = value.substring(1);
+                value = globals.has(key) ? globals.get(key) : value;
+            }
+            if (value !== undefined) {
+                const number = parseInt(value, 10);
+                if (!Number.isInteger(number)) {
+                    throw new darknet.Error("Invalid int option '" + JSON.stringify(options[key]) + "'.");
+                }
+                return number;
+            }
+            return defaultValue;
         };
 
         const option_find_str = (options, key, defaultValue) => {
@@ -162,6 +173,7 @@ darknet.Graph = class {
         }
 
         let params = {};
+        let globals = new Map();
         const net = sections.shift();
         switch (net.type) {
             case 'net':
@@ -170,6 +182,9 @@ darknet.Graph = class {
                 params.w = option_find_int(net.options, 'width', 0);
                 params.c = option_find_int(net.options, 'channels', 0);
                 params.inputs = option_find_int(net.options, 'inputs', params.h * params.w * params.c);
+                for (const key of Object.keys(net.options)) {
+                    globals.set(key, net.options[key]);
+                }
                 break;
             }
         }
@@ -783,11 +798,24 @@ darknet.Attribute = class {
             this._type = schema.type || '';
             switch (this._type) {
                 case 'int32': {
-                    this._value = parseInt(this._value, 10);
+                    const number = parseInt(this._value, 10);
+                    if (Number.isInteger(number)) {
+                        this._value = number;
+                    }
                     break;
                 }
                 case 'float32': {
-                    this._value = parseFloat(this._value);
+                    const number = parseFloat(this._value);
+                    if (!isNaN(number)) {
+                        this._value = number;
+                    }
+                    break;
+                }
+                case 'int32[]': {
+                    const numbers = this._value.split(',').map((item) => parseInt(item.trim(), 10));
+                    if (numbers.every((number) => Number.isInteger(number))) {
+                        this._value = numbers;
+                    }
                     break;
                 }
             }
@@ -964,7 +992,7 @@ darknet.Weights = class {
 
     int32() {
         const position = this._position;
-        this.seek(4);
+        this.skip(4);
         return this._dataView.getInt32(position, true);
     }
 
@@ -976,11 +1004,11 @@ darknet.Weights = class {
 
     bytes(length) {
         const position = this._position;
-        this.seek(length);
+        this.skip(length);
         return this._buffer.subarray(position, this._position);
     }
 
-    seek(offset) {
+    skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
             throw new darknet.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');

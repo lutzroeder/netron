@@ -464,7 +464,7 @@
       "attributes": [
         { "name": "classes", "type": "int32", "default": 20 },
         { "name": "num", "type": "int32", "default": 1 },
-        { "name": "mask", "type": "string", "default": 0 },
+        { "name": "mask", "type": "int32[]", "default": 0 },
         { "name": "jitter", "type": "float32", "default": 0.2 },
         { "name": "label_smooth_eps", "type": "float32", "default": 0 },
         { "name": "scale_x_y", "type": "float32", "default": 1 },
@@ -479,7 +479,7 @@
         { "name": "random", "type": "int32", "default": 0 },
         { "name": "map", "type": "string", "default": 0 },
         { "name": "nms_kind", "type": "string", "default": "default",  "description": "options are: greedynms, diounms, cornersnms, or defaultnms" },
-        { "name": "anchors", "type": "string", "default": 0 }
+        { "name": "anchors", "type": "int32[]", "default": 0 }
       ]
     }
   },

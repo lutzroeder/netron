@@ -1944,6 +1944,13 @@
   },
   {
     "type":   "darknet",
+    "target": "yolov3_1088x608.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4391007/yolov3_1088x608.cfg.zip[yolov3_1088x608.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
+  },
+  {
+    "type":   "darknet",
     "target": "yolo9000.cfg",
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo9000.cfg",
     "format": "Darknet",
