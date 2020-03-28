@@ -85,6 +85,9 @@ tengine.Graph = class {
 
         for (const output of graph.outputs) {
             const tensor = tensors[output];
+            if (tensor.type && tensor.type.shape && tensor.type.shape.dimensions && tensor.type.shape.dimensions.length == 0 && tensor.initializer !== null) {
+                continue;
+            }
             this._outputs.push(new tengine.Parameter(tensor.id, true, [ tensor ]));
         }
 
@@ -354,7 +357,7 @@ tengine.Tensor = class {
             context.state = 'Tensor has unknown data type.';
             return context;
         }
-        if (!this._type.shape) {
+        if (!this._type.shape || (this._type.shape.dimensions && this._type.shape.dimensions.length == 0)) {
             context.state = 'Tensor has no dimensions.';
             return context;
         }
