@@ -845,7 +845,6 @@ cntk_v1.ComputationNetwork = class {
         reader.assert('BCN');
         reader.assert('BVersion');
         this.version = reader.uint64();
-        reader.version = this.version;
         reader.assert('EVersion');
         let numNodes = reader.uint64();
         reader.assert('BNodeList');
@@ -862,24 +861,24 @@ cntk_v1.ComputationNetwork = class {
         op.ElementTimes = function() {};
         op.ClassificationError = function() {};
         op.RectifiedLinear = function() {};
-        op.InputValue = function(reader) {
+        op.InputValue = function(reader, version) {
             this.rows = reader.uint64();
             this.cols = reader.uint64();
             this.sampleLayout = new cntk_v1.TensorShape(reader, true);
             this.dynamicAxisNodeName = '';
-            if (reader.version >= 8) {
+            if (version >= 8) {
                 let nrAxes = reader.uint32();
                 if (nrAxes == 1) {
                     this.dynamicAxisNodeName = reader.string();
                 }
             }
             this.learningRateMultiplier = 0;
-            if (reader.version >= 10) {
+            if (version >= 10) {
                 this.learningRateMultiplier = reader.float32();
             }
         };
-        op.LearnableParameter = function(reader) {
-            if (reader.version >= 3) {
+        op.LearnableParameter = function(reader, version) {
+            if (version >= 3) {
                 this.learningRateMultiplier = reader.float32();
                 this.sampleLayout = new cntk_v1.TensorShape(reader);
             }
@@ -892,53 +891,53 @@ cntk_v1.ComputationNetwork = class {
             this.evalMode = reader.uint32();
             if (this.evalMode > 2) {
                 this.evalMode = 0;
-                reader.seek(-4);
+                reader.skip(-4);
             }
         };
-        op.Times = function(reader) {
-            this.outputRank = (reader.version >= 3) ? reader.uint64() : 1;
-            this.inferInputRankToMap = (reader.version >= 12) ? reader.int32() : -1;
+        op.Times = function(reader, version) {
+            this.outputRank = (version >= 3) ? reader.uint64() : 1;
+            this.inferInputRankToMap = (version >= 12) ? reader.int32() : -1;
         };
-        op.Dropout = function(reader) {
-            if (reader.version >= 16) {
-                this.rngSeed = (reader.version == 16) ? reader.uint32() : reader.uint64();
+        op.Dropout = function(reader, version) {
+            if (version >= 16) {
+                this.rngSeed = (version == 16) ? reader.uint32() : reader.uint64();
                 this.rngOffset = reader.uint64();
             }
         };
-        op.ConvolutionBase = function(reader) {
-            if (reader.version >= 5) {
+        op.ConvolutionBase = function(reader, version) {
+            if (version >= 5) {
                 this.kernelShape = new cntk_v1.TensorShape(reader);
                 this.mapCount = new cntk_v1.TensorShape(reader);
                 this.strides = new cntk_v1.TensorShape(reader);
-                this.sharing = reader.bools(reader.uint64());
-                this.autoPadding = reader.bools(reader.uint64());
+                this.sharing = reader.booleans(reader.uint64());
+                this.autoPadding = reader.booleans(reader.uint64());
                 this.lowerPad = new cntk_v1.TensorShape(reader);
                 this.upperPad = new cntk_v1.TensorShape(reader);
                 this.poolKind = reader.enum();
                 this.imageLayoutKind = reader.enum();
                 this.maxTempMemSizeInSamples = reader.uint64();
             }
-            if (reader.version >= 9) {
-                this.transpose = reader.bool();
+            if (version >= 9) {
+                this.transpose = reader.boolean();
             }
-            if (reader.version >= 20) {
+            if (version >= 20) {
                 this.outputShape = new cntk_v1.TensorShape(reader);
             }
-            if (reader.version >= 21) {
-                this.ceilOutDim = reader.bool();
+            if (version >= 21) {
+                this.ceilOutDim = reader.boolean();
             }
-            if (reader.version >= 23) {
-                this.includePad = reader.bool();
+            if (version >= 23) {
+                this.includePad = reader.boolean();
             }
         };
-        op.Convolution = function(reader) {
-            op.ConvolutionBase.apply(this, [ reader ]);
-            if (reader.version < 5) {
+        op.Convolution = function(reader, version) {
+            op.ConvolutionBase.apply(this, [ reader, version ]);
+            if (version < 5) {
                 this.kernelShape = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.strides = new cntk_v1.TensorShape([ reader.uint64(), reader.uint64(), 1 ]);
                 this.mapCount = new cntk_v1.TensorShape([ reader.uint32() ]);
                 this.imageLayoutKind = reader.enum();
-                this.autoPadding = [ reader.bool() ];
+                this.autoPadding = [ reader.boolean() ];
                 this.maxTempMemSizeInSamples = reader.uint64();
                 this.poolKind = 'None';
                 this.convolution2D = true;
@@ -947,8 +946,8 @@ cntk_v1.ComputationNetwork = class {
                 this.upperPad = new cntk_v1.TensorShape([ 0 ]);
             }
             else {
-                this.convolution2D = reader.bool();
-                if (reader.version >= 18) {
+                this.convolution2D = reader.boolean();
+                if (version >= 18) {
                     this.dilation = new cntk_v1.TensorShape(reader);
                 }
                 else {
@@ -956,8 +955,8 @@ cntk_v1.ComputationNetwork = class {
                 }
             }
         };
-        op.Pooling = function(reader) {
-            op.ConvolutionBase.apply(this, [ reader ]);
+        op.Pooling = function(reader, version) {
+            op.ConvolutionBase.apply(this, [ reader, version ]);
         };
         op.PoolingBase = function(reader) {
             this.imageLayoutKind = reader.enum();
@@ -966,22 +965,22 @@ cntk_v1.ComputationNetwork = class {
             this.horizontalSubsample = reader.uint64();
             this.verticalSubsample = reader.uint64();
         };
-        op.MaxPooling = function(reader) {
-            op.PoolingBase.apply(this, [ reader ]);
+        op.MaxPooling = function(reader, version) {
+            op.PoolingBase.apply(this, [ reader, version ]);
         };
-        op.ROIPooling = function(reader) {
+        op.ROIPooling = function(reader, version) {
             this.roiOutputShape = new cntk_v1.TensorShape(reader);
-            this.poolKind = (reader.version < 26) ? 'Max' : reader.enum();
-            this.spatialScale = (reader.version < 26) ? 0.0625 : reader.float64();
+            this.poolKind = (version < 26) ? 'Max' : reader.enum();
+            this.spatialScale = (version < 26) ? 0.0625 : reader.float64();
         };
         op.Reshape = function(reader) {
             this.beginDimParameter = reader.uint32();
             this.endDimParameter = reader.uint32();
             this.replacementSampleLayout = new cntk_v1.TensorShape(reader);
         };
-        op.ReduceElements = function(reader) {
+        op.ReduceElements = function(reader, version) {
             let num_axes = 1;
-            if (reader.version >= 27) {
+            if (version >= 27) {
                 num_axes = reader.uint32();
             }
             this.axes = [];
@@ -989,30 +988,30 @@ cntk_v1.ComputationNetwork = class {
                 this.axes.push(reader.uint32());
             }
             this.operation = reader.string();
-            if (reader.version >= 24) {
-                this.keepDimensions = reader.bool();
+            if (version >= 24) {
+                this.keepDimensions = reader.boolean();
             }
         };
-        op.BatchNormalization = function(reader) {
+        op.BatchNormalization = function(reader, version) {
             let mbCount = 0;
-            if (reader.version >= 6) {
-                this.spatial = reader.bool();
+            if (version >= 6) {
+                this.spatial = reader.boolean();
                 this.normalizationTimeConstant = reader.float64();
                 this.blendTimeConstant = reader.float64();
                 this.imageLayoutKind = reader.enum();
-                if (reader.version >= 13) {
-                    if (reader.version != 19) {
+                if (version >= 13) {
+                    if (version != 19) {
                         this.runCountUntied = reader.uint64();
                     }
                     else {
-                        this.runCountUntied = reader.bool() ? 0 : 'SIZE_MAX'; // TODO
+                        this.runCountUntied = reader.boolean() ? 0 : 'SIZE_MAX'; // TODO
                     }
                 }
                 else {
                     mbCount = reader.uint64();
                 }
                 this.epsilon = reader.float64();
-                this.useCntkEngine = reader.bool();
+                this.useCntkEngine = reader.boolean();
             }
             else {
                 let verWritten = reader.int32();
@@ -1020,8 +1019,8 @@ cntk_v1.ComputationNetwork = class {
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
                     throw new cntk.Error('BatchNormalization version not supported.');
                 }
-                this.eval = reader.bool();
-                this.spatial = reader.bool();
+                this.eval = reader.boolean();
+                this.spatial = reader.boolean();
                 if (verWritten >= 0x00010004) {
                     this.normalizationTimeConstant = reader.float64();
                 }
@@ -1034,10 +1033,10 @@ cntk_v1.ComputationNetwork = class {
                 }
                 if (verWritten >= 0x00010003) {
                     this.epsilon = reader.float64();
-                    this.useCntkEngine = reader.bool();
+                    this.useCntkEngine = reader.boolean();
                 }
             }
-            if (reader.version < 13) {
+            if (version < 13) {
                 this.runCountUntied = 16 * mbCount;
                 this.convertRunningVariancePending = true;
             }
@@ -1047,12 +1046,12 @@ cntk_v1.ComputationNetwork = class {
         op.Logistic = function() {};
         op.SquareError = function() {};
         op.ErrorPrediction = function() {};
-        op.RowStack = function(reader) {
-            this.spliceDim = (reader.version >= 3) ? reader.int32() : 1;
+        op.RowStack = function(reader, version) {
+            this.spliceDim = (version >= 3) ? reader.int32() : 1;
         };
-        op.Slice = function(reader) {
+        op.Slice = function(reader, version) {
             let num = 1;
-            if (reader.version >= 22) {
+            if (version >= 22) {
                 num = reader.int32();
             }
             this.index = [];
@@ -1060,17 +1059,17 @@ cntk_v1.ComputationNetwork = class {
             this.strideMultiplier = [];
             for (let i = 0; i < num; i++) {
                 this.index.push([ [ reader.uint64(), reader.uint64() ] ]);
-                if (reader.version >= 3) {
+                if (version >= 3) {
                     this.axis.push(reader.int32());
                 }
-                if (reader.version >= 27) {
+                if (version >= 27) {
                     this.strideMultiplier.push(reader.int32());
                 }
             }
         };
-        op.PastValue = function(reader) {
+        op.PastValue = function(reader, version) {
             this.timeStep = reader.int32();
-            if (reader.version > 3) {
+            if (version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
             else {
@@ -1078,13 +1077,13 @@ cntk_v1.ComputationNetwork = class {
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
-            if (reader.version >= 2) {
+            if (version >= 2) {
                 this.initialStateValue = reader.int32();
             }
         };
-        op.FutureValue = function(reader) {
+        op.FutureValue = function(reader, version) {
             this.timeStep = reader.int32();
-            if (reader.version > 3) {
+            if (version > 3) {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
             else {
@@ -1092,15 +1091,15 @@ cntk_v1.ComputationNetwork = class {
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
-            if (reader.version >= 2) {
+            if (version >= 2) {
                 this.initialStateValue = reader.int32();
             }
         };
-        op.TransposeDimensions = function(reader) {
-            if (reader.version >= 3) {
+        op.TransposeDimensions = function(reader, version) {
+            if (version >= 3) {
                 this.axis1 = reader.int32();
                 this.axis2 = reader.int32();
-                if (reader.version >= 25 && this.axis1 == 0 && this.axis2 == 0) {
+                if (version >= 25 && this.axis1 == 0 && this.axis2 == 0) {
                     let size = reader.uint64();
                     this.perm = [];
                     for (let i = 0; i < size; i++) {
@@ -1113,15 +1112,15 @@ cntk_v1.ComputationNetwork = class {
                 this.axis2 = 2;
             }
         };
-        op.AveragePooling = function(reader) {
-            op.PoolingBase.apply(this, [ reader ]);
+        op.AveragePooling = function(reader, version) {
+            op.PoolingBase.apply(this, [ reader, version ]);
         };
         op.InvStdDev = function(reader) {
-            this.hasComputed = reader.bool();
+            this.hasComputed = reader.boolean();
             this.value = new cntk_v1.Matrix(reader);
         };
         op.Mean = function(reader) {
-            this.hasComputed = reader.bool();
+            this.hasComputed = reader.boolean();
             this.value = new cntk_v1.Matrix(reader);
         };
         op.PerDimMeanVarNormalization = function() {};
@@ -1131,33 +1130,33 @@ cntk_v1.ComputationNetwork = class {
         let nodes = [];
         this.nodes = {};
         for (let i = 0; i < numNodes; i++) {
-            let precision = reader.version >= 7 ? reader.string() : '';
+            const precision = this.version >= 7 ? reader.string() : '';
             if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
                 throw new cntk.Error("Invalid precision format '" + precision + "'.");
             }
             let obj = { __type__: reader.string() };
             obj.name = reader.string();
             obj.precision = precision;
-            let constructor = op[obj.__type__];
+            const constructor = op[obj.__type__];
             if (!constructor) {
                 throw new cntk.Error("Unknown operator '" + obj.__type__ + "'.");
-            } 
-            constructor.apply(obj, [ reader ]);
+            }
+            constructor.apply(obj, [ reader, this.version ]);
             nodes.push(obj);
             this.nodes[obj.name] = obj;
         }
         reader.assert('ENodeList');
         reader.assert('BRelation');
         for (let j = 0; j < numNodes; j++) {
-            let nodeName = reader.string();
-            let node = this.nodes[nodeName];
-            let numChildren = reader.uint64();
+            const nodeName = reader.string();
+            const node = this.nodes[nodeName];
+            const numChildren = reader.uint64();
             let children = [];
             for (let k = 0; k < numChildren; k++) {
                 children.push(reader.string());
             }
             if (this.version < 19 && node.__type__ == 'BatchNormalization') {
-                let runSampleCount = {
+                const runSampleCount = {
                     __type__: 'LearnableParameter',
                     name: nodeName + '.run_sample_count',
                     precision: node.precision,
@@ -1219,27 +1218,19 @@ cntk_v1.Reader = class {
     constructor(buffer) {
         this._buffer = buffer;
         this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._offset = 0;
-    }
-
-    set version(value) {
-        this._version = value;
-    }
-
-    get version() {
-        return this._version;
+        this._position = 0;
     }
 
     match(text) {
-        let offset = this._offset;
+        let position = this._position;
         for (let i = 0; i < text.length; i++) {
             if (this.uint16() != text.charCodeAt(i)) {
-                this._offset = offset;
+                this._position = position;
                 return false;
             }
         }
         if (this.uint16() != 0) {
-            this._offset = offset;
+            this._position = position;
             return false;
         }
         return true;
@@ -1251,55 +1242,58 @@ cntk_v1.Reader = class {
         }
     }
 
-    seek(offset) {
-        this._offset += offset;
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new cntk.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
-    bool() {
+    boolean() {
         return this.byte() != 0 ? true : false;
     }
 
-    bools(count) {
+    booleans(count) {
         let array = [];
         for (let i = 0; i < count; i++) {
-            array.push(this.bool());
+            array.push(this.boolean());
         }
         return array;
     }
 
     byte() {
-        let value = this._dataView.getUint8(this._offset);
-        this._offset++;
-        return value;
+        const position = this._position;
+        this.skip(1);
+        return this._dataView.getUint8(position);
     }
 
-    bytes(count) {
-        let data = this._buffer.subarray(this._offset, this._offset + count);
-        this._offset += count;
-        return data;
+    bytes(length) {
+        const position = this._position;
+        this.skip(length);
+        return this._buffer.subarray(position, this._position);
     }
 
     uint16() {
-        let value = this._dataView.getUint16(this._offset, true);
-        this._offset += 2;
-        return value;
+        const position = this._position;
+        this.skip(2);
+        return this._dataView.getUint16(position, true);
     }
 
     int32() {
-        let value = this._dataView.getInt32(this._offset, true);
-        this._offset += 4;
-        return value;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getInt32(position, true);
     }
 
     uint32() {
-        let value = this._dataView.getUint32(this._offset, true);
-        this._offset += 4;
-        return value;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getUint32(position, true);
     }
 
     uint64() {
-        let low = this.uint32();
-        let hi = this.uint32();
+        const low = this.uint32();
+        const hi = this.uint32();
         if (hi > 65536) {
             throw new cntk_v1.Error('Value not in 48-bit range.');
         }
@@ -1307,15 +1301,15 @@ cntk_v1.Reader = class {
     }
 
     float32() {
-        let value = this._dataView.getFloat32(this._offset, true);
-        this._offset += 4;
-        return value;
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getFloat32(position, true);
     }
 
     float64() {
-        let value = this._dataView.getFloat64(this._offset, true);
-        this._offset += 8;
-        return value;
+        const position = this._position;
+        this.skip(8);
+        return this._dataView.getFloat64(position, true);
     }
 
     string() {
