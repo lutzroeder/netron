@@ -70,7 +70,8 @@ armnnSerializer.DataType = {
   QuantisedSymm16: 5,
   QAsymmU8: 6,
   QSymmS16: 7,
-  QAsymmS8: 8
+  QAsymmS8: 8,
+  QSymmS8: 9
 };
 
 /**
@@ -85,7 +86,8 @@ armnnSerializer.DataTypeName = {
   '5': 'QuantisedSymm16',
   '6': 'QAsymmU8',
   '7': 'QSymmS16',
-  '8': 'QAsymmS8'
+  '8': 'QAsymmS8',
+  '9': 'QSymmS8'
 };
 
 /**
@@ -615,10 +617,43 @@ armnnSerializer.TensorInfo.prototype.quantizationOffset = function() {
 };
 
 /**
+ * @param {number} index
+ * @returns {number}
+ */
+armnnSerializer.TensorInfo.prototype.quantizationScales = function(index) {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.readFloat32(this.bb.__vector(this.bb_pos + offset) + index * 4) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.TensorInfo.prototype.quantizationScalesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {Float32Array}
+ */
+armnnSerializer.TensorInfo.prototype.quantizationScalesArray = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? new Float32Array(this.bb.bytes().buffer, this.bb.bytes().byteOffset + this.bb.__vector(this.bb_pos + offset), this.bb.__vector_len(this.bb_pos + offset)) : null;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.TensorInfo.prototype.quantizationDim = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.TensorInfo.startTensorInfo = function(builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 };
 
 /**
@@ -676,6 +711,43 @@ armnnSerializer.TensorInfo.addQuantizationOffset = function(builder, quantizatio
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} quantizationScalesOffset
+ */
+armnnSerializer.TensorInfo.addQuantizationScales = function(builder, quantizationScalesOffset) {
+  builder.addFieldOffset(4, quantizationScalesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<number>} data
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.TensorInfo.createQuantizationScalesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addFloat32(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+armnnSerializer.TensorInfo.startQuantizationScalesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} quantizationDim
+ */
+armnnSerializer.TensorInfo.addQuantizationDim = function(builder, quantizationDim) {
+  builder.addFieldInt32(5, quantizationDim, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 armnnSerializer.TensorInfo.endTensorInfo = function(builder) {
@@ -689,14 +761,18 @@ armnnSerializer.TensorInfo.endTensorInfo = function(builder) {
  * @param {armnnSerializer.DataType} dataType
  * @param {number} quantizationScale
  * @param {number} quantizationOffset
+ * @param {flatbuffers.Offset} quantizationScalesOffset
+ * @param {number} quantizationDim
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.TensorInfo.createTensorInfo = function(builder, dimensionsOffset, dataType, quantizationScale, quantizationOffset) {
+armnnSerializer.TensorInfo.createTensorInfo = function(builder, dimensionsOffset, dataType, quantizationScale, quantizationOffset, quantizationScalesOffset, quantizationDim) {
   armnnSerializer.TensorInfo.startTensorInfo(builder);
   armnnSerializer.TensorInfo.addDimensions(builder, dimensionsOffset);
   armnnSerializer.TensorInfo.addDataType(builder, dataType);
   armnnSerializer.TensorInfo.addQuantizationScale(builder, quantizationScale);
   armnnSerializer.TensorInfo.addQuantizationOffset(builder, quantizationOffset);
+  armnnSerializer.TensorInfo.addQuantizationScales(builder, quantizationScalesOffset);
+  armnnSerializer.TensorInfo.addQuantizationDim(builder, quantizationDim);
   return armnnSerializer.TensorInfo.endTensorInfo(builder);
 }
 
