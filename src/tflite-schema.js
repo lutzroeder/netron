@@ -3161,18 +3161,10 @@ TFLITE.SVDFOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.SVDFOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.SVDFOptions.startSVDFOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(2);
 };
 
 /**
@@ -3193,14 +3185,6 @@ TFLITE.SVDFOptions.addFusedActivationFunction = function(builder, fusedActivatio
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.SVDFOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(2, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.SVDFOptions.endSVDFOptions = function(builder) {
@@ -3212,14 +3196,12 @@ TFLITE.SVDFOptions.endSVDFOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {number} rank
  * @param {TFLITE.ActivationFunctionType} fusedActivationFunction
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.SVDFOptions.createSVDFOptions = function(builder, rank, fusedActivationFunction, asymmetricQuantizeInputs) {
+TFLITE.SVDFOptions.createSVDFOptions = function(builder, rank, fusedActivationFunction) {
   TFLITE.SVDFOptions.startSVDFOptions(builder);
   TFLITE.SVDFOptions.addRank(builder, rank);
   TFLITE.SVDFOptions.addFusedActivationFunction(builder, fusedActivationFunction);
-  TFLITE.SVDFOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.SVDFOptions.endSVDFOptions(builder);
 }
 
@@ -3277,18 +3259,10 @@ TFLITE.RNNOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.RNNOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.RNNOptions.startRNNOptions = function(builder) {
-  builder.startObject(2);
+  builder.startObject(1);
 };
 
 /**
@@ -3297,14 +3271,6 @@ TFLITE.RNNOptions.startRNNOptions = function(builder) {
  */
 TFLITE.RNNOptions.addFusedActivationFunction = function(builder, fusedActivationFunction) {
   builder.addFieldInt8(0, fusedActivationFunction, TFLITE.ActivationFunctionType.NONE);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.RNNOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(1, +asymmetricQuantizeInputs, +false);
 };
 
 /**
@@ -3319,13 +3285,11 @@ TFLITE.RNNOptions.endRNNOptions = function(builder) {
 /**
  * @param {flatbuffers.Builder} builder
  * @param {TFLITE.ActivationFunctionType} fusedActivationFunction
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.RNNOptions.createRNNOptions = function(builder, fusedActivationFunction, asymmetricQuantizeInputs) {
+TFLITE.RNNOptions.createRNNOptions = function(builder, fusedActivationFunction) {
   TFLITE.RNNOptions.startRNNOptions(builder);
   TFLITE.RNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
-  TFLITE.RNNOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.RNNOptions.endRNNOptions(builder);
 }
 
@@ -3391,18 +3355,10 @@ TFLITE.SequenceRNNOptions.prototype.fusedActivationFunction = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.SequenceRNNOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.SequenceRNNOptions.startSequenceRNNOptions = function(builder) {
-  builder.startObject(3);
+  builder.startObject(2);
 };
 
 /**
@@ -3423,14 +3379,6 @@ TFLITE.SequenceRNNOptions.addFusedActivationFunction = function(builder, fusedAc
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.SequenceRNNOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(2, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
@@ -3442,14 +3390,12 @@ TFLITE.SequenceRNNOptions.endSequenceRNNOptions = function(builder) {
  * @param {flatbuffers.Builder} builder
  * @param {boolean} timeMajor
  * @param {TFLITE.ActivationFunctionType} fusedActivationFunction
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.SequenceRNNOptions.createSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction, asymmetricQuantizeInputs) {
+TFLITE.SequenceRNNOptions.createSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction) {
   TFLITE.SequenceRNNOptions.startSequenceRNNOptions(builder);
   TFLITE.SequenceRNNOptions.addTimeMajor(builder, timeMajor);
   TFLITE.SequenceRNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
-  TFLITE.SequenceRNNOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.SequenceRNNOptions.endSequenceRNNOptions(builder);
 }
 
@@ -3523,18 +3469,10 @@ TFLITE.BidirectionalSequenceRNNOptions.prototype.mergeOutputs = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.BidirectionalSequenceRNNOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions = function(builder) {
-  builder.startObject(4);
+  builder.startObject(3);
 };
 
 /**
@@ -3563,14 +3501,6 @@ TFLITE.BidirectionalSequenceRNNOptions.addMergeOutputs = function(builder, merge
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.BidirectionalSequenceRNNOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(3, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions = function(builder) {
@@ -3583,15 +3513,13 @@ TFLITE.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions = func
  * @param {boolean} timeMajor
  * @param {TFLITE.ActivationFunctionType} fusedActivationFunction
  * @param {boolean} mergeOutputs
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.BidirectionalSequenceRNNOptions.createBidirectionalSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction, mergeOutputs, asymmetricQuantizeInputs) {
+TFLITE.BidirectionalSequenceRNNOptions.createBidirectionalSequenceRNNOptions = function(builder, timeMajor, fusedActivationFunction, mergeOutputs) {
   TFLITE.BidirectionalSequenceRNNOptions.startBidirectionalSequenceRNNOptions(builder);
   TFLITE.BidirectionalSequenceRNNOptions.addTimeMajor(builder, timeMajor);
   TFLITE.BidirectionalSequenceRNNOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   TFLITE.BidirectionalSequenceRNNOptions.addMergeOutputs(builder, mergeOutputs);
-  TFLITE.BidirectionalSequenceRNNOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.BidirectionalSequenceRNNOptions.endBidirectionalSequenceRNNOptions(builder);
 }
 
@@ -3665,18 +3593,10 @@ TFLITE.FullyConnectedOptions.prototype.keepNumDims = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.FullyConnectedOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.FullyConnectedOptions.startFullyConnectedOptions = function(builder) {
-  builder.startObject(4);
+  builder.startObject(3);
 };
 
 /**
@@ -3705,14 +3625,6 @@ TFLITE.FullyConnectedOptions.addKeepNumDims = function(builder, keepNumDims) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.FullyConnectedOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(3, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
@@ -3725,15 +3637,13 @@ TFLITE.FullyConnectedOptions.endFullyConnectedOptions = function(builder) {
  * @param {TFLITE.ActivationFunctionType} fusedActivationFunction
  * @param {TFLITE.FullyConnectedOptionsWeightsFormat} weightsFormat
  * @param {boolean} keepNumDims
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.FullyConnectedOptions.createFullyConnectedOptions = function(builder, fusedActivationFunction, weightsFormat, keepNumDims, asymmetricQuantizeInputs) {
+TFLITE.FullyConnectedOptions.createFullyConnectedOptions = function(builder, fusedActivationFunction, weightsFormat, keepNumDims) {
   TFLITE.FullyConnectedOptions.startFullyConnectedOptions(builder);
   TFLITE.FullyConnectedOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   TFLITE.FullyConnectedOptions.addWeightsFormat(builder, weightsFormat);
   TFLITE.FullyConnectedOptions.addKeepNumDims(builder, keepNumDims);
-  TFLITE.FullyConnectedOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.FullyConnectedOptions.endFullyConnectedOptions(builder);
 }
 
@@ -4415,18 +4325,10 @@ TFLITE.LSTMOptions.prototype.kernelType = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.LSTMOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.LSTMOptions.startLSTMOptions = function(builder) {
-  builder.startObject(5);
+  builder.startObject(4);
 };
 
 /**
@@ -4463,14 +4365,6 @@ TFLITE.LSTMOptions.addKernelType = function(builder, kernelType) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.LSTMOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(4, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.LSTMOptions.endLSTMOptions = function(builder) {
@@ -4484,16 +4378,14 @@ TFLITE.LSTMOptions.endLSTMOptions = function(builder) {
  * @param {number} cellClip
  * @param {number} projClip
  * @param {TFLITE.LSTMKernelType} kernelType
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.LSTMOptions.createLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, kernelType, asymmetricQuantizeInputs) {
+TFLITE.LSTMOptions.createLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, kernelType) {
   TFLITE.LSTMOptions.startLSTMOptions(builder);
   TFLITE.LSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   TFLITE.LSTMOptions.addCellClip(builder, cellClip);
   TFLITE.LSTMOptions.addProjClip(builder, projClip);
   TFLITE.LSTMOptions.addKernelType(builder, kernelType);
-  TFLITE.LSTMOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.LSTMOptions.endLSTMOptions(builder);
 }
 
@@ -4575,18 +4467,10 @@ TFLITE.UnidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.UnidirectionalSequenceLSTMOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions = function(builder) {
-  builder.startObject(5);
+  builder.startObject(4);
 };
 
 /**
@@ -4623,14 +4507,6 @@ TFLITE.UnidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMa
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.UnidirectionalSequenceLSTMOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(4, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions = function(builder) {
@@ -4644,16 +4520,14 @@ TFLITE.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions = 
  * @param {number} cellClip
  * @param {number} projClip
  * @param {boolean} timeMajor
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.UnidirectionalSequenceLSTMOptions.createUnidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, timeMajor, asymmetricQuantizeInputs) {
+TFLITE.UnidirectionalSequenceLSTMOptions.createUnidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, timeMajor) {
   TFLITE.UnidirectionalSequenceLSTMOptions.startUnidirectionalSequenceLSTMOptions(builder);
   TFLITE.UnidirectionalSequenceLSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   TFLITE.UnidirectionalSequenceLSTMOptions.addCellClip(builder, cellClip);
   TFLITE.UnidirectionalSequenceLSTMOptions.addProjClip(builder, projClip);
   TFLITE.UnidirectionalSequenceLSTMOptions.addTimeMajor(builder, timeMajor);
-  TFLITE.UnidirectionalSequenceLSTMOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.UnidirectionalSequenceLSTMOptions.endUnidirectionalSequenceLSTMOptions(builder);
 }
 
@@ -4743,18 +4617,10 @@ TFLITE.BidirectionalSequenceLSTMOptions.prototype.timeMajor = function() {
 };
 
 /**
- * @returns {boolean}
- */
-TFLITE.BidirectionalSequenceLSTMOptions.prototype.asymmetricQuantizeInputs = function() {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
-};
-
-/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions = function(builder) {
-  builder.startObject(6);
+  builder.startObject(5);
 };
 
 /**
@@ -4799,14 +4665,6 @@ TFLITE.BidirectionalSequenceLSTMOptions.addTimeMajor = function(builder, timeMaj
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} asymmetricQuantizeInputs
- */
-TFLITE.BidirectionalSequenceLSTMOptions.addAsymmetricQuantizeInputs = function(builder, asymmetricQuantizeInputs) {
-  builder.addFieldInt8(5, +asymmetricQuantizeInputs, +false);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 TFLITE.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = function(builder) {
@@ -4821,17 +4679,15 @@ TFLITE.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions = fu
  * @param {number} projClip
  * @param {boolean} mergeOutputs
  * @param {boolean} timeMajor
- * @param {boolean} asymmetricQuantizeInputs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.BidirectionalSequenceLSTMOptions.createBidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, mergeOutputs, timeMajor, asymmetricQuantizeInputs) {
+TFLITE.BidirectionalSequenceLSTMOptions.createBidirectionalSequenceLSTMOptions = function(builder, fusedActivationFunction, cellClip, projClip, mergeOutputs, timeMajor) {
   TFLITE.BidirectionalSequenceLSTMOptions.startBidirectionalSequenceLSTMOptions(builder);
   TFLITE.BidirectionalSequenceLSTMOptions.addFusedActivationFunction(builder, fusedActivationFunction);
   TFLITE.BidirectionalSequenceLSTMOptions.addCellClip(builder, cellClip);
   TFLITE.BidirectionalSequenceLSTMOptions.addProjClip(builder, projClip);
   TFLITE.BidirectionalSequenceLSTMOptions.addMergeOutputs(builder, mergeOutputs);
   TFLITE.BidirectionalSequenceLSTMOptions.addTimeMajor(builder, timeMajor);
-  TFLITE.BidirectionalSequenceLSTMOptions.addAsymmetricQuantizeInputs(builder, asymmetricQuantizeInputs);
   return TFLITE.BidirectionalSequenceLSTMOptions.endBidirectionalSequenceLSTMOptions(builder);
 }
 
