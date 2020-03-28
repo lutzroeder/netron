@@ -17983,5 +17983,337 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsSumGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientSumGradient (gradient of SparseLengthsSum) +\nSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsIndicesInGradientSumGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsWeightedSumGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nApproximately fused operator of\nSparseLengthsIndicesInGradientWeightedSumWithMainInputGradient\n(gradient of SparseLengthsWeightedSum) + SparseAdagrad, where weights are\npositional weights computed with LengthsRangeFill + Gather pattern.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case.\nThere's race condition w.r.t. ordering between reading params and writing to\nparam, hence the name Approx.\nThere're auxiliary inputs (aux_param) for which gradient is computed and\nreturns (aux_grad).\nYet additional input (lengths) is for fused\nSparseLengthsIndicesInGradientWeightedSumWithMainInputGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Auxiliary parameters to be updated",
+          "name": "aux_param"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        },
+        {
+          "description": "Auxiliary gradients",
+          "name": "aux_grad"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsWeightedSumGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient\n(gradient of SparseLengthsWeightedSum) + RowWiseSparseAdagrad, where weights are\npositional weights computed with LengthsRangeFill + Gather pattern.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case.\nThere're auxiliary inputs (aux_param) for which gradient is computed and\nreturns (aux_grad).\nYet additional input (lengths) is for fused SparseLengthsWeightedSumGradient\noperator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Auxiliary parameters to be updated",
+          "name": "aux_param"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        },
+        {
+          "description": "Auxiliary gradient",
+          "name": "aux_grad"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsSumGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientSumGradient (gradient of SparseLengthsSum) +\nRowWiseSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsSumGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsWeightedSumGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of SparseLengthsIndicesInGradientWeightedSumWithMainInputGradient\n(gradient of SparseLengthsWeightedSum) + SparseAdagrad, where weights are\npositional weights computed with LengthsRangeFill + Gather pattern.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case.\nThere're auxiliary inputs (aux_param) for which gradient is computed\nand returns (aux_grad).\nYet additional input (lengths) is for fused\nSparseLengthsIndicesInGradientWeightedSumWithMainInputGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Auxiliary parameters to be updated",
+          "name": "aux_param"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        },
+        {
+          "description": "Auxiliary gradient",
+          "name": "aux_grad"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsWeightedSumGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nApproximately fused operator of\nSparseLengthsIndicesInGradientWeightedSumWithMainInputGradient\n(gradient of SparseLengthsWeightedSum) + RowWiseSparseAdagrad, where weights are\npositional weights computed with LengthsRangeFill + Gather pattern.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case.\nThere's race condition w.r.t. ordering between reading params and writing to\nparam, hence the name Approx.\nThere're auxiliary inputs (aux_param) for which gradient is computed\nand returns (aux_grad).\nYet additional input (lengths) is for fused SparseLengthsWeightedSumGradient\noperator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Auxiliary parameters to be updated",
+          "name": "aux_param"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        },
+        {
+          "description": "Auxiliary gradient",
+          "name": "aux_grad"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
