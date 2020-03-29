@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "electron": "8.2.0",
-        "electron-builder": "22.4.1",
+        "electron-builder": "22.3.6",
         "electron-notarize": "0.3.0",
         "eslint": "6.8.0",
         "xmldom": "0.3.0"
