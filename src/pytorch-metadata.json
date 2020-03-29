@@ -3068,7 +3068,161 @@
     }
   },
   {
+    "name": "torch._cast_Byte",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Char",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Short",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Int",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch._cast_Long",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Half",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Float",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "non_blocking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch._cast_Double",
     "schema": {
       "attributes": [
         {
@@ -3891,6 +4045,28 @@
       "outputs": [
         {
           "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.size",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "int64"
         }
       ]
     }

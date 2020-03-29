@@ -1385,10 +1385,10 @@ pytorch.Execution = class {
             return value;
         });
         this._registerFunction('int', function(/* tensor */) {
-            return 0; // TODO
+            return NaN; // TODO
         });
         this._registerFunction('float', function(/* tensor */) {
-            return 0.0; // TODO
+            return NaN; // TODO
         });
         this._registerFunction('getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
@@ -1643,8 +1643,19 @@ pytorch.Execution = class {
             return tensor;
         });
         this._registerFunction('torch.size', function(tensor, dim) {
-            if (tensor && tensor.size && !dim) {
-                return tensor.size;
+            if (tensor && Array.isArray(tensor.size)) {
+                if (dim === undefined) {
+                    return tensor.size;
+                }
+                if (Number.isInteger(dim)) {
+                    if (dim >= 0 && dim < tensor.size.length) {
+                        return tensor.size[dim];
+                    }
+                    if (dim < 0 && -dim < tensor.size.length) {
+                        return tensor.size[tensor.size.length + dim];
+                    }
+                }
+                throw new pytorch.Error('Dimension out of range (expected to be in range of ' + JSON.stringify(tensor.size) + ', but got ' + JSON.stringify(dim) + ').');
             }
             return NaN;
         });
@@ -2971,8 +2982,16 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
     }
 
     call(target, name, args, context) {
-        const callTarget = pytorch.Utility.target(target);
-        let callArgs = Array.prototype.slice.call(args);
+        let callTarget = pytorch.Utility.target(target);
+        let outputTypes = null;
+        if (callTarget && callTarget + '.' + name === 'ops.prim.NumToTensor' &&
+            args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
+            const innerCall = args[0];
+            callTarget = pytorch.Utility.target(innerCall.target.target);
+            args = innerCall.arguments;
+            name = innerCall.target.member.value;
+            outputTypes = [ 'int64' ];
+        }
         if (callTarget) {
             const type = callTarget + '.' + name;
             // ./third_party/src/pytorch/aten/src/ATen/native/native_functions.yaml
@@ -2982,6 +3001,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     schemas = [ schemas ]
                 }
                 for (const schema of schemas) {
+                    let callArgs = Array.prototype.slice.call(args);
                     let node = {
                         type: schema.name,
                         inputs: [],
@@ -3023,7 +3043,6 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         node.inputs.push(inputs);
                     }
                     if (next) {
-                        callArgs = Array.prototype.slice.call(args);
                         continue;
                     }
                     while (callArgs.length > 0 && callArgs[0].type !== '=') {
@@ -3042,6 +3061,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     }
                     let outputs = []
                     for (let i = 0; i < schema.outputs.length; i++) {
+                        if (schema.outputs[i].type && schema.outputs[i].type !== 'T') {
+                            if (!outputTypes || outputTypes.length !== schema.outputs.length || schema.outputs[i].type !== outputTypes[i]) {
+                                next = true;
+                                break;
+                            }
+                        }
                         let parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
                         switch (type) {
                             case 'torch.cat': 
@@ -3074,6 +3099,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         parameter.__variable__ = this._variable();
                         outputs.push(parameter)
                         node.outputs.push(parameter.__variable__);
+                    }
+                    if (next) {
+                        continue;
                     }
                     for (const parameter of referencedParameters) {
                         parameter.__count__ = (parameter.__count__ || 0) + 1;
