@@ -379,6 +379,7 @@
           "name": "data_format"
         }
       ],
+      "category": "Pool",
       "description": "Max pooling operation for 3D data (spatial or spatio-temporal).\n",
       "inputs": [
         {
