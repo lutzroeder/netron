@@ -18315,5 +18315,44 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "SparseLengthsSumSparseLookup",
+    "schema": {
+      "description": "\nThis op converts compressed indices of SparseLengthsSum*Sparse to\nuncompressed indices of SparseLengthsSum*. For compressed indices that maps\nto -1. It means it will correspond to a zero row in the uncompressed data.\nTherefore we will remove this indices and adjust the lengths.\n",
+      "inputs": [
+        {
+          "description": "Integer vector containing compressed indices of the first dimension of DATA for the slices that are being aggregated",
+          "name": "INDICES"
+        },
+        {
+          "description": "Vector with the same sum of elements as the first dimension of INDICES",
+          "name": "LENGTHS"
+        },
+        {
+          "description": "Integer vector mapping uncompressed indices to compressed indices",
+          "name": "COMPRESSED_INDICES_MAPPING"
+        },
+        {
+          "description": "Vector of weights to scale rows of DATA with before reduction. Same size as INDICES.",
+          "name": "WEIGHTS"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Uncompressed indices",
+          "name": "output_indices"
+        },
+        {
+          "description": "Adjusted lengths",
+          "name": "output_lengths"
+        },
+        {
+          "description": "Adjusted weights",
+          "name": "output_weights"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
