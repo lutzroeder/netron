@@ -14303,6 +14303,12 @@
     "schema": {
       "attributes": [
         {
+          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It is an optional value and valid values are [0, C).",
+          "name": "ignore_index",
+          "required": false,
+          "type": "int64"
+        },
+        {
           "default": "mean",
           "description": "Type of reduction to apply to loss: none, sum, mean (default). 'none': the output is the loss for each sample. 'sum': the output will be summed. 'mean': the sum of the output will be divided by the sum of applied weights.",
           "name": "reduction",
@@ -14340,6 +14346,10 @@
         {
           "code": "reduction = 'sum'\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target', 'weight'],\n    outputs=['loss'],\n    reduction=reduction\n)\n\nN, C, dim1, dim2 = 3, 5, 6, 6\nnp.random.seed(0)\ninput = np.random.rand(N, C, dim1, dim2).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, dim1, dim2))\nweight = np.random.rand(C).astype(np.float32)\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=weight, reduction=reduction)\n\nexpect(node, inputs=[input, target, weight], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1d2_with_weight_reduction_sum')",
           "summary": "input_shape_is_NCd1d2_with_weight_reduction_sum"
+        },
+        {
+          "code": "reduction = 'sum'\nignore_index = np.int64(0)\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target', 'weight'],\n    outputs=['loss'],\n    reduction=reduction,\n    ignore_index=ignore_index\n)\n\nN, C, dim1, dim2 = 3, 5, 6, 6\nnp.random.seed(0)\ninput = np.random.rand(N, C, dim1, dim2).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, dim1, dim2))\ntarget[0][0][0] = 0\nweight = np.random.rand(C).astype(np.float32)\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=weight, reduction=reduction, ignore_index=ignore_index)\n\nexpect(node, inputs=[input, target, weight], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1d2_with_weight_reduction_sum_ignore_index')",
+          "summary": "input_shape_is_NCd1d2_with_weight_reduction_sum_ignore_index"
         }
       ],
       "inputs": [
@@ -21685,6 +21695,12 @@
     "schema": {
       "attributes": [
         {
+          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It is an optional value and valid values are [0, C).",
+          "name": "ignore_index",
+          "required": false,
+          "type": "int64"
+        },
+        {
           "default": "mean",
           "description": "Type of reduction to apply to loss: none, sum, mean(default). 'none': no reduction will be applied, 'sum': the output will be summed. 'mean': the sum of the output will be divided by the number of elements in the output.",
           "name": "reduction",
@@ -21706,6 +21722,10 @@
         {
           "code": "# Define operator attributes.\nreduction = 'mean'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y', 'w'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\nweights = np.array([0.9, 0.7, 0.8, 0.9, 0.9], dtype=np.float32)\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, weight=weights)\n\n# Check results\nexpect(node, inputs=[x, labels, weights], outputs=[sce], name='test_softmax_cross_entropy_mean_weight')",
           "summary": "softmaxcrossentropy_mean_weights"
+        },
+        {
+          "code": "# Define operator attributes.\nreduction = 'mean'\nignore_index = np.int64(0)\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y', 'w'],\n                             outputs=['z'],\n                             reduction=reduction,\n                             ignore_index=ignore_index)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\nlabels[0] = 0\nweights = np.array([0.9, 0.7, 0.8, 0.9, 0.9], dtype=np.float32)\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, weight=weights, ignore_index=ignore_index)\n\n# Check results\nexpect(node, inputs=[x, labels, weights], outputs=[sce], name='test_softmax_cross_entropy_mean_weight_ignore_index')",
+          "summary": "softmaxcrossentropy_mean_weights_ignore_index"
         },
         {
           "code": "# Define operator attributes.\nreduction = 'none'\n\n# Create operator.\nnode = onnx.helper.make_node('SoftmaxCrossEntropyLoss',\n                             inputs=['x', 'y'],\n                             outputs=['z'],\n                             reduction=reduction)\n\n# Define operator inputs.\nnp.random.seed(0)\nx = np.random.rand(3, 5).astype(np.float32)\nlabels = np.random.randint(0, high=5, size=(3, ))\n\n# Compute SoftmaxCrossEntropyLoss\nsce = softmaxcrossentropy(x, labels, reduction='none')\n\n# Check results\nexpect(node, inputs=[x, labels], outputs=[sce], name='test_softmax_cross_entropy_none')",
