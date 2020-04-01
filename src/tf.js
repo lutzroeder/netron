@@ -250,9 +250,8 @@ tf.ModelFactory = class {
         }
         catch (error) {
             host.exception(error, false);
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            throw new tf.Error(message + " in '" + identifier + "'.");
+            const message = error && error.message ? error.message : error.toString();
+            throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
     }
 
@@ -263,9 +262,8 @@ tf.ModelFactory = class {
                 return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
             }).catch((error) => {
                 host.exception(error, false);
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new tf.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             });
         });
     }

@@ -209,9 +209,8 @@ chainer.ModelFactory = class {
                     return new chainer.Model(modules, 'Chainer NumPy');
                 }
                 catch (error) {
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new chainer.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new chainer.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             });
         });
@@ -266,9 +265,8 @@ chainer.ModelFactory = class {
                 return new chainer.Model(modules, 'Chainer HDF5');
             }
             catch (error) {
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new chainer.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new chainer.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
         });
     }

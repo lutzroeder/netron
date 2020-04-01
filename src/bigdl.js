@@ -32,9 +32,8 @@ bigdl.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new bigdl.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new bigdl.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             });
         });

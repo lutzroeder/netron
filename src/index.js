@@ -142,8 +142,8 @@ host.BrowserHost = class {
         }
 
         this._view.show('welcome');
-        let openFileButton = this.document.getElementById('open-file-button');
-        let openFileDialog = this.document.getElementById('open-file-dialog');
+        const openFileButton = this.document.getElementById('open-file-button');
+        const openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
             openFileButton.addEventListener('click', () => {
                 openFileDialog.value = '';
@@ -159,8 +159,8 @@ host.BrowserHost = class {
                 }
             });
         }
-        let downloadButton = this.document.getElementById('download-button');
-        let downloadLink = this.document.getElementById('logo-github');
+        const downloadButton = this.document.getElementById('download-button');
+        const downloadLink = this.document.getElementById('logo-github');
         if (downloadButton && downloadLink) {
             downloadButton.style.opacity = 1;
             downloadButton.addEventListener('click', () => {
@@ -213,7 +213,7 @@ host.BrowserHost = class {
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
             script.onload = () => {
-                let exports = window.module.exports;
+                const exports = window.module.exports;
                 delete window.module;
                 window.__modules__[id] = exports;
                 resolve(exports);
@@ -494,7 +494,7 @@ if (typeof TextEncoder === "undefined") {
         "use strict";
         const length = str.length
         let resPos = -1;
-        let resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
+        const resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
         for (let point = 0, nextcode = 0, i = 0; i !== length; ) {
             point = str.charCodeAt(i);
             i += 1;

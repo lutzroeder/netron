@@ -28,9 +28,8 @@ armnn.ModelFactory = class {
             }
             catch (error) {
                 host.exception(error, false);
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new armnn.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new armnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
 
             return armnn.Metadata.open(host).then((metadata) => {
@@ -38,9 +37,8 @@ armnn.ModelFactory = class {
                     return new armnn.Model(model, metadata);
                 }
                 catch (error) {
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new new armnn.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new new armnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             });
         });

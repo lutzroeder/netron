@@ -1251,9 +1251,8 @@ view.ModelFactoryService = class {
             }
         }
         catch (error) {
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
+            const message = error && error.message ? error.message : error.toString();
+            return Promise.reject(new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'."));
         }
 
         try {
@@ -1274,9 +1273,8 @@ view.ModelFactoryService = class {
             }
         }
         catch (error) {
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            return Promise.reject(new ArchiveError(message + " in '" + identifier + "'."));
+            const message = error && error.message ? error.message : error.toString();
+            return Promise.reject(new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'."));
         }
 
         if (!archive) {

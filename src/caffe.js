@@ -72,9 +72,8 @@ caffe.ModelFactory = class {
                                     return this._openNetParameterText(metadata, context.identifier, text, host);
                                 }).catch((error) => {
                                     if (error) {
-                                        let message = error && error.message ? error.message : error.toString();
-                                        message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                                        throw new caffe.Error("Failed to load '" + file + "' (" + message + ").");
+                                        const message = error && error.message ? error.message : error.toString();
+                                        throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ").");
                                     }
                                 });
                             }

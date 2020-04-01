@@ -33,9 +33,8 @@ darknet.ModelFactory = class {
             return new darknet.Model(metadata, cfg, weights ? new darknet.Weights(weights) : null);
         }
         catch (error) {
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            throw new darknet.Error(message + " in '" + identifier + "'.");
+            const message = error && error.message ? error.message : error.toString();
+            throw new darknet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
     }
 };

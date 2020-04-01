@@ -30,17 +30,15 @@ dl4j.ModelFactory = class {
                 }
                 catch (error) {
                     host.exception(error, false);
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new dl4j.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new dl4j.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             });
         }
         catch (error) {
             host.exception(error, false);
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            return Promise.reject(new dl4j.Error(message + " in '" + identifier + "'."));
+            const message = error && error.message ? error.message : error.toString();
+            return Promise.reject(new dl4j.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."));
         }
     }
 

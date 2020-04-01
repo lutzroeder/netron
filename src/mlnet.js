@@ -31,9 +31,8 @@ mlnet.ModelFactory = class {
                 return new mlnet.Model(metadata, reader);
             }
             catch (error) {
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new mlnet.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new mlnet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
         });
     }
@@ -130,8 +129,7 @@ mlnet.Graph = class {
             }
         }
 
-        let node = new mlnet.Node(metadata, group, transformer);
-        this._nodes.push(node);
+        this._nodes.push(new mlnet.Node(metadata, group, transformer));
     }
 
     get groups() {

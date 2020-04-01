@@ -29,17 +29,15 @@ pytorch.ModelFactory = class {
                 return pytorch.Metadata.open(host).then((metadata) => {
                     try {
                         const container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
-                            let message = error && error.message ? error.message : error.toString();
-                            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                            host.exception(new pytorch.Error(message + " in '" + identifier + "'."), fatal);
+                            const message = error && error.message ? error.message : error.toString();
+                            host.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                         });
                         return new pytorch.Model(metadata, container);
                     }
                     catch (error) {
                         host.exception(error, false);
-                        let message = error && error.message ? error.message : error.toString();
-                        message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                        throw new pytorch.Error(message + " in '" + identifier + "'.");
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                     }
                 });
             });

@@ -28,9 +28,8 @@ mediapipe.ModelFactory = class {
         }
         catch (error) {
             host.exception(error, false);
-            let message = error && error.message ? error.message : error.toString();
-            message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-            return Promise.reject(new mediapipe.Error(message + " in '" + identifier + "'."));
+            const message = error && error.message ? error.message : error.toString();
+            return Promise.reject(new mediapipe.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."));
         }
     }
 };

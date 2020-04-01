@@ -52,9 +52,8 @@ ncnn.ModelFactory = class {
                     return new ncnn.Model(metadata, param, bin);
                 }
                 catch (error) {
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new ncnn.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             };
             let bin = null;
@@ -90,9 +89,8 @@ ncnn.ModelFactory = class {
                 return context.request(text, 'utf-8').then((text) => {
                     return param(text, context.buffer);
                 }).catch((error) => {
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new ncnn.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             }
         });

@@ -46,7 +46,7 @@ gzip.Entry = class {
         if ((flags & 1) != 0) {
             reader.uint16(); // CRC16
         }
-        let compressedData = reader.bytes();
+        const compressedData = reader.bytes();
         if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
             this._data = require('zlib').inflateRawSync(compressedData);
         }

@@ -38,9 +38,8 @@ tengine.ModelFactory = class {
                 return new tengine.Model(metadata, buffer);
             }
             catch (error) {
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new tengine.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new tengine.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
         });
     }

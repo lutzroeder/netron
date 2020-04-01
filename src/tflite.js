@@ -39,9 +39,8 @@ tflite.ModelFactory = class {
             }
             catch (error) {
                 host.exception(error, false);
-                let message = error && error.message ? error.message : error.toString();
-                message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                throw new tflite.Error(message + " in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new tflite.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
 
             return tflite.Metadata.open(host).then((metadata) => {
@@ -49,9 +48,8 @@ tflite.ModelFactory = class {
                     return new tflite.Model(metadata, model);
                 }
                 catch (error) {
-                    let message = error && error.message ? error.message : error.toString();
-                    message = message.endsWith('.') ? message.substring(0, message.length - 1) : message;
-                    throw new tflite.Error(message + " in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tflite.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 }
             });
         });
