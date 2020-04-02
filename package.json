@@ -16,9 +16,9 @@
         "start_server": "[ -d node_modules ] || npm install && python3 setup.py --quiet build && PYTHONPATH=./dist/lib python3 -c 'import netron; netron.main()' $@"
     },
     "dependencies": {
-        "d3": "5.15.0",
+        "d3": "5.15.1",
         "dagre": "0.8.5",
-        "electron-updater": "4.2.5",
+        "electron-updater": "4.3.0",
         "flatbuffers": "1.12.0",
         "long": "4.0.0",
         "marked": "0.8.2",
@@ -28,7 +28,7 @@
     },
     "devDependencies": {
         "electron": "8.2.0",
-        "electron-builder": "22.3.6",
+        "electron-builder": "22.5.0",
         "electron-notarize": "0.3.0",
         "eslint": "6.8.0",
         "xmldom": "0.3.0"
