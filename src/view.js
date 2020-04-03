@@ -1210,7 +1210,7 @@ view.ModelFactoryService = class {
                         'object-detection.pbtxt',
                     ]);
                     let skip = knownUnsupportedIdentifiers.has(identifier);
-                    if (!skip && extension === 'pbtxt') {
+                    if (!skip && (extension === 'pbtxt' || extension === 'prototxt')) {
                         if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
                             const tags = context.tags('pbtxt');
                             if (tags.size === 1 && (tags.has('item') || tags.has('entry'))) {
@@ -1218,7 +1218,9 @@ view.ModelFactoryService = class {
                             }
                         }
                     }
-                    throw new ModelError("Unsupported file content for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                    const buffer = context.buffer;
+                    const content = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                    throw new ModelError("Unsupported file content (" + content + ") for extension '." + extension + "' in '" + identifier + "'.", !skip);
                 }
             };
             return nextModule();

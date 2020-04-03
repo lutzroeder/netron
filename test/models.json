@@ -864,7 +864,7 @@
     "type":   "caffe2",
     "target": "ops/ops.pbtxt",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
-    "error":  "Unsupported file content for extension '.pbtxt' in 'ops.pbtxt'.",
+    "error":  "Unsupported file content (6f70207b0a20206e) for extension '.pbtxt' in 'ops.pbtxt'.",
     "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/ops/ops.pbtxt"
   },
   {
@@ -1076,7 +1076,7 @@
     "type":   "cntk",
     "target": "v2/mobilenetv2-1.0.dnn",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model",
-    "error":  "Unsupported file content for extension '.dnn' in 'mobilenetv2-1.0.dnn'.",
+    "error":  "Unsupported file content (504b030414000000) for extension '.dnn' in 'mobilenetv2-1.0.dnn'.",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -2118,7 +2118,7 @@
     "type":   "keras",
     "target": "keras_invalid_file.h5",
     "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
-    "error":  "Unsupported file content for extension '.h5' in 'keras_invalid_file.h5'.",
+    "error":  "Unsupported file content (0000000000000000) for extension '.h5' in 'keras_invalid_file.h5'.",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
@@ -3095,7 +3095,7 @@
     "type":   "onnx",
     "target": "input_0.pb",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
-    "error":  "Unsupported file content for extension '.pb' in 'input_0.pb'.",
+    "error":  "Unsupported file content (0801080308e00108) for extension '.pb' in 'input_0.pb'.",
     "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
   },
   {
