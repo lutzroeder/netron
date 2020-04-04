@@ -14303,7 +14303,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It is an optional value and valid values are [0, C).",
+          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It's an optional value.",
           "name": "ignore_index",
           "required": false,
           "type": "int64"
@@ -21695,7 +21695,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It is an optional value and valid values are [0, C).",
+          "description": "Specifies a target value that is ignored and does not contribute to the input gradient. It's an optional value.",
           "name": "ignore_index",
           "required": false,
           "type": "int64"
