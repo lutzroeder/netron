@@ -39,6 +39,7 @@ update:
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata
 	@./tools/sklearn sync install metadata
+	@./tools/tengine sync
 	@./tools/tf sync install schema metadata
 	@./tools/tflite sync schema
 	@./tools/torch sync

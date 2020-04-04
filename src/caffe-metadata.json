@@ -424,7 +424,7 @@
         { "name": "input" }
       ],
       "outputs": [
-        { "name": "output", "option": "variadic" }
+        { "name": "outputs", "option": "variadic" }
       ]
     }
   },

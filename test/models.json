@@ -4680,77 +4680,77 @@
   {
     "type":   "tengine",
     "target": "detect_tflite.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/detect_tflite.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/detect_tflite.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "lighten_cnn.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/lighten_cnn.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/lighten_cnn.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobilenet.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobilenet.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobilenet_quant_tflite.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_quant_tflite.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobilenet_quant_tflite.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobolenet_ssd_v1_quant_tflite.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobolenet_ssd_v1_quant_tflite.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobolenet_ssd_v1_quant_tflite.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobilenet_v1_tf.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v1_tf.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobilenet_v1_tf.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobilenet_v2.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v2.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobilenet_v2.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "mobilenet_v2_tf.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/mobilenet_v2_tf.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/mobilenet_v2_tf.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "nasnet_tf.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/nasnet_tf.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/nasnet_tf.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "squeezenet.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/squeezenet.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/squeezenet.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
     "type":   "tengine",
     "target": "squeezenet_on.tmfile",
-    "source": "https://github.com/pierricklee/tmfile-sample/blob/master/squeezenet_on.tmfile?raw=true",
+    "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/squeezenet_on.tmfile",
     "format": "Tengine v2.0",
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },

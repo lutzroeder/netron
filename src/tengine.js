@@ -3,8 +3,6 @@
 
 // Experimental
 
-// https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
-
 var tengine = tengine || {};
 var base = base || require('./base');
 
@@ -177,16 +175,10 @@ tengine.Node = class {
 
         const schema = metadata.type(this._operator);
 
-        let attributeMetadata = {};
-        if (schema && schema.attributes) { 
-            for (let i = 0; i < schema.attributes.length; i++) { 
-                const id = schema.attributes[i].id || i.toString(); 
-                attributeMetadata[id] = schema.attributes[i]; 
-            }
-        }
-        for (const attribute of node.attributes) {
-            const attributeSchema = attributeMetadata[attribute.key];
-            this._attributes.push(new tengine.Attribute(attributeSchema, attribute.key, attribute.value)); 
+        for (let i = 0; i < node.params.length; i++) {
+            const attributeSchema = (schema && schema.attributes && i < schema.attributes.length) ? schema.attributes[i] : null;
+            const attributeName = attributeSchema ? attributeSchema.name : i.toString();
+            this._attributes.push(new tengine.Attribute(attributeSchema, attributeName, node.params[i])); 
         }
 
         let inputs = node.inputs; 
@@ -263,21 +255,6 @@ tengine.Attribute = class {
             this._name = schema.name;
             if (schema.type) {
                 this._type = schema.type;
-            }
-            switch (this._type) {
-                case 'int32':
-                    this._value = parseInt(this._value, 10);
-                    break;
-                case 'float32': {
-                    const float32 = new Float32Array(1);
-                    const int32 = new Uint32Array(float32.buffer, 0, float32.length);
-                    int32[0] = this._value;
-                    this._value = float32[0].toPrecision(7);
-                    break;
-                }
-                case 'float32[]':
-                    this._value = this._value.map((v) => parseFloat(v));
-                    break;
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -547,101 +524,101 @@ tengine.ModelFileReader = class {
 
     constructor(buffer) {
 
-        this._graphs = [];
+        // ./third_party/src/tengine/serializer/include/tengine/v2/tm2_format.h
+        // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
 
         let operators = new Map();
-        operators.set( 0, { name: 'Accuracy', params: 0 });
-        operators.set( 1, { name: 'BatchNormalization', params: 3 });
-        operators.set( 2, { name: 'BilinearResize', params: 3 });
-        operators.set( 3, { name: 'Concat', params: 1 });
-        operators.set( 4, { name: 'Const', params: 0 });
-        operators.set( 5, { name: 'Convolution', params: 14 });
-        operators.set( 6, { name: 'DeConvolution', params: 13 });
-        operators.set( 7, { name: 'DetectionOutput', params: 5 });
-        operators.set( 8, { name: 'DropOut', params: 0 });
-        operators.set( 9, { name: 'Eltwise', params: 2 });
-        operators.set(10, { name: 'Flatten', params: 2 });
-        operators.set(11, { name: 'FullyConnected', params: 1 });
-        operators.set(12, { name: 'INPUT', params: 0 });
-        operators.set(13, { name: 'LRN', params: 5 });
-        operators.set(14, { name: 'Normalize', params: 2 });
-        operators.set(15, { name: 'Permute', params: 5 });
-        operators.set(16, { name: 'Pooling', params: 11 });
-        operators.set(17, { name: 'Prelu', params: 0 });
-        operators.set(18, { name: 'PriorBox', params: 14 });
-        operators.set(19, { name: 'Region', params: 7 });
-        operators.set(20, { name: 'ReLU', params: 1 });
-        operators.set(21, { name: 'ReLU6', params: 0 });
-        operators.set(22, { name: 'Reorg', params: 1 });
-        operators.set(23, { name: 'Reshape', params: 3 });
-        operators.set(24, { name: 'RoiPooling', params: 3 });
-        operators.set(25, { name: 'RPN', params: 9 });
-        operators.set(26, { name: 'Scale', params: 3 });
-        operators.set(27, { name: 'Slice', params: 8 });
-        operators.set(28, { name: 'SoftMax', params: 1 });
-        operators.set(29, { name: 'Split', params: 0 });
-        operators.set(30, { name: 'DetectionPostProcess', params: 6 });
-        operators.set(31, { name: 'Gemm', params: 4 });
-        operators.set(32, { name: 'Generic', params: 3 });
-        operators.set(33, { name: 'Logistic', params: 0 });
-        operators.set(34, { name: 'LSTM', params: 18 });
-        operators.set(35, { name: 'RNN', params: 9 });
-        operators.set(36, { name: 'TanH', params: 0 });
-        operators.set(37, { name: 'Sigmoid', params: 0 });
-        operators.set(38, { name: 'Squeeze', params: 4 });
-        operators.set(39, { name: 'FusedbnScaleRelu', params: 0 });
-        operators.set(40, { name: 'Pad', params: 10 });
-        operators.set(41, { name: 'StridedSlice', params: 12 });
-        operators.set(42, { name: 'ArgMax', params: 1 });
-        operators.set(43, { name: 'ArgMin', params: 1 });
-        operators.set(44, { name: 'TopKV2', params: 2 });
-        operators.set(45, { name: 'Reduction', params: 6 });
-        operators.set(46, { name: 'Max', params: 0 });
-        operators.set(47, { name: 'Min', params: 0 });
-        operators.set(48, { name: 'GRU', params: 10 });
-        operators.set(49, { name: 'Addn', params: 1 });
-        operators.set(50, { name: 'SwapAxis', params: 2 });
-        operators.set(51, { name: 'Upsample', params: 1 });
-        operators.set(52, { name: 'SpaceToBatchND', params: 6 });
-        operators.set(53, { name: 'BatchToSpaceND', params: 6 });
-        operators.set(54, { name: 'Resize', params: 3 });
-        operators.set(55, { name: 'ShuffleChannel', params: 1 });
-        operators.set(56, { name: 'Crop', params: 9 });
-        operators.set(57, { name: 'ROIAlign', params: 3 });
-        operators.set(58, { name: 'Psroipooling', params: 4 });
-        operators.set(59, { name: 'Unary', params: 1 });
-        operators.set(60, { name: 'Expanddims', params: 1 });
-        operators.set(61, { name: 'Bias', params: 1 });
-        operators.set(62, { name: 'Noop', params: 0 });
-        operators.set(63, { name: 'Threshold', params: 1 });
-        operators.set(64, { name: 'Hardsigmoid', params: 2 });
-        operators.set(65, { name: 'Embed', params: 4 });
-        operators.set(66, { name: 'InstanceNorm', params: 1 });
-        operators.set(67, { name: 'MVN', params: 3 });
-        operators.set(68, { name: 'Absval', params: 0 });
-        operators.set(69, { name: 'Cast', params: 2 });
-        operators.set(70, { name: 'HardSwish', params: 2 });
-        operators.set(71, { name: 'Interp', params: 5 });
-        operators.set(72, { name: 'SELU', params: 2 });
-        operators.set(73, { name: 'ELU', params: 1 });
-        operators.set(74, { name: 'BroadMul', params: 0 });
-        operators.set(75, { name: 'Logical', params: 1 });
-        operators.set(76, { name: 'Gather', params: 2 });
-        operators.set(77, { name: 'Transpose', params: 1 });
-        operators.set(78, { name: 'Num', params: 0 });
+        operators.set( 0, { name: 'Accuracy', params: [] });
+        operators.set( 1, { name: 'BatchNormalization', params: [ 'f', 'f', 'i' ] });
+        operators.set( 2, { name: 'BilinearResize', params: [ 'f', 'f', 'i' ] });
+        operators.set( 3, { name: 'Concat', params: [ 'i' ] });
+        operators.set( 4, { name: 'Const', params: [] });
+        operators.set( 5, { name: 'Convolution', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set( 6, { name: 'DeConvolution', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set( 7, { name: 'DetectionOutput', params: [ 'i', 'i', 'i', 'f', 'f' ] });
+        operators.set( 8, { name: 'DropOut', params: [] });
+        operators.set( 9, { name: 'Eltwise', params: [ 'i', 'i' ] });
+        operators.set(10, { name: 'Flatten', params: [ 'i' ] });
+        operators.set(11, { name: 'FullyConnected', params: [ 'i' ] });
+        operators.set(12, { name: 'INPUT', params: [] });
+        operators.set(13, { name: 'LRN', params: [ 'i', 'f', 'f', 'i', 'f' ] });
+        operators.set(14, { name: 'Normalize', params: [ 'i', 'i' ] });
+        operators.set(15, { name: 'Permute', params: [ 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(16, { name: 'Pooling', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(17, { name: 'Prelu', params: [] });
+        operators.set(18, { name: 'PriorBox', params: [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ] });
+        operators.set(19, { name: 'Region', params: [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ] });
+        operators.set(20, { name: 'ReLU', params: [ 'f' ] });
+        operators.set(21, { name: 'ReLU6', params: [] });
+        operators.set(22, { name: 'Reorg', params: [ 'i' ] });
+        operators.set(23, { name: 'Reshape', params: [ 'i', 'i', 'i[]' ] });
+        operators.set(24, { name: 'RoiPooling', params: [ 'i', 'i', 'f' ] });
+        operators.set(25, { name: 'RPN', params: [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'i' /* TODO TM2_Vector_anchors */ ] });
+        operators.set(26, { name: 'Scale', params: [ 'i', 'i', 'i' ]});
+        operators.set(27, { name: 'Slice', params: [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(28, { name: 'SoftMax', params: [ 'i' ] });
+        operators.set(29, { name: 'Split', params: [ 'i', 'i', 'b', 'b', 'i[]' ] });
+        operators.set(30, { name: 'DetectionPostProcess', params: [ 'i', 'i', 'f', 'f', 'i', 'f[]' ] });
+        operators.set(31, { name: 'Gemm', params: [ 'f', 'f', 'i', 'i' ] });
+        operators.set(32, { name: 'Generic', params: [ 'i', 'i', 's' ] });
+        operators.set(33, { name: 'Logistic', params: [] });
+        operators.set(34, { name: 'LSTM', params: [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(35, { name: 'RNN', params: [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(36, { name: 'TanH', params: [] });
+        operators.set(37, { name: 'Sigmoid', params: [] });
+        operators.set(38, { name: 'Squeeze', params: [ 'i', 'i', 'i', 'i' ] });
+        operators.set(39, { name: 'FusedbnScaleRelu', params: [] });
+        operators.set(40, { name: 'Pad', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ] });
+        operators.set(41, { name: 'StridedSlice', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(42, { name: 'ArgMax', params: [ 'i' ] });
+        operators.set(43, { name: 'ArgMin', params: [ 'i' ] });
+        operators.set(44, { name: 'TopKV2', params: [ 'i', 'i' ] });
+        operators.set(45, { name: 'Reduction', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(46, { name: 'Max', params: [] });
+        operators.set(47, { name: 'Min', params: [] });
+        operators.set(48, { name: 'GRU', params: [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(49, { name: 'Addn', params: 'i' });
+        operators.set(50, { name: 'SwapAxis', params: [ 'i', 'i' ] });
+        operators.set(51, { name: 'Upsample', params: [ 'f' ] });
+        operators.set(52, { name: 'SpaceToBatchND', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(53, { name: 'BatchToSpaceND', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
+        operators.set(54, { name: 'Resize', params: [ 'f', 'f', 'i' ] });
+        operators.set(55, { name: 'ShuffleChannel', params: [ 'i' ] });
+        operators.set(56, { name: 'Crop', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'b', 'i', 'i' ] });
+        operators.set(57, { name: 'ROIAlign', params: [ 'i', 'i', 'f' ] });
+        operators.set(58, { name: 'Psroipooling', params: [ 'i', 'i', 'f', 'i' ] });
+        operators.set(59, { name: 'Unary', params: [ 'i' ] });
+        operators.set(60, { name: 'Expanddims', params: [ 'i' ] });
+        operators.set(61, { name: 'Bias', params: [ 'i' ] });
+        operators.set(62, { name: 'Noop', params: [] });
+        operators.set(63, { name: 'Threshold', params: [ 'f' ] });
+        operators.set(64, { name: 'Hardsigmoid', params: [ 'f', 'f' ] });
+        operators.set(65, { name: 'Embed', params: [ 'f', 'f', 'f', 'f' ] });
+        operators.set(66, { name: 'InstanceNorm', params: [ 'f' ] });
+        operators.set(67, { name: 'MVN', params: [ 'i', 'i', 'f' ] });
+        operators.set(68, { name: 'Absval', params: [] });
+        operators.set(69, { name: 'Cast', params: [ 'i', 'i' ] });
+        operators.set(70, { name: 'HardSwish', params: [ 'f', 'f' ] });
+        operators.set(71, { name: 'Interp', params: [ 'i', 'i', 'f', 'f', 'i' ] });
+        operators.set(72, { name: 'SELU', params: [ 'f', 'f' ] });
+        operators.set(73, { name: 'ELU', params: [ 'f' ] });
+        operators.set(74, { name: 'BroadMul', params: [] });
+        operators.set(75, { name: 'Logical', params: [ 'i' ] });
+        operators.set(76, { name: 'Gather', params: [ 'i', 'i' ] });
+        operators.set(77, { name: 'Transpose', params: [ 'i[]' ] });
+        operators.set(78, { name: 'Num', params: [] });
 
         const reader = new tengine.BinaryReader(buffer);
-        this._majorVersion = reader.int16();
-        this._minorVersion = reader.int16();
-        reader.int16();
-        reader.int16();
-
-        const rootTableOffset = reader.int32()
-        reader.seek(rootTableOffset);
+        this._majorVersion = reader.uint16();
+        this._minorVersion = reader.uint16();
+        this._compileVersion = reader.uint16();
+        reader.skip(2); // struct align
+        reader.seek(reader.uint32()); // root table
         this._originalFormat = reader.int32();
         this._subFormat = reader.int32();
-        const subgraphOffsetVector = reader.int32s();
-        for (const subgraphOffset of subgraphOffsetVector) {
+        this._graphs = [];
+        const subgraphOffsets = reader.uint32s();
+        for (const subgraphOffset of subgraphOffsets) {
             reader.seek(subgraphOffset);
 
             let subgraph = {};
@@ -662,53 +639,79 @@ tengine.ModelFileReader = class {
                 }
             */
             reader.int32(); // data layout of original model
-            subgraph.inputs = reader.int32s(); // offset to vector of the inputs index
-            subgraph.outputs = reader.int32s(); // offset to vector of the outputs index
-            const nodeOffsets = reader.int32s();
-            const tensorOffsets = reader.int32s();
-            const bufferOffsets = reader.int32s();
+            subgraph.inputs = reader.uint32s(); // offset to vector of the inputs index
+            subgraph.outputs = reader.uint32s(); // offset to vector of the outputs index
+            const nodeOffsets = reader.uint32s();
+            const tensorOffsets = reader.uint32s();
+            const bufferOffsets = reader.uint32s();
+            subgraph.name = reader.string();
             subgraph.nodes = [];
             subgraph.tensors = [];
             this._graphs.push(subgraph);
 
             // nodes
-            let nodes = [];
             for (const nodeOffset of nodeOffsets) {
                 reader.seek(nodeOffset);
                 let node = {};
                 node.id = reader.int32();
-                node.inputs = reader.int32s();
-                node.outputs = reader.int32s();
+                node.inputs = reader.uint32s();
+                node.outputs = reader.uint32s();
                 const operatorOffset = reader.int32();
                 node.name = reader.string();
-                reader.int32s(); // attribute vector
+                const attributeOffsets = reader.uint32s();
                 node.dynamicShape = reader.boolean() ? true : false;
 
                 reader.seek(operatorOffset);
                 node.operatorVersion = reader.int32(); 
                 const operatorIndex = reader.int32();
-                node.paramsOffset = reader.int32();
-                node.paramsCount = 0;
+                const paramsOffset = reader.uint32();
 
                 const schema = operators.has(operatorIndex) ? operators.get(operatorIndex) : null;
                 node.operator = schema ? schema.name : operatorIndex.toString();
-                node.paramsCount = schema ? schema.params : 0
+                const paramTypes = schema ? schema.params : []
 
-                node.opParam = [];
-                if (node.paramsOffset) {
-                    reader.seek(node.paramsOffset);
-                    for (let i = 0; i < node.paramsCount; i++) {
-                        node.opParam.push(reader.int32());
+                node.params = [];
+                if (paramsOffset) {
+                    reader.seek(paramsOffset);
+                    for (const paramType of paramTypes) {
+                        if (paramType !== 'b') {
+                            reader.align(4);
+                        }
+                        switch (paramType) {
+                            case 'b':   node.params.push(reader.boolean()); break;
+                            case 's':   node.params.push(reader.string()); break;
+                            case 'i':   node.params.push(reader.int32()); break;
+                            case 'f':   node.params.push(reader.float32()); break;
+                            case 'i[]': node.params.push(reader.int32s()); break;
+                            case 'f[]': node.params.push(reader.float32s()); break;
+                            default:    throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
+                        }
                     }
                 }
-                nodes.push(node);
+
+                if (node.operator === 'Slice') {
+                    node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
+                }
+
+                node.attributes = [];
+                for (const attributeOffset of attributeOffsets) {
+                    reader.seek(attributeOffset);
+                    const name = reader.string();
+                    const value = reader.string();
+                    const type = reader.int32();
+                    node.attributes.push({ name: name, value: value, type: type });
+                }
+
+                if (node.operator !== 'Const') {
+                    subgraph.nodes.push(node);
+                }
             }
 
             // buffers
             let buffers = [];
             for (const buffersOffset of bufferOffsets) {
                 reader.seek(buffersOffset);
-                const size = reader.int32();
+                const size = reader.uint32();
                 reader.seek(reader.int32())
                 buffers.push(reader.bytes(size));
             }
@@ -721,53 +724,34 @@ tengine.ModelFileReader = class {
                 tensor.buffer = buffers[reader.int32()];
                 tensor.dims = reader.int32s();
                 tensor.name = reader.string(); 
-                const quantizationOffset = reader.int32(); 
+                const quantparamsOffset = reader.int32(); 
                 tensor.layout = reader.int32();
                 tensor.type = reader.int32(); // const = 2, input = 3, var = 1, dep, unknown
                 tensor.dataType = reader.int32();
-                if (quantizationOffset) {
-                    reader.seek(quantizationOffset);
-                    tensor.quantParamSize = reader.int32();
-                    tensor.quantZeroPoint = reader.int32();
-                    tensor.quantScale = reader.int32();
-                    tensor.quantWidth = reader.int32();
+                if (quantparamsOffset) {
+                    reader.seek(quantparamsOffset);
+                    tensor.quantparams = {
+                        zeroPoint: reader.int32(),
+                        scale: reader.float32(),
+                        width: reader.int32()
+                    };
                 }
                 subgraph.tensors.push(tensor);
             }
 
-            for (const node of nodes) {
-                node.attributes = [];
-                for (let t = 0; t < node.paramsCount; t++) {
-                    node.attributes.push({ key: t, value: node.opParam[t] });
-                }
-
+            for (const node of subgraph.nodes) {
                 if (node.operator === 'Convolution') {
                     switch (subgraph.graphLayout) {
                         case 0: // NCHW
-                            node.attributes[6] = { key: 6, value: subgraph.tensors[node.inputs[1]].dims[1] };
+                            node.params[6] = subgraph.tensors[node.inputs[1]].dims[1];
                             break;
                         case 1: // NHWC
-                            node.attributes[6] = { key: 6, value: subgraph.tensors[node.inputs[1]].dims[3] };
+                            node.params[6] = subgraph.tensors[node.inputs[1]].dims[3];
                             break;
                     }
                 }
-
-                if (node.operator === 'Slice') { // [4]--iscaffe [5]--ismxnet
-                    node.attributes[4] = (node.opParam[4] == 1) ? { key: 4, value: 1 } : { key: 4, value: 0 }; // [4] -- iscaffe
-                    node.attributes[5] = (node.opParam[5] == 1) ? { key: 5, value: 1} : { key: 5, value: 0 }; // [5] -- ismxnet
-                    node.attributes[6] = (this._originalFormat == 5) ? { key: 6, value: node.opParam[6] } : { key: 6, value: 0 }; // [5] -- ismxnet
-                }
-
-                /*
-                if (node.operator == 'Reshape') {
-                    attr = (nodes[i].opParam[0] == 1) ? { key: 0, value: 1 } : { key: 0, value: 0}; // [0] -- isMxNet
-                }
-                */
-
-                if (node.operator !== 'Const') {
-                    subgraph.nodes.push(node);
-                }
             }
+
         }
     }
 
@@ -817,9 +801,10 @@ tengine.BinaryReader = class {
         }
     }
 
-    byte() {
-        this.skip(1);
-        return this._dataView.getUint8(this._position);
+    align(mod) {
+        if (this._position % mod != 0) {
+            this.skip(mod - (this._position % mod));
+        }
     }
 
     bytes(length) {
@@ -828,14 +813,41 @@ tengine.BinaryReader = class {
         return this._buffer.slice(position, this._position);
     }
 
-    boolean() {
-        return this.byte() & 0x8 ? true : false;
+    byte() {
+        this.skip(1);
+        return this._dataView.getUint8(this._position);
     }
 
-    int16() {
+
+    boolean() {
+        return this.byte() == 0x00 ? true : false;
+    }
+
+    uint16() {
         const position = this._position;
         this.skip(2);
-        return this._dataView.getInt16(position, true);
+        return this._dataView.getUint16(position, true);
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getUint32(position, true);
+    }
+
+    uint32s() {
+        let values = [];
+        const offset = this.uint32();
+        if (offset) {
+            const next = this._position;
+            this.seek(offset);
+            const count = this.uint32();
+            for (let i = 0; i < count; i++) {
+                values.push(this.uint32());
+            }
+            this.seek(next);
+        }
+        return values;
     }
 
     int32() {
@@ -846,11 +858,11 @@ tengine.BinaryReader = class {
 
     int32s() {
         let values = [];
-        const offset = this.int32();
+        const offset = this.uint32();
         if (offset) {
             const next = this._position;
             this.seek(offset);
-            const count = this.int32();
+            const count = this.uint32();
             for (let i = 0; i < count; i++) {
                 values.push(this.int32());
             }
@@ -859,17 +871,40 @@ tengine.BinaryReader = class {
         return values;
     }
 
-    string() {
-        const position = this.int32();
-        const next = this._position;
-        this.seek(position);
-        const size = this.int32();
-        this.seek(this.int32());
-        let text = '';
-        for(let i = 0; i < size - 1; i++) {
-            text += String.fromCharCode(this._buffer[this._position++]);
+    float32() {
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getFloat32(position, true);
+    }
+
+    float32s() {
+        let values = [];
+        const offset = this.uint32();
+        if (offset) {
+            const next = this._position;
+            this.seek(offset);
+            const count = this.uint32();
+            for (let i = 0; i < count; i++) {
+                values.push(this.float32());
+            }
+            this.seek(next);
         }
-        this.seek(next);
+        return values;
+    }
+
+    string() {
+        const position = this.uint32();
+        let text = '';
+        if (position) {
+            const next = this._position;
+            this.seek(position);
+            const size = this.uint32();
+            this.seek(this.uint32());
+            for(let i = 0; i < size - 1; i++) {
+                text += String.fromCharCode(this._buffer[this._position++]);
+            }
+            this.seek(next);
+        }
         return text;
     }
 }
