@@ -19,7 +19,8 @@ TFLITE.TensorType = {
   BOOL: 6,
   INT16: 7,
   COMPLEX64: 8,
-  INT8: 9
+  INT8: 9,
+  FLOAT64: 10
 };
 
 /**
@@ -35,7 +36,8 @@ TFLITE.TensorTypeName = {
   '6': 'BOOL',
   '7': 'INT16',
   '8': 'COMPLEX64',
-  '9': 'INT8'
+  '9': 'INT8',
+  '10': 'FLOAT64'
 };
 
 /**
