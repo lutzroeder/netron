@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
@@ -553,14 +552,14 @@ tengine.ModelFileReader = class {
         operators.set(22, { name: 'Reorg', params: [ 'i' ] });
         operators.set(23, { name: 'Reshape', params: [ 'i', 'i', 'i[]' ] });
         operators.set(24, { name: 'RoiPooling', params: [ 'i', 'i', 'f' ] });
-        operators.set(25, { name: 'RPN', params: [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'i' /* TODO TM2_Vector_anchors */ ] });
+        operators.set(25, { name: 'RPN', params: [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ] });
         operators.set(26, { name: 'Scale', params: [ 'i', 'i', 'i' ]});
         operators.set(27, { name: 'Slice', params: [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ] });
         operators.set(28, { name: 'SoftMax', params: [ 'i' ] });
-        operators.set(29, { name: 'Split', params: [ 'i', 'i', 'b', 'b', 'i[]' ] });
+        operators.set(29, { name: 'Split', params: [ 'i', 'i', 'boolean', 'boolean', 'i[]' ] });
         operators.set(30, { name: 'DetectionPostProcess', params: [ 'i', 'i', 'f', 'f', 'i', 'f[]' ] });
         operators.set(31, { name: 'Gemm', params: [ 'f', 'f', 'i', 'i' ] });
-        operators.set(32, { name: 'Generic', params: [ 'i', 'i', 's' ] });
+        operators.set(32, { name: 'Generic', params: [ 'i', 'i', 'string' ] });
         operators.set(33, { name: 'Logistic', params: [] });
         operators.set(34, { name: 'LSTM', params: [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
         operators.set(35, { name: 'RNN', params: [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
@@ -584,7 +583,7 @@ tengine.ModelFileReader = class {
         operators.set(53, { name: 'BatchToSpaceND', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
         operators.set(54, { name: 'Resize', params: [ 'f', 'f', 'i' ] });
         operators.set(55, { name: 'ShuffleChannel', params: [ 'i' ] });
-        operators.set(56, { name: 'Crop', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'b', 'i', 'i' ] });
+        operators.set(56, { name: 'Crop', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ] });
         operators.set(57, { name: 'ROIAlign', params: [ 'i', 'i', 'f' ] });
         operators.set(58, { name: 'Psroipooling', params: [ 'i', 'i', 'f', 'i' ] });
         operators.set(59, { name: 'Unary', params: [ 'i' ] });
@@ -625,22 +624,16 @@ tengine.ModelFileReader = class {
             subgraph.id = reader.int32();
             subgraph.graphLayout = reader.int32();
             /* 
-            var dataFormat = {
-                NCHW : 0,
-                NHWC : 1
+            if (graphLayout == 0) {
+                return "NCHW";
             }
-            get dataFormat() {
-                if (modelLayout == dataFormat.NCHW)
-                    return "NCHW";
-                else if (modelLayout == dataFormat.NHWC)
-                    return "NHWC";
-                else
-                    return false;
-                }
+            if (graphLayout == 1) {
+                return "NHWC";
+            }
             */
-            reader.int32(); // data layout of original model
-            subgraph.inputs = reader.uint32s(); // offset to vector of the inputs index
-            subgraph.outputs = reader.uint32s(); // offset to vector of the outputs index
+            subgraph.originalLayout = reader.int32();
+            subgraph.inputs = reader.uint32s();
+            subgraph.outputs = reader.uint32s();
             const nodeOffsets = reader.uint32s();
             const tensorOffsets = reader.uint32s();
             const bufferOffsets = reader.uint32s();
@@ -674,17 +667,33 @@ tengine.ModelFileReader = class {
                 if (paramsOffset) {
                     reader.seek(paramsOffset);
                     for (const paramType of paramTypes) {
-                        if (paramType !== 'b') {
+                        if (paramType !== 'boolean') {
                             reader.align(4);
                         }
                         switch (paramType) {
-                            case 'b':   node.params.push(reader.boolean()); break;
-                            case 's':   node.params.push(reader.string()); break;
-                            case 'i':   node.params.push(reader.int32()); break;
-                            case 'f':   node.params.push(reader.float32()); break;
-                            case 'i[]': node.params.push(reader.int32s()); break;
-                            case 'f[]': node.params.push(reader.float32s()); break;
-                            default:    throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
+                            case 'i':
+                                node.params.push(reader.int32());
+                                break;
+                            case 'f':
+                                node.params.push(reader.float32());
+                                break;
+                            case 'i[]':
+                                node.params.push(reader.int32s());
+                                break;
+                            case 'f[]':
+                                node.params.push(reader.float32s());
+                                break;
+                            case 'boolean':
+                                node.params.push(reader.boolean());
+                                break;
+                            case 'string':
+                                node.params.push(reader.string());
+                                break;
+                            case 'anchors':
+                                node.params.push(reader.anchors(4));
+                                break;
+                            default:
+                                throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
                         }
                     }
                 }
@@ -890,6 +899,25 @@ tengine.BinaryReader = class {
             this.seek(next);
         }
         return values;
+    }
+
+    anchors(length) {
+        let arrays = [];
+        const offset = this.uint32();
+        if (offset) {
+            const next = this._position;
+            this.seek(offset);
+            const count = this.uint32();
+            for (let i = 0; i < count; i++) {
+                let array = [];
+                for (let j = 0; j < length; j++) {
+                    array.push(this.float32());
+                }
+                arrays.push(array);
+            }
+            this.seek(next);
+        }
+        return arrays;
     }
 
     string() {

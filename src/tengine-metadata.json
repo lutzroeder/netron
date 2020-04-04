@@ -320,7 +320,7 @@
         { "name": "per_nms_topn", "type": "int32", "default": 0 },
         { "name": "post_nms_topn", "type": "int32", "default": 0 },
         { "name": "nms_thresh", "type": "float32", "default": 0 },
-        { "name": "offset_va_anchors", "type": "int32", "default": 0 }
+        { "name": "anchors", "default": 0 }
       ]
     }
   },
