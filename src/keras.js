@@ -9,7 +9,7 @@ keras.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model') {
+        if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model' || extension == 'pb') {
             const buffer = context.buffer;
             const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
             return (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i]));
@@ -56,7 +56,8 @@ keras.ModelFactory = class {
                     case 'h5':
                     case 'hd5':
                     case 'hdf5':
-                    case 'model': {
+                    case 'model':
+                    case 'pb': {
                         const file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
                         if (!rootGroup.attribute('model_config') && !rootGroup.attribute('layer_names')) {
