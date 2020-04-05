@@ -432,8 +432,8 @@ sklearn.ModelFactory = class {
                         throw new sklearn.Error('No root object.');
                     }
                     if (Array.isArray(obj)) {
-                        throw new sklearn.Error('Root is nullArray is not a valid root object.');
-                    }                    
+                        throw new sklearn.Error('Array is not a valid root object.');
+                    }
                     if (!obj.__type__) {
                         throw new sklearn.Error('Root object has no type.');
                     }
