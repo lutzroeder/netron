@@ -22,25 +22,15 @@ tflite.ModelFactory = class {
 
     open(context, host) {
         return host.require('./tflite-schema').then((tflite_schema) => {
-            const identifier = context.identifier;
-            let model = null;
-            try {
-                const buffer = context.buffer;
-                const byteBuffer = new flatbuffers.ByteBuffer(buffer);
-                tflite.schema = tflite_schema;
-                if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer)) {
-                    throw new tflite.Error("File format is not tflite.Model.");
-                }
-                model = tflite.schema.Model.getRootAsModel(byteBuffer);
-            }
-            catch (error) {
-                host.exception(error, false);
-                const message = error && error.message ? error.message : error.toString();
-                throw new tflite.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
-
             return tflite.Metadata.open(host).then((metadata) => {
+                const identifier = context.identifier;
                 try {
+                    const buffer = new flatbuffers.ByteBuffer(context.buffer);
+                    tflite.schema = tflite_schema;
+                    if (!tflite.schema.Model.bufferHasIdentifier(buffer)) {
+                        throw new tflite.Error("File format is not tflite.Model.");
+                    }
+                    const model = tflite.schema.Model.getRootAsModel(buffer);
                     return new tflite.Model(metadata, model);
                 }
                 catch (error) {
