@@ -183,6 +183,9 @@ paddle.Parameter = class {
 paddle.Argument = class {
 
     constructor(id, type, description, initializer) {
+        if (typeof id !== 'string') {
+            throw new paddle.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._description = description || null;

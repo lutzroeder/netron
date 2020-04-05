@@ -334,6 +334,9 @@ chainer.Parameter = class {
 chainer.Argument = class {
 
     constructor(id, initializer) {
+        if (typeof id !== 'string') {
+            throw new chainer.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._initializer = initializer || null;
     }

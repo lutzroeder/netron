@@ -375,6 +375,9 @@ pytorch.Parameter = class {
 pytorch.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new pytorch.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type;
         this._initializer = initializer;

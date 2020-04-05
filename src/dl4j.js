@@ -199,6 +199,9 @@ dl4j.Parameter = class {
 dl4j.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new dl4j.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type;
         this._initializer = initializer;

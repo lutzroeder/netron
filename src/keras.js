@@ -466,6 +466,9 @@ keras.Parameter = class {
 keras.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new keras.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._initializer = initializer || null;

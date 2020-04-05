@@ -146,7 +146,9 @@ bigdl.Parameter = class {
 bigdl.Argument = class {
 
     constructor(id, type, initializer) {
-        id.toString();
+        if (typeof id !== 'string') {
+            throw new bigdl.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._initializer = initializer || null;

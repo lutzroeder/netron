@@ -319,6 +319,9 @@ armnn.Parameter = class {
 armnn.Argument = class {
 
     constructor(id, tensorInfo, initializer) {
+        if (typeof id !== 'string') {
+            throw new armnn.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         const info = initializer ? initializer.info() : tensorInfo;
         this._id = id;
         this._type = new armnn.TensorType(info);

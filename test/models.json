@@ -5171,6 +5171,7 @@
     "type":   "tf",
     "target": "resnet_v2_fp16_savedmodel_NHWC_saved_model.pb",
     "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
+    "render": "skip",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
   },

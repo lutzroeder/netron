@@ -256,6 +256,9 @@ mediapipe.Parameter = class {
 mediapipe.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new mediapipe.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._initializer = initializer || null;

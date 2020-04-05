@@ -212,6 +212,9 @@ torch.Parameter = class {
 torch.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new torch.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type;
         this._initializer = initializer;

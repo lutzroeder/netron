@@ -362,6 +362,9 @@ caffe2.Parameter = class {
 caffe2.Argument = class {
 
     constructor(id, type, initializer) {
+        if (typeof id !== 'string') {
+            throw new caffe2.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._initializer = initializer || null;

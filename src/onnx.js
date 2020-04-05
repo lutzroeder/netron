@@ -258,35 +258,37 @@ onnx.Graph = class {
             this._name = graph.name || null;
             this._description = graph.doc_string || '';
 
-            let initializers = {};
+            let initializers = new Map();
             for (const tensor of graph.initializer) {
-                initializers[tensor.name] = new onnx.Tensor(tensor, 'Initializer');
+                initializers.set(tensor.name, new onnx.Tensor(tensor, 'Initializer'));
             }
             let nodes = [];
-            let outputCountMap = {};
-            let inputCountMap = {};
+            let inputCountMap = new Map();
+            let outputCountMap = new Map();
             for (const node of graph.node) {
                 for (const input of node.input) {
-                    inputCountMap[input] = (inputCountMap[input] || 0) + 1;
+                    inputCountMap.set(input, inputCountMap.has(input) ? inputCountMap.get(input) + 1 : 1);
                 }
                 for (const output of node.output) {
-                    outputCountMap[output] = (outputCountMap[output] || 0) + 1;
+                    outputCountMap.set(output, inputCountMap.has(output) ? inputCountMap.get(output) + 1 : 1);
                 }
             }
             for (const input of graph.input) {
-                delete inputCountMap[input];
+                inputCountMap.delete(input);
             }
             for (const output of graph.output) {
-                delete outputCountMap[output];
+                outputCountMap.delete(output);
             }
             for (const node of graph.node) {
                 let initializerNode = false;
                 if (node.op_type == 'Constant' && node.input.length == 0 && node.output.length == 1) {
-                    let name = node.output[0];
-                    if (inputCountMap[name] == 1 && outputCountMap[name] == 1 && node.attribute.length == 1) {
-                        let attribute = node.attribute[0];
+                    const name = node.output[0];
+                    if (inputCountMap.has(name) && inputCountMap.get(name) == 1 && 
+                        outputCountMap.has(name) && outputCountMap.get(name) == 1 &&
+                        node.attribute.length == 1) {
+                        const attribute = node.attribute[0];
                         if (attribute && attribute.name == 'value' && attribute.t) {
-                            initializers[name] = new onnx.Tensor(attribute.t, 'Constant');
+                            initializers.set(name, new onnx.Tensor(attribute.t, 'Constant'));
                             initializerNode = true;
                         }
                     }
@@ -296,18 +298,25 @@ onnx.Graph = class {
                 }
             }
 
-            this._arguments = {};
+            let args = new Map();
+            const arg = (id, type, doc_string, initializer, imageFormat) => {
+                if (!args.has(id)) {
+                    args.set(id, new onnx.Argument(id, type ? onnx.Tensor._formatType(type, imageFormat) : null, doc_string, initializer));
+                }
+                return args.get(id);
+            };
+
             for (const valueInfo of graph.value_info) {
-                this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
+                arg(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers.get(valueInfo.name), imageFormat);
             }
             for (const valueInfo of graph.input) {
-                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
-                if (!initializers[valueInfo.name]) {
+                const argument = arg(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers.get(valueInfo.name), imageFormat);
+                if (!initializers.has(valueInfo.name)) {
                     this._inputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
                 }
             }
             for (const valueInfo of graph.output) {
-                let argument = this._argument(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers[valueInfo.name], imageFormat);
+                const argument = arg(valueInfo.name, valueInfo.type, valueInfo.doc_string, initializers.get(valueInfo.name), imageFormat);
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (const node of nodes) {
@@ -320,7 +329,7 @@ onnx.Graph = class {
                             if (inputIndex < node.input.length || inputSchema.option != 'optional') {
                                 let inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
                                 let inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                                    return this._argument(id, null, null, initializers[id], imageFormat);
+                                    return arg(id, null, null, initializers.get(id), imageFormat);
                                 });
                                 inputIndex += inputCount;
                                 inputs.push(new onnx.Parameter(inputSchema.name, inputArguments));
@@ -330,7 +339,7 @@ onnx.Graph = class {
                     else {
                         inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
-                                this._argument(id, null, null, null, imageFormat)
+                                arg(id, null, null, null, imageFormat)
                             ])
                         }));
                     }
@@ -343,7 +352,7 @@ onnx.Graph = class {
                             if (outputIndex < node.output.length || outputSchema.option != 'optional') {
                                 let outputCount = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
                                 let outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                                    return this._argument(id, null, null, null, imageFormat);
+                                    return arg(id, null, null, null, imageFormat);
                                 });
                                 outputIndex += outputCount;
                                 outputs.push(new onnx.Parameter(outputSchema.name, outputArguments));
@@ -353,7 +362,7 @@ onnx.Graph = class {
                     else {
                         outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
                             return new onnx.Parameter((outputIndex + index).toString(), [
-                                this._argument(id, null, null, null, imageFormat)
+                                arg(id, null, null, null, imageFormat)
                             ]);
                         }));
                     }
@@ -361,8 +370,6 @@ onnx.Graph = class {
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             }
         }
-
-        delete this._arguments;
     }
 
     get name() {
@@ -392,15 +399,6 @@ onnx.Graph = class {
     toString() {
         return 'graph(' + this.name + ')';
     }
-
-    _argument(id, type, doc_string, initializer, imageFormat) {
-        let argument = this._arguments[id];
-        if (!argument) {
-            argument = new onnx.Argument(id, type ? onnx.Tensor._formatType(type, imageFormat) : null, doc_string, initializer);
-            this._arguments[id] = argument;
-        }
-        return argument;
-    }
 };
 
 onnx.Parameter = class {
@@ -426,6 +424,9 @@ onnx.Parameter = class {
 onnx.Argument = class {
 
     constructor(id, type, description, initializer) {
+        if (typeof id !== 'string') {
+            throw new onnx.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type || null;
         this._description = description || '';

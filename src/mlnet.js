@@ -172,6 +172,9 @@ mlnet.Parameter = class {
 mlnet.Argument = class {
 
     constructor(id, type) {
+        if (typeof id !== 'string') {
+            throw new mlnet.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type;
     }

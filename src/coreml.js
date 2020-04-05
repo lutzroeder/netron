@@ -526,6 +526,9 @@ coreml.Parameter = class {
 coreml.Argument = class {
 
     constructor(id, type, description, initializer) {
+        if (typeof id !== 'string') {
+            throw new coreml.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        }
         this._id = id;
         this._type = type;
         this._description = description || null;
