@@ -10,13 +10,10 @@ tflite.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'tflite' || extension == 'lite') {
-            return true;
-        }
-        if (extension == 'tfl' || extension == 'bin') {
+        if (extension === 'tflite' || extension === 'lite' || extension === 'tfl' || extension === 'bin') {
             const buffer = context.buffer;
-            const signature = [ 0x54, 0x46, 0x4c, 0x33 ]; // TFL3
-            if (buffer && buffer.length > 8 && signature.every((x, i) => x == buffer[i + 4])) {
+            const signature = 'TFL3'
+            if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
                 return true;
             }
         }
@@ -32,8 +29,7 @@ tflite.ModelFactory = class {
                 const byteBuffer = new flatbuffers.ByteBuffer(buffer);
                 tflite.schema = tflite_schema;
                 if (!tflite.schema.Model.bufferHasIdentifier(byteBuffer)) {
-                    const signature = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new tflite.Error("File format is not tflite.Model (" + signature + ").");
+                    throw new tflite.Error("File format is not tflite.Model.");
                 }
                 model = tflite.schema.Model.getRootAsModel(byteBuffer);
             }

@@ -1160,70 +1160,72 @@ view.ModelFactoryService = class {
     }
  
     open(context) {
-        return this._openArchive(context).then((context) => {
-            context = new ModelContext(context);
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            let modules = this._filter(context);
-            if (modules.length == 0) {
-                throw new ModelError("Unsupported file extension '." + extension + "'.");
-            }
-            let errors = [];
-            let match = false;
-            let nextModule = () => {
-                if (modules.length > 0) {
-                    let id = modules.shift();
-                    return this._host.require(id).then((module) => {
-                        if (!module.ModelFactory) {
-                            throw new ModelError("Failed to load module '" + id + "'.");
-                        }
-                        const modelFactory = new module.ModelFactory(); 
-                        if (!modelFactory.match(context)) {
-                            return nextModule();
-                        }
-                        match++;
-                        return modelFactory.open(context, this._host).then((model) => {
-                            return model;
-                        }).catch((error) => {
-                            errors.push(error);
-                            return nextModule();
-                        });
-                    });
+        return this._openSignature(context).then((context) => {
+            return this._openArchive(context).then((context) => {
+                context = new ModelContext(context);
+                const identifier = context.identifier;
+                const extension = identifier.split('.').pop().toLowerCase();
+                let modules = this._filter(context);
+                if (modules.length == 0) {
+                    throw new ModelError("Unsupported file extension '." + extension + "'.");
                 }
-                else {
-                    if (match) {
-                        if (errors.length == 1) {
-                            throw errors[0];
-                        }
-                        throw new ModelError(errors.map((err) => err.message).join('\n'));
+                let errors = [];
+                let match = false;
+                let nextModule = () => {
+                    if (modules.length > 0) {
+                        let id = modules.shift();
+                        return this._host.require(id).then((module) => {
+                            if (!module.ModelFactory) {
+                                throw new ModelError("Failed to load module '" + id + "'.");
+                            }
+                            const modelFactory = new module.ModelFactory(); 
+                            if (!modelFactory.match(context)) {
+                                return nextModule();
+                            }
+                            match++;
+                            return modelFactory.open(context, this._host).then((model) => {
+                                return model;
+                            }).catch((error) => {
+                                errors.push(error);
+                                return nextModule();
+                            });
+                        });
                     }
-                    const knownUnsupportedIdentifiers = new Set([
-                        'natives_blob.bin', 
-                        'v8_context_snapshot.bin',
-                        'snapshot_blob.bin',
-                        'image_net_labels.json',
-                        'package.json',
-                        'models.json',
-                        'LICENSE.meta',
-                        'input_0.pb', 
-                        'output_0.pb',
-                        'object-detection.pbtxt',
-                    ]);
-                    let skip = knownUnsupportedIdentifiers.has(identifier);
-                    if (!skip && (extension === 'pbtxt' || extension === 'prototxt')) {
-                        if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
-                            const tags = context.tags('pbtxt');
-                            if (tags.size === 1 && (tags.has('item') || tags.has('entry'))) {
-                                skip = true;
+                    else {
+                        if (match) {
+                            if (errors.length == 1) {
+                                throw errors[0];
+                            }
+                            throw new ModelError(errors.map((err) => err.message).join('\n'));
+                        }
+                        const knownUnsupportedIdentifiers = new Set([
+                            'natives_blob.bin', 
+                            'v8_context_snapshot.bin',
+                            'snapshot_blob.bin',
+                            'image_net_labels.json',
+                            'package.json',
+                            'models.json',
+                            'LICENSE.meta',
+                            'input_0.pb', 
+                            'output_0.pb',
+                            'object-detection.pbtxt',
+                        ]);
+                        let skip = knownUnsupportedIdentifiers.has(identifier);
+                        if (!skip && (extension === 'pbtxt' || extension === 'prototxt')) {
+                            if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
+                                const tags = context.tags('pbtxt');
+                                if (tags.size === 1 && (tags.has('item') || tags.has('entry'))) {
+                                    skip = true;
+                                }
                             }
                         }
+                        const buffer = context.buffer;
+                        const content = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                        throw new ModelError("Unsupported file content (" + content + ") for extension '." + extension + "' in '" + identifier + "'.", !skip);
                     }
-                    const buffer = context.buffer;
-                    const content = Array.from(buffer.subarray(0, Math.min(8, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                    throw new ModelError("Unsupported file content (" + content + ") for extension '." + extension + "' in '" + identifier + "'.", !skip);
-                }
-            };
-            return nextModule();
+                };
+                return nextModule();
+            });
         });
     }
 
@@ -1389,6 +1391,23 @@ view.ModelFactoryService = class {
             }
         }
         return moduleList;
+    }
+
+    _openSignature(context) {
+        const buffer = context.buffer;
+        const identifier = context.identifier;
+        const list = [
+            { name: 'Git LFS', value: 'version https://git-lfs.github.com/spec/v1\n' },
+            { name: 'HTML', value: '<html>' },
+            { name: 'HTML', value: '\n\n\n\n\n\n<!DOCTYPE html>' }
+        ];
+        for (const item of list) {
+            if (buffer.length >= item.value.length &&
+                buffer.subarray(0, item.value.length).every((v, i) => v === item.value.charCodeAt(i))) {
+                return Promise.reject(new ModelError("Invalid " + item.name + " content in '" + identifier + "'.", true));
+            }
+        }
+        return Promise.resolve(context);
     }
 };
 
