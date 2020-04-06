@@ -14328,6 +14328,10 @@
           "summary": "input_shape_is_NCd1"
         },
         {
+          "code": "reduction = 'mean'\nignore_index = np.int64(1)\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target'],\n    outputs=['loss'],\n    reduction=reduction,\n    ignore_index=ignore_index\n)\n\nN, C, d1 = 3, 5, 2\nnp.random.seed(0)\ninput = np.random.rand(N, C, d1).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, d1))\ntarget[0][0] = np.int64(1)\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=None, reduction=reduction, ignore_index=ignore_index)\n\nexpect(node, inputs=[input, target], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1_ignore_index')",
+          "summary": "input_shape_is_NCd1_ignore_index"
+        },
+        {
           "code": "reduction = 'mean'\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target', 'weight'],\n    outputs=['loss'],\n    reduction=reduction\n)\n\nN, C, d1 = 3, 5, 2\nnp.random.seed(0)\ninput = np.random.rand(N, C, d1).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, d1))\nweight = np.random.rand(C).astype(np.float32)\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=weight, reduction=reduction)\n\nexpect(node, inputs=[input, target, weight], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1_weight')",
           "summary": "input_shape_is_NCd1_weight"
         },
@@ -14338,6 +14342,10 @@
         {
           "code": "reduction = 'none'\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target'],\n    outputs=['loss'],\n    reduction=reduction\n)\n\nN, C, dim1, dim2 = 3, 5, 6, 6\nnp.random.seed(0)\ninput = np.random.rand(N, C, dim1, dim2).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, dim1, dim2))\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=None, reduction=reduction)\n\nexpect(node, inputs=[input, target], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1d2')",
           "summary": "input_shape_is_NCd1d2"
+        },
+        {
+          "code": "reduction = 'mean'\nignore_index = np.int64(1)\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target'],\n    outputs=['loss'],\n    reduction=reduction,\n    ignore_index=ignore_index\n)\n\nN, C, dim1, dim2 = 3, 5, 6, 6\nnp.random.seed(0)\ninput = np.random.rand(N, C, dim1, dim2).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, dim1, dim2))\ntarget[0][0][0] = np.int64(1)\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, reduction=reduction, ignore_index=ignore_index)\n\nexpect(node, inputs=[input, target], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1d2_no_weight_reduction_mean_ignore_index')",
+          "summary": "input_shape_is_NCd1d2_no_weight_reduction_mean_ignore_index"
         },
         {
           "code": "reduction = 'mean'\nnode = onnx.helper.make_node(\n    'NegativeLogLikelihoodLoss',\n    inputs=['input', 'target'],\n    outputs=['loss'],\n    reduction=reduction\n)\n\nN, C, dim1, dim2 = 3, 5, 6, 6\nnp.random.seed(0)\ninput = np.random.rand(N, C, dim1, dim2).astype(np.float32)\ntarget = np.random.randint(0, high=C, size=(N, dim1, dim2))\n\nnegative_log_likelihood_loss = compute_negative_log_likelihood_loss(input, target, weight=None, reduction=reduction)\n\nexpect(node, inputs=[input, target], outputs=[negative_log_likelihood_loss],\n    name='test_negative_log_likelihood_loss_input_shape_is_NCd1d2_reduction_mean')",
