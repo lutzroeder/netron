@@ -161,6 +161,12 @@
     }
   },
   {
+    "name": "BinaryConvolution",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
     "name": "Pooling",
     "schema": {
       "attributes": [
@@ -659,7 +665,7 @@
           "description": " *epsilon* is the number to be added to the variance to avoid division by zero when normalizing the value. For example, *epsilon* equal 0.001 means that 0.001 is added to the variance.",
           "name": "epsilon",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -692,7 +698,7 @@
           "description": " *eps* is the epsilon used to avoid division by zero when normalizing the value. For example, *eps* equals 0.001 means that 0.001 is used if all the values in normalization are equal to zero.",
           "name": "eps",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -803,7 +809,7 @@
           "description": " *scale_all_sizes* is a flag that denotes type of inference. For example, *scale_all_sizes* equals 0 means that priorbox layer is inferd in MXNet-like manner. In particular, *max_size* parameter is ignored.",
           "name": "scale_all_sizes",
           "option": "required",
-          "type": "\n    * 0 - *max_size* is ignored\n    * 1 - default value. *max_size* is used"
+          "type": "int32"
         }
       ],
       "description": "**Short description**: *PriorBox* layer generates prior boxes of specified sizes and aspect ratios across all dimensions.\n**Parameters**: *PriorBox* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**:\n*PriorBox* computes coordinates of prior boxes by following:\n1.  First calculates *center_x* and *center_y* of prior box:\n    \\f[\n    W \\equiv Width \\quad Of \\quad Image\n    \\f]\n    \\f[\n    H \\equiv Height \\quad Of \\quad Image\n    \\f]\n    *   If step equals 0:\n        \\f[\n        center_x=(w+0.5)\n        \\f]\n        \\f[\n        center_y=(h+0.5)\n        \\f]\n    *   else:\n        \\f[\n        center_x=(w+offset)*step\n        \\f]\n        \\f[\n        center_y=(h+offset)*step\n        \\f]\n        \\f[\n        w \\subset \\left( 0, W \\right )\n        \\f]\n        \\f[\n        h \\subset \\left( 0, H \\right )\n        \\f]\n2.  Then, for each \\f$ s \\subset \\left( 0, min_sizes \\right ) \\f$ calculates coordinates of priorboxes:\n    \\f[\n    xmin = \\frac{\\frac{center_x - s}{2}}{W}\n    \\f]\n    \\f[\n    ymin = \\frac{\\frac{center_y - s}{2}}{H}\n    \\f]\n    \\f[\n    xmax = \\frac{\\frac{center_x + s}{2}}{W}\n    \\f]\n    \\f[\n    ymin = \\frac{\\frac{center_y + s}{2}}{H}\n    \\f]\n**Example**\n\n```html\n<layer ... type=\"PriorBox\" ... >\n    <data step=\"64.000000\" min_size=\"162.000000\" max_size=\"213.000000\" offset=\"0.500000\" flip=\"1\" clip=\"0\" aspect_ratio=\"2.000000,3.000000\" variance=\"0.100000,0.100000,0.200000,0.200000\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -821,42 +827,42 @@
           "description": " *pre_nms_topn (post_nms_topn)* is the quantity of bounding boxes before (after) applying NMS operation. For example, *pre_nms_topn (post_nms_topn)* equals 15 means that the minimum (maximum) box size is 15.",
           "name": "pre_nms_topn (post_nms_topn)",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *cls_threshold* is the minimum value of the proposal to be taken into consideration. For example, *cls_threshold* equal 0.5 means that all boxes with prediction probability less than 0.5 are filtered out.",
           "name": "cls_threshold",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " *iou_threshold* is the minimum ratio of boxes overlapping to be taken into consideration. For example, *iou_threshold* equal 0.7 means that all boxes with overlapping ratio less than 0.7 are filtered out.",
           "name": "iou_threshold",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " *feat_stride* is the step size to slide over boxes (in pixels). For example, *feat_stride* equal 16 means that all boxes are analyzed with the slide 16.",
           "name": "feat_stride",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *min_bbox_size* is the minimum size of box to be taken into consideration. For example, *min_bbox_size* equal 35 means that all boxes with box size less than 35 are filtered out.",
           "name": "min_bbox_size",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *scale* is array of scales for anchor boxes generating.",
           "name": "scale",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         }
       ],
       "category": "Layer",
@@ -914,10 +920,10 @@
         },
         {
           "default": 1,
-          "description": " type of coding method for bounding boxes",
+          "description": " type of coding method for bounding boxes. caffe.PriorBoxParameter.CENTER_SIZE and others.",
           "name": "code_type",
           "option": "required",
-          "type": " caffe.PriorBoxParameter.CENTER_SIZE and others"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -938,14 +944,14 @@
           "description": " threshold to be used in NMS stage",
           "name": "nms_threshold",
           "option": "required",
-          "type": " floating point values"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " only consider detections whose confidences are larger than a threshold. If not provided, consider all boxes.",
           "name": "confidence_threshold",
           "option": "required",
-          "type": " floating point values"
+          "type": "float32"
         }
       ],
       "description": "**Short description**: *DetectionOutput* layer performs non-maximum suppression to generate the detection output using information on location and confidence predictions.\n**Detailed description**: [Reference](https://arxiv.org/pdf/1512.02325.pdf)\n**Parameters**: *DetectionOutput* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\nAt each feature map cell, *DetectionOutput* predicts the offsets relative to the default box shapes in the cell, as well as the per-class scores that indicate the presence of a class instance in each of those boxes. Specifically, for each box out of k at a given location, *DetectionOutput* computes class scores and the four offsets relative to the original default box shape. This results in a total of \\f$(c + 4)k\\f$ filters that are applied around each location in the feature map, yielding \\f$(c + 4)kmn\\f$ outputs for a m \u00d7 n feature map.\n**Example**\n\n```html\n<layer ... type=\"DetectionOutput\" ... >\n    <data num_classes=\"21\" share_location=\"1\" background_label_id=\"0\" nms_threshold=\"0.450000\" top_k=\"400\" eta=\"1.000000\" output_directory=\"\" output_name_prefix=\"\" output_format=\"\" label_map_file=\"\" name_size_file=\"\" num_test_image=\"0\" prob=\"1.000000\" resize_mode=\"caffe.ResizeParameter.WARP\" height=\"0\" width=\"0\" height_scale=\"0\" width_scale=\"0\" pad_mode=\"caffe.ResizeParameter.CONSTANT\" pad_value=\"#\" interp_mode=\"#\" code_type=\"caffe.PriorBoxParameter.CENTER_SIZE\" variance_encoded_in_target=\"0\" keep_top_k=\"200\" confidence_threshold=\"0.010000\" visualize=\"0\" visualize_threshold=\"0.000000\" save_file=\"\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -963,21 +969,21 @@
           "description": " *id* is the id of the pair of *Memory* layers. For example, *id* equals r_27-28 means that layers with id 27 and 28 are in one pair.",
           "name": "id",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *index* represents if the given layer is input or output. For example, *index* equal 0 means this layer is output one.",
           "name": "index",
           "option": "required",
-          "type": "\n    * 0 - current layer is output one\n    * 1 - current layer is input one"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *size* represents the size of the group. For example, *size* equals 2 means this group is a pair.",
           "name": "size",
           "option": "required",
-          "type": " only 2 is supported"
+          "type": "int32"
         }
       ],
       "description": "**Short description**: *Memory* layer represents delay layer in terms of LSTM terminology. To read more about LSTM topologies please refer this [link](http://colah.github.io/posts/2015-08-Understanding-LSTMs).\n**Detailed description**: *Memory* layer saves state between two infer requests. In the topology, it is the single layer, however, in the Intermediate Representation, it is always represented as a pair of **Memory** layers. One of these layers does not have outputs and another does not have inputs (in terms of the Intermediate Representation).\n**Parameters**: *Memory* layer parameters should be specified as the `data` node, which is a child of the layer node.\n**Mathematical Formulation**\n*Memory* save data from the input blob.\n**Example**\n\n```html\n<layer ... type=\"Memory\" ... >\n    <data id=\"r_27-28\" index=\"0\" size=\"2\" />\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1020,14 +1026,14 @@
           "description": " if *out_max_val* equals 1, output is a vector of pairs *(max_ind, max_val)*, unless axis is set. Then output is *max_val* along the specified axis.",
           "name": "top_k",
           "option": "required",
-          "type": " positive integer number\n 0 or 1"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " if *out_max_val* equals 1, output is a vector of pairs *(max_ind, max_val)*, unless axis is set. Then output is *max_val* along the specified axis.",
           "name": "top_k",
           "option": "required",
-          "type": " positive integer number\n 0 or 1"
+          "type": "int32"
         },
         {
           "default": 1,
@@ -1052,21 +1058,21 @@
           "description": " pooled output channel number",
           "name": "output_dim",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " number of groups to encode position-sensitive score maps",
           "name": "group_size",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " multiplicative spatial scale factor to translate ROI coordinates from their input scale to the scale used when pooling",
           "name": "spatial_scale",
           "option": "required",
-          "type": " positive floating point value"
+          "type": "float32"
         }
       ],
       "category": "Pool",
@@ -1085,7 +1091,7 @@
           "description": " *bias* is added to the variance.",
           "name": "bias",
           "option": "required",
-          "type": " floating point value"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -1104,7 +1110,7 @@
           "description": " *channel_shared* shows if negative slope shared across channels or not.",
           "name": "channel_shared",
           "option": "required",
-          "type": " 0 or 1"
+          "type": "int32"
         },
         {
           "description": " *filler_type* defines initialization type for negative slope.",
@@ -1171,14 +1177,14 @@
           "description": " *do_softmax* is a flag which specifies the method of infer",
           "name": "do_softmax",
           "option": "required",
-          "type": "\n    * *0* - softmax is not performed\n    * *1* - softmax is performed"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *anchors* coordinates regions",
           "name": "anchors",
           "option": "required",
-          "type": " floating point values"
+          "type": "float32[]"
         },
         {
           "default": 1,
@@ -1199,14 +1205,14 @@
           "description": " *axis* is the number of the dimension from which flattening is performed. For example, *axis* equals 1 means that flattening is started from the 1st dimension.",
           "name": "axis",
           "option": "required",
-          "type": " positive number greater or equal to 0"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *end_axis* is the number of the dimension on which flattening is ended. For example, *end_axis* equals -1 means that flattening is performed till the last dimension.",
           "name": "end_axis",
           "option": "required",
-          "type": " positive number greater or equal to 0"
+          "type": "int32"
         }
       ],
       "category": "Layer",
@@ -1320,21 +1326,21 @@
           "description": " *across_channels* is a flag that denotes if mean values are shared across channels. For example, *across_channels* equal 0 means that mean values are not shared across channels.",
           "name": "across_channels",
           "option": "required",
-          "type": "\n    * 0 - mean values are not shared across channels\n    * 1 - mean values are shared across channels"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *normalize_variance* is a flag that denotes whether to perform variance normalization.",
           "name": "normalize_variance",
           "option": "required",
-          "type": "\n    * 0 - variance normalization is not performed\n    * 1 - variance normalization is performed"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *eps* is the number to be added to the variance to avoid division by zero when normalizing the value. For example, *epsilon* equal 0.001 means that 0.001 is added to the variance.",
           "name": "eps",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         }
       ],
       "category": "Normalization",
@@ -1353,7 +1359,7 @@
           "description": " *ctc_merge_repeated* is a flag for collapsing the repeated labels during the ctc calculation.",
           "name": "ctc_merge_repeated",
           "option": "required",
-          "type": " 0 or 1"
+          "type": "int32"
         }
       ],
       "category": "Layer",
@@ -1372,49 +1378,49 @@
           "description": " *pre_nms_topn (post_nms_topn)* is the quantity of bounding boxes before (after) applying NMS operation. For example, *pre_nms_topn (post_nms_topn)* equal 15 means that the minimum (maximum) box size is 15.",
           "name": "pre_nms_topn (post_nms_topn)",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *nms_thresh* is the minimum value of the proposal to be taken into consideration. For example, *nms_thresh* equal 0.5 means that all boxes with prediction probability less than 0.5 are filtered out.",
           "name": "nms_thresh",
           "option": "required",
-          "type": " positive floating point number"
+          "type": "float32"
         },
         {
           "default": 1,
           "description": " *feat_stride* is the step size to slide over boxes (in pixels). For example, *feat_stride* equal 16 means that all boxes are analyzed with the slide 16.",
           "name": "feat_stride",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *min_size* is the minimum size of box to be taken into consideration. For example, *min_size* equal 35 means that all boxes with box size less than 35 are filtered out.",
           "name": "min_size",
           "option": "required",
-          "type": " positive integer number"
+          "type": "int32"
         },
         {
           "default": 1,
           "description": " *ratio* is the ratios for anchor generation.",
           "name": "ratio",
           "option": "required",
-          "type": " array of float numbers"
+          "type": "float32[]"
         },
         {
           "default": 1,
           "description": " *ratio* is the ratios for anchor generation.",
           "name": "ratio",
           "option": "required",
-          "type": " array of float numbers"
+          "type": "float32[]"
         },
         {
           "default": 1,
           "description": " *scale* is the scales for anchor generation.",
           "name": "scale",
           "option": "required",
-          "type": " array of float numbers"
+          "type": "float32[]"
         }
       ],
       "category": "Layer",
