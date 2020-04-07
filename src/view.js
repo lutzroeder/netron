@@ -1396,9 +1396,13 @@ view.ModelFactoryService = class {
     _openSignature(context) {
         const buffer = context.buffer;
         const identifier = context.identifier;
+        if (context.buffer.length === 0) {
+            return Promise.reject(new ModelError("File has no content.", true));
+        }
         const list = [
             { name: 'Git LFS', value: 'version https://git-lfs.github.com/spec/v1\n' },
             { name: 'HTML', value: '<html>' },
+            { name: 'HTML', value: '<!DOCTYPE html>' },
             { name: 'HTML', value: '\n\n\n\n\n\n<!DOCTYPE html>' }
         ];
         for (const item of list) {
