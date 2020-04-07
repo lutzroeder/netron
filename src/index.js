@@ -52,7 +52,9 @@ host.BrowserHost = class {
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
 
-        this._zoom = this._getQueryParameter('zoom') || 'd3';
+        const params = new URLSearchParams(window.location.search || window.location.href);
+
+        this._zoom = params.get('zoom') || 'd3';
 
         this._menu = new host.Dropdown(this.document, 'menu-button', 'menu-dropdown');
         this._menu.add({
@@ -126,16 +128,15 @@ host.BrowserHost = class {
             return;
         }
 
-        let url = this._getQueryParameter('url');
+        const url = params.get('url');
         if (url) {
-            const identifier = this._getQueryParameter('identifier') || null;
-            const githubRegExp = new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$');
-            url = url.replace(githubRegExp, 'https://raw.githubusercontent.com/$1/$2');
-            this._openModel(url, identifier);
+            const identifier = params.get('identifier') || null;
+            const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
+            this._openModel(location, identifier);
             return;
         }
 
-        const gist = this._getQueryParameter('gist');
+        const gist = params.get('gist');
         if (gist) {
             this._openGist(gist);
             return;
@@ -331,20 +332,6 @@ host.BrowserHost = class {
         return url;
     }
 
-    _getQueryParameter(name) {
-        const url = window.location.href;
-        name = name.replace(/[[\]]/g, "\\$&");
-        const regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
-        const results = regex.exec(url);
-        if (!results) {
-            return null;
-        }
-        if (!results[2]) {
-            return '';
-        }
-        return decodeURIComponent(results[2].replace(/\+/g, " "));
-    }
-
     _openModel(url, identifier) {
         this._view.show('welcome spinner');
         let request = new XMLHttpRequest();
@@ -354,7 +341,7 @@ host.BrowserHost = class {
                 const buffer = new Uint8Array(request.response);
                 const context = new BrowserContext(this, url, identifier, buffer);
                 this._view.open(context).then(() => {
-                    this.document.title = identifier || url.split('/').pop();
+                    this.document.title = identifier || context.identifier;
                 }).catch((error) => {
                     if (error) {
                         this.exception(error, false);
@@ -786,9 +773,9 @@ class BrowserContext {
             }
         }
         else {
-            url = url.split('/');
-            this._identifier = url.pop();
-            this._base = url.join('/');
+            const parts = url.split('?')[0].split('/');
+            this._identifier = parts.pop();
+            this._base = parts.join('/');
         }
     }
 
