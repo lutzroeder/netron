@@ -461,7 +461,12 @@ view.View = class {
                         }
                         let attributes = [];
                         if (self.showAttributes && node.attributes) {
-                            attributes = node.attributes.filter((attribute) => attribute.visible);
+                            attributes = node.attributes.filter((attribute) => attribute.visible).slice();
+                            attributes.sort((a, b) => { 
+                                const au = a.name.toUpperCase();
+                                const bu = b.name.toUpperCase();
+                                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+                            });
                         }
                         if (initializers.length > 0 || hiddenInitializers || attributes.length > 0) {
                             let block = element.block('list');

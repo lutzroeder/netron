@@ -167,7 +167,12 @@ sidebar.NodeSidebar = class {
             this._addProperty('device', new sidebar.ValueTextView(this._host, node.device));
         }
 
-        const attributes = node.attributes;
+        const attributes = node.attributes.slice();
+        attributes.sort((a, b) => { 
+            const au = a.name.toUpperCase();
+            const bu = b.name.toUpperCase();
+            return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+        });
         if (attributes && attributes.length > 0) {
             this._addHeader('Attributes');
             for (const attribute of attributes) {
