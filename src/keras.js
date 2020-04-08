@@ -175,8 +175,7 @@ keras.Model = class {
             }
         }
         
-        this._activeGraph = new keras.Graph(metadata, model_config, weights);
-        this._graphs.push(this._activeGraph);
+        this._graphs = [ new keras.Graph(metadata, model_config, weights) ];
     }
 
     get name() {
