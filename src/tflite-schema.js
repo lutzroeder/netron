@@ -11529,10 +11529,42 @@ TFLITE.BatchMatMulOptions.getSizePrefixedRootAsBatchMatMulOptions = function(bb,
 };
 
 /**
+ * @returns {boolean}
+ */
+TFLITE.BatchMatMulOptions.prototype.adjointLhs = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+TFLITE.BatchMatMulOptions.prototype.adjointRhs = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 TFLITE.BatchMatMulOptions.startBatchMatMulOptions = function(builder) {
-  builder.startObject(0);
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} adjointLhs
+ */
+TFLITE.BatchMatMulOptions.addAdjointLhs = function(builder, adjointLhs) {
+  builder.addFieldInt8(0, +adjointLhs, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} adjointRhs
+ */
+TFLITE.BatchMatMulOptions.addAdjointRhs = function(builder, adjointRhs) {
+  builder.addFieldInt8(1, +adjointRhs, +false);
 };
 
 /**
@@ -11546,10 +11578,14 @@ TFLITE.BatchMatMulOptions.endBatchMatMulOptions = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {boolean} adjointLhs
+ * @param {boolean} adjointRhs
  * @returns {flatbuffers.Offset}
  */
-TFLITE.BatchMatMulOptions.createBatchMatMulOptions = function(builder) {
+TFLITE.BatchMatMulOptions.createBatchMatMulOptions = function(builder, adjointLhs, adjointRhs) {
   TFLITE.BatchMatMulOptions.startBatchMatMulOptions(builder);
+  TFLITE.BatchMatMulOptions.addAdjointLhs(builder, adjointLhs);
+  TFLITE.BatchMatMulOptions.addAdjointRhs(builder, adjointRhs);
   return TFLITE.BatchMatMulOptions.endBatchMatMulOptions(builder);
 }
 
