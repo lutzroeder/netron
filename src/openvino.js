@@ -73,7 +73,11 @@ openvino.ModelFactory = class {
                     throw new openvino.Error("File format is not OpenVINO IR.");
                 }
                 const net = openvino.XmlReader.read(xmlDoc.documentElement);
-                return new openvino.Model(metadata, net, bin);
+                const model = new openvino.Model(metadata, net, bin);
+                if (net.disconnectedLayers) {
+                    host.exception(new openvino.Error('Graph contains not connected layers ' + JSON.stringify(net.disconnectedLayers) + '.'));
+                }
+                return model;
             }
             catch (error) {
                 host.exception(error, false);
@@ -114,7 +118,7 @@ openvino.Graph = class {
         this._outputs = [];
         this._arguments = {};
 
-        for (const layer of net.layers) {
+        for (const layer of this._const(net.layers, net.edges)) {
             const inputs = layer.inputs.map((input) => this._argument(layer.id, layer.precision, input, net.edges));
             const outputs = layer.outputs.map((output) => this._argument(layer.id, output.precision || layer.precision, output, null));
             switch (layer.type) {
@@ -169,8 +173,7 @@ openvino.Graph = class {
             }
         }
         if (nodesWithNonExistentInputs.size !== 0){
-            const layerNames = Array.from(nodesWithNonExistentInputs).map((node) => node.name);
-            throw new openvino.Error('Graph contains not connected layers ' + JSON.stringify(layerNames) + '.');
+            net.disconnectedLayers = Array.from(nodesWithNonExistentInputs).map((node) => node.name);
         }
     }
 
@@ -204,16 +207,16 @@ openvino.Graph = class {
     }
 
     _replaceTensorIteratorWithSubgraph(metadata, bin, layers, edges) {
-        const tiNodes = layers.filter((node) => node.type === 'TensorIterator');
-        for (const singleTensorIteratorNode of tiNodes) {
-            const singleTensorIteratorNodeId = singleTensorIteratorNode.id;
+        const tensorIteratorLayers = layers.filter((node) => node.type === 'TensorIterator');
+        for (const tensorIteratorLayer of tensorIteratorLayers) {
+            const singleTensorIteratorNodeId = tensorIteratorLayer.id;
             const tiNode = this._nodes.find((n) => n._id === singleTensorIteratorNodeId);
-            const iteratorLayers = singleTensorIteratorNode.body.layers;
-            const iteratorEdgeMap = singleTensorIteratorNode.body.edges;
-            const iteratorBackEdgesMap = singleTensorIteratorNode.back_edges;
+            const iteratorLayers = tensorIteratorLayer.body.layers;
+            const iteratorEdgeMap = tensorIteratorLayer.body.edges;
+            const iteratorBackEdgesMap = tensorIteratorLayer.back_edges;
             const iteratorAllEdges = Object.assign({}, iteratorEdgeMap, iteratorBackEdgesMap);
-            const mappingForNestedIR = singleTensorIteratorNode.port_map;
-            for (const nestedLayer of iteratorLayers) {
+            const mappingForNestedIR = tensorIteratorLayer.port_map;
+            for (const nestedLayer of this._const(iteratorLayers, iteratorAllEdges, iteratorBackEdgesMap)) {
                 const inputs = nestedLayer.inputs.map((input) => this._argument(nestedLayer.id, nestedLayer.precision, input, iteratorAllEdges));
                 const outputs = nestedLayer.outputs.map((output) => this._argument(nestedLayer.id, nestedLayer.precision || output.precision, output, null));
                 let nestedNode = new openvino.Node(this, metadata, bin, nestedLayer, inputs, outputs);
@@ -319,8 +322,99 @@ openvino.Graph = class {
                 }
             }
 
-            this._nodes = this._nodes.filter((node) => node.id !== singleTensorIteratorNode.id);
+            this._nodes = this._nodes.filter((node) => node.id !== tensorIteratorLayer.id);
         }
+    }
+
+    _const(layers, edges, back_edges) {
+        let results = [];
+        back_edges = back_edges || {};
+        layers = layers.slice();
+        for (const layer of layers) {
+            if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1 &&
+                layer.blobs.length === 0 && layer.data && layer.data.length > 3) {
+                const data = {};
+                for (const attribute of layer.data) {
+                    data[attribute.name] = attribute.value;
+                }
+                if (data['element_type'] && data['offset'] && data['size']) {
+                    const element_type = data['element_type'];
+                    let precision = null;
+                    switch (element_type) {
+                        case 'f16': precision = 'FP16'; break;
+                        case 'f32': precision = 'FP32'; break;
+                        default: precision = element_type.toUpperCase();
+                    }
+                    const shape = data['shape'] ? data['shape'].split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
+                    layer.data = [];
+                    layer.blobs.push({ name: 'custom', precision: precision, offset: data['offset'], size: data['size'], shape: shape });
+                }
+            }
+            if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
+                layer.inputs.length === 0 && layer.outputs.length === 1 && layer.outputs[0].dims) {
+                layer.blobs[0].shape = layer.outputs[0].dims;
+            }
+        }
+
+        let constMap = new Map();
+        for (let layer of layers) {
+            if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
+                const from = layer.id + ':' + layer.outputs[0].id;
+                constMap.set(from, { layer: layer, counter: 0 });
+            }
+        }
+        for (let to of Object.keys(edges)) {
+            const from = edges[to];
+            if (constMap.has(from)) {
+                constMap.get(from).counter++;
+            }
+        }
+        if (back_edges) {
+            for (let to of Object.keys(back_edges)) {
+                const from = back_edges[to];
+                if (constMap.has(from)) {
+                    constMap.get(from).counter++;
+                }
+            }
+        }
+        for (const pair of constMap) {
+            if (pair[1].counter !== 1) {
+                constMap.delete(pair[0]);
+            }
+        }
+        for (const layer of layers) {
+            if (layer.blobs.length === 0) {
+                for (let i = layer.inputs.length - 1; i > 0; i--) {
+                    const input = layer.inputs[i];
+                    const to = layer.id + ':' + input.id;
+                    const from = edges[to] || back_edges[to];
+                    if (!constMap.has(from)) {
+                        break;
+                    }
+                    const constLayer = constMap.get(from).layer;
+                    const blob = constLayer.blobs[0];
+                    blob.id = constLayer.name || constLayer.id;
+                    blob.kind = 'Const';
+                    layer.blobs.push(blob);
+                    layer.inputs.splice(i, 1);
+                    constMap.get(from).layer = null;
+                    constMap.get(from).delete = true;
+                }
+            }
+        }
+
+        while (layers.length > 0) {
+            const layer = layers.shift();
+            if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
+                const from = layer.id + ':' + layer.outputs[0].id;
+                if (constMap.has(from) && constMap.get(from).delete) {
+                    continue;
+                }
+            }
+            results.push(layer);
+        }
+
+        return results;
     }
 };
 
@@ -359,23 +453,25 @@ openvino.Node = class {
             const offset = blob.offset;
             const size = blob.size;
             const data = (bin && (offset + size) <= bin.length) ? bin.slice(offset, offset + size) : null;
-            let shape = null;
-            const blobPrecision = blob.precision || precision;
+            let dimensions = blob.shape || null;
+            const kind = blob.kind || 'Blob';
+            const id = blob.id || '';
+            const dataType = blob.precision || precision;
             const precisionMap = {
                 'FP16': 2, 'FP32': 4,
                 'I8': 1, 'I16': 2, 'I32': 4, 'I64': 8,
                 'U8': 1, 'U16': 2, 'U32': 4, 'U64': 8
             };
-            if (precisionMap[blobPrecision]) {
-                let itemSize = precisionMap[blobPrecision];
+            const itemSize = precisionMap[dataType];
+            if (itemSize) {
                 switch (this._type + ':' + name) {
                     case 'FullyConnected:weights': {
                         const outSize = parseInt(attributes['out-size'], 10);
-                        shape = [ size / (outSize * itemSize), outSize ];
+                        dimensions = [ size / (outSize * itemSize), outSize ];
                         break;
                     }
                     case 'FullyConnected:biases': {
-                        shape = [ parseInt(attributes['out-size'], 10) ];
+                        dimensions = [ parseInt(attributes['out-size'], 10) ];
                         break;
                     }
                     case 'Convolution:weights':
@@ -386,7 +482,7 @@ openvino.Node = class {
                             [ parseInt(attributes['kernel-x'], 10), parseInt(attributes['kernel-y'], 10) ] :
                             attributes['kernel'].split(',').map((v) => parseInt(v.trim(), 10));
                         const n = parseInt(attributes['output'], 10);
-                        shape = [ Math.floor(c / group), n ].concat(kernel);
+                        dimensions = [ Math.floor(c / group), n ].concat(kernel);
                         break;
                     }
                     case 'ScaleShift:weights': 
@@ -394,7 +490,7 @@ openvino.Node = class {
                     case 'Convolution:biases':
                     case 'Normalize:weights':
                     case 'PReLU:weights': {
-                        shape = [ Math.floor(size / itemSize) ];
+                        dimensions = [ Math.floor(size / itemSize) ];
                         break;
                     }
                     case 'Const:custom': {
@@ -403,17 +499,15 @@ openvino.Node = class {
                             this._outputs[0].arguments[0].type &&
                             this._outputs[0].arguments[0].type.shape &&
                             this._outputs[0].arguments[0].type.shape.dimensions) {
-                            shape = this._outputs[0].arguments[0].type.shape.dimensions;
+                            dimensions = this._outputs[0].arguments[0].type.shape.dimensions;
                         }
                         break;
                     }
                 }
             }
-            if (shape) {
-                shape = new openvino.TensorShape(shape);
-            }
+            const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
             this._initializers.push(new openvino.Parameter(name, [
-                new openvino.Argument('', null, new openvino.Tensor(blobPrecision, shape, data))
+                new openvino.Argument(id, null, new openvino.Tensor(dataType, shape, data, kind))
             ]));
         }
     }
@@ -474,9 +568,9 @@ openvino.Parameter = class {
 openvino.Argument = class {
 
     constructor(id, type, initializer) {
-        if (typeof id !== 'string') {
-            // throw new openvino.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
-        }
+        // if (typeof id !== 'string') {
+        //     throw new openvino.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+        // }
         this._id = id;
         this._type = type || null;
         this._initializer = initializer || null;
@@ -611,17 +705,18 @@ openvino.Attribute = class {
 
 openvino.Tensor = class {
 
-    constructor(precision, shape, data) {
+    constructor(precision, shape, data, kind) {
         this._data = data;
         this._type = new openvino.TensorType(precision, shape);
+        this._kind = kind;
+    }
+
+    get kind() {
+        return this._kind;
     }
 
     get type() {
         return this._type;
-    }
-
-    get kind() {
-        return 'Blob';
     }
 
     get state() {
@@ -644,7 +739,7 @@ openvino.Tensor = class {
         }
         context.limit = 10000;
         const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
+        return openvino.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -750,6 +845,32 @@ openvino.Tensor = class {
             return results[0];
         }
         return results;
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            let result = [];
+            result.push(indentation + '[');
+            const items = value.map((item) => openvino.Tensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
+        }
+        if (typeof value == 'string') {
+            return indentation + value;
+        }
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
+        }
+        return indentation + value.toString();
     }
 };
 

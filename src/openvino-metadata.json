@@ -561,7 +561,9 @@
   {
     "name": "Split",
     "schema": {
-      "attributes": [],
+      "attributes": [
+        { "name": "axis", "type": "int32" }
+      ],
       "category": "Tensor",
       "description": "**Short description**: *Split* layer splits the input into several output groups. Group sizes are denoted by the number and the size of output ports.\n**Detailed description**: [Reference](http://caffe.berkeleyvision.org/tutorial/layers/split.html)\n**Parameters**: *None*\n**Mathematical Formulation**\nSplits input blob among children. For example, blob is *BxC+CxHxW* and there are two children. Then, output blob is *BxCxHxW*.\n**Example**\n\n```html\n<layer ... type=\"Split\" ... >\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
       "inputs": null,
@@ -610,7 +612,7 @@
           "description": " *operation* is the simple mathematical operation to be performed over inputs. For example, *operation* equal *mul* means that input blobs are multiplied.",
           "name": "operation",
           "option": "required",
-          "type": ""
+          "type": "string"
         }
       ],
       "description": "**Short description**: *Eltwise* layer performs element-wise operation, which is specified in parameters, over given inputs.\n**Parameters**: *Eltwise* layer parameters should be specified in the `elementwise_data` node, which is placed as a child of the layer node.\n**Mathematical Formulation** *Eltwise* accepts 2 inputs of any number of dimensions - from 1 to 4, however, it is required for both of them to have absolutely same dimensions. The produced blob is also of the same dimension as each of its parents\n*Eltwise* does the following with the input blobs:\n\\f[\no_{i} = f(b_{i}^{1}, b_{i}^{2})\n\\f]\nwhere \\f$b_{i}^{1}\\f$ - first blob \\f$i\\f$-th element, \\f$b_{i}^{2}\\f$ - second blob \\f$i\\f$-th element, \\f$o_{i}\\f$ - output blob \\f$i\\f$-th element, \\f$f(a, b)\\f$ - is a function that performs an operation over its two arguments \\f$a, b\\f$.\n*   For *sum* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a + b\n    \\f]\n*   For *mul* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = a * b\n    \\f]\n*   For *max* operation, \\f$f(a, b)\\f$ is defined as\n    \\f[\n    f(a,b) = \\left\\{\\begin{array}{ll}\n\t\ta \\quad \\mbox{if } a \\geq b \\\\\n\t\tb \\quad \\mbox{if } b > a\n\t\\end{array}\\right. \\f]\n**Example**\n\n```html\n<layer ... type=\"Eltwise\" ... >\n    <elementwise_data operation=\"sum\"/>\n    <input> ... </input>\n    <output> ... </output>\n</layer>\n```",
@@ -1486,6 +1488,48 @@
         { "name": "pads_end", "type": "int32[]" },
         { "name": "pad_mode" }
       ]
+    }
+  },
+  {
+    "name": "GRUCell",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "LSTMCell",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "MaxPool",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Transpose",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "Unsqueeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "Gather",
+    "schema": {
+      "category": "Transform"
     }
   }
 ]
