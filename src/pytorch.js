@@ -1142,6 +1142,8 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.mobilenet.InvertedResidual', function() {});
         this._registerConstructor('torchvision.models.resnet.Bottleneck', function() {});
         this._registerConstructor('torchvision.models.resnet.BasicBlock', function() {});
+        this._registerConstructor('torchvision.models.quantization.resnet.QuantizableBottleneck', function() {});
+        this._registerConstructor('torchvision.models.quantization.resnet.QuantizableResNet', function() {});
         this._registerConstructor('torchvision.models.segmentation.deeplabv3.ASPP', function() {});
         this._registerConstructor('torchvision.models.segmentation.deeplabv3.ASPPConv', function() {}); 
         this._registerConstructor('torchvision.models.segmentation.deeplabv3.ASPPPooling', function() {});
