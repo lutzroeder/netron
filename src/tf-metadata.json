@@ -1558,6 +1558,11 @@
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
+          "type": "boolean"
         }
       ],
       "description": "accum_new = accum + grad * grad\nlinear += grad + (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
@@ -1630,6 +1635,11 @@
           "default": false,
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
           "type": "boolean"
         }
       ],
@@ -21503,6 +21513,7 @@
           "type": "type"
         }
       ],
+      "category": "Activation",
       "inputs": [
         {
           "name": "features",
@@ -28447,6 +28458,7 @@
           "type": "type"
         }
       ],
+      "category": "Tensor",
       "description": "This operation pads a `input` with zeros according to the `paddings` you\nspecify. `paddings` is an integer tensor with shape `[Dn, 2]`, where n is the\nrank of `input`. For each dimension D of `input`, `paddings[D, 0]` indicates\nhow many zeros to add before the contents of `input` in that dimension, and\n`paddings[D, 1]` indicates how many zeros to add after the contents of `input`\nin that dimension.\n\nThe padded size of each dimension D of the output is:\n\n`paddings(D, 0) + input.dim_size(D) + paddings(D, 1)`\n\nFor example:\n\n```\n# 't' is [[1, 1], [2, 2]]\n# 'paddings' is [[1, 1], [2, 2]]\n# rank of 't' is 2\npad(t, paddings) ==> [[0, 0, 0, 0, 0, 0]\n                      [0, 0, 1, 1, 0, 0]\n                      [0, 0, 2, 2, 0, 0]\n                      [0, 0, 0, 0, 0, 0]]\n```\n",
       "inputs": [
         {
@@ -38890,6 +38902,11 @@
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
+          "type": "boolean"
         }
       ],
       "description": "accum_new = accum + grad * grad\nlinear += grad - (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
@@ -38951,6 +38968,11 @@
           "default": false,
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
           "type": "boolean"
         }
       ],
@@ -40239,6 +40261,11 @@
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
+          "type": "boolean"
         }
       ],
       "description": "That is for rows we have grad for, we update var, accum and linear as follows:\naccum_new = accum + grad * grad\nlinear += grad - (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
@@ -40310,6 +40337,11 @@
           "default": false,
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
           "type": "boolean"
         }
       ],
@@ -46171,6 +46203,11 @@
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
+          "type": "boolean"
         }
       ],
       "description": "That is for rows we have grad for, we update var, accum and linear as follows:\n$$accum_new = accum + grad * grad$$\n$$linear += grad + (accum_{new}^{-lr_{power}} - accum^{-lr_{power}} / lr * var$$\n$$quadratic = 1.0 / (accum_{new}^{lr_{power}} * lr) + 2 * l2$$\n$$var = (sign(linear) * l1 - linear) / quadratic\\ if\\ |linear| > l1\\ else\\ 0.0$$\n$$accum = accum_{new}$$",
@@ -46253,6 +46290,11 @@
           "default": false,
           "description": "If `True`, updating of the var and accum tensors will be protected\nby a lock; otherwise the behavior is undefined, but may exhibit less\ncontention.",
           "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "multiply_linear_by_lr",
           "type": "boolean"
         }
       ],
