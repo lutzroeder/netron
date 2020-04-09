@@ -710,5 +710,17 @@
         { "name": "output" }
       ]
     }
+  },
+  {
+    "name": "HardSwish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]
