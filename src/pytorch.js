@@ -1008,6 +1008,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.activation.LeakyReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.LogSigmoid', function() {});
         this._registerConstructor('torch.nn.modules.activation.LogSoftmax', function() {});
+        this._registerConstructor('torch.nn.modules.activation.MultiheadAttention', function() {});
         this._registerConstructor('torch.nn.modules.activation.ReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ReLU6', function() {});
         this._registerConstructor('torch.nn.modules.activation.PReLU', function() {});
@@ -1086,6 +1087,8 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.rnn.LSTMCell', function() {});
         this._registerConstructor('torch.nn.modules.rnn.RNN', function() {});
         this._registerConstructor('torch.nn.modules.sparse.Embedding', function() {});
+        this._registerConstructor('torch.nn.modules.transformer.TransformerEncoder', function() {});
+        this._registerConstructor('torch.nn.modules.transformer.TransformerEncoderLayer', function() {});
         this._registerConstructor('torch.nn.modules.upsampling.Upsample', function() {});
         this._registerConstructor('torch.nn.modules.upsampling.UpsamplingBilinear2d', function() {});
         this._registerConstructor('torch.nn.modules.upsampling.UpsamplingNearest2d', function() {});
