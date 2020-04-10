@@ -174,6 +174,7 @@ sklearn.ModelFactory = class {
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
                 constructorTable['sklearn.externals.joblib.numpy_pickle.NDArrayWrapper'] = function() {};
                 constructorTable['sklearn.ensemble._bagging.BaggingClassifier'] = function() {};
+                constructorTable['sklearn.ensemble._forest.RandomForestRegressor'] = function() {};
                 constructorTable['sklearn.ensemble._forest.RandomForestClassifier'] = function() {};
                 constructorTable['sklearn.ensemble._forest.ExtraTreesClassifier'] = function() {};
                 constructorTable['sklearn.ensemble._gb_losses.BinomialDeviance'] = function() {};
