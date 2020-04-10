@@ -463,6 +463,7 @@ tf.Graph = class {
                     if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' || 
                         tensor.name.startsWith('optimizer/') ||
                         tensor.name.startsWith('keras_api/metrics/') ||
+                        tensor.name.endsWith('/ExponentialMovingAverage') ||
                         tensor.name.indexOf('.OPTIMIZER_SLOT') !== -1) {
                         continue;
                     }
