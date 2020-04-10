@@ -6027,7 +6027,7 @@
           "type": "string"
         }
       ],
-      "description": "An einsum of the form ```term1, term2 -> output-term``` produces an output tensor using the following equation\n\n```output[output-term] = reduce-sum( input1[term1] * input2[term] )```\n\nwhere the reduce-sum performs a summation over all the indices occurring in in the input terms (term1, term2)\nthat do not occur in the output-term.\n\nThe Einsum operator evaluates algebraic tensor operations on a sequence of tensors, using the Einstein summation\nconvention. The equation string contains a comma-separated sequence of lower case letters. Each term corresponds to\nan operand tensor, and the characters within the terms correspond to operands dimensions.\n\nThis sequence may be followed by \"->\" to separate the left and right hand side of the equation.\nIf the equation contains \"->\" followed by the right-hand side, the explicit (not classical) form of the Einstein\nsummation is performed, and the right-hand side indices indicate output tensor dimensions. In other cases,\noutput indices are (implicitly) set to the alphabetically sorted sequence of indices appearing exactly once in the\nequation.\n\nWhen a dimension character is repeated in the left-hand side, it represents summation along the dimension.\n\nThe equation may contain ellipsis (\"...\") to enable broadcasting. Ellipsis must indicate a fixed number of dimensions.\nThe right-hand side may contain exactly one ellipsis. In implicit mode, the ellipsis dimensions are set to the\nbeginning of the output. The equation string may contain space (U+0020) character.\n",
+      "description": "An einsum of the form ```term1, term2 -> output-term``` produces an output tensor using the following equation\n\n```output[output-term] = reduce-sum( input1[term1] * input2[term] )```\n\nwhere the reduce-sum performs a summation over all the indices occurring in in the input terms (term1, term2)\nthat do not occur in the output-term.\n\nThe Einsum operator evaluates algebraic tensor operations on a sequence of tensors, using the Einstein summation\nconvention. The equation string contains a comma-separated sequence of lower case letters. Each term corresponds to\nan operand tensor, and the characters within the terms correspond to operands dimensions.\n\nThis sequence may be followed by \"->\" to separate the left and right hand side of the equation.\nIf the equation contains \"->\" followed by the right-hand side, the explicit (not classical) form of the Einstein\nsummation is performed, and the right-hand side indices indicate output tensor dimensions. In other cases,\noutput indices are (implicitly) set to the alphabetically sorted sequence of indices appearing exactly once in the\nequation.\n\nWhen a dimension character is repeated in the left-hand side, it represents summation along the dimension.\n\nThe equation may contain ellipsis (\"...\") to enable broadcasting. Ellipsis must indicate a fixed number of dimensions.\nSpecifically, every occurrence of ellipsis in the equation must represent the same number of dimensions.\nThe right-hand side may contain exactly one ellipsis. In implicit mode, the ellipsis dimensions are set to the\nbeginning of the output. The equation string may contain space (U+0020) character.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -9843,7 +9843,7 @@
   {
     "name": "Inverse",
     "schema": {
-      "description": "Calculates inverse of a square matrix or batches of square matrices.\nInverse takes one input tensor of shape `[*, M, M]`, where `*` is zero or more batch dimensions,\nand the inner-most 2 dimensions form square matrices.\nThe output is a tensor of shape `[*, M, M]`, containing the individual inverses of all input submatrices.\n",
+      "description": "Calculates inverse of a square matrix or batches of square matrices.\nInverse takes one input tensor of shape `[*, M, M]`, where `*` is zero or more batch dimensions,\nand the inner-most 2 dimensions form square matrices. These matrices must be invertible (full-rank).\nThe behavior where one of the matrices is not invertible is undefined. The implementation can choose\nto throw an error or output (garbage) results as is. The output is a tensor of shape `[*, M, M]`,\ncontaining the individual inverses of all input submatrices.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -9857,7 +9857,7 @@
       ],
       "inputs": [
         {
-          "description": "Input tensor",
+          "description": "Input tensor. Every matrix in the batch must be invertible.",
           "name": "X",
           "type": "T"
         }
@@ -9868,7 +9868,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor of the same type as input.",
+          "description": "Output tensor of the same type and shape as the input tensor.",
           "name": "Y",
           "type": "T"
         }
@@ -9878,19 +9878,11 @@
       "type_constraints": [
         {
           "allowed_type_strs": [
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)"
           ],
-          "description": "Constrain input and output types to all numerical tensor types.",
+          "description": "Constrain input and output types to float tensors.",
           "type_param_str": "T"
         }
       ]
