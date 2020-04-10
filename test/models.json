@@ -749,20 +749,6 @@
   },
   {
     "type":   "caffe2",
-    "target": "bvlc_reference_caffenet/predict_net.pb,bvlc_reference_caffenet/init_net.pb",
-    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/bvlc_reference_caffenet/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/bvlc_reference_caffenet/init_net.pb",
-    "format": "Caffe2",
-    "link":   "https://github.com/caffe2/models"
-  },
-  {
-    "type":   "caffe2",
-    "target": "bvlc_reference_rcnn_ilsvrc13/predict_net.pb,bvlc_reference_rcnn_ilsvrc13/init_net.pb",
-    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/bvlc_reference_rcnn_ilsvrc13/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/bvlc_reference_rcnn_ilsvrc13/init_net.pb",
-    "format": "Caffe2",
-    "link":   "https://github.com/caffe2/models"
-  },
-  {
-    "type":   "caffe2",
     "target": "densenet121/predict_net.pb,densenet121/init_net.pb",
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/densenet121/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/densenet121/init_net.pb",
     "format": "Caffe2",
@@ -774,6 +760,13 @@
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/detectron/e2e_faster_rcnn_R-50-C4_1x/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/detectron/e2e_faster_rcnn_R-50-C4_1x/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
+  },
+  {
+    "type":   "caffe2",
+    "target": "FBNet-A-int8/model.pbtxt,FBNet-A-int8/model_init.pb",
+    "source": "https://dl.fbaipublicfiles.com/fbnet/models/FBNet_caffe2.zip[FBNet/FBNet-A/int8/model.pbtxt,FBNet/FBNet-A/int8/model_init.pb]",
+    "format": "Caffe2",
+    "link":   "https://github.com/facebookresearch/mobile-vision"
   },
   {
     "type":   "caffe2",
@@ -789,13 +782,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2802044/predict_net.pbtxt.txt",
     "format": "Caffe2",
     "link":   "https://github.com/lutzroeder/netron/issues/223"
-  },
-  {
-    "type":   "caffe2",
-    "target": "inception_v1/predict_net.pb,inception_v1/init_net.pb",
-    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/inception_v1/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/inception_v1/init_net.pb",
-    "format": "Caffe2",
-    "link":   "https://github.com/caffe2/models"
   },
   {
     "type":   "caffe2",
@@ -817,13 +803,6 @@
     "source": "https://raw.githubusercontent.com/caffe2/models/master/mask_rcnn_2go/model/fp32/model.pbtxt",
     "format": "Caffe2",
     "link":   "https://github.com/lutzroeder/netron/issues/168"
-  },
-  {
-    "type":   "caffe2",
-    "target": "mobilenet/predict_net_int8.pbtxt,mobilenet/init_net_int8.pbtxt",
-    "source": "https://raw.githubusercontent.com/cuiyanx/dnnl-models/master/Image%20Classification/mobilenet/predict_net_int8.pbtxt,https://raw.githubusercontent.com/cuiyanx/dnnl-models/master/Image%20Classification/mobilenet/init_net_int8.pbtxt",
-    "format": "Caffe2",
-    "link":   "https://github.com/lutzroeder/netron/issues/437"
   },
   {
     "type":   "caffe2",
@@ -885,13 +864,6 @@
     "type":   "caffe2",
     "target": "vgg19/predict_net.pb,vgg19/init_net.pb",
     "source": "https://s3.amazonaws.com/download.caffe2.ai/models/vgg19/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/vgg19/init_net.pb",
-    "format": "Caffe2",
-    "link":   "https://github.com/caffe2/models"
-  },
-  {
-    "type":   "caffe2",
-    "target": "zfnet512/predict_net.pb,zfnet512/init_net.pb",
-    "source": "https://s3.amazonaws.com/download.caffe2.ai/models/zfnet512/predict_net.pb,https://s3.amazonaws.com/download.caffe2.ai/models/zfnet512/init_net.pb",
     "format": "Caffe2",
     "link":   "https://github.com/caffe2/models"
   },
