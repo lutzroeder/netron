@@ -5,17 +5,17 @@
       "category": "Layer",
       "description": "A layer that performs spatial convolution or deconvolution.",
       "attributes": [
-        { "name": "outputShape", "type": "tuple | None", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
-        { "name": "outputChannels", "type": "int32", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
-        { "name": "kernelChannels", "type": "int32", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
-        { "name": "nGroups", "type": "int32", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
-        { "name": "isDeconvolution", "type": "boolean", "description": "lag to specify whether it is a deconvolution layer." },
-        { "name": "valid", "visible": false },
-        { "name": "same", "visible": false },
-        { "name": "dilationFactor", "default": [ 1, 1 ] },
-        { "name": "stride", "default": [ 1, 1 ] },
-        { "name": "kernelSize", "default": [ 3, 3 ] },
-        { "name": "hasBias", "type": "boolean", "description": "Whether bias is ignored.", "visible": false }
+        { "name": "outputShape", "type": "uint64[]", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
+        { "name": "outputChannels", "type": "uint64", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
+        { "name": "kernelChannels", "type": "uint64", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
+        { "name": "nGroups", "type": "uint64", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
+        { "name": "isDeconvolution", "type": "boolean", "description": "Flag to specify whether it is a deconvolution layer." },
+        { "name": "valid", "type": "ValidPadding", "visible": false },
+        { "name": "same", "type": "SamePadding", "visible": false },
+        { "name": "dilationFactor", "type": "uint64[]", "default": [ 1, 1 ] },
+        { "name": "stride", "type": "uint64[]", "default": [ 1, 1 ] },
+        { "name": "kernelSize", "type": "uint64[]", "default": [ 3, 3 ] },
+        { "name": "hasBias", "type": "boolean", "description": "Flag to specify whether a bias is to be added or not.", "visible": false }
       ]
     }
   },
@@ -25,9 +25,9 @@
       "category": "Layer",
       "description": "A layer that performs a matrix vector product. This is equivalent to a fully-connected, or dense layer.",
       "attributes": [
-        { "name": "inputChannels", "visible": false },
-        { "name": "outputChannels", "visible": false },
-        { "name": "hasBias", "visible": false }
+        { "name": "inputChannels", "type": "uint64", "visible": false },
+        { "name": "outputChannels", "type": "uint64", "visible": false },
+        { "name": "hasBias", "type": "boolean", "visible": false }
       ]
    }
   },
@@ -185,14 +185,14 @@
       "category": "Pool",
       "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
       "attributes": [
-        { "name": "includeLastPixel", "visible": false },
-        { "name": "same", "visible": false },
-        { "name": "valid", "visible": false },
+        { "name": "includeLastPixel", "type": "ValidCompletePadding", "visible": false },
+        { "name": "same", "type": "SamePadding", "visible": false },
+        { "name": "valid", "type": "ValidCompletePadding", "visible": false },
         { "name": "type", "type": "PoolingLayerParams.PoolingType" },
         { "name": "globalPooling", "type": "boolean", "default": false },
-        { "name": "stride", "default": [ 1, 1 ] },
-        { "name": "kernelSize", "default": [ 3, 3 ] },
-        { "name": "avgPoolExcludePadding", "default": false }
+        { "name": "stride", "type": "uint64", "default": [ 1, 1 ] },
+        { "name": "kernelSize", "type": "uint64[]", "default": [ 3, 3 ] },
+        { "name": "avgPoolExcludePadding", "type": "boolean", "default": false }
       ]
     }
   },
@@ -230,7 +230,10 @@
     "name": "flatten",
     "schema": {
       "category": "Shape",
-      "description": "A layer that flattens the input."
+      "description": "A layer that flattens the input.",
+      "attributes": [
+        { "name": "mode", "type": "FlattenLayerParams.FlattenOrder" }
+      ]
     }
   },
   {
@@ -368,7 +371,7 @@
       "category": "Layer",
       "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias.",
       "attributes": [
-        { "name": "hasBias", "visible": false }
+        { "name": "hasBias", "type": "boolean", "visible": false }
       ]
     }
   },
