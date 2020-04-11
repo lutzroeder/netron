@@ -164,19 +164,22 @@ ncnn.Graph = class {
                 layer.inputs = columns.splice(0, inputCount);
                 layer.outputs = columns.splice(0, outputCount);
                 layer.attr = {};
-                layer.attributes = columns.map((attribute) => {
-                    let list = attribute.split('=');
-                    let key = list[0].trim();
-                    let value = list[1].trim();
-                    let keyInt = parseInt(key, 10);
-                    if (key < 0) {
-                        value = value.split(',').map((v) => v.trim());
-                        value.shift();
-                        key = (-(keyInt + 23300)).toString();
+                layer.attributes = [];
+                for (const column of columns) {
+                    const parts = column.split('=');
+                    if (parts.length === 2) {
+                        let key = parts[0].trim();
+                        let value = parts[1].trim();
+                        const keyInt = parseInt(key, 10);
+                        if (keyInt < 0) {
+                            value = value.split(',').map((v) => v.trim());
+                            value.shift();
+                            key = (-(keyInt + 23300)).toString();
+                        }
+                        layer.attr[key] = value;
+                        layer.attributes.push({ key: key, value: value });
                     }
-                    layer.attr[key] = value;
-                    return { key: key, value: value };
-                });
+                }
                 layers.push(layer);
             }
         }
