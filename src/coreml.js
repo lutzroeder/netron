@@ -843,9 +843,8 @@ coreml.Tensor = class {
                     shape = [];
                 }
             }
+            this._quantization = data.quantization || null;
         }
-
-        this._quantization = data.quantization || null;
         this._type = new coreml.TensorType(dataType, new coreml.TensorShape(shape));
     }
 
