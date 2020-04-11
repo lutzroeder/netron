@@ -1124,6 +1124,9 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.detection.faster_rcnn.FasterRCNN', function() {});
         this._registerConstructor('torchvision.models.detection.faster_rcnn.FastRCNNPredictor', function() {});
         this._registerConstructor('torchvision.models.detection.faster_rcnn.TwoMLPHead', function() {});
+        this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNN', function() {});
+        this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNNHeads', function() {});
+        this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNNPredictor', function() {});
         this._registerConstructor('torchvision.models.detection.roi_heads.RoIHeads', function() {});
         this._registerConstructor('torchvision.models.detection.rpn.AnchorGenerator', function() {});
         this._registerConstructor('torchvision.models.detection.rpn.RegionProposalNetwork', function() {});
@@ -1338,6 +1341,9 @@ pytorch.Execution = class {
                 return array;
             }
             throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+        });
+        this._registerFunction('__builtin__.slice', function(start, stop , step) {
+            return [ start, stop, step ];
         });
         this._registerFunction('collections.Counter', function(/* iterable */) {
             return {};
