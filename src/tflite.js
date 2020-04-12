@@ -153,6 +153,7 @@ tflite.Node = class {
         this._operator = operator;
         this._inputs = [];
         this._outputs = [];
+        this._attributes = [];
         if (node) {
             const schema = this._metadata.type(this.operator);
             let inputs = [];
@@ -185,7 +186,6 @@ tflite.Node = class {
                 inputName = inputName ? inputName : inputIndex.toString();
                 this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputConnections));
             }
-            this._outputs = [];
             for (let k = 0; k < node.outputsLength(); k++) {
                 const outputIndex = node.outputs(k);
                 const argument = args[outputIndex];
@@ -198,7 +198,6 @@ tflite.Node = class {
                 }
                 this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
             }
-            this._attributes = [];
             if (operator.custom && node.customOptionsLength() > 0) {
                 let custom = [];
                 for (let m = 0; m < node.customOptionsLength(); m++) {
@@ -225,8 +224,7 @@ tflite.Node = class {
             }
             const optionsType = tflite.schema[optionsTypeName] || null;
             if (typeof optionsType === 'function') {
-                let options = Reflect.construct(optionsType, []);
-                options = node.builtinOptions(options);
+                const options = node.builtinOptions(Reflect.construct(optionsType, []));
                 if (options) {
                     let attributeName;
                     let attributeNames = [];

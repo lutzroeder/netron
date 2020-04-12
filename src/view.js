@@ -459,16 +459,17 @@ view.View = class {
                                 }
                             }
                         }
-                        let attributes = [];
-                        if (self.showAttributes && node.attributes) {
-                            attributes = node.attributes.filter((attribute) => attribute.visible).slice();
-                            attributes.sort((a, b) => { 
+                        let sortedAttributes = [];
+                        const attributes = node.attributes;
+                        if (self.showAttributes && attributes) {
+                            sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
+                            sortedAttributes.sort((a, b) => { 
                                 const au = a.name.toUpperCase();
                                 const bu = b.name.toUpperCase();
                                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
                             });
                         }
-                        if (initializers.length > 0 || hiddenInitializers || attributes.length > 0) {
+                        if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
                             let block = element.block('list');
                             block.handler = () => {
                                 self.showNodeProperties(node);
@@ -497,7 +498,7 @@ view.View = class {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
                             }
 
-                            for (const attribute of attributes) {
+                            for (const attribute of sortedAttributes) {
                                 if (attribute.visible) {
                                     let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
                                     if (attributeValue && attributeValue.length > 25) {
