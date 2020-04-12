@@ -1435,14 +1435,14 @@
     "type":   "coreml",
     "target": "invalid_git_lfs.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/4432767/invalid_git_lfs.mlmodel.zip[invalid_git_lfs.mlmodel]",
-    "error":  "Invalid Git LFS content in 'invalid_git_lfs.mlmodel'.",
+    "error":  "Invalid file content. File contains Git LFS header.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":   "coreml",
     "target": "invalid_html.mlmodel.zip",
     "source": "https://github.com/lutzroeder/netron/files/4432768/invalid_html.mlmodel.zip",
-    "error":  "Invalid HTML content in 'invalid_html.mlmodel.zip'.",
+    "error":  "Invalid file content. File contains HTML markup.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -5286,7 +5286,7 @@
     "type":   "tflite",
     "target": "invalid_html.tflite",
     "source": "https://github.com/lutzroeder/netron/files/4432789/invalid_html.tflite.zip[invalid_html.tflite]",
-    "error":  "Invalid HTML content in 'invalid_html.tflite'.",
+    "error":  "Invalid file content. File contains HTML markup.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
