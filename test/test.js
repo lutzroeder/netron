@@ -504,6 +504,7 @@ function loadModel(target, item) {
                     throw new Error("Invalid documentation object '" + node.operator + "'.");
                 }
                 sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
+                node.attributes.slice();
                 for (const attribute of node.attributes) {
                     attribute.name.toString();
                     attribute.name.length;

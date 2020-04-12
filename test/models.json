@@ -134,13 +134,6 @@
   },
   {
     "type":   "caffe",
-    "target": "bvlc_reference_rcnn_ilsvrc13.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/bvlc_reference_rcnn_ilsvrc13.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_rcnn_ilsvrc13"
-  },
-  {
-    "type":   "caffe",
     "target": "caffe_array.prototxt",
     "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_array.prototxt]",
     "format": "Caffe v2",
@@ -302,13 +295,6 @@
   },
   {
     "type":   "caffe",
-    "target": "gender_net.caffemodel",
-    "source": "https://raw.githubusercontent.com/eveningglow/age-and-gender-classification/master/model/gender_net.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/eveningglow/age-and-gender-classification"
-  },
-  {
-    "type":   "caffe",
     "target": "googlenet.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/googlenet.prototxt",
     "format": "Caffe v2",
@@ -316,23 +302,9 @@
   },
   {
     "type":   "caffe",
-    "target": "googlenet_finetune_web_car_iter_10000.caffemodel",
-    "source": "http://mmlab.ie.cuhk.edu.hk/datasets/comp_cars/googlenet_finetune_web_car_iter_10000.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://gist.github.com/bogger/b90eb88e31cd745525ae"
-  },
-  {
-    "type":   "caffe",
     "target": "googlelet_places205_train_iter_2400000.caffemodel",
     "source": "http://places.csail.mit.edu/model/googlenet_places205.tar.gz[googlenet_places205/googlelet_places205_train_iter_2400000.caffemodel]",
     "format": "Caffe v2",
-    "link":   "http://places.csail.mit.edu/downloadCNN.html"
-  },
-  {
-    "type":   "caffe",
-    "target": "hybridCNN_iter_700000_upgraded.caffemodel",
-    "source": "http://places.csail.mit.edu/model/hybridCNN_upgraded.tar.gz[hybridCNN_iter_700000_upgraded.caffemodel]",
-    "format": "Caffe v1",
     "link":   "http://places.csail.mit.edu/downloadCNN.html"
   },
   {
@@ -484,13 +456,6 @@
   },
   {
     "type":   "caffe",
-    "target": "places205CNN_iter_300000_upgraded.caffemodel",
-    "source": "http://places.csail.mit.edu/model/placesCNN_upgraded.tar.gz[places205CNN_iter_300000_upgraded.caffemodel]",
-    "format": "Caffe v1",
-    "link":   "http://places.csail.mit.edu/downloadCNN.html"
-  },
-  {
-    "type":   "caffe",
     "target": "pose_iter_584000.caffemodel",
     "source": "http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_iter_584000.caffemodel",
     "format": "Caffe v2",
@@ -536,20 +501,6 @@
     "target": "ResNet-50_merged.qconv.winograd.cwl.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-50_merged.qconv.winograd.cwl.prototxt",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "ResNet-101-deploy.prototxt",
-    "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-101-deploy.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "ResNet-101-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-101-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
   },
   {
     "type":   "caffe",
@@ -3305,7 +3256,9 @@
   {
     "type":   "onnx",
     "target": "YOLOv2_tiny.onnx",
-    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx"
+    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx",
+    "format": "ONNX v1", "producer": "Chainer 3.2.0",
+    "link":   "https://github.com/tkat0/chainer-nnvm-example"
   },
   {
     "type":   "onnx",
@@ -3316,38 +3269,27 @@
   },
   {
     "type":   "onnx",
-    "target": "vgg16.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16/vgg16.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
     "target": "vgg16-bn.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
   },
   {
     "type":   "onnx",
     "target": "vgg19.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19/vgg19.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
+    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
   },
   {
     "type":   "onnx",
     "target": "vgg19-bn.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/models/image_classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg19_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]"
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
   },
   {
     "type":   "onnx",
     "target": "zfnet512_opset_9.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]",
-    "link":   "https://github.com/onnx/models/blob/master/zfnet512/README.md"
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/zfnet-512"
   },
   {
     "type":   "onnx",
