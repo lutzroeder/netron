@@ -139,7 +139,13 @@ coreml.Graph = class {
 
     _updateOutput(name, newName) {
         for (const node of this._nodes) {
-            node._outputs = node._outputs.map((output) => (output != name) ? output : newName);
+            for (const output of node.outputs) {
+                for (const argument of output.arguments) {
+                    if (argument.name === name) {
+                        argument.name = newName;
+                    }
+                }
+            }
         }
         return newName;
     }
@@ -147,7 +153,10 @@ coreml.Graph = class {
     _updateClassifierOutput(group, classifier) {
         let labelProbabilityLayerName = classifier.labelProbabilityLayerName;
         if (!labelProbabilityLayerName && this._nodes.length > 0) {
-            labelProbabilityLayerName = this._nodes.slice(-1).pop()._outputs[0];
+            const node = this._nodes.slice(-1).pop();
+            if (node && node.outputs.length == 1 && node.outputs[0].arguments.length == 1) {
+                labelProbabilityLayerName = node.outputs[0].arguments[0].name;
+            }
         }
         let predictedFeatureName = this._description.predictedFeatureName;
         let predictedProbabilitiesName = this._description.predictedProbabilitiesName;
@@ -165,7 +174,7 @@ coreml.Graph = class {
             let preprocessingInput = this._description.input[0].name;
             let inputNodes = [];
             for (const node of this._nodes) {
-                if (node._inputs.some((input => input == preprocessingInput))) {
+                if (node.inputs.some((input) => input.arguments.some((arg) => arg.name == preprocessingInput))) {
                     inputNodes.push(node);
                 }
             }
@@ -177,8 +186,14 @@ coreml.Graph = class {
                 this._createNode(scope, group, p.preprocessor, null, p[p.preprocessor], [ input ], [ preprocessorOutput ]);
                 preprocessorIndex++;
             }
-            for (const inputNode of inputNodes) {
-                inputNode._inputs = inputNode._inputs.map((input) => (input != preprocessingInput) ? input : preprocessorOutput);
+            for (const node of inputNodes) {
+                for (const input of node.inputs) {
+                    for (const arg of input.arguments) {
+                        if (arg.name === preprocessingInput) {
+                            arg.name = preprocessorOutput;
+                        }
+                    } 
+                }
             }
         }
     }
@@ -525,18 +540,22 @@ coreml.Parameter = class {
 
 coreml.Argument = class {
 
-    constructor(id, type, description, initializer) {
-        if (typeof id !== 'string') {
-            throw new coreml.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, description, initializer) {
+        if (typeof name !== 'string') {
+            throw new coreml.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type;
         this._description = description || null;
         this._initializer = initializer || null;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
+    }
+
+    set name(value) {
+        this._name = value;
     }
 
     get type() {
@@ -571,18 +590,26 @@ coreml.Node = class {
         }
         this._operator = operator;
         this._name = name || '';
-        this._inputs = inputs;
-        this._outputs = outputs;
         this._attributes = [];
-        this._initializers = [];
+        let initializers = [];
         if (data) {
-            const initializerMap = this._initialize(data);
+            const initializerMap = this._initialize(data, initializers);
             for (const key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
                 }
             }
         }
+        this._inputs = this._metadata.getInputs(this._operator, inputs).map((input) => {
+            return new coreml.Parameter(input.name, true, input.arguments.map((argument) => {
+                return new coreml.Argument(argument.name, argument.type, null, null);
+            }));
+        });
+        this._inputs = this._inputs.concat(initializers);
+        this._outputs = outputs.map((output, index) => {
+            let name = this._metadata.getOutputName(this._operator, index);
+            return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
+        });
     }
 
     get operator() {
@@ -602,26 +629,18 @@ coreml.Node = class {
     }
 
     get inputs() {
-        const inputs = this._metadata.getInputs(this._operator, this._inputs).map((input) => {
-            return new coreml.Parameter(input.name, true, input.arguments.map((argument) => {
-                return new coreml.Argument(argument.id, argument.type, null, null);
-            }));
-        });
-        return inputs.concat(this._initializers);
+        return this._inputs;
     }
 
     get outputs() {
-        return this._outputs.map((output, index) => {
-            let name = this._metadata.getOutputName(this._operator, index);
-            return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
-        });
+        return this._outputs;
     }
 
     get attributes() {
         return this._attributes;
     }
 
-    _initialize(data) {
+    _initialize(data, initializers) {
         switch (this._operator) {
             case 'convolution': {
                 let weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
@@ -629,64 +648,64 @@ coreml.Node = class {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
                 }    
-                this._initializer('Weights', 'weights', weightsShape, data.weights);
+                this._initializer(initializers, 'Weights', 'weights', weightsShape, data.weights);
                 if (data.hasBias) {
-                    this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
+                    this._initializer(initializers, 'Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             }
             case 'innerProduct':
-                this._initializer('Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
+                this._initializer(initializers, 'Weights', 'weights', [ data.outputChannels, data.inputChannels ], data.weights);
                 if (data.hasBias) {
-                    this._initializer('Weights', 'bias', [ data.outputChannels ], data.bias);
+                    this._initializer(initializers, 'Weights', 'bias', [ data.outputChannels ], data.bias);
                 }
                 return { 'weights': true, 'bias': data.hasBias };
             case 'batchnorm':
-                this._initializer('Weights', 'gamma', [ data.channels ], data.gamma);
-                this._initializer('Weights', 'beta', [ data.channels ], data.beta);
+                this._initializer(initializers, 'Weights', 'gamma', [ data.channels ], data.gamma);
+                this._initializer(initializers, 'Weights', 'beta', [ data.channels ], data.beta);
                 if (data.mean) {
-                    this._initializer('Weights', 'mean', [ data.channels ], data.mean);
+                    this._initializer(initializers, 'Weights', 'mean', [ data.channels ], data.mean);
                 }
                 if (data.variance) {
-                    this._initializer('Weights', 'variance', [ data.channels ], data.variance);
+                    this._initializer(initializers, 'Weights', 'variance', [ data.channels ], data.variance);
                 }
                 return { 'gamma': true, 'beta': true, 'mean': true, 'variance': true };
             case 'embedding':
-                this._initializer('Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights);
+                this._initializer(initializers, 'Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights);
                 return { 'weights': true };
             case 'loadConstant':    
-                this._initializer('Weights', 'data', data.shape, data.data);
+                this._initializer(initializers, 'Weights', 'data', data.shape, data.data);
                 return { 'data': true };
             case 'scale':
-                this._initializer('Weights', 'scale', data.shapeScale, data.scale);
+                this._initializer(initializers, 'Weights', 'scale', data.shapeScale, data.scale);
                 if (data.hasBias) {
-                    this._initializer('Weights', 'bias', data.shapeBias, data.bias);
+                    this._initializer(initializers, 'Weights', 'bias', data.shapeBias, data.bias);
                 }
                 return { 'scale': true, 'bias': data.hasBias };
             case 'bias':
-                this._initializer('Weights', 'bias', data.shape, data.bias);
+                this._initializer(initializers, 'Weights', 'bias', data.shape, data.bias);
                 return { 'bias': true };
             case 'simpleRecurrent':
-                this._initializer('Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
-                this._initializer('Weights', 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix);
+                this._initializer(initializers, 'Weights', 'weights', [ data.outputVectorSize, data.inputVectorSize ], data.weightMatrix);
+                this._initializer(initializers, 'Weights', 'recurrent', [ data.outputVectorSize, data.inputVectorSize ], data.recursionMatrix);
                 if (data.hasBiasVectors) {
-                    this._initializer('Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
+                    this._initializer(initializers, 'Weights', 'bias', [ data.outputVectorSize ], data.biasVector);
                 }
                 return { 'weightMatrix': true, 'recursionMatrix': true, 'biasVector': data.hasBiasVectors };
             case 'gru': {
                 const recursionMatrixShape = [ data.outputVectorSize, data.outputVectorSize ];
                 const weightMatrixShape = [ data.outputVectorSize, data.inputVectorSize ];
                 const biasVectorShape = [ data.outputVectorSize ];
-                this._initializer('Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
-                this._initializer('Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
-                this._initializer('Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
-                this._initializer('Weights', 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix);
-                this._initializer('Weights', 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix);
-                this._initializer('Weights', 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix);
+                this._initializer(initializers, 'Weights', 'updateGateWeightMatrix', weightMatrixShape, data.updateGateWeightMatrix);
+                this._initializer(initializers, 'Weights', 'resetGateWeightMatrix', weightMatrixShape, data.resetGateWeightMatrix);
+                this._initializer(initializers, 'Weights', 'outputGateWeightMatrix', weightMatrixShape, data.outputGateWeightMatrix);
+                this._initializer(initializers, 'Weights', 'updateGateRecursionMatrix', recursionMatrixShape, data.updateGateRecursionMatrix);
+                this._initializer(initializers, 'Weights', 'resetGateRecursionMatrix', recursionMatrixShape, data.resetGateRecursionMatrix);
+                this._initializer(initializers, 'Weights', 'outputGateRecursionMatrix', recursionMatrixShape, data.outputGateRecursionMatrix);
                 if (data.hasBiasVectors) {
-                    this._initializer('Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
-                    this._initializer('Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
-                    this._initializer('Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
+                    this._initializer(initializers, 'Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
+                    this._initializer(initializers, 'Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
+                    this._initializer(initializers, 'Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
                 }  
                 return {
                     'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
@@ -702,24 +721,24 @@ coreml.Node = class {
                 for (let i = 0; i < count; i++) {
                     const weights = count == 1 ? data.weightParams : data.weightParams[i];
                     const suffix = (i == 0) ? '' : '_rev';
-                    this._initializer('Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
-                    this._initializer('Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
-                    this._initializer('Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
-                    this._initializer('Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix);
-                    this._initializer('Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix);
-                    this._initializer('Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix);
-                    this._initializer('Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix);
-                    this._initializer('Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix);
+                    this._initializer(initializers, 'Weights', 'inputGateWeightMatrix' + suffix, matrixShape, weights.inputGateWeightMatrix);
+                    this._initializer(initializers, 'Weights', 'forgetGateWeightMatrix' + suffix, matrixShape, weights.forgetGateWeightMatrix);
+                    this._initializer(initializers, 'Weights', 'blockInputWeightMatrix' + suffix, matrixShape, weights.blockInputWeightMatrix);
+                    this._initializer(initializers, 'Weights', 'outputGateWeightMatrix' + suffix, matrixShape, weights.outputGateWeightMatrix);
+                    this._initializer(initializers, 'Weights', 'inputGateRecursionMatrix' + suffix, matrixShape, weights.inputGateRecursionMatrix);
+                    this._initializer(initializers, 'Weights', 'forgetGateRecursionMatrix' + suffix, matrixShape,weights.forgetGateRecursionMatrix);
+                    this._initializer(initializers, 'Weights', 'blockInputRecursionMatrix' + suffix, matrixShape, weights.blockInputRecursionMatrix);
+                    this._initializer(initializers, 'Weights', 'outputGateRecursionMatrix' + suffix, matrixShape, weights.outputGateRecursionMatrix);
                     if (data.params.hasBiasVectors) {
-                        this._initializer('Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector);
-                        this._initializer('Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector);
-                        this._initializer('Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector);
-                        this._initializer('Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector);
+                        this._initializer(initializers, 'Weights', 'inputGateBiasVector' + suffix, vectorShape, weights.inputGateBiasVector);
+                        this._initializer(initializers, 'Weights', 'forgetGateBiasVector' + suffix, vectorShape, weights.forgetGateBiasVector);
+                        this._initializer(initializers, 'Weights', 'blockInputBiasVector' + suffix, vectorShape, weights.blockInputBiasVector);
+                        this._initializer(initializers, 'Weights', 'outputGateBiasVector' + suffix, vectorShape, weights.outputGateBiasVector);
                     }
                     if (data.params.hasPeepholeVectors) {
-                        this._initializer('Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector);
-                        this._initializer('Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector);
-                        this._initializer('Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector);
+                        this._initializer(initializers, 'Weights', 'inputGatePeepholeVector' + suffix, vectorShape, weights.inputGatePeepholeVector);
+                        this._initializer(initializers, 'Weights', 'forgetGatePeepholeVector' + suffix, vectorShape, weights.forgetGatePeepholeVector);
+                        this._initializer(initializers, 'Weights', 'outputGatePeepholeVector' + suffix, vectorShape, weights.outputGatePeepholeVector);
                     }
                 }
                 return { 'weightParams': true };
@@ -749,7 +768,7 @@ coreml.Node = class {
         return value;
     }
 
-    _initializer(kind, name, shape, data) {
+    _initializer(initializers, kind, name, shape, data) {
         const initializer = new coreml.Tensor(kind, name, shape, data);
         const argument = new coreml.Argument('', null, null, initializer);
         let visible = true;
@@ -757,7 +776,7 @@ coreml.Node = class {
         if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
-        this._initializers.push(new coreml.Parameter(name, visible, [ argument ]));
+        initializers.push(new coreml.Parameter(name, visible, [ argument ]));
     }
 };
 
@@ -1158,7 +1177,7 @@ coreml.Metadata = class {
             result.name = name ? name : '(' + index.toString() + ')';
             let array = inputs.slice(index, index + count);
             for (let j = 0; j < array.length; j++) {
-                result.arguments.push({ id: array[j] });
+                result.arguments.push({ name: array[j] });
             }
             index += count;
             results.push(result);

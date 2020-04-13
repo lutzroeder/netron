@@ -275,17 +275,17 @@ ncnn.Parameter = class {
 
 ncnn.Argument = class {
 
-    constructor(id, type, initializer) {
-        if (typeof id !== 'string') {
-            throw new ncnn.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new ncnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

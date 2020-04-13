@@ -198,17 +198,17 @@ dl4j.Parameter = class {
 
 dl4j.Argument = class {
 
-    constructor(id, type, initializer) {
-        if (typeof id !== 'string') {
-            throw new dl4j.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new dl4j.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type;
         this._initializer = initializer;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

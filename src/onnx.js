@@ -423,18 +423,18 @@ onnx.Parameter = class {
 
 onnx.Argument = class {
 
-    constructor(id, type, description, initializer) {
-        if (typeof id !== 'string') {
-            throw new onnx.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, description, initializer) {
+        if (typeof name !== 'string') {
+            throw new onnx.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type || null;
         this._description = description || '';
         this._initializer = initializer || null;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

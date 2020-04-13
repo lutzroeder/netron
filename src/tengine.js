@@ -75,18 +75,17 @@ tengine.Graph = class {
         const tensors = graph.tensors.map((tensor) => new tengine.Argument(tensor));
 
         for (const input of graph.inputs) {
-            const tensor = tensors[input];
-            this._inputs.push(new tengine.Parameter(tensor.id, true, [ tensor ]));
+            const argument = tensors[input];
+            this._inputs.push(new tengine.Parameter(argument.name, true, [ argument ]));
         }
 
         for (const output of graph.outputs) {
-            const tensor = tensors[output];
-            if (tensor.type && tensor.type.shape && tensor.type.shape.dimensions && tensor.type.shape.dimensions.length == 0 && tensor.initializer !== null) {
+            const argument = tensors[output];
+            if (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.length == 0 && argument.initializer !== null) {
                 continue;
             }
-            this._outputs.push(new tengine.Parameter(tensor.id, true, [ tensor ]));
+            this._outputs.push(new tengine.Parameter(argument.name, true, [ argument ]));
         }
-
 
         for (const node of graph.nodes) {
             if (node.operator !== 'INPUT') {
@@ -136,13 +135,13 @@ tengine.Parameter = class {
 tengine.Argument = class { 
 
     constructor(tensor) {
-        this._id = tensor.name;
+        this._name = tensor.name;
         this._type = new tengine.TensorType(tensor.dataType, new tengine.TensorShape(tensor.dims));
         this._initializer = (tensor.type === 2) ? new tengine.Tensor(this._type, tensor.buffer) : null;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

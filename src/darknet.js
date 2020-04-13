@@ -696,17 +696,17 @@ darknet.Parameter = class {
 
 darknet.Argument = class {
 
-    constructor(id, type, initializer) {
-        if (typeof id !== 'string') {
-            throw new darknet.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new darknet.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type;
         this._initializer = initializer;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {
@@ -731,7 +731,8 @@ darknet.Argument = class {
 darknet.Node = class {
 
     constructor(metadata, net, section) {
-        this._name = (section.name || '') + (section.line !== undefined ? '@line:' + section.line.toString() : '');
+        this._name = section.name || '';
+        this._location = section.line !== undefined ? section.line.toString() : undefined;
         this._metadata = metadata;
         this._operator = section.type;
         this._attributes = [];
@@ -763,6 +764,10 @@ darknet.Node = class {
 
     get name() {
         return this._name;
+    }
+
+    get location() {
+        return this._location;
     }
 
     get operator() {

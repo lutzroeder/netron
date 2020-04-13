@@ -318,12 +318,12 @@ armnn.Parameter = class {
 
 armnn.Argument = class {
 
-    constructor(id, tensorInfo, initializer) {
-        if (typeof id !== 'string') {
-            throw new armnn.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, tensorInfo, initializer) {
+        if (typeof name !== 'string') {
+            throw new armnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         const info = initializer ? initializer.info() : tensorInfo;
-        this._id = id;
+        this._name = name;
         this._type = new armnn.TensorType(info);
         this._initializer = initializer ? new armnn.Tensor(info, initializer) : null;
 
@@ -333,8 +333,8 @@ armnn.Argument = class {
         }
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

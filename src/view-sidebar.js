@@ -155,6 +155,10 @@ sidebar.NodeSidebar = class {
             this._addProperty('name', new sidebar.ValueTextView(this._host, node.name));
         }
 
+        if (node.location) {
+            this._addProperty('location', new sidebar.ValueTextView(this._host, node.location));
+        }
+
         if (node.domain) {
             this._addProperty('domain', new sidebar.ValueTextView(this._host, node.domain));
         }
@@ -620,8 +624,8 @@ sidebar.ArgumentView = class {
             this._element.appendChild(this._expander);
         }
 
-        let id = this._argument.id || '';
-        this._hasId = id ? true : false;
+        let name = this._argument.name || '';
+        this._hasId = name ? true : false;
         if (initializer && !this._hasId) {
             const kindLine = this._host.document.createElement('div');
             kindLine.className = 'sidebar-view-item-value-line';
@@ -629,15 +633,15 @@ sidebar.ArgumentView = class {
             this._element.appendChild(kindLine);
         }
         else {
-            const idLine = this._host.document.createElement('div');
-            idLine.className = 'sidebar-view-item-value-line';
-            if (typeof id !== 'string') {
-                throw new Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+            const nameLine = this._host.document.createElement('div');
+            nameLine.className = 'sidebar-view-item-value-line';
+            if (typeof name !== 'string') {
+                throw new Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
             }
-            id = id.split('\n').shift(); // custom argument id
-            id = id || ' ';
-            idLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>id: <b>' + id + '</b></span>';
-            this._element.appendChild(idLine);
+            name = name.split('\n').shift(); // custom argument id
+            name = name || ' ';
+            nameLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>name: <b>' + name + '</b></span>';
+            this._element.appendChild(nameLine);
         }
     }
 
@@ -649,7 +653,7 @@ sidebar.ArgumentView = class {
         if (this._expander) {
             if (this._expander.innerText == '+') {
                 this._expander.innerText = '-';
-    
+
                 let initializer = this._argument.initializer;
                 if (initializer && this._hasId) {
                     let kind = initializer.kind;
@@ -660,7 +664,7 @@ sidebar.ArgumentView = class {
                         this._element.appendChild(kindLine);
                     }
                 }
-    
+
                 let type = '?';
                 let denotation = null;
                 if (this._argument.type) {
@@ -695,6 +699,13 @@ sidebar.ArgumentView = class {
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
                     quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization + '</b></span>';
                     this._element.appendChild(quantizationLine);
+                }
+
+                if (this._argument.location) {
+                    let location = this._host.document.createElement('div');
+                    location.className = 'sidebar-view-item-value-line-border';
+                    location.innerHTML = 'location: ' + '<b>' + this._argument.location + '</b>';
+                    this._element.appendChild(location);
                 }
 
                 if (initializer) {
@@ -1147,13 +1158,13 @@ sidebar.FindSidebar = class {
 
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
-                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.id)) {
+                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
                         if (!argument.initializer) {
                             let inputItem = this._host.document.createElement('li');
-                            inputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id
-                            inputItem.id = 'edge-' + argument.id;
+                            inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
+                            inputItem.id = 'edge-' + argument.name;
                             this._resultElement.appendChild(inputItem);
-                            edgeMatches.add(argument.id);
+                            edgeMatches.add(argument.name);
                         }
                         else {
                             initializers.push(argument.initializer);
@@ -1185,12 +1196,12 @@ sidebar.FindSidebar = class {
         for (const node of this._graph.nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
-                    if (argument.id && argument.id.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.id]) {
+                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.name]) {
                         let outputItem = this._host.document.createElement('li');
-                        outputItem.innerText = '\u2192 ' + argument.id.split('\n').shift(); // custom argument id
-                        outputItem.id = 'edge-' + argument.id;
+                        outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
+                        outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches[argument.id] = true;
+                        edgeMatches[argument.name] = true;
                     }    
                 }
             }

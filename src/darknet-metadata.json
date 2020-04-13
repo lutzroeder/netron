@@ -191,8 +191,8 @@
     "schema": {
       "category": "Shape",
       "attributes": [
-        { "name": "crop_height", "default": 1 },
-        { "name": "crop_width", "default": 1 },
+        { "name": "crop_height", "type": "int32", "default": 1 },
+        { "name": "crop_width", "type": "int32", "default": 1 },
         { "name": "flip", "type": "int32", "default": 0 },
         { "name": "exposure", "type": "float32", "default": 1 },
         { "name": "saturation", "type": "float32", "default": 1 },

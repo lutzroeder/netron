@@ -561,17 +561,17 @@ tf.Parameter = class {
 
 tf.Argument = class {
 
-    constructor(id, type, initializer) {
-        if (typeof id !== 'string') {
-            throw new tf.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new tf.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {
@@ -803,10 +803,10 @@ tf.Node = class {
                             inputCount = inputTypeListAttr.list.type.length;
                         }
                     }
-                    let inputConnections = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
+                    let inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
                         return new tf.Argument(id, null, initializers[id]);
                     });
-                    this._inputs.push(new tf.Parameter(input.name, inputConnections));
+                    this._inputs.push(new tf.Parameter(input.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
@@ -832,10 +832,10 @@ tf.Node = class {
                             outputCount = outputTypeListAttr.list.type.length;
                         }
                     }
-                    let outputConnections = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
+                    let outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
                         return new tf.Argument(id, null, null);
                     });
-                    this._outputs.push(new tf.Parameter(output.name, outputConnections));
+                    this._outputs.push(new tf.Parameter(output.name, outputArguments));
                     outputIndex += outputCount;
                 }
             }

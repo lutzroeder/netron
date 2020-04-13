@@ -492,7 +492,7 @@ view.View = class {
                                         separator = ' = ';
                                     }
                                 }
-                                block.add('initializer-' + argument.id, initializer.name, shape, type ? type.toString() : '', separator);
+                                block.add('initializer-' + argument.name, initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
@@ -513,11 +513,11 @@ view.View = class {
                             const inputs = node.inputs;
                             for (const input of inputs) {
                                 for (const argument of input.arguments) {
-                                    if (argument.id != '' && !argument.initializer) {
-                                        let tuple = edgeMap[argument.id];
+                                    if (argument.name != '' && !argument.initializer) {
+                                        let tuple = edgeMap[argument.name];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[argument.id] = tuple;
+                                            edgeMap[argument.name] = tuple;
                                         }
                                         tuple.to.push({ 
                                             node: nodeId, 
@@ -535,11 +535,11 @@ view.View = class {
                             }
                             for (const output of outputs) {
                                 for (const argument of output.arguments) {
-                                    if (argument.id != '') {
-                                        let tuple = edgeMap[argument.id];
+                                    if (argument.name != '') {
+                                        let tuple = edgeMap[argument.name];
                                         if (!tuple) {
                                             tuple = { from: null, to: [] };
-                                            edgeMap[argument.id] = tuple;
+                                            edgeMap[argument.name] = tuple;
                                         }
                                         tuple.from = { 
                                             node: nodeId,
@@ -627,10 +627,10 @@ view.View = class {
 
                 for (const input of graph.inputs) {
                     for (const argument of input.arguments) {
-                        let tuple = edgeMap[argument.id];
+                        let tuple = edgeMap[argument.name];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[argument.id] = tuple;
+                            edgeMap[argument.name] = tuple;
                         }
                         tuple.from = { 
                             node: nodeId,
@@ -653,10 +653,10 @@ view.View = class {
             
                 for (const output of graph.outputs) {
                     for (const argument of output.arguments) {
-                        let tuple = edgeMap[argument.id];
+                        let tuple = edgeMap[argument.name];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
-                            edgeMap[argument.id] = tuple;
+                            edgeMap[argument.name] = tuple;
                         }
                         tuple.to.push({ node: nodeId });
                     }

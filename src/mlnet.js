@@ -171,16 +171,16 @@ mlnet.Parameter = class {
 
 mlnet.Argument = class {
 
-    constructor(id, type) {
-        if (typeof id !== 'string') {
-            throw new mlnet.Error("Invalid argument identifier '" + JSON.stringify(id) + "'.");
+    constructor(name, type) {
+        if (typeof name !== 'string') {
+            throw new mlnet.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
-        this._id = id;
+        this._name = name;
         this._type = type;
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {

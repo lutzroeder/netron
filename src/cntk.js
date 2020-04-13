@@ -301,19 +301,19 @@ cntk.Argument = class {
 
     constructor(version, obj) {
         if (typeof obj === 'string') {
-            this._id = obj;
+            this._name = obj;
         }
         else {
             switch (version) {
                 case 1:
                     switch (obj.__type__) {
                         case 'InputValue':
-                            this._id = obj.name;
+                            this._name = obj.name;
                             this._type = new cntk.TensorType(version, obj.precision, obj.sampleLayout);
                             this._initializer = null;
                             break;
                         case 'LearnableParameter':
-                            this._id = obj.name;
+                            this._name = obj.name;
                             this._type = null;
                             this._initializer = new cntk.Tensor(version, obj);
                             break;
@@ -321,12 +321,12 @@ cntk.Argument = class {
                     break;
                 case 2:
                     if (obj.value) {
-                        this._id = obj.name || obj.uid;
+                        this._name = obj.name || obj.uid;
                         this._type = null;
                         this._initializer = new cntk.Tensor(version, obj);
                     }
                     else {
-                        this._id = obj.uid;
+                        this._name = obj.uid;
                         this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
                         this._initializer = null;
                     }    
@@ -335,8 +335,8 @@ cntk.Argument = class {
         }
     }
 
-    get id() {
-        return this._id;
+    get name() {
+        return this._name;
     }
 
     get type() {
@@ -448,7 +448,7 @@ cntk.Node = class {
                     let inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     let inputArguments = [];
                     for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        if (inputArgument.id != '' || inputSchema.option != 'optional') {
+                        if (inputArgument.name != '' || inputSchema.option != 'optional') {
                             inputArguments.push(inputArgument);
                         }
                     }

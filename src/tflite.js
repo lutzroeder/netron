@@ -113,7 +113,7 @@ tflite.Graph = class {
             const node = graph.operators(j);
             const opcodeIndex = node.opcodeIndex();
             const operator = (opcodeIndex < operators.length) ? operators[opcodeIndex] : { name: '(' + opcodeIndex.toString() + ')' };
-            this._nodes.push(new tflite.Node(metadata, node, operator, args));
+            this._nodes.push(new tflite.Node(metadata, node, operator, j.toString(), args));
         }
         for (let k = 0; k < graph.inputsLength(); k++) {
             const inputIndex = graph.inputs(k);
@@ -148,8 +148,9 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, node, operator, args) {
+    constructor(metadata, node, operator, location, args) {
         this._metadata = metadata;
+        this._location = location;
         this._operator = operator;
         this._inputs = [];
         this._outputs = [];
@@ -165,7 +166,7 @@ tflite.Node = class {
                 let count = 1;
                 let inputName = null;
                 let inputVisible = true;
-                let inputConnections = [];
+                let inputArguments = [];
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
                     const input = schema.inputs[inputIndex];
                     inputName = input.name;
@@ -179,12 +180,12 @@ tflite.Node = class {
                 const inputArray = inputs.slice(inputIndex, inputIndex + count);
                 for (let j = 0; j < inputArray.length; j++) {
                     if (inputArray[j] != -1) {
-                        inputConnections.push(args[inputArray[j]]);
+                        inputArguments.push(args[inputArray[j]]);
                     }
                 }
                 inputIndex += count;
                 inputName = inputName ? inputName : inputIndex.toString();
-                this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputConnections));
+                this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputArguments));
             }
             for (let k = 0; k < node.outputsLength(); k++) {
                 const outputIndex = node.outputs(k);
@@ -262,7 +263,7 @@ tflite.Node = class {
                                 if (activationFunctionMap[value]) {
                                     value = activationFunctionMap[value];
                                 }
-                                this._chain = [ new tflite.Node(metadata, null, { name: value }, []) ];
+                                this._chain = [ new tflite.Node(metadata, null, { name: value }, null, []) ];
                             }
                             this._attributes.push(new tflite.Attribute(this._metadata, this.operator, attributeName, value));
                         }
@@ -278,6 +279,10 @@ tflite.Node = class {
 
     get name() {
         return '';
+    }
+
+    get location() {
+        return this._location;
     }
 
     get domain() {
@@ -404,7 +409,8 @@ tflite.Parameter = class {
 tflite.Argument = class {
 
     constructor(index, tensor, initializer) {
-        this._id = tensor.name() + ':' + index.toString();
+        this._name = tensor.name();
+        this._location = index.toString();
         this._type = initializer ? null : new tflite.TensorType(tensor);
         this._initializer = initializer;
         const quantization = tensor.quantization();
@@ -427,11 +433,15 @@ tflite.Argument = class {
         }
     }
 
-    get id() {
+    get name() {
         if (this._initializer) {
             return this._initializer.name;
         }
-        return this._id;
+        return this._name;
+    }
+
+    get location() {
+        return this._location;
     }
 
     get type() {
@@ -453,7 +463,8 @@ tflite.Argument = class {
 tflite.Tensor = class {
 
     constructor(index, tensor, buffer, is_variable) {
-        this._name = tensor.name() + ':' + index.toString();
+        this._name = tensor.name();
+        this._location = index.toString();
         this._type = new tflite.TensorType(tensor);
         this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
         this._is_variable = is_variable;
@@ -465,6 +476,10 @@ tflite.Tensor = class {
 
     get name() {
         return this._name;
+    }
+
+    get location() {
+        return this._location;
     }
 
     get type() {

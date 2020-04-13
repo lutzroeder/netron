@@ -477,8 +477,8 @@ function loadModel(target, item) {
                 input.name.toString();
                 input.name.length;
                 for (const argument of input.arguments) {
-                    argument.id.toString();
-                    argument.id.length;
+                    argument.name.toString();
+                    argument.name.length;
                     if (argument.type) {
                         argument.type.toString();
                     }
@@ -488,8 +488,8 @@ function loadModel(target, item) {
                 output.name.toString();
                 output.name.length;
                 for (const argument of output.arguments) {
-                    argument.id.toString();
-                    argument.id.length;
+                    argument.name.toString();
+                    argument.name.length;
                     if (argument.type) {
                         argument.type.toString();
                     }
@@ -518,8 +518,8 @@ function loadModel(target, item) {
                     input.name.toString();
                     input.name.length;
                     for (const argument of input.arguments) {
-                        argument.id.toString();
-                        argument.id.length;
+                        argument.name.toString();
+                        argument.name.length;
                         argument.description;
                         if (argument.type) {
                             argument.type.toString();
@@ -534,8 +534,8 @@ function loadModel(target, item) {
                     output.name.toString();
                     output.name.length;
                     for (const argument of output.arguments) {
-                        argument.id.toString();
-                        argument.id.length;
+                        argument.name.toString();
+                        argument.name.length;
                         if (argument.type) {
                             argument.type.toString();
                         }
