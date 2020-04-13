@@ -1,6 +1,6 @@
 {
     "files.exclude": {
-        "build": true,
+        "dist": true,
         "node_modules": true,
         "third_party": true
     }
