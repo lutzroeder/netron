@@ -522,6 +522,10 @@
         { "name": "pad_w_1", "type": "int32", "default": -1 },
         { "name": "mode", "type": "int32", "default": 0 },
         { "name": "value", "type": "float32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "paddings" }
       ]
     }
   },
@@ -542,6 +546,12 @@
         { "name": "begine_w", "type": "int32", "default": 0 },
         { "name": "end_w", "type": "int32", "default": 0 },
         { "name": "stride_w", "type": "int32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "end" },
+        { "name": "strides" }
       ]
     }
   },
