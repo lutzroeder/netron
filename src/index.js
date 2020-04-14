@@ -1,6 +1,6 @@
 /* jshint esversion: 6 */
 /* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
-/* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder" ] } ] */
+/* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder", "URLSearchParams" ] } ] */
 /* global view */
 
 var host = {};
@@ -52,7 +52,7 @@ host.BrowserHost = class {
         this._version = meta.version ? meta.version[0] : null;
         this._type = meta.type ? meta.type[0] : 'Browser';
 
-        const params = new URLSearchParams(window.location.search || window.location.href);
+        const params = new URLSearchParams(window.location.search);
 
         this._zoom = params.get('zoom') || 'd3';
 
@@ -474,7 +474,7 @@ if (typeof TextDecoder === "undefined") {
     };
 }
 
-if (typeof TextEncoder === "undefined") {
+if (typeof TextEncoder === 'undefined') {
     TextEncoder = function TextEncoder() {
     };
     TextEncoder.prototype.encode = function encode(str) {
@@ -548,6 +548,31 @@ if (typeof TextEncoder === "undefined") {
     if (typeof Symbol !== "undefined") {
         TextEncoder.prototype[Symbol.toStringTag] = "TextEncoder";
     }
+}
+
+if (typeof URLSearchParams === 'undefined') {
+    URLSearchParams = function URLSearchParams(search) {
+        const decode = (str) => {
+            return str.replace(/[ +]/g, '%20').replace(/(%[a-f0-9]{2})+/ig, (match) => { return decodeURIComponent(match); });
+        };
+        this._dict = {};
+        if (typeof search === 'string') {
+            search = search.indexOf('?') === 0 ? search.substring(1) : search;
+            const properties = search.split('&');
+            for (const property of properties) {
+                const index = property.indexOf('=');
+                const name = (index > -1) ? decode(property.substring(0, index)) : decode(property);
+                const value = (index > -1) ? decode(property.substring(index + 1)) : '';
+                if (!Object.prototype.hasOwnProperty.call(this._dict, name)) {
+                    this._dict[name] = [];
+                }
+                this._dict[name].push(value);
+            }
+        }
+    };
+    URLSearchParams.prototype.get = function(name) {
+        return Object.prototype.hasOwnProperty.call(this._dict, name) ? this._dict[name][0] : null;
+    };
 }
 
 if (!HTMLCanvasElement.prototype.toBlob) {
