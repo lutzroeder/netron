@@ -912,7 +912,110 @@
         { "name": "shape", "type": "int32[]", "default": [] }
       ]
     }
-  },  
+  },
+  {
+    "name": "Comparison",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "type", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "SpaceToDepth",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "block_size", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "DepthToSpace",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "block_size", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Reverse",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "SparseToDense",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "output_shape_size0", "type": "int32", "default": 0 },
+        { "name": "output_shape_size1", "type": "int32", "default": 0 },
+        { "name": "default_value", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Ceil",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SquaredDifference",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Round",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "ZerosLike",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "max", "type": "float32", "default": 0 },
+        { "name": "min", "type": "float32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "MatMul",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "ReduceL2",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "keepdim", "type": "int32", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Unsqueeze",
+    "schema": {
+      "category": "Transform",
+      "attributes": [
+        { "name": "axises[]", "type": "int32[]", "default": [] }
+      ]
+    }
+  },
   {
     "name": "Num",
     "schema": {
