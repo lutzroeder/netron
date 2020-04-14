@@ -25199,7 +25199,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes gradients of max pooling function."
+      "summary": "Computes gradients of 3D max pooling function."
     }
   },
   {
