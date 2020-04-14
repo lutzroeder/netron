@@ -549,7 +549,7 @@ tengine.ModelFileReader = class {
         operators.set(20, { name: 'ReLU', params: [ 'f' ] });
         operators.set(21, { name: 'ReLU6', params: [] });
         operators.set(22, { name: 'Reorg', params: [ 'i' ] });
-        operators.set(23, { name: 'Reshape', params: [ 'i', 'i', 'i[]' ] });
+        operators.set(23, { name: 'Reshape', params: [ 'i', 'i', 'offset_re_shape' ] });
         operators.set(24, { name: 'RoiPooling', params: [ 'i', 'i', 'f' ] });
         operators.set(25, { name: 'RPN', params: [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ] });
         operators.set(26, { name: 'Scale', params: [ 'i', 'i', 'i' ]});
@@ -690,6 +690,9 @@ tengine.ModelFileReader = class {
                                 break;
                             case 'anchors':
                                 node.params.push(reader.anchors(4));
+                                break;
+                            case 'offset_re_shape':
+                                node.params.push(reader.int32());
                                 break;
                             default:
                                 throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
