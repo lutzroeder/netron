@@ -604,7 +604,20 @@ tengine.ModelFileReader = class {
         operators.set(75, { name: 'Logical', params: [ 'i' ] });
         operators.set(76, { name: 'Gather', params: [ 'i', 'i' ] });
         operators.set(77, { name: 'Transpose', params: [ 'i[]' ] });
-        operators.set(78, { name: 'Num', params: [] });
+        operators.set(78, { name: 'Comparison', params: [ 'i' ] });
+        operators.set(79, { name: 'SpaceToDepth', params: [ 'i' ] });
+        operators.set(80, { name: 'DepthToSpace', params: [ 'i' ] });
+        operators.set(81, { name: 'Reverse', params: [] });
+        operators.set(82, { name: 'SparseToDense', params: [ 'i','i','i' ] });
+        operators.set(83, { name: 'Ceil', params: [] });
+        operators.set(84, { name: 'SquaredDifference', params: [] });
+        operators.set(85, { name: 'Round', params: [] });
+        operators.set(86, { name: 'ZerosLike', params: [] });
+        operators.set(87, { name: 'Clip', params: [ 'f','f' ] });
+        operators.set(88, { name: 'MatMul', params: [] });
+        operators.set(89, { name: 'ReduceL2', params: [ 'i','i' ] });
+        operators.set(90, { name: 'Unsqueeze', params: [ 'i[]' ] }); /* need fix*/
+        operators.set(91, { name: 'Num', params: [] });
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
