@@ -608,7 +608,7 @@ MNN.OpType = {
   ConvertTensor: 129,
   ArgMin: 130,
   LinSpace: 131,
-  PLUGIN: 256,
+  Plugin: 256,
   Select: 257,
   ZerosLike: 258,
   Broastcast: 259,
@@ -760,7 +760,7 @@ MNN.OpTypeName = {
   '129': 'ConvertTensor',
   '130': 'ArgMin',
   '131': 'LinSpace',
-  '256': 'PLUGIN',
+  '256': 'Plugin',
   '257': 'Select',
   '258': 'ZerosLike',
   '259': 'Broastcast',
@@ -17238,18 +17238,18 @@ MNN.Plugin.prototype.type = function(optionalEncoding) {
 
 /**
  * @param {number} index
- * @param {MNN.Blob=} obj
- * @returns {MNN.Blob}
+ * @param {MNN.Attribute=} obj
+ * @returns {MNN.Attribute}
  */
-MNN.Plugin.prototype.buffer = function(index, obj) {
+MNN.Plugin.prototype.attr = function(index, obj) {
   var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? (obj || new MNN.Blob).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+  return offset ? (obj || new MNN.Attribute).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
 };
 
 /**
  * @returns {number}
  */
-MNN.Plugin.prototype.bufferLength = function() {
+MNN.Plugin.prototype.attrLength = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
 };
@@ -17271,10 +17271,10 @@ MNN.Plugin.addType = function(builder, typeOffset) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} bufferOffset
+ * @param {flatbuffers.Offset} attrOffset
  */
-MNN.Plugin.addBuffer = function(builder, bufferOffset) {
-  builder.addFieldOffset(1, bufferOffset, 0);
+MNN.Plugin.addAttr = function(builder, attrOffset) {
+  builder.addFieldOffset(1, attrOffset, 0);
 };
 
 /**
@@ -17282,7 +17282,7 @@ MNN.Plugin.addBuffer = function(builder, bufferOffset) {
  * @param {Array.<flatbuffers.Offset>} data
  * @returns {flatbuffers.Offset}
  */
-MNN.Plugin.createBufferVector = function(builder, data) {
+MNN.Plugin.createAttrVector = function(builder, data) {
   builder.startVector(4, data.length, 4);
   for (var i = data.length - 1; i >= 0; i--) {
     builder.addOffset(data[i]);
@@ -17294,7 +17294,7 @@ MNN.Plugin.createBufferVector = function(builder, data) {
  * @param {flatbuffers.Builder} builder
  * @param {number} numElems
  */
-MNN.Plugin.startBufferVector = function(builder, numElems) {
+MNN.Plugin.startAttrVector = function(builder, numElems) {
   builder.startVector(4, numElems, 4);
 };
 
@@ -17310,13 +17310,13 @@ MNN.Plugin.endPlugin = function(builder) {
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} typeOffset
- * @param {flatbuffers.Offset} bufferOffset
+ * @param {flatbuffers.Offset} attrOffset
  * @returns {flatbuffers.Offset}
  */
-MNN.Plugin.createPlugin = function(builder, typeOffset, bufferOffset) {
+MNN.Plugin.createPlugin = function(builder, typeOffset, attrOffset) {
   MNN.Plugin.startPlugin(builder);
   MNN.Plugin.addType(builder, typeOffset);
-  MNN.Plugin.addBuffer(builder, bufferOffset);
+  MNN.Plugin.addAttr(builder, attrOffset);
   return MNN.Plugin.endPlugin(builder);
 }
 
