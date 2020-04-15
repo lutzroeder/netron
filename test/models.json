@@ -4630,6 +4630,13 @@
   },
   {
     "type":   "tengine",
+    "target": "detect_tflite_issue_466.tmfile",
+    "source": "https://github.com/lutzroeder/netron/files/4479142/detect_tflite_issue_466.zip[detect_tflite_issue_466.tmfile]",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/466"
+  },
+  {
+    "type":   "tengine",
     "target": "lighten_cnn.tmfile",
     "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/lighten_cnn.tmfile",
     "format": "Tengine v2.0",
