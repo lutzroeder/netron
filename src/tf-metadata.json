@@ -2108,7 +2108,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
           "name": "T",
           "type": "type"
         },
@@ -2157,7 +2157,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`, `bool`.",
           "name": "T",
           "type": "type"
         },
