@@ -840,6 +840,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/337"
   },
   {
+    "type":   "chainer",
+    "target": "mobilenet_v1_1.0_224_quant.hdf5",
+    "source": "https://github.com/lutzroeder/netron/files/4484451/mobilenet_v1_1.0_224_quant.zip[mobilenet_v1_1.0_224_quant.hdf5]",
+    "format": "Weights HDF5",
+    "link":   "https://github.com/lutzroeder/netron/issues/467"
+  },
+  {
     "type":   "cntk",
     "target": "v1/01_OneHidden.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",

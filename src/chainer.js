@@ -219,38 +219,70 @@ chainer.ModelFactory = class {
                 if (Object.keys(rootGroup.attributes).length !== 0 || rootGroup.value !== null) {
                     throw new chainer.Error('File format is not Chainer HDF5');
                 }
+                let format = null;
                 let modules = [];
                 let modulesMap = new Map();
-                for (const moduleGroup of rootGroup.groups) {
-                    if (Object.keys(moduleGroup.attributes).length !== 0 || moduleGroup.value !== null) {
-                        throw new chainer.Error('Module group format is not Chainer HDF5');
-                    }
-                    const moduleName = moduleGroup.name;
-                    if (!modulesMap.has(moduleName)) {
-                        const newModule = { name: moduleName, parameters: [] };
-                        modulesMap.set(moduleName, newModule);
-                        modules.push(newModule);
-                    }
-                    const module = modulesMap.get(moduleName);
-                    for (const variableGroup of moduleGroup.groups) {
-                        if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
-                            throw new chainer.Error('Variable format is not Chainer HDF5');
+                if (rootGroup.groups.every((moduleGroup) => Object.keys(moduleGroup.attributes).length === 0 && moduleGroup.value === null)) {
+                    format = 'Chainer HDF5';
+                    for (const moduleGroup of rootGroup.groups) {
+                        const moduleName = moduleGroup.attributes.name || moduleGroup.name;
+                        if (!modulesMap.has(moduleName)) {
+                            const newModule = { name: moduleName, parameters: [] };
+                            modulesMap.set(moduleName, newModule);
+                            modules.push(newModule);
                         }
-                        const variable = variableGroup.value;
-                        if (!variable) {
-                            throw new chainer.Error('Variable value is not Chainer HDF5');
+                        const module = modulesMap.get(moduleName);
+                        for (const variableGroup of moduleGroup.groups) {
+                            if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
+                                throw new chainer.Error('Variable format is not Chainer HDF5');
+                            }
+                            const variable = variableGroup.value;
+                            if (!variable) {
+                                throw new chainer.Error('Variable value is not Chainer HDF5');
+                            }
+                            module.parameters.push({ 
+                                name: variableGroup.name,
+                                dataType: variable.type,
+                                byteOrder: variable.littleEndian ? '<' : '>',
+                                shape: variable.shape, 
+                                data: variable.data,
+                            });
                         }
-                        module.parameters.push({ 
-                            name: variableGroup.name,
-                            dataType: variable.type,
-                            byteOrder: variable.littleEndian ? '<' : '>',
-                            shape: variable.shape, 
-                            data: variable.data
-                        });
                     }
                 }
+                else if (rootGroup.groups.every((group) => group.value === null && group.groups.every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
+                    format = 'Weights HDF5';
+                    for (const group of rootGroup.groups) {
+                        const moduleName = group.attributes.name || group.name;
+                        if (!modulesMap.has(moduleName)) {
+                            const newModule = { name: moduleName, parameters: [] };
+                            modulesMap.set(moduleName, newModule);
+                            modules.push(newModule);
+                        }
+                        const module = modulesMap.get(moduleName);
+                        for (const variableGroup of group.groups) {
+                            if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
+                                throw new chainer.Error('Variable format is not Chainer HDF5');
+                            }
+                            const variable = variableGroup.value;
+                            if (!variable) {
+                                throw new chainer.Error('Variable value is not Chainer HDF5');
+                            }
+                            module.parameters.push({ 
+                                name: variableGroup.name,
+                                dataType: variable.type,
+                                byteOrder: variable.littleEndian ? '<' : '>',
+                                shape: variable.shape, 
+                                data: variable.data,
+                            });
+                        }
+                    }
+                }
+                else {
+                    throw new chainer.Error('Module group format is not Chainer HDF5');
+                }
 
-                return new chainer.Model(modules, 'Chainer HDF5');
+                return new chainer.Model(modules, format);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
@@ -453,13 +485,30 @@ chainer.Tensor = class  {
             case 'float64':
                 context.itemSize = 8;
                 break;
+            case 'int8':
+                context.itemSize = 1;
+                break;
+            case 'int16':
+                context.itemSize = 2;
+                break;
+            case 'int32':
+                context.itemSize = 4;
+                break;
             case 'int64':
                 context.itemSize = 8;
                 break;
-        }
-        if (!context.itemSize) {
-            context.state = 'Tensor data type is not supported.';
-            return context;
+            case 'uint8':
+                context.itemSize = 1;
+                break;
+            case 'uint16':
+                context.itemSize = 2;
+                break;
+            case 'uint32':
+                context.itemSize = 4;
+                break;
+            default:
+                context.state = 'Tensor data type is not supported.';
+                return context;
         }
         context.dimensions = this._type.shape.dimensions;
         context.dataType = this._type.dataType;
@@ -494,8 +543,26 @@ chainer.Tensor = class  {
                         case 'float64':
                             results.push(context.rawData.getFloat64(context.index, littleEndian));
                             break;
+                        case 'int8':
+                            results.push(context.rawData.getInt8(context.index, littleEndian));
+                            break;
+                        case 'int16':
+                            results.push(context.rawData.getInt16(context.index, littleEndian));
+                            break;
+                        case 'int32':
+                            results.push(context.rawData.getInt32(context.index, littleEndian));
+                            break;
                         case 'int64':
                             results.push(long.Long.fromBytes(context.data.subarray(context.index, context.index + 8), true, littleEndian));
+                            break;
+                        case 'uint8':
+                            results.push(context.rawData.getUint8(context.index, littleEndian));
+                            break;
+                        case 'uint16':
+                            results.push(context.rawData.getUint16(context.index, littleEndian));
+                            break;
+                        case 'uint32':
+                            results.push(context.rawData.getUint32(context.index, littleEndian));
                             break;
                     }
                     context.index += context.itemSize;
