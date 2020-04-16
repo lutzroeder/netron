@@ -24270,7 +24270,7 @@
           "type": "int64[]"
         }
       ],
-      "description": "The UnfoldToDepth operator extracts sliding blocks from an input tensor, and concatenates these blocks\nin the last dimension.\nGiven an input of shape (N x C x D1 x D2 ... x Dn), output would be a 3-D tensor of shape:<br/>\n\n```(N, C * reduce-mul(block_size), reduce-mul(num_blocks))```\n<br/>\nWhere number of blocks extracted from each spatial dimension d is:\n```\nnum_blocks[d] = floor((input_spatial_shape[d] + 2 * padding[d] - dilation[d] * (kernel_size[d] - 1) - 1) / stride[d]) + 1\n```\n",
+      "description": "The UnfoldToDepth operator extracts sliding blocks from an input tensor, and concatenates these blocks\nin the last dimension.\nGiven an input of shape (N x C x D1 x D2 ... x Dn), output would be a 3-D tensor of shape:<br/>\n\n```(N, C * reduce-mul(block_size), reduce-mul(num_blocks))```\n<br/>\nWhere number of blocks extracted from each spatial dimension d is:\n```\nnum_blocks[d] = floor((input_spatial_shape[d] + (pad_begin[d] + pad_end[d]) - dilation[d] * (block_size[d] - 1) - 1) / stride[d]) + 1\n```\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -24291,7 +24291,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output data tensor that contains the result of the unfold. The output has three dimensions, and dimension values are funciton of the kernel size, stride size, and pad lengths.",
+          "description": "Output data tensor that contains the result of the unfold. The output has three dimensions, and dimension values are function of the block size, stride size, and pad lengths.",
           "name": "Y",
           "type": "T"
         }
