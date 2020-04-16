@@ -18354,5 +18354,119 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "Storm",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Momentum hyperparameter, c in the original paper.",
+          "name": "momentum",
+          "option": "optional"
+        },
+        {
+          "description": "denominator in adaptive learning rate, w in the original paper.",
+          "name": "beta",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nComputes the STORM (https://arxiv.org/abs/1905.10018) update for an input\ngradient and accumulated history of gradients. Concretely, given inputs\n(param, moment, grad_sq_sum, grad, lr), computes:\n\n    new_grad_sq_sum = grad_sq_sum + norm(grad)^2\n    effective_lr = lr / (beta + new_grad_sq_sum)^1/3\n    alpha = momentum * square(effective_lr)\n    new_moment = grad + (1 - alpha) * (moment - grad)\n    new_param = param + effective_lr * new_moment\n\nand returns (new_param, new_moment, new_grad_sq_sum).\n\nNote that due to caffe2 limitation, it is difficult to re-calculate gradient\nin the previous iteration using the current example. We simplied calculation\nfor new_moment by using the gradient from the current iteration.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated.",
+          "name": "param"
+        },
+        {
+          "description": "Moment history.",
+          "name": "moment"
+        },
+        {
+          "description": "Sum of observed squared gradients.",
+          "name": "grad_sq_sum"
+        },
+        {
+          "description": "Gradients computed.",
+          "name": "grad"
+        },
+        {
+          "description": "Learning rate, k in the original paper.",
+          "name": "lr"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters.",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment.",
+          "name": "output_moment"
+        },
+        {
+          "description": "Updated sum of squared gradients.",
+          "name": "output_grad_sq_sum"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseStorm",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Momentum hyperparameter, c in the original paper.",
+          "name": "momentum",
+          "option": "optional"
+        },
+        {
+          "description": "denominator in adaptive learning rate, w in the original paper.",
+          "name": "beta",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nThis operator implement the STORM (https://arxiv.org/abs/1905.10018)\noptimization algorithm. Given inputs (param, moment, grad_sq_sum, grad,\nindices, lr), computes the dense STORM update on (param, moment[indices],\ngrad_sq_sum, grad, lr), and returns (new_param, new_moment, new_grad_sq_sum)\nas in the dense case.\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated.",
+          "name": "param"
+        },
+        {
+          "description": "Moment history.",
+          "name": "moment"
+        },
+        {
+          "description": "Sum of observed squared gradients.",
+          "name": "grad_sq_sum"
+        },
+        {
+          "description": "Gradients computed.",
+          "name": "grad"
+        },
+        {
+          "description": "Sparse indices.",
+          "name": "indices"
+        },
+        {
+          "description": "Learning rate, k in the original paper.",
+          "name": "lr"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters.",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment.",
+          "name": "output_moment"
+        },
+        {
+          "description": "Updated sum of squared gradients.",
+          "name": "output_grad_sq_sum"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
