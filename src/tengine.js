@@ -166,7 +166,7 @@ tengine.Node = class {
     constructor(metadata, node, tensors) {
         this._metadata = metadata;
         this._name = node.name;
-        this._operator = node.operator;
+        this._operator = node.operator + (node.operatorVersion && node.operatorVersion !== 1 ? ':' + node.operatorVersion.toString() : '');
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -219,7 +219,7 @@ tengine.Node = class {
     }
 
     get operator() {
-        return this._operator;
+        return this._operator.split(':')[0];
     }
 
     get name() {
@@ -491,7 +491,8 @@ tengine.Metadata = class {
                 for (const item of items) {
                     if (item.name && item.schema) {
                         item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
+                        const name = item.name + (item.version && item.version !== 1 ? ':' + item.version.toString() : '');
+                        this._map[name] = item.schema;
                     }
                 }
             }
@@ -526,98 +527,102 @@ tengine.ModelFileReader = class {
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
 
         let operators = new Map();
-        operators.set( 0, { name: 'Accuracy', params: [] });
-        operators.set( 1, { name: 'BatchNormalization', params: [ 'f', 'f', 'i' ] });
-        operators.set( 2, { name: 'BilinearResize', params: [ 'f', 'f', 'i' ] });
-        operators.set( 3, { name: 'Concat', params: [ 'i' ] });
-        operators.set( 4, { name: 'Const', params: [] });
-        operators.set( 5, { name: 'Convolution', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set( 6, { name: 'DeConvolution', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set( 7, { name: 'DetectionOutput', params: [ 'i', 'i', 'i', 'f', 'f' ] });
-        operators.set( 8, { name: 'DropOut', params: [] });
-        operators.set( 9, { name: 'Eltwise', params: [ 'i', 'i' ] });
-        operators.set(10, { name: 'Flatten', params: [ 'i' ] });
-        operators.set(11, { name: 'FullyConnected', params: [ 'i' ] });
-        operators.set(12, { name: 'INPUT', params: [] });
-        operators.set(13, { name: 'LRN', params: [ 'i', 'f', 'f', 'i', 'f' ] });
-        operators.set(14, { name: 'Normalize', params: [ 'i', 'i' ] });
-        operators.set(15, { name: 'Permute', params: [ 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(16, { name: 'Pooling', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(17, { name: 'Prelu', params: [] });
-        operators.set(18, { name: 'PriorBox', params: [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ] });
-        operators.set(19, { name: 'Region', params: [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ] });
-        operators.set(20, { name: 'ReLU', params: [ 'f' ] });
-        operators.set(21, { name: 'ReLU6', params: [] });
-        operators.set(22, { name: 'Reorg', params: [ 'i' ] });
-        operators.set(23, { name: 'Reshape', params: [ 'i', 'i', 'offset_re_shape' ] });
-        operators.set(24, { name: 'RoiPooling', params: [ 'i', 'i', 'f' ] });
-        operators.set(25, { name: 'RPN', params: [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ] });
-        operators.set(26, { name: 'Scale', params: [ 'i', 'i', 'i' ]});
-        operators.set(27, { name: 'Slice', params: [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(28, { name: 'SoftMax', params: [ 'i' ] });
-        operators.set(29, { name: 'Split', params: [ 'i', 'i', 'boolean', 'boolean', 'i[]' ] });
-        operators.set(30, { name: 'DetectionPostProcess', params: [ 'i', 'i', 'f', 'f', 'i', 'f[]' ] });
-        operators.set(31, { name: 'Gemm', params: [ 'f', 'f', 'i', 'i' ] });
-        operators.set(32, { name: 'Generic', params: [ 'i', 'i', 'string' ] });
-        operators.set(33, { name: 'Logistic', params: [] });
-        operators.set(34, { name: 'LSTM', params: [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(35, { name: 'RNN', params: [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(36, { name: 'TanH', params: [] });
-        operators.set(37, { name: 'Sigmoid', params: [] });
-        operators.set(38, { name: 'Squeeze', params: [ 'i', 'i', 'i', 'i' ] });
-        operators.set(39, { name: 'FusedbnScaleRelu', params: [] });
-        operators.set(40, { name: 'Pad', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ] });
-        operators.set(41, { name: 'StridedSlice', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(42, { name: 'ArgMax', params: [ 'i' ] });
-        operators.set(43, { name: 'ArgMin', params: [ 'i' ] });
-        operators.set(44, { name: 'TopKV2', params: [ 'i', 'i' ] });
-        operators.set(45, { name: 'Reduction', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(46, { name: 'Max', params: [] });
-        operators.set(47, { name: 'Min', params: [] });
-        operators.set(48, { name: 'GRU', params: [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(49, { name: 'Addn', params: 'i' });
-        operators.set(50, { name: 'SwapAxis', params: [ 'i', 'i' ] });
-        operators.set(51, { name: 'Upsample', params: [ 'f' ] });
-        operators.set(52, { name: 'SpaceToBatchND', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(53, { name: 'BatchToSpaceND', params: [ 'i', 'i', 'i', 'i', 'i', 'i' ] });
-        operators.set(54, { name: 'Resize', params: [ 'f', 'f', 'i' ] });
-        operators.set(55, { name: 'ShuffleChannel', params: [ 'i' ] });
-        operators.set(56, { name: 'Crop', params: [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ] });
-        operators.set(57, { name: 'ROIAlign', params: [ 'i', 'i', 'f' ] });
-        operators.set(58, { name: 'Psroipooling', params: [ 'i', 'i', 'f', 'i' ] });
-        operators.set(59, { name: 'Unary', params: [ 'i' ] });
-        operators.set(60, { name: 'Expanddims', params: [ 'i' ] });
-        operators.set(61, { name: 'Bias', params: [ 'i' ] });
-        operators.set(62, { name: 'Noop', params: [] });
-        operators.set(63, { name: 'Threshold', params: [ 'f' ] });
-        operators.set(64, { name: 'Hardsigmoid', params: [ 'f', 'f' ] });
-        operators.set(65, { name: 'Embed', params: [ 'f', 'f', 'f', 'f' ] });
-        operators.set(66, { name: 'InstanceNorm', params: [ 'f' ] });
-        operators.set(67, { name: 'MVN', params: [ 'i', 'i', 'f' ] });
-        operators.set(68, { name: 'Absval', params: [] });
-        operators.set(69, { name: 'Cast', params: [ 'i', 'i' ] });
-        operators.set(70, { name: 'HardSwish', params: [ 'f', 'f' ] });
-        operators.set(71, { name: 'Interp', params: [ 'i', 'i', 'f', 'f', 'i' ] });
-        operators.set(72, { name: 'SELU', params: [ 'f', 'f' ] });
-        operators.set(73, { name: 'ELU', params: [ 'f' ] });
-        operators.set(74, { name: 'BroadMul', params: [] });
-        operators.set(75, { name: 'Logical', params: [ 'i' ] });
-        operators.set(76, { name: 'Gather', params: [ 'i', 'i' ] });
-        operators.set(77, { name: 'Transpose', params: [ 'i[]' ] });
-        operators.set(78, { name: 'Comparison', params: [ 'i' ] });
-        operators.set(79, { name: 'SpaceToDepth', params: [ 'i' ] });
-        operators.set(80, { name: 'DepthToSpace', params: [ 'i' ] });
-        operators.set(81, { name: 'Reverse', params: [] });
-        operators.set(82, { name: 'SparseToDense', params: [ 'i','i','i' ] });
-        operators.set(83, { name: 'Ceil', params: [] });
-        operators.set(84, { name: 'SquaredDifference', params: [] });
-        operators.set(85, { name: 'Round', params: [] });
-        operators.set(86, { name: 'ZerosLike', params: [] });
-        operators.set(87, { name: 'Clip', params: [ 'f','f' ] });
-        operators.set(88, { name: 'MatMul', params: [] });
-        operators.set(89, { name: 'ReduceL2', params: [ 'i','i' ] });
-        operators.set(90, { name: 'Unsqueeze', params: [ 'i[]' ] }); /* need fix*/
-        operators.set(91, { name: 'Num', params: [] });
+        const register = (index, version, name, params) => {
+            operators.set(index.toString() + ':' + version.toString(), { name: name, params: params });
+        };
+        register( 0, 1, 'Accuracy', []);
+        register( 1, 1, 'BatchNormalization', [ 'f', 'f', 'i' ]);
+        register( 2, 1, 'BilinearResize', [ 'f', 'f', 'i' ]);
+        register( 3, 1, 'Concat', [ 'i' ]);
+        register( 4, 1, 'Const', []);
+        register( 5, 1, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register( 6, 1, 'DeConvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register( 7, 1, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
+        register( 8, 1, 'DropOut', []);
+        register( 9, 1, 'Eltwise', [ 'i', 'i' ]);
+        register(10, 1, 'Flatten', [ 'i' ]);
+        register(11, 1, 'FullyConnected', [ 'i' ]);
+        register(12, 1, 'INPUT', []);
+        register(13, 1, 'LRN', [ 'i', 'f', 'f', 'i', 'f' ]);
+        register(14, 1, 'Normalize', [ 'i', 'i' ]);
+        register(15, 1, 'Permute', [ 'i', 'i', 'i', 'i', 'i' ]);
+        register(16, 1, 'Pooling', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(17, 1, 'Prelu', []);
+        register(18, 1, 'PriorBox', [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ]);
+        register(19, 1, 'Region', [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ]);
+        register(20, 1, 'ReLU', [ 'f' ]);
+        register(21, 1, 'ReLU6', []);
+        register(22, 1, 'Reorg', [ 'i' ]);
+        register(23, 1, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(23, 2, 'Reshape', [ 'i', 'i', 'i[]' ]);
+        register(24, 1, 'RoiPooling', [ 'i', 'i', 'f' ]);
+        register(25, 1, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
+        register(26, 1, 'Scale', [ 'i', 'i', 'i' ]);
+        register(27, 1, 'Slice', [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ]);
+        register(28, 1, 'SoftMax', [ 'i' ]);
+        register(29, 1, 'Split', [ 'i', 'i', 'boolean', 'boolean', 'i[]' ]);
+        register(30, 1, 'DetectionPostProcess', [ 'i', 'i', 'f', 'f', 'i', 'f[]' ]);
+        register(31, 1, 'Gemm', [ 'f', 'f', 'i', 'i' ]);
+        register(32, 1, 'Generic', [ 'i', 'i', 'string' ]);
+        register(33, 1, 'Logistic', []);
+        register(34, 1, 'LSTM', [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(35, 1, 'RNN', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(36, 1, 'TanH', []);
+        register(37, 1, 'Sigmoid', []);
+        register(38, 1, 'Squeeze', [ 'i', 'i', 'i', 'i' ]);
+        register(39, 1, 'FusedbnScaleRelu', []);
+        register(40, 1, 'Pad', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ]);
+        register(41, 1, 'StridedSlice', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(42, 1, 'ArgMax', [ 'i' ]);
+        register(43, 1, 'ArgMin', [ 'i' ]);
+        register(44, 1, 'TopKV2', [ 'i', 'i' ]);
+        register(45, 1, 'Reduction', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(46, 1, 'Max', []);
+        register(47, 1, 'Min', []);
+        register(48, 1, 'GRU', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(49, 1, 'Addn', 'i');
+        register(50, 1, 'SwapAxis', [ 'i', 'i' ]);
+        register(51, 1, 'Upsample', [ 'f' ]);
+        register(52, 1, 'SpaceToBatchND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(53, 1, 'BatchToSpaceND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(54, 1, 'Resize', [ 'f', 'f', 'i' ]);
+        register(55, 1, 'ShuffleChannel', [ 'i' ]);
+        register(56, 1, 'Crop', [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ]);
+        register(57, 1, 'ROIAlign', [ 'i', 'i', 'f' ]);
+        register(58, 1, 'Psroipooling', [ 'i', 'i', 'f', 'i' ]);
+        register(59, 1, 'Unary', [ 'i' ]);
+        register(60, 1, 'Expanddims', [ 'i' ]);
+        register(61, 1, 'Bias', [ 'i' ]);
+        register(62, 1, 'Noop', []);
+        register(63, 1, 'Threshold', [ 'f' ]);
+        register(64, 1, 'Hardsigmoid', [ 'f', 'f' ]);
+        register(65, 1, 'Embed', [ 'f', 'f', 'f', 'f' ]);
+        register(66, 1, 'InstanceNorm', [ 'f' ]);
+        register(67, 1, 'MVN', [ 'i', 'i', 'f' ]);
+        register(68, 1, 'Absval', []);
+        register(69, 1, 'Cast', [ 'i', 'i' ]);
+        register(70, 1, 'HardSwish', [ 'f', 'f' ]);
+        register(71, 1, 'Interp', [ 'i', 'i', 'f', 'f', 'i' ]);
+        register(72, 1, 'SELU', [ 'f', 'f' ]);
+        register(73, 1, 'ELU', [ 'f' ]);
+        register(74, 1, 'BroadMul', []);
+        register(75, 1, 'Logical', [ 'i' ]);
+        register(76, 1, 'Gather', [ 'i', 'i' ]);
+        register(77, 1, 'Transpose', [ 'i[]' ]);
+        register(78, 1, 'Comparison', [ 'i' ]);
+        register(79, 1, 'SpaceToDepth', [ 'i' ]);
+        register(80, 1, 'DepthToSpace', [ 'i' ]);
+        register(81, 1, 'Reverse', []);
+        register(82, 1, 'SparseToDense', [ 'i','i','i' ]);
+        register(83, 1, 'Ceil', []);
+        register(84, 1, 'SquaredDifference', []);
+        register(85, 1, 'Round', []);
+        register(86, 1, 'ZerosLike', []);
+        register(87, 1, 'Clip', [ 'f','f' ]);
+        register(88, 1, 'MatMul', []);
+        register(89, 1, 'ReduceL2', [ 'i','i' ]);
+        register(90, 1, 'Unsqueeze', [ 'i[]' ]); /* need fix*/
+        register(91, 1, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
@@ -671,7 +676,8 @@ tengine.ModelFileReader = class {
                 const operatorIndex = reader.int32();
                 const paramsOffset = reader.uint32();
 
-                const schema = operators.has(operatorIndex) ? operators.get(operatorIndex) : null;
+                const operator = operatorIndex.toString() + ':' + node.operatorVersion.toString();
+                const schema = operators.has(operator) ? operators.get(operator) : null;
                 node.operator = schema ? schema.name : operatorIndex.toString();
                 const paramTypes = schema ? schema.params : []
 

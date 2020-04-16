@@ -287,6 +287,25 @@
     "schema": {
       "category": "Shape",
       "attributes": [
+        { "name": "dim_0", "type": "int32", "default": 0 },
+        { "name": "dim_1", "type": "int32", "default": 0 },
+        { "name": "dim_2", "type": "int32", "default": 0 },
+        { "name": "dim_3", "type": "int32", "default": 0 },
+        { "name": "dim_size", "type": "int32", "default": 0 },
+        { "name": "axis", "type": "int32", "default": 0 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "shape" }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "version": 2,
+    "schema": {
+      "category": "Shape",
+      "attributes": [
         { "name": "is_mxnet", "type": "int32", "default": 0 },
         { "name": "reverse", "type": "int32", "default": 0 },
         { "name": "shape", "type": "int32[]", "default": [] }
