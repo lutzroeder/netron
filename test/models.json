@@ -4583,7 +4583,7 @@
     "type":   "sklearn",
     "target": "net2.pkl",
     "source": "https://raw.githubusercontent.com/Aabglov/LasaganeTest/master/results/net2.pkl",
-    "format": "scikit-learn",
+    "format": "Lasagne",
     "link":   "https://github.com/Aabglov/LasaganeTest"
   },
   {
