@@ -4383,31 +4383,6 @@
     }
   },
   {
-    "name": "BeginEpoch",
-    "schema": {
-      "inputs": [
-        {
-          "name": "dataset_id",
-          "type": 9
-        },
-        {
-          "name": "address",
-          "type": 7
-        },
-        {
-          "name": "protocol",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "epoch_id",
-          "type": 9
-        }
-      ]
-    }
-  },
-  {
     "name": "BesselI0e",
     "schema": {
       "attributes": [
@@ -9207,6 +9182,36 @@
         }
       ],
       "summary": "Increments 'ref' until it reaches 'limit'."
+    }
+  },
+  {
+    "name": "CreateJob",
+    "schema": {
+      "inputs": [
+        {
+          "name": "dataset_id",
+          "type": 9
+        },
+        {
+          "name": "address",
+          "type": 7
+        },
+        {
+          "name": "protocol",
+          "type": 7
+        },
+        {
+          "name": "processing_mode",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "job_token",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a tf.data service job."
     }
   },
   {
@@ -23663,8 +23668,8 @@
           "type": 21
         },
         {
-          "name": "epoch_id",
-          "type": 9
+          "name": "job_token",
+          "type": 21
         },
         {
           "name": "iterator",
