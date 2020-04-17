@@ -75,7 +75,7 @@ openvino.ModelFactory = class {
                 const net = openvino.XmlReader.read(xmlDoc.documentElement);
                 const model = new openvino.Model(metadata, net, bin);
                 if (net.disconnectedLayers) {
-                    host.exception(new openvino.Error('Graph contains not connected layers ' + JSON.stringify(net.disconnectedLayers) + '.'));
+                    host.exception(new openvino.Error("Graph contains not connected layers " + JSON.stringify(net.disconnectedLayers) + " in '" + identifier + "'."));
                 }
                 return model;
             }
