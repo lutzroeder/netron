@@ -199,23 +199,20 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        let container = this._host.document.getElementById('graph');
+        const container = this._host.document.getElementById('graph');
 
-        let min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+        const min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
         zoom = Math.min(zoom, 2);
         zoom = Math.max(min, zoom);
 
-        let scrollLeft = this._scrollLeft || container.scrollLeft;
-        let scrollTop = this._scrollTop || container.scrollTop;
+        const scrollLeft = this._scrollLeft || container.scrollLeft;
+        const scrollTop = this._scrollTop || container.scrollTop;
 
-        let x = e ? e.pageX : (container.clientWidth / 2);
-        let y = e ? e.pageY : (container.clientHeight / 2);
+        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
 
-        x += scrollLeft;
-        y += scrollTop;
-
-        let graph = this._host.document.getElementById('canvas');
+        const graph = this._host.document.getElementById('canvas');
         graph.style.width = zoom * this._width;
         graph.style.height = zoom * this._height
 
@@ -1140,7 +1137,7 @@ view.ModelFactoryService = class {
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.pth.tar', '.ckpt', '.bin', '.pb' ]);
         this.register('./torch', [ '.t7' ]);
-        this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb' ]);
+        this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.model' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json', '.index', '.ckpt' ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./sklearn', [ '.pkl', '.joblib', '.model' ]);
