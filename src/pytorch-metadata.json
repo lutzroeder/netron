@@ -4070,5 +4070,20 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.exp",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
