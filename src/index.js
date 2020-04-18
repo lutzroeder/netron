@@ -333,8 +333,9 @@ host.BrowserHost = class {
     }
 
     _openModel(url, identifier) {
+        url = url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
         this._view.show('welcome spinner');
-        let request = new XMLHttpRequest();
+        const request = new XMLHttpRequest();
         request.responseType = 'arraybuffer';
         request.onload = () => {
             if (request.status == 200) {
@@ -346,17 +347,20 @@ host.BrowserHost = class {
                     if (error) {
                         this.exception(error, false);
                         this.error(error.name, error.message);
+                        this._view.show('welcome');
                     }
                 });
             }
             else {
-                this.error('Model load request failed.', request.status);
+                this.error('Model load request failed.', request.status + " in '" + url + "'.");
+                this._view.show('welcome');
             }
         };
         request.onerror = () => {
-            this.error('Error while requesting model.', request.status);
+            this.error('Error while requesting model.', request.status + " in '" + url + "'.");
+            this._view.show('welcome');
         };
-        request.open('GET', url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime(), true);
+        request.open('GET', url, true);
         request.send();
     }
 

@@ -7,6 +7,7 @@ import sys
 import threading
 import webbrowser
 import time
+import urllib.parse
 
 from .__version__ import __version__
 
@@ -68,7 +69,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if file == self.file and self.data:
                     buffer = self.data
                 else:
-                    file = self.folder + '/' + file
+                    file = self.folder + '/' + urllib.parse.unquote(file)
                     status_code = 404
                     if os.path.exists(file):
                         with open(file, 'rb') as binary:
