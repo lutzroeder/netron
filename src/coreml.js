@@ -607,7 +607,7 @@ coreml.Node = class {
         });
         this._inputs = this._inputs.concat(initializers);
         this._outputs = outputs.map((output, index) => {
-            let name = this._metadata.getOutputName(this._operator, index);
+            const name = this._metadata.getOutputName(this._operator, index);
             return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
         });
     }
@@ -643,7 +643,7 @@ coreml.Node = class {
     _initialize(data, initializers) {
         switch (this._operator) {
             case 'convolution': {
-                let weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
+                const weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
                 if (data.isDeconvolution) {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
@@ -792,7 +792,7 @@ coreml.Attribute = class {
             }
             if (this._type && coreml.proto) {
                 let type = coreml.proto;
-                let parts = this._type.split('.');
+                const parts = this._type.split('.');
                 while (type && parts.length > 0) {
                     type = type[parts.shift()];
                 }
@@ -884,7 +884,7 @@ coreml.Tensor = class {
             if (this._quantization.lookupTableQuantization && 
                 this._quantization.lookupTableQuantization.floatValue &&
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
-                let map = [];
+                const map = [];
                 for (const key of Object.keys(this._quantization.lookupTableQuantization.floatValue)) {
                     map.push(key.toString() + ' = ' + this._quantization.lookupTableQuantization.floatValue[key].toString());
                 }
@@ -900,7 +900,7 @@ coreml.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -909,17 +909,17 @@ coreml.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -954,8 +954,8 @@ coreml.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
-        let size = context.dimensions[dimension];
+        const results = [];
+        const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -1102,16 +1102,16 @@ coreml.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeCache = new Map();
         this._inputCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
                         item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
+                        this._map.set(item.name, item.schema);
                     }
                 }
             }
@@ -1119,22 +1119,23 @@ coreml.Metadata = class {
     }
 
     type(operator) {
-        return this._map[operator];
+        return this._map.get(operator);
     }
 
     attribute(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
+        const key = operator + ':' + name;
+        if (!this._attributeCache.has(key)) {
             const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
+            if (!this._attributeCache.has(key)) {
+                this._attributeCache.set(key, null);
+            }
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 
     getInputSchema(operator, name) {

@@ -73,18 +73,18 @@ pytorch.Graph = class {
 
         if (container.format.startsWith('TorchScript ')) {
             this._name = container.name;
-            let traced = container.trace();
-            let initializers = new Map();
+            const traced = container.trace();
+            const initializers = new Map();
             if (container.data) {
-                let queue = [ container.data ];
+                const queue = [ container.data ];
                 while (queue.length > 0) {
-                    let module = queue.shift();
+                    const module = queue.shift();
                     for (const key of Object.keys(module)) {
                         if (key !== '__module__' && key !== '__name__' && key !== '__parent__') {
-                            let obj = module[key];
+                            const obj = module[key];
                             if (!Array.isArray(obj) && obj === Object(obj)) {
                                 if (pytorch.Utility.isTensor(obj)) {
-                                    let parameter = obj;
+                                    const parameter = obj;
                                     parameter.__parent__ = module;
                                     if (!parameter.initializer && parameter.storage) {
                                         parameter.initializer = new pytorch.Tensor(parameter.name, parameter, true);
@@ -263,7 +263,7 @@ pytorch.Graph = class {
 
         const outputs = [ new pytorch.Parameter('output', true, [ new pytorch.Argument(name, null, null) ]) ];
 
-        let attributes = [];
+        const attributes = [];
         for (const name of Object.keys(obj)) {
             if (!name.startsWith('_')) {
                 attributes.push({ name: name, value: obj[name] });
@@ -295,7 +295,7 @@ pytorch.Graph = class {
     }
 
     static _getParameters(module) {
-        let parameters = [];
+        const parameters = [];
         if (module && module.__module__ && module.__name__) {
             for (const key of Object.keys(module)) {
                 if (pytorch.Utility.isTensor(module[key])) {
@@ -309,7 +309,7 @@ pytorch.Graph = class {
     }
 
     static _getSubmodules(module) {
-        let submodules = [];
+        const submodules = [];
         if (module && module.__module__ && module.__name__) {
             for (const key of Object.keys(module)) {
                 if (!key.startsWith('__')) {
@@ -625,7 +625,7 @@ pytorch.Attribute = class {
                         case 'list':
                             this._value = this._value.value.map((item) => {
                                 if (item.type === 'number') {
-                                    let number = parseInt(item.value, 10);
+                                    const number = parseInt(item.value, 10);
                                     if (!Number.isNaN(item.value - number)) {
                                         return number;
                                     }
@@ -701,7 +701,7 @@ pytorch.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -710,7 +710,7 @@ pytorch.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -720,7 +720,7 @@ pytorch.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -761,7 +761,7 @@ pytorch.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const dimensions = (context.dimensions.length == 0) ? [ 1 ] : context.dimensions;
         const size = dimensions[dimension];
         if (dimension == dimensions.length - 1) {
@@ -832,7 +832,7 @@ pytorch.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push(indentation + '[');
             const items = value.map((item) => pytorch.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
@@ -1318,7 +1318,7 @@ pytorch.Execution = class {
                 this.rawdata = state[4];
             };
             this.__read__ = function(unpickler) {
-                let array = {};
+                const array = {};
                 const subtype = this.subtype.split('.');
                 array.__name__ = subtype.pop();
                 array.__module__ = subtype.join('.');
@@ -1345,7 +1345,7 @@ pytorch.Execution = class {
         });
         this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
             if (encoding === 'latin-1') {
-                let array = new Uint8Array(source.length);
+                const array = new Uint8Array(source.length);
                 for (let i = 0; i < source.length; i++) {
                     array[i] = source.charCodeAt(i);
                 }
@@ -1379,7 +1379,7 @@ pytorch.Execution = class {
                     data[i] = rawData.charCodeAt(i);
                 }
             }
-            let dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
             switch (dtype.name) {
                 case 'float32':
                     return dataView.getFloat32(0, true);
@@ -1479,7 +1479,7 @@ pytorch.Execution = class {
             };
         });
         this._registerFunction('torch._utils._rebuild_parameter', function(data, requires_grad, backward_hooks) {
-            let obj = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
+            const obj = self.invoke('torch.nn.parameter.Parameter', [ data, requires_grad ]);
             obj.backward_hooks = backward_hooks;
             return obj;
         });
@@ -1750,7 +1750,7 @@ pytorch.Execution = class {
                 globals.__name__ = name;
                 globals.__file__ = file;
                 this._packages.set(name, globals);
-                let context = this._context.push(globals);
+                const context = this._context.push(globals);
                 this._block(program.body, context);
                 if (raw) {
                     return program;
@@ -1765,7 +1765,7 @@ pytorch.Execution = class {
         if (type !== undefined) {
             return type;
         }
-        let parts = name.split('.');
+        const parts = name.split('.');
         const className = parts.pop();
         const moduleName = parts.join('.');
         const module = this.package(moduleName);
@@ -1779,7 +1779,7 @@ pytorch.Execution = class {
         const target = this.type(name);
         if (target) {
             if (target.__class__ === this._context.scope.builtins.type) {
-                let obj = {};
+                const obj = {};
                 obj.__proto__ = target;
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
                     obj.__init__.apply(obj, args);
@@ -1807,7 +1807,7 @@ pytorch.Execution = class {
 
     call(target, name, args, context) {
         const callTarget = this._target(target, context);
-        let callArguments = args.map((argument) => this.expression(argument, context));
+        const callArguments = args.map((argument) => this.expression(argument, context));
         if (!callTarget || (name !== null && !callTarget[name])) {
             const targetName = pytorch.Utility.target(target) + '.' + name;
             if (this.type(targetName)) {
@@ -1817,7 +1817,7 @@ pytorch.Execution = class {
         }
         const func = name ? callTarget[name] : callTarget;
         if (func.__class__ === this._context.scope.builtins.type) {
-            let obj = {};
+            const obj = {};
             obj.__proto__ = func;
             if (obj.__init__ && typeof obj.__init__ === 'function') {
                 obj.__init__.apply(obj, args);
@@ -1841,7 +1841,7 @@ pytorch.Execution = class {
     }
 
     apply(method, args, context) {
-        let locals = Array.prototype.slice.call(args);
+        const locals = Array.prototype.slice.call(args);
         context = context.push();
         for (const parameter of method.parameters) {
             context.set(parameter.name, locals.shift());
@@ -2119,7 +2119,7 @@ pytorch.Execution = class {
         const parts = name.split('.');
         const typeName = parts.pop();
         const typeModule = parts.join('.');
-        let type = {
+        const type = {
             __class__: this._context.scope.builtins.type,
             __name__: typeName,
             __module__: typeModule,
@@ -2174,7 +2174,7 @@ pytorch.Execution.Context = class {
     }
 
     setx(name, value) {
-        let parts = name.split('.');
+        const parts = name.split('.');
         if (parts.length == 1) {
             this.set(parts[0], value)
         }
@@ -2195,7 +2195,7 @@ pytorch.Execution.Context = class {
     }
 
     getx(name) {
-        let parts = name.split('.');
+        const parts = name.split('.');
         let value = this.get(parts[0]);
         if (value) {
             parts.shift();
@@ -2266,7 +2266,7 @@ pytorch.Container.Tar = class {
  
         const execution = new pytorch.Execution(null, [], this._exceptionCallback);
 
-        let entries = {};
+        const entries = {};
         for (const entry of this._entries) {
             switch (entry.name) {
                 case 'sys_info': entries.sys_info = entry.data; break;
@@ -2294,7 +2294,7 @@ pytorch.Container.Tar = class {
             this._littleEndian = sys_info.little_endian;
         }
 
-        let deserialized_objects = {};
+        const deserialized_objects = {};
         if (entries.storages) {
             const unpickler = new this._pickle.Unpickler(entries.storages);
             const num_storages = unpickler.load((name, args) => execution.invoke(name, args));
@@ -2325,11 +2325,11 @@ pytorch.Container.Tar = class {
                 const storage = deserialized_objects[storage_id];
                 const ndim = long.Long.fromBytesLE(unpickler.read(4), false).toNumber();
                 unpickler.read(4);
-                let shape = [];
+                const shape = [];
                 for (let k = 0; k < ndim; k++) {
                     shape.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
                 }
-                let stride = [];
+                const stride = [];
                 for (let l = 0; l < ndim; l++) {
                     stride.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber())
                 }
@@ -2356,7 +2356,7 @@ pytorch.Container.Tar = class {
                     obj = map;
                 }
                 this._state = [];
-                let state_map = {};
+                const state_map = {};
                 if (obj instanceof Map) {
                     for (const item of obj) {
                         const key = item[0];
@@ -2457,8 +2457,8 @@ pytorch.Container.Pickle = class {
         }
         this._littleEndian = sys_info.little_endian;
 
-        let module_source_map = new Map();
-        let deserialized_objects = new Map();
+        const module_source_map = new Map();
+        const deserialized_objects = new Map();
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
             const data = saved_id;
@@ -2535,7 +2535,7 @@ pytorch.Container.Pickle = class {
                 root = root.encoder.concat(root.decoder);
             }
             if (root instanceof Map) {
-                let obj = {};
+                const obj = {};
                 for (const pair of root) {
                     const key = pair[0];
                     const value = pair[1];
@@ -2575,8 +2575,8 @@ pytorch.Container.Pickle = class {
                     return null;
                 }
             }
-            let state_dict = [];
-            let state_map = {};
+            const state_dict = [];
+            const state_map = {};
             for (const item of list) {
                 const key = item[0];
                 const value = item[1];
@@ -2585,7 +2585,7 @@ pytorch.Container.Pickle = class {
                     if (split.length < 2) {
                         return null;
                     }
-                    let state = {};
+                    const state = {};
                     state.id = key;
                     state.name = split.pop();
                     state.value = value;
@@ -2610,14 +2610,14 @@ pytorch.Container.Pickle = class {
         if (!obj || Array.isArray(obj)) {
             return null
         }
-        let state_dict = [];
-        let state_map = {};
+        const state_dict = [];
+        const state_map = {};
         for (const key in obj) {
             const split = key.split('.');
             if (split.length < 1) {
                 return null;
             }
-            let state = {};
+            const state = {};
             state.id = key;
             state.name = split.pop();
             state.value = obj[key];
@@ -2647,8 +2647,8 @@ pytorch.Container.Pickle = class {
         if (!obj || Array.isArray(obj)) {
             return null;
         }
-        let state_dict = [];
-        let state_map = {};
+        const state_dict = [];
+        const state_map = {};
         for (const state_group_name in obj) {
             let state_group = state_map[state_group_name];
             if (!state_group) {
@@ -2777,8 +2777,8 @@ pytorch.Container.Zip = class {
                     if (this._data.torchscriptArena) {
                         this._torchscriptArena = this._data.torchscriptArena.key;
                     }
-                    let queue = [ this._data ];
-                    let entries = new Map();
+                    const queue = [ this._data ];
+                    const entries = new Map();
                     for (const entry of this._entries) {
                         entries.set(entry.name, entry.data);
                     }
@@ -2805,7 +2805,7 @@ pytorch.Container.Zip = class {
                         tensor.storage.data = entries.get(key);
                     }
                     while (queue.length > 0) {
-                        let module = queue.shift();
+                        const module = queue.shift();
                         if (!module.__module__ && !module.__name__) {
                             module.__module__ = 'torch.nn.modules.module' 
                             module.__name__ = 'Module';
@@ -2859,7 +2859,7 @@ pytorch.Container.Zip = class {
     get execution() {
         if (this._execution === undefined) {
             this._types = new Map(); // TODO
-            let sources = {};
+            const sources = {};
             for (const entry of this._entries) {
                 if (entry.name.startsWith(this._prefix + 'code')) {
                     const file = entry.name.substring(this._prefix.length);
@@ -2870,7 +2870,7 @@ pytorch.Container.Zip = class {
                 }
             }
             this._execution = new pytorch.Container.Zip.Execution(this._python, sources, this._exceptionCallback, this._metadata);
-            let constants = {};
+            const constants = {};
             for (let i = 0; i < this.constants.length; i++) {
                 constants['c' + i.toString()] = this.constants[i];
             }
@@ -2884,7 +2884,7 @@ pytorch.Container.Zip = class {
     }
 
     _unpickle(data, storage_map) {
-        let deserialized_objects = new Map();
+        const deserialized_objects = new Map();
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
             if (typename !== 'storage') {
@@ -2905,7 +2905,7 @@ pytorch.Container.Zip = class {
             }
             const view_metadata = saved_id.shift();
             if (view_metadata) {
-                let view_key = view_metadata.shift();
+                const view_key = view_metadata.shift();
                 view_metadata.shift(); // view_offset
                 view_metadata.shift(); // view_size
                 let view = null;
@@ -2924,7 +2924,7 @@ pytorch.Container.Zip = class {
     }
 
     _storage(dirname) {
-        let map = new Map();
+        const map = new Map();
         const prefix = this._prefix + dirname + '/';
         for (const entry of this._entries) {
             if (entry.name.startsWith(prefix)) {
@@ -2937,7 +2937,7 @@ pytorch.Container.Zip = class {
 
     _type(name) {
         if (!this._types.has(name)) {
-            let parts = name.split('.');
+            const parts = name.split('.');
             const className = parts.pop();
             const file = 'code/' + parts.join('/') + '.py';
             const program = this.execution.parse(file);
@@ -2959,7 +2959,7 @@ pytorch.Container.Zip = class {
         this.execution.reset();
         if (this._torchscriptArena) {
             const program = this.execution.parse(this._torchscriptArena);
-            for (let statement of program.body) {
+            for (const statement of program.body) {
                 if (statement.type == 'def') {
                     const self = this;
                     const globals = this.execution.context;
@@ -2976,7 +2976,7 @@ pytorch.Container.Zip = class {
             }
         }
         if (this.data.forward) {
-            let args = [ this.data ]; // self
+            const args = [ this.data ]; // self
             if (this.data.forward.__code__ && this.data.forward.__code__.parameters) {
                 for (const parameter of this.data.forward.__code__.parameters) {
                     if (parameter.name !== 'self') {
@@ -3057,18 +3057,18 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     schemas = [ schemas ]
                 }
                 for (const schema of schemas) {
-                    let callArgs = Array.prototype.slice.call(args);
-                    let node = {
+                    const callArgs = Array.prototype.slice.call(args);
+                    const node = {
                         type: schema.name,
                         inputs: [],
                         attributes: [],
                         outputs: []
                     };
-                    let referencedParameters = [];
+                    const referencedParameters = [];
                     let next = false;
                     const inputSchemas = Array.prototype.slice.call(schema.inputs || []);
                     while (inputSchemas.length > 0) {
-                        let inputSchema = inputSchemas.shift();
+                        const inputSchema = inputSchemas.shift();
                         const argument = this.expression(callArgs.shift(), context);
                         if ((Array.isArray(argument) && inputSchema.type !== 'T[]') ||
                             (!Array.isArray(argument) && inputSchema.type === 'T[]')) {
@@ -3076,7 +3076,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             break;
                         }
                         const parameters = Array.isArray(argument) ? argument : [ argument ];
-                        let inputs = [];
+                        const inputs = [];
                         for (let parameter of parameters) {
                             if (parameter !== undefined) {
                                 if (!pytorch.Utility.isTensor(parameter) && parameter !== null) {
@@ -3115,7 +3115,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             throw new pytorch.Attribute('Expected named argument.');
                         }
                     }
-                    let outputs = []
+                    const outputs = []
                     for (let i = 0; i < schema.outputs.length; i++) {
                         if (schema.outputs[i].type && schema.outputs[i].type !== 'T') {
                             if (!outputTypes || outputTypes.length !== schema.outputs.length || schema.outputs[i].type !== outputTypes[i]) {
@@ -3123,7 +3123,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 break;
                             }
                         }
-                        let parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
+                        const parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
                         switch (type) {
                             case 'torch.cat': 
                             case 'torch.conv2d': 

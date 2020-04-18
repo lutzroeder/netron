@@ -63,9 +63,9 @@ darknet.Graph = class {
         this._nodes = [];
 
         // read_cfg
-        let sections = [];
+        const sections = [];
         let section = null;
-        let lines = cfg.split('\n');
+        const lines = cfg.split('\n');
         let lineNumber = 0;
         while (lines.length > 0) {
             lineNumber++;
@@ -132,7 +132,7 @@ darknet.Graph = class {
         }
 
         const load_weights = (name, shape, visible) => {
-            let data = weights ? weights.bytes(4 * shape.reduce((a, b) => a * b)) : null;
+            const data = weights ? weights.bytes(4 * shape.reduce((a, b) => a * b)) : null;
             const type = new darknet.TensorType('float32', make_shape(shape, 'load_weights'));
             const initializer = new darknet.Tensor(type, data);
             const argument = new darknet.Argument('', null, initializer);
@@ -171,8 +171,8 @@ darknet.Graph = class {
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'make_connected_layer'));
         }
 
-        let params = {};
-        let globals = new Map();
+        const params = {};
+        const globals = new Map();
         const net = sections.shift();
         switch (net.type) {
             case 'net':
@@ -201,12 +201,12 @@ darknet.Graph = class {
 
         let infer = true;
         for (let i = 0; i < sections.length; i++) {
-            let section = sections[i];
+            const section = sections[i];
             section.name = i.toString();
             section.chain = [];
             section.layer = {};
-            let options = section.options;
-            let layer = section.layer; 
+            const options = section.options;
+            const layer = section.layer; 
             layer.inputs = [].concat(params.arguments);
             layer.outputs = [ new darknet.Argument(i.toString(), null, null) ];
             layer.weights = [];
@@ -584,7 +584,7 @@ darknet.Graph = class {
                         break;
                     }
                     case 'route': {
-                        let layers = [].concat(layer.layers);
+                        const layers = [].concat(layer.layers);
                         layer.out = 0;
                         for (const next of layers) {
                             layer.out += next.out;
@@ -878,7 +878,7 @@ darknet.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -887,7 +887,7 @@ darknet.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -897,7 +897,7 @@ darknet.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         if (!this._data) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -911,7 +911,7 @@ darknet.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
@@ -1004,8 +1004,8 @@ darknet.Weights = class {
     }
 
     int64() {
-        let hi = this.int32();
-        let lo = this.int32();
+        const hi = this.int32();
+        const lo = this.int32();
         return new long.Long(hi, lo, true).toNumber();
     }
 

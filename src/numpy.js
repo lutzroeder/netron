@@ -91,7 +91,7 @@ numpy.Array = class {
         writer.byte(1); // major
         writer.byte(0); // minor
 
-        let context = {
+        const context = {
             itemSize: 1,
             position: 0,
             dataType: this._dataType,
@@ -121,7 +121,7 @@ numpy.Array = class {
                 break;
         }
 
-        let properties = [
+        const properties = [
             "'descr': '" + context.byteOrder + context.dataType + "'",
             "'fortran_order': False",
             "'shape': " + shape
@@ -246,7 +246,7 @@ numpy.Writer = class {
     }
 
     bytes(values) {
-        let array = new Uint8Array(values.length);
+        const array = new Uint8Array(values.length);
         for (let i = 0; i < values.length; i++) {
             array[i] = values[i];
         }
@@ -255,7 +255,7 @@ numpy.Writer = class {
 
     string(value) {
         this.uint16(value.length);
-        let array = new Uint8Array(value.length);
+        const array = new Uint8Array(value.length);
         for (let i = 0; i < value.length; i++) {
             array[i] = value.charCodeAt(i);
         }
@@ -275,7 +275,7 @@ numpy.Writer = class {
     }
 
     toBuffer() {
-        let array = new Uint8Array(this._length);
+        const array = new Uint8Array(this._length);
         let position = 0;
         let head = this._head;
         while (head != null) {

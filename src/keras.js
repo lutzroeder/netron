@@ -132,7 +132,7 @@ keras.Model = class {
         this._producer = producer;
         this._graphs = [];
 
-        let weights = new keras.Weights();
+        const weights = new keras.Weights();
         if (rootGroup) {
             let model_weights_group = rootGroup.group('model_weights');
             if (!model_weights_group && rootGroup.attribute('layer_names')) {
@@ -145,7 +145,7 @@ keras.Model = class {
                     if (layer_weights) {
                         const weight_names = layer_weights.attribute('weight_names');
                         if (weight_names && weight_names.length > 0) {
-                            for (let weight_name of weight_names) {
+                            for (const weight_name of weight_names) {
                                 const weight = layer_weights.group(weight_name);
                                 if (weight && weight.value) {
                                     const variable = weight.value;
@@ -260,7 +260,7 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
-        let nodeMap = new Map();
+        const nodeMap = new Map();
         if (config.layers) {
             for (const layer of config.layers) {
                 if (layer.name) {
@@ -276,9 +276,9 @@ keras.Graph = class {
                     for (const inbound_node of layer.inbound_nodes) {
                         for (const inbound_connection of inbound_node) {
                             let inputName = inbound_connection[0];
-                            let inputNode = nodeMap.get(inputName);
+                            const inputNode = nodeMap.get(inputName);
                             if (inputNode) {
-                                let inputIndex = inbound_connection[2];
+                                const inputIndex = inbound_connection[2];
                                 if (inputIndex != 0) {
                                     inputName += ':' + inputIndex.toString();
                                 }
@@ -293,13 +293,13 @@ keras.Graph = class {
                 }
             }
         }
-        let input_layers = config.input_layers;
+        const input_layers = config.input_layers;
         if (input_layers) {
             for (let i = 0; i < input_layers.length; i++) {
-                let input_layer = input_layers[i];
-                let name = input_layer[0];
+                const input_layer = input_layers[i];
+                const name = input_layer[0];
                 let type = null;
-                let node = nodeMap.get(name);
+                const node = nodeMap.get(name);
                 if (node && node.class_name == 'InputLayer') {
                     type = this._getInputType(node);
                     nodeMap.delete(name);
@@ -320,13 +320,13 @@ keras.Graph = class {
                 }
             }
         }
-        let inputMap = new Map();
-        let output_layers = config.output_layers;
+        const inputMap = new Map();
+        const output_layers = config.output_layers;
         if (output_layers) {
             for (let j = 0; j < output_layers.length; j++) {
-                let output_layer = output_layers[j];
+                const output_layer = output_layers[j];
                 let outputName = output_layer[0];
-                let outputNode = nodeMap.get(outputName);
+                const outputNode = nodeMap.get(outputName);
                 let addGraphOutput = true;
                 if (outputs && j < outputs.length) {
                     inputMap.set(outputName, outputs[j]);
@@ -334,7 +334,7 @@ keras.Graph = class {
                     addGraphOutput = false;
                 }
                 if (outputNode) {
-                    let outputIndex = output_layer[2];
+                    const outputIndex = output_layer[2];
                     if (outputIndex != 0) {
                         outputName += ':' + outputIndex.toString();
                     }
@@ -362,7 +362,7 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
-        let inputName = 'input';
+        const inputName = 'input';
         let inputType = null;
         let argument = inputName;
         let index = 0;
@@ -427,7 +427,7 @@ keras.Graph = class {
         if (layer && layer.config) {
             let dataType = '?';
             let shape = [];
-            let config = layer.config;
+            const config = layer.config;
             if (config.dtype) {
                 dataType = config.dtype;
                 delete config.dtype;
@@ -504,7 +504,7 @@ keras.Node = class {
 
         let names = [ name ];
         if ((operator == 'Bidirectional' || operator == 'TimeDistributed') && (config && config.layer)) {
-            let inner = config.layer;
+            const inner = config.layer;
             delete config.layer;
             this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
             if (operator == 'Bidirectional' && inner.config.name) {
@@ -515,7 +515,7 @@ keras.Node = class {
             }
         }
 
-        let initializers = {};
+        const initializers = {};
         if (weights) {
             for (const name of names) {
                 for (const initializer of weights.get(group, name)) {
@@ -535,8 +535,8 @@ keras.Node = class {
         }
 
         const schema = this._metadata.type(this.operator);
-        let innerOperator = this.inner ? this.inner.operator : null;
-        let innerSchema = innerOperator ? this._metadata.type(innerOperator) : null;
+        const innerOperator = this.inner ? this.inner.operator : null;
+        const innerSchema = innerOperator ? this._metadata.type(innerOperator) : null;
         let inputIndex = 0;
         while (inputs.length > 0) {
             let variadic = false;
@@ -544,7 +544,7 @@ keras.Node = class {
             let visible = true;
             if (!innerSchema || inputIndex == 0) {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
-                    let input = schema.inputs[inputIndex];
+                    const input = schema.inputs[inputIndex];
                     inputName = input.name;
                     if (operator === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
                         inputIndex++;
@@ -696,7 +696,7 @@ keras.Attribute = class {
         if (Array.isArray(value) || value !== Object(value)) {
             return value;
         }
-        let obj = {};
+        const obj = {};
         if (value.class_name) {
             obj.__type__ = value.class_name;
         }
@@ -716,11 +716,11 @@ keras.Attribute = class {
         if (a !== a) {
             return b !== b;
         }
-        let type = typeof a;
+        const type = typeof a;
         if (type !== 'function' && type !== 'object' && typeof b != 'object') {
             return false;
         }
-        let className = toString.call(a);
+        const className = toString.call(a);
         if (className !== toString.call(b)) {
             return false;
         }
@@ -750,13 +750,13 @@ keras.Attribute = class {
             }
         }
 
-        let keys = Object.keys(a);
+        const keys = Object.keys(a);
         let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
         } 
         while (size--) {
-            let key = keys[size];
+            const key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }
@@ -796,7 +796,7 @@ keras.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -805,17 +805,17 @@ keras.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return keras.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -848,7 +848,7 @@ keras.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const size = context.dimensions[dimension];
         const littleEndian = context.littleEndian;
         if (dimension == context.dimensions.length - 1) {
@@ -890,7 +890,7 @@ keras.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push(indentation + '[');
             const items = value.map((item) => keras.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
@@ -966,15 +966,15 @@ keras.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeCache = new Map();
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
                         item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
+                        this._map.set(item.name, item.schema);
                     }
                 }
             }
@@ -982,22 +982,23 @@ keras.Metadata = class {
     }
 
     type(operator) {
-        return this._map[operator] || null;
+        return this._map.get(operator);
     }
 
     attribute(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
+        const key = operator + ':' + name;
+        if (!this._attributeCache.has(key)) {
             const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
+            if (!this._attributeCache.has(key)) {
+                this._attributeCache.set(key, null);
+            }
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 };
 
