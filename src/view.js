@@ -94,8 +94,8 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            let graphElement = document.getElementById('canvas');
-            let view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
+            const graphElement = document.getElementById('canvas');
+            const view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -246,21 +246,17 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            let graphElement = this._host.document.getElementById('canvas');
-            let graphRect = graphElement.getBoundingClientRect();
+            const graphElement = this._host.document.getElementById('canvas');
+            const graphRect = graphElement.getBoundingClientRect();
             let x = 0;
             let y = 0;
             for (const element of selection) {
                 element.classList.add('select');
                 this._selection.push(element);
-                let box = element.getBBox();
-                let ex = box.x + (box.width / 2);
-                let ey = box.y + (box.height / 2);
-                let transform = element.transform.baseVal.consolidate();
-                if (transform) {
-                    ex = transform.matrix.e;
-                    ey = transform.matrix.f;
-                }
+                const transform = element.transform.baseVal.consolidate();
+                const box = element.getBBox();
+                const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
+                const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
                 x += ex;
                 y += ey;
             }
@@ -272,7 +268,7 @@ view.View = class {
 
     clearSelection() {
         while (this._selection.length > 0) {
-            let element = this._selection.pop();
+            const element = this._selection.pop();
             element.classList.remove('select');
         }
     }
@@ -308,8 +304,8 @@ view.View = class {
     _updateActiveGraph(name) {
         this._sidebar.close();
         if (this._model) {
-            let model = this._model;
-            let graph = model.graphs.filter(graph => name == graph.name).shift();
+            const model = this._model;
+            const graph = model.graphs.filter(graph => name == graph.name).shift();
             if (graph) {
                 this.show('welcome spinner');
                 this._timeout(200).then(() => {
@@ -326,7 +322,7 @@ view.View = class {
     _updateGraph(model, graph) {
         return this._timeout(100).then(() => {
             if (graph && graph != this._activeGraph) {
-                let nodes = graph.nodes;
+                const nodes = graph.nodes;
                 if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
@@ -357,7 +353,7 @@ view.View = class {
                 return Promise.resolve();
             }
             else {
-                let graphElement = this._host.document.getElementById('canvas');
+                const graphElement = this._host.document.getElementById('canvas');
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
@@ -375,24 +371,22 @@ view.View = class {
                         break;
                 }
     
-                let groups = graph.groups;
+                const groups = graph.groups;
     
-                let graphOptions = {};
+                const graphOptions = {};
                 graphOptions.nodesep = 25;
                 graphOptions.ranksep = 20;
 
-                let g = new dagre.graphlib.Graph({ compound: groups });
+                const g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
                 g.setDefaultEdgeLabel(() => { return {}; });
             
                 let nodeId = 0;
-                let edgeMap = {};
-            
-                let clusterMap = {};
-                let clusterParentMap = {};
-    
+                const edgeMap = {};
+                const clusterMap = {};
+                const clusterParentMap = {};
                 let id = new Date().getTime();
-                let nodes = graph.nodes;
+                const nodes = graph.nodes;
 
                 if (nodes.length > 1500) {
                     graphOptions.ranker = 'longest-path';
@@ -403,7 +397,7 @@ view.View = class {
                 if (groups) {
                     for (const node of nodes) {
                         if (node.group) {
-                            let path = node.group.split('/');
+                            const path = node.group.split('/');
                             while (path.length > 0) {
                                 const name = path.join('/');
                                 path.pop();
@@ -416,12 +410,12 @@ view.View = class {
                 const self = this;
                 for (const node of nodes) {
 
-                    let element = new grapher.NodeElement(this._host.document);
+                    const element = new grapher.NodeElement(this._host.document);
 
                     const addNode = function(element, node, edges) {
 
-                        let header =  element.block('header');
-                        let styles = [ 'node-item-operator' ];
+                        const header =  element.block('header');
+                        const styles = [ 'node-item-operator' ];
                         const metadata = node.metadata;
                         const category = metadata && metadata.category ? metadata.category : '';
                         if (category) {
@@ -443,7 +437,7 @@ view.View = class {
                             });
                         }
 
-                        let initializers = [];
+                        const initializers = [];
                         let hiddenInitializers = false;
                         if (self._showInitializers) {
                             for (const input of node.inputs) {
@@ -467,7 +461,7 @@ view.View = class {
                             });
                         }
                         if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
-                            let block = element.block('list');
+                            const block = element.block('list');
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
@@ -640,8 +634,8 @@ view.View = class {
                         inputName = inputName.split('/').pop();
                     }
     
-                    let inputElement = new grapher.NodeElement(this._host.document);
-                    let inputHeader = inputElement.block('header');
+                    const inputElement = new grapher.NodeElement(this._host.document);
+                    const inputHeader = inputElement.block('header');
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
@@ -657,14 +651,14 @@ view.View = class {
                         }
                         tuple.to.push({ node: nodeId });
                     }
-                    let outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
+                    const outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
                     let outputName = output.name || '';
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
                     }
             
-                    let outputElement = new grapher.NodeElement(this._host.document);
-                    let outputHeader = outputElement.block('header');
+                    const outputElement = new grapher.NodeElement(this._host.document);
+                    const outputHeader = outputElement.block('header');
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
@@ -672,7 +666,7 @@ view.View = class {
                 }
 
                 for (const edge of Object.keys(edgeMap)) {
-                    let tuple = edgeMap[edge];
+                    const tuple = edgeMap[edge];
                     if (tuple.from != null) {
                         for (const to of tuple.to) {
                             let text = '';
@@ -697,7 +691,7 @@ view.View = class {
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                let backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
                 if (this._host.environment('zoom') == 'd3') {
                     backgroundElement.setAttribute('width', '100%');
@@ -707,7 +701,7 @@ view.View = class {
                 backgroundElement.setAttribute('pointer-events', 'all');
                 graphElement.appendChild(backgroundElement);
 
-                let originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
             
@@ -725,15 +719,15 @@ view.View = class {
 
                 return this._timeout(20).then(() => {
 
-                    let graphRenderer = new grapher.Renderer(this._host.document, originElement);
+                    const graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
-                    let inputElements = graphElement.getElementsByClassName('graph-input');
+                    const inputElements = graphElement.getElementsByClassName('graph-input');
 
                     switch (this._host.environment('zoom')) {
                         case 'scroll': {
                             const size = graphElement.getBBox();
-                            let margin = 100;
+                            const margin = 100;
                             const width = Math.ceil(margin + size.width + margin);
                             const height = Math.ceil(margin + size.height + margin);
                             originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
@@ -763,8 +757,8 @@ view.View = class {
                             const svgSize = graphElement.getBoundingClientRect();
                             if (inputElements && inputElements.length > 0) {
                                 // Center view based on input elements
-                                let xs = [];
-                                let ys = [];
+                                const xs = [];
+                                const ys = [];
                                 for (let i = 0; i < inputElements.length; i++) {
                                     const inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
@@ -801,7 +795,7 @@ view.View = class {
                 break;
             }
         }
-        let nodes = element.getElementsByTagName('*');
+        const nodes = element.getElementsByTagName('*');
         for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
             for (let k = 0; k < rules.length; k++) {
@@ -939,7 +933,7 @@ view.View = class {
     }
 
     showOperatorDocumentation(node) {
-        let metadata = node.metadata;
+        const metadata = node.metadata;
         if (metadata) {
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, metadata);
             documentationSidebar.on('navigate', (sender, e) => {
@@ -1087,7 +1081,7 @@ class ArchiveContext {
         if (entries) {
             for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
-                    let name = entry.name.substring(rootFolder.length);
+                    const name = entry.name.substring(rootFolder.length);
                     if (identifier.length > 0 && identifier.indexOf('/') < 0) {
                         this._entries[name] = entry;
                     }
@@ -1168,15 +1162,15 @@ view.ModelFactoryService = class {
                 context = new ModelContext(context);
                 const identifier = context.identifier;
                 const extension = identifier.split('.').pop().toLowerCase();
-                let modules = this._filter(context);
+                const modules = this._filter(context);
                 if (modules.length == 0) {
                     throw new ModelError("Unsupported file extension '." + extension + "'.");
                 }
-                let errors = [];
+                const errors = [];
                 let match = false;
-                let nextModule = () => {
+                const nextModule = () => {
                     if (modules.length > 0) {
-                        let id = modules.shift();
+                        const id = modules.shift();
                         return this._host.require(id).then((module) => {
                             if (!module.ModelFactory) {
                                 throw new ModelError("Failed to load module '" + id + "'.");
@@ -1243,7 +1237,7 @@ view.ModelFactoryService = class {
             if (extension == 'gz' || extension == 'tgz') {
                 archive = new gzip.Archive(buffer);
                 if (archive.entries.length == 1) {
-                    let entry = archive.entries[0];
+                    const entry = archive.entries[0];
                     if (entry.name) {
                         identifier = entry.name;
                     }
@@ -1382,18 +1376,9 @@ view.ModelFactoryService = class {
     }
 
     _filter(context) {
-        let moduleList = [];
-        let moduleMap = {};
         const identifier = context.identifier.toLowerCase();
-        for (const extension of this._extensions) {
-            if (identifier.endsWith(extension.extension)) {
-                if (!moduleMap[extension.id]) {
-                    moduleList.push(extension.id);
-                    moduleMap[extension.id] = true;
-                }
-            }
-        }
-        return moduleList;
+        const list = this._extensions.filter((entry) => identifier.endsWith(entry.extension)).map((extry) => extry.id);
+        return Array.from(new Set(list));
     }
 
     _openSignature(context) {
