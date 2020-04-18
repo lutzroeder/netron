@@ -2529,27 +2529,29 @@ pytorch.Container.Pickle = class {
     }
 
     _findStateDict(root) {
-        if (root) {
-            if (root.encoder && Array.isArray(root.encoder) && 
-                root.decoder && Array.isArray(root.decoder) && !root.state_dict) {
-                root = root.encoder.concat(root.decoder);
+        if (!root) {
+            return null;
+        }
+        if (root.encoder && Array.isArray(root.encoder) && 
+            root.decoder && Array.isArray(root.decoder) && !root.state_dict) {
+            root = root.encoder.concat(root.decoder);
+        }
+        if (root instanceof Map) {
+            const obj = {};
+            for (const pair of root) {
+                const key = pair[0];
+                const value = pair[1];
+                obj[key] = value;
             }
-            if (root instanceof Map) {
-                const obj = {};
-                for (const pair of root) {
-                    const key = pair[0];
-                    const value = pair[1];
-                    obj[key] = value;
-                }
-                root = obj;
-            }
+            root = obj;
         }
         const candidates = [ 
-            root, root.state_dict, root.state,
+            root.state_dict, root.state,
             root.model_state, root.model, root.model_state_dict, root.net_dict,
             root.params, root.generator, root.discriminator, root.g_state,
             root.network, root.net, root.netG,
-            root.state_dict_stylepredictor, root.state_dict_ghiasi
+            root.state_dict_stylepredictor, root.state_dict_ghiasi,
+            root
         ];
         for (const dict of candidates) {
             let state_dict = null;
