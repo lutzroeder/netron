@@ -4512,30 +4512,37 @@
   },
   {
     "type":   "sklearn",
+    "target": "batches.meta",
+    "source": "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
+    "format": "Pickle",
+    "link":   "https://github.com/MadryLab/cifar10_challenge"
+  },
+  {
+    "type":   "sklearn",
     "target": "binarizer.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.pkl]",
-    "format": "scikit-learn 0.19.1",
+    "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "binarizer.joblib",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.joblib]",
-    "format": "scikit-learn 0.19.1",
+    "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "best_boston.pkl",
     "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
-    "format": "scikit-learn 0.20.2",
+    "format": "scikit-learn v0.20.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "curvrank.localization.dorsal.weights.pkl",
     "source": "https://lev.cs.rpi.edu/public/models/curvrank.localization.dorsal.weights.pkl",
-    "format": "scikit-learn"
+    "format": "Pickle"
   },
   {
     "type":   "sklearn",
@@ -4548,35 +4555,35 @@
     "type":   "sklearn",
     "target": "phoenix_ml_classifier.pkl",
     "source": "https://raw.githubusercontent.com/imeraj/Phoenix_Playground/master/1.4/phoenix_ml/lib/phoenix_ml/model/classifier.pkl",
-    "format": "scikit-learn 0.19.1",
+    "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/imeraj/Phoenix_Playground/tree/master/1.4/phoenix_ml/lib/phoenix_ml/model"
   },
   {
     "type":   "sklearn",
     "target": "forest_iris_ExtraTreesClassifier.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_ExtraTreesClassifier.pkl]",
-    "format": "scikit-learn 0.19.2",
+    "format": "scikit-learn v0.19.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "forest_iris_RandomForestClassifier.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_RandomForestClassifier.pkl]",
-    "format": "scikit-learn 0.19.2",
+    "format": "scikit-learn v0.19.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "forest_iris_AdaBoostClassifier.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_AdaBoostClassifier.pkl]",
-    "format": "scikit-learn 0.19.2",
+    "format": "scikit-learn v0.19.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "forest_iris_DecisionTreeClassifier.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592356/forest_iris_models.zip[forest_iris_DecisionTreeClassifier.pkl]",
-    "format": "scikit-learn 0.19.2",
+    "format": "scikit-learn v0.19.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
@@ -4590,42 +4597,42 @@
     "type":   "sklearn",
     "target": "pima.xgboost.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
-    "format": "scikit-learn",
+    "format": "XGBoost",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "R-50.pkl",
     "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
-    "format": "scikit-learn",
+    "format": "Pickle",
     "link":   "https://github.com/facebookresearch/Detectron"
   },
   {
     "type":   "sklearn",
     "target": "robinhood-portfolio_data_user.pkl.pkl",
     "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
-    "error":  "Root object has no type in 'robinhood-portfolio_data_user.pkl.pkl'.",
+    "format": "Pickle",
     "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
     "type":   "sklearn",
     "target": "svc.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.joblib.pkl]",
-    "format": "scikit-learn 0.19.1",
+    "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "svc.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.pkl]",
-    "format": "scikit-learn 0.19.1",
+    "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
     "type":   "sklearn",
     "target": "wiki-aa-mlp.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2674319/wiki-aa-mlp.pkl.zip[wiki-aa-mlp.pkl]",
-    "format": "scikit-learn 0.19.0",
+    "format": "scikit-learn v0.19.0",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {

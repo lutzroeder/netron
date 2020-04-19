@@ -10,7 +10,7 @@ sklearn.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'pkl' || extension == 'joblib' || extension == 'model') {
+        if (extension == 'pkl' || extension == 'joblib' || extension == 'model' || extension == 'meta') {
             const buffer = context.buffer;
             if (buffer) {
                 // Reject PyTorch models with .pkl file extension.
@@ -37,8 +37,8 @@ sklearn.ModelFactory = class {
             try {
                 const unpickler = new pickle.Unpickler(context.buffer);
 
-                let constructorTable = {};
-                let functionTable = {};
+                const constructorTable = {};
+                const functionTable = {};
 
                 constructorTable['numpy.dtype'] = function(obj, align, copy) { 
                     switch (obj) {
@@ -115,11 +115,8 @@ sklearn.ModelFactory = class {
                         sklearn.Utility.applyType(array, this.subtype);
                         array.dtype = this.typecode;
                         array.shape = this.shape;
-                        let dims = 1;
-                        for (let i = 0; i < array.shape.length; i++) {
-                            dims = dims * array.shape[i];
-                        }
-                        let size = array.dtype.itemsize * dims;
+                        const dims = array.shape && array.shape.length > 0 ? array.shape.reduce((a, b) => a * b) : 1;
+                        const size = array.dtype.itemsize * dims;
                         if (typeof this.rawdata == 'string') {
                             array.data = unpickler.unescape(this.rawdata, size);
                             if (array.data.length != size) {
@@ -296,7 +293,7 @@ sklearn.ModelFactory = class {
                             data[i] = rawData.charCodeAt(i);
                         }
                     }
-                    let dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                    const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
                     switch (dtype.name) {
                         case 'uint8':
                             return dataView.getUint8(0);
@@ -333,7 +330,7 @@ sklearn.ModelFactory = class {
                     return {};
                 };
                 functionTable['collections.OrderedDict'] = function(args) {
-                    let obj = new Map();
+                    const obj = new Map();
                     obj.__setitem__ = function(key, value) {
                         obj.set(key, value);
                     };
@@ -346,7 +343,7 @@ sklearn.ModelFactory = class {
                 };
                 functionTable['__builtin__.bytearray'] = function(source, encoding /*, errors */) {
                     if (encoding === 'latin-1') {
-                        let array = new Uint8Array(source.length);
+                        const array = new Uint8Array(source.length);
                         for (let i = 0; i < source.length; i++) {
                             array[i] = source.charCodeAt(i);
                         }
@@ -364,13 +361,13 @@ sklearn.ModelFactory = class {
                     return name;
                 }
 
-                let unknownNameMap = new Set();
-                let knownPackageMap = new Set([ 
+                const unknownNameMap = new Set();
+                const knownPackageMap = new Set([ 
                     'sklearn', 'collections', '__builtin__', 'builtins',
                     'copy_reg', 'joblib','xgboost', 'lightgbm', 'gensim', 'numpy'
                 ]);
 
-                let function_call = (name, args) => {
+                const function_call = (name, args) => {
                     const func = functionTable[name];
                     if (func) {
                         return func.apply(null, args);
@@ -396,37 +393,31 @@ sklearn.ModelFactory = class {
 
                     for (const dict of objs) {
                         if (dict && !Array.isArray(dict)) {
-                            let weights = new Map();
+                            const weights = new Map();
                             for (const key in dict) {
                                 const value = dict[key]
                                 if (key != 'weight_order' && key != 'lr') {
                                     if (!key || !sklearn.Utility.isTensor(value)) {
-                                        weights = null;
-                                        break;
+                                        return null;
                                     }
                                     weights.set(key, value);
                                 }
                             }
-                            if (weights) {
-                                return weights;
-                            }
+                            return weights;
                         }
                     }
 
                     for (const list of objs) {
                         if (list && Array.isArray(list)) {
-                            let weights = new Map();
+                            const weights = new Map();
                             for (let i = 0; i < list.length; i++) {
                                 const value = list[i];
                                 if (!sklearn.Utility.isTensor(value, 'numpy.ndarray')) {
-                                    weights = null;
-                                    break;
+                                    return null;
                                 }
                                 weights.set(i.toString(), value);
                             }
-                            if (weights) {
-                                return weights;
-                            }
+                            return weights;
                         }
                     }
                     return null;
@@ -442,9 +433,6 @@ sklearn.ModelFactory = class {
                     }
                     if (Array.isArray(obj)) {
                         throw new sklearn.Error('Array is not a valid root object.');
-                    }
-                    if (!obj.__module__ || !obj.__name__) {
-                        throw new sklearn.Error('Root object has no type.');
                     }
                 }
             }
@@ -470,14 +458,17 @@ sklearn.ModelFactory = class {
 sklearn.Model = class {
 
     constructor(metadata, obj, weights) {
-        this._format = 'scikit-learn';
-        if (obj) {
-            if (obj.__module__ && obj.__module__.startsWith('nolearn.lasagne')) {
-                this._format = 'Lasagne';
-            }
-            else if (obj._sklearn_version) {
-                this._format += ' ' + obj._sklearn_version.toString();
-            }
+        if (obj && obj.__module__ && obj.__module__.startsWith('sklearn.')) {
+            this._format = 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+        }
+        else if (obj && obj.__module__ && obj.__module__.startsWith('xgboost.')) {
+            this._format = 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+        }
+        else if (obj && obj.__module__ && obj.__module__.startsWith('nolearn.lasagne.')) {
+            this._format = 'Lasagne';
+        }
+        else {
+            this._format = 'Pickle'
         }
         this._graphs = [];
         this._graphs.push(new sklearn.Graph(metadata, obj, weights));
@@ -515,8 +506,8 @@ sklearn.Graph = class {
             }
         }
         else if (weights instanceof Map) {
-            let group_map = {};
-            let groups = [];
+            const group_map = {};
+            const groups = [];
             for (const pair of weights) {
                 const key = pair[0];
                 const parts = key.split('_');
@@ -536,7 +527,7 @@ sklearn.Graph = class {
                 });
             }
             this._nodes = this._nodes.concat(groups.map((group) => {
-                let inputs = group.arrays.map((array) => {
+                const inputs = group.arrays.map((array) => {
                     return new sklearn.Parameter(array.name, [ 
                         new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
                     ]);
@@ -546,7 +537,7 @@ sklearn.Graph = class {
         }
     }
     _add(group, name, obj, inputs, outputs) {
-        let initializers = [];
+        const initializers = [];
         for (const key of Object.keys(obj)) {
             if (!key.startsWith('_')) {
                 const value = obj[key];
@@ -564,8 +555,7 @@ sklearn.Graph = class {
         outputs = outputs.map((output) => {
             return new sklearn.Parameter(output, [ new sklearn.Argument(output, null, null) ]);
         });
-        let node = new sklearn.Node(this._metadata, group, name, obj, inputs, outputs);
-        this._nodes.push(node);
+        this._nodes.push(new sklearn.Node(this._metadata, group, name, obj, inputs, outputs));
     }
 
     get groups() { 
@@ -636,7 +626,7 @@ sklearn.Node = class {
     constructor(metadata, group, name, obj, inputs, outputs) {
         this._metadata = metadata;
         this._group = group || '';
-        this._type = [ obj.__module__, obj.__name__ ].join('.');
+        this._type = (obj.__module__ && obj.__name__) ? (obj.__module__ + '.' + obj.__name__) : (obj.__name__ ? obj.__name__ : 'Object');
         this._name = name || '';
         this._inputs = inputs;
         this._outputs = outputs;
@@ -727,11 +717,11 @@ sklearn.Attribute = class {
         if (a !== a) {
             return b !== b;
         }
-        let type = typeof a;
+        const type = typeof a;
         if (type !== 'function' && type !== 'object' && typeof b != 'object') {
             return false;
         }
-        let className = toString.call(a);
+        const className = toString.call(a);
         if (className !== toString.call(b)) {
             return false;
         }
@@ -763,7 +753,7 @@ sklearn.Attribute = class {
             }
         }
 
-        let keys = Object.keys(a);
+        const keys = Object.keys(a);
         let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
@@ -810,7 +800,7 @@ sklearn.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -819,12 +809,12 @@ sklearn.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         switch (this._type.dataType) {
             case 'int64':
             case 'uint64':
@@ -834,7 +824,7 @@ sklearn.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -869,8 +859,8 @@ sklearn.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
-        let size = context.dimensions[dimension];
+        const results = [];
+        const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -925,7 +915,7 @@ sklearn.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push('[');
             const items = value.map((item) => sklearn.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
@@ -989,15 +979,15 @@ sklearn.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeCache = new Map();
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
                         item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
+                        this._map.set(item.name, item.schema);
                     }
                 }
             }
@@ -1005,22 +995,23 @@ sklearn.Metadata = class {
     }
 
     type(operator) {
-        return this._map[operator] || null;
+        return this._map.get(operator);
     }
 
     attribute(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
+        const key = operator + ':' + name;
+        if (!this._attributeCache.has(key)) {
             const schema = this.type(operator);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
+            if (!this._attributeCache.has(key)) {
+                this._attributeCache.set(key, null);
+            }
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 };
 
