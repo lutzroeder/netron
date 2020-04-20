@@ -1390,7 +1390,8 @@ view.ModelFactoryService = class {
             { name: 'Git LFS header', value: 'version https://git-lfs.github.com/spec/v1\n' },
             { name: 'HTML markup', value: '<html>' },
             { name: 'HTML markup', value: '<!DOCTYPE html>' },
-            { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' }
+            { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
+            { name: 'ELF executable', value: '\x7FELF' }
         ];
         for (const item of list) {
             if (buffer.length >= item.value.length &&
