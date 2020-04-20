@@ -116,9 +116,9 @@ tflite.Graph = class {
             const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
             this._nodes.push(new tflite.Node(metadata, node, operator, i.toString(), args));
         }
-        const inputs = Array.from(graph.inputsArray());
+        const inputs = Array.from(graph.inputsArray() || []);
         this._inputs = inputs.map((input) => new tflite.Parameter(tensorNames[input], true, [ args[input] ]));
-        const outputs = Array.from(graph.outputsArray())
+        const outputs = Array.from(graph.outputsArray() || []);
         this._outputs = outputs.map((output) => new tflite.Parameter(tensorNames[output], true, [ args[output] ]));
     }
 
@@ -154,7 +154,7 @@ tflite.Node = class {
         this._attributes = [];
         if (node) {
             const schema = this._metadata.type(this.operator);
-            const inputs = Array.from(node.inputsArray());
+            const inputs = Array.from(node.inputsArray() || []);
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
                 let count = 1;
@@ -194,7 +194,7 @@ tflite.Node = class {
                 this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
             }
             if (operator.custom && node.customOptionsLength() > 0) {
-                const custom = Array.from(node.customOptionsArray());
+                const custom = Array.from(node.customOptionsArray() || []);
                 this._attributes.push(new tflite.Attribute(this._metadata, this.operator, 'custom', custom));
             }
             let optionsTypeName = this.operator + 'Options';
@@ -229,7 +229,7 @@ tflite.Node = class {
                     }
                     for (const name of names) {
                         if (options[name] && typeof options[name] == 'function') {
-                            const value = arrayNames.has(name) ? Array.from(options[name + 'Array']()) : options[name]();
+                            const value = arrayNames.has(name) ? Array.from(options[name + 'Array']() || []) : options[name]();
                             if (name === 'fusedActivationFunction' && value !== 0) {
                                 const activationFunctionMap = { 1: 'Relu', 2: "ReluN1To1", 3: "Relu6", 4: "Tanh", 5: "SignBit" };
                                 if (!activationFunctionMap[value]) {
@@ -435,7 +435,7 @@ tflite.Tensor = class {
         this._name = tensor.name();
         this._location = index.toString();
         this._type = new tflite.TensorType(tensor);
-        this._data = buffer.dataLength() > 0 ? buffer.dataArray() : null;
+        this._data = buffer.dataLength() > 0 ? buffer.dataArray() || [] : null;
         this._is_variable = is_variable;
     }
 
@@ -594,7 +594,7 @@ tflite.TensorType = class {
 
     constructor(tensor) {
         this._dataType = tflite.Utility.dataType(tensor.type());
-        this._shape = new tflite.TensorShape(Array.from(tensor.shapeArray()));
+        this._shape = new tflite.TensorShape(Array.from(tensor.shapeArray() || []));
     }
 
     get dataType() {

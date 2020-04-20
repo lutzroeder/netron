@@ -481,6 +481,21 @@
     }
   },
   {
+    "name": "Div",
+    "schema": {
+      "inputs": [
+        { "name": "A", "type": "T" },
+        { "name": "B", "type": "T" }
+      ],
+      "outputs": [
+        { "name": "C", "type": "T" }
+      ],
+      "attributes": [
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+      ]
+    }
+  },
+  {
     "name": "Sum",
     "schema": {
       "inputs": [
@@ -615,10 +630,19 @@
   {
     "name": "TransposeConv",
     "schema": {
+      "category": "Layer",
       "attributes": [
         { "name": "padding", "type": "Padding" },
         { "name": "stride_w", "type": "int32" },
         { "name": "stride_h", "type": "int32" }
+      ],
+      "inputs": [
+        { "name": "output_shape" },
+        { "name": "weights" },
+        { "name": "input" }
+      ],
+      "outputs": [
+        { "name": "output" }
       ]
     }
   },
