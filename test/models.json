@@ -1461,6 +1461,13 @@
   },
   {
     "type":   "coreml",
+    "target": "LinkedUpdatableTinyDrawingClassifier.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/4500539/LinkedUpdatableTinyDrawingClassifier.zip[LinkedUpdatableTinyDrawingClassifier.mlmodel]",
+    "format": "Core ML v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":   "coreml",
     "target": "MessageClassifier.mlmodel",
     "source": "https://raw.githubusercontent.com/llSourcell/A_guide_to_coreML/master/MessageClassifier.mlmodel",
     "link":   "https://github.com/llSourcell/A_guide_to_coreML"
