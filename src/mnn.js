@@ -39,10 +39,10 @@ mnn.Model = class {
 
     constructor(metadata, net) {
         switch (net.sourceType()) {
-            case mnn.schema.NetSource.CAFFE: this._producer = 'Caffe'; break;
-            case mnn.schema.NetSource.TENSORFLOW: this._producer = 'TensorFlow'; break;
-            case mnn.schema.NetSource.TFLITE: this._producer = 'TensorFlow Lite'; break;
-            case mnn.schema.NetSource.ONNX: this._producer = 'ONNX'; break;
+            case mnn.schema.NetSource.CAFFE: this._source = 'Caffe'; break;
+            case mnn.schema.NetSource.TENSORFLOW: this._source = 'TensorFlow'; break;
+            case mnn.schema.NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
+            case mnn.schema.NetSource.ONNX: this._source = 'ONNX'; break;
         }
         this._graphs = [ new mnn.Graph(metadata, net) ];
     }
@@ -51,8 +51,8 @@ mnn.Model = class {
         return 'MNN v2';
     }
 
-    get producer() {
-        return this._producer || '';
+    get source() {
+        return this._source || '';
     }
 
     get graphs() {
