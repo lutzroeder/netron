@@ -78,6 +78,14 @@ tflite.Model = class {
             const name = subgraphsLength > 1 ? i.toString() : '';
             this._graphs.push(new tflite.Graph(metadata, subgraph, name, operators, model));
         }
+        for (let i = 0; i < model.metadataLength(); i++) {
+            const metadata = model.metadata(i);
+            switch (metadata.name()) {
+                case 'min_runtime_version':
+                    this._runtime = new TextDecoder().decode(model.buffers(metadata.buffer()).dataArray() || []);
+                    break;
+            }
+        }
     }
 
     get format() {
@@ -86,6 +94,10 @@ tflite.Model = class {
 
     get description() {
         return this._description;
+    }
+
+    get runtime() {
+        return this._runtime;
     }
 
     get graphs() {
