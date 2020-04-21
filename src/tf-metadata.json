@@ -13053,6 +13053,17 @@
     }
   },
   {
+    "name": "DummyMemoryCache",
+    "schema": {
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
     "name": "DynamicPartition",
     "schema": {
       "attributes": [
