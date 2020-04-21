@@ -47,7 +47,7 @@ tengine.Model = class {
     constructor(metadata, buffer) {
         const reader = new tengine.ModelFileReader(buffer);
         this._version = reader.version;
-        this._producer = reader.producer;
+        this._source = reader.source;
         this._graphs = reader.graphs.map((graph) => new tengine.Graph(metadata, graph));
     }
 
@@ -55,8 +55,8 @@ tengine.Model = class {
         return "Tengine v" + this._version;
     }
 
-    get producer() {
-        return this._producer;
+    get source() {
+        return this._source;
     }
 
     get graphs() {
@@ -789,7 +789,7 @@ tengine.ModelFileReader = class {
         return this._majorVersion + '.' + this._minorVersion;
     }
 
-    get producer() {
+    get source() {
         switch (this._originalFormat) {
             case 0: return '';
             case 1: return 'Tengine';
@@ -800,7 +800,7 @@ tengine.ModelFileReader = class {
             case 6: return 'TensorFlow Lite';
             case 7: return 'Darknet';
             case 8: return 'DLA v' + this._subFormat;
-            default: throw new tengine.Error("Unknown producer '" + this._originalFormat.toString() + "'.");
+            default: throw new tengine.Error("Unknown source '" + this._originalFormat.toString() + "'.");
         }
     }
 
