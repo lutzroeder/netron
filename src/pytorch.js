@@ -14,7 +14,7 @@ pytorch.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
             extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
-            extension === 'ckpt' || extension == 'pt1' || identifier.toLowerCase().endsWith('.pth.tar')) {
+            extension === 'ckpt' || extension == 'pt1' || identifier.toLowerCase().endsWith('.tar')) {
             if (pytorch.Container.open(context)) {
                 return true;
             }
