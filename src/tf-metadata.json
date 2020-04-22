@@ -10803,6 +10803,11 @@
     "schema": {
       "attributes": [
         {
+          "default": -1,
+          "name": "task_refresh_interval_hint_ms",
+          "type": "int64"
+        },
+        {
           "minimum": 1,
           "name": "output_types",
           "type": "type[]"
@@ -14053,7 +14058,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `complex64`, `quint8`, `qint8`, `qint32`, `string`, `bool`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `uint16`, `uint32`, `uint64`, `complex64`, `quint8`, `qint8`, `qint32`, `string`, `bool`, `complex128`.",
           "name": "T",
           "type": "type"
         },
@@ -27662,7 +27667,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `complex64`, `quint8`, `qint8`, `qint32`, `string`, `bool`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `uint16`, `uint32`, `uint64`, `complex64`, `quint8`, `qint8`, `qint32`, `string`, `bool`, `complex128`.",
           "name": "T",
           "type": "type"
         },
