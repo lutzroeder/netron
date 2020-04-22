@@ -4148,6 +4148,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "norm_inplace.pt.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4516621/norm_inplace.pt.zip",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/473"
+  },
+  {
+    "type":   "pytorch",
     "target": "pedestrian_interaction_position_embedding.pt",
     "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/pedestrian_interaction_position_embedding.pt",
     "format": "TorchScript v1.0",

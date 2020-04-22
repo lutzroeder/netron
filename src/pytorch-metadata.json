@@ -1978,6 +1978,56 @@
     }
   },
   {
+    "name": "torch.sub_:Tensor",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sub_:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        },
+        {
+          "default": 1,
+          "name": "alpha",
+          "type": "float64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.pow",
     "schema": {
       "attributes": [
@@ -3548,6 +3598,44 @@
   },
   {
     "name": "torch.mul_:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.div_:Tensor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.div_:Scalar",
     "schema": {
       "attributes": [
         {

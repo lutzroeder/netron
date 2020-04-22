@@ -1129,7 +1129,7 @@ view.ModelFactoryService = class {
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.bin', '.pb' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.bin', '.pb', '.zip' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.model' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json', '.index', '.ckpt' ]);
@@ -1269,6 +1269,16 @@ view.ModelFactoryService = class {
                 }
                 case 'zip': {
                     archive = new zip.Archive(buffer);
+                    // PyTorch Zip archive
+                    if (archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'version') &&
+                        archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'data.pkl')) {
+                        return Promise.resolve(context);
+                    }
+                    // dl4j
+                    if (archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'coefficients.bin') &&
+                        archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'configuration.json')) {
+                        return Promise.resolve(context);
+                    }
                     break;
                 }
             }
@@ -1335,11 +1345,7 @@ view.ModelFactoryService = class {
                     if (matches.length == 0) {
                         return Promise.resolve(context);
                     }
-                    if (matches.length > 0 && 
-                        matches.some((e) => e.name.endsWith('.bin')) &&
-                        archive.entries.some((e) => e.name.endsWith('.json'))) {
-                        return Promise.resolve(context); // dl4j
-                    }
+                    // MXNet
                     if (matches.length == 2 &&
                         matches.some((e) => e.name.endsWith('.params')) &&
                         matches.some((e) => e.name.endsWith('-symbol.json'))) {

@@ -62,11 +62,11 @@ dl4j.ModelFactory = class {
         if (coefficientsEntries.length > 1) {
             return null;
         }
-        const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : 0;
-        let container = {};
-        container.configuration = configuration;
-        container.coefficients = coefficients;
-        return container;
+        const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : [];
+        return {
+            configuration: configuration,
+            coefficients: coefficients
+        };
     }
 }
 

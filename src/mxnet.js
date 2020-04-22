@@ -11,7 +11,7 @@ mxnet.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'model' || extension == 'mar') {
+        if (extension === 'model' || extension === 'mar') {
             if (context.entries('zip').length > 0) {
                 return true;
             }
