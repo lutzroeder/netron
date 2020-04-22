@@ -1230,6 +1230,29 @@
     }
   },
   {
+    "name": "torch.adaptive_avg_pool1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.adaptive_avg_pool2d",
     "schema": {
       "attributes": [
