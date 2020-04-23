@@ -25779,7 +25779,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int16`, `int32`, `int64`.",
           "name": "T",
           "type": "type"
         }
@@ -26050,7 +26050,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int16`, `int32`, `int64`.",
           "name": "T",
           "type": "type"
         }
