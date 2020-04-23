@@ -1583,6 +1583,32 @@
     }
   },
   {
+    "name": "torch.hardtanh",
+    "schema": {
+      "attributes": [
+        {
+          "name": "min_value",
+          "type": "float64"
+        },
+        {
+          "name": "max_value",
+          "type": "float64"
+        }
+      ],
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.hardtanh_",
     "schema": {
       "attributes": [
