@@ -13069,6 +13069,17 @@
     }
   },
   {
+    "name": "DummySeedGenerator",
+    "schema": {
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
+    }
+  },
+  {
     "name": "DynamicPartition",
     "schema": {
       "attributes": [
@@ -24319,7 +24330,7 @@
           "type": "type"
         }
       ],
-      "description": "to zero.\n\nThe `band` part is computed as follows:\nAssume `input` has `k` dimensions `[I, J, K, ..., M, N]`, then the output is a\ntensor with the same shape where\n\n`band[i, j, k, ..., m, n] = in_band(m, n) * input[i, j, k, ..., m, n]`.\n\nThe indicator function\n\n`in_band(m, n) = (num_lower < 0 || (m-n) <= num_lower)) &&\n                 (num_upper < 0 || (n-m) <= num_upper)`.\n\nFor example:\n\n```\n# if 'input' is [[ 0,  1,  2, 3]\n                 [-1,  0,  1, 2]\n                 [-2, -1,  0, 1]\n                 [-3, -2, -1, 0]],\n\ntf.matrix_band_part(input, 1, -1) ==> [[ 0,  1,  2, 3]\n                                       [-1,  0,  1, 2]\n                                       [ 0, -1,  0, 1]\n                                       [ 0,  0, -1, 0]],\n\ntf.matrix_band_part(input, 2, 1) ==> [[ 0,  1,  0, 0]\n                                      [-1,  0,  1, 0]\n                                      [-2, -1,  0, 1]\n                                      [ 0, -2, -1, 0]]\n```\n\nUseful special cases:\n\n```\n tf.matrix_band_part(input, 0, -1) ==> Upper triangular part.\n tf.matrix_band_part(input, -1, 0) ==> Lower triangular part.\n tf.matrix_band_part(input, 0, 0) ==> Diagonal.\n```",
+      "description": "The `band` part is computed as follows:\nAssume `input` has `k` dimensions `[I, J, K, ..., M, N]`, then the output is a\ntensor with the same shape where\n\n`band[i, j, k, ..., m, n] = in_band(m, n) * input[i, j, k, ..., m, n]`.\n\nThe indicator function\n\n`in_band(m, n) = (num_lower < 0 || (m-n) <= num_lower)) &&\n                 (num_upper < 0 || (n-m) <= num_upper)`.\n\nFor example:\n\n```\n# if 'input' is [[ 0,  1,  2, 3]\n                 [-1,  0,  1, 2]\n                 [-2, -1,  0, 1]\n                 [-3, -2, -1, 0]],\n\ntf.matrix_band_part(input, 1, -1) ==> [[ 0,  1,  2, 3]\n                                       [-1,  0,  1, 2]\n                                       [ 0, -1,  0, 1]\n                                       [ 0,  0, -1, 0]],\n\ntf.matrix_band_part(input, 2, 1) ==> [[ 0,  1,  0, 0]\n                                      [-1,  0,  1, 0]\n                                      [-2, -1,  0, 1]\n                                      [ 0, -2, -1, 0]]\n```\n\nUseful special cases:\n\n```\n tf.matrix_band_part(input, 0, -1) ==> Upper triangular part.\n tf.matrix_band_part(input, -1, 0) ==> Lower triangular part.\n tf.matrix_band_part(input, 0, 0) ==> Diagonal.\n```",
       "inputs": [
         {
           "description": "Rank `k` tensor.",
@@ -24344,7 +24355,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Copy a tensor setting everything outside a central band in each innermost matrix"
+      "summary": "Copy a tensor setting everything outside a central band in each innermost matrix to zero."
     }
   },
   {
@@ -38599,7 +38610,7 @@
           "type": "boolean"
         }
       ],
-      "description": "accum += grad * grad\nvar -= lr * grad * (1 / sqrt(accum))",
+      "description": "accum += grad * grad\nvar -= lr * grad * (1 / (sqrt(accum) + epsilon))",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -39157,7 +39168,7 @@
           "type": "boolean"
         }
       ],
-      "description": "want to use Nesterov momentum.\n\naccum = accum * momentum + grad\nvar -= lr * accum",
+      "description": "Set use_nesterov = True if you want to use Nesterov momentum.\n\naccum = accum * momentum + grad\nvar -= lr * accum",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -39185,7 +39196,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Update '*var' according to the momentum scheme. Set use_nesterov = True if you"
+      "summary": "Update '*var' according to the momentum scheme."
     }
   },
   {
@@ -44718,6 +44729,56 @@
     }
   },
   {
+    "name": "ShuffleDatasetV3",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "reshuffle_each_iteration",
+          "type": "boolean"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "seed",
+          "type": 9
+        },
+        {
+          "name": "seed2",
+          "type": 9
+        },
+        {
+          "name": "seed_generator",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ShutdownDistributedTPU",
     "schema": {
       "description": "The op returns an error if no system is running.",
@@ -47860,6 +47921,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "See `tf.sparse.segment_sum` for usage examples.\n\nLike `SegmentMean`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.",
@@ -47876,7 +47946,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         }
       ],
       "outputs": [
@@ -47906,6 +47976,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "Returns tensor \"output\" with same shape as grad, except for dimension 0 whose\nvalue is output_dim0.",
@@ -47923,7 +48002,7 @@
         {
           "description": "segment_ids passed to the corresponding SparseSegmentMean op.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         },
         {
           "description": "dimension 0 of \"data\" passed to SparseSegmentMean op.",
@@ -47966,6 +48045,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tnumsegments",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
@@ -47982,7 +48070,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         },
         {
           "description": "Should equal the number of distinct segment IDs.",
@@ -48017,6 +48105,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "N is the size of the segment being reduced.\n\nSee `tf.sparse.segment_sum` for usage examples.\n",
@@ -48033,7 +48130,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         }
       ],
       "outputs": [
@@ -48063,6 +48160,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "Returns tensor \"output\" with same shape as grad, except for dimension 0 whose\nvalue is output_dim0.",
@@ -48080,7 +48186,7 @@
         {
           "description": "segment_ids passed to the corresponding SparseSegmentSqrtN op.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         },
         {
           "description": "dimension 0 of \"data\" passed to SparseSegmentSqrtN op.",
@@ -48123,6 +48229,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tnumsegments",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
@@ -48139,7 +48254,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         },
         {
           "description": "Should equal the number of distinct segment IDs.",
@@ -48174,6 +48289,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nLike `SegmentSum`, but `segment_ids` can have rank less than `data`'s first\ndimension, selecting a subset of dimension 0, specified by `indices`.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\n# Select two rows, one segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 0]))\n# => [[0 0 0 0]]\n\n# Select two rows, two segment.\ntf.sparse_segment_sum(c, tf.constant([0, 1]), tf.constant([0, 1]))\n# => [[ 1  2  3  4]\n#     [-1 -2 -3 -4]]\n\n# Select all rows, two segments.\ntf.sparse_segment_sum(c, tf.constant([0, 1, 2]), tf.constant([0, 0, 1]))\n# => [[0 0 0 0]\n#     [5 6 7 8]]\n\n# Which is equivalent to:\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n```",
@@ -48190,7 +48314,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         }
       ],
       "outputs": [
@@ -48229,6 +48353,15 @@
           "description": "Must be one of the following: `int32`, `int64`.",
           "name": "Tnumsegments",
           "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsegmentids",
+          "type": "type"
         }
       ],
       "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/sparse#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
@@ -48245,7 +48378,7 @@
         {
           "description": "A 1-D tensor. Values should be sorted and can be repeated.",
           "name": "segment_ids",
-          "type": 3
+          "typeAttr": "Tsegmentids"
         },
         {
           "description": "Should equal the number of distinct segment IDs.",
