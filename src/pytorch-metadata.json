@@ -1651,6 +1651,22 @@
     }
   },
   {
+    "name": "torch.sigmoid_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.threshold",
     "schema": {
       "attributes": [
