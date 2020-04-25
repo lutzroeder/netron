@@ -456,13 +456,6 @@
   },
   {
     "type":   "caffe",
-    "target": "pose_iter_584000.caffemodel",
-    "source": "http://posefs1.perception.cs.cmu.edu/OpenPose/models/pose/body_25/pose_iter_584000.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://github.com/CMU-Perceptual-Computing-Lab/openpose"
-  },
-  {
-    "type":   "caffe",
     "target": "ResNet-18-deploy.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/ResNet-18-deploy.prototxt",
     "format": "Caffe v2",
