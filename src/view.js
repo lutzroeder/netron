@@ -1394,6 +1394,7 @@ view.ModelFactoryService = class {
         }
         const list = [
             { name: 'Git LFS header', value: 'version https://git-lfs.github.com/spec/v1\n' },
+            { name: 'Git LFS header', value: 'oid sha256:' },
             { name: 'HTML markup', value: '<html>' },
             { name: 'HTML markup', value: '<!DOCTYPE html>' },
             { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
