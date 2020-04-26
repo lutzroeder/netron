@@ -1014,6 +1014,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
+        this._registerConstructor('torch.nn.modules.activation.GELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.Hardtanh', function() {});
         this._registerConstructor('torch.nn.modules.activation.LeakyReLU', function() {});
