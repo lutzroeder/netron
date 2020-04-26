@@ -392,7 +392,7 @@ tflite.Argument = class {
     constructor(index, tensor, initializer) {
         this._name = tensor.name();
         this._location = index.toString();
-        this._type = initializer ? null : new tflite.TensorType(tensor);
+        this._type = new tflite.TensorType(tensor);
         this._initializer = initializer;
         const quantization = tensor.quantization();
         if (quantization) {
@@ -415,9 +415,6 @@ tflite.Argument = class {
     }
 
     get name() {
-        if (this._initializer) {
-            return this._initializer.name;
-        }
         return this._name;
     }
 
@@ -426,9 +423,6 @@ tflite.Argument = class {
     }
 
     get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
         return this._type;
     }
 
