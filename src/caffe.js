@@ -402,9 +402,6 @@ caffe.Argument = class {
     }
 
     get type() {
-        if (this._initializer) {
-            return this._initializer.type;
-        }
         return this._type;
     }
 
@@ -499,38 +496,27 @@ caffe.Node = class {
         const schema = this._metadata.type(this.operator);
 
         this._inputs = [];
-        let inputs = layer.input.concat(initializers);
+        const inputs = layer.input.concat(initializers);
         let inputIndex = 0;
         if (schema && schema.inputs) {
             for (const inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    let inputArguments = [];
-                    for (const input of inputs.slice(inputIndex, inputIndex + inputCount)) {
-                        if (input != '' || inputDef.option != 'optional') {
-                            if (input instanceof caffe.Tensor) {
-                                inputArguments.push(new caffe.Argument('', null, input));
-                            }
-                            else {
-                                inputArguments.push(new caffe.Argument(input, null, null));
-                            }
-                        }
-                    }
-                    this._inputs.push(new caffe.Parameter(inputDef.name, inputArguments));
+                    const inputCount = inputDef.option == 'variadic' ? inputs.length - inputIndex : 1;
+                    this._inputs.push(new caffe.Parameter(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
+                        return input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : new caffe.Argument(input, null, null);
+                    })));
                     inputIndex += inputCount;
                 }
             }
         }
         this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
             return new caffe.Parameter(inputIndex.toString(), [ 
-                (input instanceof caffe.Tensor) ?
-                    new caffe.Argument('', null, input) :
-                    new caffe.Argument(input, null, null)
+                input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : new caffe.Argument(input, null, null)
             ]);
         }));
 
         this._outputs = [];
-        let outputs = layer.output;
+        const outputs = layer.output;
         let outputIndex = 0;
         if (schema && schema.outputs) {
             for (const outputDef of schema.outputs) {
@@ -543,8 +529,8 @@ caffe.Node = class {
                 }
             }
         }
-        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output) => {
-            return new caffe.Parameter(outputIndex.toString(), [
+        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            return new caffe.Parameter((outputIndex + index).toString(), [
                 new caffe.Argument(output, null, null)
             ]);
         }));
