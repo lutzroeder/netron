@@ -197,27 +197,6 @@
   },
   {
     "type":   "caffe",
-    "target": "DenseNet_121.prototxt",
-    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_121.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shicai/DenseNet-Caffe"
-  },
-  {
-    "type":   "caffe",
-    "target": "DenseNet_161.prototxt",
-    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_161.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shicai/DenseNet-Caffe"
-  },
-  {
-    "type":   "caffe",
-    "target": "DenseNet_169.prototxt",
-    "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_169.prototxt",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shicai/DenseNet-Caffe"
-  },
-  {
-    "type":   "caffe",
     "target": "DenseNet_169.prototxt",
     "source": "https://raw.githubusercontent.com/shicai/DenseNet-Caffe/master/DenseNet_169.prototxt",
     "format": "Caffe v2",
@@ -271,13 +250,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/fcn-16s.prototxt",
     "format": "Caffe v1",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "fcn32s-heavy-pascal.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/fcn32s-heavy-pascal.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://github.com/shelhamer/fcn.berkeleyvision.org"
   },
   {
     "type":   "caffe",
@@ -631,12 +603,6 @@
   },
   {
     "type":   "caffe",
-    "target": "VGG_ILSVRC_19_layers.caffemodel",
-    "source": "http://www.robots.ox.ac.uk/~vgg/software/very_deep/caffe/VGG_ILSVRC_19_layers.caffemodel",
-    "format": "Caffe v1"
-  },
-  {
-    "type":   "caffe",
     "target": "YOLO.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/YOLO.prototxt",
     "format": "Caffe v2",
@@ -854,12 +820,6 @@
   },
   {
     "type":   "cntk",
-    "target": "v1/AlexNetBS.model",
-    "source": "https://www.cntk.ai/Models/AlexNet/AlexNetBS.model",
-    "format": "CNTK v1.15"
-  },
-  {
-    "type":   "cntk",
     "target": "v1/cifar10.pretrained.cmf",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.pretrained.cmf",
     "format": "CNTK v1.14",
@@ -889,13 +849,6 @@
     "type":   "cntk",
     "target": "v1/Fast-RCNN.model",
     "source": "https://www.cntk.ai/Models/FRCN_Pascal/Fast-RCNN.model",
-    "format": "CNTK v1.15",
-    "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
-  },
-  {
-    "type":   "cntk",
-    "target": "v1/Fast-RCNN_grocery100.model",
-    "source": "https://www.cntk.ai/Models/FRCN_Grocery/Fast-RCNN_grocery100.model",
     "format": "CNTK v1.15",
     "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
   },
@@ -940,11 +893,6 @@
     "source": "https://www.cntk.ai/Models/Caffe_Converted/AlexNet_ImageNet_Caffe.model",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/download_model.py"
-  },
-  {
-    "type":   "cntk",
-    "target": "v2/AlexNet_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/AlexNet_ImageNet_CNTK.model"
   },
   {
     "type":   "cntk",
@@ -1023,11 +971,6 @@
   },
   {
     "type":   "cntk",
-    "target": "v2/ResNet50_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet50_ImageNet_CNTK.model"
-  },
-  {
-    "type":   "cntk",
     "target": "v2/ResNet110_CIFAR10_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
     "format": "CNTK v2",
@@ -1035,21 +978,8 @@
   },
   {
     "type":   "cntk",
-    "target": "v2/ResNet101_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet101_ImageNet_CNTK.model",
-    "format": "CNTK v2"
-  },
-  {
-    "type":   "cntk",
     "target": "v2/ResNet101_ImageNet_Caffe.model",
     "source": "https://www.cntk.ai/Models/Caffe_Converted/ResNet101_ImageNet_Caffe.model",
-    "format": "CNTK v2",
-    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
-  },
-  {
-    "type":   "cntk",
-    "target": "v2/ResNet152_ImageNet_Caffe.model",
-    "source": "https://www.cntk.ai/Models/Caffe_Converted/ResNet152_ImageNet_Caffe.model",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
   },
@@ -1104,11 +1034,6 @@
     "type":   "cntk",
     "target": "v2/VGG16_ImageNet_Caffe.model",
     "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG16_ImageNet_Caffe.model"
-  },
-  {
-    "type":   "cntk",
-    "target": "v2/VGG19_ImageNet_Caffe.model",
-    "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG19_ImageNet_Caffe.model"
   },
   {
     "type":   "cntk",
@@ -1857,13 +1782,6 @@
     "source": "https://github.com/lutzroeder/netron/files/4006371/yolo_v3_tiny_pan3_aa_ae_mixup_scale_giou.cfg.zip[yolo_v3_tiny_pan3_aa_ae_mixup_scale_giou.cfg]",
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/277"
-  },
-  {
-    "type":   "darknet",
-    "target": "yolov3-openimages.cfg,yolov3-openimages.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-openimages.cfg,https://pjreddie.com/media/files/yolov3-openimages.weights",
-    "format": "Darknet",
-    "link":   "https://pjreddie.com/darknet/yolo"
   },
   {
     "type":   "darknet",
@@ -2749,11 +2667,6 @@
     "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/vgg16.mar"
   },
   {
-    "type":   "mxnet",
-    "target": "vgg16_bn.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-vgg16_bn/vgg16_bn.model"
-  },
-  {
     "type":   "ncnn",
     "target": "centerface.param,centerface.bin",
     "source": "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
@@ -2905,12 +2818,6 @@
     "type":   "onnx",
     "target": "bvlc_alexnet_opset_3.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_alexnet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
     "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
   },
   {
@@ -3285,18 +3192,6 @@
     "target": "vgg19.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
     "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "vgg19-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg19-bn/vgg19-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
-  },
-  {
-    "type":   "onnx",
-    "target": "zfnet512_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/zfnet512.tar.gz[zfnet512/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/zfnet-512"
   },
   {
     "type":   "onnx",
@@ -4802,14 +4697,6 @@
   },
   {
     "type":   "tf",
-    "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_saved_model.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/saved_model/saved_model.pb]",
-    "format": "TensorFlow Saved Model v1",
-    "render": "skip",
-    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
-  },
-  {
-    "type":   "tf",
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
@@ -5611,13 +5498,6 @@
   },
   {
     "type":   "torch",
-    "target": "resnext_101_64x4d.t7",
-    "source": "https://dl.fbaipublicfiles.com/resnext/imagenet_models/resnext_101_64x4d.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/facebookresearch/ResNeXt"
-  },
-  {
-    "type":   "torch",
     "target": "resnet_photo_14l_scale2.0x_model.t7",
     "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/resnet_14l/photo/scale2.0x_model.t7",
     "format": "Torch v7",
@@ -5671,12 +5551,5 @@
     "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/vgg.t7",
     "format": "Torch v7",
     "link":   "https://github.com/cpra/fer-cnn-sota"
-  },
-  {
-    "type":   "torch",
-    "target": "vgg16.t7",
-    "source": "https://cs.stanford.edu/people/jcjohns/fast-neural-style/models/vgg16.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/jcjohnson/fast-neural-style"
   }
 ]
