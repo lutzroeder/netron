@@ -295,9 +295,9 @@ onnx.Graph = class {
             }
 
             const args = new Map();
-            const arg = (id, type, doc_string, initializer, imageFormat) => {
+            const arg = (id, type, description, initializer, imageFormat) => {
                 if (!args.has(id)) {
-                    args.set(id, new onnx.Argument(id, type ? onnx.Tensor._formatType(type, imageFormat) : null, doc_string, initializer));
+                    args.set(id, new onnx.Argument(id, initializer ? initializer.type : type ? onnx.Tensor._formatType(type, imageFormat) : null, initializer, description));
                 }
                 return args.get(id);
             };
@@ -419,14 +419,14 @@ onnx.Parameter = class {
 
 onnx.Argument = class {
 
-    constructor(name, type, description, initializer) {
+    constructor(name, type, initializer, description) {
         if (typeof name !== 'string') {
             throw new onnx.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
-        this._description = description || '';
         this._initializer = initializer || null;
+        this._description = description || '';
     }
 
     get name() {
@@ -434,13 +434,7 @@ onnx.Argument = class {
     }
 
     get type() {
-        if (this._type) {
-            return this._type;
-        }
-        if (this._initializer) {
-            return this._initializer.type;
-        }
-        return null;
+        return this._type;
     }
 
     get description() {
