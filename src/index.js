@@ -8,26 +8,24 @@ var host = {};
 host.BrowserHost = class {
 
     constructor() {
-        if (!window.ga) {
-            window.GoogleAnalyticsObject = 'ga';
-            window.ga = window.ga || function() {
-                window.ga.q = window.ga.q || [];
-                window.ga.q.push(arguments);
-            };
-            window.ga.l = 1 * new Date();
-        }
-        window.ga('create', 'UA-54146-13', 'auto');
-
-        window.addEventListener('error', (e) => {
-            this.exception(e.error, true);
-        });
         window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
+        this._document = window.document;
+        this._meta = {};
+        for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
+            if (element.content) {
+                this._meta[element.name] = this._meta[element.name] || [];
+                this._meta[element.name].push(element.content);
+            }
+        }
+        this._type = this._meta.type ? this._meta.type[0] : 'Browser';
+        this._version = this._meta.version ? this._meta.version[0] : null;
+        this._telemetry = this._version && this._version !== '0.0.0';
     }
 
     get document() {
-        return window.document;
+        return this._document;
     }
 
     get version() {
@@ -40,17 +38,72 @@ host.BrowserHost = class {
 
     initialize(view) {
         this._view = view;
+    }
 
-        let meta = {};
-        for (const element of Array.from(document.getElementsByTagName('meta'))) {
-            if (element.content) {
-                meta[element.name] = meta[element.name] || [];
-                meta[element.name].push(element.content);
+    consent() {
+        return new Promise((resolve /*, reject */) => {
+            const accept = () => {
+                if (this._telemetry) {
+                    const script = this.document.createElement('script');
+                    script.setAttribute('type', 'text/javascript');
+                    script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
+                    script.onload = () => {
+                        if (window.ga) {
+                            window.ga.l = 1 * new Date();
+                            window.ga('create', 'UA-54146-13', 'auto');
+                            window.ga('set', 'anonymizeIp', true)
+                        }
+                        resolve();
+                    }
+                    script.onerror = () => {
+                        resolve();
+                    }
+                    this.document.body.appendChild(script);
+                }
+                else {
+                    resolve();
+                }
+            };
+            const request = () => {
+                this._view.show('welcome consent');
+                const acceptButton = this.document.getElementById('consent-accept-button');
+                if (acceptButton) {
+                    acceptButton.addEventListener('click', () => {
+                        this._setCookie('consent', 'yes', 30);
+                        accept();
+                    });
+                }
             }
-        }
+            if (this._getCookie('consent')) {
+                accept();
+            }
+            else {
+                this._request('http://ipinfo.io', 'utf-8', 2000).then((text) => {
+                    try {
+                        const json = JSON.parse(text);
+                        const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                        if (json && json.countryCode && !countries.indexOf(json.countryCode) !== -1) {
+                            this._setConfiguration('consent', Date.now());
+                            accept();
+                        }
+                        else {
+                            request();
+                        }
+                    }
+                    catch (err) {
+                        request();
+                    }
+                }).catch(() => {
+                    request();
+                });
+            }
+        });
+    }
 
-        this._version = meta.version ? meta.version[0] : null;
-        this._type = meta.type ? meta.type[0] : 'Browser';
+    start() {
+        window.addEventListener('error', (e) => {
+            this.exception(e.error, true);
+        });
 
         const params = new URLSearchParams(window.location.search);
 
@@ -123,8 +176,8 @@ host.BrowserHost = class {
 
         this.document.getElementById('version').innerText = this.version;
 
-        if (meta.file) {
-            this._openModel(meta.file[0], null);
+        if (this._meta.file) {
+            this._openModel(this._meta.file[0], null);
             return;
         }
 
@@ -241,31 +294,8 @@ host.BrowserHost = class {
     }
 
     request(base, file, encoding) {
-        return new Promise((resolve, reject) => {
-            const url = base ? (base + '/' + file) : this._url(file);
-            let request = new XMLHttpRequest();
-            if (encoding == null) {
-                request.responseType = 'arraybuffer';
-            }
-            request.onload = () => {
-                if (request.status == 200) {
-                    if (request.responseType == 'arraybuffer') {
-                        resolve(new Uint8Array(request.response));
-                    }
-                    else {
-                        resolve(request.responseText);
-                    }
-                }
-                else {
-                    reject(request.status);
-                }
-            };
-            request.onerror = () => {
-                reject(request.status);
-            };
-            request.open('GET', url, true);
-            request.send();
-        });
+        const url = base ? (base + '/' + file) : this._url(file);
+        return this._request(url, encoding);
     }
 
     openURL(url) {
@@ -273,7 +303,7 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if (window.ga && this.version && this.version !== '0.0.0' && error && error.telemetry !== false) {
+        if (this._telemetry && window.ga) {
             let description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
@@ -295,7 +325,7 @@ host.BrowserHost = class {
     }
 
     screen(name) {
-        if (window.ga && this.version && this.version !== '0.0.0') {
+        if (this._telemetry && window.ga) {
             window.ga('send', 'screenview', {
                 screenName: name,
                 appName: this.type,
@@ -305,7 +335,7 @@ host.BrowserHost = class {
     }
 
     event(category, action, label, value) {
-        if (window.ga && this.version && this.version !== '0.0.0') {
+        if (this._telemetry && window.ga) {
             window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
@@ -315,6 +345,50 @@ host.BrowserHost = class {
                 appVersion: this.version
             });
         }
+    }
+
+    _request(url, encoding, timeout) {
+        return new Promise((resolve, reject) => {
+            const request = new XMLHttpRequest();
+            if (encoding == null) {
+                request.responseType = 'arraybuffer';
+            }
+            if (timeout) {
+                request.timeout = timeout;
+            }
+            const error = (status) => {
+                const err = new Error("The web request failed with status code " + status + " at '" + url + "'.");
+                err.type = 'error';
+                err.url = url;
+                return err;
+            };
+            request.onload = () => {
+                if (request.status == 200) {
+                    if (request.responseType == 'arraybuffer') {
+                        resolve(new Uint8Array(request.response));
+                    }
+                    else {
+                        resolve(request.responseText);
+                    }
+                }
+                else {
+                    reject(error(request.status));
+                }
+            };
+            request.onerror = (e) => {
+                const err = error(request.status);
+                err.type = e.type;
+                reject(err);
+            };
+            request.ontimeout = () => {
+                const err = new Error("The web request timed out in '" + url + "'.");
+                err.type = 'timeout';
+                err.url = url;
+                reject(err);
+            };
+            request.open('GET', url, true);
+            request.send();
+        });
     }
 
     _url(file) {
@@ -335,33 +409,21 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
         this._view.show('welcome spinner');
-        const request = new XMLHttpRequest();
-        request.responseType = 'arraybuffer';
-        request.onload = () => {
-            if (request.status == 200) {
-                const buffer = new Uint8Array(request.response);
-                const context = new BrowserContext(this, url, identifier, buffer);
-                this._view.open(context).then(() => {
-                    this.document.title = identifier || context.identifier;
-                }).catch((error) => {
-                    if (error) {
-                        this.exception(error, false);
-                        this.error(error.name, error.message);
-                        this._view.show('welcome');
-                    }
-                });
-            }
-            else {
-                this.error('Model load request failed.', request.status + " in '" + url + "'.");
-                this._view.show('welcome');
-            }
-        };
-        request.onerror = () => {
-            this.error('Error while requesting model.', request.status + " in '" + url + "'.");
+        this._request(url, null).then((buffer) => {
+            const context = new BrowserContext(this, url, identifier, buffer);
+            this._view.open(context).then(() => {
+                this.document.title = identifier || context.identifier;
+            }).catch((err) => {
+                if (err) {
+                    this.exception(err, false);
+                    this.error(err.name, err.message);
+                    this._view.show('welcome');
+                }
+            });
+        }).catch((err) => {
+            this.error('Model load request failed.', err.message);
             this._view.show('welcome');
-        };
-        request.open('GET', url, true);
-        request.send();
+        });
     }
 
     _open(file, files) {
@@ -383,11 +445,10 @@ host.BrowserHost = class {
     _openGist(gist) {
         this._view.show('welcome spinner');
         const url = 'https://api.github.com/gists/' + gist;
-        let request = new XMLHttpRequest();
-        request.onload = () => {
+        this._request(url, 'utf-8').then((text) => {
             let identifier = null;
             let buffer = null;
-            const json = JSON.parse(request.response);
+            const json = JSON.parse(text);
             if (json.message) {
                 this.error('Error while loading Gist.', json.message);
                 return;
@@ -416,12 +477,22 @@ host.BrowserHost = class {
                     this.error(error.name, error.message);
                 }
             });
-        };
-        request.onerror = () => {
-            this.error('Error while requesting Gist.', request.status);
-        };
-        request.open('GET', url, true);
-        request.send();
+        }).catch((err) => {
+            this.error('Model load request failed.', err.message);
+            this._view.show('welcome');
+        });
+    }
+
+    _setCookie(name, value, days) {
+        const date = new Date();
+        date.setTime(date.getTime() + ((typeof days !== "number" ? 365 : days) * 24 * 60 * 60 * 1000));
+        document.cookie = name + "=" + value + ";path=/;expires=" + date.toUTCString();
+    }
+
+    _getCookie(name) {
+        const cookie = '; ' + document.cookie;
+        const parts = cookie.split('; ' + name + '=');
+        return parts.length < 2 ? undefined : parts.pop().split(';').shift();
     }
 
     _about() {

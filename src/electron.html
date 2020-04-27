@@ -40,10 +40,16 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 .welcome .logo button:hover { color: #ececec; background-color: #aaa; cursor: hand; transition: 0.2s; }
 .welcome .logo button:focus { outline: 0; }
 .welcome .logo .open-file-button { top: 200px; width: 125px; opacity: 1; display: block; }
+.welcome .logo .consent-accept-button { top: 280px; left: 0px; width: 125px; display: none; opacity: 0; }
+.welcome .logo .consent-message { top: 160px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #888; display: none; opacity: 0; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
 .welcome.spinner .open-file-button { opacity: 0; display: none; }
+.welcome.consent .open-file-button { opacity: 0; display: none; }
+.welcome.consent .download-button { opacity: 0; display: none; }
+.welcome.consent .consent-accept-button { opacity: 1; display: block; }
+.welcome.consent .consent-message { opacity: 1; display: block; }
 .welcome.spinner .graph { display: block; opacity: 0; }
 .welcome .toolbar { display: none; }
 @-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
@@ -73,7 +79,7 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 }
 </style>
 </head>
-<body class="welcome">
+<body class="welcome consent">
 <div class="center logo">
     <svg class="center logo-icon" viewbox="0 0 1024 1024">
         <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
@@ -125,6 +131,8 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
             <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
         </g>
     </svg>
+    <span class="center consent-message">This app uses cookies to report errors and anonymous usage information.</span>
+    <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
     <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>

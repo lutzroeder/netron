@@ -94,7 +94,6 @@ class Application {
         if (!this._configuration.has('userId')) {
             this._configuration.set('userId', require('uuid').v4());
         }
-        global.userId = this._configuration.get('userId');
         if (this._openFileQueue) {
             let openFileQueue = this._openFileQueue;
             this._openFileQueue = null;
@@ -217,6 +216,13 @@ class Application {
         }
     }
 
+    service(name) {
+        if (name == 'configuration') {
+            return this._configuration;
+        }
+        return undefined;
+    }
+
     execute(command, data) {
         const view = this._views.activeView;
         if (view) {
@@ -302,7 +308,7 @@ class Application {
             let content = fs.readFileSync(path.join(__dirname, 'index.html'), 'utf-8');
             content = content.replace('{version}', this.package.version);
             content = content.replace('<title>Netron</title>', '');
-            content = content.replace('<body class="welcome">', '<body class="about desktop">');
+            content = content.replace('<body class="welcome spinner">', '<body class="about desktop">');
             content = content.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '');
             content = content.replace(/<link.*>/gi, '');
             dialog.once('ready-to-show', () => {
@@ -854,7 +860,7 @@ class ConfigurationService {
 
     save() {
         if (this._data) {
-            const data = JSON.stringify(this._data);
+            const data = JSON.stringify(this._data, null, 2);
             if (data) {
                 const dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {

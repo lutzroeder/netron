@@ -19,59 +19,65 @@ view.View = class {
 
     constructor(host) {
         this._host = host;
-        this._model = null;
-        this._selection = [];
-        this._sidebar = new sidebar.Sidebar(this._host);
         this._host.initialize(this);
-        this._showAttributes = false;
-        this._showInitializers = true;
-        this._showNames = false;
-        this._searchText = '';
-        this._modelFactoryService = new view.ModelFactoryService(this._host);
-        this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
-            this.zoomIn();
-        });
-        this._host.document.getElementById('zoom-out-button').addEventListener('click', () => {
-            this.zoomOut();
-        });
-        this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
-            this._preventZoom(e);
-        });
-        this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
-            this._preventZoom(e);
-        });
-        this._host.document.addEventListener('keydown', () => {
-            this.clearSelection();
-        });
-        if (this._host.environment('zoom') == 'scroll') {
-            this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
-                this._mouseWheelHandler(e);
+        this._host.consent().then(() => {
+            this._model = null;
+            this._selection = [];
+            this._sidebar = new sidebar.Sidebar(this._host);
+            this._host.start();
+            this._showAttributes = false;
+            this._showInitializers = true;
+            this._showNames = false;
+            this._searchText = '';
+            this._modelFactoryService = new view.ModelFactoryService(this._host);
+            this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
+                this.zoomIn();
             });
-            this._host.document.getElementById('graph').addEventListener('scroll', (e) => {
-                this._scrollHandler(e);
+            this._host.document.getElementById('zoom-out-button').addEventListener('click', () => {
+                this.zoomOut();
             });
-            this._host.document.getElementById('graph').addEventListener('gesturestart', (e) => {
-                e.preventDefault();
-                this._gestureStartZoom = this._zoom;
-            }, false);
-            this._host.document.getElementById('graph').addEventListener('gesturechange', (e) => {
-                e.preventDefault();
-                this._updateZoom(this._gestureStartZoom * e.scale, e);
-            }, false);
-            this._host.document.getElementById('graph').addEventListener('gestureend', (e) => {
-                e.preventDefault();
-                this._updateZoom(this._gestureStartZoom * e.scale, e);
-            }, false);
-        }
+            this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
+                this._preventZoom(e);
+            });
+            this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
+                this._preventZoom(e);
+            });
+            this._host.document.addEventListener('keydown', () => {
+                this.clearSelection();
+            });
+            if (this._host.environment('zoom') == 'scroll') {
+                this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
+                    this._mouseWheelHandler(e);
+                });
+                this._host.document.getElementById('graph').addEventListener('scroll', (e) => {
+                    this._scrollHandler(e);
+                });
+                this._host.document.getElementById('graph').addEventListener('gesturestart', (e) => {
+                    e.preventDefault();
+                    this._gestureStartZoom = this._zoom;
+                }, false);
+                this._host.document.getElementById('graph').addEventListener('gesturechange', (e) => {
+                    e.preventDefault();
+                    this._updateZoom(this._gestureStartZoom * e.scale, e);
+                }, false);
+                this._host.document.getElementById('graph').addEventListener('gestureend', (e) => {
+                    e.preventDefault();
+                    this._updateZoom(this._gestureStartZoom * e.scale, e);
+                }, false);
+            }
+        }).catch((err) => {
+            this.error(err.message, err);
+        });
     }
     
     show(page) {
-
         if (!page) {
             page = (!this._model && !this._activeGraph) ? 'welcome' : 'default';
         }
         this._host.screen(page);
-        this._sidebar.close();
+        if (this._sidebar) {
+            this._sidebar.close();
+        }
         this._host.document.body.setAttribute('class', page);
     }
 
@@ -274,7 +280,9 @@ view.View = class {
     }
 
     error(message, err) {
-        this._sidebar.close();
+        if (this._sidebar) {
+            this._sidebar.close();
+        }
         this._host.exception(err, false);
         this._host.error(message, err.toString());
         this.show('welcome');

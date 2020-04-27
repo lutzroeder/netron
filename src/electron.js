@@ -5,6 +5,8 @@ var host = host || {};
 
 const electron = require('electron');
 const fs = require('fs');
+const http = require('http');
+const https = require('https');
 const process = require('process');
 const path = require('path');
 const view = require('./view');
@@ -14,20 +16,13 @@ global.protobuf = require('protobufjs');
 host.ElectronHost = class {
 
     constructor() {
-        if (electron.remote.app.isPackaged) {
-            this._telemetry = require('universal-analytics')('UA-54146-13', electron.remote.getGlobal('global').userId);
-        }
-
-        this._version = electron.remote.app.getVersion();
-
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
         });
         window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
-
-        this.document.body.style.opacity = 1;
+        this._version = electron.remote.app.getVersion();
     }
 
     get document() {
@@ -44,6 +39,55 @@ host.ElectronHost = class {
 
     initialize(view) {
         this._view = view;
+    }
+
+    consent() {
+        return new Promise((resolve /*, reject */) => {
+            const accept = () => {
+                if (electron.remote.app.isPackaged) {
+                    this._telemetry = require('universal-analytics')('UA-54146-13', this._getConfiguration('userId'));
+                    this._telemetry.set('anonymizeIp', 1);
+                }
+                resolve();
+            };
+            const request = () => {
+                this._view.show('welcome consent');
+                const acceptButton = this.document.getElementById('consent-accept-button');
+                if (acceptButton) {
+                    acceptButton.addEventListener('click', () => {
+                        this._setConfiguration('consent', Date.now());
+                        accept();
+                    });
+                }
+            }
+            const time = this._getConfiguration('consent');
+            if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
+                accept();
+            }
+            else {
+                this._request('https://ipinfo.io', 'utf-8', 2000).then((text) => {
+                    try {
+                        const json = JSON.parse(text);
+                        const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
+                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
+                            this._setConfiguration('consent', Date.now());
+                            accept();
+                        }
+                        else {
+                            request();
+                        }
+                    }
+                    catch (err) {
+                        request();
+                    }
+                }).catch(() => {
+                    request();
+                });
+            }
+        });
+    }
+
+    start() {
         this._view.show('welcome');
 
         electron.ipcRenderer.on('open', (_, data) => {
@@ -339,6 +383,56 @@ host.ElectronHost = class {
                 }
             });
         });
+    }
+
+    _request(url, encoding, timeout) {
+        return new Promise((resolve, reject) => {
+            const httpModule = url.split(':').shift() === 'https' ? https : http;
+            const request = httpModule.get(url, (response) => {
+                if (response.statusCode !== 200) {
+                    const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
+                    err.type = 'error';
+                    err.url = url;
+                    err.status = response.statusCode;
+                    reject(err);
+                }
+                else {
+                    let data = '';
+                    response.on('data', (chunk) => {
+                        data += chunk;
+                    });
+                    response.on('err', (err) => {
+                        reject(err);
+                    });
+                    response.on('end', () => {
+                        resolve(data);
+                    });
+                }
+            }).on("error", (err) => {
+                reject(err);
+            });
+            if (timeout) {
+                request.setTimeout(timeout, () => {
+                    request.abort();
+                    const err = new Error("The web request timed out at '" + url + "'.");
+                    err.type = 'timeout';
+                    err.url = url;
+                    reject(err);
+                });
+            }
+        });
+    }
+
+    _getConfiguration(name) {
+        const configuration = electron.remote.getGlobal('global').application.service('configuration');
+        return configuration && configuration.has(name) ? configuration.get(name) : undefined;
+    }
+
+    _setConfiguration(name, value) {
+        const configuration = electron.remote.getGlobal('global').application.service('configuration');
+        if (configuration) {
+            configuration.set(name, value)
+        }
     }
 
     _update(name, value) {
