@@ -179,13 +179,13 @@ tengine.Node = class {
             this._attributes.push(new tengine.Attribute(attributeSchema, attributeName, node.params[i])); 
         }
 
-        let inputs = node.inputs; 
+        const inputs = node.inputs; 
         let inputIndex = 0;
         if (schema && schema.inputs) { 
             for (const inputDef of schema.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                    let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    let inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
+                    const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
                     this._inputs.push(new tengine.Parameter(inputDef.name, true, inputArguments));
                     inputIndex += inputCount;
                 }
@@ -193,18 +193,18 @@ tengine.Node = class {
         }
         else {
             this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((id, index) => { 
-                let inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString(); 
+                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString(); 
                 return new tengine.Parameter(inputName, true, [ tensors[id] ]);
             }));
         }
 
-        let outputs = node.outputs;
+        const outputs = node.outputs;
         let outputIndex = 0;
         if (schema && schema.outputs) {
             for (const outputDef of schema.outputs) { 
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                    let outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
-                    let outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
+                    const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
                     this._outputs.push(new tengine.Parameter(outputDef.name, true, outputArguments));
                     outputIndex += outputCount;
                 }
@@ -212,7 +212,7 @@ tengine.Node = class {
         }
         else {
             this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((id, index) => {
-                let outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+                const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new tengine.Parameter(outputName, true, [ tensors[id] ]);
             }));
         }
@@ -303,7 +303,7 @@ tengine.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -312,17 +312,17 @@ tengine.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -361,12 +361,9 @@ tengine.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let shape = context.shape;
-        if (context.shape.length == 0) {
-            shape = [ 1 ];
-        }
-        let results = [];
-        let size = shape[dimension];
+        const shape = context.shape.length == 0 ? [ 1 ] : context.shape;
+        const results = [];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -486,7 +483,7 @@ tengine.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
@@ -526,7 +523,7 @@ tengine.ModelFileReader = class {
         // ./third_party/src/tengine/serializer/include/tengine/v2/tm2_format.h
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
 
-        let operators = new Map();
+        const operators = new Map();
         const register = (index, version, name, params) => {
             operators.set(index.toString() + ':' + version.toString(), { name: name, params: params });
         };
@@ -637,7 +634,7 @@ tengine.ModelFileReader = class {
         for (const subgraphOffset of subgraphOffsets) {
             reader.seek(subgraphOffset);
 
-            let subgraph = {};
+            const subgraph = {};
             subgraph.id = reader.int32();
             subgraph.graphLayout = reader.int32();
             /* 
@@ -662,7 +659,7 @@ tengine.ModelFileReader = class {
             // nodes
             for (const nodeOffset of nodeOffsets) {
                 reader.seek(nodeOffset);
-                let node = {};
+                const node = {};
                 node.id = reader.int32();
                 node.inputs = reader.uint32s();
                 node.outputs = reader.uint32s();
@@ -710,9 +707,6 @@ tengine.ModelFileReader = class {
                             case 'anchors':
                                 node.params.push(reader.anchors(4));
                                 break;
-                            case 'offset_re_shape':
-                                node.params.push(reader.int32());
-                                break;
                             default:
                                 throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
                         }
@@ -738,7 +732,7 @@ tengine.ModelFileReader = class {
             }
 
             // buffers
-            let buffers = [];
+            const buffers = [];
             for (const buffersOffset of bufferOffsets) {
                 reader.seek(buffersOffset);
                 const size = reader.uint32();
@@ -749,14 +743,14 @@ tengine.ModelFileReader = class {
             // tensors
             for (const tensorOffset of tensorOffsets) {
                 reader.seek(tensorOffset);
-                let tensor = {};
+                const tensor = {};
                 tensor.id = reader.int32();
                 tensor.buffer = buffers[reader.int32()];
                 tensor.dims = reader.int32s();
                 tensor.name = reader.string(); 
                 const quantparamsOffset = reader.int32(); 
                 tensor.layout = reader.int32();
-                tensor.type = reader.int32(); // const = 2, input = 3, var = 1, dep, unknown
+                tensor.type = reader.int32(); // ar = 1, const = 2, input = 3, vdep, unknown
                 tensor.dataType = reader.int32();
                 if (quantparamsOffset) {
                     reader.seek(quantparamsOffset);
@@ -866,7 +860,7 @@ tengine.BinaryReader = class {
     }
 
     uint32s() {
-        let values = [];
+        const values = [];
         const offset = this.uint32();
         if (offset) {
             const next = this._position;
@@ -887,7 +881,7 @@ tengine.BinaryReader = class {
     }
 
     int32s() {
-        let values = [];
+        const values = [];
         const offset = this.uint32();
         if (offset) {
             const next = this._position;
@@ -908,7 +902,7 @@ tengine.BinaryReader = class {
     }
 
     float32s() {
-        let values = [];
+        const values = [];
         const offset = this.uint32();
         if (offset) {
             const next = this._position;
@@ -923,14 +917,14 @@ tengine.BinaryReader = class {
     }
 
     anchors(length) {
-        let arrays = [];
+        const arrays = [];
         const offset = this.uint32();
         if (offset) {
             const next = this._position;
             this.seek(offset);
             const count = this.uint32();
             for (let i = 0; i < count; i++) {
-                let array = [];
+                const array = [];
                 for (let j = 0; j < length; j++) {
                     array.push(this.float32());
                 }
