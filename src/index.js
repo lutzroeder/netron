@@ -38,9 +38,6 @@ host.BrowserHost = class {
 
     initialize(view) {
         this._view = view;
-    }
-
-    consent() {
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (this._telemetry) {
@@ -78,12 +75,12 @@ host.BrowserHost = class {
                 accept();
             }
             else {
-                this._request('http://ipinfo.io', 'utf-8', 2000).then((text) => {
+                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
                     try {
                         const json = JSON.parse(text);
                         const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                        if (json && json.countryCode && !countries.indexOf(json.countryCode) !== -1) {
-                            this._setConfiguration('consent', Date.now());
+                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
+                            this._setCookie('consent', Date.now(), 30);
                             accept();
                         }
                         else {
@@ -295,7 +292,7 @@ host.BrowserHost = class {
 
     request(base, file, encoding) {
         const url = base ? (base + '/' + file) : this._url(file);
-        return this._request(url, encoding);
+        return this._request(url, null, encoding);
     }
 
     openURL(url) {
@@ -347,10 +344,10 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, encoding, timeout) {
+    _request(url, headers, encoding, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
-            if (encoding == null) {
+            if (!encoding) {
                 request.responseType = 'arraybuffer';
             }
             if (timeout) {
@@ -381,12 +378,18 @@ host.BrowserHost = class {
                 reject(err);
             };
             request.ontimeout = () => {
+                request.abort();
                 const err = new Error("The web request timed out in '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
             };
             request.open('GET', url, true);
+            if (headers) {
+                for (const name of Object.keys(headers)) {
+                    request.setRequestHeader(name, headers[name]);
+                }
+            }
             request.send();
         });
     }
@@ -409,7 +412,7 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
         this._view.show('welcome spinner');
-        this._request(url, null).then((buffer) => {
+        this._request(url).then((buffer) => {
             const context = new BrowserContext(this, url, identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier || context.identifier;

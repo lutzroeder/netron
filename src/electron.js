@@ -39,9 +39,6 @@ host.ElectronHost = class {
 
     initialize(view) {
         this._view = view;
-    }
-
-    consent() {
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (electron.remote.app.isPackaged) {
@@ -65,7 +62,7 @@ host.ElectronHost = class {
                 accept();
             }
             else {
-                this._request('https://ipinfo.io', 'utf-8', 2000).then((text) => {
+                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
                     try {
                         const json = JSON.parse(text);
                         const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
@@ -385,10 +382,13 @@ host.ElectronHost = class {
         });
     }
 
-    _request(url, encoding, timeout) {
+    _request(url, headers, encoding, timeout) {
         return new Promise((resolve, reject) => {
             const httpModule = url.split(':').shift() === 'https' ? https : http;
-            const request = httpModule.get(url, (response) => {
+            const options = {
+                headers: headers
+            };
+            const request = httpModule.get(url, options, (response) => {
                 if (response.statusCode !== 200) {
                     const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
                     err.type = 'error';

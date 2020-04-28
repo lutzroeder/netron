@@ -71,7 +71,6 @@ flux.ModelFactory = class {
 flux.Model = class {
 
     constructor(/* root */) {
-        // debugger;
         this._format = 'Flux';
         this._graphs = [];
     }

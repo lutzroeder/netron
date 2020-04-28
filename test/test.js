@@ -68,6 +68,10 @@ class TestHost {
     }
 
     initialize(/* view */) {
+        return Promise.resolve();
+    }
+
+    start() {
     }
 
     environment(name) {

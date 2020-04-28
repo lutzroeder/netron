@@ -19,8 +19,7 @@ view.View = class {
 
     constructor(host) {
         this._host = host;
-        this._host.initialize(this);
-        this._host.consent().then(() => {
+        this._host.initialize(this).then(() => {
             this._model = null;
             this._selection = [];
             this._sidebar = new sidebar.Sidebar(this._host);
