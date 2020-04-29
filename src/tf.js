@@ -13,88 +13,78 @@ tf.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'meta': {
-                const tags = context.tags('pb');
-                if (tags.size !== 0) {
-                    return true;
-                }
-                return false;
-            }
-            case 'pb': {
-                if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                    return false;
-                }
-                if (identifier == 'tfhub_module.pb') {
-                    const buffer = context.buffer;
-                    if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
-                        return false;
-                    }
-                }
-                const tags = context.tags('pb');
-                if (tags.size === 0) {
-                    const tags = context.tags('pbtxt');
-                    if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
-                        return false;
-                    }
-                    if (tags.has('input_stream') || tags.has('output_stream')) {
-                        return false;
-                    }
-                }
-                else {
-                    // ignore input_0.pb, output_0.pb
-                    if (tags.has(1) && tags.get(1) === 0 && 
-                        tags.has(2) && tags.get(2) === 0 && 
-                        tags.has(9) && tags.get(9) === 2) {
-                        return false;
-                    }
-                    if (Array.from(tags.values()).some((v) => v === 5)) {
-                        return false;
-                    }
-                }
+        if (extension === 'meta') {
+            const tags = context.tags('pb');
+            if (tags.size !== 0) {
                 return true;
             }
-            case 'pbtxt':
-            case 'prototxt': {
-                if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-                    identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+        }
+        if (extension === 'pbtxt' || extension === 'prototxt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+                return false;
+            }
+            const tags = context.tags('pbtxt');
+            if (tags.has('input_stream') || tags.has('output_stream')) {
+                return false;
+            }
+            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                return true;
+            }
+        }
+        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return false;
+            }
+            if (identifier == 'tfhub_module.pb') {
+                const buffer = context.buffer;
+                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
                     return false;
                 }
+            }
+            const tags = context.tags('pb');
+            if (tags.size === 0) {
                 const tags = context.tags('pbtxt');
                 if (tags.has('input_stream') || tags.has('output_stream')) {
                     return false;
                 }
-                if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
+                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                    return true;
+                }
+            }
+            else {
+                // ignore input_0.pb, output_0.pb
+                if (tags.has(1) && tags.get(1) === 0 && 
+                    tags.has(2) && tags.get(2) === 0 && 
+                    tags.has(9) && tags.get(9) === 2) {
                     return false;
                 }
-                return true;
-            }
-            case 'json': {
-                try {
-                    const root = JSON.parse(context.text);
-                    if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
-                        return true;
-                    }
+                if (!Array.from(tags.values()).some((v) => v === 5)) {
+                    return true;
                 }
-                catch (err) {
-                    // continue regardless of error
-                }
-                return false;
             }
-            case 'index':
-            case 'ckpt': {
-                if (context.buffer.length > 8) {
-                    const buffer = context.buffer.subarray(context.buffer.length - 8, context.buffer.length);
-                    const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-                    if (buffer.every((value, index) => value === signature[index])) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-            
         }
-        return false;
+        if (extension === 'json') {
+            try {
+                const root = JSON.parse(context.text);
+                if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
+                    return true;
+                }
+            }
+            catch (err) {
+                // continue regardless of error
+            }
+        }
+        if (extension === 'index' || extension === 'ckpt') {
+            if (context.buffer.length > 8) {
+                const buffer = context.buffer.subarray(context.buffer.length - 8, context.buffer.length);
+                const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+                if (buffer.every((value, index) => value === signature[index])) {
+                    return true;
+                }
+            }
+        }
+        return true;
     }
 
     open(context, host) { 

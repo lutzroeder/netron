@@ -4697,6 +4697,13 @@
   },
   {
     "type":   "tf",
+    "target": "mnist_model.pbtxt",
+    "source": "https://raw.githubusercontent.com/ShauralP/MobileML/master/SimpleMNIST/mnist_model.pbtxt",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/ShauralP/MobileML"
+  },
+  {
+    "type":   "tf",
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
