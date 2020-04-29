@@ -1024,6 +1024,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.activation.ReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ReLU6', function() {});
         this._registerConstructor('torch.nn.modules.activation.PReLU', function() {});
+        this._registerConstructor('torch.nn.modules.activation.RReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.SELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.Sigmoid', function() {});
         this._registerConstructor('torch.nn.modules.activation.Softmax', function() {});
