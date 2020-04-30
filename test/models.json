@@ -3994,13 +3994,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "model_chall_train_152ft_384x288.pth.tar",
-    "source": "https://www.dropbox.com/s/hfz5nkd39uisvbr/model_chall_train_152ft_384x288.pth.tar?dl=1",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://github.com/JimmySuen/integral-human-pose"
-  },
-  {
-    "type":   "pytorch",
     "target": "netron_issue_313_v1.pt",
     "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format": "TorchScript v1.0",
@@ -4376,6 +4369,12 @@
   },
   {
     "type":   "pytorch",
+    "target": "vgg11_bn.pt",
+    "script": "./tools/pytorch sync install zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
     "target": "vgg11_bn.pkl.pth",
     "script": "./tools/pytorch sync install zoo",
     "format": "PyTorch v0.1.10",
@@ -4389,26 +4388,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "vgg16.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg16.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg16.pt",
-    "script": "./tools/pytorch sync install zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg16_traced.pt",
+    "target": "vgg11_bn_traced.pt",
     "script": "./tools/pytorch sync install zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4720,13 +4700,6 @@
   },
   {
     "type":   "tf",
-    "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08_frozen_inference.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/frozen_inference_graph.pb]",
-    "render": "skip",
-    "format": "TensorFlow Graph"
-  },
-  {
-    "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/model.ckpt.meta]",
     "render": "skip",
@@ -4814,20 +4787,6 @@
     "type":   "tf",
     "target": "inception_resnet_v2.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.pb]"
-  },
-  {
-    "type":   "tf",
-    "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28_saved_model.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/saved_model/saved_model.pb]",
-    "format": "TensorFlow Saved Model v1",
-    "render": "skip"
-  },
-  {
-    "type":   "tf",
-    "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28_frozen_inference.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/frozen_inference_graph.pb]",
-    "format": "TensorFlow Graph",
-    "render": "skip"
   },
   {
     "type":   "tf",
@@ -5083,13 +5042,6 @@
     "source": "https://github.com/tensorflow/tensorflow/files/917065/sample.zip[sample/load/saved_model.pbtxt]",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/tensorflow/tensorflow/issues/9169"
-  },
-  {
-    "type":   "tf",
-    "target": "vgg_16.pb",
-    "source": "https://deepdetect.com/models/tf/vgg_16/vgg_16.pb",
-    "format": "TensorFlow Graph",
-    "link":   "https://deepdetect.com/models/tf"
   },
   {
     "type":   "tf",
