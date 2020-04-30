@@ -877,21 +877,23 @@ openvino.Tensor = class {
 openvino.TensorType = class {
 
     constructor(precision, shape) {
-        switch (precision) {
-            case 'FP16': this._dataType = 'float16'; break;
-            case 'FP32': this._dataType = 'float32'; break;
-            case 'I8':   this._dataType = 'int8'; break;
-            case 'I16':  this._dataType = 'int16'; break;
-            case 'I32':  this._dataType = 'int32'; break;
-            case 'I64':  this._dataType = 'int64'; break;
-            case 'U1':   this._dataType = 'boolean'; break;
-            case 'U8':   this._dataType = 'uint8'; break;
-            case 'U16':  this._dataType = 'uint16'; break;
-            case 'U32':  this._dataType = 'uint32'; break;
-            case 'U64':  this._dataType = 'uint64'; break;
-            case 'BOOL': this._dataType = 'boolean'; break;
-            case null:  this._dataType = '?'; break;
-            case '':  this._dataType = '?'; break;
+        switch (precision.toLowerCase()) {
+            case 'f16':  this._dataType = 'float16'; break;
+            case 'fp16': this._dataType = 'float16'; break;
+            case 'f32':  this._dataType = 'float32'; break;
+            case 'fp32': this._dataType = 'float32'; break;
+            case 'i8':   this._dataType = 'int8'; break;
+            case 'i16':  this._dataType = 'int16'; break;
+            case 'i32':  this._dataType = 'int32'; break;
+            case 'i64':  this._dataType = 'int64'; break;
+            case 'u1':   this._dataType = 'boolean'; break;
+            case 'u8':   this._dataType = 'uint8'; break;
+            case 'u16':  this._dataType = 'uint16'; break;
+            case 'u32':  this._dataType = 'uint32'; break;
+            case 'u64':  this._dataType = 'uint64'; break;
+            case 'bool': this._dataType = 'boolean'; break;
+            case null:   this._dataType = '?'; break;
+            case '':     this._dataType = '?'; break;
             default: throw new openvino.Error("Unknown precision '" + precision + "'.");
         }
         this._shape = shape;
