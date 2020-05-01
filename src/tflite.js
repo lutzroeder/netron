@@ -81,9 +81,11 @@ tflite.Model = class {
         for (let i = 0; i < model.metadataLength(); i++) {
             const metadata = model.metadata(i);
             switch (metadata.name()) {
-                case 'min_runtime_version':
-                    this._runtime = new TextDecoder().decode(model.buffers(metadata.buffer()).dataArray() || []);
+                case 'min_runtime_version': {
+                    const data = model.buffers(metadata.buffer()).dataArray();
+                    this._runtime = data ? new TextDecoder().decode(data) : undefined;
                     break;
+                }
             }
         }
     }
