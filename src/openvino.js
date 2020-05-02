@@ -347,7 +347,7 @@ openvino.Graph = class {
                     }
                     const shape = data['shape'] ? data['shape'].split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
                     layer.data = [];
-                    layer.blobs.push({ name: 'custom', precision: precision, offset: data['offset'], size: data['size'], shape: shape });
+                    layer.blobs.push({ name: 'custom', precision: precision, offset: parseInt(data['offset'], 10), size: parseInt(data['size'], 10), shape: shape });
                 }
             }
             if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
