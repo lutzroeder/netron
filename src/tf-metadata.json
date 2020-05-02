@@ -519,7 +519,7 @@
           "type": "type"
         }
       ],
-      "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A delta is then applied all the hue values,\nand then remapped back to RGB colorspace.",
+      "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpreted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A delta is then applied all the hue values,\nand then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
@@ -556,7 +556,7 @@
           "type": "type"
         }
       ],
-      "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpretted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A scale is then applied all the saturation\nvalues, and then remapped back to RGB colorspace.",
+      "description": "`images` is a tensor of at least 3 dimensions.  The last dimension is\ninterpreted as channels, and must be three.\n\nThe input image is considered in the RGB colorspace. Conceptually, the RGB\ncolors are first mapped into HSV. A scale is then applied all the saturation\nvalues, and then remapped back to RGB colorspace.",
       "inputs": [
         {
           "description": "Images to adjust.  At least 3-D.",
@@ -5499,7 +5499,7 @@
           "type": 1
         },
         {
-          "description": "mininum avg of hessians in a node before required for the node to be considered for splitting.",
+          "description": "minimum avg of hessians in a node before required for the node to be considered for splitting.",
           "name": "min_node_weight",
           "type": 1
         }
@@ -9185,35 +9185,6 @@
     }
   },
   {
-    "name": "CreateJob",
-    "schema": {
-      "inputs": [
-        {
-          "name": "dataset_id",
-          "type": 9
-        },
-        {
-          "name": "address",
-          "type": 7
-        },
-        {
-          "name": "protocol",
-          "type": 7
-        },
-        {
-          "name": "processing_mode",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "name": "job_token",
-          "type": 21
-        }
-      ]
-    }
-  },
-  {
     "name": "CreateSummaryDbWriter",
     "schema": {
       "inputs": [
@@ -9532,7 +9503,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is false.",
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicate whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inference or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is false.",
       "inputs": [
         {
           "name": "input",
@@ -10400,7 +10371,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Produces one extra output \"host_reserved\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.\nhost_reserved: An opaque tensor that can be used in backprop calculation. It is\n  only produced if is_training is true. It is output on host memory rather than\n  device memory.",
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Produces one extra output \"host_reserved\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: A 3-D tensor with the shape of [seq_length, batch_size, input_size].\ninput_h: A 3-D tensor with the shape of [num_layer * dir, batch_size,\n    num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\noutput: A 3-D tensor with the shape of [seq_length, batch_size,\n    dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inference or\n  training.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.\nhost_reserved: An opaque tensor that can be used in backprop calculation. It is\n  only produced if is_training is true. It is output on host memory rather than\n  device memory.",
       "inputs": [
         {
           "name": "input",
@@ -10502,7 +10473,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inferenece or\n  training.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
+      "description": "Computes the RNN from the input and initial states, with respect to the params\nbuffer. Accepts one extra input \"sequence_lengths\" than CudnnRNN.\n\nrnn_mode: Indicates the type of the RNN model.\ninput_mode: Indicates whether there is a linear projection between the input and\n  the actual computation before the first layer. 'skip_input' is only allowed\n  when input_size == num_units; 'auto_select' implies 'skip_input' when\n  input_size == num_units; otherwise, it implies 'linear_input'.\ndirection: Indicates whether a bidirectional model will be used. Should be\n  \"unidirectional\" or \"bidirectional\".\ndropout: Dropout probability. When set to 0., dropout is disabled.\nseed: The 1st part of a seed to initialize dropout.\nseed2: The 2nd part of a seed to initialize dropout.\ninput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, input_size]. If time_major is false, the shape is\n    [batch_size, seq_length, input_size].\ninput_h: If time_major is true, this is a 3-D tensor with the shape of\n    [num_layer * dir, batch_size, num_units]. If time_major is false, the shape\n    is [batch_size, num_layer * dir, num_units].\ninput_c: For LSTM, a 3-D tensor with the shape of\n    [num_layer * dir, batch, num_units]. For other models, it is ignored.\nparams: A 1-D tensor that contains the weights and biases in an opaque layout.\n    The size must be created through CudnnRNNParamsSize, and initialized\n    separately. Note that they might not be compatible across different\n    generations. So it is a good idea to save and restore\nsequence_lengths: a vector of lengths of each input sequence.\noutput: If time_major is true, this is a 3-D tensor with the shape of\n    [seq_length, batch_size, dir * num_units]. If time_major is false, the\n    shape is [batch_size, seq_length, dir * num_units].\noutput_h: The same shape has input_h.\noutput_c: The same shape as input_c for LSTM. An empty tensor for other models.\nis_training: Indicates whether this operation is used for inference or\n  training.\ntime_major: Indicates whether the input/output format is time major or batch\n    major.\nreserve_space: An opaque tensor that can be used in backprop calculation. It\n  is only produced if is_training is true.",
       "inputs": [
         {
           "name": "input",
@@ -10819,6 +10790,14 @@
       ],
       "inputs": [
         {
+          "name": "dataset_id",
+          "type": 9
+        },
+        {
+          "name": "processing_mode",
+          "type": 7
+        },
+        {
           "name": "address",
           "type": 7
         },
@@ -10859,6 +10838,23 @@
         }
       ],
       "summary": "Returns the cardinality of `input_dataset`."
+    }
+  },
+  {
+    "name": "DatasetCardinalityV2",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "cardinality",
+          "type": 2
+        }
+      ]
     }
   },
   {
@@ -11996,6 +11992,73 @@
         }
       ],
       "summary": "Delete the tensor specified by its handle in the session."
+    }
+  },
+  {
+    "name": "DenseCountSparseOutput",
+    "schema": {
+      "attributes": [
+        {
+          "description": "dtype; dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": -1,
+          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "minimum": -1,
+          "name": "minlength",
+          "type": "int64"
+        },
+        {
+          "default": -1,
+          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "minimum": -1,
+          "name": "maxlength",
+          "type": "int64"
+        },
+        {
+          "description": "bool; whether to output the number of occurrences of each value or 1.",
+          "name": "binary_count",
+          "type": "boolean"
+        },
+        {
+          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "name": "output_type",
+          "type": "type"
+        }
+      ],
+      "description": "  Counts the number of times each value occurs in the input.",
+      "inputs": [
+        {
+          "description": "int32 or int64; Tensor containing data to count.",
+          "name": "values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "name": "weights",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "name": "output_indices",
+          "type": 9
+        },
+        {
+          "description": "int64 or float32; values tensor for the resulting sparse tensor object.",
+          "name": "output_values",
+          "typeAttr": "output_type"
+        },
+        {
+          "description": "int64; shape tensor for the resulting sparse tensor object.",
+          "name": "output_dense_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Performs sparse-output bin counting for a tf.tensor input."
     }
   },
   {
@@ -18458,7 +18521,7 @@
           "type": "int64"
         }
       ],
-      "description": "      The op selects top `pre_nms_topn` scoring boxes, decodes them with respect to anchors,\n      applies non-maximal suppression on overlapping boxes with higher than\n      `nms_threshold` intersection-over-union (iou) value, discarding boxes where shorter\n      side is less than `min_size`.\n      Inputs:\n      `scores`: A 4D tensor of shape [Batch, Height, Width, Num Anchors] containing the scores per anchor at given postion\n      `bbox_deltas`: is a tensor of shape [Batch, Height, Width, 4 x Num Anchors] boxes encoded to each anchor\n      `anchors`: A 1D tensor of shape [4 x Num Anchors], representing the anchors.\n      Outputs:\n      `rois`: output RoIs, a 3D tensor of shape [Batch, post_nms_topn, 4], padded by 0 if less than post_nms_topn candidates found.\n      `roi_probabilities`: probability scores of each roi in 'rois', a 2D tensor of shape [Batch,post_nms_topn], padded with 0 if needed, sorted by scores.",
+      "description": "      The op selects top `pre_nms_topn` scoring boxes, decodes them with respect to anchors,\n      applies non-maximal suppression on overlapping boxes with higher than\n      `nms_threshold` intersection-over-union (iou) value, discarding boxes where shorter\n      side is less than `min_size`.\n      Inputs:\n      `scores`: A 4D tensor of shape [Batch, Height, Width, Num Anchors] containing the scores per anchor at given position\n      `bbox_deltas`: is a tensor of shape [Batch, Height, Width, 4 x Num Anchors] boxes encoded to each anchor\n      `anchors`: A 1D tensor of shape [4 x Num Anchors], representing the anchors.\n      Outputs:\n      `rois`: output RoIs, a 3D tensor of shape [Batch, post_nms_topn, 4], padded by 0 if less than post_nms_topn candidates found.\n      `roi_probabilities`: probability scores of each roi in 'rois', a 2D tensor of shape [Batch,post_nms_topn], padded with 0 if needed, sorted by scores.",
       "inputs": [
         {
           "description": "A 4-D float tensor of shape `[num_images, height, width, num_achors]` containing scores of the boxes for given anchors, can be unsorted.",
@@ -23686,25 +23749,6 @@
     }
   },
   {
-    "name": "MakeDataServiceIterator",
-    "schema": {
-      "inputs": [
-        {
-          "name": "dataset",
-          "type": 21
-        },
-        {
-          "name": "job_token",
-          "type": 21
-        },
-        {
-          "name": "iterator",
-          "type": 20
-        }
-      ]
-    }
-  },
-  {
     "name": "MakeIterator",
     "schema": {
       "description": "This operation may be executed multiple times. Each execution will reset the\niterator in `iterator` to the first element of `dataset`.",
@@ -26318,7 +26362,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -29994,7 +30038,7 @@
           "type": 7
         },
         {
-          "description": "A vector corresponding 1:1 with featue_list_dense_keys, indicating which\nfeatures may be missing from the SequenceExamples.  If the associated\nFeatureList is missing, it is treated as empty.",
+          "description": "A vector corresponding 1:1 with feature_list_dense_keys, indicating which\nfeatures may be missing from the SequenceExamples.  If the associated\nFeatureList is missing, it is treated as empty.",
           "name": "feature_list_dense_missing_assumed_empty",
           "type": 10
         },
@@ -33655,7 +33699,7 @@
           "type": "string"
         }
       ],
-      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`.",
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmultiplication result. The bias size must match inner dimension of `b`.",
       "inputs": [
         {
           "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
@@ -33841,7 +33885,7 @@
           "type": "string"
         }
       ],
-      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`. Then do\nrelu activation to get non-negative result.",
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmultiplication result. The bias size must match inner dimension of `b`. Then do\nrelu activation to get non-negative result.",
       "inputs": [
         {
           "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
@@ -33945,7 +33989,7 @@
           "type": "string"
         }
       ],
-      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmulplication result. The bias size must match inner dimension of `b`.  Then do\nrelu activation to get non-negative result. Then do requantize operation to get\nfinal uint8 result.",
+      "description": "The inputs must be two-dimensional matrices and 1D bias vector. And the inner\ndimension of `a` (after being transposed if `transpose_a` is non-zero) must\nmatch the outer dimension of `b` (after being transposed if `transposed_b` is\nnon-zero). Then do broadcast add operation with bias values on the matrix\nmultiplication result. The bias size must match inner dimension of `b`.  Then do\nrelu activation to get non-negative result. Then do requantize operation to get\nfinal uint8 result.",
       "inputs": [
         {
           "description": "A matrix to be multiplied. Must be a two-dimensional tensor of type `quint8`.",
@@ -35190,6 +35234,77 @@
         }
       ],
       "summary": "Converts one or more images from RGB to HSV."
+    }
+  },
+  {
+    "name": "RaggedCountSparseOutput",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": -1,
+          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "minimum": -1,
+          "name": "minlength",
+          "type": "int64"
+        },
+        {
+          "default": -1,
+          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "minimum": -1,
+          "name": "maxlength",
+          "type": "int64"
+        },
+        {
+          "description": "bool; whether to output the number of occurrences of each value or 1.",
+          "name": "binary_count",
+          "type": "boolean"
+        },
+        {
+          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "name": "output_type",
+          "type": "type"
+        }
+      ],
+      "description": "  Counts the number of times each value occurs in the input.",
+      "inputs": [
+        {
+          "description": "int64; Tensor containing the row splits of the ragged tensor to count.",
+          "name": "splits",
+          "type": 9
+        },
+        {
+          "description": "int32 or int64; Tensor containing values of the sparse tensor to count.",
+          "name": "values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "name": "weights",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "name": "output_indices",
+          "type": 9
+        },
+        {
+          "description": "int64 or float32; values tensor for the resulting sparse tensor object.\n  END\n  }\n  out_arg {\n    name: \"output_dense_shape\"\n    description: <<END\nint64; shape tensor for the resulting sparse tensor object.\n  END\n  }\n  attr {\n    name: \"T\"\n    description: <<END\ndtype; dtype of the input values tensor.",
+          "name": "output_values",
+          "typeAttr": "output_type"
+        },
+        {
+          "name": "output_dense_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Performs sparse-output bin counting for a ragged tensor input."
     }
   },
   {
@@ -46901,6 +47016,83 @@
     }
   },
   {
+    "name": "SparseCountSparseOutput",
+    "schema": {
+      "attributes": [
+        {
+          "description": "dtype; dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": -1,
+          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "minimum": -1,
+          "name": "minlength",
+          "type": "int64"
+        },
+        {
+          "default": -1,
+          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "minimum": -1,
+          "name": "maxlength",
+          "type": "int64"
+        },
+        {
+          "description": "bool; whether to output the number of occurrences of each value or 1.",
+          "name": "binary_count",
+          "type": "boolean"
+        },
+        {
+          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "name": "output_type",
+          "type": "type"
+        }
+      ],
+      "description": "  Counts the number of times each value occurs in the input.",
+      "inputs": [
+        {
+          "description": "int64; Tensor containing the indices of the sparse tensor to count.",
+          "name": "indices",
+          "type": 9
+        },
+        {
+          "description": "int32 or int64; Tensor containing values of the sparse tensor to count.",
+          "name": "values",
+          "typeAttr": "T"
+        },
+        {
+          "description": "int64; Tensor containing the dense shape of the sparse tensor to count.",
+          "name": "dense_shape",
+          "type": 9
+        },
+        {
+          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "name": "weights",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "name": "output_indices",
+          "type": 9
+        },
+        {
+          "description": "int64 or float32; values tensor for the resulting sparse tensor object.",
+          "name": "output_values",
+          "typeAttr": "output_type"
+        },
+        {
+          "description": "int64; shape tensor for the resulting sparse tensor object.",
+          "name": "output_dense_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Performs sparse-output bin counting for a sparse tensor input."
+    }
+  },
+  {
     "name": "SparseCross",
     "schema": {
       "attributes": [
@@ -48113,7 +48305,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
+      "description": "Like `SparseSegmentMean`, but allows missing ids in `segment_ids`. If an id is\nmissing, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -48297,7 +48489,7 @@
           "type": "type"
         }
       ],
-      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
+      "description": "N is the size of the segment being reduced.\n\nLike `SparseSegmentSqrtN`, but allows missing ids in `segment_ids`. If an id is\nmissing, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.",
       "inputs": [
         {
           "name": "data",
@@ -48421,7 +48613,7 @@
           "type": "type"
         }
       ],
-      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmisisng, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/sparse#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
+      "description": "Like `SparseSegmentSum`, but allows missing ids in `segment_ids`. If an id is\nmissing, the `output` tensor at that position will be zeroed.\n\nRead\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/sparse#Segmentation)\nfor an explanation of segments.\n\nFor example:\n\n```python\nc = tf.constant([[1,2,3,4], [-1,-2,-3,-4], [5,6,7,8]])\n\ntf.sparse_segment_sum_with_num_segments(\n    c, tf.constant([0, 1]), tf.constant([0, 0]), num_segments=3)\n# => [[0 0 0 0]\n#     [0 0 0 0]\n#     [0 0 0 0]]\n\ntf.sparse_segment_sum_with_num_segments(c,\n                                        tf.constant([0, 1]),\n                                        tf.constant([0, 2],\n                                        num_segments=4))\n# => [[ 1  2  3  4]\n#     [ 0  0  0  0]\n#     [-1 -2 -3 -4]\n#     [ 0  0  0  0]]\n```",
       "inputs": [
         {
           "name": "data",
@@ -51726,7 +51918,7 @@
           "type": "string"
         }
       ],
-      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, or if `len` is negative, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```\n\nRaises:\n\n  * `ValueError`: If the first argument cannot be converted to a\n     Tensor of `dtype string`.\n  * `InvalidArgumentError`: If indicies are out of range.\n  * `ValueError`: If `pos` and `len` are not the same shape.\n",
+      "description": "For each string in the input `Tensor`, creates a substring starting at index\n`pos` with a total length of `len`.\n\nIf `len` defines a substring that would extend beyond the length of the input\nstring, or if `len` is negative, then as many characters as possible are used.\n\nA negative `pos` indicates distance within the string backwards from the end.\n\nIf `pos` specifies an index which is out of range for any of the input strings,\nthen an `InvalidArgumentError` is thrown.\n\n`pos` and `len` must have the same shape, otherwise a `ValueError` is thrown on\nOp creation.\n\n*NOTE*: `Substr` supports broadcasting up to two dimensions. More about\nbroadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\n---\n\nExamples\n\nUsing scalar `pos` and `len`:\n\n```python\ninput = [b'Hello', b'World']\nposition = 1\nlength = 3\n\noutput = [b'ell', b'orl']\n```\n\nUsing `pos` and `len` with same shape as `input`:\n\n```python\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen']]\nposition = [[1, 2, 3],\n            [1, 2, 3],\n            [1, 2, 3]]\nlength =   [[2, 3, 4],\n            [4, 3, 2],\n            [5, 5, 5]]\n\noutput = [[b'en', b'eve', b'lve'],\n          [b'hirt', b'urt', b'te'],\n          [b'ixtee', b'vente', b'hteen']]\n```\n\nBroadcasting `pos` and `len` onto `input`:\n\n```\ninput = [[b'ten', b'eleven', b'twelve'],\n         [b'thirteen', b'fourteen', b'fifteen'],\n         [b'sixteen', b'seventeen', b'eighteen'],\n         [b'nineteen', b'twenty', b'twentyone']]\nposition = [1, 2, 3]\nlength =   [1, 2, 3]\n\noutput = [[b'e', b'ev', b'lve'],\n          [b'h', b'ur', b'tee'],\n          [b'i', b've', b'hte'],\n          [b'i', b'en', b'nty']]\n```\n\nBroadcasting `input` onto `pos` and `len`:\n\n```\ninput = b'thirteen'\nposition = [1, 5, 7]\nlength =   [3, 2, 1]\n\noutput = [b'hir', b'ee', b'n']\n```\n\nRaises:\n\n  * `ValueError`: If the first argument cannot be converted to a\n     Tensor of `dtype string`.\n  * `InvalidArgumentError`: If indices are out of range.\n  * `ValueError`: If `pos` and `len` are not the same shape.\n",
       "inputs": [
         {
           "description": "Tensor of strings",
