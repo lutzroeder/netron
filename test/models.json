@@ -3649,6 +3649,13 @@
      "link":   "https://github.com/lutzroeder/netron/issues/372"
    },
    {
+     "type":   "openvino",
+     "target": "netron_issue_484.xml,netron_issue_484.bin",
+     "source": "https://github.com/lutzroeder/netron/files/4569338/netron_issue_484.zip[netron_issue_484.xml,netron_issue_484.bin]",
+     "format": "OpenVINO IR",
+     "link":   "https://github.com/lutzroeder/netron/issues/484"
+   },
+   {
     "type":   "openvino",
     "target": "with_pad_simple.xml",
     "source": "https://github.com/lutzroeder/netron/files/2871673/with_pad_simple.xml.zip[with_pad_simple.xml]",

@@ -149,7 +149,7 @@ openvino.Graph = class {
         // "Input" layers are already moved to inputs when we parse a graph
         // if there are any layers that do not have input arguments and they are no Const ones
         // this means that this graph was not properly processed by the graph building logic
-        let outputSet = new Set();
+        const outputSet = new Set();
         for (const node of this._nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
@@ -162,7 +162,7 @@ openvino.Graph = class {
                 outputSet.add(argument.name);
             }
         }
-        let nodesWithNonExistentInputs = new Set();
+        const nodesWithNonExistentInputs = new Set();
         for (const node of this._nodes) {
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
@@ -219,7 +219,7 @@ openvino.Graph = class {
             for (const nestedLayer of this._const(iteratorLayers, iteratorAllEdges, iteratorBackEdgesMap)) {
                 const inputs = nestedLayer.inputs.map((input) => this._argument(nestedLayer.id, nestedLayer.precision, input, iteratorAllEdges));
                 const outputs = nestedLayer.outputs.map((output) => this._argument(nestedLayer.id, nestedLayer.precision || output.precision, output, null));
-                let nestedNode = new openvino.Node(this, metadata, bin, nestedLayer, inputs, outputs);
+                const nestedNode = new openvino.Node(this, metadata, bin, nestedLayer, inputs, outputs);
                 nestedNode._id = singleTensorIteratorNodeId + '_' + nestedLayer.id;
                 for (const input of nestedNode._inputs) {
                     for (const input_argument of input.arguments) {
@@ -327,7 +327,7 @@ openvino.Graph = class {
     }
 
     _const(layers, edges, back_edges) {
-        let results = [];
+        const results = [];
         back_edges = back_edges || {};
         layers = layers.slice();
         for (const layer of layers) {
@@ -347,7 +347,7 @@ openvino.Graph = class {
                     }
                     const shape = data['shape'] ? data['shape'].split(',').map((dim) => parseInt(dim.trim(), 10)) : null;
                     layer.data = [];
-                    layer.blobs.push({ name: 'custom', precision: precision, offset: data['offset'], size: data['size'], shape: shape });
+                    layer.blobs.push({ name: 'custom', precision: precision, offset: parseInt(data['offset'], 10), size: parseInt(data['size'], 10), shape: shape });
                 }
             }
             if (layer.type === 'Const' && layer.blobs.length === 1 && !layer.blobs[0].shape &&
@@ -356,21 +356,21 @@ openvino.Graph = class {
             }
         }
 
-        let constMap = new Map();
-        for (let layer of layers) {
+        const constMap = new Map();
+        for (const layer of layers) {
             if (layer.type === 'Const' && layer.inputs.length === 0 && layer.outputs.length === 1) {
                 const from = layer.id + ':' + layer.outputs[0].id;
                 constMap.set(from, { layer: layer, counter: 0 });
             }
         }
-        for (let to of Object.keys(edges)) {
+        for (const to of Object.keys(edges)) {
             const from = edges[to];
             if (constMap.has(from)) {
                 constMap.get(from).counter++;
             }
         }
         if (back_edges) {
-            for (let to of Object.keys(back_edges)) {
+            for (const to of Object.keys(back_edges)) {
                 const from = back_edges[to];
                 if (constMap.has(from)) {
                     constMap.get(from).counter++;
@@ -442,7 +442,7 @@ openvino.Node = class {
             this._outputs.push(new openvino.Parameter(outputName, [ output ]));
             outputIndex++;
         }
-        let attributes = {};
+        const attributes = {};
         for (const attribute of layer.data) {
             attributes[attribute.name] = attribute.value;
             const attributeSchema = metadata.attribute(this.operator, attribute.name);
@@ -724,7 +724,7 @@ openvino.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -733,7 +733,7 @@ openvino.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -743,7 +743,7 @@ openvino.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
 
         if (!this._data) {
@@ -766,11 +766,8 @@ openvino.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let shape = context.shape;
-        if (context.shape.length == 0) {
-            shape = [ 1 ];
-        }
-        let results = [];
+        const shape = context.shape.length == 0 ? [ 1 ] : context.shape;
+        const results = [];
         const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
@@ -849,7 +846,7 @@ openvino.Tensor = class {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push(indentation + '[');
             const items = value.map((item) => openvino.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
@@ -877,7 +874,8 @@ openvino.Tensor = class {
 openvino.TensorType = class {
 
     constructor(precision, shape) {
-        switch (precision.toLowerCase()) {
+        precision = precision ? precision.toLowerCase() : precision;
+        switch (precision) {
             case 'f16':  this._dataType = 'float16'; break;
             case 'fp16': this._dataType = 'float16'; break;
             case 'f32':  this._dataType = 'float32'; break;
@@ -892,9 +890,9 @@ openvino.TensorType = class {
             case 'u32':  this._dataType = 'uint32'; break;
             case 'u64':  this._dataType = 'uint64'; break;
             case 'bool': this._dataType = 'boolean'; break;
-            case null:   this._dataType = '?'; break;
             case '':     this._dataType = '?'; break;
-            default: throw new openvino.Error("Unknown precision '" + precision + "'.");
+            case null:   this._dataType = '?'; break;
+            default: throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
         }
         this._shape = shape;
     }
@@ -952,7 +950,7 @@ openvino.Metadata = class {
         this._map = new Map();
         this._attributeMap = new Map();
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item && item.name && item.schema) {
@@ -990,7 +988,7 @@ openvino.XmlReader = class {
 
     static read(element) {
         const children = (parent, name) => {
-            let children = [];
+            const children = [];
             let child = parent.firstChild;
             while (child != null) {
                 if (child.nodeType == 1 && child.nodeName == name) {
@@ -1026,7 +1024,7 @@ openvino.XmlReader = class {
                 return children(elements, 'layer').map((element) => {
                     const data = child(element, 'data');
                     const blobs = child(element, 'blobs');
-                    let layer = {
+                    const layer = {
                         id: element.getAttribute('id'),
                         name: element.getAttribute('name'),
                         type: element.getAttribute('type'),
@@ -1077,7 +1075,7 @@ openvino.XmlReader = class {
             return [];
         }
         const edges = (parent, name) => {
-            let map = {};
+            const map = {};
             const elements = child(parent, name || 'edges');
             if (elements) {
                 for (const element of children(elements, 'edge')) {
