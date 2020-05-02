@@ -1100,6 +1100,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.rnn.LSTMCell', function() {});
         this._registerConstructor('torch.nn.modules.rnn.RNN', function() {});
         this._registerConstructor('torch.nn.modules.sparse.Embedding', function() {});
+        this._registerConstructor('torch.nn.modules.sparse.EmbeddingBag', function() {});
         this._registerConstructor('torch.nn.modules.transformer.TransformerEncoder', function() {});
         this._registerConstructor('torch.nn.modules.transformer.TransformerEncoderLayer', function() {});
         this._registerConstructor('torch.nn.modules.upsampling.Upsample', function() {});
