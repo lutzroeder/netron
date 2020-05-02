@@ -11531,7 +11531,7 @@ TFLITE.BatchMatMulOptions.getSizePrefixedRootAsBatchMatMulOptions = function(bb,
 /**
  * @returns {boolean}
  */
-TFLITE.BatchMatMulOptions.prototype.adjointLhs = function() {
+TFLITE.BatchMatMulOptions.prototype.adjX = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -11539,7 +11539,7 @@ TFLITE.BatchMatMulOptions.prototype.adjointLhs = function() {
 /**
  * @returns {boolean}
  */
-TFLITE.BatchMatMulOptions.prototype.adjointRhs = function() {
+TFLITE.BatchMatMulOptions.prototype.adjY = function() {
   var offset = this.bb.__offset(this.bb_pos, 6);
   return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
 };
@@ -11553,18 +11553,18 @@ TFLITE.BatchMatMulOptions.startBatchMatMulOptions = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} adjointLhs
+ * @param {boolean} adjX
  */
-TFLITE.BatchMatMulOptions.addAdjointLhs = function(builder, adjointLhs) {
-  builder.addFieldInt8(0, +adjointLhs, +false);
+TFLITE.BatchMatMulOptions.addAdjX = function(builder, adjX) {
+  builder.addFieldInt8(0, +adjX, +false);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} adjointRhs
+ * @param {boolean} adjY
  */
-TFLITE.BatchMatMulOptions.addAdjointRhs = function(builder, adjointRhs) {
-  builder.addFieldInt8(1, +adjointRhs, +false);
+TFLITE.BatchMatMulOptions.addAdjY = function(builder, adjY) {
+  builder.addFieldInt8(1, +adjY, +false);
 };
 
 /**
@@ -11578,14 +11578,14 @@ TFLITE.BatchMatMulOptions.endBatchMatMulOptions = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {boolean} adjointLhs
- * @param {boolean} adjointRhs
+ * @param {boolean} adjX
+ * @param {boolean} adjY
  * @returns {flatbuffers.Offset}
  */
-TFLITE.BatchMatMulOptions.createBatchMatMulOptions = function(builder, adjointLhs, adjointRhs) {
+TFLITE.BatchMatMulOptions.createBatchMatMulOptions = function(builder, adjX, adjY) {
   TFLITE.BatchMatMulOptions.startBatchMatMulOptions(builder);
-  TFLITE.BatchMatMulOptions.addAdjointLhs(builder, adjointLhs);
-  TFLITE.BatchMatMulOptions.addAdjointRhs(builder, adjointRhs);
+  TFLITE.BatchMatMulOptions.addAdjX(builder, adjX);
+  TFLITE.BatchMatMulOptions.addAdjY(builder, adjY);
   return TFLITE.BatchMatMulOptions.endBatchMatMulOptions(builder);
 }
 
