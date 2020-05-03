@@ -4435,6 +4435,12 @@
   },
   {
     "type":   "sklearn",
+    "target": "d2v.model",
+    "source": "https://raw.githubusercontent.com/aseth99/doc2vec/master/d2v.model",
+    "format": "gensim"
+  },
+  {
+    "type":   "sklearn",
     "target": "LDA_model.pkl",
     "source": "https://raw.githubusercontent.com/rainer85ah/DCS/master/Output/LDA_model.pkl",
     "format": "scikit-learn",

@@ -155,9 +155,24 @@ sklearn.ModelFactory = class {
                     };
                 };
 
+                constructorTable['gensim.models.doc2vec.Doctag'] = function() {};
+                constructorTable['gensim.models.doc2vec.Doc2Vec'] = function() {};
+                constructorTable['gensim.models.doc2vec.Doc2VecTrainables'] = function() {};
+                constructorTable['gensim.models.doc2vec.Doc2VecVocab'] = function() {};
+                constructorTable['gensim.models.keyedvectors.Doc2VecKeyedVectors'] = function() {};
+                constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
+                constructorTable['gensim.models.keyedvectors.Word2VecKeyedVectors'] = function() {};
+                constructorTable['gensim.models.word2vec.Vocab'] = function() {};
+                constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
                 constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
                 constructorTable['lightgbm.sklearn.LGBMClassifier'] = function() {};
                 constructorTable['lightgbm.basic.Booster'] = function() {};
+                constructorTable['nolearn.lasagne.base.BatchIterator'] = function() {};
+                constructorTable['nolearn.lasagne.base.Layers'] = function() {};
+                constructorTable['nolearn.lasagne.base.NeuralNet'] = function() {};
+                constructorTable['nolearn.lasagne.base.TrainSplit'] = function() {};
+                constructorTable['nolearn.lasagne.handlers.PrintLayerInfo'] = function() {};
+                constructorTable['nolearn.lasagne.handlers.PrintLog'] = function() {};
                 constructorTable['sklearn.calibration._CalibratedClassifier'] = function() {};
                 constructorTable['sklearn.calibration._SigmoidCalibration'] = function() {};
                 constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
@@ -270,9 +285,6 @@ sklearn.ModelFactory = class {
                 constructorTable['xgboost.core.Booster'] = function() {};
                 constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
                 constructorTable['xgboost.sklearn.XGBRegressor'] = function() {};
-                constructorTable['gensim.models.word2vec.Vocab'] = function() {};
-                constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
-                constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
 
                 functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
                     if (base == '__builtin__.object') {
@@ -342,14 +354,30 @@ sklearn.ModelFactory = class {
                     return obj;
                 };
                 functionTable['__builtin__.bytearray'] = function(source, encoding /*, errors */) {
-                    if (encoding === 'latin-1') {
-                        const array = new Uint8Array(source.length);
-                        for (let i = 0; i < source.length; i++) {
-                            array[i] = source.charCodeAt(i);
+                    if (source) {
+                        if (encoding === 'latin-1') {
+                            const array = new Uint8Array(source.length);
+                            for (let i = 0; i < source.length; i++) {
+                                array[i] = source.charCodeAt(i);
+                            }
+                            return array;
                         }
-                        return array;
+                        throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
                     }
-                    throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+                    return [];
+                };
+                functionTable['__builtin__.bytes'] = function(source, encoding /*, errors */) {
+                    if (source) {
+                        if (encoding === 'latin-1') {
+                            const array = new Uint8Array(source.length);
+                            for (let i = 0; i < source.length; i++) {
+                                array[i] = source.charCodeAt(i);
+                            }
+                            return array;
+                        }
+                        throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+                    }
+                    return [];
                 };
                 functionTable['builtins.bytearray'] = function(data) {
                     return { data: data };
@@ -364,7 +392,7 @@ sklearn.ModelFactory = class {
                 const unknownNameMap = new Set();
                 const knownPackageMap = new Set([ 
                     'sklearn', 'collections', '__builtin__', 'builtins',
-                    'copy_reg', 'joblib','xgboost', 'lightgbm', 'gensim', 'numpy'
+                    'copy_reg', 'gensim', 'joblib','xgboost', 'lightgbm', 'nolearn', 'numpy'
                 ]);
 
                 const function_call = (name, args) => {
@@ -466,6 +494,9 @@ sklearn.Model = class {
         }
         else if (obj && obj.__module__ && obj.__module__.startsWith('nolearn.lasagne.')) {
             this._format = 'Lasagne';
+        }
+        else if (obj && obj.__module__ && obj.__module__.startsWith('gensim.')) {
+            this._format = 'gensim';
         }
         else {
             this._format = 'Pickle'
