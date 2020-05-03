@@ -3859,7 +3859,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "gcn2_tiny_320x240.pt",
+    "target": "gcn2_tiny_320x240.pb",
     "source": "https://raw.githubusercontent.com/jiexiong2016/GCNv2_SLAM/master/GCN2/gcn2_tiny_320x240.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/jiexiong2016/GCNv2_SLAM"
@@ -3954,7 +3954,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "Mobilenet_se_focal_121000.pt",
+    "target": "Mobilenet_se_focal_121000.pb",
     "source": "https://download.01.org/openvinotoolkit/open_model_zoo/training_toolbox_pytorch/models/fr/Mobilenet_se_focal_121000.pt",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/grib0ed0v/face_recognition.pytorch"

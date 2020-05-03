@@ -12,9 +12,7 @@ pytorch.ModelFactory = class {
     match(context) {
         const identifier = context.identifier; 
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'pth' || extension === 'pkl' || extension === 'pt' || extension === 'bin' ||
-            extension === 'h5' || extension === 't7' || extension === 'dms' || extension === 'model' ||
-            extension === 'ckpt' || extension == 'pt1' || extension === 'zip' || identifier.toLowerCase().endsWith('.tar')) {
+        if ([ 'pth', 'pt', 'pt1', 'pkl', 'bin', 'model', 'h5', 'pb', 't7', 'dms', 'ckpt', 'zip' ].indexOf(extension) !== -1 || identifier.toLowerCase().endsWith('.tar')) {
             if (pytorch.Container.open(context)) {
                 return true;
             }
