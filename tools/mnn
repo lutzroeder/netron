@@ -57,7 +57,7 @@ schema() {
     mv ./tools/MNN_generated.js ./src/mnn-schema.js
     cat <<EOT >> ./src/mnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = MNN;
+  module.exports = { mnn_schema: MNN };
 }
 EOT
     if [[ -n ${crlf} ]]; then

@@ -16,11 +16,11 @@ mnn.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./mnn-schema').then((mnn_schema) => {
+        return host.require('./mnn-schema').then((schema) => {
             return mnn.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
-                    mnn.schema = mnn_schema;
+                    mnn.schema = schema.mnn_schema;
                     const byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
                     const net = mnn.schema.Net.getRootAsNet(byteBuffer);
                     return new mnn.Model(metadata, net);

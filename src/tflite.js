@@ -21,12 +21,13 @@ tflite.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./tflite-schema').then((tflite_schema) => {
+        return host.require('./tflite-schema').then((schema) => {
             return tflite.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
                     const buffer = new flatbuffers.ByteBuffer(context.buffer);
-                    tflite.schema = tflite_schema;
+                    tflite.schema = schema.tflite_schema;
+                    tflite.metadata_schema = schema.tflite_metadata_schema;
                     if (!tflite.schema.Model.bufferHasIdentifier(buffer)) {
                         throw new tflite.Error("File format is not tflite.Model.");
                     }
@@ -72,12 +73,7 @@ tflite.Model = class {
             }
             operators.push(custom ? { name: name, custom: true } : { name: name });
         }
-        const subgraphsLength = model.subgraphsLength();
-        for (let i = 0; i < subgraphsLength; i++) {
-            const subgraph = model.subgraphs(i);
-            const name = subgraphsLength > 1 ? i.toString() : '';
-            this._graphs.push(new tflite.Graph(metadata, subgraph, name, operators, model));
-        }
+        let modelMetadata = null;
         for (let i = 0; i < model.metadataLength(); i++) {
             const metadata = model.metadata(i);
             switch (metadata.name()) {
@@ -86,7 +82,26 @@ tflite.Model = class {
                     this._runtime = data ? new TextDecoder().decode(data) : undefined;
                     break;
                 }
+                case 'TFLITE_METADATA': {
+                    const buffer = new flatbuffers.ByteBuffer(model.buffers(metadata.buffer()).dataArray() || []);
+                    if (tflite.metadata_schema.ModelMetadata.bufferHasIdentifier(buffer)) {
+                        modelMetadata = tflite.metadata_schema.ModelMetadata.getRootAsModelMetadata(buffer);
+                        this._name = modelMetadata.name() || '';
+                        this._version = modelMetadata.version() || '';
+                        this._description = modelMetadata.description() ? [ this.description, modelMetadata.description()].join(' ') : this._description;
+                        this._author = modelMetadata.author() || '';
+                        this._license = modelMetadata.license() || '';
+                    }
+                    break;
+                }
             }
+        }
+        const subgraphsLength = model.subgraphsLength();
+        for (let i = 0; i < subgraphsLength; i++) {
+            const subgraph = model.subgraphs(i);
+            const name = subgraphsLength > 1 ? i.toString() : '';
+            const subgraphMetadata = modelMetadata && i < modelMetadata.subgraphMetadataLength() ? modelMetadata.subgraphMetadata(i) : null;
+            this._graphs.push(new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operators, model));
         }
     }
 
@@ -94,12 +109,28 @@ tflite.Model = class {
         return this._format;
     }
 
+    get runtime() {
+        return this._runtime;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get version() {
+        return this._version;
+    }
+
     get description() {
         return this._description;
     }
 
-    get runtime() {
-        return this._runtime;
+    get author() {
+        return this._author;
+    }
+
+    get license() {
+        return this._license;
     }
 
     get graphs() {
@@ -109,31 +140,77 @@ tflite.Model = class {
 
 tflite.Graph = class {
 
-    constructor(metadata, graph, name, operators, model) {
-        this._name = graph.name() || name;
+    constructor(metadata, subgraph, subgraphMetadata, name, operators, model) {
+        this._name = subgraph.name() || name;
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
         const args = [];
         const tensorNames = [];
-        for (let i = 0; i < graph.tensorsLength(); i++) {
-            const tensor = graph.tensors(i);
+        for (let i = 0; i < subgraph.tensorsLength(); i++) {
+            const tensor = subgraph.tensors(i);
             const buffer = model.buffers(tensor.buffer());
             const is_variable = tensor.isVariable();
             const initializer = buffer.dataLength() > 0 || is_variable ? new tflite.Tensor(i, tensor, buffer, is_variable) : null;
             args.push(new tflite.Argument(i, tensor, initializer));
             tensorNames.push(tensor.name());
         }
-        for (let i = 0; i < graph.operatorsLength(); i++) {
-            const node = graph.operators(i);
+        for (let i = 0; i < subgraph.operatorsLength(); i++) {
+            const node = subgraph.operators(i);
             const index = node.opcodeIndex();
             const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
             this._nodes.push(new tflite.Node(metadata, node, operator, i.toString(), args));
         }
-        const inputs = Array.from(graph.inputsArray() || []);
-        this._inputs = inputs.map((input) => new tflite.Parameter(tensorNames[input], true, [ args[input] ]));
-        const outputs = Array.from(graph.outputsArray() || []);
-        this._outputs = outputs.map((output) => new tflite.Parameter(tensorNames[output], true, [ args[output] ]));
+        const applyTensorMetadata = (argument, tensorMetadata) => {
+            if (tensorMetadata) {
+                const description = tensorMetadata.description();
+                if (description) {
+                    argument.description = description;
+                }
+                const content = tensorMetadata.content();
+                if (argument.type && content) {
+                    let denotation = null;
+                    switch (content.contentPropertiesType()) {
+                        case 1: {
+                            denotation = 'Feature';
+                            break;
+                        }
+                        case 2: {
+                            denotation = 'Image';
+                            const imageProperties = content.contentProperties(Reflect.construct(tflite.metadata_schema.ImageProperties, []));
+                            switch(imageProperties.colorSpace()) {
+                                case 1: denotation += '(RGB)'; break;
+                                case 2: denotation += '(Grayscale)'; break;
+                            }
+                            break;
+                        }
+                        case 3: {
+                            denotation = 'BoundingBox';
+                            break;
+                        }
+                    }
+                    if (denotation) {
+                        argument.type.denotation = denotation;
+                    }
+                }
+            }
+        };
+        for (let i = 0; i < subgraph.inputsLength(); i++) {
+            const input = subgraph.inputs(i);
+            const argument = args[input];
+            if (subgraphMetadata && i < subgraphMetadata.inputTensorMetadataLength()) {
+                applyTensorMetadata(argument, subgraphMetadata.inputTensorMetadata(i));
+            }
+            this._inputs.push(new tflite.Parameter(tensorNames[input], true, [ argument ]));
+        }
+        for (let i = 0; i < subgraph.outputsLength(); i++) {
+            const output = subgraph.outputs(i);
+            const argument = args[output];
+            if (subgraphMetadata && i < subgraphMetadata.outputTensorMetadataLength()) {
+                applyTensorMetadata(argument, subgraphMetadata.outputTensorMetadata(i));
+            }
+            this._outputs.push(new tflite.Parameter(tensorNames[output], true, [ argument ]));
+        }
     }
 
     get name() {
@@ -432,6 +509,14 @@ tflite.Argument = class {
         return this._quantization;
     }
 
+    set description(value) {
+        this._description = value;
+    }
+
+    get description() {
+        return this._description;
+    }
+
     get initializer() {
         return this._initializer;
     }
@@ -611,6 +696,14 @@ tflite.TensorType = class {
 
     get shape() {
         return this._shape;
+    }
+
+    set denotation(value) {
+        this._denotation = value;
+    }
+
+    get denotation() {
+        return this._denotation;
     }
 
     toString() {

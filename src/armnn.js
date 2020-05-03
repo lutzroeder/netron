@@ -17,13 +17,13 @@ armnn.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./armnn-schema').then((armnn_schema) => {
+        return host.require('./armnn-schema').then((schema) => {
             const identifier = context.identifier;
             let model = null;
             try {
                 const buffer = context.buffer;
                 const byteBuffer = new flatbuffers.ByteBuffer(buffer);
-                armnn.schema = armnn_schema;
+                armnn.schema = schema.armnn_schema;
                 model = armnn.schema.SerializedGraph.getRootAsSerializedGraph(byteBuffer);
             }
             catch (error) {

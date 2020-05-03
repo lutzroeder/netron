@@ -14694,5 +14694,5 @@ armnnSerializer.SerializedGraph.createSerializedGraph = function(builder, layers
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = armnnSerializer;
+  module.exports = { armnn_schema: armnnSerializer };
 }

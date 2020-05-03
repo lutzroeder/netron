@@ -18360,5 +18360,5 @@ MNN.Net.createNet = function(builder, bizCodeOffset, extraTensorDescribeOffset, 
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = MNN;
+  module.exports = { mnn_schema: MNN };
 }
