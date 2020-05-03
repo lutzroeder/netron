@@ -4408,6 +4408,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "best_boston.pb",
+    "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
+    "format": "scikit-learn v0.20.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
     "target": "binarizer.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.pkl]",
     "format": "scikit-learn v0.19.1",
@@ -4418,13 +4425,6 @@
     "target": "binarizer.joblib",
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.joblib]",
     "format": "scikit-learn v0.19.1",
-    "link":   "https://github.com/lutzroeder/netron/issues/182"
-  },
-  {
-    "type":   "sklearn",
-    "target": "best_boston.pkl",
-    "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
-    "format": "scikit-learn v0.20.2",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {

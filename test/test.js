@@ -500,12 +500,17 @@ function loadModel(target, item) {
                 }
             }
             for (const node of graph.nodes) {
+                node.operator.toString();
+                node.operator.length;
+                if (typeof node.operator != 'string') {
+                    throw new Error("Invalid operator '" + JSON.stringify(node.operator) + "'.");
+                }
                 node.name.toString();
                 node.name.length;
                 node.description;
                 const metadata = node.metadata;
                 if (metadata !== null && metadata !== undefined && (typeof metadata !== 'object' || !metadata.name)) {
-                    throw new Error("Invalid documentation object '" + node.operator + "'.");
+                    throw new Error("Invalid metadata object '" + node.operator + "'.");
                 }
                 sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
                 node.attributes.slice();
