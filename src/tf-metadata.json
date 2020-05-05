@@ -10841,23 +10841,6 @@
     }
   },
   {
-    "name": "DatasetCardinalityV2",
-    "schema": {
-      "inputs": [
-        {
-          "name": "input_dataset",
-          "type": 21
-        }
-      ],
-      "outputs": [
-        {
-          "name": "cardinality",
-          "type": 2
-        }
-      ]
-    }
-  },
-  {
     "name": "DatasetFromGraph",
     "schema": {
       "description": "Creates a dataset from the provided `graph_def`.",
