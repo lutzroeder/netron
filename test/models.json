@@ -3129,10 +3129,10 @@
   },
   {
     "type":   "onnx",
-    "target": "super_resolution.onnx",
-    "source": "https://github.com/onnx/models/blob/master/vision/super_resolution/sub_pixel_cnn_2016/model/super_resolution.onnx?raw=true",
+    "target": "super-resolution-10.onnx",
+    "source": "https://media.githubusercontent.com/media/onnx/models/master/vision/super_resolution/sub_pixel_cnn_2016/model/super-resolution-10.onnx",
     "format": "ONNX v4", "producer": "pytorch 1.1",
-    "link":   "https://github.com/onnx/models/tree/master/vision/super_resolution"
+    "link":   "https://github.com/onnx/models/tree/master/vision/super_resolution/sub_pixel_cnn_2016"
   },
   {
     "type":   "onnx",
