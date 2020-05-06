@@ -42,11 +42,11 @@ chainer.ModelFactory = class {
         return host.require('./numpy').then((numpy) => {
             return host.require('./pickle').then((pickle) => {
                 try {
-                    let modules = [];
-                    let modulesMap = new Map();
+                    const modules = [];
+                    const modulesMap = new Map();
 
-                    let functionTable = new Map();
-                    let constructorTable = new Map();
+                    const functionTable = new Map();
+                    const constructorTable = new Map();
                     functionTable.set('_codecs.encode', function(obj /*, econding */) {
                         return obj;
                     });
@@ -62,7 +62,7 @@ chainer.ModelFactory = class {
                             this.rawdata = state[4];
                         };
                         this.__read__ = function(unpickler) {
-                            let array = {};
+                            const array = {};
                             array.__type__ = this.subtype;
                             array.dtype = this.typecode;
                             array.shape = this.shape;
@@ -143,12 +143,12 @@ chainer.ModelFactory = class {
                             }
                         };
                     });
-                    let function_call = (name, args) => {
+                    const function_call = (name, args) => {
                         if (functionTable.has(name)) {
                             const func = functionTable.get(name);
                             return func.apply(null, args);
                         }
-                        let obj = { __type__: name };
+                        const obj = { __type__: name };
                         if (constructorTable.has(name)) {
                             const constructor = constructorTable.get(name);
                             constructor.apply(obj, args);
@@ -215,15 +215,21 @@ chainer.ModelFactory = class {
         return host.require('./hdf5').then((hdf5) => {
             try {
                 const file = new hdf5.File(context.buffer);
-                const rootGroup = file.rootGroup;
+                let rootGroup = file.rootGroup;
                 if (Object.keys(rootGroup.attributes).length !== 0 || rootGroup.value !== null) {
                     throw new chainer.Error('File format is not Chainer HDF5');
                 }
                 let format = null;
-                let modules = [];
-                let modulesMap = new Map();
+                const modules = [];
+                const modulesMap = new Map();
+                if (Object.keys(rootGroup.attributes).length === 0 && rootGroup.value === null &&
+                    rootGroup.groups.length == 1 && rootGroup.groups[0] &&
+                    Object.keys(rootGroup.groups[0].attributes).length === 0 && rootGroup.groups[0].value === null) {
+                    rootGroup = rootGroup.groups[0];
+                    format = 'Weights HDF5';
+                }
                 if (rootGroup.groups.every((moduleGroup) => Object.keys(moduleGroup.attributes).length === 0 && moduleGroup.value === null)) {
-                    format = 'Chainer HDF5';
+                    format = format || 'Chainer HDF5';
                     for (const moduleGroup of rootGroup.groups) {
                         const moduleName = moduleGroup.attributes.name || moduleGroup.name;
                         if (!modulesMap.has(moduleName)) {
@@ -251,7 +257,7 @@ chainer.ModelFactory = class {
                     }
                 }
                 else if (rootGroup.groups.every((group) => group.value === null && group.groups.every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
-                    format = 'Weights HDF5';
+                    format = format || 'Weights HDF5';
                     for (const group of rootGroup.groups) {
                         const moduleName = group.attributes.name || group.name;
                         if (!modulesMap.has(moduleName)) {
@@ -440,7 +446,7 @@ chainer.Tensor = class  {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -449,17 +455,17 @@ chainer.Tensor = class  {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return chainer.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -520,12 +526,9 @@ chainer.Tensor = class  {
 
     _decode(context, dimension) {
         const littleEndian = context.littleEndian;
-        let shape = context.dimensions;
-        if (shape.length == 0) {
-            shape = [ 1 ];
-        }
-        let results = [];
-        let size = shape[dimension];
+        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
+        const results = [];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -587,7 +590,7 @@ chainer.Tensor = class  {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push(indentation + '[');
             const items = value.map((item) => chainer.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {

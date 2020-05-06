@@ -779,6 +779,13 @@
   },
   {
     "type":   "chainer",
+    "target": "cifar10_m4_iter_70000.caffemodel.h5",
+    "source": "https://raw.githubusercontent.com/ARM-software/ML-examples/master/cmsisnn-cifar10/models/cifar10_m4_iter_70000.caffemodel.h5",
+    "format": "Weights HDF5",
+    "link":   "https://github.com/ARM-software/ML-examples"
+  },
+  {
+    "type":   "chainer",
     "target": "generator_model.h5",
     "source": "https://raw.githubusercontent.com/mattya/chainer-DCGAN/master/generator_model.h5",
     "format": "Chainer HDF5",
