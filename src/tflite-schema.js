@@ -4997,10 +4997,18 @@ tflite_schema.ResizeNearestNeighborOptions.prototype.alignCorners = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+tflite_schema.ResizeNearestNeighborOptions.prototype.halfPixelCenters = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_schema.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = function(builder) {
-  builder.startObject(1);
+  builder.startObject(2);
 };
 
 /**
@@ -5009,6 +5017,14 @@ tflite_schema.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions = f
  */
 tflite_schema.ResizeNearestNeighborOptions.addAlignCorners = function(builder, alignCorners) {
   builder.addFieldInt8(0, +alignCorners, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} halfPixelCenters
+ */
+tflite_schema.ResizeNearestNeighborOptions.addHalfPixelCenters = function(builder, halfPixelCenters) {
+  builder.addFieldInt8(1, +halfPixelCenters, +false);
 };
 
 /**
@@ -5023,11 +5039,13 @@ tflite_schema.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions = fun
 /**
  * @param {flatbuffers.Builder} builder
  * @param {boolean} alignCorners
+ * @param {boolean} halfPixelCenters
  * @returns {flatbuffers.Offset}
  */
-tflite_schema.ResizeNearestNeighborOptions.createResizeNearestNeighborOptions = function(builder, alignCorners) {
+tflite_schema.ResizeNearestNeighborOptions.createResizeNearestNeighborOptions = function(builder, alignCorners, halfPixelCenters) {
   tflite_schema.ResizeNearestNeighborOptions.startResizeNearestNeighborOptions(builder);
   tflite_schema.ResizeNearestNeighborOptions.addAlignCorners(builder, alignCorners);
+  tflite_schema.ResizeNearestNeighborOptions.addHalfPixelCenters(builder, halfPixelCenters);
   return tflite_schema.ResizeNearestNeighborOptions.endResizeNearestNeighborOptions(builder);
 }
 
