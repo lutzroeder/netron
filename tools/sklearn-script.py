@@ -18,7 +18,7 @@ def split_docstring(docstring):
     current_header = ''
     current_lines = []
     lines = docstring.split('\n')
-    index = 0;
+    index = 0
     while index < len(lines):
         if index + 1 < len(lines) and len(lines[index + 1].strip(' ')) > 0 and len(lines[index + 1].strip(' ').strip('-')) == 0:
             headers[current_header] = current_lines
@@ -90,7 +90,7 @@ def update_attribute(schema, name, description, attribute_type, option, default_
                     attribute['default'] = default_value.strip("'")
 
 def update_attributes(schema, lines):
-    index = 0;
+    index = 0
     while index < len(lines):
         line = lines[index]
         if line.endswith('.'):
@@ -131,7 +131,8 @@ def update_attributes(schema, lines):
             "{'scale', 'auto'} or float, optional (default='scale')",
             "{'word', 'char', 'char_wb'} or callable, default='word'",
             "{'scale', 'auto'} or float, default='scale'",
-            "{'uniform', 'distance'} or callable, default='uniform'"
+            "{'uniform', 'distance'} or callable, default='uniform'",
+            "int, RandomState instance or None (default)"
         }
         if line == 'str':
             line = 'string'
@@ -184,7 +185,7 @@ def update_attributes(schema, lines):
         option = None
         default = None
         while len(line.strip(' ')) > 0:
-            line = line.strip(' ');
+            line = line.strip(' ')
             if line.startswith('optional ') or line.startswith('optional,'):
                 option = 'optional'
                 line = line[9:]
@@ -238,8 +239,5 @@ for entry in json_root:
 with io.open(json_file, 'w', newline='') as fout:
     json_data = json.dumps(json_root, sort_keys=True, indent=2)
     for line in json_data.splitlines():
-        line = line.rstrip()
-        if sys.version_info[0] < 3:
-            line = unicode(line)
-        fout.write(line)
+        fout.write(line.rstrip())
         fout.write('\n')
