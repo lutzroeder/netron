@@ -10806,8 +10806,16 @@
           "type": 7
         },
         {
+          "name": "job_name",
+          "type": 7
+        },
+        {
           "name": "max_outstanding_requests",
           "type": 9
+        },
+        {
+          "name": "iteration_counter",
+          "type": 20
         }
       ],
       "outputs": [
@@ -11978,6 +11986,55 @@
     }
   },
   {
+    "name": "DenseBincount",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_count",
+          "type": "boolean"
+        }
+      ],
+      "description": "Outputs a vector with length `size` and the same dtype as `weights`. If\n`weights` are empty, then index `i` stores the number of times the value `i` is\ncounted in `arr`. If `weights` are non-empty, then index `i` stores the sum of\nthe value in `weights` at each index where the corresponding value in `arr` is\n`i`.\n\nValues in `arr` outside of the range [0, size) are ignored.",
+      "inputs": [
+        {
+          "description": "1D or 2D int `Tensor`.",
+          "name": "input",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "non-negative int scalar `Tensor`.",
+          "name": "size",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "is an int32, int64, float32, or float64 `Tensor` with the same\nshape as `arr`, or a length-0 `Tensor`, in which case it acts as all weights\nequal to 1.",
+          "name": "weights",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D `Tensor` with length equal to `size` or 2D `Tensor` with [batch_size, `size`].\nThe counts or summed weights for each value in the range [0, size).",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Counts the number of occurrences of each value in an integer array."
+    }
+  },
+  {
     "name": "DenseCountSparseOutput",
     "schema": {
       "attributes": [
@@ -13100,6 +13157,17 @@
         }
       ],
       "summary": "Draw bounding boxes on a batch of images."
+    }
+  },
+  {
+    "name": "DummyIterationCounter",
+    "schema": {
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 20
+        }
+      ]
     }
   },
   {
@@ -35220,6 +35288,60 @@
     }
   },
   {
+    "name": "RaggedBincount",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_count",
+          "type": "boolean"
+        }
+      ],
+      "description": "Outputs a vector with length `size` and the same dtype as `weights`. If\n`weights` are empty, then index `i` stores the number of times the value `i` is\ncounted in `arr`. If `weights` are non-empty, then index `i` stores the sum of\nthe value in `weights` at each index where the corresponding value in `arr` is\n`i`.\n\nValues in `arr` outside of the range [0, size) are ignored.",
+      "inputs": [
+        {
+          "description": "1D int64 `Tensor`.",
+          "name": "splits",
+          "type": 9
+        },
+        {
+          "description": "2D int `Tensor`.",
+          "name": "values",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "non-negative int scalar `Tensor`.",
+          "name": "size",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "is an int32, int64, float32, or float64 `Tensor` with the same\nshape as `input`, or a length-0 `Tensor`, in which case it acts as all weights\nequal to 1.",
+          "name": "weights",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D `Tensor` with length equal to `size` or 2D `Tensor` with [batch_size, `size`].\nThe counts or summed weights for each value in the range [0, size).",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Counts the number of occurrences of each value in an integer array."
+    }
+  },
+  {
     "name": "RaggedCountSparseOutput",
     "schema": {
       "attributes": [
@@ -46891,6 +47013,65 @@
         }
       ],
       "summary": "Update '*var' according to the RMSProp algorithm."
+    }
+  },
+  {
+    "name": "SparseBincount",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_count",
+          "type": "boolean"
+        }
+      ],
+      "description": "Outputs a vector with length `size` and the same dtype as `weights`. If\n`weights` are empty, then index `i` stores the number of times the value `i` is\ncounted in `arr`. If `weights` are non-empty, then index `i` stores the sum of\nthe value in `weights` at each index where the corresponding value in `arr` is\n`i`.\n\nValues in `arr` outside of the range [0, size) are ignored.",
+      "inputs": [
+        {
+          "description": "2D int64 `Tensor`.",
+          "name": "indices",
+          "type": 9
+        },
+        {
+          "description": "1D int `Tensor`.",
+          "name": "values",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "1D int64 `Tensor`.",
+          "name": "dense_shape",
+          "type": 9
+        },
+        {
+          "description": "non-negative int scalar `Tensor`.",
+          "name": "size",
+          "typeAttr": "Tidx"
+        },
+        {
+          "description": "is an int32, int64, float32, or float64 `Tensor` with the same\nshape as `input`, or a length-0 `Tensor`, in which case it acts as all weights\nequal to 1.",
+          "name": "weights",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D `Tensor` with length equal to `size` or 2D `Tensor` with [batch_size, `size`].\nThe counts or summed weights for each value in the range [0, size).",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Counts the number of occurrences of each value in an integer array."
     }
   },
   {
