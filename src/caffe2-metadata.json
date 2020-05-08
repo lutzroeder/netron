@@ -18468,5 +18468,43 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "FbGemmPackTranspose",
+    "schema": {
+      "description": "Prepack weight for fbgemm",
+      "inputs": [
+        {
+          "description": "col major format weight matrix",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Block col major packed format weight matrix",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "FbGemmPack",
+    "schema": {
+      "description": "Prepack weight for fbgemm",
+      "inputs": [
+        {
+          "description": "row major format weight matrix",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Block row major packed format weight matrix",
+          "name": "Y"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
