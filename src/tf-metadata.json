@@ -1565,7 +1565,7 @@
           "type": "boolean"
         }
       ],
-      "description": "accum_new = accum + grad * grad\nlinear += grad + (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+      "description": "accum_new = accum + grad * grad\nlinear += grad - (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -1643,7 +1643,7 @@
           "type": "boolean"
         }
       ],
-      "description": "grad_with_shrinkage = grad + 2 * l2_shrinkage * var\naccum_new = accum + grad_with_shrinkage * grad_with_shrinkage\nlinear += grad_with_shrinkage +\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+      "description": "grad_with_shrinkage = grad + 2 * l2_shrinkage * var\naccum_new = accum + grad * grad\nlinear += grad_with_shrinkage -\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
       "inputs": [
         {
           "description": "Should be from a Variable().",
@@ -18533,7 +18533,7 @@
           "type": "type"
         }
       ],
-      "description": "`indices` must be an integer tensor of any dimension (usually 0-D or 1-D).\nProduces an output tensor with shape `params.shape[:axis] + indices.shape +\nparams.shape[axis + 1:]` where:\n\n```python\n    # Scalar indices (output is rank(params) - 1).\n    output[a_0, ..., a_n, b_0, ..., b_n] =\n      params[a_0, ..., a_n, indices, b_0, ..., b_n]\n\n    # Vector indices (output is rank(params)).\n    output[a_0, ..., a_n, i, b_0, ..., b_n] =\n      params[a_0, ..., a_n, indices[i], b_0, ..., b_n]\n\n    # Higher rank indices (output is rank(params) + rank(indices) - 1).\n    output[a_0, ..., a_n, i, ..., j, b_0, ... b_n] =\n      params[a_0, ..., a_n, indices[i, ..., j], b_0, ..., b_n]\n```\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/Gather.png\" alt>\n</div>\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSee also `tf.batch_gather` and `tf.gather_nd`.",
+      "description": "`indices` must be an integer tensor of any dimension (usually 0-D or 1-D).\nProduces an output tensor with shape `params.shape[:axis] +\nindices.shape[batch_dims:] + params.shape[axis + 1:]` where:\n\n```python\n    # Scalar indices (output is rank(params) - 1).\n    output[a_0, ..., a_n, b_0, ..., b_n] =\n      params[a_0, ..., a_n, indices, b_0, ..., b_n]\n\n    # Vector indices (output is rank(params)).\n    output[a_0, ..., a_n, i, b_0, ..., b_n] =\n      params[a_0, ..., a_n, indices[i], b_0, ..., b_n]\n\n    # Higher rank indices (output is rank(params) + rank(indices) - 1).\n    output[a_0, ..., a_n, i, ..., j, b_0, ... b_n] =\n      params[a_0, ..., a_n, indices[i, ..., j], b_0, ..., b_n]\n```\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/Gather.png\" alt>\n</div>\n\nNote that on CPU, if an out of bound index is found, an error is returned.\nOn GPU, if an out of bound index is found, a 0 is stored in the\ncorresponding output value.\n\nSee also `tf.batch_gather` and `tf.gather_nd`.",
       "inputs": [
         {
           "description": "The tensor from which to gather values. Must be at least rank\n`axis + 1`.",
@@ -46656,7 +46656,7 @@
           "type": "boolean"
         }
       ],
-      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\ngrad_with_shrinkage = grad + 2 * l2_shrinkage * var\naccum_new = accum + grad_with_shrinkage * grad_with_shrinkage\nlinear += grad_with_shrinkage +\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+      "description": "That is for rows we have grad for, we update var, accum and linear as follows:\ngrad_with_shrinkage = grad + 2 * l2_shrinkage * var\naccum_new = accum + grad * grad\nlinear += grad_with_shrinkage -\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
       "inputs": [
         {
           "description": "Should be from a Variable().",
