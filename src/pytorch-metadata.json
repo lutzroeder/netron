@@ -4238,5 +4238,20 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.reciprocal",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
