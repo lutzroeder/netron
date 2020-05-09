@@ -246,13 +246,12 @@
   {
     "name": "SubtractionLayer",
     "schema": {
-      "category": "Layer"
     }
   },
   {
     "name": "StridedSliceLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Tensor",
       "attributes": [
         { "name": "begin", "type": "int", "src": "begin" },
         { "name": "end", "type": "int", "src": "end" },

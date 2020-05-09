@@ -68,7 +68,7 @@ view.View = class {
             this.error(err.message, err);
         });
     }
-    
+
     show(page) {
         if (!page) {
             page = (!this._model && !this._activeGraph) ? 'welcome' : 'default';
@@ -183,7 +183,7 @@ view.View = class {
         }
     }
 
-    resetZoom() { 
+    resetZoom() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
                 this._updateZoom(1);
@@ -219,7 +219,7 @@ view.View = class {
 
         const graph = this._host.document.getElementById('canvas');
         graph.style.width = zoom * this._width;
-        graph.style.height = zoom * this._height
+        graph.style.height = zoom * this._height;
 
         this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
         this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
@@ -335,7 +335,7 @@ view.View = class {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
                         return null;
-                    }  
+                    }
                 }
             }
             return this.renderGraph(model, graph).then(() => {
@@ -377,9 +377,9 @@ view.View = class {
                         graphElement.style.margin = '0';
                         break;
                 }
-    
+
                 const groups = graph.groups;
-    
+
                 const graphOptions = {};
                 graphOptions.nodesep = 25;
                 graphOptions.ranksep = 20;
@@ -387,7 +387,7 @@ view.View = class {
                 const g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
                 g.setDefaultEdgeLabel(() => { return {}; });
-            
+
                 let nodeId = 0;
                 const edgeMap = {};
                 const clusterMap = {};
@@ -434,7 +434,7 @@ view.View = class {
                         }
                         const content = self.showNames && node.name ? node.name : operator.split('.').pop();
                         const tooltip = self.showNames && node.name ? operator : node.name;
-                        header.add(null, styles, content, tooltip, () => { 
+                        header.add(null, styles, content, tooltip, () => {
                             self.showNodeProperties(node, null);
                         });
 
@@ -451,7 +451,7 @@ view.View = class {
                                 if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
-                                if ((!input.visible || input.arguments.length > 1) && 
+                                if ((!input.visible || input.arguments.length > 1) &&
                                     input.arguments.some((argument) => argument.initializer != null)) {
                                     hiddenInitializers = true;
                                 }
@@ -461,7 +461,7 @@ view.View = class {
                         const attributes = node.attributes;
                         if (self.showAttributes && attributes) {
                             sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
-                            sortedAttributes.sort((a, b) => { 
+                            sortedAttributes.sort((a, b) => {
                                 const au = a.name.toUpperCase();
                                 const bu = b.name.toUpperCase();
                                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
@@ -478,8 +478,8 @@ view.View = class {
                                 let shape = '';
                                 let separator = '';
                                 if (type &&
-                                    type.shape && 
-                                    type.shape.dimensions && 
+                                    type.shape &&
+                                    type.shape.dimensions &&
                                     Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
                                     shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
                                     if (type.shape.dimensions.length == 0 && argument.initializer && !argument.initializer.state) {
@@ -517,8 +517,8 @@ view.View = class {
                                             tuple = { from: null, to: [] };
                                             edgeMap[argument.name] = tuple;
                                         }
-                                        tuple.to.push({ 
-                                            node: nodeId, 
+                                        tuple.to.push({
+                                            node: nodeId,
                                             name: input.name
                                         });
                                     }
@@ -539,7 +539,7 @@ view.View = class {
                                             tuple = { from: null, to: [] };
                                             edgeMap[argument.name] = tuple;
                                         }
-                                        tuple.from = { 
+                                        tuple.from = {
                                             node: nodeId,
                                             name: output.name,
                                             type: argument.type
@@ -558,7 +558,7 @@ view.View = class {
                         if (node.inner) {
                             addNode(element, node.inner, false);
                         }
-                    }
+                    };
 
                     addNode(element, node, true);
 
@@ -596,8 +596,8 @@ view.View = class {
                                 g.setParent(name, parent);
                             }
                         }
-                    }
-    
+                    };
+
                     if (groups) {
                         let groupName = node.group;
                         if (groupName && groupName.length > 0) {
@@ -630,7 +630,7 @@ view.View = class {
                             tuple = { from: null, to: [] };
                             edgeMap[argument.name] = tuple;
                         }
-                        tuple.from = { 
+                        tuple.from = {
                             node: nodeId,
                             type: argument.type
                         };
@@ -640,15 +640,15 @@ view.View = class {
                     if (inputName.length > 16) {
                         inputName = inputName.split('/').pop();
                     }
-    
+
                     const inputElement = new grapher.NodeElement(this._host.document);
                     const inputHeader = inputElement.block('header');
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } ); 
+                    g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } );
                 }
-            
+
                 for (const output of graph.outputs) {
                     for (const argument of output.arguments) {
                         let tuple = edgeMap[argument.name];
@@ -663,13 +663,13 @@ view.View = class {
                     if (outputName.length > 16) {
                         outputName = outputName.split('/').pop();
                     }
-            
+
                     const outputElement = new grapher.NodeElement(this._host.document);
                     const outputHeader = outputElement.block('header');
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: outputElement.format(graphElement) } ); 
+                    g.setNode(nodeId++, { label: outputElement.format(graphElement) } );
                 }
 
                 for (const edge of Object.keys(edgeMap)) {
@@ -681,11 +681,11 @@ view.View = class {
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.join('\u00D7');
                             }
-            
+
                             if (this._showNames) {
                                 text = edge.split('\n').shift(); // custom argument id
                             }
-    
+
                             if (to.controlDependency) {
                                 g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control-dependency' } );
                             }
@@ -711,7 +711,7 @@ view.View = class {
                 const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 graphElement.appendChild(originElement);
-            
+
                 let svg = null;
                 if (this._host.environment('zoom') == 'd3') {
                     svg = d3.select(graphElement);
@@ -851,14 +851,14 @@ view.View = class {
             backgroundElement.setAttribute('width', width);
             backgroundElement.setAttribute('height', height);
             backgroundElement.setAttribute('fill', '#fff');
-    
+
             const data = new XMLSerializer().serializeToString(exportElement);
-    
+
             if (extension == 'svg') {
                 const blob = new Blob([ data ], { type: 'image/svg' });
                 this._host.export(file, blob);
             }
-    
+
             if (extension == 'png') {
                 const imageElement = new Image();
                 imageElement.onload = () => {
@@ -899,7 +899,7 @@ view.View = class {
             this._sidebar.open(modelSidebar.render(), 'Model Properties');
         }
     }
-    
+
     showNodeProperties(node, input) {
         if (node) {
             const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
@@ -955,7 +955,7 @@ class ModelError extends Error {
 
     constructor(message, telemetry) {
         super(message);
-        this.name = 'Error loading model.'; 
+        this.name = 'Error loading model.';
         this.telemetry = telemetry;
     }
 }
@@ -1036,7 +1036,7 @@ class ModelContext {
                     case 'pbtxt': {
                         const b = this.buffer;
                         const length = b.length;
-                        const signature = 
+                        const signature =
                             (length >= 3 && b[0] === 0xef && b[1] === 0xbb && b[2] === 0xbf) ||
                             (length >= 4 && b[0] === 0x00 && b[1] === 0x00 && b[2] === 0xfe && b[3] === 0xff) ||
                             (length >= 4 && b[0] === 0xff && b[1] === 0xfe && b[2] === 0x00 && b[3] === 0x00) ||
@@ -1150,6 +1150,7 @@ view.ModelFactoryService = class {
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
         this.register('./tengine', ['.tmfile']);
+        this.register('./barracuda', [ '.nn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
@@ -1162,7 +1163,7 @@ view.ModelFactoryService = class {
             this._extensions.push({ extension: extension, id: id });
         }
     }
- 
+
     open(context) {
         return this._openSignature(context).then((context) => {
             return this._openArchive(context).then((context) => {
@@ -1182,7 +1183,7 @@ view.ModelFactoryService = class {
                             if (!module.ModelFactory) {
                                 throw new ModelError("Failed to load module '" + id + "'.");
                             }
-                            const modelFactory = new module.ModelFactory(); 
+                            const modelFactory = new module.ModelFactory();
                             if (!modelFactory.match(context)) {
                                 return nextModule();
                             }
@@ -1203,14 +1204,14 @@ view.ModelFactoryService = class {
                             throw new ModelError(errors.map((err) => err.message).join('\n'));
                         }
                         const knownUnsupportedIdentifiers = new Set([
-                            'natives_blob.bin', 
+                            'natives_blob.bin',
                             'v8_context_snapshot.bin',
                             'snapshot_blob.bin',
                             'image_net_labels.json',
                             'package.json',
                             'models.json',
                             'LICENSE.meta',
-                            'input_0.pb', 
+                            'input_0.pb',
                             'output_0.pb',
                             'object-detection.pbtxt',
                         ]);
@@ -1400,12 +1401,13 @@ view.ModelFactoryService = class {
             return Promise.reject(new ModelError("File has no content.", true));
         }
         const list = [
+            { name: 'ELF executable', value: '\x7FELF' },
             { name: 'Git LFS header', value: 'version https://git-lfs.github.com/spec/v1\n' },
             { name: 'Git LFS header', value: 'oid sha256:' },
             { name: 'HTML markup', value: '<html>' },
             { name: 'HTML markup', value: '<!DOCTYPE html>' },
             { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
-            { name: 'ELF executable', value: '\x7FELF' }
+            { name: 'Unity metadata', value: 'fileFormatVersion:' }
         ];
         for (const item of list) {
             if (buffer.length >= item.value.length &&

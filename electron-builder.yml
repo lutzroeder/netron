@@ -31,6 +31,8 @@ fileAssociations:
     ext: mnn
   - name: "Model"
     ext: model
+  - name: "Barracuda Model"
+    ext: nn
   - name: "ONNX Model"
     ext: onnx
   - name: "Protocol Buffer"

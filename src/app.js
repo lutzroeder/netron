@@ -130,6 +130,7 @@ class Application {
                     'tflite', 'lite', 'tfl', 'bin',
                     'armnn',
                     'param', 'ncnn',
+                    'nn',
                     'tmfile',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',

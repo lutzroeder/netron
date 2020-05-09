@@ -21,6 +21,34 @@
     "link":   "https://github.com/ARM-software/armnn"
   },
   {
+    "type":   "barracuda",
+    "target": "3DBallHardLearning.nn",
+    "source": "https://raw.githubusercontent.com/reinforcement-learning-kr/rl_bootcamp/master/UnitySDK/Assets/ML-Agents/Examples/3DBall/TFModels/3DBallHardLearning.nn",
+    "format": "Barracuda v16",
+    "link":   "https://github.com/reinforcement-learning-kr/rl_bootcamp"
+  },
+  {
+    "type":   "barracuda",
+    "target": "continuous2vis8vec2action.nn",
+    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/com.unity.ml-agents/Tests/Editor/TestModels/continuous2vis8vec2action.nn",
+    "format": "Barracuda v16",
+    "link":   "https://github.com/Unity-Technologies/ml-agents"
+  },
+  {
+    "type":   "barracuda",
+    "target": "mobilenet_v2.nn",
+    "source": "https://raw.githubusercontent.com/Syn-McJ/TFClassify-Unity-Barracuda/master/Assets/Resources/mobilenet_v2.nn",
+    "format": "Barracuda v16",
+    "link":   "https://github.com/Syn-McJ/TFClassify-Unity-Barracuda"
+  },
+  {
+    "type":   "barracuda",
+    "target": "SoccerTwos.nn",
+    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/Project/Assets/ML-Agents/Examples/Soccer/TFModels/SoccerTwos.nn",
+    "format": "Barracuda v16",
+    "link":   "https://github.com/Unity-Technologies/ml-agents"
+  },
+  {
     "type":   "bigdl",
     "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/imageclassification/imagenet/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
