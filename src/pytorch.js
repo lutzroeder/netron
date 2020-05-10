@@ -1354,6 +1354,9 @@ pytorch.Execution = class {
             }
             throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
         });
+        this._registerFunction('__builtin__.set', function(iterable) {
+            return iterable ? iterable : [];
+        });
         this._registerFunction('__builtin__.slice', function(start, stop , step) {
             return [ start, stop, step ];
         });
