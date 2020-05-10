@@ -65,8 +65,8 @@ paddle.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        let initializers = {};
-        let types = {};
+        const initializers = {};
+        const types = {};
         for (const variable of block.vars) {
             if (variable.persistable && variable.type &&
                 variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
@@ -79,7 +79,7 @@ paddle.Graph = class {
 
         }
 
-        let scope = {};
+        const scope = {};
         for (let i = 0; i < block.ops.length; i++) {
             for (const input of block.ops[i].inputs) {
                 input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
@@ -87,7 +87,7 @@ paddle.Graph = class {
             for (const output of block.ops[i].outputs) {
                 output.arguments = output.arguments.map((argument) => {
                     if (scope[argument]) {
-                        let next = argument + '\n' + i.toString(); // custom argument id
+                        const next = argument + '\n' + i.toString(); // custom argument id
                         scope[argument] = next;
                         return next;
                     }
@@ -101,19 +101,19 @@ paddle.Graph = class {
         let lastOutput = null;
         for (const op of block.ops) {
             if (op.type == 'feed') {
-                let inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                const inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => {
                     return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else if (op.type == 'fetch') {
-                let outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                const outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
                 this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => {
                     return new paddle.Argument(id, types[id], null, null);
                 })));
             }
             else {
-                let node = new paddle.Node(metadata, op, initializers, types);
+                const node = new paddle.Node(metadata, op, initializers, types);
                 if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
                     op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
                     op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() &&
@@ -229,13 +229,13 @@ paddle.Node = class {
         }
         for (const input of op.inputs) {
             if (input.arguments.length > 0) {
-                let inputArguments = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
+                const inputArguments = input.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, initializers[argument]));
                 this._inputs.push(new paddle.Parameter(input.parameter, inputArguments));
             }
         }
         for (const output of op.outputs) {
             if (output.arguments.length > 0) {
-                let outputArguments = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
+                const outputArguments = output.arguments.map((argument) => new paddle.Argument(argument, types[argument.split('\n').shift()], null, null));
                 this._outputs.push(new paddle.Parameter(output.parameter, outputArguments));
             }
         }
@@ -350,8 +350,8 @@ paddle.Attribute = class {
         const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                let defaultValue = schema.default;
-                let value = this._value;
+                const defaultValue = schema.default;
+                const value = this._value;
                 if (defaultValue == value) {
                     this._visible = false;
                 }
@@ -481,7 +481,7 @@ paddle.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     item.schema.name = item.name;
