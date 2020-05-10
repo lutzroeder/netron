@@ -20,7 +20,7 @@ cntk.ModelFactory = class {
                 return false;
             }
             // CNTK v1
-            if (buffer && buffer.length >= 8 && 
+            if (buffer && buffer.length >= 8 &&
                 buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
                 buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
                 return true;
@@ -34,13 +34,13 @@ cntk.ModelFactory = class {
         }
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./cntk-proto').then(() => {
             let version = 0;
             let obj = null;
             try {
                 const buffer = context.buffer;
-                if (buffer && buffer.length >= 8 && 
+                if (buffer && buffer.length >= 8 &&
                     buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
                     buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
                     obj = new cntk_v1.ComputationNetwork(buffer);
@@ -155,7 +155,7 @@ cntk.Graph = class {
                     const node = obj.nodes[name];
                     switch (node.__type__) {
                         case 'InputValue':
-                            this._inputs.push(new cntk.Parameter(node.name, [ 
+                            this._inputs.push(new cntk.Parameter(node.name, [
                                 new cntk.Argument(version, node)
                             ]));
                             break;
@@ -172,7 +172,7 @@ cntk.Graph = class {
                 }
                 if (obj.output) {
                     for (const output of obj.output) {
-                        this._outputs.push(new cntk.Parameter(output, [ 
+                        this._outputs.push(new cntk.Parameter(output, [
                             new cntk.Argument(version, output)
                         ]));
                     }
@@ -329,7 +329,7 @@ cntk.Argument = class {
                         this._name = obj.uid;
                         this._type = new cntk.TensorType(version, obj.data_type, obj.shape);
                         this._initializer = null;
-                    }    
+                    }
                     break;
             }
         }
@@ -358,7 +358,7 @@ cntk.Argument = class {
     }
 };
 
-cntk.Node = class { 
+cntk.Node = class {
 
     constructor(metadata, version, obj, args) {
 
@@ -380,7 +380,7 @@ cntk.Node = class {
                         this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj[attributeName]));
                     }
                 }
-                inputs = obj.inputs.map((input) => { 
+                inputs = obj.inputs.map((input) => {
                     if (args[input]) {
                         return args[input];
                     }
@@ -492,7 +492,7 @@ cntk.Node = class {
         return this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
     }
 
-    get attributes() { 
+    get attributes() {
         return this._attributes;
     }
 
@@ -556,7 +556,7 @@ cntk.Attribute = class {
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < value.length) {
-                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                            defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
                     if (value.every((item, index) => { return item == defaultValue[index]; })) {
@@ -670,7 +670,7 @@ cntk.Tensor = class {
 
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
-        
+
         return context;
     }
 
@@ -723,7 +723,7 @@ cntk.TensorType = class {
                 break;
             case 2:
                 if (long.Long.isLong(dataType)) {
-                    dataType = dataType.toNumber(); 
+                    dataType = dataType.toNumber();
                 }
                 switch (dataType) {
                     case 1: this._dataType = 'float32'; break;
@@ -1370,7 +1370,7 @@ cntk_v1.Matrix = class {
     constructor(reader) {
         let type = reader.byte();
         switch (type) {
-            case 100: { 
+            case 100: {
                 // dense
                 reader.assert('BMAT');
                 const elsize = reader.uint64();
@@ -1391,7 +1391,7 @@ cntk_v1.Matrix = class {
 };
 
 cntk_v1.ImageLayoutKind = {
-    0: 'CHW', 
+    0: 'CHW',
     1: 'HWC'
 };
 

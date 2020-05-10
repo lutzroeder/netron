@@ -109,7 +109,7 @@ keras.ModelFactory = class {
             if (!rootGroup && !model_config.class_name) {
                 throw new keras.Error('\'class_name\' is not present.');
             }
-    
+
             return keras.Metadata.open(host).then((metadata) => {
                 try {
                     return new keras.Model(metadata, format, producer, backend, model_config, rootGroup, weightsManifest);
@@ -174,7 +174,7 @@ keras.Model = class {
                 }
             }
         }
-        
+
         this._graphs = [ new keras.Graph(metadata, model_config, weights) ];
     }
 
@@ -230,7 +230,7 @@ keras.Graph = class {
             for (const layer of weights.keys()) {
                 if (weights.get('', layer).length <= 6) {
                     const node = new keras.Node(metadata, 'Weights', { name: layer }, [], [], '', weights);
-                    this._nodes.push(node)
+                    this._nodes.push(node);
                 }
             }
         }
@@ -316,7 +316,7 @@ keras.Graph = class {
                     }
                 }
                 else {
-                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Argument(name, type, null) ])); 
+                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Argument(name, type, null) ]));
                 }
             }
         }
@@ -405,12 +405,12 @@ keras.Graph = class {
         const class_name = layer.class_name;
         switch (class_name) {
             case 'Sequential': {
-                const name = layer.name || (layer.config ? layer.config.name : '')
+                const name = layer.name || (layer.config ? layer.config.name : '');
                 this._loadSequential(layer.config, weights, (group ? group + '/' : '') + name, inputs, outputs);
                 break;
             }
             case 'Model': {
-                const name = layer.name || (layer.config ? layer.config.name : '')
+                const name = layer.name || (layer.config ? layer.config.name : '');
                 this._loadModel(layer.config, weights, (group ? group + '/' : '') + name, inputs, outputs);
                 break;
             }
@@ -550,7 +550,7 @@ keras.Node = class {
                         inputIndex++;
                         continue;
                     }
-                    visible = input.visible == false ? false : true; 
+                    visible = input.visible == false ? false : true;
                     if (schema.inputs[inputIndex].option == 'variadic') {
                         variadic = true;
                     }
@@ -597,7 +597,7 @@ keras.Node = class {
         }
 
         this._outputs = outputs.map((output, outputIndex) => {
-            const outputName = 
+            const outputName =
                 (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
                     schema.outputs[outputIndex].name :
                     outputIndex.toString();
@@ -754,7 +754,7 @@ keras.Attribute = class {
         let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
-        } 
+        }
         while (size--) {
             const key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && keras.Attribute._isEquivalent(a[key], b[key]))) {
@@ -819,7 +819,7 @@ keras.Tensor = class {
         context.index = 0;
         context.count = 0;
         context.state = null;
-        if (this._reference) { 
+        if (this._reference) {
             context.state = 'Tensor reference not implemented.';
             return context;
         }
@@ -1246,7 +1246,7 @@ keras.JsonParser = class {
     _error(message) {
         throw new Error(message + ' at ' + this._position + '.');
     }
-}
+};
 
 keras.Weights = class {
 
@@ -1294,7 +1294,7 @@ keras.Weights = class {
     keys() {
         return this._map.keys();
     }
-}
+};
 
 keras.Error = class extends Error {
 

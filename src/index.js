@@ -48,13 +48,13 @@ host.BrowserHost = class {
                         if (window.ga) {
                             window.ga.l = 1 * new Date();
                             window.ga('create', 'UA-54146-13', 'auto');
-                            window.ga('set', 'anonymizeIp', true)
+                            window.ga('set', 'anonymizeIp', true);
                         }
                         resolve();
-                    }
+                    };
                     script.onerror = () => {
                         resolve();
-                    }
+                    };
                     this.document.body.appendChild(script);
                 }
                 else {
@@ -70,7 +70,7 @@ host.BrowserHost = class {
                         accept();
                     });
                 }
-            }
+            };
             if (this._getCookie('consent')) {
                 accept();
             }
@@ -224,7 +224,7 @@ host.BrowserHost = class {
         this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        this.document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const files = Array.from(e.dataTransfer.files);
@@ -557,7 +557,7 @@ if (typeof TextEncoder === 'undefined') {
     };
     TextEncoder.prototype.encode = function encode(str) {
         "use strict";
-        const length = str.length
+        const length = str.length;
         let resPos = -1;
         const resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
         for (let point = 0, nextcode = 0, i = 0; i !== length; ) {
@@ -605,7 +605,7 @@ if (typeof TextEncoder === 'undefined') {
             return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
         }
     };
-    TextEncoder.prototype.toString = function() { 
+    TextEncoder.prototype.toString = function() {
         return "[object TextEncoder]";
     };
     try {
@@ -676,10 +676,10 @@ host.Dropdown = class {
         this._button = document.getElementById(button);
         this._items = [];
         this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        this._acceleratorMap = {}; 
+        this._acceleratorMap = {};
         window.addEventListener('keydown', (e) => {
             let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0; 
+            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
             if (code == 0x001b) { // Escape
@@ -770,7 +770,7 @@ host.Dropdown = class {
             if (Object.keys(item).length > 0) {
                 let button = this._document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => { 
+                button.addEventListener('click', () => {
                     this.close();
                     setTimeout(() => {
                         item.click();
@@ -797,7 +797,7 @@ host.Dropdown = class {
     close() {
         this._dropdown.style.display = 'none';
     }
-}
+};
 
 
 class BrowserFileContext {

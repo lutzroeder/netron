@@ -22,7 +22,7 @@ dl4j.ModelFactory = class {
     open(context, host) {
         const identifier = context.identifier;
         try {
-            const container = dl4j.ModelFactory._openContainer(context); 
+            const container = dl4j.ModelFactory._openContainer(context);
             const configuration = JSON.parse(container.configuration);
             return dl4j.Metadata.open(host).then((metadata) => {
                 try {
@@ -68,13 +68,13 @@ dl4j.ModelFactory = class {
             coefficients: coefficients
         };
     }
-}
+};
 
 dl4j.Model = class {
 
     constructor(metadata, configuration, coefficients) {
         this._graphs = [];
-        this._graphs.push(new dl4j.Graph(metadata, configuration, coefficients))
+        this._graphs.push(new dl4j.Graph(metadata, configuration, coefficients));
     }
 
     get format() {
@@ -84,7 +84,7 @@ dl4j.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 dl4j.Graph = class {
 
@@ -140,7 +140,7 @@ dl4j.Graph = class {
                     default:
                         throw new dl4j.Error("Unsupported vertex class '" + vertex['@class'] + "'.");
                 }
-        
+
                 this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, variables));
             }
         }
@@ -173,7 +173,7 @@ dl4j.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 dl4j.Parameter = class {
 
@@ -311,7 +311,7 @@ dl4j.Node = class {
                     attributes = activation;
                 }
                 else {
-                    this._chain = this._chain || []; 
+                    this._chain = this._chain || [];
                     this._chain.push(new dl4j.Node(metadata, activation, [], null, null));
                 }
             }
@@ -387,7 +387,7 @@ dl4j.Node = class {
         }
         return result;
     }
-}
+};
 
 dl4j.Attribute = class {
 
@@ -399,7 +399,7 @@ dl4j.Attribute = class {
         if (schema) {
             if (schema.visible) {
                 this._visible = true;
-            } 
+            }
         }
     }
 
@@ -418,8 +418,7 @@ dl4j.Attribute = class {
     get visible() {
         return this._visible;
     }
-}
-
+};
 dl4j.Tensor = class {
 
     constructor(dataType, shape) {
@@ -431,9 +430,9 @@ dl4j.Tensor = class {
     }
 
     get state() {
-        return 'Not implemented.'
+        return 'Not implemented.';
     }
-}
+};
 
 dl4j.TensorType = class {
 
@@ -570,7 +569,7 @@ dl4j.NDArrayReader = class {
         header.data = reader.bytes(header.itemsize * header.length);
         return header;
     }
-}
+};
 
 dl4j.BinaryReader = class {
 
@@ -592,7 +591,7 @@ dl4j.BinaryReader = class {
     }
 
     int32() {
-        return this._buffer[this._position++] << 24 | 
+        return this._buffer[this._position++] << 24 |
             this._buffer[this._position++] << 16 |
             this._buffer[this._position++] << 8 |
             this._buffer[this._position++];
@@ -603,7 +602,7 @@ dl4j.BinaryReader = class {
         let lo = this.int32();
         return new long.Long(hi, lo, true).toNumber();
     }
-}
+};
 
 dl4j.Error = class extends Error {
     constructor(message) {

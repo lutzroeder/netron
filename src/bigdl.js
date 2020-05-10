@@ -38,7 +38,7 @@ bigdl.ModelFactory = class {
             });
         });
     }
-}
+};
 
 bigdl.Model = class {
 
@@ -54,7 +54,7 @@ bigdl.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 bigdl.Graph = class {
 
@@ -70,11 +70,11 @@ bigdl.Graph = class {
     _loadModule(metadata, group, module) {
         switch (module.moduleType) {
             case 'com.intel.analytics.bigdl.nn.StaticGraph': {
-                this._loadStaticGraph(metadata, group, module)
+                this._loadStaticGraph(metadata, group, module);
                 break;
             }
             case 'com.intel.analytics.bigdl.nn.Sequential': {
-                this._loadSequential(metadata, group, module)
+                this._loadSequential(metadata, group, module);
                 break;
             }
             default: {
@@ -121,7 +121,7 @@ bigdl.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 bigdl.Parameter = class {
 
@@ -141,7 +141,7 @@ bigdl.Parameter = class {
     get arguments() {
         return this._arguments;
     }
-}
+};
 
 bigdl.Argument = class {
 
@@ -168,7 +168,7 @@ bigdl.Argument = class {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
 bigdl.Node = class {
 
@@ -200,7 +200,7 @@ bigdl.Node = class {
             for (const parameter of module.parameters) {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
-                this._inputs.push(new bigdl.Parameter(inputName, [ 
+                this._inputs.push(new bigdl.Parameter(inputName, [
                     new bigdl.Argument('', null, new bigdl.Tensor(parameter))
                 ]));
             }
@@ -225,7 +225,7 @@ bigdl.Node = class {
             }
             this._attributes.push(new bigdl.Attribute(metadata, this._operator, key, value));
         }
-        const output = this._name || this._type + module.namePostfix
+        const output = this._name || this._type + module.namePostfix;
         this._outputs.push(new bigdl.Parameter('output', [
             new bigdl.Argument(output, null, null)
         ]));
@@ -258,7 +258,7 @@ bigdl.Node = class {
     get attributes() {
         return this._attributes;
     }
-}
+};
 
 bigdl.Attribute = class {
 
@@ -354,7 +354,7 @@ bigdl.Attribute = class {
     get visible() {
         return true;
     }
-}
+};
 
 bigdl.Tensor = class {
 
@@ -381,13 +381,13 @@ bigdl.Tensor = class {
     toString() {
         return '';
     }
-}
+};
 
 bigdl.TensorType = class {
 
     constructor(dataType, shape) {
         switch (dataType) {
-            case bigdl.proto.DataType.FLOAT: this._dataType = 'float32'; break
+            case bigdl.proto.DataType.FLOAT: this._dataType = 'float32'; break;
             case bigdl.proto.DataType.DOUBLE: this._dataType = 'float64'; break;
             default: throw new bigdl.Error("Unsupported tensor type '" + dataType + "'.");
         }
@@ -405,7 +405,7 @@ bigdl.TensorType = class {
     toString() {
         return (this.dataType || '?') + this._shape.toString();
     }
-}
+};
 
 bigdl.TensorShape = class {
 
@@ -425,7 +425,7 @@ bigdl.TensorShape = class {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
 bigdl.Metadata = class {
 

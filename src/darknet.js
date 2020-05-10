@@ -56,7 +56,7 @@ darknet.Model = class {
 };
 
 darknet.Graph = class {
-    
+
     constructor(metadata, cfg, weights) {
         this._inputs = [];
         this._outputs = [];
@@ -129,7 +129,7 @@ darknet.Graph = class {
                 throw new darknet.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "' in '" + source + "'.");
             }
             return new darknet.TensorShape(dimensions);
-        }
+        };
 
         const load_weights = (name, shape, visible) => {
             const data = weights ? weights.bytes(4 * shape.reduce((a, b) => a * b)) : null;
@@ -137,13 +137,13 @@ darknet.Graph = class {
             const initializer = new darknet.Tensor(type, data);
             const argument = new darknet.Argument('', null, initializer);
             return new darknet.Parameter(name, visible === false ? false : true, [ argument ]);
-        }
+        };
 
         const load_batch_normalize_weights = (layer, prefix, size) => {
             layer.weights.push(load_weights(prefix + 'scale', [ size ], prefix === ''));
             layer.weights.push(load_weights(prefix + 'mean', [ size ], prefix === ''));
             layer.weights.push(load_weights(prefix + 'variance', [ size ], prefix === ''));
-        }
+        };
 
         const make_convolutional_layer = (layer, prefix, w, h, c, n, groups, size, stride_x, stride_y, padding, batch_normalize) => {
             layer.out_w = Math.floor((w + 2 * padding - size) / stride_x) + 1;
@@ -156,7 +156,7 @@ darknet.Graph = class {
             }
             layer.weights.push(load_weights(prefix + 'weights', [ Math.floor(c / groups), n, size, size ], prefix === ''));
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'make_convolutional_layer'));
-        }
+        };
 
         const make_connected_layer = (layer, prefix, inputs, outputs, batch_normalize) => {
             layer.out_h = 1;
@@ -169,7 +169,7 @@ darknet.Graph = class {
             }
             layer.weights.push(load_weights(prefix + 'weights', [ inputs, outputs ], prefix === ''));
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'make_connected_layer'));
-        }
+        };
 
         const params = {};
         const globals = new Map();
@@ -206,7 +206,7 @@ darknet.Graph = class {
             section.chain = [];
             section.layer = {};
             const options = section.options;
-            const layer = section.layer; 
+            const layer = section.layer;
             layer.inputs = [].concat(params.arguments);
             layer.outputs = [ new darknet.Argument(i.toString(), null, null) ];
             layer.weights = [];
@@ -267,7 +267,7 @@ darknet.Graph = class {
                         let stride_y = option_find_int(options, 'stride_y', -1);
                         if (stride_x < 1 || stride_y < 1) {
                             const stride = option_find_int(options, 'stride', 1);
-                            stride_x = stride_x < 1 ? stride : stride_x; 
+                            stride_x = stride_x < 1 ? stride : stride_x;
                             stride_y = stride_y < 1 ? stride : stride_y;
                         }
                         const groups = option_find_int(options, 'groups', 1);
@@ -567,7 +567,7 @@ darknet.Graph = class {
                             layer.out_w = params.w * stride;
                             layer.out_h = params.h * stride;
                             layer.out_c = Math.floor(params.c / (stride * stride));
-                        } 
+                        }
                         else {
                             layer.out_w = Math.floor(params.w / stride);
                             layer.out_h = Math.floor(params.h / stride);
@@ -576,7 +576,7 @@ darknet.Graph = class {
                         layer.out = layer.out_h * layer.out_w * layer.out_c;
                         if (extra) {
                             layer.out_w = 0;
-                            layer.out_h = 0; 
+                            layer.out_h = 0;
                             layer.out_c = 0;
                             layer.out = (params.h * params.w * params.c) + extra;
                         }
@@ -1024,10 +1024,10 @@ darknet.Weights = class {
 
     validate() {
         if (this._position !== this._buffer.length) {
-            throw new darknet.Error('Invalid weights size.')
+            throw new darknet.Error('Invalid weights size.');
         }
     }
-}
+};
 
 darknet.Metadata = class {
 

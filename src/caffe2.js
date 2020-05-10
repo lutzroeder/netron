@@ -18,8 +18,8 @@ caffe2.ModelFactory = class {
             const tags = context.tags('pb');
             // ignore input_0.pb, output_0.pb
             if (tags.size > 0 &&
-                tags.has(1) && tags.get(1) == 0 && 
-                tags.has(2) && tags.get(2) == 0 && 
+                tags.has(1) && tags.get(1) == 0 &&
+                tags.has(2) && tags.get(2) == 0 &&
                 tags.has(9) && tags.get(9) == 2) {
                 return false;
             }
@@ -57,7 +57,7 @@ caffe2.ModelFactory = class {
             }
         }
         return false;
-    }    
+    }
 
     open(context, host) {
         return host.require('./caffe2-proto').then(() => {
@@ -302,8 +302,8 @@ caffe2.Graph = class {
         for (let op of netDef.op) {
             let node = new caffe2.Node(metadata, op, inputs);
             if (op.input.length == 1 &&
-                op.output.length >= 1 && 
-                op.input[0].split('\n').shift() == op.output[0].split('\n').shift() && 
+                op.output.length >= 1 &&
+                op.input[0].split('\n').shift() == op.output[0].split('\n').shift() &&
                 lastNode &&
                 lastOutput == op.input[0].split('\n').shift()) {
                 lastNode.chain.push(node);

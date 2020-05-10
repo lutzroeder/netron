@@ -29,7 +29,7 @@ openvino.ModelFactory = class {
             }
             if (buffer.length > 4) {
                 const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
-                if (signature === 0x00000000 || signature === 0x00000001 || 
+                if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return false;
                 }
@@ -242,7 +242,7 @@ openvino.Graph = class {
                         }
                     }
                 }
-                
+
                 this._nodes.push(nestedNode);
             }
 
@@ -270,14 +270,14 @@ openvino.Graph = class {
                             const argumentWithoutId = inputWithoutId.arguments.find((argument) => !argument.name);
                             if (argumentWithoutId){
                                 argumentWithoutId._name = potentialParentInput.arguments[0].name;
-                            } 
+                            }
                         }
-                    } 
+                    }
                     else {
                         if (!nestedNode._inputs){
                             throw new openvino.Error("Tensor Iterator node with name '" + nestedNode._id + "' does not have inputs.");
                         }
-                        
+
                         const newId = parentLayerID + ':' + parentPortID;
                         const inputWithoutId = nestedNode._inputs.find((input) => {
                             return Boolean(input.arguments.find((argument) => !argument.name));
@@ -286,7 +286,7 @@ openvino.Graph = class {
                             const argumentWithoutId = inputWithoutId._arguments.find((argument) => !argument._name);
                             if (argumentWithoutId){
                                 argumentWithoutId._name = newId;
-                            } 
+                            }
                         }
                         else {
                             // TODO: no tensor information in the new argument - passed as null for now
@@ -301,7 +301,7 @@ openvino.Graph = class {
             for (const nestedOutput of mappingForNestedIR.output) {
                 const nestedNode = this._nodes.find((n) => n._id === `${singleTensorIteratorNodeId}_${nestedOutput.internal_layer_id}`);
                 const toEdge = singleTensorIteratorNodeId + ':' + nestedOutput.external_port_id;
-                const candidate_edges = Object.keys(edges).filter((key) => edges[key] === toEdge)
+                const candidate_edges = Object.keys(edges).filter((key) => edges[key] === toEdge);
                 for (const candidate_edge of candidate_edges) {
                     const childLayerID = candidate_edge.split(':')[0];
                     const child = this._nodes.find((layer) => layer._id === childLayerID);
@@ -432,7 +432,7 @@ openvino.Node = class {
         const precision = layer.precision;
         let inputIndex = 0;
         for (const input of inputs) {
-            const inputName = (inputIndex == 0) ? 'input' : inputIndex.toString(); 
+            const inputName = (inputIndex == 0) ? 'input' : inputIndex.toString();
             this._inputs.push(new openvino.Parameter(inputName, [ input ]));
             inputIndex++;
         }
@@ -485,8 +485,8 @@ openvino.Node = class {
                         dimensions = [ Math.floor(c / group), n ].concat(kernel);
                         break;
                     }
-                    case 'ScaleShift:weights': 
-                    case 'ScaleShift:biases': 
+                    case 'ScaleShift:weights':
+                    case 'ScaleShift:biases':
                     case 'Convolution:biases':
                     case 'Normalize:weights':
                     case 'PReLU:weights': {
@@ -675,7 +675,7 @@ openvino.Attribute = class {
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < this._value.length) {
-                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                            defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
                     if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
@@ -1004,7 +1004,7 @@ openvino.XmlReader = class {
                 throw new openvino.Error("Element '" + parent.nodeName + "' has multiple '" + name + "' elements.");
             }
             return elements.length > 0 ? elements[0] : null;
-        }
+        };
         const ports = (parent, name) => {
             const elements = child(parent, name);
             if (elements) {
@@ -1033,12 +1033,12 @@ openvino.XmlReader = class {
                             return { name: attribute.name, value: attribute.value};
                         }),
                         blobs: !blobs ? [] : Array.from(blobs.childNodes).filter((node) => node.nodeType === 1).map((blob) => {
-                            return { 
+                            return {
                                 name: blob.nodeName,
                                 precision: blob.getAttribute('precision'),
                                 offset: parseInt(blob.getAttribute('offset'), 10),
                                 size: parseInt(blob.getAttribute('size'), 10)
-                            } 
+                            };
                         }),
                         inputs: ports(element, 'input'),
                         outputs: ports(element, 'output'),
@@ -1073,7 +1073,7 @@ openvino.XmlReader = class {
                 });
             }
             return [];
-        }
+        };
         const edges = (parent, name) => {
             const map = {};
             const elements = child(parent, name || 'edges');
@@ -1087,7 +1087,7 @@ openvino.XmlReader = class {
                 }
             }
             return map;
-        }
+        };
         return {
             name: element.getAttribute('name'),
             batch: element.getAttribute('batch'),
@@ -1096,7 +1096,7 @@ openvino.XmlReader = class {
             edges: edges(element)
         };
     }
-}
+};
 
 openvino.Error = class extends Error {
 

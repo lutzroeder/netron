@@ -56,7 +56,7 @@ host.ElectronHost = class {
                         accept();
                     });
                 }
-            }
+            };
             const time = this._getConfiguration('consent');
             if (time && (Date.now() - time) < 30 * 24 * 60 * 60 * 1000) {
                 accept();
@@ -150,7 +150,7 @@ host.ElectronHost = class {
         this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        this.document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
             let files = [];
             for (let i = 0; i < e.dataTransfer.files.length; i++) {
@@ -285,8 +285,8 @@ host.ElectronHost = class {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
                 }
-    
-                const params = { 
+
+                const params = {
                     applicationName: this.type,
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
@@ -316,7 +316,7 @@ host.ElectronHost = class {
     event(category, action, label, value) {
         if (this._telemetry) {
             try {
-                const params = { 
+                const params = {
                     applicationName: this.type,
                     applicationVersion: this.version,
                     userAgentOverride: navigator.userAgent
@@ -431,7 +431,7 @@ host.ElectronHost = class {
     _setConfiguration(name, value) {
         const configuration = electron.remote.getGlobal('global').application.service('configuration');
         if (configuration) {
-            configuration.set(name, value)
+            configuration.set(name, value);
         }
     }
 

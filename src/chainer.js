@@ -9,7 +9,7 @@ var long = long || { Long: require('long') };
 chainer.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier; 
+        const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'npz') {
             const entries = context.entries('zip');
@@ -86,7 +86,7 @@ chainer.ModelFactory = class {
                             return array;
                         };
                     });
-                    constructorTable.set('numpy.dtype', function(obj, align, copy) { 
+                    constructorTable.set('numpy.dtype', function(obj, align, copy) {
                         switch (obj) {
                             case 'i1': this.name = 'int8'; this.itemsize = 1; break;
                             case 'i2': this.name = 'int16'; this.itemsize = 2; break;
@@ -193,7 +193,7 @@ chainer.ModelFactory = class {
                         }
 
                         module.parameters.push({
-                            name: parameterName, 
+                            name: parameterName,
                             dataType: dataTypeMap.has(array.dataType) ? dataTypeMap.get(array.dataType) : array.dataType,
                             shape: array.shape,
                             data: array.data,
@@ -246,11 +246,11 @@ chainer.ModelFactory = class {
                             if (!variable) {
                                 throw new chainer.Error('Variable value is not Chainer HDF5');
                             }
-                            module.parameters.push({ 
+                            module.parameters.push({
                                 name: variableGroup.name,
                                 dataType: variable.type,
                                 byteOrder: variable.littleEndian ? '<' : '>',
-                                shape: variable.shape, 
+                                shape: variable.shape,
                                 data: variable.data,
                             });
                         }
@@ -274,11 +274,11 @@ chainer.ModelFactory = class {
                             if (!variable) {
                                 throw new chainer.Error('Variable value is not Chainer HDF5');
                             }
-                            module.parameters.push({ 
+                            module.parameters.push({
                                 name: variableGroup.name,
                                 dataType: variable.type,
                                 byteOrder: variable.littleEndian ? '<' : '>',
-                                shape: variable.shape, 
+                                shape: variable.shape,
                                 data: variable.data,
                             });
                         }
@@ -296,7 +296,7 @@ chainer.ModelFactory = class {
             }
         });
     }
-}
+};
 
 chainer.Model = class {
 
@@ -313,7 +313,7 @@ chainer.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 chainer.Graph = class {
 
@@ -335,7 +335,7 @@ chainer.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 chainer.Parameter = class {
 
@@ -355,7 +355,7 @@ chainer.Parameter = class {
     get arguments() {
         return this._arguments;
     }
-}
+};
 
 chainer.Argument = class {
 
@@ -378,7 +378,7 @@ chainer.Argument = class {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
 chainer.Node = class {
 
@@ -417,7 +417,7 @@ chainer.Node = class {
     get attributes() {
         return [];
     }
-}
+};
 
 chainer.Tensor = class  {
 
@@ -473,7 +473,7 @@ chainer.Tensor = class  {
             context.state = 'Tensor byte order is not supported.';
             return context;
         }
-        if (this._reference) { 
+        if (this._reference) {
             context.state = 'Tensor reference not implemented.';
             return context;
         }
@@ -613,7 +613,7 @@ chainer.Tensor = class  {
         }
         return indentation + value.toString();
     }
-}
+};
 
 chainer.TensorType = class {
 
@@ -633,7 +633,7 @@ chainer.TensorType = class {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
 chainer.TensorShape = class {
 
@@ -651,7 +651,7 @@ chainer.TensorShape = class {
         }
         return '[' + this._dimensions.join(',') + ']';
     }
-}
+};
 
 chainer.Error = class extends Error {
 
@@ -659,7 +659,7 @@ chainer.Error = class extends Error {
         super(message);
         this.name = 'Error loading Chainer model.';
     }
-}
+};
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = chainer.ModelFactory;

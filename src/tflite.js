@@ -12,7 +12,7 @@ tflite.ModelFactory = class {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'tflite' || extension === 'lite' || extension === 'tfl' || extension === 'bin' || extension === 'pb' || extension === 'model') {
             const buffer = context.buffer;
-            const signature = 'TFL3'
+            const signature = 'TFL3';
             if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
                 return true;
             }
@@ -136,7 +136,7 @@ tflite.Model = class {
     get graphs() {
         return this._graphs;
     }
-}; 
+};
 
 tflite.Graph = class {
 
@@ -310,7 +310,7 @@ tflite.Node = class {
                 const options = node.builtinOptions(Reflect.construct(optionsType, []));
                 if (options) {
                     const names = new Set(Object.keys(Object.getPrototypeOf(options)).filter((name) => name !== '__init'));
-                    const arrayNames = new Set(); 
+                    const arrayNames = new Set();
                     for (const name of new Set(names)) {
                         if (names.has(name + 'Array') && names.has(name + 'Length')) {
                             names.delete(name + 'Array');
@@ -581,7 +581,7 @@ tflite.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
- 
+
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
         context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
@@ -776,7 +776,7 @@ tflite.Metadata = class {
             }
             const attributeSchema = attributeMap[name];
             if (attributeSchema) {
-                return attributeSchema; 
+                return attributeSchema;
             }
         }
         return null;
@@ -818,7 +818,7 @@ tflite.Utility = class {
         }
         return value;
     }
-}
+};
 
 tflite.Error = class extends Error {
 

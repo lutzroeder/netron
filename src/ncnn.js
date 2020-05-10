@@ -35,7 +35,7 @@ ncnn.ModelFactory = class {
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
-                if (signature === 0x00000000 || signature === 0x00000001 || 
+                if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return true;
                 }
@@ -95,7 +95,7 @@ ncnn.ModelFactory = class {
             }
         });
     }
-}
+};
 
 ncnn.Model = class {
 
@@ -111,7 +111,7 @@ ncnn.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 ncnn.Graph = class {
 
@@ -125,7 +125,7 @@ ncnn.Graph = class {
         const layers = (typeof param == 'string') ?
             this._param(metadata, param, bin) :
             this._param_bin(metadata, param, bin);
- 
+
         for (const layer of layers) {
             if (layer.type == 'Input') {
                 const dimensions = layer.attributes.map((a) => !isNaN(parseInt(a.value, 10)) ? parseInt(a.value, 10) : a.value);
@@ -143,7 +143,7 @@ ncnn.Graph = class {
         const lines = param.split(/\r?\n/);
         const signature = lines.shift();
         if (signature !== '7767517') {
-            throw new ncnn.Error('Invalid signature.')
+            throw new ncnn.Error('Invalid signature.');
         }
         const header = lines.shift().split(' ');
         if (header.length !== 2) {
@@ -189,7 +189,7 @@ ncnn.Graph = class {
     _param_bin(metadata, param) {
         const reader = new ncnn.BinaryReader(param);
         if (reader.int32() !== 0x007685DD) {
-            throw new ncnn.Error('Invalid signature.')
+            throw new ncnn.Error('Invalid signature.');
         }
         const layerCount = reader.int32();
         /* const blobCount = */ reader.int32();
@@ -250,7 +250,7 @@ ncnn.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 ncnn.Parameter = class {
 
@@ -359,7 +359,7 @@ ncnn.Node = class {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                        return new ncnn.Argument(id, null, null)
+                        return new ncnn.Argument(id, null, null);
                     });
                     this._outputs.push(new ncnn.Parameter(outputDef.name, true, outputArguments));
                     outputIndex += outputCount;
@@ -501,7 +501,7 @@ ncnn.Node = class {
             new ncnn.Argument('', null, new ncnn.Tensor(new ncnn.TensorType(dataType, new ncnn.TensorShape(dimensions)), data))
         ]));
     }
-}
+};
 
 ncnn.Attribute = class {
 
@@ -551,7 +551,7 @@ ncnn.Attribute = class {
     get visible() {
         return this._visible == false ? false : true;
     }
-}
+};
 
 ncnn.Tensor = class {
 
@@ -664,8 +664,7 @@ ncnn.Tensor = class {
         }
         return results;
     }
-
-}
+};
 
 ncnn.TensorType = class {
 
@@ -685,7 +684,7 @@ ncnn.TensorType = class {
     toString() {
         return this._dataType + this._shape.toString();
     }
-}
+};
 
 ncnn.TensorShape = class {
 
@@ -718,7 +717,7 @@ ncnn.Metadata = class {
     }
 
     constructor(data) {
-        this._operatorMap = new Map(); 
+        this._operatorMap = new Map();
         this._map = new Map();
         this._attributeCache = new Map();
         if (data) {
@@ -778,7 +777,7 @@ ncnn.BinaryReader = class {
         }
         return this._dataView.getInt32(position, true);
     }
-}
+};
 
 ncnn.BlobReader = class {
 
@@ -830,14 +829,14 @@ ncnn.BlobReader = class {
             }
             if (this._buffer) {
                 if (dataType) {
-                    const position = this._position
+                    const position = this._position;
                     switch (dataType) {
-                        case 'float32': 
+                        case 'float32':
                             size *= 4;
                             this._position += size;
                             data = this._buffer.subarray(position, this._position);
                             break;
-                        case 'float16': 
+                        case 'float16':
                             size *= 2;
                             this._position += size;
                             data = this._buffer.subarray(position, this._position);
@@ -859,7 +858,7 @@ ncnn.BlobReader = class {
         }
         return null;
     }
-}
+};
 
 ncnn.Error = class extends Error {
 

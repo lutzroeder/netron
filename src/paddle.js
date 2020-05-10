@@ -19,7 +19,7 @@ paddle.ModelFactory = class {
     open(context, host) {
         return host.require('./paddle-proto').then(() => {
             let desc = null;
-            const identifier = context.identifier; 
+            const identifier = context.identifier;
             try {
                 paddle.proto = protobuf.roots.paddle.paddle.framework.proto;
                 desc = paddle.proto.ProgramDesc.decode(context.buffer);
@@ -68,8 +68,8 @@ paddle.Graph = class {
         let initializers = {};
         let types = {};
         for (const variable of block.vars) {
-            if (variable.persistable && variable.type && 
-                variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && 
+            if (variable.persistable && variable.type &&
+                variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
                 variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
                 initializers[variable.name] = new paddle.Tensor(variable);
             }
@@ -116,7 +116,7 @@ paddle.Graph = class {
                 let node = new paddle.Node(metadata, op, initializers, types);
                 if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
                     op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
-                    op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() && 
+                    op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() &&
                     lastNode &&
                     lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
                     lastNode.chain.push(node);
@@ -360,7 +360,7 @@ paddle.Attribute = class {
                         this._visible = false;
                     }
                 }
-                
+
             }
         }
     }
@@ -436,7 +436,7 @@ paddle.TensorType = class {
         return this._shape;
     }
 
-    get denotation() { 
+    get denotation() {
         return this._denotation;
     }
 

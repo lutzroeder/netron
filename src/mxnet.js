@@ -405,7 +405,7 @@ mxnet.Graph = class {
         if (symbol) {
             const nodes = symbol.nodes;
             for (const node of nodes) {
-                if (node.op && node.op != 'null') { 
+                if (node.op && node.op != 'null') {
                     let operator = node.op;
                     const attrs = node.attrs || node.attr || node.param;
                     if (operator == 'tvm_op' && attrs && attrs.func_name) {
@@ -413,7 +413,7 @@ mxnet.Graph = class {
                     }
                 }
             }
-    
+
             let inputs = {};
             if (signature && signature.inputs) {
                 for (const input of signature.inputs) {
@@ -426,7 +426,7 @@ mxnet.Graph = class {
                     outputs[output.data_name] = output;
                 }
             }
-    
+
             for (const node of nodes) {
                 node.outputs = [];
             }
@@ -435,19 +435,19 @@ mxnet.Graph = class {
                     return mxnet.Graph._updateOutput(nodes, input);
                 });
             }
-    
+
             let outputCountMap = {};
             for (const node of nodes) {
                 for (const output of node.outputs) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
-    
+
             let argumentMap = {};
             for (const index of symbol.arg_nodes) {
                 argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
             }
-    
+
             for (let i = 0; i < symbol.heads.length; i++) {
                 const head = symbol.heads[i];
                 const outputId = mxnet.Graph._updateOutput(nodes, head);
@@ -459,12 +459,12 @@ mxnet.Graph = class {
                 }
                 this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Argument('[' + outputId.join(',') + ']', outputType, null) ]));
             }
-    
+
             let initializerMap = {};
             for (const node of nodes.filter((node, index) => !argumentMap[index])) {
                 this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, tensors));
             }
-    
+
             for (const argumentKey of Object.keys(argumentMap)) {
                 let argument = argumentMap[argumentKey];
                 if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
@@ -499,7 +499,7 @@ mxnet.Graph = class {
                     if (!block) {
                         block = { name: nodeName, op: 'Weights', params: [] };
                         blockMap[nodeName] = block;
-                        blocks.push(block)
+                        blocks.push(block);
                     }
                     blockMap[nodeName].params.push({ name: argumentName, id: id });
                 }
@@ -509,7 +509,7 @@ mxnet.Graph = class {
             }
 
             for (block of blocks) {
-                this._nodes.push(new mxnet.Node(metadata, block, {}, {}, params))
+                this._nodes.push(new mxnet.Node(metadata, block, {}, {}, params));
             }
         }
     }
@@ -630,7 +630,7 @@ mxnet.Node = class {
                         return null;
                     }
                     return input;
-                }); 
+                });
                 inputs = inputs.filter((item) => item != null);
             }
             let initializers = {};
@@ -703,7 +703,7 @@ mxnet.Node = class {
             if (inputIndex < inputs.length) {
                 this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
                     const inputId = '[' + input.join(',') + ']';
-                    return new mxnet.Parameter((inputIndex + index).toString(), [ 
+                    return new mxnet.Parameter((inputIndex + index).toString(), [
                         new mxnet.Argument(inputId, null, initializers[inputId])
                     ]);
                 }));
@@ -728,7 +728,7 @@ mxnet.Node = class {
             }
             if (outputIndex < outputs.length) {
                 this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
-                    return new mxnet.Parameter((outputIndex + index).toString(), [ 
+                    return new mxnet.Parameter((outputIndex + index).toString(), [
                         new mxnet.Argument('[' + output.join(',') + ']', null, null)
                     ]);
                 }));
@@ -749,7 +749,7 @@ mxnet.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator); 
+        return this._metadata.type(this._operator);
     }
 
     get name() {
@@ -835,7 +835,7 @@ mxnet.Attribute = class {
                     if (defaultValue.length > 1 && defaultValue[defaultValue.length - 1] == null) {
                         defaultValue.pop();
                         while (defaultValue.length < this._value.length) {
-                            defaultValue.push(defaultValue[defaultValue.length - 1]); 
+                            defaultValue.push(defaultValue[defaultValue.length - 1]);
                         }
                     }
                     if (this._value.every((item, index) => { return item == defaultValue[index]; })) {
@@ -864,7 +864,7 @@ mxnet.Attribute = class {
 };
 
 mxnet.Tensor = class {
-    
+
     constructor(kind, name, type, data) {
         this._kind = kind;
         this._name = name;
@@ -1160,7 +1160,7 @@ ndarray.Stream = class {
 
 };
 
-ndarray.Array = class { 
+ndarray.Array = class {
 
     constructor(reader) {
 
@@ -1228,7 +1228,7 @@ ndarray.Array = class {
         return this._dataType;
     }
 
-    get shape() { 
+    get shape() {
         return this._shape;
     }
 
@@ -1264,7 +1264,7 @@ ndarray.Context = class {
     }
 };
 
-ndarray.Reader = class { 
+ndarray.Reader = class {
 
     constructor(buffer) {
         this._buffer = buffer;

@@ -264,7 +264,7 @@ pickle.Unpickler = class {
                         case 2: number = data[1] << 8 | data[0]; break;
                         case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
                         case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;
-                        default: number = Array.prototype.slice.call(data, 0); break; 
+                        default: number = Array.prototype.slice.call(data, 0); break;
                     }
                     stack.push(number);
                     break;
@@ -338,7 +338,7 @@ pickle.Unpickler = class {
                     case 0x74: a[o++] = 0x09; break; // \t
                     case 0x62: a[o++] = 0x08; break; // \b
                     case 0x58: // x
-                    case 0x78: { // X 
+                    case 0x78: { // X
                         const xsi = i - 1;
                         const xso = o;
                         for (let xi = 0; xi < 2; xi++) {
@@ -462,7 +462,7 @@ pickle.OpCode = {
     FRAME: 149             // '\x95' (Protocol 4)
 };
 
-pickle.Reader = class { 
+pickle.Reader = class {
 
     constructor(buffer) {
         if (buffer) {

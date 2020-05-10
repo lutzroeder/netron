@@ -44,7 +44,7 @@ torch.ModelFactory = class {
 };
 
 torch.Model = class {
-    
+
     constructor(metadata, root) {
         this._graphs = [];
         this._graphs.push(new torch.Graph(metadata, root));
@@ -113,7 +113,7 @@ torch.Graph = class {
                 for (const subModule of module.modules) {
                     if (index == length - 1) {
                         subOutputs = outputs;
-                    }                    
+                    }
                     this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     subInputs = subOutputs;
                     subOutputs = [];
@@ -357,7 +357,7 @@ torch.Node = class {
                     continue;
                 }
                 if (obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Tensor')) {
-                    initializers.push(new torch.Parameter(key, true, [ 
+                    initializers.push(new torch.Parameter(key, true, [
                         new torch.Argument(key, null, new torch.Tensor(obj))
                     ]));
                     continue;
@@ -675,7 +675,7 @@ torch.Error = class extends Error {
 torch.T7Reader = class {
 
     constructor(buffer, callback) {
-        this._callback = callback; 
+        this._callback = callback;
         this._memo = new Map();
 
         this._registry = {};
@@ -755,7 +755,7 @@ torch.T7Reader = class {
         this._registry['nn.ParallelTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.PixelShuffle'] = function(reader) { reader.nn(this); };
         this._registry['nn.Power'] = function(reader) { reader.nn(this); };
-        this._registry['nn.PReLU'] = function(reader) { reader.nn(this); }; 
+        this._registry['nn.PReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Recursor'] = function(reader) { reader.nn(this); };
         this._registry['nn.ReLU'] = function(reader) { reader.nn(this); };
         this._registry['nn.Replicate'] = function(reader) { reader.nn(this); };
@@ -1085,7 +1085,7 @@ torch.BinaryReader = class {
         }
         return array;
     }
-    
+
     float32() {
         const position = this._position;
         this.skip(4);
@@ -1179,7 +1179,7 @@ torch.TextReader = class {
         }
         return array;
     }
-    
+
     float32() {
         return this.float64();
     }

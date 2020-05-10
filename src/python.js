@@ -11,7 +11,7 @@ python.Parser = class {
         this._tokenizer = new python.Tokenizer(text, file);
         if (!python.Parser._precedence) {
             python.Parser._precedence = {
-                'or': 2, 'and': 3, 'not' : 4, 
+                'or': 2, 'and': 3, 'not' : 4,
                 'in': 5, 'instanceof': 5, 'is': 5, '<': 5, '>': 5, '<=': 5, '>=': 5, '<>': 5, '==': 5, '!=': 5,
                 '|': 6, '^' : 7, '&' : 8,
                 '<<': 9, '>>': 9, '+': 10, '-': 10, '*': 11, '@': 11, '/': 11, '//': 11, '%': 11,
@@ -131,7 +131,7 @@ python.Parser = class {
             if (this._tokenizer.eat('in')) {
                 do {
                     node.target = node.target || [];
-                    node.target.push(this._parseExpression(-1, [ 'in' ], false))
+                    node.target.push(this._parseExpression(-1, [ 'in' ], false));
                 }
                 while (this._tokenizer.eat(','));
             }
@@ -163,7 +163,7 @@ python.Parser = class {
                 let module = this._node('module');
                 module.name = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('id', 'as')) {
-                    module.as = this._parseExpression(-1, [], false); 
+                    module.as = this._parseExpression(-1, [], false);
                 }
                 node.modules.push(module);
             }
@@ -187,7 +187,7 @@ python.Parser = class {
                 let symbol = this._node();
                 symbol.symbol = this._parseExpression(-1, [], false);
                 if (this._tokenizer.eat('id', 'as')) {
-                    symbol.as = this._parseExpression(-1, [], false); 
+                    symbol.as = this._parseExpression(-1, [], false);
                 }
                 node.import.push(symbol);
             }
@@ -209,9 +209,9 @@ python.Parser = class {
         }
 
         const async = this._eat('id', 'async');
-        if (async && 
+        if (async &&
             !this._tokenizer.match('id', 'def') &&
-            !this._tokenizer.match('id', 'with') && 
+            !this._tokenizer.match('id', 'with') &&
             !this._tokenizer.match('id', 'for')) {
             throw new python.Error("Expected 'def', 'with' or 'for'" + this._tokenizer.location());
         }
@@ -314,7 +314,7 @@ python.Parser = class {
             node.item = [];
             do {
                 let item = this._node();
-                item.type = 'with_item'
+                item.type = 'with_item';
                 item.expression = this._parseExpression();
                 if (this._tokenizer.eat('id', 'as')) {
                     item.variable = this._parseExpression();
@@ -352,7 +352,7 @@ python.Parser = class {
             }
             if (this._tokenizer.match('id', 'else')) {
                 node.else = this._node('else');
-                this._tokenizer.expect('id', 'else')
+                this._tokenizer.expect('id', 'else');
                 this._tokenizer.expect(':');
                 node.else.body = this._parseSuite();
             }
@@ -367,7 +367,7 @@ python.Parser = class {
 
         if (this._tokenizer.match('@')) {
             node = this._node('decorator');
-            this._tokenizer.expect('@')
+            this._tokenizer.expect('@');
             node.value = this._parseExpression();
             if (!node.value || (node.value.type !== 'call' && node.value.type !== 'id' && node.value.type !== '.')) {
                 throw new python.Error('Invalid decorator' + this._tokenizer.location());
@@ -583,7 +583,7 @@ python.Parser = class {
                 else {
                     node.expression = [];
                     do {
-                        node.expression.push(this._parseExpression(-1, [], false))
+                        node.expression.push(this._parseExpression(-1, [], false));
                     }
                     while (this._tokenizer.eat(','));
                 }
@@ -728,7 +728,7 @@ python.Parser = class {
                 list.push({ type: 'pair', key: item, value: value });
             }
             else {
-                list.push(item)
+                list.push(item);
             }
             this._tokenizer.eat(',');
             this._tokenizer.eat('\n');
@@ -925,7 +925,7 @@ python.Parser = class {
         }
         return null;
     }
-}
+};
 
 python.Tokenizer = class {
 
@@ -955,12 +955,12 @@ python.Tokenizer = class {
         }
         return this._token;
     }
-    
+
     read() {
         if (!this._cache) {
             this._token = this._tokenize(this._token);
         }
-        const next = this._position + this._token.value.length; 
+        const next = this._position + this._token.value.length;
         while (this._position < next) {
             if (python.Tokenizer._isNewline(this._get(this._position))) {
                 this._position = this._newLine(this._position);
@@ -1015,7 +1015,7 @@ python.Tokenizer = class {
             case '\f': // 12
             case '\xA0': // 160
                 return true;
-            default: 
+            default:
                 if (c.charCodeAt(0) >= 0x1680) {
                     return python.Tokenizer._whitespace.test(c);
                 }
@@ -1037,7 +1037,7 @@ python.Tokenizer = class {
     static _isIdentifierStartChar(c) {
         if (c < 'A') {
             return c === '$';
-        } 
+        }
         if (c <= 'Z') {
             return true;
         }
@@ -1091,7 +1091,7 @@ python.Tokenizer = class {
     static _isOctal(c) {
         return c >= '0' && c <= '7' || c === '_';
     }
-    
+
     static _isBinary(c) {
         return c === '0' || c === '1' || c === '_';
     }
@@ -1395,7 +1395,7 @@ python.Tokenizer = class {
                 const floatText = this._text.substring(this._position, i);
                 let floatParseText = floatText.indexOf('_') != -1 ? floatText.split('_').join('') : floatText;
                 if (!isNaN(parseFloat(floatParseText))) {
-                    return { type: 'number', value: floatText }
+                    return { type: 'number', value: floatText };
                 }
             }
         }
@@ -1523,7 +1523,7 @@ python.Tokenizer = class {
             switch (q0) {
                 case "'":
                     quote = q0;
-                    count = (q1 === "'" && q2 === "'") ? 3 : 1; 
+                    count = (q1 === "'" && q2 === "'") ? 3 : 1;
                     break;
                 case '"':
                     quote = q0;
@@ -1535,7 +1535,7 @@ python.Tokenizer = class {
                     if (this._text[i] === quote) {
                         return { type: 'string', value: this._text.substring(this._position, i + 1) };
                     }
-                    else if (this._text[i] === '\\' && 
+                    else if (this._text[i] === '\\' &&
                              (this._get(i + 1) == quote || this._get(i + 1) == '\n' || this._get(i + 1) == '\\')) {
                         i += 2;
                     }
@@ -1589,7 +1589,7 @@ python.Tokenizer = class {
         }
         return false;
     }
-}
+};
 
 python.Error = class extends Error {
     constructor(message) {
@@ -1599,5 +1599,5 @@ python.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Parser = python.Parser; 
+    module.exports.Parser = python.Parser;
 }

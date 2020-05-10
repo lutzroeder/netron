@@ -145,10 +145,10 @@ grapher.Renderer = class {
                 rect.setAttribute('y', - node.height / 2 );
                 rect.setAttribute('width', node.width);
                 rect.setAttribute('height', node.height);
-                if (node.rx) { 
+                if (node.rx) {
                     rect.setAttribute('rx', node.rx);
                 }
-                if (node.ry) { 
+                if (node.ry) {
                     rect.setAttribute('ry', node.ry);
                 }
                 nodeElement.appendChild(rect);
@@ -181,7 +181,7 @@ grapher.Renderer = class {
 
         return path.data;
     }
-    
+
     static intersectRect(node, point) {
         const x = node.x;
         const y = node.y;
@@ -204,9 +204,9 @@ grapher.Renderer = class {
             }
             sx = w;
             sy = dx === 0 ? 0 : w * dy / dx;
-        }      
+        }
         return {x: x + sx, y: y + sy};
-    }    
+    }
 };
 
 grapher.NodeElement = class {
@@ -285,7 +285,7 @@ grapher.NodeElement = class {
 };
 
 grapher.NodeElement.Header = class {
-    
+
     constructor(document) {
         this._document = document;
         this._items = [];
@@ -339,7 +339,7 @@ grapher.NodeElement.Header = class {
             let width = boundingBox.width + xPadding + xPadding;
             let height = boundingBox.height + yPadding + yPadding;
             this._elements.push({
-                'group': element, 
+                'group': element,
                 'text': textElement,
                 'path': pathElement,
                 'x': x, 'y': y,
@@ -350,7 +350,7 @@ grapher.NodeElement.Header = class {
             if (this._height < height) {
                 this._height = height;
             }
-            if (x > this._width) { 
+            if (x > this._width) {
                 this._width = x;
             }
         }
@@ -425,7 +425,7 @@ grapher.NodeElement.Header = class {
 };
 
 grapher.NodeElement.List = class {
-    
+
     constructor(document) {
         this._document = document;
         this._items = [];
@@ -556,7 +556,7 @@ class Path {
 
     closePath() {
         if (this._x1 !== null) {
-            this._x1 = this._x0; 
+            this._x1 = this._x0;
             this._y1 = this._y0;
             this._data += "Z";
         }
@@ -571,7 +571,7 @@ class Curve {
 
     constructor(context) {
         this._context = context;
-    }    
+    }
 
     lineStart() {
         this._x0 = NaN;
@@ -596,12 +596,12 @@ class Curve {
         }
         this._line = 1 - this._line;
     }
-    
+
     point(x, y) {
         x = +x;
         y = +y;
         switch (this._point) {
-            case 0: 
+            case 0:
                 this._point = 1;
                 if (this._line) {
                     this._context.lineTo(x, y);

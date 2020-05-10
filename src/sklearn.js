@@ -29,7 +29,7 @@ sklearn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./pickle').then((pickle) => {
             const identifier = context.identifier;
             return sklearn.Metadata.open(host).then((metadata) => {
@@ -74,7 +74,7 @@ sklearn.Model = class {
             this._format = 'gensim';
         }
         else {
-            this._format = 'Pickle'
+            this._format = 'Pickle';
         }
         this._graphs = [];
         this._graphs.push(new sklearn.Graph(metadata, obj, weights));
@@ -134,7 +134,7 @@ sklearn.Graph = class {
             }
             this._nodes = this._nodes.concat(groups.map((group) => {
                 const inputs = group.arrays.map((array) => {
-                    return new sklearn.Parameter(array.name, [ 
+                    return new sklearn.Parameter(array.name, [
                         new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
                     ]);
                 });
@@ -164,7 +164,7 @@ sklearn.Graph = class {
         this._nodes.push(new sklearn.Node(this._metadata, group, name, obj, inputs, outputs));
     }
 
-    get groups() { 
+    get groups() {
         return this._groups;
     }
 
@@ -175,8 +175,8 @@ sklearn.Graph = class {
     get outputs() {
         return [];
     }
-    
-    get nodes() { 
+
+    get nodes() {
         return this._nodes;
     }
 };
@@ -363,7 +363,7 @@ sklearn.Attribute = class {
         let size = keys.length;
         if (Object.keys(b).length != size) {
             return false;
-        } 
+        }
         while (size--) {
             let key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
@@ -629,7 +629,7 @@ sklearn.Container = class {
         const constructorTable = {};
         const functionTable = {};
 
-        constructorTable['numpy.dtype'] = function(obj, align, copy) { 
+        constructorTable['numpy.dtype'] = function(obj, align, copy) {
             switch (obj) {
                 case 'i1': this.name = 'int8'; this.itemsize = 1; break;
                 case 'i2': this.name = 'int16'; this.itemsize = 2; break;
@@ -973,13 +973,13 @@ sklearn.Container = class {
         };
         functionTable['builtins.slice'] = function(start, stop, step) {
             return { start: start, stop: stop, step: step };
-        }
+        };
         functionTable['cloudpickle.cloudpickle._builtin_type'] = function(name) {
             return name;
-        }
+        };
 
         const unknownNameMap = new Set();
-        const knownPackageMap = new Set([ 
+        const knownPackageMap = new Set([
             'sklearn', 'collections', '__builtin__', 'builtins',
             'copy_reg', 'gensim', 'joblib','xgboost', 'lightgbm', 'nolearn', 'numpy'
         ]);
@@ -1012,7 +1012,7 @@ sklearn.Container = class {
                 if (dict && !Array.isArray(dict)) {
                     const weights = new Map();
                     for (const key in dict) {
-                        const value = dict[key]
+                        const value = dict[key];
                         if (key != 'weight_order' && key != 'lr') {
                             if (!key || !sklearn.Utility.isTensor(value)) {
                                 return null;
@@ -1038,7 +1038,7 @@ sklearn.Container = class {
                 }
             }
             return null;
-        }
+        };
 
         if (this._data) {
             this._weights = find_weights([ this._data, this._data.blobs ]);
@@ -1055,7 +1055,7 @@ sklearn.Container = class {
     get weights() {
         return this._weights;
     }
-}
+};
 
 sklearn.Utility = class {
 
@@ -1068,7 +1068,7 @@ sklearn.Utility = class {
         obj.__name__ = parts.pop();
         obj.__module__ = parts.join('.');
     }
-}
+};
 
 sklearn.Error = class extends Error {
 

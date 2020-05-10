@@ -49,7 +49,7 @@ armnn.Model = class {
 
     constructor(model, metadata) {
         this._graphs = [];
-        this._graphs.push(new armnn.Graph(model, metadata))
+        this._graphs.push(new armnn.Graph(model, metadata));
     }
 
     get format() {
@@ -129,14 +129,14 @@ armnn.Node = class {
         this._inputs = [];
         this._attributes = [];
 
-        const base = armnn.Node.getBase(layer)
+        const base = armnn.Node.getBase(layer);
         if (base) {
             this._name = base.layerName();
 
             for (let i = 0; i < base.inputSlotsLength(); i++) {
                 const srcConnection = base.inputSlots(i).connection();
-                const srcLayerIdx = srcConnection.sourceLayerIndex()
-                const srcOutputIdx = srcConnection.outputSlotIndex()
+                const srcLayerIdx = srcConnection.sourceLayerIndex();
+                const srcOutputIdx = srcConnection.outputSlotIndex();
                 this._inputs.push(params[armnn.Node.makeKey(srcLayerIdx, srcOutputIdx)]);
             }
 
@@ -210,8 +210,9 @@ armnn.Node = class {
     static castLayer(layer) {
         let layerType = layer.layerType();
         for (const k of Object.keys(armnn.schema.Layer)) {
-            if (layerType == armnn.schema.Layer[k]) 
+            if (layerType == armnn.schema.Layer[k]) {
                 return layer.layer(new armnn.schema[k]);
+            }
         }
         return null;
     }
@@ -550,7 +551,7 @@ armnn.TensorShape = class {
 };
 
 armnn.Metadata = class {
-    
+
     static open(host) {
         if (armnn.Metadata._metadata) {
             return Promise.resolve(armnn.Metadata._metadata);
@@ -598,7 +599,7 @@ armnn.Metadata = class {
             }
             let attributeSchema = attributeMap[name];
             if (attributeSchema) {
-                return attributeSchema; 
+                return attributeSchema;
             }
         }
         return null;

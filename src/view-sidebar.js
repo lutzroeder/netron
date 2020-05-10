@@ -92,7 +92,7 @@ sidebar.Sidebar = class {
             closeButton.classList.add('sidebar-closebutton');
             closeButton.setAttribute('id', 'sidebar-closebutton');
             closeButton.setAttribute('href', 'javascript:void(0)');
-            closeButton.innerHTML = '&times;'
+            closeButton.innerHTML = '&times;';
             closeButton.addEventListener('click', this._closeSidebarHandler);
             sidebarElement.appendChild(closeButton);
 
@@ -174,7 +174,7 @@ sidebar.NodeSidebar = class {
         const attributes = node.attributes;
         if (attributes && attributes.length > 0) {
             let sortedAttributes = node.attributes.slice();
-            sortedAttributes.sort((a, b) => { 
+            sortedAttributes.sort((a, b) => {
                 const au = a.name.toUpperCase();
                 const bu = b.name.toUpperCase();
                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
@@ -284,11 +284,11 @@ sidebar.NodeSidebar = class {
             return 'NaN';
         }
         switch (type) {
-            case 'shape': 
+            case 'shape':
                 return value.toString();
-            case 'shape[]': 
+            case 'shape[]':
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
-            case 'graph': 
+            case 'graph':
                 return value.toString();
             case 'graph[]':
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
@@ -320,7 +320,7 @@ sidebar.NodeSidebar = class {
                 return sidebar.NodeSidebar.formatAttributeValue(item, null, true);
             });
             if (ellipsis) {
-                array.push('\u2026')
+                array.push('\u2026');
             }
             return quote ? [ '[', array.join(', '), ']' ].join(' ') : array.join(', ');
         }
@@ -336,7 +336,7 @@ sidebar.NodeSidebar = class {
         let list = [];
         const keys = Object.keys(value).filter((key) => !key.startsWith('__') && !key.endsWith('__'));
         if (keys.length == 1) {
-            list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true))
+            list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true));
         }
         else {
             for (const key of keys) {
@@ -444,7 +444,7 @@ sidebar.SelectView = class {
             }
         }
     }
-}
+};
 
 sidebar.ValueTextView = class {
 
@@ -671,7 +671,7 @@ sidebar.ArgumentView = class {
                     type = this._argument.type.toString();
                     denotation = this._argument.type.denotation || null;
                 }
-                
+
                 if (type) {
                     let typeLine = this._host.document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
@@ -717,8 +717,8 @@ sidebar.ArgumentView = class {
                         this._element.appendChild(referenceLine);
                     }
                     let state = initializer.state;
-                    if (state === null && this._host.save && 
-                        initializer.type.dataType && initializer.type.dataType != '?' && 
+                    if (state === null && this._host.save &&
+                        initializer.type.dataType && initializer.type.dataType != '?' &&
                         initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
                         this._saveButton = this._host.document.createElement('div');
                         this._saveButton.className = 'sidebar-view-item-value-expander';
@@ -773,7 +773,7 @@ sidebar.ModelSidebar = class {
         this._host = host;
         this._model = model;
         this._elements = [];
-    
+
         if (this._model.format) {
             this._addProperty('format', new sidebar.ValueTextView(this._host, this._model.format));
         }
@@ -797,7 +797,7 @@ sidebar.ModelSidebar = class {
         }
         if (this._model.company) {
             this._addProperty('company', new sidebar.ValueTextView(this._host, this._model.company));
-        }    
+        }
         if (this._model.license) {
             this._addProperty('license', new sidebar.ValueTextView(this._host, this._model.license));
         }
@@ -1103,7 +1103,7 @@ sidebar.FindSidebar = class {
 
         let nodesElement = this._graphElement.getElementById('nodes');
         let nodeElement = nodesElement.firstChild;
-        while (nodeElement) { 
+        while (nodeElement) {
             if (nodeElement.id == id) {
                 selection.push(nodeElement);
             }
@@ -1111,7 +1111,7 @@ sidebar.FindSidebar = class {
         }
 
         let edgePathsElement = this._graphElement.getElementById('edge-paths');
-        let edgePathElement = edgePathsElement.firstChild; 
+        let edgePathElement = edgePathsElement.firstChild;
         while (edgePathElement) {
             if (edgePathElement.id == id) {
                 selection.push(edgePathElement);
@@ -1169,7 +1169,7 @@ sidebar.FindSidebar = class {
                         else {
                             initializers.push(argument.initializer);
                         }
-                    }    
+                    }
                 }
             }
 
@@ -1202,14 +1202,14 @@ sidebar.FindSidebar = class {
                         outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
                         edgeMatches[argument.name] = true;
-                    }    
+                    }
                 }
             }
         }
 
         this._resultElement.style.display = this._resultElement.childNodes.length != 0 ? 'block' : 'none';
     }
-    
+
     get content() {
         return this._contentElement;
     }

@@ -54,8 +54,8 @@ tf.ModelFactory = class {
             }
             else {
                 // ignore input_0.pb, output_0.pb
-                if (tags.has(1) && tags.get(1) === 0 && 
-                    tags.has(2) && tags.get(2) === 0 && 
+                if (tags.has(1) && tags.get(1) === 0 &&
+                    tags.has(2) && tags.get(2) === 0 &&
                     tags.has(9) && tags.get(9) === 2) {
                     return false;
                 }
@@ -87,13 +87,13 @@ tf.ModelFactory = class {
         return false;
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./tf-proto').then(() => {
             tf.proto = protobuf.roots.tf.tensorflow;
             let saved_model = null;
             let format = null;
             let producer = null;
-            const identifier = context.identifier; 
+            const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'ckpt':
@@ -206,7 +206,7 @@ tf.ModelFactory = class {
                         }
                     }
                     if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
-                        saved_model.meta_graphs[0].meta_info_def && 
+                        saved_model.meta_graphs[0].meta_info_def &&
                         Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
                         producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
                     }
@@ -226,7 +226,7 @@ tf.ModelFactory = class {
                         });
                     }).catch(() => {
                         return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
-                    })
+                    });
                 }
                 return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
             });
@@ -292,7 +292,7 @@ tf.Model = class {
             this._graphs = visited_graph;
         }
         else {
-            this._graphs.push(new tf.Graph(metadata, null, '', bundle))
+            this._graphs.push(new tf.Graph(metadata, null, '', bundle));
         }
 
     }
@@ -340,7 +340,7 @@ tf.Graph = class {
             if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
                 this._tags = metaGraph.meta_info_def.tags.join(', ');
             }
-            const nodes = graph.node
+            const nodes = graph.node;
             if (nodes) {
                 let nodeMap = {};
                 this._namespaces = {};
@@ -449,7 +449,7 @@ tf.Graph = class {
             for (const tensor of bundle.tensors) {
                 let parts = tensor.name.split('/');
                 if (bundle.format === 2) {
-                    if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' || 
+                    if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' ||
                         tensor.name.startsWith('optimizer/') ||
                         tensor.name.startsWith('keras_api/metrics/') ||
                         tensor.name.endsWith('/ExponentialMovingAverage') ||
@@ -516,7 +516,7 @@ tf.Graph = class {
         return this._functions;
     }
 
-    _checkSingleOutput(node) { 
+    _checkSingleOutput(node) {
         if (node.output.length != 1) {
             return false;
         }
@@ -608,7 +608,7 @@ tf.Function = class {
         if (outputs) {
             for (const output of outputs) {
                 let name = ret_map[output.name];
-                this._outputs.push(new tf.Parameter(output.name, [ 
+                this._outputs.push(new tf.Parameter(output.name, [
                     new tf.Argument(name, new tf.TensorType(output.type, null), null)
                 ]));
                 out_args_reverse_map[name] = output.name;
@@ -754,7 +754,7 @@ tf.Function = class {
         }
         return true;
     }
-}
+};
 
 tf.Node = class {
 
@@ -801,7 +801,7 @@ tf.Node = class {
                 }
             }
             this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-                return new tf.Parameter((inputIndex + index).toString(), [ 
+                return new tf.Parameter((inputIndex + index).toString(), [
                     new tf.Argument(input, null, initializers[input])
                 ]);
             }));
@@ -966,7 +966,7 @@ tf.Attribute = class {
             }
             else if (list.type && list.type.length > 0) {
                 this._type = 'type[]';
-                this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
+                this._value = list.type.map((type) => tf.Tensor.formatDataType(type));
             }
             else if (list.shape && list.shape.length > 0) {
                 this._type = 'shape[]';
@@ -1094,7 +1094,7 @@ tf.Tensor = class {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        const shape = this._tensor.tensor_shape || this._tensor.tensorShape; 
+        const shape = this._tensor.tensor_shape || this._tensor.tensorShape;
         if (!shape || !shape.dim) {
             context.state = 'Tensor has no dimensions.';
             return context;
@@ -1268,7 +1268,7 @@ tf.TensorType = class {
 
     toString() {
         return this.dataType + this._shape.toString();
-    }    
+    }
 };
 
 tf.TensorShape = class {
@@ -1394,7 +1394,7 @@ tf.TensorBundle = class {
     }
 
     constructor(format, entries, shards) {
-        this._format = format; 
+        this._format = format;
         this._tensors = [];
         switch (format) {
             case 1: {
@@ -1468,7 +1468,7 @@ tf.TensorBundle = class {
     get tensors() {
         return this._tensors;
     }
-}
+};
 
 tf.TensorBundle.BinaryReader = class {
 
@@ -1532,7 +1532,7 @@ tf.TensorBundle.BinaryReader = class {
         }
         return result;
     }
-}
+};
 
 tf.GraphMetadata = class {
 

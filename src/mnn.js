@@ -77,9 +77,9 @@ mnn.Graph = class {
                     const extraTensorDescribe = net.extraTensorDescribe(index);
                     const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
                     const type = blob ? mnn.Graph._blobTensorType(blob) : null;
-                    args.push(new mnn.Argument(name, type, null))
+                    args.push(new mnn.Argument(name, type, null));
                 }
-                this._inputs.push(new mnn.Parameter(op.name(), true, args))
+                this._inputs.push(new mnn.Parameter(op.name(), true, args));
             }
             else {
                 this._nodes.push(new mnn.Node(metadata, op, net));
@@ -250,7 +250,7 @@ mnn.Node = class {
     }
 
     _buildTensor(dataType, name, dimensions, value) {
-        this._inputs.push(new mnn.Parameter(name, true, [ 
+        this._inputs.push(new mnn.Parameter(name, true, [
             new mnn.Argument('', null, new mnn.Tensor('Weight', new mnn.TensorType(dataType, new mnn.TensorShape(dimensions)), value))
         ]));
     }
@@ -267,7 +267,7 @@ mnn.Node = class {
             attributeNamesMap[attributeName] = true;
         }
 
-        let attributeArrayNamesMap = {}; 
+        let attributeArrayNamesMap = {};
         for (const attributeName of Object.keys(attributeNamesMap)) {
             if (attributeNamesMap[attributeName + 'Length']) { // some bugs without array
                 attributeArrayNamesMap[attributeName] = true;
@@ -276,7 +276,7 @@ mnn.Node = class {
         }
 
         for (const attributeName of attributeNames) {
-        
+
             if (invisibleAttributes && invisibleAttributes[attributeName]) {
                 continue;
             }
@@ -538,7 +538,7 @@ mnn.TensorType = class {
     toString() {
         return this._dataType + this._shape.toString();
     }
-}
+};
 
 mnn.TensorShape = class {
 
@@ -607,7 +607,7 @@ mnn.Metadata = class {
             }
             const attributeSchema = attributeMap[name];
             if (attributeSchema) {
-                return attributeSchema; 
+                return attributeSchema;
             }
         }
         return null;

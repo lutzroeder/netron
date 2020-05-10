@@ -140,7 +140,7 @@ zip.HuffmanTree = class {
         if (!zip.HuffmanTree.staticLiteralLengthTree) {
             zip.HuffmanTree.staticLiteralLengthTree = new zip.HuffmanTree();
             zip.HuffmanTree.staticLiteralLengthTree.table = new Uint8Array([ 0, 0, 0, 0, 0,  0, 0, 24, 152, 112, 0, 0, 0, 0, 0, 0 ]);
-            for (let i = 0; i < 24; ++i) { 
+            for (let i = 0; i < 24; ++i) {
                 zip.HuffmanTree.staticLiteralLengthTree.symbol[i] = 256 + i;
             }
             for (let i = 0; i < 144; ++i) {
@@ -207,7 +207,7 @@ zip.Inflater = class {
             reader.data -= 8;
         }
         reader.data = 0;
-        const length = reader.uint16(); 
+        const length = reader.uint16();
         const inverseLength = reader.uint16();
         if (length !== (~inverseLength & 0x0000ffff)) {
             throw new zip.Error('Invalid uncompressed block length.');
@@ -215,7 +215,7 @@ zip.Inflater = class {
 
         const block = reader.bytes(length);
         output.push(block);
- 
+
         if (length > 32768) {
             output.buffer.set(block.subarray(block.length - 32768, block.length), 0);
             output.position = 32768;

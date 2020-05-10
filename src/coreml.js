@@ -13,7 +13,7 @@ coreml.ModelFactory = class {
         return extension == 'mlmodel';
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./coreml-proto').then(() => {
             const identifier = context.identifier;
             let decodedBuffer = null;
@@ -93,7 +93,7 @@ coreml.Graph = class {
     constructor(metadata, model) {
         this._metadata = metadata;
         this._description = model.description;
-        this._groups = false; 
+        this._groups = false;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -163,16 +163,16 @@ coreml.Graph = class {
         if ((predictedFeatureName || predictedProbabilitiesName) && labelProbabilityLayerName && classifier.ClassLabels) {
             predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
             predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
-            let labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
-            let operator = classifier.ClassLabels;
+            const labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
+            const operator = classifier.ClassLabels;
             this._nodes.push(new coreml.Node(this._metadata, this._group, operator, null, '', classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
     _updatePreprocessing(scope, group, preprocessing) {
         if (preprocessing && preprocessing.length > 0) {
-            let preprocessingInput = this._description.input[0].name;
-            let inputNodes = [];
+            const preprocessingInput = this._description.input[0].name;
+            const inputNodes = [];
             for (const node of this._nodes) {
                 if (node.inputs.some((input) => input.arguments.some((arg) => arg.name == preprocessingInput))) {
                     inputNodes.push(node);
@@ -181,7 +181,7 @@ coreml.Graph = class {
             let preprocessorOutput = preprocessingInput;
             let preprocessorIndex = 0;
             for (const p of preprocessing) {
-                let input = p.featureName ? p.featureName : preprocessorOutput;
+                const input = p.featureName ? p.featureName : preprocessorOutput;
                 preprocessorOutput = preprocessingInput + ':' + preprocessorIndex.toString();
                 this._createNode(scope, group, p.preprocessor, null, '', p[p.preprocessor], [ input ], [ preprocessorOutput ]);
                 preprocessorIndex++;
@@ -192,7 +192,7 @@ coreml.Graph = class {
                         if (arg.name === preprocessingInput) {
                             arg.name = preprocessorOutput;
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -200,7 +200,7 @@ coreml.Graph = class {
 
     _loadModel(model, scope, group) {
         this._groups = this._groups | (group.length > 0 ? true : false);
-        const description = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : ''; 
+        const description = model && model.description && model.description.metadata && model.description.metadata.shortDescription ? model.description.metadata.shortDescription : '';
         if (model.neuralNetworkClassifier) {
             const neuralNetworkClassifier = model.neuralNetworkClassifier;
             for (const layer of neuralNetworkClassifier.layers) {
@@ -247,10 +247,10 @@ coreml.Graph = class {
         else if (model.glmClassifier) {
             this._createNode(scope, group, 'glmClassifier', null, description,
                 {
-                    classEncoding: model.glmClassifier.classEncoding, 
-                    offset: model.glmClassifier.offset, 
-                    weights: model.glmClassifier.weights 
-                }, 
+                    classEncoding: model.glmClassifier.classEncoding,
+                    offset: model.glmClassifier.offset,
+                    weights: model.glmClassifier.weights
+                },
                 [ model.description.input[0].name ],
                 [ model.description.predictedProbabilitiesName ]);
             this._updateClassifierOutput(group, model.glmClassifier);
@@ -272,14 +272,14 @@ coreml.Graph = class {
         }
         else if (model.featureVectorizer) {
             this._createNode(scope, group, 'featureVectorizer', null, description,
-                model.featureVectorizer, 
+                model.featureVectorizer,
                 coreml.Graph._formatFeatureDescriptionList(model.description.input),
                 [ model.description.output[0].name ]);
             return 'Feature Vectorizer';
         }
         else if (model.treeEnsembleClassifier) {
             this._createNode(scope, group, 'treeEnsembleClassifier', null, description,
-                model.treeEnsembleClassifier.treeEnsemble, 
+                model.treeEnsembleClassifier.treeEnsemble,
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             this._updateClassifierOutput(group, model.treeEnsembleClassifier);
@@ -287,23 +287,23 @@ coreml.Graph = class {
         }
         else if (model.treeEnsembleRegressor) {
             this._createNode(scope, group, 'treeEnsembleRegressor', null, description,
-                model.treeEnsembleRegressor.treeEnsemble, 
+                model.treeEnsembleRegressor.treeEnsemble,
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             return 'Tree Ensemble Regressor';
         }
         else if (model.supportVectorClassifier) {
             this._createNode(scope, group, 'supportVectorClassifier', null, description,
-                {   
-                    coefficients: model.supportVectorClassifier.coefficients, 
+                {
+                    coefficients: model.supportVectorClassifier.coefficients,
                     denseSupportVectors: model.supportVectorClassifier.denseSupportVectors,
                     kernel: model.supportVectorClassifier.kernel,
                     numberOfSupportVectorsPerClass: model.supportVectorClassifier.numberOfSupportVectorsPerClass,
                     probA: model.supportVectorClassifier.probA,
                     probB: model.supportVectorClassifier.probB,
                     rho: model.supportVectorClassifier.rho,
-                    supportVectors: model.supportVectorClassifier.supportVectors 
-                }, 
+                    supportVectors: model.supportVectorClassifier.supportVectors
+                },
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             this._updateClassifierOutput(group, model.supportVectorClassifier);
@@ -312,11 +312,11 @@ coreml.Graph = class {
         else if (model.supportVectorRegressor) {
             this._createNode(scope, group, 'supportVectorRegressor', null, description,
                 {
-                    coefficients: model.supportVectorRegressor.coefficients, 
+                    coefficients: model.supportVectorRegressor.coefficients,
                     kernel: model.supportVectorRegressor.kernel,
                     rho: model.supportVectorRegressor.rho,
-                    supportVectors: model.supportVectorRegressor.supportVectors 
-                }, 
+                    supportVectors: model.supportVectorRegressor.supportVectors
+                },
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             return 'Support Vector Regressor';
@@ -341,7 +341,7 @@ coreml.Graph = class {
         else if (model.imputer) {
             const imputedValue = model.imputer.ImputedValue;
             const replaceValue = model.imputer.ReplaceValue;
-            let imputerParams = {};
+            const imputerParams = {};
             imputerParams[imputedValue] = model.imputer[imputedValue];
             imputerParams[replaceValue] = model.imputer[replaceValue];
             this._createNode(scope, group, 'oneHotEncoder', null, description,
@@ -349,7 +349,6 @@ coreml.Graph = class {
                 [ model.description.input[0].name ],
                 [ model.description.output[0].name ]);
             return 'Imputer';
-            
         }
         else if (model.normalizer) {
             this._createNode(scope, group, 'normalizer', null, description,
@@ -362,11 +361,11 @@ coreml.Graph = class {
             this._createNode(scope, group, 'wordTagger', null, description,
                 model.wordTagger,
                 [ model.description.input[0].name ],
-                [ 
+                [
                     model.wordTagger.tokensOutputFeatureName,
                     model.wordTagger.tokenTagsOutputFeatureName,
                     model.wordTagger.tokenLocationsOutputFeatureName,
-                    model.wordTagger.tokenLengthsOutputFeatureName 
+                    model.wordTagger.tokenLengthsOutputFeatureName
                 ]);
             return 'Word Tagger';
         }
@@ -378,10 +377,10 @@ coreml.Graph = class {
             return 'Text Classifier';
         }
         else if (model.nonMaximumSuppression) {
-            const nonMaximumSuppressionParams = { 
+            const nonMaximumSuppressionParams = {
                 pickTop: model.nonMaximumSuppression.pickTop,
                 stringClassLabels: model.nonMaximumSuppression.stringClassLabels,
-                iouThreshold: model.nonMaximumSuppression.iouThreshold, 
+                iouThreshold: model.nonMaximumSuppression.iouThreshold,
                 confidenceThreshold: model.nonMaximumSuppression.confidenceThreshold
             };
             this._createNode(scope, group, 'nonMaximumSuppression', null, description,
@@ -392,7 +391,7 @@ coreml.Graph = class {
                     model.nonMaximumSuppression.iouThresholdInputFeatureName,
                     model.nonMaximumSuppression.confidenceThresholdInputFeatureName,
                 ],
-                [ 
+                [
                     model.nonMaximumSuppression.confidenceOutputFeatureName,
                     model.nonMaximumSuppression.coordinatesOutputFeatureName
                 ]);
@@ -401,7 +400,7 @@ coreml.Graph = class {
         else if (model.visionFeaturePrint) {
             const visionFeaturePrintParams = {
                 scene: model.visionFeaturePrint.scene
-            }
+            };
             this._createNode(scope, group, 'visionFeaturePrint', null, description,
                 visionFeaturePrintParams,
                 [ model.description.input[0].name ],
@@ -431,7 +430,7 @@ coreml.Graph = class {
                 },
                 model.description.input.map((feature) => feature.name),
                 model.description.output.map((feature) => feature.name));
-            return 'itemSimilarityRecommender'
+            return 'itemSimilarityRecommender';
         }
         else if (model.linkedModel) {
             this._createNode(scope, group, 'linkedModel', null, description,
@@ -455,7 +454,7 @@ coreml.Graph = class {
         outputs = outputs.map((output) => {
             if (scope[output]) {
                 scope[output].counter++;
-                let next = output + '\n' + scope[output].counter.toString(); // custom argument id
+                const next = output + '\n' + scope[output].counter.toString(); // custom argument id
                 scope[output].argument = next;
                 return next;
             }
@@ -603,7 +602,7 @@ coreml.Node = class {
         this._name = name || '';
         this._description = description || '';
         this._attributes = [];
-        let initializers = [];
+        const initializers = [];
         if (data) {
             const initializerMap = this._initialize(data, initializers);
             for (const key of Object.keys(data)) {
@@ -663,7 +662,7 @@ coreml.Node = class {
                 if (data.isDeconvolution) {
                     weightsShape[0] = data.kernelChannels;
                     weightsShape[1] = Math.floor(data.outputChannels / (data.nGroups != 0 ? data.nGroups : 1));
-                }    
+                }
                 this._initializer(initializers, 'Weights', 'weights', weightsShape, data.weights);
                 if (data.hasBias) {
                     this._initializer(initializers, 'Weights', 'bias', [ data.outputChannels ], data.bias);
@@ -689,7 +688,7 @@ coreml.Node = class {
             case 'embedding':
                 this._initializer(initializers, 'Weights', 'weights', [ data.inputDim, data.outputChannels ], data.weights);
                 return { 'weights': true };
-            case 'loadConstant':    
+            case 'loadConstant':
                 this._initializer(initializers, 'Weights', 'data', data.shape, data.data);
                 return { 'data': true };
             case 'scale':
@@ -722,11 +721,11 @@ coreml.Node = class {
                     this._initializer(initializers, 'Weights', 'updateGateBiasVector', biasVectorShape, data.updateGateBiasVector);
                     this._initializer(initializers, 'Weights', 'resetGateBiasVector', biasVectorShape, data.resetGateBiasVector);
                     this._initializer(initializers, 'Weights', 'outputGateBiasVector', biasVectorShape, data.outputGateBiasVector);
-                }  
+                }
                 return {
-                    'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true, 
+                    'updateGateWeightMatrix': true, 'resetGateWeightMatrix': true, 'outputGateWeightMatrix': true,
                     'updateGateRecursionMatrix': true, 'resetGateRecursionMatrix': true, 'outputGateRecursionMatrix': true,
-                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors 
+                    'updateGateBiasVector': data.hasBiasVectors, 'resetGateBiasVector': data.hasBiasVectors, 'outputGateBiasVector': data.hasBiasVectors
                 };
             }
             case 'uniDirectionalLSTM':
@@ -897,7 +896,7 @@ coreml.Tensor = class {
 
     get quantization() {
         if (this._quantization) {
-            if (this._quantization.lookupTableQuantization && 
+            if (this._quantization.lookupTableQuantization &&
                 this._quantization.lookupTableQuantization.floatValue &&
                 this._quantization.lookupTableQuantization.floatValue.length > 0) {
                 const map = [];
@@ -906,7 +905,7 @@ coreml.Tensor = class {
                 }
                 return map.join('; ');
             }
-            return '?'; 
+            return '?';
         }
         return null;
     }
@@ -941,7 +940,7 @@ coreml.Tensor = class {
         context.count = 0;
         context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
- 
+
         if (!this._data) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -1213,7 +1212,7 @@ coreml.Metadata = class {
                     if (name) {
                         return name;
                     }
-                } 
+                }
             }
         }
         if (index == 0) {

@@ -28,8 +28,8 @@ onnx.ModelFactory = class {
             }
             // ignore input_0.pb, output_0.pb
             if (tags.size > 0 &&
-                tags.has(1) && tags.get(1) === 0 && 
-                tags.has(2) && tags.get(2) === 0 && 
+                tags.has(1) && tags.get(1) === 0 &&
+                tags.has(2) && tags.get(2) === 0 &&
                 tags.has(9) && tags.get(9) === 2) {
                 return false;
             }
@@ -64,10 +64,10 @@ onnx.ModelFactory = class {
         return false;
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./onnx-proto').then(() => {
             let model = null;
-            const identifier = context.identifier; 
+            const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
@@ -279,7 +279,7 @@ onnx.Graph = class {
                 let initializerNode = false;
                 if (node.op_type == 'Constant' && node.input.length == 0 && node.output.length == 1) {
                     const name = node.output[0];
-                    if (inputCountMap.has(name) && inputCountMap.get(name) == 1 && 
+                    if (inputCountMap.has(name) && inputCountMap.get(name) == 1 &&
                         outputCountMap.has(name) && outputCountMap.get(name) == 1 &&
                         node.attribute.length == 1) {
                         const attribute = node.attribute[0];
@@ -336,7 +336,7 @@ onnx.Graph = class {
                         inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
                                 arg(id, null, null, null, imageFormat)
-                            ])
+                            ]);
                         }));
                     }
                 }
@@ -510,7 +510,7 @@ onnx.Attribute = class {
         this._value = null;
 
         if (attribute.ints && attribute.ints.length > 0) {
-            this._value = attribute.ints; 
+            this._value = attribute.ints;
         }
         else if (attribute.floats && attribute.floats.length > 0) {
             this._value = attribute.floats;
@@ -975,7 +975,7 @@ onnx.TensorType = class {
         return this._shape;
     }
 
-    get denotation() { 
+    get denotation() {
         return this._denotation;
     }
 
@@ -1149,11 +1149,11 @@ onnx.Utility = class {
     static decodeText(value) {
         if (!value.some(c => c <= 32 || c >= 128)) {
             onnx.Utility._asciiDecoder = onnx.Utility._asciiDecoder || new TextDecoder('ascii');
-            return onnx.Utility._asciiDecoder.decode(value)
+            return onnx.Utility._asciiDecoder.decode(value);
         }
         return [...value];
     }
-}
+};
 
 onnx.Error = class extends Error {
     constructor(message) {

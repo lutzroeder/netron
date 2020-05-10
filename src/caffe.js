@@ -109,7 +109,7 @@ caffe.ModelFactory = class {
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
                     message[tag] = caffe.ModelFactory._decodeText(reader);
                     return;
-                }  
+                }
                 else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
                     if (message[tag]) {
                         if (!Array.isArray(message[tag])) {
@@ -281,7 +281,7 @@ caffe.Graph = class {
         let lastTop = null;
         while (layers.length > 0) {
             let layer = layers.shift();
-            if (layer.output.length == 1 && layer.input.length == 1 && 
+            if (layer.output.length == 1 && layer.input.length == 1 &&
                 layer.output[0].split('\n').shift() == layer.input[0].split('\n').shift() &&
                 lastLayer &&
                 lastTop == layer.output[0].split('\n').shift()) {
@@ -510,7 +510,7 @@ caffe.Node = class {
             }
         }
         this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
-            return new caffe.Parameter(inputIndex.toString(), [ 
+            return new caffe.Parameter(inputIndex.toString(), [
                 input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : new caffe.Argument(input, null, null)
             ]);
         }));
@@ -544,7 +544,7 @@ caffe.Node = class {
         return this._metadata.type(this._type);
     }
 
-    get name() { 
+    get name() {
         return this._name;
     }
 
@@ -614,7 +614,7 @@ caffe.Tensor = class {
         this._blob = blob;
 
         let shape = [];
-        if (Object.prototype.hasOwnProperty.call(blob, 'num') && 
+        if (Object.prototype.hasOwnProperty.call(blob, 'num') &&
             Object.prototype.hasOwnProperty.call(blob, 'channels') &&
             Object.prototype.hasOwnProperty.call(blob, 'width') &&
             Object.prototype.hasOwnProperty.call(blob, 'height')) {
