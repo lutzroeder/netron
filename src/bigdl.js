@@ -43,12 +43,13 @@ bigdl.ModelFactory = class {
 bigdl.Model = class {
 
     constructor(metadata, module) {
+        this._version = module && module.version ? module.version : '';
         this._graphs = [];
         this._graphs.push(new bigdl.Graph(metadata, module));
     }
 
     get format() {
-        return 'BigDL';
+        return 'BigDL' + (this._version ? ' v' + this._version : '');
     }
 
     get graphs() {
@@ -60,7 +61,6 @@ bigdl.Graph = class {
 
     constructor(metadata, module) {
         this._type = module.moduleType;
-        this._version = module.version;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -75,6 +75,12 @@ bigdl.Graph = class {
             }
             case 'com.intel.analytics.bigdl.nn.Sequential': {
                 this._loadSequential(metadata, group, module);
+                break;
+            }
+            case 'com.intel.analytics.bigdl.nn.Input': {
+                this._inputs.push(new bigdl.Parameter(module.name, [
+                    new bigdl.Argument(module.name)
+                ]));
                 break;
             }
             default: {
@@ -104,10 +110,6 @@ bigdl.Graph = class {
 
     get type() {
         return this._type;
-    }
-
-    get version() {
-        return this._version;
     }
 
     get inputs() {

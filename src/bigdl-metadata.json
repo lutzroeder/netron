@@ -100,5 +100,11 @@
     "schema": {
       "category": "Shape"
     }
+  },
+  {
+    "name": "InferReshape",
+    "schema": {
+      "category": "Shape"
+    }
   }
 ]
