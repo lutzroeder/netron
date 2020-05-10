@@ -4253,5 +4253,98 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.ones_like",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dtype"
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "device"
+        },
+        {
+          "name": "pin_memory",
+          "type": "boolean"
+        },
+        {
+          "name": "memory_format"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.arange",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dtype"
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "device"
+        },
+        {
+          "name": "pin_memory",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.sqrt",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.erf",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
