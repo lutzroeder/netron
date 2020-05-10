@@ -1138,7 +1138,7 @@ view.ModelFactoryService = class {
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.bin', '.pb', '.zip' ]);
         this.register('./torch', [ '.t7' ]);
-        this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.model' ]);
+        this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.model', '.json' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json', '.index', '.ckpt' ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./sklearn', [ '.pkl', '.joblib', '.model', '.meta', '.pb' ]);

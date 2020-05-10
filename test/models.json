@@ -5150,6 +5150,26 @@
   },
   {
     "type":   "tflite",
+    "target": "face_detection_front.json",
+    "source": "https://github.com/lutzroeder/netron/files/4606685/face_detection_front.zip[face_detection_front.json]",
+    "format": "TensorFlow Lite v3"
+  },
+  {
+    "type":   "tflite",
+    "target": "face_detection_front.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/4606685/face_detection_front.zip[face_detection_front.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/487"
+  },
+  {
+    "type":   "tflite",
+    "target": "hair_segmentation.json",
+    "source": "https://github.com/lutzroeder/netron/files/4606715/hair_segmentation.zip[hair_segmentation.json]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/487"
+  },
+  {
+    "type":   "tflite",
     "target": "hair_segmentation.tflite",
     "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/models/hair_segmentation.tflite",
     "format": "TensorFlow Lite v3",
@@ -5357,6 +5377,13 @@
     "target": "speech_tts_model_2017_11_14.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/speech_tts_model_2017_11_14.tflite",
     "format": "TensorFlow Lite v3"
+  },
+  {
+    "type":   "tflite",
+    "target": "speech_tts_model_2017_11_14.json",
+    "source": "https://github.com/lutzroeder/netron/files/4606719/speech_tts_model_2017_11_14.zip[speech_tts_model_2017_11_14.json]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/487"
   },
   {
     "type":   "tflite",
