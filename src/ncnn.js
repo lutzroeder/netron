@@ -343,14 +343,12 @@ ncnn.Node = class {
                 }
             }
         }
-        else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-                const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
-                return new ncnn.Parameter(inputName, true, [
-                    new ncnn.Argument(input, null, null)
-                ]);
-            }));
-        }
+        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
+            return new ncnn.Parameter(inputName, true, [
+                new ncnn.Argument(input, null, null)
+            ]);
+        }));
 
         const outputs = layer.outputs;
         let outputIndex = 0;
@@ -366,14 +364,12 @@ ncnn.Node = class {
                 }
             }
         }
-        else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
-                const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
-                return new ncnn.Parameter(outputName, true, [
-                    new ncnn.Argument(output, null, null)
-                ]);
-            }));
-        }
+        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
+            return new ncnn.Parameter(outputName, true, [
+                new ncnn.Argument(output, null, null)
+            ]);
+        }));
 
         let num_output;
         let weight_data_size;
