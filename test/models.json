@@ -2600,13 +2600,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "RN101-5k500-symbol.json,RN101-5k500-0000.params",
-    "source": "https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-symbol.json,https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-0012.params",
-    "format": "MXNet v0.9.4",
-    "link":   "https://mxnet.apache.org/model_zoo/index.html"
-  },
-  {
-    "type":   "mxnet",
     "target": "mobilenetv2-1.0.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
