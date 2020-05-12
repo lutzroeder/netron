@@ -27,7 +27,7 @@ bigdl.ModelFactory = class {
                 try {
                     // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
                     bigdl.proto = protobuf.roots.bigdl.com.intel.analytics.bigdl.serialization;
-                    let module = bigdl.proto.BigDLModule.decode(context.buffer);
+                    const module = bigdl.proto.BigDLModule.decode(context.buffer);
                     return new bigdl.Model(metadata, module);
                 }
                 catch (error) {
@@ -184,7 +184,7 @@ bigdl.Node = class {
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
         const schema =  metadata.type(this.operator);
-        let inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
+        const inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
             inputs.shift();
@@ -448,7 +448,7 @@ bigdl.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {

@@ -87,7 +87,7 @@ mxnet.ModelFactory = class {
                 }
             case 'mar':
             case 'model': {
-                let entries = new Map();
+                const entries = new Map();
                 try {
                     for (const entry of context.entries('zip')) {
                         entries.set(entry.name, entry);
@@ -212,7 +212,7 @@ mxnet.ModelFactory = class {
 
     _openModel(identifier, format, manifest, symbol, signature, params, host) {
         return mxnet.Metadata.open(host).then((metadata) => {
-            let parameters = new Map();
+            const parameters = new Map();
             if (params) {
                 try {
                     const stream = new ndarray.Stream(params);
@@ -237,11 +237,11 @@ mxnet.ModelFactory = class {
     }
 
     static _basename(identifier, extension, suffix) {
-        let dots = identifier.split('.');
+        const dots = identifier.split('.');
         if (dots.length >= 2 && dots.pop().toLowerCase() === extension) {
-            let dashes = dots.join('.').split('-');
+            const dashes = dots.join('.').split('-');
             if (dashes.length >= 2) {
-                let token = dashes.pop();
+                const token = dashes.pop();
                 if (suffix) {
                     if (token != suffix) {
                         return null;
@@ -308,10 +308,7 @@ mxnet.Model = class {
                 this._runtime = manifest.runtime;
             }
             if (manifest.engine && manifest.engine.engineName) {
-                let engine = manifest.engine.engineName;
-                if (manifest.engine.engineVersion) {
-                    engine = engine + ' ' + manifest.engine.engineVersion;
-                }
+                const engine = manifest.engine.engineVersion ? manifest.engine.engineName + ' ' + manifest.engine.engineVersion : manifest.engine.engineName;
                 this._runtime =  this._runtime ? (this._runtime + ' (' + engine + ')') : engine;
             }
             if (manifest.publisher && manifest.publisher.author) {
@@ -393,7 +390,7 @@ mxnet.Graph = class {
         this._inputs = [];
         this._outputs = [];
 
-        let tensors = new Map();
+        const tensors = new Map();
         if (params) {
             for (const pair of params) {
                 const key = pair[0];
@@ -414,13 +411,13 @@ mxnet.Graph = class {
                 }
             }
 
-            let inputs = {};
+            const inputs = {};
             if (signature && signature.inputs) {
                 for (const input of signature.inputs) {
                     inputs[input.data_name] = input;
                 }
             }
-            let outputs = {};
+            const outputs = {};
             if (signature && signature.outputs) {
                 for (const output of signature.outputs) {
                     outputs[output.data_name] = output;
@@ -436,14 +433,14 @@ mxnet.Graph = class {
                 });
             }
 
-            let outputCountMap = {};
+            const outputCountMap = {};
             for (const node of nodes) {
                 for (const output of node.outputs) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
 
-            let argumentMap = {};
+            const argumentMap = {};
             for (const index of symbol.arg_nodes) {
                 argumentMap[index] = (index < nodes.length) ? nodes[index] : null;
             }
@@ -460,13 +457,13 @@ mxnet.Graph = class {
                 this._outputs.push(new mxnet.Parameter(outputName, [ new mxnet.Argument('[' + outputId.join(',') + ']', outputType, null) ]));
             }
 
-            let initializerMap = {};
+            const initializerMap = {};
             for (const node of nodes.filter((node, index) => !argumentMap[index])) {
                 this._nodes.push(new mxnet.Node(this._metadata, node, argumentMap, initializerMap, tensors));
             }
 
             for (const argumentKey of Object.keys(argumentMap)) {
-                let argument = argumentMap[argumentKey];
+                const argument = argumentMap[argumentKey];
                 if (argument && (!argument.inputs || argument.inputs.length == 0) && (argument.outputs && argument.outputs.length == 1)) {
                     const inputId = argument.outputs[0];
                     const inputName = argument.name;
@@ -481,15 +478,15 @@ mxnet.Graph = class {
         }
         else if (params) {
             let block = null;
-            let blocks = [];
+            const blocks = [];
             let separator = Object.keys(params).every((k) => k.indexOf('_') != -1) ? '_' : '';
             if (separator.length == 0) {
                 separator = Object.keys(params).every((k) => k.indexOf('.') != -1) ? '.' : '';
             }
             if (separator.length > 0) {
-                let blockMap = {};
+                const blockMap = {};
                 for (const id of Object.keys(params)) {
-                    let parts = id.split(separator);
+                    const parts = id.split(separator);
                     let argumentName = parts.pop();
                     if (id.endsWith('moving_mean') || id.endsWith('moving_var')) {
                         argumentName = [ parts.pop(), argumentName ].join(separator);
@@ -633,7 +630,7 @@ mxnet.Node = class {
                 });
                 inputs = inputs.filter((item) => item != null);
             }
-            let initializers = {};
+            const initializers = {};
             for (const input of inputs) {
                 const id = '[' + input.join(',') + ']';
                 initializer = initializerMap[id];
@@ -687,7 +684,7 @@ mxnet.Node = class {
             if (schema && schema.inputs) {
                 for (const inputDef of schema.inputs) {
                     if (inputIndex < inputs.length || inputDef.option != 'optional') {
-                        let inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                        const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                         let inputArguments = [];
                         for (const input of inputs.slice(inputIndex, inputIndex + inputCount)) {
                             const inputId = '[' + input.join(',') + ']';
@@ -716,7 +713,7 @@ mxnet.Node = class {
             if (schema && schema.outputs) {
                 for (const outputDef of schema.outputs) {
                     if (outputIndex < outputs.length || outputDef.option != 'optional') {
-                        let outputArguments = [];
+                        const outputArguments = [];
                         const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                         for (const output of outputs.slice(outputIndex, outputIndex + outputCount)) {
                             outputArguments.push(new mxnet.Argument('[' + output.join(',') + ']', null, null));
@@ -801,7 +798,7 @@ mxnet.Attribute = class {
                 case 'int32[]':
                     if (this._value.length > 2 && this._value.startsWith('(') && this._value.endsWith(')')) {
                         let array = [];
-                        let items = this._value.substring(1, this._value.length - 1).split(',')
+                        const items = this._value.substring(1, this._value.length - 1).split(',')
                             .map((item) => item.trim())
                             .map((item) => item.endsWith('L') ? item.substring(0, item.length - 1) : item);
                         for (const item of items) {
@@ -889,7 +886,7 @@ mxnet.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -898,7 +895,7 @@ mxnet.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -909,7 +906,7 @@ mxnet.Tensor = class {
 
     _context() {
 
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -936,7 +933,7 @@ mxnet.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
@@ -1133,13 +1130,13 @@ ndarray.Stream = class {
             throw new ndarray.Error('Invalid reserved block.');
         }
 
-        let data = [];
+        const data = [];
         for (let dataSize = reader.uint64(); dataSize > 0; dataSize--) {
             data.push(new ndarray.Array(reader));
         }
 
         const decoder = new TextDecoder('ascii');
-        let names = [];
+        const names = [];
         for (let namesSize = reader.uint64(); namesSize > 0; namesSize--) {
             const name = decoder.decode(reader.read(reader.uint64()));
             names.push(name);

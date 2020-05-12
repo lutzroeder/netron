@@ -94,8 +94,8 @@ dl4j.Graph = class {
         this._outputs =[];
         this._nodes = [];
 
-        let reader = new dl4j.NDArrayReader(coefficients);
-        let dataType = reader.dataType;
+        const reader = new dl4j.NDArrayReader(coefficients);
+        const dataType = reader.dataType;
 
         if (configuration.networkInputs) {
             for (const input of configuration.networkInputs) {
@@ -118,7 +118,7 @@ dl4j.Graph = class {
         // Computation Graph
         if (configuration.vertices) {
             for (const name in configuration.vertices) {
-                let vertex = dl4j.Node._object(configuration.vertices[name]);
+                const vertex = dl4j.Node._object(configuration.vertices[name]);
                 inputs = configuration.vertexInputs[name];
                 let variables = [];
                 let layer = null;
@@ -152,7 +152,7 @@ dl4j.Graph = class {
                 new dl4j.Argument('input', null, null)
             ]));
             for (const conf of configuration.confs) {
-                let layer = dl4j.Node._object(conf.layer);
+                const layer = dl4j.Node._object(conf.layer);
                 this._nodes.push(new dl4j.Node(metadata, layer, inputs, dataType, conf.variables));
                 inputs = [ layer.layerName ];
             }
@@ -235,7 +235,7 @@ dl4j.Node = class {
         this._attributes = [];
 
         if (inputs && inputs.length > 0) {
-            let args = inputs.map((input) => new dl4j.Argument(input, null, null));
+            const args = inputs.map((input) => new dl4j.Argument(input, null, null));
             this._inputs.push(new dl4j.Parameter(args.length < 2 ? 'input' : 'inputs', true, args));
         }
 
@@ -331,7 +331,7 @@ dl4j.Node = class {
         }
 
         if (layer.idropout) {
-            let dropout = dl4j.Node._object(layer.idropout);
+            const dropout = dl4j.Node._object(layer.idropout);
             if (dropout.p !== 1.0) {
                 throw new dl4j.Error("Layer 'idropout' not implemented.");
             }

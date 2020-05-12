@@ -74,7 +74,7 @@ cntk.ModelFactory = class {
     }
 
     static _convertDictionary(dictionary) {
-        let target = {};
+        const target = {};
         for (const key of Object.keys(dictionary.data).filter((key) => key != 'version')) {
             target[key] = cntk.ModelFactory._convertDictionaryValue(dictionary.data[key]);
         }
@@ -148,7 +148,7 @@ cntk.Graph = class {
         this._nodes = [];
         this._functions = [];
 
-        let args = {};
+        const args = {};
         switch (version) {
             case 1: {
                 for (const name of Object.keys(obj.nodes)) {
@@ -180,23 +180,23 @@ cntk.Graph = class {
                 break;
             }
             case 2: {
-                let nodeMap = new Map();
+                const nodeMap = new Map();
                 for (const node of obj.primitive_functions) {
                     nodeMap.set(node.uid, node);
                 }
                 for (const input of obj.inputs) {
-                    let argument = new cntk.Argument(version, input);
+                    const argument = new cntk.Argument(version, input);
                     args[input.uid] = argument;
                     // VariableKind { 0: 'input', 1: 'output', 2: 'parameter', 3: 'constant', 4: 'placeholder' }
                     if (input.kind == 0) {
-                        let inputName = input.name || input.uid;
+                        const inputName = input.name || input.uid;
                         this._inputs.push(new cntk.Parameter(inputName, [ argument ]));
                     }
                 }
                 for (const block of obj.primitive_functions) {
                     if (block.op == 57 && block.block_function_composite) {
-                        let list = [ block.block_function_composite.root ];
-                        let nodes = [];
+                        const list = [ block.block_function_composite.root ];
+                        const nodes = [];
                         while (list.length > 0) {
                             const name = list.shift();
                             if (nodeMap.has(name)) {
@@ -204,7 +204,7 @@ cntk.Graph = class {
                                 nodes.push(new cntk.Node(metadata, version, node, args));
                                 nodeMap.delete(name);
                                 for (let i = 0; i < node.inputs.length; i++) {
-                                    let parts = node.inputs[i].split('_');
+                                    const parts = node.inputs[i].split('_');
                                     if (parts.length >= 3) {
                                         parts.pop();
                                         if (parts.pop() == 'Output') {
@@ -214,8 +214,8 @@ cntk.Graph = class {
                                 }
                             }
                         }
-                        let inputs = [];
-                        let outputs = [ block.block_function_composite.root ];
+                        const inputs = [];
+                        const outputs = [ block.block_function_composite.root ];
                         this._functions.push(new cntk.Function(block.block_function_op_name, nodes, inputs, outputs));
                     }
                 }
@@ -369,7 +369,7 @@ cntk.Node = class {
 
         let inputs = [];
         let outputs = [];
-        let initializers = [];
+        const initializers = [];
 
         switch (version) {
             case 1: {
@@ -421,7 +421,7 @@ cntk.Node = class {
                     }
                 }
                 for (const input of obj.inputs) {
-                    let argument = args[input];
+                    const argument = args[input];
                     if (argument) {
                         if (argument.initializer) {
                             initializers.push(argument);
@@ -445,8 +445,8 @@ cntk.Node = class {
         if (schema && schema.inputs) {
             for (const inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
-                    let inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
-                    let inputArguments = [];
+                    const inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputArguments = [];
                     for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (inputArgument.name != '' || inputSchema.option != 'optional') {
                             inputArguments.push(inputArgument);
@@ -465,7 +465,7 @@ cntk.Node = class {
         if (schema && schema.outputs) {
             for (const outputSchema of schema.outputs) {
                 if (outputIndex < outputs.length || outputSchema.option != 'optional') {
-                    let outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    const outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }
@@ -531,7 +531,7 @@ cntk.Attribute = class {
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
-                let type = cntk_v1[this._type] || cntk_v2[this._type];
+                const type = cntk_v1[this._type] || cntk_v2[this._type];
                 if (type && type[this._value]) {
                     this._value = type[this._value];
                 }
@@ -615,7 +615,7 @@ cntk.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -624,17 +624,17 @@ cntk.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -648,7 +648,7 @@ cntk.Tensor = class {
             return context;
         }
 
-        let value = this._value;
+        const value = this._value;
         if (!value) {
             context.state = 'Tensor data is empty.';
             return context;
@@ -679,8 +679,8 @@ cntk.Tensor = class {
         if (context.shape.length == 0) {
             shape = [ 1 ];
         }
-        let results = [];
-        let size = shape[dimension];
+        const results = [];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -796,7 +796,7 @@ cntk.Metadata = class {
         this._attributeCache = {};
         this._operatorMap = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {

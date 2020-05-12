@@ -449,7 +449,7 @@ hdf5.Reader = class {
     }
 
     at(position) {
-        let reader = new hdf5.Reader(null);
+        const reader = new hdf5.Reader(null);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = position;
@@ -460,7 +460,7 @@ hdf5.Reader = class {
     }
 
     clone() {
-        let reader =  new hdf5.Reader(this._buffer, this._position);
+        const reader =  new hdf5.Reader(this._buffer, this._position);
         reader._buffer = this._buffer;
         reader._dataView = this._dataView;
         reader._position = this._position;
