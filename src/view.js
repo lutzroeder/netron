@@ -1146,7 +1146,7 @@ view.ModelFactoryService = class {
         this.register('./paddle', [ '.paddle', '__model__' ]);
         this.register('./armnn', [ '.armnn' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
-        this.register('./darknet', [ '.cfg' ]);
+        this.register('./darknet', [ '.cfg', '.model' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
         this.register('./tengine', ['.tmfile']);

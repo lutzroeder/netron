@@ -9,8 +9,11 @@ darknet.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'cfg') {
-            return true;
+        if (extension == 'cfg' || extension == 'model') {
+            const text = context.text;
+            if (text.substring(0, Math.min(text.length, 1024)).indexOf('[net]') !== -1) {
+                return true;
+            }
         }
         return false;
     }

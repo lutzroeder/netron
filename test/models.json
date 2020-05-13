@@ -1696,7 +1696,7 @@
   },
   {
     "type":   "darknet",
-    "target": "enet-coco.cfg",
+    "target": "enet-coco.model",
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/enet-coco.cfg",
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/381"
