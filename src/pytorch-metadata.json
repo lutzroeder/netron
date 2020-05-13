@@ -4346,5 +4346,57 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.argmin",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "keepdim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.argmax",
+    "schema": {
+      "attributes": [
+        {
+          "name": "dim",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "keepdim",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
