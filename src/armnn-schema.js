@@ -203,7 +203,8 @@ armnnSerializer.LayerType = {
   Comparison: 52,
   StandIn: 53,
   ElementwiseUnary: 54,
-  Transpose: 55
+  Transpose: 55,
+  QLstm: 56
 };
 
 /**
@@ -265,7 +266,8 @@ armnnSerializer.LayerTypeName = {
   '52': 'Comparison',
   '53': 'StandIn',
   '54': 'ElementwiseUnary',
-  '55': 'Transpose'
+  '55': 'Transpose',
+  '56': 'QLstm'
 };
 
 /**
@@ -456,7 +458,8 @@ armnnSerializer.Layer = {
   ComparisonLayer: 53,
   StandInLayer: 54,
   ElementwiseUnaryLayer: 55,
-  TransposeLayer: 56
+  TransposeLayer: 56,
+  QLstmLayer: 57
 };
 
 /**
@@ -519,7 +522,8 @@ armnnSerializer.LayerName = {
   '53': 'ComparisonLayer',
   '54': 'StandInLayer',
   '55': 'ElementwiseUnaryLayer',
-  '56': 'TransposeLayer'
+  '56': 'TransposeLayer',
+  '57': 'QLstmLayer'
 };
 
 /**
@@ -11814,304 +11818,6 @@ armnnSerializer.LstmInputParams.createLstmInputParams = function(builder, inputT
 /**
  * @constructor
  */
-armnnSerializer.QuantizedLstmInputParams = function() {
-  /**
-   * @type {flatbuffers.ByteBuffer}
-   */
-  this.bb = null;
-
-  /**
-   * @type {number}
-   */
-  this.bb_pos = 0;
-};
-
-/**
- * @param {number} i
- * @param {flatbuffers.ByteBuffer} bb
- * @returns {armnnSerializer.QuantizedLstmInputParams}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.__init = function(i, bb) {
-  this.bb_pos = i;
-  this.bb = bb;
-  return this;
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.QuantizedLstmInputParams=} obj
- * @returns {armnnSerializer.QuantizedLstmInputParams}
- */
-armnnSerializer.QuantizedLstmInputParams.getRootAsQuantizedLstmInputParams = function(bb, obj) {
-  return (obj || new armnnSerializer.QuantizedLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {flatbuffers.ByteBuffer} bb
- * @param {armnnSerializer.QuantizedLstmInputParams=} obj
- * @returns {armnnSerializer.QuantizedLstmInputParams}
- */
-armnnSerializer.QuantizedLstmInputParams.getSizePrefixedRootAsQuantizedLstmInputParams = function(bb, obj) {
-  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
-  return (obj || new armnnSerializer.QuantizedLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.inputToInputWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 4);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.inputToForgetWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 6);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.inputToCellWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 8);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.inputToOutputWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 10);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToInputWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 12);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToForgetWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 14);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToCellWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 16);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToOutputWeights = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 18);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.inputGateBias = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 20);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.forgetGateBias = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 22);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.cellBias = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 24);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {armnnSerializer.ConstTensor=} obj
- * @returns {armnnSerializer.ConstTensor|null}
- */
-armnnSerializer.QuantizedLstmInputParams.prototype.outputGateBias = function(obj) {
-  var offset = this.bb.__offset(this.bb_pos, 26);
-  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- */
-armnnSerializer.QuantizedLstmInputParams.startQuantizedLstmInputParams = function(builder) {
-  builder.startObject(12);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputToInputWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addInputToInputWeights = function(builder, inputToInputWeightsOffset) {
-  builder.addFieldOffset(0, inputToInputWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputToForgetWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addInputToForgetWeights = function(builder, inputToForgetWeightsOffset) {
-  builder.addFieldOffset(1, inputToForgetWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputToCellWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addInputToCellWeights = function(builder, inputToCellWeightsOffset) {
-  builder.addFieldOffset(2, inputToCellWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputToOutputWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addInputToOutputWeights = function(builder, inputToOutputWeightsOffset) {
-  builder.addFieldOffset(3, inputToOutputWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addRecurrentToInputWeights = function(builder, recurrentToInputWeightsOffset) {
-  builder.addFieldOffset(4, recurrentToInputWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addRecurrentToForgetWeights = function(builder, recurrentToForgetWeightsOffset) {
-  builder.addFieldOffset(5, recurrentToForgetWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addRecurrentToCellWeights = function(builder, recurrentToCellWeightsOffset) {
-  builder.addFieldOffset(6, recurrentToCellWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addRecurrentToOutputWeights = function(builder, recurrentToOutputWeightsOffset) {
-  builder.addFieldOffset(7, recurrentToOutputWeightsOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputGateBiasOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addInputGateBias = function(builder, inputGateBiasOffset) {
-  builder.addFieldOffset(8, inputGateBiasOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} forgetGateBiasOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addForgetGateBias = function(builder, forgetGateBiasOffset) {
-  builder.addFieldOffset(9, forgetGateBiasOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} cellBiasOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addCellBias = function(builder, cellBiasOffset) {
-  builder.addFieldOffset(10, cellBiasOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} outputGateBiasOffset
- */
-armnnSerializer.QuantizedLstmInputParams.addOutputGateBias = function(builder, outputGateBiasOffset) {
-  builder.addFieldOffset(11, outputGateBiasOffset, 0);
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @returns {flatbuffers.Offset}
- */
-armnnSerializer.QuantizedLstmInputParams.endQuantizedLstmInputParams = function(builder) {
-  var offset = builder.endObject();
-  return offset;
-};
-
-/**
- * @param {flatbuffers.Builder} builder
- * @param {flatbuffers.Offset} inputToInputWeightsOffset
- * @param {flatbuffers.Offset} inputToForgetWeightsOffset
- * @param {flatbuffers.Offset} inputToCellWeightsOffset
- * @param {flatbuffers.Offset} inputToOutputWeightsOffset
- * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
- * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
- * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
- * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
- * @param {flatbuffers.Offset} inputGateBiasOffset
- * @param {flatbuffers.Offset} forgetGateBiasOffset
- * @param {flatbuffers.Offset} cellBiasOffset
- * @param {flatbuffers.Offset} outputGateBiasOffset
- * @returns {flatbuffers.Offset}
- */
-armnnSerializer.QuantizedLstmInputParams.createQuantizedLstmInputParams = function(builder, inputToInputWeightsOffset, inputToForgetWeightsOffset, inputToCellWeightsOffset, inputToOutputWeightsOffset, recurrentToInputWeightsOffset, recurrentToForgetWeightsOffset, recurrentToCellWeightsOffset, recurrentToOutputWeightsOffset, inputGateBiasOffset, forgetGateBiasOffset, cellBiasOffset, outputGateBiasOffset) {
-  armnnSerializer.QuantizedLstmInputParams.startQuantizedLstmInputParams(builder);
-  armnnSerializer.QuantizedLstmInputParams.addInputToInputWeights(builder, inputToInputWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addInputToForgetWeights(builder, inputToForgetWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addInputToCellWeights(builder, inputToCellWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addInputToOutputWeights(builder, inputToOutputWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addRecurrentToInputWeights(builder, recurrentToInputWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addRecurrentToForgetWeights(builder, recurrentToForgetWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addRecurrentToCellWeights(builder, recurrentToCellWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addRecurrentToOutputWeights(builder, recurrentToOutputWeightsOffset);
-  armnnSerializer.QuantizedLstmInputParams.addInputGateBias(builder, inputGateBiasOffset);
-  armnnSerializer.QuantizedLstmInputParams.addForgetGateBias(builder, forgetGateBiasOffset);
-  armnnSerializer.QuantizedLstmInputParams.addCellBias(builder, cellBiasOffset);
-  armnnSerializer.QuantizedLstmInputParams.addOutputGateBias(builder, outputGateBiasOffset);
-  return armnnSerializer.QuantizedLstmInputParams.endQuantizedLstmInputParams(builder);
-}
-
-/**
- * @constructor
- */
 armnnSerializer.LstmDescriptor = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -12430,6 +12136,1186 @@ armnnSerializer.LstmLayer.createLstmLayer = function(builder, baseOffset, descri
   armnnSerializer.LstmLayer.addDescriptor(builder, descriptorOffset);
   armnnSerializer.LstmLayer.addInputParams(builder, inputParamsOffset);
   return armnnSerializer.LstmLayer.endLstmLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.QLstmInputParams = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.QLstmInputParams}
+ */
+armnnSerializer.QLstmInputParams.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmInputParams=} obj
+ * @returns {armnnSerializer.QLstmInputParams}
+ */
+armnnSerializer.QLstmInputParams.getRootAsQLstmInputParams = function(bb, obj) {
+  return (obj || new armnnSerializer.QLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmInputParams=} obj
+ * @returns {armnnSerializer.QLstmInputParams}
+ */
+armnnSerializer.QLstmInputParams.getSizePrefixedRootAsQLstmInputParams = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.QLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputToForgetWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputToCellWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputToOutputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.recurrentToForgetWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.recurrentToCellWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.recurrentToOutputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.forgetGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.cellBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.outputGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputToInputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.recurrentToInputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.projectionWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 28);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.projectionBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 30);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.cellToInputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 32);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.cellToForgetWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 34);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.cellToOutputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 36);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.inputLayerNormWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 38);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.forgetLayerNormWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 40);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.cellLayerNormWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 42);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QLstmInputParams.prototype.outputLayerNormWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 44);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.QLstmInputParams.startQLstmInputParams = function(builder) {
+  builder.startObject(21);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToForgetWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addInputToForgetWeights = function(builder, inputToForgetWeightsOffset) {
+  builder.addFieldOffset(0, inputToForgetWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToCellWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addInputToCellWeights = function(builder, inputToCellWeightsOffset) {
+  builder.addFieldOffset(1, inputToCellWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToOutputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addInputToOutputWeights = function(builder, inputToOutputWeightsOffset) {
+  builder.addFieldOffset(2, inputToOutputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addRecurrentToForgetWeights = function(builder, recurrentToForgetWeightsOffset) {
+  builder.addFieldOffset(3, recurrentToForgetWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addRecurrentToCellWeights = function(builder, recurrentToCellWeightsOffset) {
+  builder.addFieldOffset(4, recurrentToCellWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addRecurrentToOutputWeights = function(builder, recurrentToOutputWeightsOffset) {
+  builder.addFieldOffset(5, recurrentToOutputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} forgetGateBiasOffset
+ */
+armnnSerializer.QLstmInputParams.addForgetGateBias = function(builder, forgetGateBiasOffset) {
+  builder.addFieldOffset(6, forgetGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellBiasOffset
+ */
+armnnSerializer.QLstmInputParams.addCellBias = function(builder, cellBiasOffset) {
+  builder.addFieldOffset(7, cellBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} outputGateBiasOffset
+ */
+armnnSerializer.QLstmInputParams.addOutputGateBias = function(builder, outputGateBiasOffset) {
+  builder.addFieldOffset(8, outputGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToInputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addInputToInputWeights = function(builder, inputToInputWeightsOffset) {
+  builder.addFieldOffset(9, inputToInputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addRecurrentToInputWeights = function(builder, recurrentToInputWeightsOffset) {
+  builder.addFieldOffset(10, recurrentToInputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputGateBiasOffset
+ */
+armnnSerializer.QLstmInputParams.addInputGateBias = function(builder, inputGateBiasOffset) {
+  builder.addFieldOffset(11, inputGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} projectionWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addProjectionWeights = function(builder, projectionWeightsOffset) {
+  builder.addFieldOffset(12, projectionWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} projectionBiasOffset
+ */
+armnnSerializer.QLstmInputParams.addProjectionBias = function(builder, projectionBiasOffset) {
+  builder.addFieldOffset(13, projectionBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellToInputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addCellToInputWeights = function(builder, cellToInputWeightsOffset) {
+  builder.addFieldOffset(14, cellToInputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellToForgetWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addCellToForgetWeights = function(builder, cellToForgetWeightsOffset) {
+  builder.addFieldOffset(15, cellToForgetWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellToOutputWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addCellToOutputWeights = function(builder, cellToOutputWeightsOffset) {
+  builder.addFieldOffset(16, cellToOutputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputLayerNormWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addInputLayerNormWeights = function(builder, inputLayerNormWeightsOffset) {
+  builder.addFieldOffset(17, inputLayerNormWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} forgetLayerNormWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addForgetLayerNormWeights = function(builder, forgetLayerNormWeightsOffset) {
+  builder.addFieldOffset(18, forgetLayerNormWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellLayerNormWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addCellLayerNormWeights = function(builder, cellLayerNormWeightsOffset) {
+  builder.addFieldOffset(19, cellLayerNormWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} outputLayerNormWeightsOffset
+ */
+armnnSerializer.QLstmInputParams.addOutputLayerNormWeights = function(builder, outputLayerNormWeightsOffset) {
+  builder.addFieldOffset(20, outputLayerNormWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmInputParams.endQLstmInputParams = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToForgetWeightsOffset
+ * @param {flatbuffers.Offset} inputToCellWeightsOffset
+ * @param {flatbuffers.Offset} inputToOutputWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
+ * @param {flatbuffers.Offset} forgetGateBiasOffset
+ * @param {flatbuffers.Offset} cellBiasOffset
+ * @param {flatbuffers.Offset} outputGateBiasOffset
+ * @param {flatbuffers.Offset} inputToInputWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
+ * @param {flatbuffers.Offset} inputGateBiasOffset
+ * @param {flatbuffers.Offset} projectionWeightsOffset
+ * @param {flatbuffers.Offset} projectionBiasOffset
+ * @param {flatbuffers.Offset} cellToInputWeightsOffset
+ * @param {flatbuffers.Offset} cellToForgetWeightsOffset
+ * @param {flatbuffers.Offset} cellToOutputWeightsOffset
+ * @param {flatbuffers.Offset} inputLayerNormWeightsOffset
+ * @param {flatbuffers.Offset} forgetLayerNormWeightsOffset
+ * @param {flatbuffers.Offset} cellLayerNormWeightsOffset
+ * @param {flatbuffers.Offset} outputLayerNormWeightsOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmInputParams.createQLstmInputParams = function(builder, inputToForgetWeightsOffset, inputToCellWeightsOffset, inputToOutputWeightsOffset, recurrentToForgetWeightsOffset, recurrentToCellWeightsOffset, recurrentToOutputWeightsOffset, forgetGateBiasOffset, cellBiasOffset, outputGateBiasOffset, inputToInputWeightsOffset, recurrentToInputWeightsOffset, inputGateBiasOffset, projectionWeightsOffset, projectionBiasOffset, cellToInputWeightsOffset, cellToForgetWeightsOffset, cellToOutputWeightsOffset, inputLayerNormWeightsOffset, forgetLayerNormWeightsOffset, cellLayerNormWeightsOffset, outputLayerNormWeightsOffset) {
+  armnnSerializer.QLstmInputParams.startQLstmInputParams(builder);
+  armnnSerializer.QLstmInputParams.addInputToForgetWeights(builder, inputToForgetWeightsOffset);
+  armnnSerializer.QLstmInputParams.addInputToCellWeights(builder, inputToCellWeightsOffset);
+  armnnSerializer.QLstmInputParams.addInputToOutputWeights(builder, inputToOutputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addRecurrentToForgetWeights(builder, recurrentToForgetWeightsOffset);
+  armnnSerializer.QLstmInputParams.addRecurrentToCellWeights(builder, recurrentToCellWeightsOffset);
+  armnnSerializer.QLstmInputParams.addRecurrentToOutputWeights(builder, recurrentToOutputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addForgetGateBias(builder, forgetGateBiasOffset);
+  armnnSerializer.QLstmInputParams.addCellBias(builder, cellBiasOffset);
+  armnnSerializer.QLstmInputParams.addOutputGateBias(builder, outputGateBiasOffset);
+  armnnSerializer.QLstmInputParams.addInputToInputWeights(builder, inputToInputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addRecurrentToInputWeights(builder, recurrentToInputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addInputGateBias(builder, inputGateBiasOffset);
+  armnnSerializer.QLstmInputParams.addProjectionWeights(builder, projectionWeightsOffset);
+  armnnSerializer.QLstmInputParams.addProjectionBias(builder, projectionBiasOffset);
+  armnnSerializer.QLstmInputParams.addCellToInputWeights(builder, cellToInputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addCellToForgetWeights(builder, cellToForgetWeightsOffset);
+  armnnSerializer.QLstmInputParams.addCellToOutputWeights(builder, cellToOutputWeightsOffset);
+  armnnSerializer.QLstmInputParams.addInputLayerNormWeights(builder, inputLayerNormWeightsOffset);
+  armnnSerializer.QLstmInputParams.addForgetLayerNormWeights(builder, forgetLayerNormWeightsOffset);
+  armnnSerializer.QLstmInputParams.addCellLayerNormWeights(builder, cellLayerNormWeightsOffset);
+  armnnSerializer.QLstmInputParams.addOutputLayerNormWeights(builder, outputLayerNormWeightsOffset);
+  return armnnSerializer.QLstmInputParams.endQLstmInputParams(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.QLstmDescriptor = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.QLstmDescriptor}
+ */
+armnnSerializer.QLstmDescriptor.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmDescriptor=} obj
+ * @returns {armnnSerializer.QLstmDescriptor}
+ */
+armnnSerializer.QLstmDescriptor.getRootAsQLstmDescriptor = function(bb, obj) {
+  return (obj || new armnnSerializer.QLstmDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmDescriptor=} obj
+ * @returns {armnnSerializer.QLstmDescriptor}
+ */
+armnnSerializer.QLstmDescriptor.getSizePrefixedRootAsQLstmDescriptor = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.QLstmDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.QLstmDescriptor.prototype.cifgEnabled = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : true;
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.QLstmDescriptor.prototype.peepholeEnabled = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.QLstmDescriptor.prototype.projectionEnabled = function() {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.QLstmDescriptor.prototype.layerNormEnabled = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.cellClip = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.projectionClip = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.inputIntermediateScale = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.forgetIntermediateScale = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.cellIntermediateScale = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.outputIntermediateScale = function() {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.hiddenStateZeroPoint = function() {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.QLstmDescriptor.prototype.hiddenStateScale = function() {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.QLstmDescriptor.startQLstmDescriptor = function(builder) {
+  builder.startObject(12);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} cifgEnabled
+ */
+armnnSerializer.QLstmDescriptor.addCifgEnabled = function(builder, cifgEnabled) {
+  builder.addFieldInt8(0, +cifgEnabled, +true);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} peepholeEnabled
+ */
+armnnSerializer.QLstmDescriptor.addPeepholeEnabled = function(builder, peepholeEnabled) {
+  builder.addFieldInt8(1, +peepholeEnabled, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} projectionEnabled
+ */
+armnnSerializer.QLstmDescriptor.addProjectionEnabled = function(builder, projectionEnabled) {
+  builder.addFieldInt8(2, +projectionEnabled, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} layerNormEnabled
+ */
+armnnSerializer.QLstmDescriptor.addLayerNormEnabled = function(builder, layerNormEnabled) {
+  builder.addFieldInt8(3, +layerNormEnabled, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} cellClip
+ */
+armnnSerializer.QLstmDescriptor.addCellClip = function(builder, cellClip) {
+  builder.addFieldFloat32(4, cellClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} projectionClip
+ */
+armnnSerializer.QLstmDescriptor.addProjectionClip = function(builder, projectionClip) {
+  builder.addFieldFloat32(5, projectionClip, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} inputIntermediateScale
+ */
+armnnSerializer.QLstmDescriptor.addInputIntermediateScale = function(builder, inputIntermediateScale) {
+  builder.addFieldFloat32(6, inputIntermediateScale, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} forgetIntermediateScale
+ */
+armnnSerializer.QLstmDescriptor.addForgetIntermediateScale = function(builder, forgetIntermediateScale) {
+  builder.addFieldFloat32(7, forgetIntermediateScale, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} cellIntermediateScale
+ */
+armnnSerializer.QLstmDescriptor.addCellIntermediateScale = function(builder, cellIntermediateScale) {
+  builder.addFieldFloat32(8, cellIntermediateScale, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} outputIntermediateScale
+ */
+armnnSerializer.QLstmDescriptor.addOutputIntermediateScale = function(builder, outputIntermediateScale) {
+  builder.addFieldFloat32(9, outputIntermediateScale, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} hiddenStateZeroPoint
+ */
+armnnSerializer.QLstmDescriptor.addHiddenStateZeroPoint = function(builder, hiddenStateZeroPoint) {
+  builder.addFieldInt32(10, hiddenStateZeroPoint, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} hiddenStateScale
+ */
+armnnSerializer.QLstmDescriptor.addHiddenStateScale = function(builder, hiddenStateScale) {
+  builder.addFieldFloat32(11, hiddenStateScale, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmDescriptor.endQLstmDescriptor = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} cifgEnabled
+ * @param {boolean} peepholeEnabled
+ * @param {boolean} projectionEnabled
+ * @param {boolean} layerNormEnabled
+ * @param {number} cellClip
+ * @param {number} projectionClip
+ * @param {number} inputIntermediateScale
+ * @param {number} forgetIntermediateScale
+ * @param {number} cellIntermediateScale
+ * @param {number} outputIntermediateScale
+ * @param {number} hiddenStateZeroPoint
+ * @param {number} hiddenStateScale
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmDescriptor.createQLstmDescriptor = function(builder, cifgEnabled, peepholeEnabled, projectionEnabled, layerNormEnabled, cellClip, projectionClip, inputIntermediateScale, forgetIntermediateScale, cellIntermediateScale, outputIntermediateScale, hiddenStateZeroPoint, hiddenStateScale) {
+  armnnSerializer.QLstmDescriptor.startQLstmDescriptor(builder);
+  armnnSerializer.QLstmDescriptor.addCifgEnabled(builder, cifgEnabled);
+  armnnSerializer.QLstmDescriptor.addPeepholeEnabled(builder, peepholeEnabled);
+  armnnSerializer.QLstmDescriptor.addProjectionEnabled(builder, projectionEnabled);
+  armnnSerializer.QLstmDescriptor.addLayerNormEnabled(builder, layerNormEnabled);
+  armnnSerializer.QLstmDescriptor.addCellClip(builder, cellClip);
+  armnnSerializer.QLstmDescriptor.addProjectionClip(builder, projectionClip);
+  armnnSerializer.QLstmDescriptor.addInputIntermediateScale(builder, inputIntermediateScale);
+  armnnSerializer.QLstmDescriptor.addForgetIntermediateScale(builder, forgetIntermediateScale);
+  armnnSerializer.QLstmDescriptor.addCellIntermediateScale(builder, cellIntermediateScale);
+  armnnSerializer.QLstmDescriptor.addOutputIntermediateScale(builder, outputIntermediateScale);
+  armnnSerializer.QLstmDescriptor.addHiddenStateZeroPoint(builder, hiddenStateZeroPoint);
+  armnnSerializer.QLstmDescriptor.addHiddenStateScale(builder, hiddenStateScale);
+  return armnnSerializer.QLstmDescriptor.endQLstmDescriptor(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.QLstmLayer = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.QLstmLayer}
+ */
+armnnSerializer.QLstmLayer.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmLayer=} obj
+ * @returns {armnnSerializer.QLstmLayer}
+ */
+armnnSerializer.QLstmLayer.getRootAsQLstmLayer = function(bb, obj) {
+  return (obj || new armnnSerializer.QLstmLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QLstmLayer=} obj
+ * @returns {armnnSerializer.QLstmLayer}
+ */
+armnnSerializer.QLstmLayer.getSizePrefixedRootAsQLstmLayer = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.QLstmLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.LayerBase=} obj
+ * @returns {armnnSerializer.LayerBase|null}
+ */
+armnnSerializer.QLstmLayer.prototype.base = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.LayerBase).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.QLstmDescriptor=} obj
+ * @returns {armnnSerializer.QLstmDescriptor|null}
+ */
+armnnSerializer.QLstmLayer.prototype.descriptor = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.QLstmDescriptor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.QLstmInputParams=} obj
+ * @returns {armnnSerializer.QLstmInputParams|null}
+ */
+armnnSerializer.QLstmLayer.prototype.inputParams = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? (obj || new armnnSerializer.QLstmInputParams).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.QLstmLayer.startQLstmLayer = function(builder) {
+  builder.startObject(3);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ */
+armnnSerializer.QLstmLayer.addBase = function(builder, baseOffset) {
+  builder.addFieldOffset(0, baseOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptorOffset
+ */
+armnnSerializer.QLstmLayer.addDescriptor = function(builder, descriptorOffset) {
+  builder.addFieldOffset(1, descriptorOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputParamsOffset
+ */
+armnnSerializer.QLstmLayer.addInputParams = function(builder, inputParamsOffset) {
+  builder.addFieldOffset(2, inputParamsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmLayer.endQLstmLayer = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ * @param {flatbuffers.Offset} descriptorOffset
+ * @param {flatbuffers.Offset} inputParamsOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QLstmLayer.createQLstmLayer = function(builder, baseOffset, descriptorOffset, inputParamsOffset) {
+  armnnSerializer.QLstmLayer.startQLstmLayer(builder);
+  armnnSerializer.QLstmLayer.addBase(builder, baseOffset);
+  armnnSerializer.QLstmLayer.addDescriptor(builder, descriptorOffset);
+  armnnSerializer.QLstmLayer.addInputParams(builder, inputParamsOffset);
+  return armnnSerializer.QLstmLayer.endQLstmLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.QuantizedLstmInputParams = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.QuantizedLstmInputParams}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QuantizedLstmInputParams=} obj
+ * @returns {armnnSerializer.QuantizedLstmInputParams}
+ */
+armnnSerializer.QuantizedLstmInputParams.getRootAsQuantizedLstmInputParams = function(bb, obj) {
+  return (obj || new armnnSerializer.QuantizedLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.QuantizedLstmInputParams=} obj
+ * @returns {armnnSerializer.QuantizedLstmInputParams}
+ */
+armnnSerializer.QuantizedLstmInputParams.getSizePrefixedRootAsQuantizedLstmInputParams = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.QuantizedLstmInputParams).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.inputToInputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.inputToForgetWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.inputToCellWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 8);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.inputToOutputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToInputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToForgetWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToCellWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.recurrentToOutputWeights = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.inputGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.forgetGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 22);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.cellBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 24);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {armnnSerializer.ConstTensor=} obj
+ * @returns {armnnSerializer.ConstTensor|null}
+ */
+armnnSerializer.QuantizedLstmInputParams.prototype.outputGateBias = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 26);
+  return offset ? (obj || new armnnSerializer.ConstTensor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.QuantizedLstmInputParams.startQuantizedLstmInputParams = function(builder) {
+  builder.startObject(12);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToInputWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addInputToInputWeights = function(builder, inputToInputWeightsOffset) {
+  builder.addFieldOffset(0, inputToInputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToForgetWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addInputToForgetWeights = function(builder, inputToForgetWeightsOffset) {
+  builder.addFieldOffset(1, inputToForgetWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToCellWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addInputToCellWeights = function(builder, inputToCellWeightsOffset) {
+  builder.addFieldOffset(2, inputToCellWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToOutputWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addInputToOutputWeights = function(builder, inputToOutputWeightsOffset) {
+  builder.addFieldOffset(3, inputToOutputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addRecurrentToInputWeights = function(builder, recurrentToInputWeightsOffset) {
+  builder.addFieldOffset(4, recurrentToInputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addRecurrentToForgetWeights = function(builder, recurrentToForgetWeightsOffset) {
+  builder.addFieldOffset(5, recurrentToForgetWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addRecurrentToCellWeights = function(builder, recurrentToCellWeightsOffset) {
+  builder.addFieldOffset(6, recurrentToCellWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addRecurrentToOutputWeights = function(builder, recurrentToOutputWeightsOffset) {
+  builder.addFieldOffset(7, recurrentToOutputWeightsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputGateBiasOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addInputGateBias = function(builder, inputGateBiasOffset) {
+  builder.addFieldOffset(8, inputGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} forgetGateBiasOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addForgetGateBias = function(builder, forgetGateBiasOffset) {
+  builder.addFieldOffset(9, forgetGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} cellBiasOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addCellBias = function(builder, cellBiasOffset) {
+  builder.addFieldOffset(10, cellBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} outputGateBiasOffset
+ */
+armnnSerializer.QuantizedLstmInputParams.addOutputGateBias = function(builder, outputGateBiasOffset) {
+  builder.addFieldOffset(11, outputGateBiasOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QuantizedLstmInputParams.endQuantizedLstmInputParams = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputToInputWeightsOffset
+ * @param {flatbuffers.Offset} inputToForgetWeightsOffset
+ * @param {flatbuffers.Offset} inputToCellWeightsOffset
+ * @param {flatbuffers.Offset} inputToOutputWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToInputWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToForgetWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToCellWeightsOffset
+ * @param {flatbuffers.Offset} recurrentToOutputWeightsOffset
+ * @param {flatbuffers.Offset} inputGateBiasOffset
+ * @param {flatbuffers.Offset} forgetGateBiasOffset
+ * @param {flatbuffers.Offset} cellBiasOffset
+ * @param {flatbuffers.Offset} outputGateBiasOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.QuantizedLstmInputParams.createQuantizedLstmInputParams = function(builder, inputToInputWeightsOffset, inputToForgetWeightsOffset, inputToCellWeightsOffset, inputToOutputWeightsOffset, recurrentToInputWeightsOffset, recurrentToForgetWeightsOffset, recurrentToCellWeightsOffset, recurrentToOutputWeightsOffset, inputGateBiasOffset, forgetGateBiasOffset, cellBiasOffset, outputGateBiasOffset) {
+  armnnSerializer.QuantizedLstmInputParams.startQuantizedLstmInputParams(builder);
+  armnnSerializer.QuantizedLstmInputParams.addInputToInputWeights(builder, inputToInputWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addInputToForgetWeights(builder, inputToForgetWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addInputToCellWeights(builder, inputToCellWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addInputToOutputWeights(builder, inputToOutputWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addRecurrentToInputWeights(builder, recurrentToInputWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addRecurrentToForgetWeights(builder, recurrentToForgetWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addRecurrentToCellWeights(builder, recurrentToCellWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addRecurrentToOutputWeights(builder, recurrentToOutputWeightsOffset);
+  armnnSerializer.QuantizedLstmInputParams.addInputGateBias(builder, inputGateBiasOffset);
+  armnnSerializer.QuantizedLstmInputParams.addForgetGateBias(builder, forgetGateBiasOffset);
+  armnnSerializer.QuantizedLstmInputParams.addCellBias(builder, cellBiasOffset);
+  armnnSerializer.QuantizedLstmInputParams.addOutputGateBias(builder, outputGateBiasOffset);
+  return armnnSerializer.QuantizedLstmInputParams.endQuantizedLstmInputParams(builder);
 }
 
 /**
