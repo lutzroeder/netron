@@ -12001,7 +12001,6 @@
         },
         {
           "default": false,
-          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
           "name": "binary_count",
           "type": "boolean"
         }
@@ -12039,31 +12038,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "dtype; dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
+          "description": "Dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
           "name": "T",
           "type": "type"
         },
         {
           "default": -1,
-          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "description": "Minimum value to count. Can be set to -1 for no minimum.",
           "minimum": -1,
           "name": "minlength",
           "type": "int64"
         },
         {
           "default": -1,
-          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "description": "Maximum value to count. Can be set to -1 for no maximum.",
           "minimum": -1,
           "name": "maxlength",
           "type": "int64"
         },
         {
-          "description": "bool; whether to output the number of occurrences of each value or 1.",
           "name": "binary_count",
           "type": "boolean"
         },
         {
-          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
           "name": "output_type",
           "type": "type"
         }
@@ -12071,29 +12069,29 @@
       "description": "  Counts the number of times each value occurs in the input.",
       "inputs": [
         {
-          "description": "int32 or int64; Tensor containing data to count.",
+          "description": "Tensor containing data to count.",
           "name": "values",
           "typeAttr": "T"
         },
         {
-          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "description": "A Tensor of the same shape as indices containing per-index weight values. May\nalso be the empty tensor if no weights are used.",
           "name": "weights",
           "type": 1
         }
       ],
       "outputs": [
         {
-          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "description": "Indices tensor for the resulting sparse tensor object.",
           "name": "output_indices",
           "type": 9
         },
         {
-          "description": "int64 or float32; values tensor for the resulting sparse tensor object.",
+          "description": "Values tensor for the resulting sparse tensor object.",
           "name": "output_values",
           "typeAttr": "output_type"
         },
         {
-          "description": "int64; shape tensor for the resulting sparse tensor object.",
+          "description": "Shape tensor for the resulting sparse tensor object.",
           "name": "output_dense_shape",
           "type": 9
         }
@@ -20493,6 +20491,7 @@
           "type": "type"
         }
       ],
+      "description": "Computes `x[i, :] = v; return x`.\n\nOriginally this function is mutative however for compilation we make this\noperation create / operate on a copy of `x`.",
       "inputs": [
         {
           "description": "A tensor of type `T`.",
@@ -20517,7 +20516,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "    Updates specified rows with values in `v`.\n\n    Computes `x[i, :] = v; return x`."
+      "summary": "Updates specified rows 'i' with values 'v'."
     }
   },
   {
@@ -35303,7 +35302,6 @@
         },
         {
           "default": false,
-          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
           "name": "binary_count",
           "type": "boolean"
         }
@@ -35352,25 +35350,24 @@
         },
         {
           "default": -1,
-          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "description": "Minimum value to count. Can be set to -1 for no minimum.",
           "minimum": -1,
           "name": "minlength",
           "type": "int64"
         },
         {
           "default": -1,
-          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "description": "Maximum value to count. Can be set to -1 for no maximum.",
           "minimum": -1,
           "name": "maxlength",
           "type": "int64"
         },
         {
-          "description": "bool; whether to output the number of occurrences of each value or 1.",
           "name": "binary_count",
           "type": "boolean"
         },
         {
-          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
           "name": "output_type",
           "type": "type"
         }
@@ -35378,33 +35375,34 @@
       "description": "  Counts the number of times each value occurs in the input.",
       "inputs": [
         {
-          "description": "int64; Tensor containing the row splits of the ragged tensor to count.",
+          "description": "Tensor containing the row splits of the ragged tensor to count.",
           "name": "splits",
           "type": 9
         },
         {
-          "description": "int32 or int64; Tensor containing values of the sparse tensor to count.",
+          "description": "Tensor containing values of the sparse tensor to count.",
           "name": "values",
           "typeAttr": "T"
         },
         {
-          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "description": "A Tensor of the same shape as indices containing per-index weight values.\nMay also be the empty tensor if no weights are used.",
           "name": "weights",
           "type": 1
         }
       ],
       "outputs": [
         {
-          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "description": "Indices tensor for the resulting sparse tensor object.",
           "name": "output_indices",
           "type": 9
         },
         {
-          "description": "int64 or float32; values tensor for the resulting sparse tensor object.\n  END\n  }\n  out_arg {\n    name: \"output_dense_shape\"\n    description: <<END\nint64; shape tensor for the resulting sparse tensor object.\n  END\n  }\n  attr {\n    name: \"T\"\n    description: <<END\ndtype; dtype of the input values tensor.",
+          "description": "Values tensor for the resulting sparse tensor object.",
           "name": "output_values",
           "typeAttr": "output_type"
         },
         {
+          "description": "Shape tensor for the resulting sparse tensor object.\n  END\n  }\n  attr {\n    name: \"T\"\n    description: <<END\nDtype of the input values tensor.",
           "name": "output_dense_shape",
           "type": 9
         }
@@ -47031,7 +47029,6 @@
         },
         {
           "default": false,
-          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
           "name": "binary_count",
           "type": "boolean"
         }
@@ -47184,31 +47181,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "dtype; dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
+          "description": "Dtype of the input values tensor. Must be one of the following: `int32`, `int64`.",
           "name": "T",
           "type": "type"
         },
         {
           "default": -1,
-          "description": "int32; minimum value to count. Can be set to -1 for no minimum.",
+          "description": "Minimum value to count. Can be set to -1 for no minimum.",
           "minimum": -1,
           "name": "minlength",
           "type": "int64"
         },
         {
           "default": -1,
-          "description": "int32; maximum value to count. Can be set to -1 for no maximum.",
+          "description": "Maximum value to count. Can be set to -1 for no maximum.",
           "minimum": -1,
           "name": "maxlength",
           "type": "int64"
         },
         {
-          "description": "bool; whether to output the number of occurrences of each value or 1.",
           "name": "binary_count",
           "type": "boolean"
         },
         {
-          "description": "dtype; dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
           "name": "output_type",
           "type": "type"
         }
@@ -47216,39 +47212,39 @@
       "description": "  Counts the number of times each value occurs in the input.",
       "inputs": [
         {
-          "description": "int64; Tensor containing the indices of the sparse tensor to count.",
+          "description": "Tensor containing the indices of the sparse tensor to count.",
           "name": "indices",
           "type": 9
         },
         {
-          "description": "int32 or int64; Tensor containing values of the sparse tensor to count.",
+          "description": "Tensor containing values of the sparse tensor to count.",
           "name": "values",
           "typeAttr": "T"
         },
         {
-          "description": "int64; Tensor containing the dense shape of the sparse tensor to count.",
+          "description": "Tensor containing the dense shape of the sparse tensor to count.",
           "name": "dense_shape",
           "type": 9
         },
         {
-          "description": "float32; Optional rank 1 Tensor (shape=[max_values]) with weights for each count value.",
+          "description": "A Tensor of the same shape as indices containing per-index weight values.\nMay also be the empty tensor if no weights are used.",
           "name": "weights",
           "type": 1
         }
       ],
       "outputs": [
         {
-          "description": "int64; indices tensor for the resulting sparse tensor object.",
+          "description": "Indices tensor for the resulting sparse tensor object.",
           "name": "output_indices",
           "type": 9
         },
         {
-          "description": "int64 or float32; values tensor for the resulting sparse tensor object.",
+          "description": "Values tensor for the resulting sparse tensor object.",
           "name": "output_values",
           "typeAttr": "output_type"
         },
         {
-          "description": "int64; shape tensor for the resulting sparse tensor object.",
+          "description": "Shape tensor for the resulting sparse tensor object.",
           "name": "output_dense_shape",
           "type": 9
         }
