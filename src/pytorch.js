@@ -1136,6 +1136,9 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.detection.faster_rcnn.FasterRCNN', function() {});
         this._registerConstructor('torchvision.models.detection.faster_rcnn.FastRCNNPredictor', function() {});
         this._registerConstructor('torchvision.models.detection.faster_rcnn.TwoMLPHead', function() {});
+        this._registerConstructor('torchvision.models.detection.keypoint_rcnn.KeypointRCNN', function() {});
+        this._registerConstructor('torchvision.models.detection.keypoint_rcnn.KeypointRCNNHeads', function() {});
+        this._registerConstructor('torchvision.models.detection.keypoint_rcnn.KeypointRCNNPredictor', function() {});
         this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNN', function() {});
         this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNNHeads', function() {});
         this._registerConstructor('torchvision.models.detection.mask_rcnn.MaskRCNNPredictor', function() {});
@@ -1183,6 +1186,7 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models._utils.IntermediateLayerGetter', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.LastLevelMaxPool', function() {});
+        this._registerConstructor('torchvision.ops.misc.ConvTranspose2d', function() {});
         this._registerConstructor('torchvision.ops.misc.FrozenBatchNorm2d', function() {});
         this._registerConstructor('torchvision.ops.poolers.LevelMapper', function() {});
         this._registerConstructor('torchvision.ops.poolers.MultiScaleRoIAlign', function() {});
@@ -1353,6 +1357,12 @@ pytorch.Execution = class {
                 return array;
             }
             throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+        });
+        this._registerFunction('__builtin__.getattr', function(obj, name, defaultValue) {
+            if (Object.prototype.hasOwnProperty.call(obj, name)) {
+                return obj[name];
+            }
+            return defaultValue;
         });
         this._registerFunction('__builtin__.set', function(iterable) {
             return iterable ? iterable : [];
