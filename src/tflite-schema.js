@@ -15382,10 +15382,19 @@ tflite_metadata_schema.ModelMetadata.prototype.associatedFilesLength = function(
 };
 
 /**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+tflite_metadata_schema.ModelMetadata.prototype.minParserVersion = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_metadata_schema.ModelMetadata.startModelMetadata = function(builder) {
-  builder.startObject(7);
+  builder.startObject(8);
 };
 
 /**
@@ -15488,6 +15497,14 @@ tflite_metadata_schema.ModelMetadata.startAssociatedFilesVector = function(build
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} minParserVersionOffset
+ */
+tflite_metadata_schema.ModelMetadata.addMinParserVersion = function(builder, minParserVersionOffset) {
+  builder.addFieldOffset(7, minParserVersionOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_metadata_schema.ModelMetadata.endModelMetadata = function(builder) {
@@ -15520,9 +15537,10 @@ tflite_metadata_schema.ModelMetadata.finishSizePrefixedModelMetadataBuffer = fun
  * @param {flatbuffers.Offset} authorOffset
  * @param {flatbuffers.Offset} licenseOffset
  * @param {flatbuffers.Offset} associatedFilesOffset
+ * @param {flatbuffers.Offset} minParserVersionOffset
  * @returns {flatbuffers.Offset}
  */
-tflite_metadata_schema.ModelMetadata.createModelMetadata = function(builder, nameOffset, descriptionOffset, versionOffset, subgraphMetadataOffset, authorOffset, licenseOffset, associatedFilesOffset) {
+tflite_metadata_schema.ModelMetadata.createModelMetadata = function(builder, nameOffset, descriptionOffset, versionOffset, subgraphMetadataOffset, authorOffset, licenseOffset, associatedFilesOffset, minParserVersionOffset) {
   tflite_metadata_schema.ModelMetadata.startModelMetadata(builder);
   tflite_metadata_schema.ModelMetadata.addName(builder, nameOffset);
   tflite_metadata_schema.ModelMetadata.addDescription(builder, descriptionOffset);
@@ -15531,6 +15549,7 @@ tflite_metadata_schema.ModelMetadata.createModelMetadata = function(builder, nam
   tflite_metadata_schema.ModelMetadata.addAuthor(builder, authorOffset);
   tflite_metadata_schema.ModelMetadata.addLicense(builder, licenseOffset);
   tflite_metadata_schema.ModelMetadata.addAssociatedFiles(builder, associatedFilesOffset);
+  tflite_metadata_schema.ModelMetadata.addMinParserVersion(builder, minParserVersionOffset);
   return tflite_metadata_schema.ModelMetadata.endModelMetadata(builder);
 }
 
