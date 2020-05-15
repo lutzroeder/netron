@@ -2943,6 +2943,31 @@
     "schema": {
       "attributes": [
         {
+          "default": 0,
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "inputs",
+          "type": "T[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.stack",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
           "name": "dim",
           "type": "int64"
         }
