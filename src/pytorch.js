@@ -1802,7 +1802,8 @@ pytorch.Execution = class {
             }
             else if (target.__class__ === this._context.scope.builtins.function) {
                 if (target.__call__) {
-                    throw new pytorch.Error('Unexpected function __call__.');
+                    return target.__call__(args);
+                    // throw new pytorch.Error('Unexpected function __call__.');
                 }
                 else {
                     return target.apply(null, args);
@@ -3000,11 +3001,15 @@ pytorch.Container.Zip = class {
                         if (type.type === 'type' && type.name.type) {
                             if (type.name.value === 'Tensor') {
                                 this._inputs.push(parameter.name);
-                                args.push({ __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input' });
+                                args.push({ __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tensor' });
                             }
                             if (type.name.value === 'Tuple' && type.arguments.every((item) => item.type === 'type' && item.name.type === 'id' && item.name.value === 'Tensor')) {
                                 this._inputs.push(parameter.name);
-                                args.push(type.arguments.map(() => { return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input' }; }));
+                                args.push(type.arguments.map(() => { return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tuple' }; }));
+                            }
+                            if (type.name.value === 'List' && type.arguments.every((item) => item.type === 'type' && item.name.type === 'id' && item.name.value === 'Tensor')) {
+                                this._inputs.push(parameter.name);
+                                args.push([ { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, size: [ NaN, NaN ], __origin__: 'trace-input-list' } ]);
                             }
                         }
                     }
