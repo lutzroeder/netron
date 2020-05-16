@@ -793,8 +793,8 @@ sklearn.Container = class {
         constructorTable['sklearn.feature_extraction._hashing.FeatureHasher'] = function() {};
         constructorTable['sklearn.feature_extraction.text.CountVectorizer​'] = function() {};
         constructorTable['sklearn.feature_extraction.text.HashingVectorizer'] = function() {};
-        constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
         constructorTable['sklearn.feature_extraction.text.TfidfTransformer​'] = function() {};
+        constructorTable['sklearn.feature_extraction.text.TfidfVectorizer​'] = function() {};
         constructorTable['sklearn.feature_selection.univariate_selection.SelectKBest'] = function() {};
         constructorTable['sklearn.feature_selection.variance_threshold.VarianceThreshold'] = function() {};
         constructorTable['sklearn.impute._base.SimpleImputer'] = function() {};
@@ -821,6 +821,7 @@ sklearn.Container = class {
         constructorTable['sklearn.neighbors.kd_tree.newObj'] = function() {};
         constructorTable['sklearn.neighbors.KNeighborsClassifier​'] = function() {};
         constructorTable['sklearn.neighbors.KNeighborsRegressor'] = function() {};
+        constructorTable['sklearn.neighbors.unsupervised.NearestNeighbors'] = function() {};
         constructorTable['sklearn.neural_network._multilayer_perceptron.MLPClassifier'] = function() {};
         constructorTable['sklearn.neural_network._stochastic_optimizers.AdamOptimizer'] = function() {};
         constructorTable['sklearn.neural_network._stochastic_optimizers.SGDOptimizer'] = function() {};
@@ -972,6 +973,9 @@ sklearn.Container = class {
         };
         functionTable['builtins.bytearray'] = function(data) {
             return { data: data };
+        };
+        functionTable['builtins.set'] = function(iterable) {
+            return iterable ? iterable : [];
         };
         functionTable['builtins.slice'] = function(start, stop, step) {
             return { start: start, stop: stop, step: step };
