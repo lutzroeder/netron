@@ -393,12 +393,14 @@ openvino.Graph = class {
                     }
                     const constLayer = constMap.get(from).layer;
                     const blob = constLayer.blobs[0];
-                    blob.id = constLayer.name || constLayer.id;
-                    blob.kind = 'Const';
-                    layer.blobs.push(blob);
-                    layer.inputs.splice(i, 1);
-                    constMap.get(from).layer = null;
-                    constMap.get(from).delete = true;
+                    if (blob) {
+                        blob.id = constLayer.name || constLayer.id;
+                        blob.kind = 'Const';
+                        layer.blobs.push(blob);
+                        layer.inputs.splice(i, 1);
+                        constMap.get(from).layer = null;
+                        constMap.get(from).delete = true;
+                    }
                 }
             }
         }
