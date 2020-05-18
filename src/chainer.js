@@ -17,8 +17,15 @@ chainer.ModelFactory = class {
         }
         if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model') {
             const buffer = context.buffer;
-            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-            if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
+            const find = (signature, start, end) => {
+                for (let i = start; i <= end; i++) {
+                    if (buffer.length > i + signature.length && Array.from(signature).every((value, index) => value.charCodeAt(0) === buffer[i + index])) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (find('\x89HDF\r\n\x1A\n', 0, 0) && !find('model_config\0', 0, 2048) && !find('keras_version\0', 0, 2048)) {
                 return true;
             }
         }
