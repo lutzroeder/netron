@@ -874,6 +874,7 @@ sklearn.Container = class {
         constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
         constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {};
         constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+        constructorTable['xgboost.compat.XGBoostLabelEncoder'] = function() {};
         constructorTable['xgboost.core.Booster'] = function() {};
         constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
         constructorTable['xgboost.sklearn.XGBRegressor'] = function() {};
