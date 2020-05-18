@@ -2572,13 +2572,6 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnet-152.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnet-152/resnet-152.model",
-    "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
     "target": "resnet-152-symbol.json",
     "source": "http://data.mxnet.io/models/imagenet/resnet/152-layers/resnet-152-symbol.json",
     "format": "MXNet",
@@ -2589,13 +2582,6 @@
     "target": "resnet50_ssd_model.model",
     "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model",
     "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "ResNet_DUC_HDC.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-duc/ResNet_DUC_HDC.model",
-    "format": "MXNet Model Server v0.2",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -2627,18 +2613,6 @@
     "type":   "mxnet",
     "target": "resnet34v1.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet34v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet34v2.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet34v2.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet50v1.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet50v1.model",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
