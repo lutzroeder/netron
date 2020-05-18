@@ -2844,17 +2844,6 @@
   },
   {
     "type":   "onnx",
-    "target": "bvlc_reference_caffenet_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_caffenet.tar.gz[bvlc_reference_caffenet/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "bvlc_reference_rcnn_ilsvrc13_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/bvlc_reference_rcnn_ilsvrc13.tar.gz[bvlc_reference_rcnn_ilsvrc13/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_reference_rcnn_ilsvrc13"
-  },
-  {
-    "type":   "onnx",
     "target": "candy.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/FNSCandyStyleTransfer/UWP/cs/Assets/candy.onnx",
     "format": "ONNX v3",
@@ -3069,11 +3058,6 @@
     "type":   "onnx",
     "target": "resnet50v2.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet50v2/resnet50v2.onnx"
-  },
-  {
-    "type":   "onnx",
-    "target": "ResNet101_DUC_HDC.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/duc/ResNet101_DUC_HDC.onnx"
   },
   {
     "type":   "onnx",
