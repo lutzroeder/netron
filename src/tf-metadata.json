@@ -12001,7 +12001,8 @@
         },
         {
           "default": false,
-          "name": "binary_count",
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_output",
           "type": "boolean"
         }
       ],
@@ -12057,11 +12058,12 @@
           "type": "int64"
         },
         {
-          "name": "binary_count",
+          "description": "Whether to output the number of occurrences of each value or 1.",
+          "name": "binary_output",
           "type": "boolean"
         },
         {
-          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
           "name": "output_type",
           "type": "type"
         }
@@ -12076,7 +12078,7 @@
         {
           "description": "A Tensor of the same shape as indices containing per-index weight values. May\nalso be the empty tensor if no weights are used.",
           "name": "weights",
-          "type": 1
+          "typeAttr": "output_type"
         }
       ],
       "outputs": [
@@ -35302,7 +35304,8 @@
         },
         {
           "default": false,
-          "name": "binary_count",
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_output",
           "type": "boolean"
         }
       ],
@@ -35363,11 +35366,12 @@
           "type": "int64"
         },
         {
-          "name": "binary_count",
+          "description": "Whether to output the number of occurrences of each value or 1.",
+          "name": "binary_output",
           "type": "boolean"
         },
         {
-          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
           "name": "output_type",
           "type": "type"
         }
@@ -35387,7 +35391,7 @@
         {
           "description": "A Tensor of the same shape as indices containing per-index weight values.\nMay also be the empty tensor if no weights are used.",
           "name": "weights",
-          "type": 1
+          "typeAttr": "output_type"
         }
       ],
       "outputs": [
@@ -47029,7 +47033,8 @@
         },
         {
           "default": false,
-          "name": "binary_count",
+          "description": "bool; Whether the kernel should count the appearance or number of occurrences.",
+          "name": "binary_output",
           "type": "boolean"
         }
       ],
@@ -47200,11 +47205,12 @@
           "type": "int64"
         },
         {
-          "name": "binary_count",
+          "description": "Whether to output the number of occurrences of each value or 1.",
+          "name": "binary_output",
           "type": "boolean"
         },
         {
-          "description": "Dtype of the output values tensor. Must be one of the following: `int64`, `float32`.",
+          "description": "Dtype of the output values tensor. Must be one of the following: `int32`, `int64`, `float32`, `float64`.",
           "name": "output_type",
           "type": "type"
         }
@@ -47229,7 +47235,7 @@
         {
           "description": "A Tensor of the same shape as indices containing per-index weight values.\nMay also be the empty tensor if no weights are used.",
           "name": "weights",
-          "type": 1
+          "typeAttr": "output_type"
         }
       ],
       "outputs": [
@@ -47335,6 +47341,160 @@
           "description": "1-D.  Non-empty values of the concatenated or hashed\n`SparseTensor`.",
           "name": "output_values",
           "typeAttr": "out_type"
+        },
+        {
+          "description": "1-D.  Shape of the concatenated `SparseTensor`.",
+          "name": "output_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Generates sparse cross from a list of sparse and dense tensors."
+    }
+  },
+  {
+    "name": "SparseCrossHashed",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "N",
+          "type": "int64"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "sparse_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "dense_types",
+          "type": "type[]"
+        }
+      ],
+      "description": "The op takes two lists, one of 2D `SparseTensor` and one of 2D `Tensor`, each\nrepresenting features of one feature column. It outputs a 2D `SparseTensor` with\nthe batchwise crosses of these features.\n\nFor example, if the inputs are\n\n    inputs[0]: SparseTensor with shape = [2, 2]\n    [0, 0]: \"a\"\n    [1, 0]: \"b\"\n    [1, 1]: \"c\"\n\n    inputs[1]: SparseTensor with shape = [2, 1]\n    [0, 0]: \"d\"\n    [1, 0]: \"e\"\n\n    inputs[2]: Tensor [[\"f\"], [\"g\"]]\n\nthen the output will be\n\n    shape = [2, 2]\n    [0, 0]: \"a_X_d_X_f\"\n    [1, 0]: \"b_X_e_X_g\"\n    [1, 1]: \"c_X_e_X_g\"\n\nif hashed_output=true then the output will be\n\n    shape = [2, 2]\n    [0, 0]: FingerprintCat64(\n                Fingerprint64(\"f\"), FingerprintCat64(\n                    Fingerprint64(\"d\"), Fingerprint64(\"a\")))\n    [1, 0]: FingerprintCat64(\n                Fingerprint64(\"g\"), FingerprintCat64(\n                    Fingerprint64(\"e\"), Fingerprint64(\"b\")))\n    [1, 1]: FingerprintCat64(\n                Fingerprint64(\"g\"), FingerprintCat64(\n                    Fingerprint64(\"e\"), Fingerprint64(\"c\")))",
+      "inputs": [
+        {
+          "description": "2-D.  Indices of each input `SparseTensor`.",
+          "name": "indices",
+          "numberAttr": "N",
+          "type": 9
+        },
+        {
+          "description": "1-D.   values of each `SparseTensor`.",
+          "name": "values",
+          "typeListAttr": "sparse_types"
+        },
+        {
+          "description": "1-D.   Shapes of each `SparseTensor`.",
+          "name": "shapes",
+          "numberAttr": "N",
+          "type": 9
+        },
+        {
+          "description": "2-D.    Columns represented by dense `Tensor`.",
+          "name": "dense_inputs",
+          "typeListAttr": "dense_types"
+        },
+        {
+          "description": "It is used if hashed_output is true.\noutput = hashed_value%num_buckets if num_buckets > 0 else hashed_value.",
+          "name": "num_buckets",
+          "type": 9
+        },
+        {
+          "description": "boolean, if true, siphash with salt will be used instead of farmhash.",
+          "name": "strong_hash",
+          "type": 10
+        },
+        {
+          "description": "Specify the salt that will be used by the siphash function.",
+          "name": "salt",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "description": "2-D.  Indices of the concatenated `SparseTensor`.",
+          "name": "output_indices",
+          "type": 9
+        },
+        {
+          "description": "1-D.  Non-empty values of the concatenated or hashed\n`SparseTensor`.",
+          "name": "output_values",
+          "type": 9
+        },
+        {
+          "description": "1-D.  Shape of the concatenated `SparseTensor`.",
+          "name": "output_shape",
+          "type": 9
+        }
+      ],
+      "summary": "Generates sparse cross from a list of sparse and dense tensors."
+    }
+  },
+  {
+    "name": "SparseCrossV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "N",
+          "type": "int64"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "sparse_types",
+          "type": "type[]"
+        },
+        {
+          "description": "Must be one of the following: `int64`, `string`.",
+          "minimum": 0,
+          "name": "dense_types",
+          "type": "type[]"
+        }
+      ],
+      "description": "The op takes two lists, one of 2D `SparseTensor` and one of 2D `Tensor`, each\nrepresenting features of one feature column. It outputs a 2D `SparseTensor` with\nthe batchwise crosses of these features.\n\nFor example, if the inputs are\n\n    inputs[0]: SparseTensor with shape = [2, 2]\n    [0, 0]: \"a\"\n    [1, 0]: \"b\"\n    [1, 1]: \"c\"\n\n    inputs[1]: SparseTensor with shape = [2, 1]\n    [0, 0]: \"d\"\n    [1, 0]: \"e\"\n\n    inputs[2]: Tensor [[\"f\"], [\"g\"]]\n\nthen the output will be\n\n    shape = [2, 2]\n    [0, 0]: \"a_X_d_X_f\"\n    [1, 0]: \"b_X_e_X_g\"\n    [1, 1]: \"c_X_e_X_g\"\n\nif hashed_output=true then the output will be\n\n    shape = [2, 2]\n    [0, 0]: FingerprintCat64(\n                Fingerprint64(\"f\"), FingerprintCat64(\n                    Fingerprint64(\"d\"), Fingerprint64(\"a\")))\n    [1, 0]: FingerprintCat64(\n                Fingerprint64(\"g\"), FingerprintCat64(\n                    Fingerprint64(\"e\"), Fingerprint64(\"b\")))\n    [1, 1]: FingerprintCat64(\n                Fingerprint64(\"g\"), FingerprintCat64(\n                    Fingerprint64(\"e\"), Fingerprint64(\"c\")))",
+      "inputs": [
+        {
+          "description": "2-D.  Indices of each input `SparseTensor`.",
+          "name": "indices",
+          "numberAttr": "N",
+          "type": 9
+        },
+        {
+          "description": "1-D.   values of each `SparseTensor`.",
+          "name": "values",
+          "typeListAttr": "sparse_types"
+        },
+        {
+          "description": "1-D.   Shapes of each `SparseTensor`.",
+          "name": "shapes",
+          "numberAttr": "N",
+          "type": 9
+        },
+        {
+          "description": "2-D.    Columns represented by dense `Tensor`.",
+          "name": "dense_inputs",
+          "typeListAttr": "dense_types"
+        },
+        {
+          "description": "string used when joining a list of string inputs, can be used as separator later.",
+          "name": "sep",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "2-D.  Indices of the concatenated `SparseTensor`.",
+          "name": "output_indices",
+          "type": 9
+        },
+        {
+          "description": "1-D.  Non-empty values of the concatenated or hashed\n`SparseTensor`.",
+          "name": "output_values",
+          "type": 7
         },
         {
           "description": "1-D.  Shape of the concatenated `SparseTensor`.",
