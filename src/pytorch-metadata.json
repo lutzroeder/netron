@@ -1049,6 +1049,47 @@
     }
   },
   {
+    "name": "torch.max_pool1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "default": 0,
+          "name": "padding",
+          "type": "int64[]"
+        },
+        {
+          "default": 1,
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "default": false,
+          "name": "ceil_mode",
+          "type": "boolean"
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.max_pool2d",
     "schema": {
       "attributes": [
@@ -1057,7 +1098,6 @@
           "type": "int64[]"
         },
         {
-          "default": 2,
           "name": "stride",
           "type": "int64[]"
         },
@@ -1294,6 +1334,32 @@
       "outputs": [
         {
           "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.adaptive_max_pool1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_size",
+          "type": "int64[]",
+          "visible": false
+        }
+      ],
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        },
+        {
+          "name": "?"
         }
       ]
     }
@@ -3980,6 +4046,72 @@
   },
   {
     "name": "torch.reflection_pad1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.replication_pad1d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.replication_pad2d",
+    "schema": {
+      "attributes": [
+        {
+          "name": "padding",
+          "type": "int64[]"
+        }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.replication_pad3d",
     "schema": {
       "attributes": [
         {
