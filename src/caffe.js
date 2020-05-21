@@ -103,7 +103,7 @@ caffe.ModelFactory = class {
 
     _openNetParameterText(metadata, identifier, text, host) {
         try {
-            let reader = prototxt.TextReader.create(text);
+            const reader = prototxt.TextReader.create(text);
             reader.field = function(tag, message) {
                 const type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
@@ -154,7 +154,7 @@ caffe.ModelFactory = class {
     }
 
     static _decodeText(reader) {
-        let message = {};
+        const message = {};
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
@@ -195,7 +195,7 @@ caffe.Model = class {
 
         this._graphs = [];
 
-        let phases = new Set();
+        const phases = new Set();
         for (const layer of net.layer) {
             for (const include of layer.include) {
                 if (include.phase !== undefined) {
@@ -242,14 +242,14 @@ caffe.Graph = class {
             layer.chain = [];
         }
 
-        let layers = [];
+        const layers = [];
         for (const layer of net.layer) {
             if (phase === -1 || layer.include.every((include) => include.phase === phase)) {
                 layers.push(layer);
             }
         }
 
-        let scope = {};
+        const scope = {};
         let index = 0;
         for (const layer of layers) {
             layer.input = layer.input.map((input) => scope[input] ? scope[input] : input);
@@ -261,13 +261,13 @@ caffe.Graph = class {
         }
 
         // Graph Inputs
-        let usedOutputs = new Set();
+        const usedOutputs = new Set();
         for (const layer of layers) {
             for (const output of layer.output) {
                 usedOutputs.add(output);
             }
         }
-        let unusedInputs = [];
+        const unusedInputs = [];
         for (const layer of layers) {
             for (const input of layer.input) {
                 if (!usedOutputs.has(input)) {
@@ -276,7 +276,7 @@ caffe.Graph = class {
             }
         }
 
-        let nodes = [];
+        const nodes = [];
         let lastLayer = null;
         let lastTop = null;
         while (layers.length > 0) {
@@ -521,7 +521,7 @@ caffe.Node = class {
         if (schema && schema.outputs) {
             for (const outputDef of schema.outputs) {
                 if (outputIndex < outputs.length) {
-                    let outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                    const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
                         return new caffe.Argument(output, null, null);
                     })));
@@ -661,7 +661,7 @@ caffe.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -670,7 +670,7 @@ caffe.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -680,7 +680,7 @@ caffe.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -693,7 +693,7 @@ caffe.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
@@ -778,7 +778,7 @@ caffe.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
