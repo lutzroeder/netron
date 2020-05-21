@@ -76,12 +76,13 @@ tflite.Model = class {
                 for (let i = 0; i < model.operatorCodesLength(); i++) {
                     const operatorCode = model.operatorCodes(i);
                     const code = operatorCode.builtinCode();
+                    const version = operatorCode.version();
                     const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
                     const name = custom ? operatorCode.customCode() : builtinOperatorMap[code];
                     if (!name) {
                         throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
                     }
-                    operators.push(custom ? { name: name, custom: true } : { name: name });
+                    operators.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
                 }
                 /*
                 for (let i = 0; i < model.metadataBufferLength(); i++) {
@@ -132,12 +133,13 @@ tflite.Model = class {
                     for (let i = 0; i < model.operator_codes.length; i++) {
                         const operatorCode = model.operator_codes[i];
                         const code = operatorCode.builtin_code;
+                        const version = operatorCode.version || 1;
                         const custom = code === 'CUSTOM';
                         const name = custom ? operatorCode.custom_code : tflite.Utility.operator(code);
                         if (!name) {
                             throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
                         }
-                        operators.push(custom ? { name: name, custom: true } : { name: name });
+                        operators.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
                     }
                 }
                 if (model.subgraphs && Array.isArray(model.subgraphs)) {
