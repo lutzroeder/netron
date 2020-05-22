@@ -8,7 +8,7 @@
     },
     "version": "4.1.8",
     "description": "Visualizer for neural network, deep learning and machine learning models",
-    "license": "MIT",
+    "license": "Copyright (c) Lutz Roeder",
     "repository": "lutzroeder/netron",
     "main": "src/app.js",
     "scripts": {

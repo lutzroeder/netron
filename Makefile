@@ -98,7 +98,19 @@ publish_github_pages:
 	git -C ./dist/gh-pages push --force origin gh-pages
 
 publish_cask:
-	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d ''
+	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null
 	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
 	cask-repair --cask-version $$PACKAGE_VERSION --blind-submit netron
-	@curl -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/lutzroeder/homebrew-cask
+	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$$GITHUB_USER/homebrew-cask 2>&1 > /dev/null
+
+publish_winget:
+	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null
+	@rm -rf ./dist/winget-pkgs
+	@hub clone --quiet winget-pkgs ./dist/winget-pkgs
+	@node ./setup/winget.js ./package.json ./dist/winget-pkgs/manifests
+	@git -C ./dist/winget-pkgs add --all .
+	@git -C ./dist/winget-pkgs commit -m "Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")"
+	@git -C ./dist/winget-pkgs push
+	@hub pull-request --base microsoft/winget-pkgs:master --head $$GITHUB_USER/winget-pkgs:master --message "Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")"
+	@rm -rf ./dist/winget-pkgs
+	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$$GITHUB_USER/winget-pkgs 2>&1 > /dev/null
