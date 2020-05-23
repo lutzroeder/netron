@@ -89,6 +89,14 @@ sklearn.Model = class {
     }
 };
 
+sklearn.Data = class {
+    constructor(name, columns = []) {
+        this.columns = columns;
+        this.__name__ = name;
+        this.__module__ = '';
+    }
+};
+
 sklearn.Graph = class {
 
     constructor(metadata, obj, weights) {
@@ -97,19 +105,8 @@ sklearn.Graph = class {
         this._groups = false;
 
         if (obj) {
-            let input = 'data';
-            switch ([ obj.__module__, obj.__name__].join('.')) {
-                case 'sklearn.pipeline.Pipeline':
-                    this._groups = true;
-                    for (const step of obj.steps) {
-                        this._add('pipeline', step[0], step[1], [ input ], [ step[0] ]);
-                        input = step[0];
-                    }
-                    break;
-                default:
-                    this._add(null, null, obj, [], []);
-                    break;
-            }
+            let outputs = this._add_data_item(['data'], 'input_data');
+            this._process_pipeline_item(obj, outputs, "");
         }
         else if (weights instanceof Map) {
             const group_map = {};
@@ -141,6 +138,55 @@ sklearn.Graph = class {
                 return new sklearn.Node(this._metadata, '', group.id, { __module__: 'sklearn._', __name__: 'Weights' }, inputs, []);
             }));
         }
+    }
+    _construct_name(name, parent_name){
+        switch (parent_name) {
+            case '':
+                return name;
+            default:
+                return `${parent_name}_${name}`;
+        }
+    }
+    _add_data_item(inputs, name, columns=[]){
+        this._add('pipeline', name, new sklearn.Data(name, columns), inputs, [ name ]);
+        return [name];
+    }
+    _process_pipeline_item(obj, inputs, name="") {
+        console.log(obj);
+        switch ([ obj.__module__, obj.__name__].join('.')) {
+            case 'sklearn.pipeline.Pipeline':
+                return this._process_pipeline(obj, inputs, name);
+            case 'sklearn.pipeline.FeatureUnion':
+                return this._process_feature_union(obj, inputs, name);
+            case 'sklearn.compose._column_transformer.ColumnTransformer':
+                return this._process_column_transformer(obj, inputs, name);
+            default:
+                this._add('pipeline', name, obj, inputs, [ name ]);
+                return [name];
+        }
+    }
+    _process_pipeline(pipeline, inputs, parent_name) {
+        let last_outputs = inputs;
+        for (const step of pipeline.steps) {
+            last_outputs = this._process_pipeline_item(step[1], last_outputs, this._construct_name(step[0], parent_name));
+        }
+        return last_outputs;
+    }
+    _process_feature_union(feature_union, inputs, parent_name){
+        let outputs = [];
+        for (const transformer of feature_union.transformer_list){
+            outputs = outputs.concat(this._process_pipeline_item(transformer[1], inputs, this._construct_name(transformer[0], parent_name)));
+        }
+        return this._add_data_item(outputs, this._construct_name('unioned_data', parent_name));
+    }
+    _process_column_transformer(column_transformer, inputs, parent_name){
+        let outputs = [];
+        for (const transformer of column_transformer.transformers){
+            let transformer_name =  this._construct_name(transformer[0], parent_name);
+            let transformer_inputs = this._add_data_item(inputs,  this._construct_name('data', transformer_name), transformer[2]);
+            outputs = outputs.concat(this._process_pipeline_item(transformer[1], transformer_inputs, transformer_name));
+        }
+        return this._add_data_item(outputs, this._construct_name('output_data', parent_name));
     }
     _add(group, name, obj, inputs, outputs) {
         const initializers = [];
