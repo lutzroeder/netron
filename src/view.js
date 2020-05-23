@@ -1406,6 +1406,7 @@ view.ModelFactoryService = class {
             { name: 'Git LFS header', value: 'oid sha256:' },
             { name: 'HTML markup', value: '<html>' },
             { name: 'HTML markup', value: '<!DOCTYPE html>' },
+            { name: 'HTML markup', value: '\n\n\n\n\n<!DOCTYPE html>' },
             { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
             { name: 'Unity metadata', value: 'fileFormatVersion:' },
             { name: 'Vulkan SwiftShader ICD manifest', value: '{"file_format_version": "1.0.0", "ICD":' },
