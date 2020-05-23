@@ -18507,5 +18507,12 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "FbFCPacked",
+    "schema": {
+      "description": "Same as FC,\n      but the weight is prepacked as a fbgemm::PackedGemmMatrixFP16",
+      "support_level": "default"
+    }
   }
 ]
