@@ -999,7 +999,7 @@
   },
   {
     "type":   "cntk",
-    "target": "v2/ResNet110_CIFAR10_CNTK.model",
+    "target": "ResNet110_CIFAR10_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
@@ -4406,6 +4406,20 @@
     "target": "curvrank.localization.dorsal.weights.pkl",
     "source": "https://lev.cs.rpi.edu/public/models/curvrank.localization.dorsal.weights.pkl",
     "format": "Pickle"
+  },
+  {
+    "type":   "sklearn",
+    "target": "column_pipeline.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/4672437/column_pipeline.zip[column_pipeline.pkl]",
+    "format": "scikit-learn v0.22.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/498"
+  },
+  {
+    "type":   "sklearn",
+    "target": "column_transformer_pipeline.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/4672438/column_transformer_pipeline.zip[column_transformer_pipeline.pkl]",
+    "format": "scikit-learn v0.22.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/498"
   },
   {
     "type":   "sklearn",
