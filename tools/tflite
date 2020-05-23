@@ -67,7 +67,7 @@ schema() {
                 unzip flatc_windows.zip > /dev/null
                 popd > /dev/null
             fi
-            flatc=${flatc_dir}/flatc.exe
+            export PATH=${flatc_dir}:${PATH}
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
