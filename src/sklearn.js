@@ -89,24 +89,16 @@ sklearn.Model = class {
     }
 };
 
-sklearn.Data = class {
-    constructor(name, columns = []) {
-        this.columns = columns;
-        this.__name__ = name;
-        this.__module__ = '';
-    }
-};
-
 sklearn.Graph = class {
 
     constructor(metadata, obj, weights) {
         this._metadata = metadata;
         this._nodes = [];
-        this._groups = false;
+        this._groups = true;
 
         if (obj) {
-            let outputs = this._add_data_item(['data'], 'input_data');
-            this._process_pipeline_item(obj, outputs, "");
+            let inputs = ['data'];
+            this._process_pipeline_item(obj, inputs, 'outher_scope', 'pipeline');
         }
         else if (weights instanceof Map) {
             const group_map = {};
@@ -140,53 +132,52 @@ sklearn.Graph = class {
         }
     }
     _construct_name(name, parent_name){
-        switch (parent_name) {
-            case '':
-                return name;
-            default:
-                return `${parent_name}_${name}`;
-        }
+        return (parent_name === '' ?  name : `${parent_name}_${name}`);
     }
-    _add_data_item(inputs, name, columns=[]){
-        this._add('pipeline', name, new sklearn.Data(name, columns), inputs, [ name ]);
-        return [name];
+    _construct_group_name(name, group_parent_name){
+        return (group_parent_name === '' ?  name : `${group_parent_name}/${name}`);
     }
-    _process_pipeline_item(obj, inputs, name="") {
-        console.log(obj);
+    _process_pipeline_item(obj, inputs, name, group_name) {
+        console.log(group_name);
         switch ([ obj.__module__, obj.__name__].join('.')) {
             case 'sklearn.pipeline.Pipeline':
-                return this._process_pipeline(obj, inputs, name);
+                return this._process_pipeline(obj, inputs, name, group_name);
             case 'sklearn.pipeline.FeatureUnion':
-                return this._process_feature_union(obj, inputs, name);
+                return this._process_feature_union(obj, inputs, name, group_name);
             case 'sklearn.compose._column_transformer.ColumnTransformer':
-                return this._process_column_transformer(obj, inputs, name);
+                return this._process_column_transformer(obj, inputs, name, group_name);
             default:
-                this._add('pipeline', name, obj, inputs, [ name ]);
+                this._add(group_name, name, obj, inputs, [ name ]);
                 return [name];
         }
     }
-    _process_pipeline(pipeline, inputs, parent_name) {
+    _process_pipeline(pipeline, inputs, parent_name, group_name) {
         let last_outputs = inputs;
         for (const step of pipeline.steps) {
-            last_outputs = this._process_pipeline_item(step[1], last_outputs, this._construct_name(step[0], parent_name));
+            let name = this._construct_name(step[0], parent_name);
+            last_outputs = this._process_pipeline_item(step[1], last_outputs, name, group_name);
         }
         return last_outputs;
     }
-    _process_feature_union(feature_union, inputs, parent_name){
+    _process_feature_union(feature_union, inputs, parent_name, group_name){
         let outputs = [];
+        let fu_group_name = this._construct_group_name(parent_name, group_name);
+        this._add(fu_group_name, parent_name, feature_union, inputs, [ parent_name ]);
         for (const transformer of feature_union.transformer_list){
-            outputs = outputs.concat(this._process_pipeline_item(transformer[1], inputs, this._construct_name(transformer[0], parent_name)));
+            let name = this._construct_name(transformer[0], parent_name);
+            outputs = outputs.concat(this._process_pipeline_item(transformer[1], [parent_name], name, fu_group_name));
         }
-        return this._add_data_item(outputs, this._construct_name('unioned_data', parent_name));
+        return outputs;
     }
-    _process_column_transformer(column_transformer, inputs, parent_name){
+    _process_column_transformer(column_transformer, inputs, parent_name, group_name){
         let outputs = [];
+        let ct_group_name = this._construct_group_name(parent_name, group_name);
+        this._add(ct_group_name, parent_name, column_transformer, inputs, [ parent_name ]);
         for (const transformer of column_transformer.transformers){
-            let transformer_name =  this._construct_name(transformer[0], parent_name);
-            let transformer_inputs = this._add_data_item(inputs,  this._construct_name('data', transformer_name), transformer[2]);
-            outputs = outputs.concat(this._process_pipeline_item(transformer[1], transformer_inputs, transformer_name));
+            let name =  this._construct_name(transformer[0], parent_name);
+            outputs = outputs.concat(this._process_pipeline_item(transformer[1], [parent_name], name, ct_group_name));
         }
-        return this._add_data_item(outputs, this._construct_name('output_data', parent_name));
+        return outputs;
     }
     _add(group, name, obj, inputs, outputs) {
         const initializers = [];
