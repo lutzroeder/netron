@@ -97,22 +97,10 @@ sklearn.Graph = class {
         this._groups = false;
 
         if (obj) {
-            let input = 'data';
-            switch ([ obj.__module__, obj.__name__].join('.')) {
-                case 'sklearn.pipeline.Pipeline':
-                    this._groups = true;
-                    for (const step of obj.steps) {
-                        this._add('pipeline', step[0], step[1], [ input ], [ step[0] ]);
-                        input = step[0];
-                    }
-                    break;
-                default:
-                    this._add(null, null, obj, [], []);
-                    break;
-            }
+            this._process('', '', obj, ['data']);
         }
         else if (weights instanceof Map) {
-            const group_map = {};
+            const group_map = new Map();
             const groups = [];
             for (const pair of weights) {
                 const key = pair[0];
@@ -120,11 +108,11 @@ sklearn.Graph = class {
                 const value = pair[1];
                 const name = parts.length > 1 ? parts.pop() : '?';
                 const id = parts.join('_');
-                let group = group_map[id];
+                let group = group_map.get(id);
                 if (!group) {
                     group = { id: id, arrays: [] };
                     groups.push(group);
-                    group_map[id] = group;
+                    group_map.set(id, group);
                 }
                 group.arrays.push({
                     key: key,
@@ -142,6 +130,50 @@ sklearn.Graph = class {
             }));
         }
     }
+
+    _process(group, name, obj, inputs) {
+        switch ([ obj.__module__, obj.__name__].join('.')) {
+            case 'sklearn.pipeline.Pipeline': {
+                this._groups = true;
+                name = name || 'pipeline';
+                const childGroup = this._concat(group, name);
+                for (const step of obj.steps) {
+                    inputs = this._process(childGroup, step[0], step[1], inputs);
+                }
+                return inputs;
+            }
+            case 'sklearn.pipeline.FeatureUnion': {
+                this._groups = true;
+                let outputs = [];
+                name = name || 'union';
+                const output = this._concat(group, name);
+                const subgroup = this._concat(group, name);
+                this._add(subgroup, output, obj, inputs, [ output ]);
+                for (const transformer of obj.transformer_list){
+                    outputs = outputs.concat(this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                }
+                return outputs;
+            }
+            case 'sklearn.compose._column_transformer.ColumnTransformer': {
+                this._groups = true;
+                name = name || 'transformer';
+                const output = this._concat(group, name);
+                const subgroup = this._concat(group, name);
+                let outputs = [];
+                this._add(subgroup, output, obj, inputs, [ output ]);
+                for (const transformer of obj.transformers){
+                    outputs = outputs.concat(this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                }
+                return outputs;
+            }
+            default: {
+                const output = this._concat(group, name);
+                this._add(group, output, obj, inputs, [ output ]);
+                return [ output ];
+            }
+        }
+    }
+
     _add(group, name, obj, inputs, outputs) {
         const initializers = [];
         for (const key of Object.keys(obj)) {
@@ -162,6 +194,10 @@ sklearn.Graph = class {
             return new sklearn.Parameter(output, [ new sklearn.Argument(output, null, null) ]);
         });
         this._nodes.push(new sklearn.Node(this._metadata, group, name, obj, inputs, outputs));
+    }
+
+    _concat(parent, name){
+        return (parent === '' ?  name : `${parent}/${name}`);
     }
 
     get groups() {
@@ -232,8 +268,8 @@ sklearn.Node = class {
     constructor(metadata, group, name, obj, inputs, outputs) {
         this._metadata = metadata;
         this._group = group || '';
-        this._type = (obj.__module__ && obj.__name__) ? (obj.__module__ + '.' + obj.__name__) : (obj.__name__ ? obj.__name__ : 'Object');
         this._name = name || '';
+        this._type = (obj.__module__ && obj.__name__) ? (obj.__module__ + '.' + obj.__name__) : (obj.__name__ ? obj.__name__ : 'Object');
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -245,7 +281,7 @@ sklearn.Node = class {
                     this._initializers.push(new sklearn.Tensor(name, value));
                 }
                 else {
-                    const schema = metadata.attribute(this.type, name);
+                    const schema = metadata.attribute(this._type, name);
                     this._attributes.push(new sklearn.Attribute(schema, name, value));
                 }
             }
@@ -253,7 +289,7 @@ sklearn.Node = class {
     }
 
     get type() {
-        return this._type.split('.').pop();
+        return this._type; // .split('.').pop();
     }
 
     get name() {
@@ -265,7 +301,7 @@ sklearn.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this.type);
+        return this._metadata.type(this._type);
     }
 
     get inputs() {

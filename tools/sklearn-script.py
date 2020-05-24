@@ -100,8 +100,9 @@ def update_attributes(schema, lines):
             raise Exception("Expected ':' in parameter.")
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
+        print(line)
         attribute_type = None
-        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32' }
+        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32', 'integer': 'int32' }
         skip_map = {
             "'sigmoid' or 'isotonic'",
             'instance BaseEstimator',
@@ -132,7 +133,20 @@ def update_attributes(schema, lines):
             "{'word', 'char', 'char_wb'} or callable, default='word'",
             "{'scale', 'auto'} or float, default='scale'",
             "{'uniform', 'distance'} or callable, default='uniform'",
-            "int, RandomState instance or None (default)"
+            "int, RandomState instance or None (default)",
+            "list of (string, transformer) tuples",
+            "list of tuples",
+            "{'drop', 'passthrough'} or estimator, default='drop'",
+            "'auto' or a list of array-like, default='auto'",
+            "{'first', 'if_binary'} or a array-like of shape (n_features,),             default=None",
+            "callable",
+            "int or \"all\", optional, default=10",
+            "number, string, np.nan (default) or None",
+            "estimator object",
+            "dict or list of dictionaries",
+            "int, or str, default=n_jobs",
+            "'raise' or numeric, default=np.nan",
+            "'auto' or float, default=None"
         }
         if line == 'str':
             line = 'string'
@@ -220,16 +234,17 @@ def update_attributes(schema, lines):
         update_attribute(schema, name, description, attribute_type, option, default)
 
 for entry in json_root:
+    if not 'schema' in entry:
+        entry['schema'] = {};
     name = entry['name']
     schema = entry['schema']
-    if 'package' in schema:
-        class_name = schema['package'] + '.' + name
-        class_definition = pydoc.locate(class_name)
+    if not name.startswith('lightgbm.'):
+        class_definition = pydoc.locate(name)
         if not class_definition:
-            raise Exception('\'' + class_name + '\' not found.')
+            raise Exception('\'' + name + '\' not found.')
         docstring = class_definition.__doc__
         if not docstring:
-            raise Exception('\'' + class_name + '\' missing __doc__.')
+            raise Exception('\'' + name + '\' missing __doc__.')
         headers = split_docstring(docstring)
         if '' in headers:
             update_description(schema, headers[''])
