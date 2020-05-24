@@ -447,7 +447,7 @@ openvino.Node = class {
         const attributes = {};
         for (const attribute of layer.data) {
             attributes[attribute.name] = attribute.value;
-            const attributeSchema = metadata.attribute(this.operator, attribute.name);
+            const attributeSchema = metadata.attribute(this.type, attribute.name);
             this._attributes.push(new openvino.Attribute(attributeSchema, attribute.name, attribute.value));
         }
         for (const blob of layer.blobs) {
@@ -526,7 +526,7 @@ openvino.Node = class {
         return this._device || '';
     }
 
-    get operator() {
+    get type() {
         return this._type;
     }
 
@@ -967,18 +967,18 @@ openvino.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.get(operator) || null;
+    type(name) {
+        return this._map.get(name) || null;
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeMap.has(key)) {
             this._attributeMap.set(key, null);
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
-                    this._attributeMap.set(operator + ':' + attribute.name, attribute);
+                    this._attributeMap.set(type + ':' + attribute.name, attribute);
                 }
             }
         }

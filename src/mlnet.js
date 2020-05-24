@@ -194,7 +194,7 @@ mlnet.Node = class {
         this._metadata = metadata;
         this._group = group;
         this._name = transformer.__name__;
-        this._operator = transformer.__type__;
+        this._type = transformer.__type__;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -220,7 +220,8 @@ mlnet.Node = class {
         }
 
         for (const key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
-            this._attributes.push(new mlnet.Attribute(metadata, this._operator, key, transformer[key]));
+            const schema = metadata.attribute(this._type, this._name);
+            this._attributes.push(new mlnet.Attribute(schema, key, transformer[key]));
         }
     }
 
@@ -228,8 +229,8 @@ mlnet.Node = class {
         return this._group;
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -237,7 +238,7 @@ mlnet.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get inputs() {
@@ -255,11 +256,9 @@ mlnet.Node = class {
 
 mlnet.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
-
-        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -403,21 +402,21 @@ mlnet.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

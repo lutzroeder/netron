@@ -139,7 +139,7 @@ sidebar.NodeSidebar = class {
         this._inputs = [];
         this._outputs = [];
 
-        if (node.operator) {
+        if (node.type) {
             let showDocumentation = null;
             if (node.metadata) {
                 showDocumentation = {};
@@ -148,7 +148,7 @@ sidebar.NodeSidebar = class {
                     this._raise('show-documentation', null);
                 };
             }
-            this._addProperty('type', new sidebar.ValueTextView(this._host, node.operator, showDocumentation));
+            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type, showDocumentation));
         }
 
         if (node.name) {
@@ -1173,8 +1173,8 @@ sidebar.FindSidebar = class {
                 }
             }
 
-            let name = node.name;
-            let operator = node.operator;
+            const name = node.name;
+            const operator = node.type;
             if (!nodeMatches.has(name) && name &&
                 ((name.toLowerCase().indexOf(text) != -1) ||
                 (operator && operator.toLowerCase().indexOf(text) != -1))) {

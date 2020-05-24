@@ -401,7 +401,7 @@ chainer.Node = class {
         }
     }
 
-    get operator() {
+    get type() {
         return 'Module';
     }
 

@@ -492,10 +492,10 @@ keras.Argument = class {
 
 keras.Node = class {
 
-    constructor(metadata, operator, config, inputs, outputs, group, weights) {
+    constructor(metadata, type, config, inputs, outputs, group, weights) {
         this._group = group || '';
         this._metadata = metadata;
-        this._operator = operator;
+        this._type = type;
         const name = config && config.name ? config.name : '';
         this._name = (this._group ? this._group + '/' : '') + name;
         this._inputs = [];
@@ -503,11 +503,11 @@ keras.Node = class {
         this._attributes = [];
 
         let names = [ name ];
-        if ((operator == 'Bidirectional' || operator == 'TimeDistributed') && (config && config.layer)) {
+        if ((type == 'Bidirectional' || type == 'TimeDistributed') && (config && config.layer)) {
             const inner = config.layer;
             delete config.layer;
             this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
-            if (operator == 'Bidirectional' && inner.config.name) {
+            if (type == 'Bidirectional' && inner.config.name) {
                 names = [ name + '/forward_' + inner.config.name, name + '/backward_' + inner.config.name ];
                 if (!group) {
                     group = name;
@@ -529,14 +529,14 @@ keras.Node = class {
             for (const name of Object.keys(config)) {
                 const value = config[name];
                 if (name != 'name' && value != null) {
-                    this._attributes.push(new keras.Attribute(this._metadata, this.operator, name, value));
+                    this._attributes.push(new keras.Attribute(metadata.attribute(this.type, name), name, value));
                 }
             }
         }
 
-        const schema = this._metadata.type(this.operator);
-        const innerOperator = this.inner ? this.inner.operator : null;
-        const innerSchema = innerOperator ? this._metadata.type(innerOperator) : null;
+        const schema = this._metadata.type(this.type);
+        const innerType = this.inner ? this.inner.type : null;
+        const innerSchema = innerType ? this._metadata.type(innerType) : null;
         let inputIndex = 0;
         while (inputs.length > 0) {
             let variadic = false;
@@ -546,7 +546,7 @@ keras.Node = class {
                 if (schema && schema.inputs && inputIndex < schema.inputs.length) {
                     const input = schema.inputs[inputIndex];
                     inputName = input.name;
-                    if (operator === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
+                    if (type === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
                         inputIndex++;
                         continue;
                     }
@@ -557,7 +557,7 @@ keras.Node = class {
                 }
             }
             else {
-                switch (operator) {
+                switch (type) {
                     case 'Bidirectional': {
                         let innerIndex = inputIndex;
                         if (innerSchema && innerSchema.inputs) {
@@ -605,12 +605,12 @@ keras.Node = class {
         });
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get name() {
@@ -640,7 +640,7 @@ keras.Node = class {
 
 keras.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
 
@@ -657,7 +657,6 @@ keras.Attribute = class {
                 this._visible = false;
                 break;
             default: {
-                const schema = metadata.attribute(operator, this._name);
                 if (schema) {
                     if (schema.type) {
                         this._type = schema.type;
@@ -981,17 +980,17 @@ keras.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.get(operator);
+    type(name) {
+        return this._map.get(name);
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
             if (!this._attributeCache.has(key)) {

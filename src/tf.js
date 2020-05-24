@@ -760,7 +760,7 @@ tf.Node = class {
 
     constructor(graph, node, op, name, initializers, tensors) {
         this._graph = graph;
-        this._operator = op;
+        this._type = op;
         this._name = name;
         this._attributes = [];
         this._inputs = [];
@@ -772,10 +772,12 @@ tf.Node = class {
             const metadata = graph.metadata;
             if (node.attr) {
                 for (const attributeName of Object.keys(node.attr)) {
-                    this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
+                    const schema = metadata.attribute(this._type, attributeName);
+                    const visible = metadata.getAttributeVisibleMap(this._type)[attributeName] ? false : true;
+                    this._attributes.push(new tf.Attribute(schema, attributeName, node.attr[attributeName], visible));
                 }
             }
-            const schema = metadata.type(this._operator);
+            const schema = metadata.type(this._type);
             let inputIndex = 0;
             let inputs = node.input.filter(input => !input.startsWith('^'));
             if (schema && schema.inputs) {
@@ -845,8 +847,8 @@ tf.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -881,7 +883,7 @@ tf.Node = class {
     }
 
     get metadata() {
-        return this._graph.metadata.type(this.operator);
+        return this._graph.metadata.type(this.type);
     }
 
     get inputs() {
@@ -903,11 +905,10 @@ tf.Node = class {
 
 tf.Attribute = class {
 
-    constructor(name, value, operator, metadata) {
+    constructor(schema, name, value, visible) {
         this._name = name;
         this._value = null;
         this._type = null;
-        const schema = metadata.attribute(operator, name);
         if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
@@ -1012,8 +1013,7 @@ tf.Attribute = class {
         if (name == '_class') {
             this._visible = false;
         }
-        const attributeVisibleMap = metadata.getAttributeVisibleMap(operator);
-        if (attributeVisibleMap[name]) {
+        if (visible === false) {
             this._visible = false;
         }
     }

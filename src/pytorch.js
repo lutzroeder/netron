@@ -532,7 +532,7 @@ pytorch.Node = class {
         return this._group;
     }
 
-    get operator() {
+    get type() {
         const index = this._type.indexOf(':');
         return index === -1 ? this._type : this._type.substring(0, index);
     }
@@ -937,22 +937,22 @@ pytorch.Metadata = class {
         }
     }
 
-    type(operator) {
-        const schema = this._map.get(operator);
+    type(name) {
+        const schema = this._map.get(name);
         if (schema) {
             return Array.isArray(schema) ? schema.map((name) => this._map.get(name)) : schema;
         }
         return null;
     }
 
-    attribute(operator, name) {
-        const attributeName = operator + ':' + name;
+    attribute(type, name) {
+        const attributeName = type + ':' + name;
         if (!this._attributeCache.has(attributeName)) {
             this._attributeCache.set(attributeName, null);
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
         }

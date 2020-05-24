@@ -307,15 +307,15 @@ ncnn.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        this._operator = layer.type;
+        this._type = layer.type;
         this._name = layer.name;
 
-        const operator = metadata.operator(this._operator);
+        const operator = metadata.operator(this._type);
         if (operator) {
-            this._operator = operator;
+            this._type = operator;
         }
 
-        const schema = metadata.type(this._operator);
+        const schema = metadata.type(this._type);
 
         const attributeMetadata = {};
         if (schema && schema.attributes) {
@@ -376,7 +376,7 @@ ncnn.Node = class {
         let channels;
         let scale_data_size;
         let bias_data_size;
-        switch (this._operator) {
+        switch (this._type) {
             case 'BatchNorm': {
                 channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ channels ], 'float32');
@@ -465,8 +465,8 @@ ncnn.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -474,7 +474,7 @@ ncnn.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -736,17 +736,17 @@ ncnn.Metadata = class {
         return this._operatorMap.get(code);
     }
 
-    type(operator) {
-        return this._map.get(operator);
+    type(name) {
+        return this._map.get(name);
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
             if (!this._attributeCache.has(key)) {

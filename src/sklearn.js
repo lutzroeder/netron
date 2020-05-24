@@ -245,14 +245,14 @@ sklearn.Node = class {
                     this._initializers.push(new sklearn.Tensor(name, value));
                 }
                 else {
-                    const schema = metadata.attribute(this.operator, name);
+                    const schema = metadata.attribute(this.type, name);
                     this._attributes.push(new sklearn.Attribute(schema, name, value));
                 }
             }
         }
     }
 
-    get operator() {
+    get type() {
         return this._type.split('.').pop();
     }
 
@@ -265,7 +265,7 @@ sklearn.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this.operator);
+        return this._metadata.type(this.type);
     }
 
     get inputs() {
@@ -600,17 +600,17 @@ sklearn.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.get(operator);
+    type(name) {
+        return this._map.get(name);
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
             if (!this._attributeCache.has(key)) {

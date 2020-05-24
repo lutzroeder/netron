@@ -373,11 +373,11 @@ cntk.Node = class {
 
         switch (version) {
             case 1: {
-                this._operator = obj.__type__;
+                this._type = obj.__type__;
                 this._name = obj.name;
                 for (const attributeName of Object.keys(obj)) {
                     if (attributeName != '__type__' && attributeName != 'name' && attributeName != 'inputs' && attributeName != 'precision') {
-                        this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj[attributeName]));
+                        this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, attributeName), attributeName, obj[attributeName]));
                     }
                 }
                 inputs = obj.inputs.map((input) => {
@@ -393,31 +393,31 @@ cntk.Node = class {
                 this._name = obj.name || obj.uid || null;
                 const output = obj.uid;
                 if (obj.op == 57) {
-                    this._operator = 'Block';
+                    this._type = 'Block';
                     if (obj.block_function_op_name) {
-                        this._operator = obj.block_function_op_name;
+                        this._type = obj.block_function_op_name;
                         this._function = true;
                     }
                 }
                 else {
                     if (!Object.prototype.hasOwnProperty.call(obj, 'op')) {
-                        this._operator = obj.type;
+                        this._type = obj.type;
                         if (obj.user_defined_state) {
                             for (const attributeName of Object.keys(obj.user_defined_state)) {
-                                this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.user_defined_state[attributeName]));
+                                this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, attributeName), attributeName, obj.user_defined_state[attributeName]));
                             }
                         }
                     }
                     else {
-                        this._operator = this._metadata.name(obj.op);
-                        if (this._operator == null) {
-                            this._operator = obj.op ? obj.op.toString() : '?';
+                        this._type = this._metadata.name(obj.op);
+                        if (this.type == null) {
+                            this._type = obj.op ? obj.op.toString() : '?';
                         }
                     }
                 }
                 if (obj.attributes) {
                     for (const attributeName of Object.keys(obj.attributes)) {
-                        this._attributes.push(new cntk.Attribute(this._metadata, this._operator, attributeName, obj.attributes[attributeName]));
+                        this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, attributeName), attributeName, obj.attributes[attributeName]));
                     }
                 }
                 for (const input of obj.inputs) {
@@ -441,7 +441,7 @@ cntk.Node = class {
         }
 
         let inputIndex = 0;
-        const schema = this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
+        const schema = this._metadata.type(this._function ? ('Function:' + this._type) : this._type);
         if (schema && schema.inputs) {
             for (const inputSchema of schema.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
@@ -480,8 +480,8 @@ cntk.Node = class {
         return this._name;
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get function() {
@@ -489,7 +489,7 @@ cntk.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._function ? ('Function:' + this._operator) : this._operator);
+        return this._metadata.type(this._function ? ('Function:' + this._type) : this._type);
     }
 
     get attributes() {
@@ -507,7 +507,7 @@ cntk.Node = class {
 
 cntk.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
         this._type = null;
@@ -526,8 +526,6 @@ cntk.Attribute = class {
             }
             this._value = axis;
         }
-
-        const schema = metadata.attribute(operator, name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -794,7 +792,7 @@ cntk.Metadata = class {
     constructor(data) {
         this._map = {};
         this._attributeCache = {};
-        this._operatorMap = {};
+        this._typeMap = {};
         if (data) {
             const items = JSON.parse(data);
             if (items) {
@@ -805,7 +803,7 @@ cntk.Metadata = class {
                         schema.name = name;
                         this._map[name] = schema;
                         if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
-                            this._operatorMap[schema.operator.toString()] = name;
+                            this._typeMap[schema.operator.toString()] = name;
                         }
                     }
                 }
@@ -815,24 +813,24 @@ cntk.Metadata = class {
 
     name(code) {
         // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-        return this._operatorMap[code] || null;
+        return this._typeMap[code] || null;
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            let schema = this.type(operator);
+            let schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }
@@ -1139,7 +1137,7 @@ cntk_v1.ComputationNetwork = class {
             obj.precision = precision;
             const constructor = op[obj.__type__];
             if (!constructor) {
-                throw new cntk.Error("Unknown operator '" + obj.__type__ + "'.");
+                throw new cntk.Error("Unknown node type '" + obj.__type__ + "'.");
             }
             constructor.apply(obj, [ reader, this.version ]);
             nodes.push(obj);

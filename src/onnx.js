@@ -448,24 +448,24 @@ onnx.Argument = class {
 
 onnx.Node = class {
 
-    constructor(metadata, imageFormat, operator, domain, name, description, attributes, inputs, outputs) {
+    constructor(metadata, imageFormat, type, domain, name, description, attributes, inputs, outputs) {
         this._metadata = metadata;
-        this._operator = operator;
+        this._type = type;
         this._domain = domain || '';
         this._name = name || '';
         this._description = description || '';
         this._attributes = [];
         if (attributes && attributes.length > 0) {
             for (const attribute of attributes) {
-                this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.operator, attribute));
+                this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.type, attribute));
             }
         }
         this._inputs = inputs;
         this._outputs = outputs;
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -477,7 +477,7 @@ onnx.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get domain() {

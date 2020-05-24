@@ -192,7 +192,7 @@ mediapipe.Node = class {
         return '';
     }
 
-    get operator() {
+    get type() {
         return this._type;
     }
 

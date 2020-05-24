@@ -150,7 +150,7 @@ barracuda.Node = class {
 
         this._name = layer.name;
         this._metadata = metadata.type(layer.type) || { name: layer.type.toString() };
-        this._operator = this._metadata.name;
+        this._type = this._metadata.name;
 
         this._inputs = [];
         this._outputs = [];
@@ -181,14 +181,14 @@ barracuda.Node = class {
         this._outputs.push(new barracuda.Parameter('output', [
             new barracuda.Argument(this._name)
         ]));
-        if (this._operator === 'Activation') {
+        if (this._type === 'Activation') {
             if (!barracuda.Activation[layer.activation]) {
                 throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
             }
-            this._operator = barracuda.Activation[layer.activation];
+            this._type = barracuda.Activation[layer.activation];
         }
         else if (layer.activation !== 0) {
-            throw new barracuda.Error("Unsupported activation '" + layer.activation + "' for '" + this._operator + "'.");
+            throw new barracuda.Error("Unsupported activation '" + layer.activation + "' for type '" + this._type + "'.");
         }
         const attribute = (name, type, value, defaultValue) => {
             if (Array.isArray(defaultValue) && Array.isArray(value) && value.length == defaultValue.length && value.every((v, i) => v === defaultValue[i])) {
@@ -210,8 +210,8 @@ barracuda.Node = class {
         attribute('axis', 'int32', layer.axis, -1);
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -629,9 +629,9 @@ barracuda.Metadata = class {
         this._map.set(id, { name: name, category: category, inputs: inputs });
     }
 
-    type(operator) {
-        if (this._map.has(operator)) {
-            return this._map.get(operator);
+    type(name) {
+        if (this._map.has(name)) {
+            return this._map.get(name);
         }
         return null;
     }

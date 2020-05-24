@@ -164,8 +164,8 @@ coreml.Graph = class {
             predictedFeatureName = predictedFeatureName ? predictedFeatureName : '?';
             predictedProbabilitiesName = predictedProbabilitiesName ? predictedProbabilitiesName : '?';
             const labelProbabilityInput = this._updateOutput(labelProbabilityLayerName, labelProbabilityLayerName + ':labelProbabilityLayerName');
-            const operator = classifier.ClassLabels;
-            this._nodes.push(new coreml.Node(this._metadata, this._group, operator, null, '', classifier[operator], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
+            const type = classifier.ClassLabels;
+            this._nodes.push(new coreml.Node(this._metadata, this._group, type, null, '', classifier[type], [ labelProbabilityInput ], [ predictedProbabilitiesName, predictedFeatureName ]));
         }
     }
 
@@ -449,7 +449,7 @@ coreml.Graph = class {
         throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 
-    _createNode(scope, group, operator, name, description, data, inputs, outputs) {
+    _createNode(scope, group, type, name, description, data, inputs, outputs) {
         inputs = inputs.map((input) => scope[input] ? scope[input].argument : input);
         outputs = outputs.map((output) => {
             if (scope[output]) {
@@ -465,7 +465,7 @@ coreml.Graph = class {
             return output;
         });
 
-        const node = new coreml.Node(this._metadata, group, operator, name, description, data, inputs, outputs);
+        const node = new coreml.Node(this._metadata, group, type, name, description, data, inputs, outputs);
         this._nodes.push(node);
         return node;
     }
@@ -593,12 +593,12 @@ coreml.Argument = class {
 
 coreml.Node = class {
 
-    constructor(metadata, group, operator, name, description, data, inputs, outputs) {
+    constructor(metadata, group, type, name, description, data, inputs, outputs) {
         this._metadata = metadata;
         if (group) {
             this._group = group;
         }
-        this._operator = operator;
+        this._type = type;
         this._name = name || '';
         this._description = description || '';
         this._attributes = [];
@@ -607,24 +607,25 @@ coreml.Node = class {
             const initializerMap = this._initialize(data, initializers);
             for (const key of Object.keys(data)) {
                 if (!initializerMap[key]) {
-                    this._attributes.push(new coreml.Attribute(this._metadata, this.operator, key, data[key]));
+                    const schema = metadata.attribute(this.type, key);
+                    this._attributes.push(new coreml.Attribute(schema, key, data[key]));
                 }
             }
         }
-        this._inputs = this._metadata.getInputs(this._operator, inputs).map((input) => {
+        this._inputs = this._metadata.getInputs(this._type, inputs).map((input) => {
             return new coreml.Parameter(input.name, true, input.arguments.map((argument) => {
                 return new coreml.Argument(argument.name, argument.type, null, null);
             }));
         });
         this._inputs = this._inputs.concat(initializers);
         this._outputs = outputs.map((output, index) => {
-            const name = this._metadata.getOutputName(this._operator, index);
+            const name = this._metadata.getOutputName(this._type, index);
             return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
         });
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -636,7 +637,7 @@ coreml.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this.operator);
+        return this._metadata.type(this.type);
     }
 
     get group() {
@@ -656,7 +657,7 @@ coreml.Node = class {
     }
 
     _initialize(data, initializers) {
-        switch (this._operator) {
+        switch (this._type) {
             case 'convolution': {
                 const weightsShape = [ data.outputChannels, data.kernelChannels, data.kernelSize[0], data.kernelSize[1] ];
                 if (data.isDeconvolution) {
@@ -730,7 +731,7 @@ coreml.Node = class {
             }
             case 'uniDirectionalLSTM':
             case 'biDirectionalLSTM': {
-                const count = (this._operator == 'uniDirectionalLSTM') ? 1 : 2;
+                const count = (this._type == 'uniDirectionalLSTM') ? 1 : 2;
                 const matrixShape = [ data.outputVectorSize, data.inputVectorSize ];
                 const vectorShape = [ data.outputVectorSize ];
                 for (let i = 0; i < count; i++) {
@@ -787,7 +788,7 @@ coreml.Node = class {
         const initializer = new coreml.Tensor(kind, name, shape, data);
         const argument = new coreml.Argument('', null, null, initializer);
         let visible = true;
-        const schema = this._metadata.getInputSchema(this._operator, name);
+        const schema = this._metadata.getInputSchema(this._type, name);
         if (schema && Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
             visible = false;
         }
@@ -797,10 +798,9 @@ coreml.Node = class {
 
 coreml.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
-        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -1133,17 +1133,17 @@ coreml.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.get(operator);
+    type(name) {
+        return this._map.get(name);
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
             if (!this._attributeCache.has(key)) {
@@ -1153,24 +1153,24 @@ coreml.Metadata = class {
         return this._attributeCache.get(key);
     }
 
-    getInputSchema(operator, name) {
-        let map = this._inputCache[operator];
+    getInputSchema(type, name) {
+        let map = this._inputCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.inputs && schema.inputs.length > 0) {
                 for (const input of schema.inputs) {
                     map[input.name] = input;
                 }
             }
-            this._inputCache[operator] = map;
+            this._inputCache[type] = map;
         }
         return map[name] || null;
     }
 
-    getInputs(operator, inputs) {
+    getInputs(type, inputs) {
         let results = [];
-        const schema = this._map[operator];
+        const schema = this._map[type];
         let index = 0;
         while (index < inputs.length) {
             let result = { arguments: [] };
@@ -1201,8 +1201,8 @@ coreml.Metadata = class {
         return results;
     }
 
-    getOutputName(operator, index) {
-        const schema = this._map[operator];
+    getOutputName(type, index) {
+        const schema = this._map[type];
         if (schema) {
             let outputs = schema.outputs;
             if (outputs && index < outputs.length) {

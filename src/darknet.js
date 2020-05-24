@@ -737,7 +737,7 @@ darknet.Node = class {
         this._name = section.name || '';
         this._location = section.line !== undefined ? section.line.toString() : undefined;
         this._metadata = metadata;
-        this._operator = section.type;
+        this._type = section.type;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -760,7 +760,7 @@ darknet.Node = class {
         const options = section.options;
         if (options) {
             for (const key of Object.keys(options)) {
-                this._attributes.push(new darknet.Attribute(metadata, this._operator, key, options[key]));
+                this._attributes.push(new darknet.Attribute(metadata.attribute(this._type, key), key, options[key]));
             }
         }
     }
@@ -773,12 +773,12 @@ darknet.Node = class {
         return this._location;
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -800,10 +800,9 @@ darknet.Node = class {
 
 darknet.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
-        const schema = metadata.attribute(operator, name);
         if (schema) {
             this._type = schema.type || '';
             switch (this._type) {
@@ -1066,18 +1065,18 @@ darknet.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.get(operator) || null;
+    type(name) {
+        return this._map.get(name) || null;
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeMap.has(key)) {
             this._attributeMap.set(key, null);
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
-                    this._attributeMap.set(operator + ':' + attribute.name, attribute);
+                    this._attributeMap.set(type + ':' + attribute.name, attribute);
                 }
             }
         }

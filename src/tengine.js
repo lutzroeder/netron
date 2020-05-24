@@ -88,7 +88,7 @@ tengine.Graph = class {
         }
 
         for (const node of graph.nodes) {
-            if (node.operator !== 'INPUT') {
+            if (node.type !== 'INPUT') {
                 this._nodes.push(new tengine.Node(metadata, node, tensors));
             }
         }
@@ -166,12 +166,12 @@ tengine.Node = class {
     constructor(metadata, node, tensors) {
         this._metadata = metadata;
         this._name = node.name;
-        this._operator = node.operator + (node.operatorVersion && node.operatorVersion !== 1 ? ':' + node.operatorVersion.toString() : '');
+        this._type = node.type + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
 
-        const schema = metadata.type(this._operator);
+        const schema = metadata.type(this._type);
 
         for (let i = 0; i < node.params.length; i++) {
             const attributeSchema = (schema && schema.attributes && i < schema.attributes.length) ? schema.attributes[i] : null;
@@ -218,8 +218,8 @@ tengine.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator.split(':')[0];
+    get type() {
+        return this._type.split(':')[0];
     }
 
     get name() {
@@ -227,7 +227,7 @@ tengine.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -495,21 +495,21 @@ tengine.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }
@@ -522,9 +522,9 @@ tengine.ModelFileReader = class {
         // ./third_party/src/tengine/serializer/include/tengine/v2/tm2_format.h
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
 
-        const operators = new Map();
+        const types = new Map();
         const register = (index, version, name, params) => {
-            operators.set(index.toString() + ':' + version.toString(), { name: name, params: params });
+            types.set(index.toString() + ':' + version.toString(), { name: name, params: params });
         };
         register( 0, 1, 'Accuracy', []);
         register( 1, 1, 'BatchNormalization', [ 'f', 'f', 'i' ]);
@@ -662,19 +662,19 @@ tengine.ModelFileReader = class {
                 node.id = reader.int32();
                 node.inputs = reader.uint32s();
                 node.outputs = reader.uint32s();
-                const operatorOffset = reader.int32();
+                const typeOffset = reader.int32();
                 node.name = reader.string();
                 const attributeOffsets = reader.uint32s();
                 node.dynamicShape = reader.boolean() ? true : false;
 
-                reader.seek(operatorOffset);
-                node.operatorVersion = reader.int32();
-                const operatorIndex = reader.int32();
+                reader.seek(typeOffset);
+                node.version = reader.int32();
+                const index = reader.int32();
                 const paramsOffset = reader.uint32();
 
-                const operator = operatorIndex.toString() + ':' + node.operatorVersion.toString();
-                const schema = operators.has(operator) ? operators.get(operator) : null;
-                node.operator = schema ? schema.name : operatorIndex.toString();
+                const type = index.toString() + ':' + node.version.toString();
+                const schema = types.has(type) ? types.get(type) : null;
+                node.type = schema ? schema.name : index.toString();
                 const paramTypes = schema ? schema.params : [];
 
                 node.params = [];
@@ -707,12 +707,12 @@ tengine.ModelFileReader = class {
                                 node.params.push(reader.anchors(4));
                                 break;
                             default:
-                                throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.operator + "'.");
+                                throw new tengine.Error("Unsupported param type '" + paramType + "' in '" + node.type + "'.");
                         }
                     }
                 }
 
-                if (node.operator === 'Slice') {
+                if (node.type === 'Slice') {
                     node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
                 }
 
@@ -725,7 +725,7 @@ tengine.ModelFileReader = class {
                     node.attributes.push({ name: name, value: value, type: type });
                 }
 
-                if (node.operator !== 'Const') {
+                if (node.type !== 'Const') {
                     subgraph.nodes.push(node);
                 }
             }
@@ -763,7 +763,7 @@ tengine.ModelFileReader = class {
             }
 
             for (const node of subgraph.nodes) {
-                if (node.operator === 'Convolution') {
+                if (node.type === 'Convolution') {
                     switch (subgraph.graphLayout) {
                         case 0: // NCHW
                             node.params[6] = subgraph.tensors[node.inputs[1]].dims[1];

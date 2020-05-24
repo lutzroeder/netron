@@ -401,16 +401,6 @@ mxnet.Graph = class {
 
         if (symbol) {
             const nodes = symbol.nodes;
-            for (const node of nodes) {
-                if (node.op && node.op != 'null') {
-                    let operator = node.op;
-                    const attrs = node.attrs || node.attr || node.param;
-                    if (operator == 'tvm_op' && attrs && attrs.func_name) {
-                        operator = attrs.func_name;
-                    }
-                }
-            }
-
             const inputs = {};
             if (signature && signature.inputs) {
                 for (const input of signature.inputs) {
@@ -594,7 +584,7 @@ mxnet.Node = class {
 
     constructor(metadata, node, argumentMap, initializerMap, tensors) {
         this._metadata = metadata;
-        this._operator = node.op;
+        this._type = node.op;
         this._name = node.name;
         this._attributes = [];
         this._inputs = [];
@@ -602,27 +592,27 @@ mxnet.Node = class {
 
         const attrs = node.attrs || node.attr || node.param;
         if (attrs) {
-            if (this._operator == 'tvm_op' && attrs.func_name) {
-                this._operator = attrs.func_name;
+            if (this._type == 'tvm_op' && attrs.func_name) {
+                this._type = attrs.func_name;
             }
             for (const attributeName of Object.keys(attrs)) {
-                if (this._operator != 'tvm_op' && attributeName != 'func_name') {
-                    this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, attributeName, attrs[attributeName]));
+                if (this._type != 'tvm_op' && attributeName != 'func_name') {
+                    this._attributes.push(new mxnet.Attribute(this._metadata, this.type, attributeName, attrs[attributeName]));
                 }
             }
         }
 
         let initializer = null;
-        const schema = metadata.type(this.operator);
+        const schema = metadata.type(this.type);
         if (node.inputs) {
             let inputs = node.inputs;
-            if (this._operator == 'RNN') {
+            if (this._type == 'RNN') {
                 inputs = inputs.map((input) => {
                     const argumentNodeIndex = input[0];
                     const argument = argumentMap[argumentNodeIndex];
                     if (argument && argument.op == 'null' && argument.name &&
                         argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                        this._attributes.push(new mxnet.Attribute(this._metadata, this.operator, argument.name, argument.attr.__init__));
+                        this._attributes.push(new mxnet.Attribute(this._metadata, this.type, argument.name, argument.attr.__init__));
                         delete argumentMap[argumentNodeIndex];
                         return null;
                     }
@@ -741,12 +731,12 @@ mxnet.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get name() {
@@ -768,12 +758,12 @@ mxnet.Node = class {
 
 mxnet.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(metadata, type, name, value) {
         this._name = name;
         this._value = value;
 
         let number;
-        const schema = metadata.attribute(operator, name);
+        const schema = metadata.attribute(type, name);
         if (schema && schema.type) {
             switch (schema.type) {
                 case 'boolean':
@@ -1088,21 +1078,21 @@ mxnet.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

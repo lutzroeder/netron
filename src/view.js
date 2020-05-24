@@ -356,15 +356,14 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
+            const graphElement = this._host.document.getElementById('canvas');
+            while (graphElement.lastChild) {
+                graphElement.removeChild(graphElement.lastChild);
+            }
             if (!graph) {
                 return Promise.resolve();
             }
             else {
-                const graphElement = this._host.document.getElementById('canvas');
-                while (graphElement.lastChild) {
-                    graphElement.removeChild(graphElement.lastChild);
-                }
-
                 switch (this._host.environment('zoom')) {
                     case 'scroll':
                         this._zoom = 0;
@@ -422,18 +421,18 @@ view.View = class {
                     const addNode = function(element, node, edges) {
 
                         const header =  element.block('header');
-                        const styles = [ 'node-item-operator' ];
+                        const styles = [ 'node-item-type' ];
                         const metadata = node.metadata;
                         const category = metadata && metadata.category ? metadata.category : '';
                         if (category) {
-                            styles.push('node-item-operator-' + category.toLowerCase());
+                            styles.push('node-item-type-' + category.toLowerCase());
                         }
-                        const operator = node.operator;
-                        if (typeof operator !== 'string' || !operator.split) { // #416
-                            throw new ModelError("Unknown node operator '" + JSON.stringify(operator) + "' in '" + model.format + "'.");
+                        const type = node.type;
+                        if (typeof type !== 'string' || !type.split) { // #416
+                            throw new ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
-                        const content = self.showNames && node.name ? node.name : operator.split('.').pop();
-                        const tooltip = self.showNames && node.name ? operator : node.name;
+                        const content = self.showNames && node.name ? node.name : type.split('.').pop();
+                        const tooltip = self.showNames && node.name ? type : node.name;
                         header.add(null, styles, content, tooltip, () => {
                             self.showNodeProperties(node, null);
                         });
@@ -904,7 +903,7 @@ view.View = class {
         if (node) {
             const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                this.showOperatorDocumentation(node);
+                this.showNodeDocumentation(node);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
@@ -939,7 +938,7 @@ view.View = class {
         }
     }
 
-    showOperatorDocumentation(node) {
+    showNodeDocumentation(node) {
         const metadata = node.metadata;
         if (metadata) {
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, metadata);

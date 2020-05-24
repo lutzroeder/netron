@@ -183,7 +183,7 @@ bigdl.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
-        const schema =  metadata.type(this.operator);
+        const schema =  metadata.type(this.type);
         const inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
@@ -225,7 +225,7 @@ bigdl.Node = class {
                 this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor)))));
                 continue;
             }
-            this._attributes.push(new bigdl.Attribute(metadata, this._operator, key, value));
+            this._attributes.push(new bigdl.Attribute(metadata.attribute(this._type, key), key, value));
         }
         const output = this._name || this._type + module.namePostfix;
         this._outputs.push(new bigdl.Parameter('output', [
@@ -237,7 +237,7 @@ bigdl.Node = class {
         return this._group;
     }
 
-    get operator() {
+    get type() {
         return this._type;
     }
 
@@ -264,7 +264,7 @@ bigdl.Node = class {
 
 bigdl.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         switch (value.dataType) {
             case bigdl.proto.DataType.INT32: {
@@ -460,21 +460,21 @@ bigdl.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

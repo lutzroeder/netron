@@ -228,7 +228,7 @@ dl4j.Node = class {
     constructor(metadata, layer, inputs, dataType, variables) {
 
         this._metadata = metadata;
-        this._operator = layer.__type__;
+        this._type = layer.__type__;
         this._name = layer.layerName || '';
         this._inputs = [];
         this._outputs = [];
@@ -242,7 +242,7 @@ dl4j.Node = class {
         if (variables) {
             for (const variable of variables) {
                 let tensor = null;
-                switch (this._operator) {
+                switch (this._type) {
                     case 'Convolution':
                         switch (variable) {
                             case 'W':
@@ -252,7 +252,7 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unknown '" + this._operator + "' variable '" + variable + "'.");
+                                throw new dl4j.Error("Unknown '" + this._type + "' variable '" + variable + "'.");
                         }
                         break;
                     case 'SeparableConvolution2D':
@@ -264,7 +264,7 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unknown '" + this._operator + "' variable '" + variable + "'.");
+                                throw new dl4j.Error("Unknown '" + this._type + "' variable '" + variable + "'.");
                         }
                         break;
                     case 'Output':
@@ -277,14 +277,14 @@ dl4j.Node = class {
                                 tensor = new dl4j.Tensor(dataType, [ layer.nout ]);
                                 break;
                             default:
-                                throw new dl4j.Error("Unknown '" + this._operator + "' variable '" + variable + "'.");
+                                throw new dl4j.Error("Unknown '" + this._type + "' variable '" + variable + "'.");
                         }
                         break;
                     case 'BatchNormalization':
                         tensor = new dl4j.Tensor(dataType, [ layer.nin ]);
                         break;
                     default:
-                        throw new dl4j.Error("Unknown '" + this._operator + "' variable '" + variable + "'.");
+                        throw new dl4j.Error("Unknown '" + this._type + "' variable '" + variable + "'.");
                 }
                 this._inputs.push(new dl4j.Parameter(variable, true, [
                     new dl4j.Argument(variable, null, tensor)
@@ -306,8 +306,8 @@ dl4j.Node = class {
                 if (activation.__type__.startsWith('Activation')) {
                     activation.__type__ = activation.__type__.substring('Activation'.length);
                 }
-                if (this._operator == 'Activation') {
-                    this._operator = activation.__type__;
+                if (this._type == 'Activation') {
+                    this._type = activation.__type__;
                     attributes = activation;
                 }
                 else {
@@ -327,7 +327,7 @@ dl4j.Node = class {
                 case 'hasBias':
                     continue;
             }
-            this._attributes.push(new dl4j.Attribute(metadata, this._operator, key, attributes[key]));
+            this._attributes.push(new dl4j.Attribute(metadata.attribute(this._type, key), key, attributes[key]));
         }
 
         if (layer.idropout) {
@@ -338,8 +338,8 @@ dl4j.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -347,7 +347,7 @@ dl4j.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get inputs() {
@@ -391,11 +391,10 @@ dl4j.Node = class {
 
 dl4j.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         this._value = value;
         this._visible = false;
-        const schema = metadata.attribute(operator, name);
         if (schema) {
             if (schema.visible) {
                 this._visible = true;
@@ -507,21 +506,21 @@ dl4j.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator];
+    type(name) {
+        return this._map[name];
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

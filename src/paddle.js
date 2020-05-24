@@ -219,13 +219,14 @@ paddle.Node = class {
 
     constructor(metadata, op, initializers, types) {
         this._metadata = metadata;
-        this._operator = op.type;
+        this._type = op.type;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
         for (const attr of op.attrs) {
-            this._attributes.push(new paddle.Attribute(metadata, this._operator, attr));
+            const schema = metadata.attribute(this._type, this._name);
+            this._attributes.push(new paddle.Attribute(schema, attr));
         }
         for (const input of op.inputs) {
             if (input.arguments.length > 0) {
@@ -245,8 +246,8 @@ paddle.Node = class {
         this._update(this._outputs, 'Out');
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -254,7 +255,7 @@ paddle.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._operator);
+        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -290,7 +291,7 @@ paddle.Node = class {
 
 paddle.Attribute = class {
 
-    constructor(metadata, operator, attr) {
+    constructor(schema, attr) {
         this._name = attr.name;
         this._value = '?';
         switch (attr.type) {
@@ -346,8 +347,6 @@ paddle.Attribute = class {
                 this._visible = false;
                 break;
         }
-
-        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 const defaultValue = schema.default;
@@ -491,21 +490,21 @@ paddle.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

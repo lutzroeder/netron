@@ -2,7 +2,6 @@
   {
     "name": "InputLayer",
     "schema": {
-      "category": "Tensor",
       "bindings": [
         { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
       ]
@@ -56,6 +55,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        
         { "name": "weight", "src": "weights" },
         { "name": "bias", "src": "biases" }
       ],
@@ -119,7 +119,7 @@
   {
     "name": "ConstantLayer",
     "schema": {
-      "category": "Tensor",
+      "category": "Constant",
       "inputs": [
         { "name": "input", "src": "input" }
       ]

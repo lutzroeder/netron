@@ -158,7 +158,7 @@ mnn.Node = class {
 
     constructor(metadata, op, net) {
         this._metadata = metadata;
-        this._operator = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
+        this._type = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
         this._name = op.name() || '';
         this._attributes = [];
         this._inputs = [];
@@ -308,15 +308,15 @@ mnn.Node = class {
                 }
 
                 if (value != null) {
-                    const schema = metadata.attribute(this.operator, attributeName);
+                    const schema = metadata.attribute(this.type, attributeName);
                     attributeHolders.push(new mnn.Attribute(schema, attributeName, value));
                 }
             }
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -328,7 +328,7 @@ mnn.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this.operator);
+        return this._metadata.type(this.type);
     }
 
     get group() {
@@ -588,12 +588,12 @@ mnn.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.has(operator) ? this._map.get(operator) : null;
+    type(name) {
+        return this._map.has(name) ? this._map.get(name) : null;
     }
 
-    attribute(operator, name) {
-        const schema = this.type(operator);
+    attribute(type, name) {
+        const schema = this.type(type);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {

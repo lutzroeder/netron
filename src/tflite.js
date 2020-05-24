@@ -71,7 +71,7 @@ tflite.Model = class {
                 const builtinOperatorMap = {};
                 for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
                     const index = tflite.schema.BuiltinOperator[key];
-                    builtinOperatorMap[index] = tflite.Utility.operator(key);
+                    builtinOperatorMap[index] = tflite.Utility.type(key);
                 }
                 for (let i = 0; i < model.operatorCodesLength(); i++) {
                     const operatorCode = model.operatorCodes(i);
@@ -135,7 +135,7 @@ tflite.Model = class {
                         const code = operatorCode.builtin_code;
                         const version = operatorCode.version || 1;
                         const custom = code === 'CUSTOM';
-                        const name = custom ? operatorCode.custom_code : tflite.Utility.operator(code);
+                        const name = custom ? operatorCode.custom_code : tflite.Utility.type(code);
                         if (!name) {
                             throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
                         }
@@ -325,10 +325,10 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, format, node, operator, location, args) {
+    constructor(metadata, format, node, type, location, args) {
         this._metadata = metadata;
         this._location = location;
-        this._operator = operator;
+        this._type = type;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -347,7 +347,7 @@ tflite.Node = class {
                     break;
                 }
             }
-            const schema = this._metadata.type(this.operator);
+            const schema = this._metadata.type(this.type);
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
                 let count = 1;
@@ -388,12 +388,13 @@ tflite.Node = class {
             }
             switch (format) {
                 default: {
-                    if (operator.custom && node.customOptionsLength() > 0) {
+                    if (type.custom && node.customOptionsLength() > 0) {
                         const custom = Array.from(node.customOptionsArray() || []);
-                        this._attributes.push(new tflite.Attribute(this._metadata, format, this.operator, 'custom', custom));
+                        const schema = metadata.attribute(this.type, 'custom');
+                        this._attributes.push(new tflite.Attribute(schema, format, 'custom', custom));
                     }
-                    let optionsTypeName = this.operator + 'Options';
-                    switch (this.operator) {
+                    let optionsTypeName = this.type + 'Options';
+                    switch (this.type) {
                         case 'AveragePool2D':
                         case 'MaxPool2D':
                             optionsTypeName = 'Pool2DOptions';
@@ -430,10 +431,11 @@ tflite.Node = class {
                                         if (!activationFunctionMap[value]) {
                                             throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
                                         }
-                                        const operator = activationFunctionMap[value];
-                                        this._chain = [ new tflite.Node(metadata, format, null, { name: operator }, null, []) ];
+                                        const type = activationFunctionMap[value];
+                                        this._chain = [ new tflite.Node(metadata, format, null, { name: type }, null, []) ];
                                     }
-                                    this._attributes.push(new tflite.Attribute(this._metadata, format, this.operator, name, value));
+                                    const schema = metadata.attribute(this.type, 'custom');
+                                    this._attributes.push(new tflite.Attribute(schema, format, name, value));
                                 }
                             }
                         }
@@ -442,8 +444,9 @@ tflite.Node = class {
                 }
                 case 'json': {
                     if (node.builtin_options && !Array.isArray(node.builtin_options)) {
-                        if (operator.custom && Array.isArray(operator.custom)) {
-                            this._attributes.push(new tflite.Attribute(this._metadata, format, this.operator, 'custom', operator.custom));
+                        if (type.custom && Array.isArray(type.custom)) {
+                            const schema = metadata.attribute(this.type, 'custom');
+                            this._attributes.push(new tflite.Attribute(schema, format, 'custom', type.custom));
                         }
                         for (const name of Object.keys(node.builtin_options)) {
                             const value = node.builtin_options[name];
@@ -452,10 +455,11 @@ tflite.Node = class {
                                 if (!activationFunctionMap[value]) {
                                     throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
                                 }
-                                const operator = activationFunctionMap[value];
-                                this._chain = [ new tflite.Node(metadata, format, null, { name: operator }, null, []) ];
+                                const type = activationFunctionMap[value];
+                                this._chain = [ new tflite.Node(metadata, format, null, { name: type }, null, []) ];
                             }
-                            this._attributes.push(new tflite.Attribute(this._metadata, format, this.operator, name, value));
+                            const schema = metadata.attribute(this.type, name);
+                            this._attributes.push(new tflite.Attribute(schema, format, name, value));
                         }
                     }
                     break;
@@ -464,8 +468,8 @@ tflite.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator.name;
+    get type() {
+        return this._type.name;
     }
 
     get name() {
@@ -481,10 +485,10 @@ tflite.Node = class {
     }
 
     get metadata() {
-        if (this._operator.custom) {
-            return { name: this.operator, category: 'custom' };
+        if (this._type.custom) {
+            return { name: this.type, category: 'custom' };
         }
-        return this._metadata.type(this.operator);
+        return this._metadata.type(this.type);
     }
 
     get group() {
@@ -510,7 +514,7 @@ tflite.Node = class {
 
 tflite.Attribute = class {
 
-    constructor(metadata, format, operator, name, value) {
+    constructor(schema, format, name, value) {
         this._type = null;
         this._name = '';
         this._value = value;
@@ -522,7 +526,6 @@ tflite.Attribute = class {
             this._visible = false;
 
         }
-        const schema = metadata.attribute(operator, this._name);
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
@@ -913,12 +916,12 @@ tflite.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.has(operator) ? this._map.get(operator) : null;
+    type(name) {
+        return this._map.has(name) ? this._map.get(name) : null;
     }
 
-    attribute(operator, name) {
-        const schema = this.type(operator);
+    attribute(type, name) {
+        const schema = this.type(type);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -985,7 +988,7 @@ tflite.Utility = class {
         return value;
     }
 
-    static operator(name) {
+    static type(name) {
         const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
         if (name === 'BATCH_MATMUL') {
             return "BatchMatMul";
