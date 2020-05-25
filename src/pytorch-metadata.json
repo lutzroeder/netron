@@ -4555,5 +4555,20 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.log",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
