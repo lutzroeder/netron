@@ -100,7 +100,6 @@ def update_attributes(schema, lines):
             raise Exception("Expected ':' in parameter.")
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
-        print(line)
         attribute_type = None
         type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32', 'integer': 'int32' }
         skip_map = {
@@ -234,11 +233,18 @@ def update_attributes(schema, lines):
         update_attribute(schema, name, description, attribute_type, option, default)
 
 for entry in json_root:
-    if not 'schema' in entry:
-        entry['schema'] = {};
     name = entry['name']
+    entry['schema'] = entry['schema'] if 'schema' in entry else {};
     schema = entry['schema']
-    if not name.startswith('lightgbm.'):
+    skip_modules = [
+        'lightgbm.',
+        'sklearn.svm.classes',
+        'sklearn.ensemble.forest.',
+        'sklearn.ensemble.weight_boosting.',
+        'sklearn.neural_network.multilayer_perceptron.',
+        'sklearn.tree.tree.'
+    ]
+    if not any(name.startswith(module) for module in skip_modules):
         class_definition = pydoc.locate(name)
         if not class_definition:
             raise Exception('\'' + name + '\' not found.')
