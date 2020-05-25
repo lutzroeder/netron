@@ -10,7 +10,7 @@ tflite.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (['tflite', 'lite', 'tfl', 'bin', 'pb', 'model', 'tmfile' ].indexOf(extension) !== -1) {
+        if (['tflite', 'lite', 'tfl', 'bin', 'pb', 'model', 'tmfile', 'h5' ].indexOf(extension) !== -1) {
             const buffer = context.buffer;
             const signature = 'TFL3';
             if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
