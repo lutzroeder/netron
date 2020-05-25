@@ -1211,18 +1211,9 @@ view.ModelFactoryService = class {
                             'models.json',
                             'LICENSE.meta',
                             'input_0.pb',
-                            'output_0.pb',
-                            'object-detection.pbtxt',
+                            'output_0.pb'
                         ]);
-                        let skip = knownUnsupportedIdentifiers.has(identifier);
-                        if (!skip && (extension === 'pbtxt' || extension === 'prototxt')) {
-                            if (identifier.includes('label_map') || identifier.includes('labels_map') || identifier.includes('labelmap')) {
-                                const tags = context.tags('pbtxt');
-                                if (tags.size === 1 && (tags.has('item') || tags.has('entry'))) {
-                                    skip = true;
-                                }
-                            }
-                        }
+                        const skip = knownUnsupportedIdentifiers.has(identifier);
                         const buffer = context.buffer;
                         const content = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                         throw new ModelError("Unsupported file content (" + content + ") for extension '." + extension + "' in '" + identifier + "'.", !skip);
@@ -1409,6 +1400,10 @@ view.ModelFactoryService = class {
             { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
             { name: 'Unity metadata', value: 'fileFormatVersion:' },
             { name: 'Vulkan SwiftShader ICD manifest', value: '{"file_format_version": "1.0.0", "ICD":' },
+            { name: 'StringIntLabelMapProto data', value: 'item {\r\n  id:' },
+            { name: 'StringIntLabelMapProto data', value: 'item {\r\n  name:' },
+            { name: 'StringIntLabelMapProto data', value: 'item {\n  id:' },
+            { name: 'StringIntLabelMapProto data', value: 'item {\n  name:' },
             { name: 'Python source code', value: 'import sys, types, os;' }
         ];
         for (const item of list) {
