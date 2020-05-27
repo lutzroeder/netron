@@ -810,6 +810,7 @@ sklearn.Container = class {
         constructorTable['sklearn.decomposition._truncated_svd.TruncatedSVD'] = function() {};
         constructorTable['sklearn.decomposition.truncated_svd.TruncatedSVD'] = function() {};
         constructorTable['sklearn.discriminant_analysis.LinearDiscriminantAnalysis'] = function() {};
+        constructorTable['sklearn.dummy.DummyClassifier'] = function() {};
         constructorTable['sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper'] = constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'];
         constructorTable['sklearn.externals.joblib.numpy_pickle.NDArrayWrapper'] = function() {};
         constructorTable['sklearn.ensemble._bagging.BaggingClassifier'] = function() {};
@@ -817,6 +818,7 @@ sklearn.Container = class {
         constructorTable['sklearn.ensemble._forest.RandomForestClassifier'] = function() {};
         constructorTable['sklearn.ensemble._forest.ExtraTreesClassifier'] = function() {};
         constructorTable['sklearn.ensemble._gb_losses.BinomialDeviance'] = function() {};
+        constructorTable['sklearn.ensemble._gb_losses.MultinomialDeviance'] = function() {};
         constructorTable['sklearn.ensemble._gb.GradientBoostingClassifier'] = function() {};
         constructorTable['sklearn.ensemble._voting.VotingClassifier'] = function() {};
         constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
@@ -965,6 +967,9 @@ sklearn.Container = class {
             return obj;
         };
         functionTable['numpy.random.__RandomState_ctor'] = function() {
+            return {};
+        };
+        functionTable['numpy.random._pickle.__randomstate_ctor'] = function() {
             return {};
         };
         functionTable['_codecs.encode'] = function(obj /*, econding */) {
