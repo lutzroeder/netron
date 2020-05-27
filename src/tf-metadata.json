@@ -48560,7 +48560,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48675,7 +48675,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48744,7 +48744,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48859,7 +48859,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
