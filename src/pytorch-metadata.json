@@ -4570,5 +4570,30 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.affine_grid_generator",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64[]"
+        },
+        {
+          "name": "align_corners",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "theta"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
