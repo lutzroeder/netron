@@ -3616,6 +3616,12 @@
           "minimum": 1,
           "name": "Tout",
           "type": "type[]"
+        },
+        {
+          "default": false,
+          "description": "input with a large size (i.e., larger than the largest value of\n`allowed_batch_sizes`) will be splitted into multiple batches with batch size.",
+          "name": "enable_large_batch_splitting",
+          "type": "boolean"
         }
       ],
       "description": "So, for example, in the following code\n\n  ```python\n\n  # This input will be captured.\n  y = tf.placeholder_with_default(1.0, shape=[])\n\n  @tf.Defun(tf.float32)\n  def computation(a):\n    return tf.matmul(a, a) + y\n\n  b = gen_batch_ops.batch_function(\n          f=computation\n          in_tensors=[a],\n          captured_tensors=computation.captured_inputs,\n          Tout=[o.type for o in computation.definition.signature.output_arg],\n          num_batch_threads=1,\n          max_batch_size=10,\n          batch_timeout_micros=100000,  # 100ms\n          allowed_batch_sizes=[3, 10],\n          batching_queue=\"\")\n\nIf more than one session.run call is simultaneously trying to compute `b`\nthe values of `a` will be gathered, non-deterministically concatenated\nalong the first axis, and only one thread will run the computation.\n\nAssumes that all arguments of the function are Tensors which will be batched\nalong their first dimension.\n\nArguments that are captured, are not batched. The session.run call which does\nthe concatenation, will use the values of the captured tensors available to it.\nTherefore, typical uses of captured tensors should involve values which remain\nunchanged across session.run calls. Inference is a good example of this.\n\nSparseTensor is not supported. The return value of the decorated function\nmust be a Tensor or a list/tuple of Tensors.",
@@ -48560,7 +48566,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48675,7 +48681,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48744,7 +48750,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -48859,7 +48865,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -52841,6 +52847,11 @@
           "default": -1,
           "name": "index",
           "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "is_packed",
+          "type": "boolean"
         }
       ],
       "description": "This operation holds a replicated input to a `tpu.replicate()` computation subgraph.\nEach replicated input has the same shape and type alongside the output.\n\nFor example:\n```\n%a = \"tf.opA\"()\n%b = \"tf.opB\"()\n%replicated_input = \"tf.TPUReplicatedInput\"(%a, %b)\n%computation = \"tf.Computation\"(%replicated_input)\n```\nThe above computation has a replicated input of two replicas.",
