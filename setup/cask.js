@@ -1,11 +1,12 @@
 
+
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
 const packageFile = process.argv[2];
-const manifestDir = process.argv[3];
+const caskFile = process.argv[3];
 
 const request = (url, timeout) => {
     return new Promise((resolve, reject) => {
@@ -59,30 +60,29 @@ const package = JSON.parse(fs.readFileSync(packageFile, 'utf-8'));
 const name = package.name;
 const version = package.version;
 const productName = package.productName;
-const publisher = package.author.name;
-const repository = package.repository;
-const url = 'https://github.com/' + repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
+const repository = 'https://github.com/' + package.repository;
+const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
 
-request(url).then((data) => {
+request(url.replace(/#{version}/g, version)).then((data) => {
     const hash = crypto.createHash('sha256');
-    const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
+    const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
     const lines = [
-        'Id: ' + publisher.replace(' ', '') + '.' + productName,
-        'Version: ' + version,
-        'Name: ' + productName,
-        'Publisher: ' + publisher,
-        'AppMoniker: ' + name,
-        'Description: ' + package.description,
-        'License: Copyright (c)' + publisher,
-        'Homepage: ' + 'https://github.com/' + repository,
-        'Installers:',
-        '  - Arch: x86',
-        '    InstallerType: nullsoft',
-        '    Url: ' + url,
-        '    Sha256: ' + sha256
+        "cask '" + name + "' do",
+        "  version '" + version + "'",
+        "  sha256 '" + sha256 + "'",
+        "",
+        '  url "' + url + '"',
+        "  appcast '" + repository + "/releases.atom'",
+        "  name '" + productName + "'",
+        "  homepage '" + repository + "'",
+        "",
+        "  auto_updates true",
+        "",
+        "  app '" + productName + ".app'",
+        "end",
+        ""
     ];
-    const manifestFile = manifestDir + '/' + publisher.replace(' ', '') + '/' + productName + '/' + version + '.yaml'
-    fs.writeFileSync(manifestFile, lines.join('\n'));
+    fs.writeFileSync(caskFile, lines.join('\n'));
 
 }).catch((err) => {
     console.log(err.message);
