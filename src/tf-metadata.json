@@ -12771,6 +12771,24 @@
     }
   },
   {
+    "name": "DeviceIndex",
+    "schema": {
+      "attributes": [
+        {
+          "name": "device_names",
+          "type": "string[]"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "index",
+          "type": 3
+        }
+      ],
+      "summary": "Return the index of device the op runs."
+    }
+  },
+  {
     "name": "Diag",
     "schema": {
       "attributes": [
