@@ -1391,25 +1391,20 @@ view.ModelFactoryService = class {
             return Promise.reject(new ModelError("File has no content.", true));
         }
         const list = [
-            { name: 'ELF executable', value: '\x7FELF' },
-            { name: 'Git LFS header', value: 'version https://git-lfs.github.com/spec/v1\n' },
-            { name: 'Git LFS header', value: 'oid sha256:' },
-            { name: 'HTML markup', value: '<html>' },
-            { name: 'HTML markup', value: '<!DOCTYPE html>' },
-            { name: 'HTML markup', value: '<!DOCTYPE HTML>' },
-            { name: 'HTML markup', value: '\n\n\n\n\n<!DOCTYPE html>' },
-            { name: 'HTML markup', value: '\n\n\n\n\n\n<!DOCTYPE html>' },
-            { name: 'Unity metadata', value: 'fileFormatVersion:' },
-            { name: 'Vulkan SwiftShader ICD manifest', value: '{"file_format_version": "1.0.0", "ICD":' },
-            { name: 'StringIntLabelMapProto data', value: 'item {\r\n  id:' },
-            { name: 'StringIntLabelMapProto data', value: 'item {\r\n  name:' },
-            { name: 'StringIntLabelMapProto data', value: 'item {\n  id:' },
-            { name: 'StringIntLabelMapProto data', value: 'item {\n  name:' },
-            { name: 'Python source code', value: 'import sys, types, os;' }
+            { name: 'ELF executable', value: /^\x7FELF/ },
+            { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com\/spec\/v1\n/ },
+            { name: 'Git LFS header', value: /^oid sha256:/ },
+            { name: 'HTML markup', value: /^\s*<html>/ },
+            { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
+            { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
+            { name: 'Unity metadata', value: /^fileFormatVersion:/ },
+            { name: 'Vulkan SwiftShader ICD manifest', value: /^{\s*"file_format_version":\s*"1.0.0"\s*,\s*"ICD":/ },
+            { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*id:/ },
+            { name: 'Python source code', value: /^\s*import sys, types, os;/ }
         ];
+        const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
         for (const item of list) {
-            if (buffer.length >= item.value.length &&
-                buffer.subarray(0, item.value.length).every((v, i) => v === item.value.charCodeAt(i))) {
+            if (text.match(item.value)) {
                 return Promise.reject(new ModelError("Invalid file content. File contains " + item.name + ".", true));
             }
         }
