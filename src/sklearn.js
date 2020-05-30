@@ -10,7 +10,7 @@ sklearn.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if (['pkl', 'joblib', 'model', 'meta', 'pb'].indexOf(extension) !== -1) {
+        if ([ 'pkl', 'joblib', 'model', 'meta', 'pb', 'h5' ].indexOf(extension) !== -1) {
             const buffer = context.buffer;
             if (buffer) {
                 // Reject PyTorch models with .pkl file extension.
