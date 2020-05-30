@@ -71,7 +71,7 @@ publish_github_electron: install
 
 publish_github_pages: build_python
 	rm -rf ./dist/gh-pages
-	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages
+	@git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages
 	rm -rf ./dist/gh-pages/*
 	cp -R ./dist/lib/netron/* ./dist/gh-pages/
 	rm -rf ./dist/gh-pages/*.py*
@@ -84,24 +84,24 @@ publish_github_pages: build_python
 publish_cask:
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null
 	@rm -rf ./dist/winget-pkgs
-	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
+	@git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
 	@node ./setup/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
 	@git -C ./dist/homebrew-cask add --all .
 	@git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/homebrew-cask push
-	@hub pull-request --base Homebrew/homebrew-cask:master --head $(GITHUB_USER)/homebrew-cask:master --message "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")\n\n"
+	@hub pull-request --base Homebrew/homebrew-cask:master --head $(GITHUB_USER)/homebrew-cask:master --message "Add $$(node -pe "require('./package.json').name") $$(node -pe "require('./package.json').version")"
 	@rm -rf ./dist/homebrew-cask
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/homebrew-cask 2>&1 > /dev/null
 
 publish_winget:
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null
 	@rm -rf ./dist/winget-pkgs
-	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
+	@git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
 	@node ./setup/winget.js ./package.json ./dist/winget-pkgs/manifests
 	@git -C ./dist/winget-pkgs add --all .
 	@git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/winget-pkgs push
-	@hub pull-request --base microsoft/winget-pkgs:master --head $(GITHUB_USER)/winget-pkgs:master --message "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")\n\n"
+	@hub pull-request --base microsoft/winget-pkgs:master --head $(GITHUB_USER)/winget-pkgs:master --message "Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")"
 	@rm -rf ./dist/winget-pkgs
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/winget-pkgs 2>&1 > /dev/null
 
@@ -113,3 +113,4 @@ version:
 	@git push --force
 	@git push --tags
 	@git tag -d v$$(node -pe "require('./package.json').version")
+

@@ -73,7 +73,7 @@ request(url).then((data) => {
         'Publisher: ' + publisher,
         'AppMoniker: ' + name,
         'Description: ' + package.description,
-        'License: Copyright (c)' + publisher,
+        'License: Copyright (c) ' + publisher,
         'Homepage: ' + 'https://github.com/' + repository,
         'Installers:',
         '  - Arch: x86',

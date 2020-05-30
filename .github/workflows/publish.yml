@@ -45,10 +45,6 @@ jobs:
         run: |
           make lint
 
-      - name: Build Python Server
-        run: |
-          make build_python
-
       - if: startsWith(matrix.os, 'ubuntu')
         name: Install Snapcraft
         uses: samuelmeuli/action-snapcraft@v1
