@@ -71,7 +71,7 @@ publish_github_electron: install
 
 publish_github_pages: build_python
 	rm -rf ./dist/gh-pages
-	git clone git@github.com:$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages
+	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages
 	rm -rf ./dist/gh-pages/*
 	cp -R ./dist/lib/netron/* ./dist/gh-pages/
 	rm -rf ./dist/gh-pages/*.py*
@@ -84,7 +84,7 @@ publish_github_pages: build_python
 publish_cask:
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null
 	@rm -rf ./dist/winget-pkgs
-	@git clone git@github.com:$(GITHUB_USER)/homebrew-cask.git --branch gh-pages ./dist/homebrew-cask
+	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
 	@node ./setup/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
 	@git -C ./dist/homebrew-cask add --all .
 	@git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
@@ -96,7 +96,7 @@ publish_cask:
 publish_winget:
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/forks -d '' 2>&1 > /dev/null
 	@rm -rf ./dist/winget-pkgs
-	@git clone git@github.com:$(GITHUB_USER)/winget-pkgs.git --branch gh-pages ./dist/winget-pkgs
+	@git clone https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
 	@node ./setup/winget.js ./package.json ./dist/winget-pkgs/manifests
 	@git -C ./dist/winget-pkgs add --all .
 	@git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
@@ -112,3 +112,4 @@ version:
 	@git tag v$$(node -pe "require('./package.json').version")
 	@git push --force
 	@git push --tags
+	@git tag -d v$$(node -pe "require('./package.json').version")

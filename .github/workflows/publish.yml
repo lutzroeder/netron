@@ -55,8 +55,7 @@ jobs:
         with:
           snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
 
-      - if: startsWith(matrix.os, 'macos')
-        name: Publish Electron
+      - name: Publish Electron
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
