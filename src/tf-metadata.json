@@ -7682,6 +7682,11 @@
           "default": "auto",
           "name": "communication_hint",
           "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
         }
       ],
       "outputs": [
@@ -7722,6 +7727,11 @@
           "default": "auto",
           "name": "communication_hint",
           "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
         }
       ],
       "inputs": [
@@ -7768,6 +7778,11 @@
           "default": "auto",
           "name": "communication_hint",
           "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
         }
       ],
       "inputs": [
@@ -7862,6 +7877,11 @@
           "default": "auto",
           "name": "communication_hint",
           "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
         }
       ],
       "inputs": [
