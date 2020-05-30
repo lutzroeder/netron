@@ -1,5 +1,4 @@
-const child_process = require('child_process');
-const fs = require('fs');
+
 const notarize = require('electron-notarize');
 
 exports.default = function (context) {
@@ -11,8 +10,8 @@ exports.default = function (context) {
                 appBundleId: context.packager.info.config.appId,
                 appPath: context.appOutDir + '/' + context.packager.appInfo.productFilename + '.app',
                 appleApiKey: process.env.API_KEY_ID,
-                appleApiIssuer: process.env.API_KEY_ISSUER_ID,
+                appleApiIssuer: process.env.API_KEY_ISSUER_ID
             });
         }
     }
-}
+};

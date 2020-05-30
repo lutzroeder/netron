@@ -4,7 +4,7 @@ const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
-const packageFile = process.argv[2];
+const packageManifestFile = process.argv[2];
 const manifestDir = process.argv[3];
 
 const request = (url, timeout) => {
@@ -53,18 +53,17 @@ const request = (url, timeout) => {
             });
         }
     });
-}
+};
 
-const package = JSON.parse(fs.readFileSync(packageFile, 'utf-8'));
-const name = package.name;
-const version = package.version;
-const productName = package.productName;
-const publisher = package.author.name;
-const repository = package.repository;
+const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8'));
+const name = packageManifest.name;
+const version = packageManifest.version;
+const productName = packageManifest.productName;
+const publisher = packageManifest.author.name;
+const repository = packageManifest.repository;
 const url = 'https://github.com/' + repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
 
 request(url).then((data) => {
-    const hash = crypto.createHash('sha256');
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
     const lines = [
         'Id: ' + publisher.replace(' ', '') + '.' + productName,
@@ -72,7 +71,7 @@ request(url).then((data) => {
         'Name: ' + productName,
         'Publisher: ' + publisher,
         'AppMoniker: ' + name,
-        'Description: ' + package.description,
+        'Description: ' + packageManifest.description,
         'License: Copyright (c) ' + publisher,
         'Homepage: ' + 'https://github.com/' + repository,
         'Installers:',
@@ -81,7 +80,7 @@ request(url).then((data) => {
         '    Url: ' + url,
         '    Sha256: ' + sha256
     ];
-    const manifestFile = manifestDir + '/' + publisher.replace(' ', '') + '/' + productName + '/' + version + '.yaml'
+    const manifestFile = manifestDir + '/' + publisher.replace(' ', '') + '/' + productName + '/' + version + '.yaml';
     fs.writeFileSync(manifestFile, lines.join('\n'));
 
 }).catch((err) => {

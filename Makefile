@@ -51,7 +51,7 @@ build_electron: install
 	npx electron-builder --linux snap --publish never
 
 lint: install
-	npx eslint src/*.js test/*.js
+	npx eslint src/*.js test/*.js setup/*.js
 
 test: install
 	node ./test/test.js

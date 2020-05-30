@@ -5,7 +5,7 @@ const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
-const packageFile = process.argv[2];
+const packageManifestFile = process.argv[2];
 const caskFile = process.argv[3];
 
 const request = (url, timeout) => {
@@ -54,17 +54,16 @@ const request = (url, timeout) => {
             });
         }
     });
-}
+};
 
-const package = JSON.parse(fs.readFileSync(packageFile, 'utf-8'));
-const name = package.name;
-const version = package.version;
-const productName = package.productName;
-const repository = 'https://github.com/' + package.repository;
+const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8'));
+const name = packageManifest.name;
+const version = packageManifest.version;
+const productName = packageManifest.productName;
+const repository = 'https://github.com/' + packageManifest.repository;
 const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
 
 request(url.replace(/#{version}/g, version)).then((data) => {
-    const hash = crypto.createHash('sha256');
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
     const lines = [
         "cask '" + name + "' do",
