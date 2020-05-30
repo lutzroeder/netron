@@ -1,0 +1,57 @@
+
+name: Build
+
+on:
+  push:
+    branches: [ '**' ]
+    tags-ignore: [ '**' ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install npm packages 
+        run: |
+          npm install
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: ESLint
+        run: |
+          make lint
+
+      - name: Build Python Server
+        run: |
+          make build_python
+
+      - name: Build Electron
+        shell: bash
+        run: |
+          case "${{ matrix.os }}" in
+            macos*)
+              npx electron-builder --mac --publish never -c.mac.identity=null
+              ;;
+            ubuntu*)
+              npx electron-builder --linux appimage --publish never
+              npx electron-builder --linux snap --publish never
+              ;;
+            windows*)
+              npx electron-builder --win --publish never
+              ;;
+          esac

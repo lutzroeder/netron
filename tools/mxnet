@@ -24,7 +24,7 @@ sync() {
 
 metadata() {
     bold "mxnet metadata"
-    # python3 ./tools/mxnet-script.py
+    # python ./tools/mxnet-script.py
 }
 
 while [ "$#" != 0 ]; do

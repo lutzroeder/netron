@@ -1,0 +1,115 @@
+
+name: Publish
+
+on:
+  push:
+    tags: [ 'v**' ]
+
+jobs:
+  publish:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ ubuntu-latest, macos-latest, windows-latest ]
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v1
+
+      - name: Git credentials
+        run: |
+          git config --global user.name ${{ secrets.PUBLISH_USER_NAME }}
+          git config --global user.email ${{ secrets.PUBLISH_USER_EMAIL }}
+
+      - name: Install Hub
+        uses: geertvdc/setup-hub@master
+        with:
+          version: 2.14.2
+
+      - name: Install Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+
+      - name: Install npm packages 
+        run: |
+          npm install
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: ESLint
+        run: |
+          make lint
+
+      - name: Build Python Server
+        run: |
+          make build_python
+
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: Install Snapcraft
+        uses: samuelmeuli/action-snapcraft@v1
+        with:
+          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
+
+      - if: startsWith(matrix.os, 'macos')
+        name: Publish Electron
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          API_KEY_ID: ${{ secrets.API_KEY_ID }}
+          API_KEY_ISSUER_ID: ${{ secrets.API_KEY_ISSUER_ID }}
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          case "${{ matrix.os }}" in
+            macos*)
+              mkdir -p ~/.private_keys
+              echo '${{ secrets.API_KEY }}' > ~/.private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
+              npx electron-builder --mac --publish always
+              ;;
+            ubuntu*)
+              npx electron-builder --linux appimage --publish always
+              npx electron-builder --linux snap --publish always
+              ;;
+            windows*)
+              unset CSC_LINK;
+              unset CSC_KEY_PASSWORD;
+              npx electron-builder --win --publish always
+              ;;
+          esac
+
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: Publish Python Server
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.pypi_api_token }}
+        run: |
+          make publish_python
+
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: Publish GitHub Pages
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
+        run: |
+          make publish_github_pages
+
+      - if: startsWith(matrix.os, 'macos')
+        name: Publish cask
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
+        run: |
+          make publish_cask
+
+      - if: startsWith(matrix.os, 'windows')
+        name: Publish winget
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
+        run: |
+          make publish_winget
