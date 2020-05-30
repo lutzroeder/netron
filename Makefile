@@ -75,8 +75,7 @@ publish_github_pages: build_python
 	rm -rf ./dist/gh-pages/*
 	cp -R ./dist/lib/netron/* ./dist/gh-pages/
 	rm -rf ./dist/gh-pages/*.py*
-	@export PACKAGE_VERSION=`node -pe "require('./package.json').version"`; \
-	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$PACKAGE_VERSION' \/>/g" ./dist/gh-pages/index.html
+	sed -i -e "s/<!-- meta -->/<meta name='version' content='$$(node -pe "require('./package.json').version")' \/>/g" ./dist/gh-pages/index.html
 	git -C ./dist/gh-pages add --all
 	git -C ./dist/gh-pages commit --amend --no-edit
 	git -C ./dist/gh-pages push --force origin gh-pages
@@ -89,7 +88,7 @@ publish_cask:
 	@git -C ./dist/homebrew-cask add --all .
 	@git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/homebrew-cask push
-	@hub pull-request --base Homebrew/homebrew-cask:master --head $(GITHUB_USER)/homebrew-cask:master --message "Add $$(node -pe "require('./package.json').name") $$(node -pe "require('./package.json').version")"
+	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').name") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}"
 	@rm -rf ./dist/homebrew-cask
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/homebrew-cask 2>&1 > /dev/null
 
@@ -101,7 +100,7 @@ publish_winget:
 	@git -C ./dist/winget-pkgs add --all .
 	@git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/winget-pkgs push
-	@hub pull-request --base microsoft/winget-pkgs:master --head $(GITHUB_USER)/winget-pkgs:master --message "Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")"
+	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}"
 	@rm -rf ./dist/winget-pkgs
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/winget-pkgs 2>&1 > /dev/null
 
@@ -113,4 +112,7 @@ version:
 	@git push --force
 	@git push --tags
 	@git tag -d v$$(node -pe "require('./package.json').version")
+
+foo:
+	echo @curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER)/winget-pkgs:master\"}"
 
