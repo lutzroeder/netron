@@ -4,8 +4,7 @@ const notarize = require('electron-notarize');
 exports.default = function (context) {
     if (process.platform === 'darwin' && context.electronPlatformName === 'darwin') {
         const config = context.packager.info.options.config;
-        const skip = config && config.mac && config.mac.identity === null;
-        if (!skip) {
+        if (process.env.CSC_IDENTITY_AUTO_DISCOVERY !== 'false' && (!config || !config.mac || config.mac.identity !== null)) {
             return notarize.notarize({
                 appBundleId: context.packager.info.config.appId,
                 appPath: context.appOutDir + '/' + context.packager.appInfo.productFilename + '.app',

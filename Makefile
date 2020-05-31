@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_github_electron publish_python publish_github_pages publish_cask publish_winget
+publish: clean lint publish_electron publish_python publish_github_pages publish_cask publish_winget
 
 install:
 	@[ -d node_modules ] || npm install
@@ -45,10 +45,10 @@ build_python: install
 	python ./setup.py build --version bdist_wheel
 
 build_electron: install
-	npx electron-builder --mac --publish never -c.mac.identity=null
-	npx electron-builder --win --publish never
-	npx electron-builder --linux appimage --publish never
-	npx electron-builder --linux snap --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --win --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --linux appimage --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --linux snap --publish never
 
 lint: install
 	npx eslint src/*.js test/*.js setup/*.js
@@ -63,7 +63,7 @@ publish_python: build_python
 	python -m pip install --user twine
 	python -m twine upload --non-interactive --skip-existing --verbose dist/dist/*
 
-publish_github_electron: install
+publish_electron: install
 	npx electron-builder --mac --publish always
 	npx electron-builder --win --publish always
 	npx electron-builder --linux appimage --publish always
