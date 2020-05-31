@@ -787,6 +787,8 @@ sklearn.Container = class {
         constructorTable['gensim.models.keyedvectors.Doc2VecKeyedVectors'] = function() {};
         constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
         constructorTable['gensim.models.keyedvectors.Word2VecKeyedVectors'] = function() {};
+        constructorTable['gensim.models.phrases.Phrases'] = function() {};
+        constructorTable['gensim.models.tfidfmodel.TfidfModel'] = function() {};
         constructorTable['gensim.models.word2vec.Vocab'] = function() {};
         constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
         constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
@@ -864,6 +866,7 @@ sklearn.Container = class {
         constructorTable['sklearn.neighbors.KNeighborsRegressor'] = function() {};
         constructorTable['sklearn.neighbors.unsupervised.NearestNeighbors'] = function() {};
         constructorTable['sklearn.neural_network._multilayer_perceptron.MLPClassifier'] = function() {};
+        constructorTable['sklearn.neural_network._multilayer_perceptron.MLPRegressor'] = function() {};
         constructorTable['sklearn.neural_network._stochastic_optimizers.AdamOptimizer'] = function() {};
         constructorTable['sklearn.neural_network._stochastic_optimizers.SGDOptimizer'] = function() {};
         constructorTable['sklearn.neural_network.rbm.BernoulliRBM'] = function() {};
@@ -1015,6 +1018,12 @@ sklearn.Container = class {
                 throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
             }
             return [];
+        };
+        functionTable['__builtin__.set'] = function(iterable) {
+            return iterable ? iterable : [];
+        };
+        functionTable['__builtin__.frozenset'] = function(iterable) {
+            return iterable ? iterable : [];
         };
         functionTable['builtins.bytearray'] = function(data) {
             return { data: data };
