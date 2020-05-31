@@ -4595,5 +4595,42 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.__interpolate",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64"
+        },
+        {
+          "name": "scale_factor",
+          "type": "float32[]"
+        },
+        {
+          "name": "mode",
+          "type": "string"
+        },
+        {
+          "name": "align_corners",
+          "type": "boolean"
+        },
+        {
+          "name": "recompute_scale_factor",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
