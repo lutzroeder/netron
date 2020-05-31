@@ -23,29 +23,26 @@ jobs:
         with:
           node-version: 12
 
-      - name: Install npm packages 
-        run: |
-          npm install
-
       - name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
+      - name: Install npm packages 
+        run: make install
+
       - name: ESLint
-        run: |
-          make lint
+        run: make lint
 
       - name: Build Python Server
-        run: |
-          make build_python
+        run: make build_python
 
       - name: Build Electron
         shell: bash
         run: |
           case "${{ matrix.os }}" in
             macos*)
-              npx electron-builder --mac --publish never -c.mac.identity=null
+              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never -c.mac.identity=null
               ;;
             ubuntu*)
               npx electron-builder --linux appimage --publish never

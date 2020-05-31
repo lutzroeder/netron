@@ -27,18 +27,16 @@ jobs:
         with:
           node-version: 12
 
-      - name: Install npm packages 
-        run: |
-          npm install
-
       - name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
+      - name: Install npm packages 
+        run: make install
+
       - name: ESLint
-        run: |
-          make lint
+        run: make lint
 
       - name: Publish Electron
         shell: bash
@@ -75,29 +73,25 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.pypi_api_token }}
-        run: |
-          make publish_python
+        run: make publish_python
 
       - if: startsWith(matrix.os, 'ubuntu')
         name: Publish GitHub Pages
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: |
-          make publish_github_pages
+        run: make publish_github_pages
 
       - if: startsWith(matrix.os, 'macos')
         name: Publish cask
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: |
-          make publish_cask
+        run: make publish_cask
 
       - if: startsWith(matrix.os, 'windows')
         name: Publish winget
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: |
-          make publish_winget
+        run: make publish_winget
