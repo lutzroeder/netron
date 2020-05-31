@@ -40,12 +40,6 @@ jobs:
         run: |
           make lint
 
-      - if: startsWith(matrix.os, 'ubuntu')
-        name: Install Snapcraft
-        uses: samuelmeuli/action-snapcraft@v1
-        with:
-          snapcraft_token: ${{ secrets.SNAPCRAFT_TOKEN }}
-
       - name: Publish Electron
         shell: bash
         env:
@@ -62,6 +56,10 @@ jobs:
               npx electron-builder --mac --publish always
               ;;
             ubuntu*)
+              sudo snap install snapcraft --classic
+              mkdir -p ~/.private_keys
+              echo '${{ secrets.SNAPCRAFT_TOKEN }}' > ~/.private_keys/snapcraft_token.txt
+              snapcraft login --with ~/.private_keys/snapcraft_token.txt
               npx electron-builder --linux appimage --publish always
               npx electron-builder --linux snap --publish always
               ;;
