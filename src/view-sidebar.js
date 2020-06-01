@@ -1196,12 +1196,12 @@ sidebar.FindSidebar = class {
         for (const node of this._graph.nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
-                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.name]) {
+                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
                         let outputItem = this._host.document.createElement('li');
                         outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                         outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches[argument.name] = true;
+                        edgeMatches.add(argument.name);
                     }
                 }
             }
