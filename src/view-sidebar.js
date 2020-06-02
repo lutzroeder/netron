@@ -20,7 +20,7 @@ sidebar.Sidebar = class {
             }
         };
         this._resizeSidebarHandler = () => {
-            let contentElement = this._host.document.getElementById('sidebar-content');
+            const contentElement = this._host.document.getElementById('sidebar-content');
             if (contentElement) {
                 contentElement.style.height = window.innerHeight - 60;
             }
@@ -39,7 +39,7 @@ sidebar.Sidebar = class {
     }
 
     push(content, title, width) {
-        let item = { title: title, content: content, width: width };
+        const item = { title: title, content: content, width: width };
         this._stack.push(item);
         this._activate(item);
     }
@@ -58,16 +58,16 @@ sidebar.Sidebar = class {
     }
 
     _hide() {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        const sidebarElement = this._host.document.getElementById('sidebar');
         if (sidebarElement) {
             sidebarElement.style.width = '0';
         }
     }
 
     _deactivate() {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        const sidebarElement = this._host.document.getElementById('sidebar');
         if (sidebarElement) {
-            let closeButton = this._host.document.getElementById('sidebar-closebutton');
+            const closeButton = this._host.document.getElementById('sidebar-closebutton');
             if (closeButton) {
                 closeButton.removeEventListener('click', this._closeSidebarHandler);
                 closeButton.style.color = '#f8f8f8';
@@ -79,16 +79,16 @@ sidebar.Sidebar = class {
     }
 
     _activate(item) {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        const sidebarElement = this._host.document.getElementById('sidebar');
         if (sidebarElement) {
             sidebarElement.innerHTML = '';
 
-            let titleElement = this._host.document.createElement('h1');
+            const titleElement = this._host.document.createElement('h1');
             titleElement.classList.add('sidebar-title');
             titleElement.innerHTML = item.title ? item.title.toUpperCase() : '';
             sidebarElement.appendChild(titleElement);
 
-            let closeButton = this._host.document.createElement('a');
+            const closeButton = this._host.document.createElement('a');
             closeButton.classList.add('sidebar-closebutton');
             closeButton.setAttribute('id', 'sidebar-closebutton');
             closeButton.setAttribute('href', 'javascript:void(0)');
@@ -96,7 +96,7 @@ sidebar.Sidebar = class {
             closeButton.addEventListener('click', this._closeSidebarHandler);
             sidebarElement.appendChild(closeButton);
 
-            let contentElement = this._host.document.createElement('div');
+            const contentElement = this._host.document.createElement('div');
             contentElement.classList.add('sidebar-content');
             contentElement.setAttribute('id', 'sidebar-content');
             sidebarElement.appendChild(contentElement);
@@ -173,7 +173,7 @@ sidebar.NodeSidebar = class {
 
         const attributes = node.attributes;
         if (attributes && attributes.length > 0) {
-            let sortedAttributes = node.attributes.slice();
+            const sortedAttributes = node.attributes.slice();
             sortedAttributes.sort((a, b) => {
                 const au = a.name.toUpperCase();
                 const bu = b.name.toUpperCase();
@@ -310,7 +310,7 @@ sidebar.NodeSidebar = class {
                 value = value.slice(0, 1000);
                 ellipsis = true;
             }
-            let array = value.map((item) => {
+            const array = value.map((item) => {
                 if (item && long.Long.isLong(item)) {
                     return item.toString();
                 }
@@ -333,7 +333,7 @@ sidebar.NodeSidebar = class {
         if (value !== Object(value)) {
             return value.toString();
         }
-        let list = [];
+        const list = [];
         const keys = Object.keys(value).filter((key) => !key.startsWith('__') && !key.endsWith('__'));
         if (keys.length == 1) {
             list.push(sidebar.NodeSidebar.formatAttributeValue(value[Object.keys(value)[0]], null, true));
@@ -503,7 +503,7 @@ class NodeAttributeView {
         if (value && typeof value === 'string') {
             value = value.split('<').join('&lt;').split('>').join('&gt;');
         }
-        let valueLine = this._host.document.createElement('div');
+        const valueLine = this._host.document.createElement('div');
         valueLine.className = 'sidebar-view-item-value-line';
         valueLine.innerHTML = (value ? value : '&nbsp;');
         this._element.appendChild(valueLine);
@@ -654,11 +654,11 @@ sidebar.ArgumentView = class {
             if (this._expander.innerText == '+') {
                 this._expander.innerText = '-';
 
-                let initializer = this._argument.initializer;
+                const initializer = this._argument.initializer;
                 if (initializer && this._hasId) {
-                    let kind = initializer.kind;
+                    const kind = initializer.kind;
                     if (kind) {
-                        let kindLine = this._host.document.createElement('div');
+                        const kindLine = this._host.document.createElement('div');
                         kindLine.className = 'sidebar-view-item-value-line-border';
                         kindLine.innerHTML = 'kind: ' + '<b>' + kind + '</b>';
                         this._element.appendChild(kindLine);
@@ -673,50 +673,50 @@ sidebar.ArgumentView = class {
                 }
 
                 if (type) {
-                    let typeLine = this._host.document.createElement('div');
+                    const typeLine = this._host.document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
                     typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
                     this._element.appendChild(typeLine);
                 }
                 if (denotation) {
-                    let denotationLine = this._host.document.createElement('div');
+                    const denotationLine = this._host.document.createElement('div');
                     denotationLine.className = 'sidebar-view-item-value-line-border';
                     denotationLine.innerHTML = 'denotation: <code><b>' + denotation + '</b></code>';
                     this._element.appendChild(denotationLine);
                 }
 
-                let description = this._argument.description;
+                const description = this._argument.description;
                 if (description) {
-                    let descriptionLine = this._host.document.createElement('div');
+                    const descriptionLine = this._host.document.createElement('div');
                     descriptionLine.className = 'sidebar-view-item-value-line-border';
                     descriptionLine.innerHTML = description;
                     this._element.appendChild(descriptionLine);
                 }
 
-                let quantization = this._argument.quantization;
+                const quantization = this._argument.quantization;
                 if (quantization) {
-                    let quantizationLine = this._host.document.createElement('div');
+                    const quantizationLine = this._host.document.createElement('div');
                     quantizationLine.className = 'sidebar-view-item-value-line-border';
                     quantizationLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>quantization: ' + '<b>' + quantization + '</b></span>';
                     this._element.appendChild(quantizationLine);
                 }
 
                 if (this._argument.location) {
-                    let location = this._host.document.createElement('div');
+                    const location = this._host.document.createElement('div');
                     location.className = 'sidebar-view-item-value-line-border';
                     location.innerHTML = 'location: ' + '<b>' + this._argument.location + '</b>';
                     this._element.appendChild(location);
                 }
 
                 if (initializer) {
-                    let reference = initializer.reference;
+                    const reference = initializer.reference;
                     if (reference) {
-                        let referenceLine = this._host.document.createElement('div');
+                        const referenceLine = this._host.document.createElement('div');
                         referenceLine.className = 'sidebar-view-item-value-line-border';
                         referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
                         this._element.appendChild(referenceLine);
                     }
-                    let state = initializer.state;
+                    const state = initializer.state;
                     if (state === null && this._host.save &&
                         initializer.type.dataType && initializer.type.dataType != '?' &&
                         initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
@@ -729,9 +729,9 @@ sidebar.ArgumentView = class {
                         this._element.appendChild(this._saveButton);
                     }
 
-                    let valueLine = this._host.document.createElement('div');
+                    const valueLine = this._host.document.createElement('div');
                     valueLine.className = 'sidebar-view-item-value-line-border';
-                    let contentLine = this._host.document.createElement('pre');
+                    const contentLine = this._host.document.createElement('pre');
                     try {
                         contentLine.innerHTML = state || initializer.toString();
                     }
@@ -811,7 +811,7 @@ sidebar.ModelSidebar = class {
             this._addProperty('runtime', new sidebar.ValueTextView(this._host, this._model.runtime));
         }
 
-        let metadata = this._model.metadata;
+        const metadata = this._model.metadata;
         if (metadata) {
             for (const property of this._model.metadata) {
                 this._addProperty(property.name, new sidebar.ValueTextView(this._host, property.value));
@@ -819,7 +819,7 @@ sidebar.ModelSidebar = class {
         }
 
         if (this._model._graphs.length > 1) {
-            let graphSelector = new sidebar.SelectView(this._host, this._model.graphs.map((g) => g.name), graph.name);
+            const graphSelector = new sidebar.SelectView(this._host, this._model.graphs.map((g) => g.name), graph.name);
             graphSelector.on('change', (sender, data) => {
                 this._raise('update-active-graph', data);
             });
@@ -861,21 +861,21 @@ sidebar.ModelSidebar = class {
     }
 
     _addHeader(title) {
-        let headerElement = this._host.document.createElement('div');
+        const headerElement = this._host.document.createElement('div');
         headerElement.className = 'sidebar-view-header';
         headerElement.innerText = title;
         this._elements.push(headerElement);
     }
 
     _addProperty(name, value) {
-        let item = new sidebar.NameValueView(this._host, name, value);
+        const item = new sidebar.NameValueView(this._host, name, value);
         this._elements.push(item.render());
     }
 
     addArgument(name, argument) {
-        let view = new sidebar.ParameterView(this._host, argument);
+        const view = new sidebar.ParameterView(this._host, argument);
         view.toggle();
-        let item = new sidebar.NameValueView(this._host, name, view);
+        const item = new sidebar.NameValueView(this._host, name, view);
         this._elements.push(item.render());
     }
 
@@ -980,7 +980,7 @@ sidebar.DocumentationSidebar = class {
 
             element.addEventListener('click', (e) => {
                 if (e.target && e.target.href) {
-                    let link = e.target.href;
+                    const link = e.target.href;
                     if (link.startsWith('http://') || link.startsWith('https://')) {
                         e.preventDefault();
                         this._raise('navigate', { link: link });
@@ -1098,10 +1098,10 @@ sidebar.FindSidebar = class {
     }
 
     select(e) {
-        let selection = [];
-        let id = e.target.id;
+        const selection = [];
+        const id = e.target.id;
 
-        let nodesElement = this._graphElement.getElementById('nodes');
+        const nodesElement = this._graphElement.getElementById('nodes');
         let nodeElement = nodesElement.firstChild;
         while (nodeElement) {
             if (nodeElement.id == id) {
@@ -1110,7 +1110,7 @@ sidebar.FindSidebar = class {
             nodeElement = nodeElement.nextSibling;
         }
 
-        let edgePathsElement = this._graphElement.getElementById('edge-paths');
+        const edgePathsElement = this._graphElement.getElementById('edge-paths');
         let edgePathElement = edgePathsElement.firstChild;
         while (edgePathElement) {
             if (edgePathElement.id == id) {
@@ -1147,20 +1147,20 @@ sidebar.FindSidebar = class {
             this._resultElement.removeChild(this._resultElement.lastChild);
         }
 
-        let text = searchText.toLowerCase();
+        const text = searchText.toLowerCase();
 
-        let nodeMatches = new Set();
-        let edgeMatches = new Set();
+        const nodeMatches = new Set();
+        const edgeMatches = new Set();
 
         for (const node of this._graph.nodes) {
 
-            let initializers = [];
+            const initializers = [];
 
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
                     if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
                         if (!argument.initializer) {
-                            let inputItem = this._host.document.createElement('li');
+                            const inputItem = this._host.document.createElement('li');
                             inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                             inputItem.id = 'edge-' + argument.name;
                             this._resultElement.appendChild(inputItem);
@@ -1178,7 +1178,7 @@ sidebar.FindSidebar = class {
             if (!nodeMatches.has(name) && name &&
                 ((name.toLowerCase().indexOf(text) != -1) ||
                 (operator && operator.toLowerCase().indexOf(text) != -1))) {
-                let nameItem = this._host.document.createElement('li');
+                const nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
                 nameItem.id = 'node-' + node.name;
                 this._resultElement.appendChild(nameItem);
@@ -1186,7 +1186,7 @@ sidebar.FindSidebar = class {
             }
 
             for (const initializer of initializers) {
-                let initializeItem = this._host.document.createElement('li');
+                const initializeItem = this._host.document.createElement('li');
                 initializeItem.innerText = '\u25A0 ' + initializer.name;
                 initializeItem.id = 'initializer-' + initializer.name;
                 this._resultElement.appendChild(initializeItem);
@@ -1196,12 +1196,12 @@ sidebar.FindSidebar = class {
         for (const node of this._graph.nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
-                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches[argument.name]) {
-                        let outputItem = this._host.document.createElement('li');
+                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
+                        const outputItem = this._host.document.createElement('li');
                         outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                         outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches[argument.name] = true;
+                        edgeMatches.add(argument.name);
                     }
                 }
             }
