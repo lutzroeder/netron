@@ -40136,6 +40136,84 @@
     }
   },
   {
+    "name": "ResourceScatterNdMax",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of\nvalues whose element wise max is taken with ref",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "ResourceScatterNdMin",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A resource handle. Must be from a VarHandleOp.",
+          "name": "ref",
+          "type": 20
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of\nvalues whose element wise min is taken with ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "ResourceScatterNdSub",
     "schema": {
       "attributes": [
@@ -43506,6 +43584,106 @@
     }
   },
   {
+    "name": "ScatterNdMax",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A mutable Tensor. Should be from a Variable node.",
+          "isRef": true,
+          "name": "ref",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of updated values\nto add to ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as ref. Returned as a convenience for operations that want\nto use the updated values after the update is done.",
+          "isRef": true,
+          "name": "output_ref",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes element-wise maximum."
+    }
+  },
+  {
+    "name": "ScatterNdMin",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "default": false,
+          "description": "An optional bool. Defaults to True. If True, the assignment will\nbe protected by a lock; otherwise the behavior is undefined,\nbut may exhibit less contention.",
+          "name": "use_locking",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A mutable Tensor. Should be from a Variable node.",
+          "isRef": true,
+          "name": "ref",
+          "typeAttr": "T"
+        },
+        {
+          "description": "A Tensor. Must be one of the following types: int32, int64.\nA tensor of indices into ref.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "A Tensor. Must have the same type as ref. A tensor of updated values\nto add to ref.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as ref. Returned as a convenience for operations that want\nto use the updated values after the update is done.",
+          "isRef": true,
+          "name": "output_ref",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Computes element-wise minimum."
+    }
+  },
+  {
     "name": "ScatterNdNonAliasingAdd",
     "schema": {
       "attributes": [
@@ -45706,6 +45884,77 @@
           "description": "The path we should write snapshots to / read snapshots from.",
           "name": "path",
           "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that will write to / read from a snapshot."
+    }
+  },
+  {
+    "name": "SnapshotDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": "",
+          "description": "The type of compression to be applied to the saved snapshot files.",
+          "name": "compression",
+          "type": "string"
+        },
+        {
+          "description": "Optional. A function to control how to read data from snapshot shards.",
+          "name": "reader_func",
+          "type": "function"
+        },
+        {
+          "description": "Optional. A function to control how to shard data when writing a snapshot.",
+          "name": "shard_func",
+          "type": "function"
+        },
+        {
+          "minimum": 0,
+          "name": "Treader_func_args",
+          "type": "type[]"
+        },
+        {
+          "minimum": 0,
+          "name": "Tshard_func_args",
+          "type": "type[]"
+        }
+      ],
+      "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "The path we should write snapshots to / read snapshots from.",
+          "name": "path",
+          "type": 7
+        },
+        {
+          "name": "reader_func_other_args",
+          "typeListAttr": "Treader_func_args"
+        },
+        {
+          "name": "shard_func_other_args",
+          "typeListAttr": "Tshard_func_args"
         }
       ],
       "outputs": [
@@ -55184,6 +55433,86 @@
         }
       ],
       "summary": "Adds sparse `updates` to an existing tensor according to `indices`."
+    }
+  },
+  {
+    "name": "TensorScatterMax",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor to update.",
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Index tensor.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Updates to scatter into output.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A new tensor copied from tensor whose values are element-wise maximum between tensor and updates according to the indices.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "TensorScatterMin",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Tensor to update.",
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "description": "Index tensor.",
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "description": "Updates to scatter into output.",
+          "name": "updates",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A new tensor copied from tensor whose values are element-wise minimum between tensor and updates according to the indices.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
