@@ -598,6 +598,9 @@ coreml.Node = class {
         if (group) {
             this._group = group;
         }
+        if (!type) {
+            throw new Error('Undefined node type.');
+        }
         this._type = type;
         this._name = name || '';
         this._description = description || '';
