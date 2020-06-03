@@ -5,6 +5,7 @@
 
 var sklearn = sklearn || {};
 var long = long || { Long: require('long') };
+var zip = zip || require('./zip');
 
 sklearn.ModelFactory = class {
 
@@ -24,6 +25,12 @@ sklearn.ModelFactory = class {
                 if (buffer.length > 2 && buffer[0] === 0x80 && buffer[1] < 5) {
                     return true;
                 }
+            }
+        }
+        if ([ 'pkl', 'joblib' ].indexOf(extension) !== -1) {
+            const buffer = context.buffer;
+            if (buffer && buffer.length > 0 && buffer[0] == 0x78) {
+                return true;
             }
         }
         return false;
@@ -660,6 +667,10 @@ sklearn.Metadata = class {
 sklearn.Container = class {
 
     constructor(buffer, pickle, exception) {
+        if (buffer.length > 0 && buffer[0] == 0x78) {
+            buffer = new zip.Inflater().inflate(buffer);
+        }
+
         const unpickler = new pickle.Unpickler(buffer);
 
         const constructorTable = {};
