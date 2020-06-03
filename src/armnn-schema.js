@@ -9390,10 +9390,26 @@ armnnSerializer.ResizeBilinearDescriptor.prototype.dataLayout = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+armnnSerializer.ResizeBilinearDescriptor.prototype.alignCorners = function() {
+  var offset = this.bb.__offset(this.bb_pos, 10);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.ResizeBilinearDescriptor.prototype.halfPixelCenters = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.ResizeBilinearDescriptor.startResizeBilinearDescriptor = function(builder) {
-  builder.startObject(3);
+  builder.startObject(5);
 };
 
 /**
@@ -9422,6 +9438,22 @@ armnnSerializer.ResizeBilinearDescriptor.addDataLayout = function(builder, dataL
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ */
+armnnSerializer.ResizeBilinearDescriptor.addAlignCorners = function(builder, alignCorners) {
+  builder.addFieldInt8(3, +alignCorners, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} halfPixelCenters
+ */
+armnnSerializer.ResizeBilinearDescriptor.addHalfPixelCenters = function(builder, halfPixelCenters) {
+  builder.addFieldInt8(4, +halfPixelCenters, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 armnnSerializer.ResizeBilinearDescriptor.endResizeBilinearDescriptor = function(builder) {
@@ -9434,13 +9466,17 @@ armnnSerializer.ResizeBilinearDescriptor.endResizeBilinearDescriptor = function(
  * @param {number} targetWidth
  * @param {number} targetHeight
  * @param {armnnSerializer.DataLayout} dataLayout
+ * @param {boolean} alignCorners
+ * @param {boolean} halfPixelCenters
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.ResizeBilinearDescriptor.createResizeBilinearDescriptor = function(builder, targetWidth, targetHeight, dataLayout) {
+armnnSerializer.ResizeBilinearDescriptor.createResizeBilinearDescriptor = function(builder, targetWidth, targetHeight, dataLayout, alignCorners, halfPixelCenters) {
   armnnSerializer.ResizeBilinearDescriptor.startResizeBilinearDescriptor(builder);
   armnnSerializer.ResizeBilinearDescriptor.addTargetWidth(builder, targetWidth);
   armnnSerializer.ResizeBilinearDescriptor.addTargetHeight(builder, targetHeight);
   armnnSerializer.ResizeBilinearDescriptor.addDataLayout(builder, dataLayout);
+  armnnSerializer.ResizeBilinearDescriptor.addAlignCorners(builder, alignCorners);
+  armnnSerializer.ResizeBilinearDescriptor.addHalfPixelCenters(builder, halfPixelCenters);
   return armnnSerializer.ResizeBilinearDescriptor.endResizeBilinearDescriptor(builder);
 }
 
@@ -14562,10 +14598,26 @@ armnnSerializer.ResizeDescriptor.prototype.dataLayout = function() {
 };
 
 /**
+ * @returns {boolean}
+ */
+armnnSerializer.ResizeDescriptor.prototype.alignCorners = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
+ * @returns {boolean}
+ */
+armnnSerializer.ResizeDescriptor.prototype.halfPixelCenters = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? !!this.bb.readInt8(this.bb_pos + offset) : false;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.ResizeDescriptor.startResizeDescriptor = function(builder) {
-  builder.startObject(4);
+  builder.startObject(6);
 };
 
 /**
@@ -14602,6 +14654,22 @@ armnnSerializer.ResizeDescriptor.addDataLayout = function(builder, dataLayout) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {boolean} alignCorners
+ */
+armnnSerializer.ResizeDescriptor.addAlignCorners = function(builder, alignCorners) {
+  builder.addFieldInt8(4, +alignCorners, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {boolean} halfPixelCenters
+ */
+armnnSerializer.ResizeDescriptor.addHalfPixelCenters = function(builder, halfPixelCenters) {
+  builder.addFieldInt8(5, +halfPixelCenters, +false);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 armnnSerializer.ResizeDescriptor.endResizeDescriptor = function(builder) {
@@ -14615,14 +14683,18 @@ armnnSerializer.ResizeDescriptor.endResizeDescriptor = function(builder) {
  * @param {number} targetWidth
  * @param {armnnSerializer.ResizeMethod} method
  * @param {armnnSerializer.DataLayout} dataLayout
+ * @param {boolean} alignCorners
+ * @param {boolean} halfPixelCenters
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.ResizeDescriptor.createResizeDescriptor = function(builder, targetHeight, targetWidth, method, dataLayout) {
+armnnSerializer.ResizeDescriptor.createResizeDescriptor = function(builder, targetHeight, targetWidth, method, dataLayout, alignCorners, halfPixelCenters) {
   armnnSerializer.ResizeDescriptor.startResizeDescriptor(builder);
   armnnSerializer.ResizeDescriptor.addTargetHeight(builder, targetHeight);
   armnnSerializer.ResizeDescriptor.addTargetWidth(builder, targetWidth);
   armnnSerializer.ResizeDescriptor.addMethod(builder, method);
   armnnSerializer.ResizeDescriptor.addDataLayout(builder, dataLayout);
+  armnnSerializer.ResizeDescriptor.addAlignCorners(builder, alignCorners);
+  armnnSerializer.ResizeDescriptor.addHalfPixelCenters(builder, halfPixelCenters);
   return armnnSerializer.ResizeDescriptor.endResizeDescriptor(builder);
 }
 
