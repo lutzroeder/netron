@@ -75,7 +75,6 @@ publish_github_pages: build_python
 	@rm -rf ./dist/gh-pages/*
 	@cp -R ./dist/lib/netron/* ./dist/gh-pages/
 	@rm -rf ./dist/gh-pages/*.py*
-	@sed -i -e "s/<!-- meta -->/<meta name='version' content='$$(node -pe "require('./package.json').version")' \/>/g" ./dist/gh-pages/index.html
 	@git -C ./dist/gh-pages add --all
 	@git -C ./dist/gh-pages commit --amend --no-edit
 	@git -C ./dist/gh-pages push --force origin gh-pages

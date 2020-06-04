@@ -4,6 +4,7 @@ import distutils
 import io
 import json
 import os
+import re
 import setuptools
 import setuptools.command.build_py
 import distutils.command.build
@@ -46,13 +47,22 @@ class build_py(setuptools.command.build_py.build_py):
                 os.makedirs(target)
             for file in files:
                 self.copy_file(file, target)
+        if build_py.version:
+            for package, src_dir, build_dir, filenames in self.data_files:
+                for filename in filenames:
+                    if filename == 'index.html':
+                        filepath = os.path.join(build_dir, filename)
+                        with open(filepath, 'r') as file :
+                            content = file.read()
+                        content = re.sub(r'(<meta name="version" content=")\d+.\d+.\d+(">)', r'\g<1>' + package_version() + r'\g<2>', content)
+                        with open(filepath, 'w') as file:
+                            file.write(content)
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
         if build_py.version and module == '__version__':
-            package = package.split('.')
-            outfile = self.get_module_outfile(self.build_lib, package, module)
-            with open(outfile, 'w+') as f:
-                f.write("__version__ = '" + package_version() + "'\n")
+            outfile = self.get_module_outfile(self.build_lib, package.split('.'), module)
+            with open(outfile, 'w+') as file:
+                file.write("__version__ = '" + package_version() + "'\n")
 
 def package_version():
     folder = os.path.realpath(os.path.dirname(__file__))
