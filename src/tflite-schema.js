@@ -13086,7 +13086,8 @@ tflite_metadata_schema.AssociatedFileType = {
   DESCRIPTIONS: 1,
   TENSOR_AXIS_LABELS: 2,
   TENSOR_VALUE_LABELS: 3,
-  TENSOR_AXIS_SCORE_CALIBRATION: 4
+  TENSOR_AXIS_SCORE_CALIBRATION: 4,
+  VOCABULARY: 5
 };
 
 /**
@@ -13097,7 +13098,8 @@ tflite_metadata_schema.AssociatedFileTypeName = {
   '1': 'DESCRIPTIONS',
   '2': 'TENSOR_AXIS_LABELS',
   '3': 'TENSOR_VALUE_LABELS',
-  '4': 'TENSOR_AXIS_SCORE_CALIBRATION'
+  '4': 'TENSOR_AXIS_SCORE_CALIBRATION',
+  '5': 'VOCABULARY'
 };
 
 /**
