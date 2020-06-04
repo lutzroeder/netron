@@ -51,7 +51,7 @@ build_electron: install
 	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --linux snap --publish never
 
 lint: install
-	npx eslint src/*.js test/*.js setup/*.js
+	npx eslint src/*.js test/*.js setup/*.js tools/*.js
 
 test: install
 	node ./test/test.js
