@@ -4632,5 +4632,39 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.randn",
+    "schema": {
+      "attributes": [
+        {
+          "name": "size",
+          "type": "int64[]"
+        },
+        {
+          "name": "dtype"
+        },
+        {
+          "name": "layout"
+        },
+        {
+          "name": "device"
+        },
+        {
+          "name": "pin_memory",
+          "type": "boolean"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
