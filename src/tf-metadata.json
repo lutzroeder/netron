@@ -16549,7 +16549,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Attributes `[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nQuantization is called fake since the output is still in floating point.",
+      "description": "Attributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nQuantization is called fake since the output is still in floating point.",
       "inputs": [
         {
           "name": "inputs",
@@ -16627,7 +16627,7 @@
           "type": "boolean"
         }
       ],
-      "description": "and `max` to 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
+      "description": "Fake-quantize the `inputs` tensor of type float via global float scalars\n`min` and `max` to `outputs` tensor of same shape as `inputs`.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
       "inputs": [
         {
           "name": "inputs",
@@ -16648,7 +16648,7 @@
           "type": 1
         }
       ],
-      "summary": "Fake-quantize the 'inputs' tensor of type float via global float scalars `min`"
+      "summary": "Fake-quantize the 'inputs' tensor of type float via global float scalars"
     }
   },
   {
@@ -16723,7 +16723,7 @@
           "type": "boolean"
         }
       ],
-      "description": "`[b, d]` `[b, h, w, d]` via per-channel floats `min` and `max` of shape `[d]`\nto 'outputs' tensor of same shape as `inputs`.\n\n`[min; max]` define the clamping range for the `inputs` data.\n`inputs` values are quantized into the quantization range (`[0; 2^num_bits - 1]`\nwhen `narrow_range` is false and `[1; 2^num_bits - 1]` when it is true) and\nthen de-quantized and output as floats in `[min; max]` interval.\n`num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\nIf `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\nIf `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\nIf `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
+      "description": "Fake-quantize the `inputs` tensor of type float per-channel and one of the\nshapes: `[d]`, `[b, d]` `[b, h, w, d]` via per-channel floats `min` and `max`\nof shape `[d]` to `outputs` tensor of same shape as `inputs`.\n\nAttributes\n\n*   `[min; max]` define the clamping range for the `inputs` data.\n*   `inputs` values are quantized into the quantization range (\n`[0; 2^num_bits - 1]` when `narrow_range` is false and `[1; 2^num_bits - 1]`\nwhen it is true) and then de-quantized and output as floats in `[min; max]`\ninterval.\n*   `num_bits` is the bitwidth of the quantization; between 2 and 16, inclusive.\n\nBefore quantization, `min` and `max` values are adjusted with the following\nlogic.\nIt is suggested to have `min <= 0 <= max`. If `0` is not in the range of values,\nthe behavior can be unexpected:\n\n*   If `0 < min < max`: `min_adj = 0` and `max_adj = max - min`.\n*   If `min < max < 0`: `min_adj = min - max` and `max_adj = 0`.\n*   If `min <= 0 <= max`: `scale = (max - min) / (2^num_bits - 1) `,\n`min_adj = scale * round(min / scale)` and `max_adj = max + min_adj - min`.\n\nThis operation has a gradient and thus allows for training `min` and `max`\nvalues.",
       "inputs": [
         {
           "name": "inputs",
@@ -16744,7 +16744,7 @@
           "type": 1
         }
       ],
-      "summary": "Fake-quantize the 'inputs' tensor of type float and one of the shapes: `[d]`,"
+      "summary": "Fake-quantize the 'inputs' tensor of type float via per-channel floats"
     }
   },
   {
