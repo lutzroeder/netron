@@ -2423,30 +2423,10 @@
   },
   {
     "type":   "mxnet",
-    "target": "arcface-resnet100.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-arcface/arcface-resnet100.model",
-    "format": "MXNet Model Server v0.2"
-  },
-  {
-    "type":   "mxnet",
     "target": "bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params",
     "source": "http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-symbol.json,http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-0000.params",
     "format": "MXNet v0.10.0",
     "link":   "https://github.com/rai-project/mxnet/blob/master/builtin_models/BVLC-AlexNet.yml"
-  },
-  {
-    "type":   "mxnet",
-    "target": "caffenet.model",
-    "source": "https://s3.amazonaws.com/model-server/models/caffenet/caffenet.model",
-    "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "caffenet.model",
-    "source": "https://s3.amazonaws.com/model-server/models/caffenet/caffenet.model",
-    "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
@@ -2599,38 +2579,17 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnet152v1.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet152v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
     "target": "resnet18v2.model",
     "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet18v2.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet34v1.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv1/resnet34v1.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet50v2.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet50v2.model",
+    "format": "MXNet Model Server v0.2", "runtime": "MXNet v1.2.0",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
     "type":   "mxnet",
     "target": "resnext-101-64x4d.model",
     "source": "https://s3.amazonaws.com/model-server/models/resnext-101-64x4d/resnext-101-64x4d.model",
+    "format": "MXNet Model Server v0.1", "runtime": "MXNet v0.12",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "squeezenet.model",
-    "source": "https://s3.amazonaws.com/model-server/models/onnx-squeezenet/squeezenet.model"
   },
   {
     "type":   "mxnet",
@@ -4322,31 +4281,6 @@
     "target": "vgg11-bbd30ac9.pth",
     "source": "https://download.pytorch.org/models/vgg11-bbd30ac9.pth",
     "format": "PyTorch v0.1.10"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg11_bn.pt",
-    "script": "./tools/pytorch sync install zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg11_bn.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg11_bn.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "vgg11_bn_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "sklearn",
