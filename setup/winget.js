@@ -1,8 +1,9 @@
 
+const crypto = require('crypto');
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
-const crypto = require('crypto');
+const path = require('path');
 
 const packageManifestFile = process.argv[2];
 const manifestDir = process.argv[3];
@@ -80,9 +81,15 @@ request(url).then((data) => {
         '    Url: ' + url,
         '    Sha256: ' + sha256
     ];
-    const manifestFile = manifestDir + '/' + publisher.replace(' ', '') + '/' + productName + '/' + version + '.yaml';
+    const productDir = path.join(manifestDir, publisher.replace(' ', ''), productName);
+    for (const file of fs.readdirSync(productDir)) {
+        const versionFile = path.join(productDir, file);
+        if (fs.lstatSync(versionFile).isFile()) {
+            fs.unlinkSync(versionFile);
+        }
+    }
+    const manifestFile = path.join(productDir, version + '.yaml');
     fs.writeFileSync(manifestFile, lines.join('\n'));
-
 }).catch((err) => {
     console.log(err.message);
 });

@@ -46,9 +46,9 @@ build_python: install
 
 build_electron: install
 	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --win --publish never
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --linux appimage --publish never
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --linux snap --publish never
+	npx electron-builder --win --publish never
+	npx electron-builder --linux appimage --publish never
+	npx electron-builder --linux snap --publish never
 
 lint: install
 	npx eslint src/*.js test/*.js setup/*.js tools/*.js
