@@ -11210,6 +11210,11 @@
           "description": "List of URLs to debug targets, e.g., file:///foo/tfdbg_dump.",
           "name": "debug_urls",
           "type": "string[]"
+        },
+        {
+          "default": 1000,
+          "name": "circular_buffer_size",
+          "type": "int64"
         }
       ],
       "description": "Provides an identity mapping from input to output, while writing the content of\nthe input tensor by calling DebugEventsWriter.\n\nThe semantics of the input tensor depends on tensor_debug_mode. In typical\nusage, the input tensor comes directly from the user computation only when\ngraph_debug_mode is FULL_TENSOR (see protobuf/debug_event.proto for a\nlist of all the possible values of graph_debug_mode). For the other debug modes,\nthe input tensor should be produced by an additional op or subgraph that\ncomputes summary information about one or more tensors.",
