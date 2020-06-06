@@ -1400,6 +1400,7 @@ view.ModelFactoryService = class {
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
             { name: 'Vulkan SwiftShader ICD manifest', value: /^{\s*"file_format_version":\s*"1.0.0"\s*,\s*"ICD":/ },
             { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*id:/ },
+            { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*name:/ },
             { name: 'Python source code', value: /^\s*import sys, types, os;/ }
         ];
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
