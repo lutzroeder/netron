@@ -2530,7 +2530,7 @@ pytorch.Container.Pickle = class {
         if (!this._data) {
             this._state = this._findStateDict(data);
         }
-        if (!this._data && !this._state) {
+        if (!this._data && !this._state && data !== 'None') {
             throw new pytorch.Error('File does not contain root module or state dictionary.');
         }
     }
