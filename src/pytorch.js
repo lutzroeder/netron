@@ -228,10 +228,11 @@ pytorch.Graph = class {
             inputSchema = schema.inputs.slice();
         }
 
-        let inputs = [];
-        inputs.push(new pytorch.Parameter(inputSchema.shift().name, true, args.map((argument) => {
-            return new pytorch.Argument(argument, null, null);
-        })));
+        const inputs = [
+            new pytorch.Parameter(inputSchema.shift().name, true, args.map((argument) => {
+                return new pytorch.Argument(argument, null, null);
+            }))
+        ];
 
         const parameters = obj._parameters || obj._buffers || [];
         for (const parameter of parameters) {
@@ -493,19 +494,19 @@ pytorch.Node = class {
                 }
 
                 for (let i = 0; i < item.node.attributes.length; i++) {
-                    let attributeSchema = null;
+                    let schema = null;
                     let name = i.toString();
                     let value = item.node.attributes[i];
                     if (value && value.type === '=' && value.target.type == 'id') {
                         name = value.target.value;
                         value = value.expression;
-                        attributeSchema = metadata.attribute(this._type, name);
+                        schema = metadata.attribute(this._type, name);
                     }
                     else if (schema && schema.attributes && schema.attributes.length > i) {
-                        attributeSchema = schema.attributes[i];
-                        name = attributeSchema.name;
+                        schema = schema.attributes[i];
+                        name = schema.name;
                     }
-                    this._attributes.push(new pytorch.Attribute(attributeSchema, name, value));
+                    this._attributes.push(new pytorch.Attribute(schema, name, value));
                 }
             }
             if (module) {
@@ -961,6 +962,7 @@ pytorch.Metadata = class {
 };
 
 pytorch.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading PyTorch model.';
