@@ -84,10 +84,10 @@ publish_cask:
 	@rm -rf ./dist/homebrew-cask
 	@git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
 	@node ./setup/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
-	@git -C ./dist/homebrew-cask add --all .
+	@git -C ./dist/homebrew-cask add --all
 	@git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/homebrew-cask push
-	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').name") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}"
+	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').name") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
 	@rm -rf ./dist/homebrew-cask
 	@curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/homebrew-cask 2>&1 > /dev/null
 
