@@ -4512,6 +4512,13 @@
     "link":   "https://github.com/pierricklee/tmfile-sample"
   },
   {
+    "type":   "tensorrt",
+    "target": "tmp_v2_coco.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/4741218/tmp_v2_coco.zip[tmp_v2_coco.pbtxt]",
+    "error":  "TensorRT UFF is a proprietary file format in 'tmp_v2_coco.pbtxt'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/511"
+  },
+  {
       "type":   "tf",
       "target": "bert_uncased_L-12_H-768_A-12.meta",
       "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
