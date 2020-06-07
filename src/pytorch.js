@@ -494,19 +494,19 @@ pytorch.Node = class {
                 }
 
                 for (let i = 0; i < item.node.attributes.length; i++) {
-                    let schema = null;
+                    let attributeSchema = null;
                     let name = i.toString();
                     let value = item.node.attributes[i];
                     if (value && value.type === '=' && value.target.type == 'id') {
                         name = value.target.value;
                         value = value.expression;
-                        schema = metadata.attribute(this._type, name);
+                        attributeSchema = metadata.attribute(this._type, name);
                     }
                     else if (schema && schema.attributes && schema.attributes.length > i) {
-                        schema = schema.attributes[i];
-                        name = schema.name;
+                        attributeSchema = schema.attributes[i];
+                        name = attributeSchema.name;
                     }
-                    this._attributes.push(new pytorch.Attribute(schema, name, value));
+                    this._attributes.push(new pytorch.Attribute(attributeSchema, name, value));
                 }
             }
             if (module) {
