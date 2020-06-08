@@ -1156,6 +1156,7 @@ view.ModelFactoryService = class {
         this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
+        this.register('./tnn', [ '.tnnproto', '.tnnmodel' ]);
     }
 
     register(id, extensions) {
