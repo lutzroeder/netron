@@ -135,7 +135,8 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg',
-                    'xml' ] }
+                    'xml',
+                    'tnnproto', 'tnn'] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
