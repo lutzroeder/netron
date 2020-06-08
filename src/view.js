@@ -463,8 +463,8 @@ view.View = class {
                         if (self.showAttributes && attributes) {
                             sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
                             sortedAttributes.sort((a, b) => { 
-                                const au = a.name.toUpperCase();
-                                const bu = b.name.toUpperCase();
+                                const au = a.name;
+                                const bu = b.name;
                                 return (au < bu) ? -1 : (au > bu) ? 1 : 0;
                             });
                         }
