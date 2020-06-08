@@ -136,7 +136,7 @@ class Application {
                     'pbtxt', 'prototxt',
                     'cfg',
                     'xml',
-                    'tnnproto', 'tnn'] }
+                    'tnnproto', 'tnnmodel'] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
