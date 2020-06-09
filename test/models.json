@@ -4519,6 +4519,12 @@
     "link":   "https://github.com/lutzroeder/netron/issues/511"
   },
   {
+    "type":   "tensorrt",
+    "target": "sample_unpruned_mobilenet_v2.tar.gz",
+    "source": "https://nvidia.box.com/shared/static/8oqvmd79llr6lq1fr43s4fu1ph37v8nt.gz",
+    "error":  "TensorRT UFF is a proprietary file format in 'sample_unpruned_mobilenet_v2.uff'."
+  },
+  {
       "type":   "tf",
       "target": "bert_uncased_L-12_H-768_A-12.meta",
       "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
