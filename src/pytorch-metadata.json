@@ -4666,5 +4666,32 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.split",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "split_size",
+          "type": "int64"
+        },
+        {
+          "name": "dim",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "outputs",
+          "type": "T[]"
+        }
+      ]
+    }
   }
 ]
