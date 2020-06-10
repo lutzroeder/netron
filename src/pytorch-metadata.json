@@ -4572,6 +4572,66 @@
     }
   },
   {
+    "name": "torch.log10",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.log1p",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.log2",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.logdet",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
     "name": "torch.affine_grid_generator",
     "schema": {
       "attributes": [
@@ -4670,7 +4730,6 @@
   {
     "name": "torch.split",
     "schema": {
-      "category": "Tensor",
       "attributes": [
         {
           "name": "split_size",
@@ -4681,6 +4740,7 @@
           "type": "int64"
         }
       ],
+      "category": "Tensor",
       "inputs": [
         {
           "name": "input"
