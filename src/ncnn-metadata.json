@@ -578,8 +578,7 @@
         { "name": "biases" }
       ],
       "inputs": [
-        { "name": "rects" },
-        { "name": "scores" }
+        { "name": "input", "option": "variadic" }
       ]
     }
   },
@@ -609,8 +608,7 @@
         { "name": "anchors_scale", "type": "float32[]" }
       ],
       "inputs": [
-        { "name": "rects" },
-        { "name": "scores" }
+        { "name": "input", "option": "variadic" }
       ]
     }
   },

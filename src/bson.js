@@ -39,7 +39,7 @@ bson.Reader = class {
             switch (type) {
                 case 0x01:
                     value = this.double();
-                    break
+                    break;
                 case 0x02:
                     value = this.string();
                     break;
@@ -68,11 +68,11 @@ bson.Reader = class {
                     value = this.int64();
                     break;
                 default:
-                    throw new bson.Error("Unknown value type '" + type + "'.");    
+                    throw new bson.Error("Unknown value type '" + type + "'.");
             }
             if (isArray)  {
                 if (index !== parseInt(key, 10)) {
-                    throw new bson.Error("Invalid array index '" + key + "'.");    
+                    throw new bson.Error("Invalid array index '" + key + "'.");
                 }
                 element.push(value);
                 index++;
@@ -113,7 +113,7 @@ bson.Reader = class {
                 throw new bson.Error("Unknown binary subtype '" + subtype + "'.");
         }
     }
-    
+
     boolean()  {
         const value = this.byte();
         switch (value) {
@@ -146,7 +146,7 @@ bson.Reader = class {
         this._position += 8;
         return new long.Long(low, hi, true).toNumber();
     }
-}
+};
 
 bson.Error = class extends Error {
 
@@ -154,8 +154,8 @@ bson.Error = class extends Error {
         super(message);
         this.name = 'BSON Error';
     }
-}
+};
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Reader = bson.Reader; 
+    module.exports.Reader = bson.Reader;
 }

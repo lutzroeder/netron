@@ -5,7 +5,7 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 case "${OSTYPE}" in
     msys*) python="winpty python";;
-    *) python=python3;;
+    *) python="python";;
 esac
 
 bold() {
@@ -86,7 +86,17 @@ metadata() {
             brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
             ;;
         msys*)
-            [ -x "$(command -v protoc)" ] || $(choco install --yes protoc) > /dev/null
+            protoc_version=$(curl -s https://api.github.com/repos/protocolbuffers/protobuf/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"' | cut -f 2 -d v)
+            protoc_dir=./third_party/bin/protobuf/v${protoc_version}
+            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
+                mkdir -p "${protoc_dir}"
+                pushd "${protoc_dir}" > /dev/null
+                curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
+                unzip protoc-${protoc_version}-win32.zip > /dev/null
+                rm protoc-${protoc_version}-win32.zip
+                popd > /dev/null
+            fi
+            export PATH="$(cygpath -a -u "${protoc_dir}/bin")":${PATH}
             ;;
     esac
     protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/attr_value.proto --python_out=./tools

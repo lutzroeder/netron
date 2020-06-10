@@ -4,6 +4,7 @@ import distutils
 import io
 import json
 import os
+import re
 import setuptools
 import setuptools.command.build_py
 import distutils.command.build
@@ -46,13 +47,22 @@ class build_py(setuptools.command.build_py.build_py):
                 os.makedirs(target)
             for file in files:
                 self.copy_file(file, target)
+        if build_py.version:
+            for package, src_dir, build_dir, filenames in self.data_files:
+                for filename in filenames:
+                    if filename == 'index.html':
+                        filepath = os.path.join(build_dir, filename)
+                        with open(filepath, 'r') as file :
+                            content = file.read()
+                        content = re.sub(r'(<meta name="version" content=")\d+.\d+.\d+(">)', r'\g<1>' + package_version() + r'\g<2>', content)
+                        with open(filepath, 'w') as file:
+                            file.write(content)
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
         if build_py.version and module == '__version__':
-            package = package.split('.')
-            outfile = self.get_module_outfile(self.build_lib, package, module)
-            with open(outfile, 'w+') as f:
-                f.write("__version__ = '" + package_version() + "'\n")
+            outfile = self.get_module_outfile(self.build_lib, package.split('.'), module)
+            with open(outfile, 'w+') as file:
+                file.write("__version__ = '" + package_version() + "'\n")
 
 def package_version():
     folder = os.path.realpath(os.path.dirname(__file__))
@@ -65,9 +75,9 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), ncnn (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **PaddlePaddle** (`__model__`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), MNN (`.mnn`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **Tengine** (`.tmfile`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), ncnn (`.param`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **Barracuda** (`.nn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **PaddlePaddle** (`__model__`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), MNN (`.mnn`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **Tengine** (`.tmfile`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).',
     keywords=[
-        'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn' 'openvino', 'darknet', 'paddlepaddle', 'chainer',
+        'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
         'visualizer', 'viewer'
     ],
@@ -90,6 +100,7 @@ setuptools.setup(
             'zip.js', 'tar.js', 'gzip.js',
             'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',
             'bigdl.js', 'bigdl-metadata.json', 'bigdl-proto.js',
+            'barracuda.js',
             'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
             'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
             'chainer.js',
@@ -110,6 +121,7 @@ setuptools.setup(
             'pytorch.js', 'pytorch-metadata.json', 'python.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tengine.js', 'tengine-metadata.json', 
+            'uff.js', 'uff-metadata.json', 'uff-proto.js',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite.js', 'tflite-metadata.json', 'tflite-schema.js',
             'torch.js', 'torch-metadata.json',

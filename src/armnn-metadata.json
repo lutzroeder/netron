@@ -2,7 +2,6 @@
   {
     "name": "InputLayer",
     "schema": {
-      "category": "Tensor",
       "bindings": [
         { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
       ]
@@ -56,6 +55,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        
         { "name": "weight", "src": "weights" },
         { "name": "bias", "src": "biases" }
       ],
@@ -119,7 +119,7 @@
   {
     "name": "ConstantLayer",
     "schema": {
-      "category": "Tensor",
+      "category": "Constant",
       "inputs": [
         { "name": "input", "src": "input" }
       ]
@@ -246,13 +246,12 @@
   {
     "name": "SubtractionLayer",
     "schema": {
-      "category": "Layer"
     }
   },
   {
     "name": "StridedSliceLayer",
     "schema": {
-      "category": "Layer",
+      "category": "Tensor",
       "attributes": [
         { "name": "begin", "type": "int", "src": "begin" },
         { "name": "end", "type": "int", "src": "end" },

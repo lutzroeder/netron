@@ -40,7 +40,16 @@ schema() {
             brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
             ;;
         msys*)
-            [ -x "$(command -v flatc)" ] || $(choco install flatc) > /dev/null
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows.zip
+                unzip flatc_windows.zip > /dev/null
+                popd > /dev/null
+            fi
+            export PATH=${flatc_dir}:${PATH}
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/mnn-schema.js) ]] && crlf=1
@@ -48,7 +57,7 @@ schema() {
     mv ./tools/MNN_generated.js ./src/mnn-schema.js
     cat <<EOT >> ./src/mnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = MNN;
+  module.exports = { mnn_schema: MNN };
 }
 EOT
     if [[ -n ${crlf} ]]; then

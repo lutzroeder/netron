@@ -10,32 +10,32 @@
 .node-item-function:hover { cursor: hand; }
 .node-item-function:hover path { fill: #eee; }
 
-.node-item-operator path { fill: #000; }
-.node-item-operator text { fill: #fff; }
-.node-item-operator:hover { cursor: hand; }
-.node-item-operator:hover path { fill: #fff; }
-.node-item-operator:hover text { fill: #000; }
+.node-item-type path { fill: #000; }
+.node-item-type text { fill: #fff; }
+.node-item-type:hover { cursor: hand; }
+.node-item-type:hover path { fill: #fff; }
+.node-item-type:hover text { fill: #000; }
 
-.node-item-operator-constant path { fill: #eee; }
-.node-item-operator-constant text { fill: #000; }
-.node-item-operator-constant:hover path { fill: #fff; }
+.node-item-type-constant path { fill: #eee; }
+.node-item-type-constant text { fill: #000; }
+.node-item-type-constant:hover path { fill: #fff; }
 
-.node-item-operator-control path { fill: #eee; }
-.node-item-operator-control text { fill: #000; }
-.node-item-operator-control:hover path { fill: #fff; }
+.node-item-type-control path { fill: #eee; }
+.node-item-type-control text { fill: #000; }
+.node-item-type-control:hover path { fill: #fff; }
 
-.node-item-operator-layer path { fill: rgb(51, 85, 136); }
-.node-item-operator-wrapper path { fill: rgb(238, 238, 238); }
-.node-item-operator-wrapper text { fill: rgb(0, 0, 0) }
-.node-item-operator-activation path { fill: rgb(75, 27, 22); }
-.node-item-operator-pool path { fill: rgb(51, 85, 51); }
-.node-item-operator-normalization path { fill: rgb(51, 85, 68); }
-.node-item-operator-dropout path { fill: rgb(69, 71, 112); }
-.node-item-operator-shape path { fill: rgb(108, 79, 71); }
-.node-item-operator-tensor path { fill: rgb(89, 66, 59); }
-.node-item-operator-transform path { fill: rgb(51, 85, 68); }
-.node-item-operator-data path { fill: rgb(85, 85, 85); }
-.node-item-operator-custom path { fill: rgb(128, 128, 128); }
+.node-item-type-layer path { fill: rgb(51, 85, 136); }
+.node-item-type-wrapper path { fill: rgb(238, 238, 238); }
+.node-item-type-wrapper text { fill: rgb(0, 0, 0) }
+.node-item-type-activation path { fill: rgb(75, 27, 22); }
+.node-item-type-pool path { fill: rgb(51, 85, 51); }
+.node-item-type-normalization path { fill: rgb(51, 85, 68); }
+.node-item-type-dropout path { fill: rgb(69, 71, 112); }
+.node-item-type-shape path { fill: rgb(108, 79, 71); }
+.node-item-type-tensor path { fill: rgb(89, 66, 59); }
+.node-item-type-transform path { fill: rgb(51, 85, 68); }
+.node-item-type-data path { fill: rgb(85, 85, 85); }
+.node-item-type-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
@@ -91,11 +91,11 @@
     .node-item-function:hover { cursor: hand; }
     .node-item-function:hover path { fill: #666666; }
     
-    .node-item-operator path { fill: #303030; }
-    .node-item-operator text { fill: #dfdfdf; }
-    .node-item-operator:hover { cursor: hand; }
-    .node-item-operator:hover path { fill: #808080; }
-    .node-item-operator:hover text { fill: #dfdfdf; }
+    .node-item-type path { fill: #303030; }
+    .node-item-type text { fill: #dfdfdf; }
+    .node-item-type:hover { cursor: hand; }
+    .node-item-type:hover path { fill: #808080; }
+    .node-item-type:hover text { fill: #dfdfdf; }
 
     .node-item path { stroke: #fff; }
     .node-item text { fill: #dfdfdf; }
@@ -117,16 +117,16 @@
     .node-item-constant path { fill: #4b4b4b; }
     .node-item-constant:hover path { fill: #666666; }
 
-    .node-item-operator-layer path { fill: rgba(51, 85, 136, 0.7); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
-    .node-item-operator-activation path { fill: rgba(75, 27, 22, 0.7); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
-    .node-item-operator-pool path { fill: rgba(51, 85, 51, 0.7); }
-    .node-item-operator-normalization path { fill: rgba(51, 85, 68, 0.7); }
-    .node-item-operator-dropout path { fill: rgba(69, 71, 112, 0.7); }
-    .node-item-operator-shape path { fill: rgba(108, 79, 71, 0.7); }
-    .node-item-operator-tensor path { fill: rgba(89, 66, 59, 0.7); }
-    .node-item-operator-transform path { fill: rgba(51, 85, 68, 0.7); }
-    .node-item-operator-data path { fill: rgba(85, 85, 85, 0.7); }
-    .node-item-operator-custom path { fill: rgb(64, 64, 64, 0.7); }
+    .node-item-type-layer path { fill: rgba(51, 85, 136, 0.7); }
+    .node-item-type-activation path { fill: rgba(75, 27, 22, 0.7); }
+    .node-item-type-activation path { fill: rgba(75, 27, 22, 0.7); }
+    .node-item-type-pool path { fill: rgba(51, 85, 51, 0.7); }
+    .node-item-type-pool path { fill: rgba(51, 85, 51, 0.7); }
+    .node-item-type-normalization path { fill: rgba(51, 85, 68, 0.7); }
+    .node-item-type-dropout path { fill: rgba(69, 71, 112, 0.7); }
+    .node-item-type-shape path { fill: rgba(108, 79, 71, 0.7); }
+    .node-item-type-tensor path { fill: rgba(89, 66, 59, 0.7); }
+    .node-item-type-transform path { fill: rgba(51, 85, 68, 0.7); }
+    .node-item-type-data path { fill: rgba(85, 85, 85, 0.7); }
+    .node-item-type-custom path { fill: rgb(64, 64, 64, 0.7); }
 }

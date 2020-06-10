@@ -109,7 +109,7 @@ break;`;
         break;
 
     default:
-        console.log('ERROR: Unknown pattern.')
+        console.log('ERROR: Unknown pattern.');
         process.exit(1);
 }
 

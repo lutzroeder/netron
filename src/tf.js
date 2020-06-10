@@ -13,97 +13,87 @@ tf.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'meta': {
-                const tags = context.tags('pb');
-                if (tags.size !== 0) {
-                    return true;
-                }
-                return false;
-            }
-            case 'pb': {
-                if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                    return false;
-                }
-                if (identifier == 'tfhub_module.pb') {
-                    const buffer = context.buffer;
-                    if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
-                        return false;
-                    }
-                }
-                const tags = context.tags('pb');
-                if (tags.size === 0) {
-                    const tags = context.tags('pbtxt');
-                    if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
-                        return false;
-                    }
-                    if (tags.has('input_stream') || tags.has('output_stream')) {
-                        return false;
-                    }
-                }
-                else {
-                    // ignore input_0.pb, output_0.pb
-                    if (tags.has(1) && tags.get(1) === 0 && 
-                        tags.has(2) && tags.get(2) === 0 && 
-                        tags.has(9) && tags.get(9) === 2) {
-                        return false;
-                    }
-                    if (Array.from(tags.values()).some((v) => v === 5)) {
-                        return false;
-                    }
-                }
+        if (extension === 'meta') {
+            const tags = context.tags('pb');
+            if (tags.size !== 0) {
                 return true;
             }
-            case 'pbtxt':
-            case 'prototxt': {
-                if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-                    identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+        }
+        if (extension === 'pbtxt' || extension === 'prototxt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+                return false;
+            }
+            const tags = context.tags('pbtxt');
+            if (tags.has('input_stream') || tags.has('output_stream')) {
+                return false;
+            }
+            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                return true;
+            }
+        }
+        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return false;
+            }
+            if (identifier == 'tfhub_module.pb') {
+                const buffer = context.buffer;
+                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
                     return false;
                 }
+            }
+            const tags = context.tags('pb');
+            if (tags.size === 0) {
                 const tags = context.tags('pbtxt');
                 if (tags.has('input_stream') || tags.has('output_stream')) {
                     return false;
                 }
-                if (!tags.has('node') && !tags.has('saved_model_schema_version') && !tags.has('meta_graphs') && !tags.has('graph_def')) {
+                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
+                    return true;
+                }
+            }
+            else {
+                // ignore input_0.pb, output_0.pb
+                if (tags.has(1) && tags.get(1) === 0 &&
+                    tags.has(2) && tags.get(2) === 0 &&
+                    tags.has(9) && tags.get(9) === 2) {
                     return false;
                 }
-                return true;
-            }
-            case 'json': {
-                try {
-                    const root = JSON.parse(context.text);
-                    if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
-                        return true;
-                    }
+                if (!Array.from(tags.values()).some((v) => v === 5)) {
+                    return true;
                 }
-                catch (err) {
-                    // continue regardless of error
-                }
-                return false;
             }
-            case 'index':
-            case 'ckpt': {
-                if (context.buffer.length > 8) {
-                    const buffer = context.buffer.subarray(context.buffer.length - 8, context.buffer.length);
-                    const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-                    if (buffer.every((value, index) => value === signature[index])) {
-                        return true;
-                    }
+        }
+        if (extension === 'json') {
+            try {
+                const root = JSON.parse(context.text);
+                if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
+                    return true;
                 }
-                return false;
             }
-            
+            catch (err) {
+                // continue regardless of error
+            }
+        }
+        if (extension === 'index' || extension === 'ckpt') {
+            if (context.buffer.length > 8) {
+                const buffer = context.buffer.subarray(context.buffer.length - 8, context.buffer.length);
+                const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+                if (buffer.every((value, index) => value === signature[index])) {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-    open(context, host) { 
+    open(context, host) {
         return host.require('./tf-proto').then(() => {
             tf.proto = protobuf.roots.tf.tensorflow;
             let saved_model = null;
             let format = null;
             let producer = null;
-            const identifier = context.identifier; 
+            const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'ckpt':
@@ -216,7 +206,7 @@ tf.ModelFactory = class {
                         }
                     }
                     if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
-                        saved_model.meta_graphs[0].meta_info_def && 
+                        saved_model.meta_graphs[0].meta_info_def &&
                         Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
                         producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
                     }
@@ -236,7 +226,7 @@ tf.ModelFactory = class {
                         });
                     }).catch(() => {
                         return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
-                    })
+                    });
                 }
                 return tf.ModelFactory._openModel(identifier, host, metadata, saved_model, format, producer, null);
             });
@@ -302,7 +292,7 @@ tf.Model = class {
             this._graphs = visited_graph;
         }
         else {
-            this._graphs.push(new tf.Graph(metadata, null, '', bundle))
+            this._graphs.push(new tf.Graph(metadata, null, '', bundle));
         }
 
     }
@@ -350,7 +340,7 @@ tf.Graph = class {
             if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
                 this._tags = metaGraph.meta_info_def.tags.join(', ');
             }
-            const nodes = graph.node
+            const nodes = graph.node;
             if (nodes) {
                 let nodeMap = {};
                 this._namespaces = {};
@@ -459,7 +449,7 @@ tf.Graph = class {
             for (const tensor of bundle.tensors) {
                 let parts = tensor.name.split('/');
                 if (bundle.format === 2) {
-                    if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' || 
+                    if (tensor.name === '_CHECKPOINTABLE_OBJECT_GRAPH' ||
                         tensor.name.startsWith('optimizer/') ||
                         tensor.name.startsWith('keras_api/metrics/') ||
                         tensor.name.endsWith('/ExponentialMovingAverage') ||
@@ -526,7 +516,7 @@ tf.Graph = class {
         return this._functions;
     }
 
-    _checkSingleOutput(node) { 
+    _checkSingleOutput(node) {
         if (node.output.length != 1) {
             return false;
         }
@@ -618,7 +608,7 @@ tf.Function = class {
         if (outputs) {
             for (const output of outputs) {
                 let name = ret_map[output.name];
-                this._outputs.push(new tf.Parameter(output.name, [ 
+                this._outputs.push(new tf.Parameter(output.name, [
                     new tf.Argument(name, new tf.TensorType(output.type, null), null)
                 ]));
                 out_args_reverse_map[name] = output.name;
@@ -764,13 +754,13 @@ tf.Function = class {
         }
         return true;
     }
-}
+};
 
 tf.Node = class {
 
     constructor(graph, node, op, name, initializers, tensors) {
         this._graph = graph;
-        this._operator = op;
+        this._type = op;
         this._name = name;
         this._attributes = [];
         this._inputs = [];
@@ -782,10 +772,12 @@ tf.Node = class {
             const metadata = graph.metadata;
             if (node.attr) {
                 for (const attributeName of Object.keys(node.attr)) {
-                    this._attributes.push(new tf.Attribute(attributeName, node.attr[attributeName], this._operator, metadata));
+                    const schema = metadata.attribute(this._type, attributeName);
+                    const visible = metadata.getAttributeVisibleMap(this._type)[attributeName] ? false : true;
+                    this._attributes.push(new tf.Attribute(schema, attributeName, node.attr[attributeName], visible));
                 }
             }
-            const schema = metadata.type(this._operator);
+            const schema = metadata.type(this._type);
             let inputIndex = 0;
             let inputs = node.input.filter(input => !input.startsWith('^'));
             if (schema && schema.inputs) {
@@ -811,7 +803,7 @@ tf.Node = class {
                 }
             }
             this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
-                return new tf.Parameter((inputIndex + index).toString(), [ 
+                return new tf.Parameter((inputIndex + index).toString(), [
                     new tf.Argument(input, null, initializers[input])
                 ]);
             }));
@@ -855,8 +847,8 @@ tf.Node = class {
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -891,7 +883,7 @@ tf.Node = class {
     }
 
     get metadata() {
-        return this._graph.metadata.type(this.operator);
+        return this._graph.metadata.type(this.type);
     }
 
     get inputs() {
@@ -913,11 +905,10 @@ tf.Node = class {
 
 tf.Attribute = class {
 
-    constructor(name, value, operator, metadata) {
+    constructor(schema, name, value, visible) {
         this._name = name;
         this._value = null;
         this._type = null;
-        const schema = metadata.attribute(operator, name);
         if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
@@ -976,7 +967,7 @@ tf.Attribute = class {
             }
             else if (list.type && list.type.length > 0) {
                 this._type = 'type[]';
-                this._value = list.type.map((type) => tf.Tensor.formatDataType(type)); 
+                this._value = list.type.map((type) => tf.Tensor.formatDataType(type));
             }
             else if (list.shape && list.shape.length > 0) {
                 this._type = 'shape[]';
@@ -1022,8 +1013,7 @@ tf.Attribute = class {
         if (name == '_class') {
             this._visible = false;
         }
-        const attributeVisibleMap = metadata.getAttributeVisibleMap(operator);
-        if (attributeVisibleMap[name]) {
+        if (visible === false) {
             this._visible = false;
         }
     }
@@ -1104,7 +1094,7 @@ tf.Tensor = class {
             context.state = 'Tensor has no data type.';
             return context;
         }
-        const shape = this._tensor.tensor_shape || this._tensor.tensorShape; 
+        const shape = this._tensor.tensor_shape || this._tensor.tensorShape;
         if (!shape || !shape.dim) {
             context.state = 'Tensor has no dimensions.';
             return context;
@@ -1278,7 +1268,7 @@ tf.TensorType = class {
 
     toString() {
         return this.dataType + this._shape.toString();
-    }    
+    }
 };
 
 tf.TensorShape = class {
@@ -1404,7 +1394,7 @@ tf.TensorBundle = class {
     }
 
     constructor(format, entries, shards) {
-        this._format = format; 
+        this._format = format;
         this._tensors = [];
         switch (format) {
             case 1: {
@@ -1478,7 +1468,7 @@ tf.TensorBundle = class {
     get tensors() {
         return this._tensors;
     }
-}
+};
 
 tf.TensorBundle.BinaryReader = class {
 
@@ -1542,7 +1532,7 @@ tf.TensorBundle.BinaryReader = class {
         }
         return result;
     }
-}
+};
 
 tf.GraphMetadata = class {
 

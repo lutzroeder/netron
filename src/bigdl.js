@@ -27,7 +27,7 @@ bigdl.ModelFactory = class {
                 try {
                     // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
                     bigdl.proto = protobuf.roots.bigdl.com.intel.analytics.bigdl.serialization;
-                    let module = bigdl.proto.BigDLModule.decode(context.buffer);
+                    const module = bigdl.proto.BigDLModule.decode(context.buffer);
                     return new bigdl.Model(metadata, module);
                 }
                 catch (error) {
@@ -38,29 +38,29 @@ bigdl.ModelFactory = class {
             });
         });
     }
-}
+};
 
 bigdl.Model = class {
 
     constructor(metadata, module) {
+        this._version = module && module.version ? module.version : '';
         this._graphs = [];
         this._graphs.push(new bigdl.Graph(metadata, module));
     }
 
     get format() {
-        return 'BigDL';
+        return 'BigDL' + (this._version ? ' v' + this._version : '');
     }
 
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 bigdl.Graph = class {
 
     constructor(metadata, module) {
         this._type = module.moduleType;
-        this._version = module.version;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
@@ -70,11 +70,17 @@ bigdl.Graph = class {
     _loadModule(metadata, group, module) {
         switch (module.moduleType) {
             case 'com.intel.analytics.bigdl.nn.StaticGraph': {
-                this._loadStaticGraph(metadata, group, module)
+                this._loadStaticGraph(metadata, group, module);
                 break;
             }
             case 'com.intel.analytics.bigdl.nn.Sequential': {
-                this._loadSequential(metadata, group, module)
+                this._loadSequential(metadata, group, module);
+                break;
+            }
+            case 'com.intel.analytics.bigdl.nn.Input': {
+                this._inputs.push(new bigdl.Parameter(module.name, [
+                    new bigdl.Argument(module.name)
+                ]));
                 break;
             }
             default: {
@@ -106,10 +112,6 @@ bigdl.Graph = class {
         return this._type;
     }
 
-    get version() {
-        return this._version;
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -121,7 +123,7 @@ bigdl.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 bigdl.Parameter = class {
 
@@ -141,7 +143,7 @@ bigdl.Parameter = class {
     get arguments() {
         return this._arguments;
     }
-}
+};
 
 bigdl.Argument = class {
 
@@ -168,7 +170,7 @@ bigdl.Argument = class {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
 bigdl.Node = class {
 
@@ -181,8 +183,8 @@ bigdl.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
-        const schema =  metadata.type(this.operator);
-        let inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
+        const schema =  metadata.type(this.type);
+        const inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
             inputs.shift();
@@ -200,7 +202,7 @@ bigdl.Node = class {
             for (const parameter of module.parameters) {
                 const input = inputs.shift();
                 const inputName = input ? input.name : this._inputs.length.toString();
-                this._inputs.push(new bigdl.Parameter(inputName, [ 
+                this._inputs.push(new bigdl.Parameter(inputName, [
                     new bigdl.Argument('', null, new bigdl.Tensor(parameter))
                 ]));
             }
@@ -223,9 +225,9 @@ bigdl.Node = class {
                 this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor)))));
                 continue;
             }
-            this._attributes.push(new bigdl.Attribute(metadata, this._operator, key, value));
+            this._attributes.push(new bigdl.Attribute(metadata.attribute(this._type, key), key, value));
         }
-        const output = this._name || this._type + module.namePostfix
+        const output = this._name || this._type + module.namePostfix;
         this._outputs.push(new bigdl.Parameter('output', [
             new bigdl.Argument(output, null, null)
         ]));
@@ -235,7 +237,7 @@ bigdl.Node = class {
         return this._group;
     }
 
-    get operator() {
+    get type() {
         return this._type;
     }
 
@@ -258,11 +260,11 @@ bigdl.Node = class {
     get attributes() {
         return this._attributes;
     }
-}
+};
 
 bigdl.Attribute = class {
 
-    constructor(metadata, operator, name, value) {
+    constructor(schema, name, value) {
         this._name = name;
         switch (value.dataType) {
             case bigdl.proto.DataType.INT32: {
@@ -354,7 +356,7 @@ bigdl.Attribute = class {
     get visible() {
         return true;
     }
-}
+};
 
 bigdl.Tensor = class {
 
@@ -381,13 +383,13 @@ bigdl.Tensor = class {
     toString() {
         return '';
     }
-}
+};
 
 bigdl.TensorType = class {
 
     constructor(dataType, shape) {
         switch (dataType) {
-            case bigdl.proto.DataType.FLOAT: this._dataType = 'float32'; break
+            case bigdl.proto.DataType.FLOAT: this._dataType = 'float32'; break;
             case bigdl.proto.DataType.DOUBLE: this._dataType = 'float64'; break;
             default: throw new bigdl.Error("Unsupported tensor type '" + dataType + "'.");
         }
@@ -405,7 +407,7 @@ bigdl.TensorType = class {
     toString() {
         return (this.dataType || '?') + this._shape.toString();
     }
-}
+};
 
 bigdl.TensorShape = class {
 
@@ -425,7 +427,7 @@ bigdl.TensorShape = class {
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
     }
-}
+};
 
 bigdl.Metadata = class {
 
@@ -446,7 +448,7 @@ bigdl.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
@@ -458,21 +460,21 @@ bigdl.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

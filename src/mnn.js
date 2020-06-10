@@ -16,11 +16,11 @@ mnn.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./mnn-schema').then((mnn_schema) => {
+        return host.require('./mnn-schema').then((schema) => {
             return mnn.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
-                    mnn.schema = mnn_schema;
+                    mnn.schema = schema.mnn_schema;
                     const byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
                     const net = mnn.schema.Net.getRootAsNet(byteBuffer);
                     return new mnn.Model(metadata, net);
@@ -77,9 +77,9 @@ mnn.Graph = class {
                     const extraTensorDescribe = net.extraTensorDescribe(index);
                     const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
                     const type = blob ? mnn.Graph._blobTensorType(blob) : null;
-                    args.push(new mnn.Argument(name, type, null))
+                    args.push(new mnn.Argument(name, type, null));
                 }
-                this._inputs.push(new mnn.Parameter(op.name(), true, args))
+                this._inputs.push(new mnn.Parameter(op.name(), true, args));
             }
             else {
                 this._nodes.push(new mnn.Node(metadata, op, net));
@@ -158,7 +158,7 @@ mnn.Node = class {
 
     constructor(metadata, op, net) {
         this._metadata = metadata;
-        this._operator = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
+        this._type = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
         this._name = op.name() || '';
         this._attributes = [];
         this._inputs = [];
@@ -250,7 +250,7 @@ mnn.Node = class {
     }
 
     _buildTensor(dataType, name, dimensions, value) {
-        this._inputs.push(new mnn.Parameter(name, true, [ 
+        this._inputs.push(new mnn.Parameter(name, true, [
             new mnn.Argument('', null, new mnn.Tensor('Weight', new mnn.TensorType(dataType, new mnn.TensorShape(dimensions)), value))
         ]));
     }
@@ -267,7 +267,7 @@ mnn.Node = class {
             attributeNamesMap[attributeName] = true;
         }
 
-        let attributeArrayNamesMap = {}; 
+        let attributeArrayNamesMap = {};
         for (const attributeName of Object.keys(attributeNamesMap)) {
             if (attributeNamesMap[attributeName + 'Length']) { // some bugs without array
                 attributeArrayNamesMap[attributeName] = true;
@@ -276,7 +276,7 @@ mnn.Node = class {
         }
 
         for (const attributeName of attributeNames) {
-        
+
             if (invisibleAttributes && invisibleAttributes[attributeName]) {
                 continue;
             }
@@ -308,15 +308,15 @@ mnn.Node = class {
                 }
 
                 if (value != null) {
-                    const schema = metadata.attribute(this.operator, attributeName);
+                    const schema = metadata.attribute(this.type, attributeName);
                     attributeHolders.push(new mnn.Attribute(schema, attributeName, value));
                 }
             }
         }
     }
 
-    get operator() {
-        return this._operator;
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -328,7 +328,7 @@ mnn.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this.operator);
+        return this._metadata.type(this.type);
     }
 
     get group() {
@@ -538,7 +538,7 @@ mnn.TensorType = class {
     toString() {
         return this._dataType + this._shape.toString();
     }
-}
+};
 
 mnn.TensorShape = class {
 
@@ -588,12 +588,12 @@ mnn.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map.has(operator) ? this._map.get(operator) : null;
+    type(name) {
+        return this._map.has(name) ? this._map.get(name) : null;
     }
 
-    attribute(operator, name) {
-        const schema = this.type(operator);
+    attribute(type, name) {
+        const schema = this.type(type);
         if (schema) {
             let attributeMap = schema.attributeMap;
             if (!attributeMap) {
@@ -607,7 +607,7 @@ mnn.Metadata = class {
             }
             const attributeSchema = attributeMap[name];
             if (attributeSchema) {
-                return attributeSchema; 
+                return attributeSchema;
             }
         }
         return null;

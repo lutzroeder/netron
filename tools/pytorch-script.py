@@ -65,13 +65,13 @@ def zoo():
     download_torchvision_model('torchvision.models.densenet161', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
     download_torchvision_model('torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
-    download_torchvision_model('torchvision.models.resnet18', [ 1, 3, 224, 224 ])
+    # download_torchvision_model('torchvision.models.resnet18', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.resnet101', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.squeezenet1_1', [ 1, 3, 224, 224 ])
     download_torchvision_model('torchvision.models.video.r3d_18', [ 1, 3, 4, 112, 112 ])
-    download_torchvision_model('torchvision.models.vgg11_bn', [ 1, 3, 224, 224 ])
-    download_torchvision_model('torchvision.models.vgg16', [ 1, 3, 224, 224 ])
+    # download_torchvision_model('torchvision.models.vgg11_bn', [ 1, 3, 224, 224 ])
+    # download_torchvision_model('torchvision.models.vgg16', [ 1, 3, 224, 224 ])
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

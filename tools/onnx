@@ -7,7 +7,7 @@ identifier=onnx
 
 case "${OSTYPE}" in
     msys*) python="winpty python";;
-    *) python=python3;;
+    *) python="python";;
 esac
 
 bold() {

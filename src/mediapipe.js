@@ -47,7 +47,7 @@ mediapipe.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 mediapipe.Graph = class {
 
@@ -121,7 +121,7 @@ mediapipe.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 mediapipe.Node = class {
 
@@ -149,7 +149,7 @@ mediapipe.Node = class {
             for (const output of outputs) {
                 let parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
-                const name = parts.shift(); 
+                const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
             }
             this._outputs.push(new mediapipe.Parameter('output_stream', args));
@@ -171,12 +171,12 @@ mediapipe.Node = class {
             for (const output of outputs) {
                 let parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
-                const name = parts.shift(); 
+                const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
             }
             this._outputs.push(new mediapipe.Parameter('output_side_packet', args));
         }
-        let options = node.options || node.node_options || null; 
+        let options = node.options || node.node_options || null;
         if (options) {
             for (const key of Object.keys(options)) {
                 if (key === '__type__') {
@@ -192,7 +192,7 @@ mediapipe.Node = class {
         return '';
     }
 
-    get operator() {
+    get type() {
         return this._type;
     }
 
@@ -211,7 +211,7 @@ mediapipe.Node = class {
     get attributes() {
         return this._attributes;
     }
-}
+};
 
 mediapipe.Attribute = class {
 
@@ -231,7 +231,7 @@ mediapipe.Attribute = class {
     get visible() {
         return true;
     }
-}
+};
 
 mediapipe.Parameter = class {
 
@@ -316,7 +316,7 @@ mediapipe.Object = class {
                 while (!reader.last()) {
                     const data = reader.read();
                     if (!isNaN(data)) {
-                        obj.push(parseFloat(data))
+                        obj.push(parseFloat(data));
                     }
                 }
             }
@@ -344,7 +344,7 @@ mediapipe.Object = class {
             reader.expect('}');
         }
     }
-}
+};
 
 mediapipe.Error = class extends Error {
 

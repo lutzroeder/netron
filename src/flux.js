@@ -8,7 +8,7 @@ var flux = flux || {};
 flux.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier; 
+        const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'bson') {
             return true;
@@ -66,12 +66,11 @@ flux.ModelFactory = class {
         }
         return obj;
     }
-}
+};
 
 flux.Model = class {
 
     constructor(/* root */) {
-        // debugger;
         this._format = 'Flux';
         this._graphs = [];
     }
@@ -83,7 +82,7 @@ flux.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 flux.Metadata = class {
 
@@ -115,21 +114,21 @@ flux.Metadata = class {
         }
     }
 
-    type(operator) {
-        return this._map[operator] || null;
+    type(name) {
+        return this._map[name] || null;
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
+    attribute(type, name) {
+        let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            let schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
                 }
             }
-            this._attributeCache[operator] = map;
+            this._attributeCache[type] = map;
         }
         return map[name] || null;
     }

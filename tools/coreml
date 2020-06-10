@@ -5,7 +5,7 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 case "${OSTYPE}" in
     msys*) python="winpty python";;
-    *) python=python3;;
+    *) python="python";;
 esac
 
 venv() {

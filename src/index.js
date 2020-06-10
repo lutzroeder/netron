@@ -38,9 +38,6 @@ host.BrowserHost = class {
 
     initialize(view) {
         this._view = view;
-    }
-
-    consent() {
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (this._telemetry) {
@@ -51,13 +48,13 @@ host.BrowserHost = class {
                         if (window.ga) {
                             window.ga.l = 1 * new Date();
                             window.ga('create', 'UA-54146-13', 'auto');
-                            window.ga('set', 'anonymizeIp', true)
+                            window.ga('set', 'anonymizeIp', true);
                         }
                         resolve();
-                    }
+                    };
                     script.onerror = () => {
                         resolve();
-                    }
+                    };
                     this.document.body.appendChild(script);
                 }
                 else {
@@ -73,17 +70,17 @@ host.BrowserHost = class {
                         accept();
                     });
                 }
-            }
+            };
             if (this._getCookie('consent')) {
                 accept();
             }
             else {
-                this._request('http://ipinfo.io', 'utf-8', 2000).then((text) => {
+                this._request('https://ipinfo.io/json', { 'Content-Type': 'application/json' }, 'utf-8', 2000).then((text) => {
                     try {
                         const json = JSON.parse(text);
                         const countries = ['AT', 'BE', 'BG', 'HR', 'CZ', 'CY', 'DK', 'EE', 'FI', 'FR', 'DE', 'EL', 'HU', 'IE', 'IT', 'LV', 'LT', 'LU', 'MT', 'NL', 'NO', 'PL', 'PT', 'SK', 'ES', 'SE', 'GB', 'UK', 'GR', 'EU', 'RO'];
-                        if (json && json.countryCode && !countries.indexOf(json.countryCode) !== -1) {
-                            this._setConfiguration('consent', Date.now());
+                        if (json && json.country && !countries.indexOf(json.country) !== -1) {
+                            this._setCookie('consent', Date.now(), 30);
                             accept();
                         }
                         else {
@@ -227,7 +224,7 @@ host.BrowserHost = class {
         this.document.addEventListener('drop', (e) => {
             e.preventDefault();
         });
-        this.document.body.addEventListener('drop', (e) => { 
+        this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
             if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length > 0) {
                 const files = Array.from(e.dataTransfer.files);
@@ -295,7 +292,7 @@ host.BrowserHost = class {
 
     request(base, file, encoding) {
         const url = base ? (base + '/' + file) : this._url(file);
-        return this._request(url, encoding);
+        return this._request(url, null, encoding);
     }
 
     openURL(url) {
@@ -347,10 +344,10 @@ host.BrowserHost = class {
         }
     }
 
-    _request(url, encoding, timeout) {
+    _request(url, headers, encoding, timeout) {
         return new Promise((resolve, reject) => {
             const request = new XMLHttpRequest();
-            if (encoding == null) {
+            if (!encoding) {
                 request.responseType = 'arraybuffer';
             }
             if (timeout) {
@@ -381,12 +378,18 @@ host.BrowserHost = class {
                 reject(err);
             };
             request.ontimeout = () => {
+                request.abort();
                 const err = new Error("The web request timed out in '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
             };
             request.open('GET', url, true);
+            if (headers) {
+                for (const name of Object.keys(headers)) {
+                    request.setRequestHeader(name, headers[name]);
+                }
+            }
             request.send();
         });
     }
@@ -409,7 +412,7 @@ host.BrowserHost = class {
     _openModel(url, identifier) {
         url = url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
         this._view.show('welcome spinner');
-        this._request(url, null).then((buffer) => {
+        this._request(url).then((buffer) => {
             const context = new BrowserContext(this, url, identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier || context.identifier;
@@ -554,7 +557,7 @@ if (typeof TextEncoder === 'undefined') {
     };
     TextEncoder.prototype.encode = function encode(str) {
         "use strict";
-        const length = str.length
+        const length = str.length;
         let resPos = -1;
         const resArr = typeof Uint8Array === "undefined" ? new Array(length * 2) : new Uint8Array(length * 3);
         for (let point = 0, nextcode = 0, i = 0; i !== length; ) {
@@ -602,7 +605,7 @@ if (typeof TextEncoder === 'undefined') {
             return resArr.length === resPos + 1 ? resArr : resArr.slice(0, resPos + 1);
         }
     };
-    TextEncoder.prototype.toString = function() { 
+    TextEncoder.prototype.toString = function() {
         return "[object TextEncoder]";
     };
     try {
@@ -673,10 +676,10 @@ host.Dropdown = class {
         this._button = document.getElementById(button);
         this._items = [];
         this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        this._acceleratorMap = {}; 
+        this._acceleratorMap = {};
         window.addEventListener('keydown', (e) => {
             let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0; 
+            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
             code |= e.shiftKey ? 0x0100 : 0;
             if (code == 0x001b) { // Escape
@@ -767,7 +770,7 @@ host.Dropdown = class {
             if (Object.keys(item).length > 0) {
                 let button = this._document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => { 
+                button.addEventListener('click', () => {
                     this.close();
                     setTimeout(() => {
                         item.click();
@@ -794,7 +797,7 @@ host.Dropdown = class {
     close() {
         this._dropdown.style.display = 'none';
     }
-}
+};
 
 
 class BrowserFileContext {

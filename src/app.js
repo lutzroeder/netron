@@ -115,10 +115,10 @@ class Application {
     }
 
     _openFileDialog() {
-        const showOpenDialogOptions = { 
-            properties: [ 'openFile' ], 
+        const showOpenDialogOptions = {
+            properties: [ 'openFile' ],
             filters: [
-                { name: 'All Model Files',  extensions: [ 
+                { name: 'All Model Files',  extensions: [
                     'onnx', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel',
@@ -130,6 +130,7 @@ class Application {
                     'tflite', 'lite', 'tfl', 'bin',
                     'armnn',
                     'param', 'ncnn',
+                    'nn',
                     'tmfile',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
@@ -255,7 +256,7 @@ class Application {
         }
     }
 
-    get package() { 
+    get package() {
         if (!this._package) {
             const file = path.join(path.dirname(__dirname), 'package.json');
             const data = fs.readFileSync(file);
@@ -360,7 +361,7 @@ class Application {
         }
 
         let menuTemplate = [];
-        
+
         if (process.platform === 'darwin') {
             menuTemplate.unshift({
                 label: electron.app.name,
@@ -378,7 +379,7 @@ class Application {
                 ]
             });
         }
-        
+
         menuTemplate.push({
             label: '&File',
             submenu: [
@@ -392,7 +393,7 @@ class Application {
                     submenu: menuRecentsTemplate
                 },
                 { type: 'separator' },
-                { 
+                {
                     id: 'file.export',
                     label: '&Export...',
                     accelerator: 'CmdOrCtrl+Shift+E',
@@ -402,7 +403,7 @@ class Application {
                 { role: 'close' },
             ]
         });
-        
+
         if (process.platform !== 'darwin') {
             menuTemplate.slice(-1)[0].submenu.push(
                 { type: 'separator' },
@@ -451,7 +452,7 @@ class Application {
                 }
             ]
         });
-    
+
         const viewTemplate = {
             label: '&View',
             submenu: [
@@ -642,9 +643,9 @@ class View {
         }
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
-        this._updateCallback = (e, data) => { 
+        this._updateCallback = (e, data) => {
             if (e.sender == this._window.webContents) {
-                this.update(data.name, data.value); 
+                this.update(data.name, data.value);
                 this._raise('updated');
             }
         };
@@ -698,7 +699,7 @@ class View {
     }
 
     restore() {
-        if (this._window) { 
+        if (this._window) {
             if (this._window.isMinimized()) {
                 this._window.restore();
             }
@@ -844,7 +845,7 @@ class ConfigurationService {
         this._data = { 'recents': [] };
         const dir = electron.app.getPath('userData');
         if (dir && dir.length > 0) {
-            const file = path.join(dir, 'configuration.json'); 
+            const file = path.join(dir, 'configuration.json');
             if (fs.existsSync(file)) {
                 const data = fs.readFileSync(file);
                 if (data) {
@@ -865,7 +866,7 @@ class ConfigurationService {
             if (data) {
                 const dir = electron.app.getPath('userData');
                 if (dir && dir.length > 0) {
-                    const file = path.join(dir, 'configuration.json'); 
+                    const file = path.join(dir, 'configuration.json');
                     fs.writeFileSync(file, data);
                 }
             }

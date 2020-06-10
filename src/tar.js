@@ -51,7 +51,7 @@ tar.Entry = class {
     }
 
     get data() {
-        return this._data; 
+        return this._data;
     }
 };
 

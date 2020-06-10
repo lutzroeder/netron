@@ -18,7 +18,7 @@ def split_docstring(docstring):
     current_header = ''
     current_lines = []
     lines = docstring.split('\n')
-    index = 0;
+    index = 0
     while index < len(lines):
         if index + 1 < len(lines) and len(lines[index + 1].strip(' ')) > 0 and len(lines[index + 1].strip(' ').strip('-')) == 0:
             headers[current_header] = current_lines
@@ -90,7 +90,7 @@ def update_attribute(schema, name, description, attribute_type, option, default_
                     attribute['default'] = default_value.strip("'")
 
 def update_attributes(schema, lines):
-    index = 0;
+    index = 0
     while index < len(lines):
         line = lines[index]
         if line.endswith('.'):
@@ -101,7 +101,7 @@ def update_attributes(schema, lines):
         name = line[0:colon].strip(' ')
         line = line[colon + 1:].strip(' ')
         attribute_type = None
-        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32' }
+        type_map = { 'float': 'float32', 'boolean': 'boolean', 'bool': 'boolean', 'string': 'string', 'int': 'int32', 'integer': 'int32' }
         skip_map = {
             "'sigmoid' or 'isotonic'",
             'instance BaseEstimator',
@@ -131,7 +131,21 @@ def update_attributes(schema, lines):
             "{'scale', 'auto'} or float, optional (default='scale')",
             "{'word', 'char', 'char_wb'} or callable, default='word'",
             "{'scale', 'auto'} or float, default='scale'",
-            "{'uniform', 'distance'} or callable, default='uniform'"
+            "{'uniform', 'distance'} or callable, default='uniform'",
+            "int, RandomState instance or None (default)",
+            "list of (string, transformer) tuples",
+            "list of tuples",
+            "{'drop', 'passthrough'} or estimator, default='drop'",
+            "'auto' or a list of array-like, default='auto'",
+            "{'first', 'if_binary'} or a array-like of shape (n_features,),             default=None",
+            "callable",
+            "int or \"all\", optional, default=10",
+            "number, string, np.nan (default) or None",
+            "estimator object",
+            "dict or list of dictionaries",
+            "int, or str, default=n_jobs",
+            "'raise' or numeric, default=np.nan",
+            "'auto' or float, default=None"
         }
         if line == 'str':
             line = 'string'
@@ -184,7 +198,7 @@ def update_attributes(schema, lines):
         option = None
         default = None
         while len(line.strip(' ')) > 0:
-            line = line.strip(' ');
+            line = line.strip(' ')
             if line.startswith('optional ') or line.startswith('optional,'):
                 option = 'optional'
                 line = line[9:]
@@ -220,15 +234,23 @@ def update_attributes(schema, lines):
 
 for entry in json_root:
     name = entry['name']
+    entry['schema'] = entry['schema'] if 'schema' in entry else {};
     schema = entry['schema']
-    if 'package' in schema:
-        class_name = schema['package'] + '.' + name
-        class_definition = pydoc.locate(class_name)
+    skip_modules = [
+        'lightgbm.',
+        'sklearn.svm.classes',
+        'sklearn.ensemble.forest.',
+        'sklearn.ensemble.weight_boosting.',
+        'sklearn.neural_network.multilayer_perceptron.',
+        'sklearn.tree.tree.'
+    ]
+    if not any(name.startswith(module) for module in skip_modules):
+        class_definition = pydoc.locate(name)
         if not class_definition:
-            raise Exception('\'' + class_name + '\' not found.')
+            raise Exception('\'' + name + '\' not found.')
         docstring = class_definition.__doc__
         if not docstring:
-            raise Exception('\'' + class_name + '\' missing __doc__.')
+            raise Exception('\'' + name + '\' missing __doc__.')
         headers = split_docstring(docstring)
         if '' in headers:
             update_description(schema, headers[''])
@@ -238,8 +260,5 @@ for entry in json_root:
 with io.open(json_file, 'w', newline='') as fout:
     json_data = json.dumps(json_root, sort_keys=True, indent=2)
     for line in json_data.splitlines():
-        line = line.rstrip()
-        if sys.version_info[0] < 3:
-            line = unicode(line)
-        fout.write(line)
+        fout.write(line.rstrip())
         fout.write('\n')

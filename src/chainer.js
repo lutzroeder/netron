@@ -9,7 +9,7 @@ var long = long || { Long: require('long') };
 chainer.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier; 
+        const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'npz') {
             const entries = context.entries('zip');
@@ -17,8 +17,15 @@ chainer.ModelFactory = class {
         }
         if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model') {
             const buffer = context.buffer;
-            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-            if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
+            const find = (signature, start, end) => {
+                for (let i = start; i <= end; i++) {
+                    if (buffer.length > i + signature.length && Array.from(signature).every((value, index) => value.charCodeAt(0) === buffer[i + index])) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (find('\x89HDF\r\n\x1A\n', 0, 0) && !find('model_config\0', 0, 2048) && !find('keras_version\0', 0, 2048)) {
                 return true;
             }
         }
@@ -42,11 +49,11 @@ chainer.ModelFactory = class {
         return host.require('./numpy').then((numpy) => {
             return host.require('./pickle').then((pickle) => {
                 try {
-                    let modules = [];
-                    let modulesMap = new Map();
+                    const modules = [];
+                    const modulesMap = new Map();
 
-                    let functionTable = new Map();
-                    let constructorTable = new Map();
+                    const functionTable = new Map();
+                    const constructorTable = new Map();
                     functionTable.set('_codecs.encode', function(obj /*, econding */) {
                         return obj;
                     });
@@ -62,7 +69,7 @@ chainer.ModelFactory = class {
                             this.rawdata = state[4];
                         };
                         this.__read__ = function(unpickler) {
-                            let array = {};
+                            const array = {};
                             array.__type__ = this.subtype;
                             array.dtype = this.typecode;
                             array.shape = this.shape;
@@ -86,7 +93,7 @@ chainer.ModelFactory = class {
                             return array;
                         };
                     });
-                    constructorTable.set('numpy.dtype', function(obj, align, copy) { 
+                    constructorTable.set('numpy.dtype', function(obj, align, copy) {
                         switch (obj) {
                             case 'i1': this.name = 'int8'; this.itemsize = 1; break;
                             case 'i2': this.name = 'int16'; this.itemsize = 2; break;
@@ -143,12 +150,12 @@ chainer.ModelFactory = class {
                             }
                         };
                     });
-                    let function_call = (name, args) => {
+                    const function_call = (name, args) => {
                         if (functionTable.has(name)) {
                             const func = functionTable.get(name);
                             return func.apply(null, args);
                         }
-                        let obj = { __type__: name };
+                        const obj = { __type__: name };
                         if (constructorTable.has(name)) {
                             const constructor = constructorTable.get(name);
                             constructor.apply(obj, args);
@@ -193,7 +200,7 @@ chainer.ModelFactory = class {
                         }
 
                         module.parameters.push({
-                            name: parameterName, 
+                            name: parameterName,
                             dataType: dataTypeMap.has(array.dataType) ? dataTypeMap.get(array.dataType) : array.dataType,
                             shape: array.shape,
                             data: array.data,
@@ -215,15 +222,21 @@ chainer.ModelFactory = class {
         return host.require('./hdf5').then((hdf5) => {
             try {
                 const file = new hdf5.File(context.buffer);
-                const rootGroup = file.rootGroup;
+                let rootGroup = file.rootGroup;
                 if (Object.keys(rootGroup.attributes).length !== 0 || rootGroup.value !== null) {
                     throw new chainer.Error('File format is not Chainer HDF5');
                 }
                 let format = null;
-                let modules = [];
-                let modulesMap = new Map();
+                const modules = [];
+                const modulesMap = new Map();
+                if (Object.keys(rootGroup.attributes).length === 0 && rootGroup.value === null &&
+                    rootGroup.groups.length == 1 && rootGroup.groups[0] &&
+                    Object.keys(rootGroup.groups[0].attributes).length === 0 && rootGroup.groups[0].value === null) {
+                    rootGroup = rootGroup.groups[0];
+                    format = 'Weights HDF5';
+                }
                 if (rootGroup.groups.every((moduleGroup) => Object.keys(moduleGroup.attributes).length === 0 && moduleGroup.value === null)) {
-                    format = 'Chainer HDF5';
+                    format = format || 'Chainer HDF5';
                     for (const moduleGroup of rootGroup.groups) {
                         const moduleName = moduleGroup.attributes.name || moduleGroup.name;
                         if (!modulesMap.has(moduleName)) {
@@ -240,18 +253,18 @@ chainer.ModelFactory = class {
                             if (!variable) {
                                 throw new chainer.Error('Variable value is not Chainer HDF5');
                             }
-                            module.parameters.push({ 
+                            module.parameters.push({
                                 name: variableGroup.name,
                                 dataType: variable.type,
                                 byteOrder: variable.littleEndian ? '<' : '>',
-                                shape: variable.shape, 
+                                shape: variable.shape,
                                 data: variable.data,
                             });
                         }
                     }
                 }
                 else if (rootGroup.groups.every((group) => group.value === null && group.groups.every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
-                    format = 'Weights HDF5';
+                    format = format || 'Weights HDF5';
                     for (const group of rootGroup.groups) {
                         const moduleName = group.attributes.name || group.name;
                         if (!modulesMap.has(moduleName)) {
@@ -268,11 +281,11 @@ chainer.ModelFactory = class {
                             if (!variable) {
                                 throw new chainer.Error('Variable value is not Chainer HDF5');
                             }
-                            module.parameters.push({ 
+                            module.parameters.push({
                                 name: variableGroup.name,
                                 dataType: variable.type,
                                 byteOrder: variable.littleEndian ? '<' : '>',
-                                shape: variable.shape, 
+                                shape: variable.shape,
                                 data: variable.data,
                             });
                         }
@@ -290,7 +303,7 @@ chainer.ModelFactory = class {
             }
         });
     }
-}
+};
 
 chainer.Model = class {
 
@@ -307,7 +320,7 @@ chainer.Model = class {
     get graphs() {
         return this._graphs;
     }
-}
+};
 
 chainer.Graph = class {
 
@@ -329,7 +342,7 @@ chainer.Graph = class {
     get nodes() {
         return this._nodes;
     }
-}
+};
 
 chainer.Parameter = class {
 
@@ -349,7 +362,7 @@ chainer.Parameter = class {
     get arguments() {
         return this._arguments;
     }
-}
+};
 
 chainer.Argument = class {
 
@@ -372,7 +385,7 @@ chainer.Argument = class {
     get initializer() {
         return this._initializer;
     }
-}
+};
 
 chainer.Node = class {
 
@@ -388,7 +401,7 @@ chainer.Node = class {
         }
     }
 
-    get operator() {
+    get type() {
         return 'Module';
     }
 
@@ -411,7 +424,7 @@ chainer.Node = class {
     get attributes() {
         return [];
     }
-}
+};
 
 chainer.Tensor = class  {
 
@@ -440,7 +453,7 @@ chainer.Tensor = class  {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -449,17 +462,17 @@ chainer.Tensor = class  {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return chainer.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.index = 0;
         context.count = 0;
         context.state = null;
@@ -467,7 +480,7 @@ chainer.Tensor = class  {
             context.state = 'Tensor byte order is not supported.';
             return context;
         }
-        if (this._reference) { 
+        if (this._reference) {
             context.state = 'Tensor reference not implemented.';
             return context;
         }
@@ -520,12 +533,9 @@ chainer.Tensor = class  {
 
     _decode(context, dimension) {
         const littleEndian = context.littleEndian;
-        let shape = context.dimensions;
-        if (shape.length == 0) {
-            shape = [ 1 ];
-        }
-        let results = [];
-        let size = shape[dimension];
+        const shape = context.dimensions.length == 0 ? [ 1 ] : context.dimensions;
+        const results = [];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -587,7 +597,7 @@ chainer.Tensor = class  {
 
     static _stringify(value, indentation, indent) {
         if (Array.isArray(value)) {
-            let result = [];
+            const result = [];
             result.push(indentation + '[');
             const items = value.map((item) => chainer.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
@@ -610,7 +620,7 @@ chainer.Tensor = class  {
         }
         return indentation + value.toString();
     }
-}
+};
 
 chainer.TensorType = class {
 
@@ -630,7 +640,7 @@ chainer.TensorType = class {
     toString() {
         return this.dataType + this._shape.toString();
     }
-}
+};
 
 chainer.TensorShape = class {
 
@@ -648,7 +658,7 @@ chainer.TensorShape = class {
         }
         return '[' + this._dimensions.join(',') + ']';
     }
-}
+};
 
 chainer.Error = class extends Error {
 
@@ -656,7 +666,7 @@ chainer.Error = class extends Error {
         super(message);
         this.name = 'Error loading Chainer model.';
     }
-}
+};
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.ModelFactory = chainer.ModelFactory;

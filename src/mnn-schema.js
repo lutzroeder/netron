@@ -125,6 +125,22 @@ MNN.PadModeName = {
 /**
  * @enum {number}
  */
+MNN.QuantizeAlgo = {
+  DEFAULT: 0,
+  OVERFLOW_AWARE: 1
+};
+
+/**
+ * @enum {string}
+ */
+MNN.QuantizeAlgoName = {
+  '0': 'DEFAULT',
+  '1': 'OVERFLOW_AWARE'
+};
+
+/**
+ * @enum {number}
+ */
 MNN.PoolType = {
   MAXPOOL: 0,
   AVEPOOL: 1
@@ -3298,10 +3314,18 @@ MNN.QuantizedFloatParam.prototype.tensorScaleArray = function() {
 };
 
 /**
+ * @returns {MNN.QuantizeAlgo}
+ */
+MNN.QuantizedFloatParam.prototype.method = function() {
+  var offset = this.bb.__offset(this.bb_pos, 12);
+  return offset ? /** @type {MNN.QuantizeAlgo} */ (this.bb.readInt8(this.bb_pos + offset)) : MNN.QuantizeAlgo.DEFAULT;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 MNN.QuantizedFloatParam.startQuantizedFloatParam = function(builder) {
-  builder.startObject(4);
+  builder.startObject(5);
 };
 
 /**
@@ -3422,6 +3446,14 @@ MNN.QuantizedFloatParam.startTensorScaleVector = function(builder, numElems) {
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {MNN.QuantizeAlgo} method
+ */
+MNN.QuantizedFloatParam.addMethod = function(builder, method) {
+  builder.addFieldInt8(4, method, MNN.QuantizeAlgo.DEFAULT);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 MNN.QuantizedFloatParam.endQuantizedFloatParam = function(builder) {
@@ -3435,14 +3467,16 @@ MNN.QuantizedFloatParam.endQuantizedFloatParam = function(builder) {
  * @param {flatbuffers.Offset} biasOffset
  * @param {flatbuffers.Offset} scaleOffset
  * @param {flatbuffers.Offset} tensorScaleOffset
+ * @param {MNN.QuantizeAlgo} method
  * @returns {flatbuffers.Offset}
  */
-MNN.QuantizedFloatParam.createQuantizedFloatParam = function(builder, weightOffset, biasOffset, scaleOffset, tensorScaleOffset) {
+MNN.QuantizedFloatParam.createQuantizedFloatParam = function(builder, weightOffset, biasOffset, scaleOffset, tensorScaleOffset, method) {
   MNN.QuantizedFloatParam.startQuantizedFloatParam(builder);
   MNN.QuantizedFloatParam.addWeight(builder, weightOffset);
   MNN.QuantizedFloatParam.addBias(builder, biasOffset);
   MNN.QuantizedFloatParam.addScale(builder, scaleOffset);
   MNN.QuantizedFloatParam.addTensorScale(builder, tensorScaleOffset);
+  MNN.QuantizedFloatParam.addMethod(builder, method);
   return MNN.QuantizedFloatParam.endQuantizedFloatParam(builder);
 }
 
@@ -18326,5 +18360,5 @@ MNN.Net.createNet = function(builder, bizCodeOffset, extraTensorDescribeOffset, 
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = MNN;
+  module.exports = { mnn_schema: MNN };
 }
