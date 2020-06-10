@@ -121,7 +121,7 @@ setuptools.setup(
             'pytorch.js', 'pytorch-metadata.json', 'python.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tengine.js', 'tengine-metadata.json', 
-            'tensorrt.js', 
+            'uff.js', 'uff-metadata.json', 'uff-proto.js',
             'tf.js', 'tf-metadata.json', 'tf-proto.js', 
             'tflite.js', 'tflite-metadata.json', 'tflite-schema.js',
             'torch.js', 'torch-metadata.json',

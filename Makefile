@@ -39,6 +39,7 @@ update: install
 	@./tools/tf sync install schema metadata
 	@./tools/tflite sync schema
 	@./tools/torch sync
+	@./tools/uff sync schema
 
 build_python: install
 	python -m pip install --user wheel

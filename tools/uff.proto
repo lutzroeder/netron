@@ -1,0 +1,9 @@
+
+syntax = "proto2";
+
+package uff;
+
+message MetaGraph {
+    optional int64 version = 1;
+    optional int64 descriptor_core_version = 2;
+}
