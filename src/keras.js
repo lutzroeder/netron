@@ -828,47 +828,49 @@ keras.Tensor = class {
         }
         switch (this._type.dataType) {
             case 'float16':
-                context.precision = 16;
-                break;
             case 'float32':
-                context.precision = 32;
-                break;
             case 'float64':
-                context.precision = 64;
+            case 'boolean':
+                context.dataType = this._type.dataType;
                 break;
             default:
                 context.state = 'Tensor data type is not supported.';
                 break;
         }
-        context.dimensions = this._type.shape.dimensions;
+        context.shape = this._type.shape.dimensions;
         context.littleEndian = this._littleEndian;
         context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         return context;
     }
 
     _decode(context, dimension) {
+        const shape = context.shape.length !== 0 ? context.shape : [ 1 ];
         const results = [];
-        const size = context.dimensions[dimension];
+        const size = shape[dimension];
         const littleEndian = context.littleEndian;
-        if (dimension == context.dimensions.length - 1) {
+        if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
                     results.push('...');
                     return results;
                 }
                 if (context.rawData) {
-                    switch (context.precision) {
-                        case 16:
+                    switch (context.dataType) {
+                        case 'float16':
                             results.push(context.rawData.getFloat16(context.index, littleEndian));
                             context.index += 2;
                             break;
-                        case 32:
+                        case 'float32':
                             results.push(context.rawData.getFloat32(context.index, littleEndian));
                             context.index += 4;
                             break;
-                        case 64:
+                        case 'float64':
                             results.push(context.rawData.getFloat64(context.index, littleEndian));
                             context.index += 8;
+                            break;
+                        case 'boolean':
+                            results.push(context.rawData.getInt8(context.index) !== 0);
+                            context.index += 1;
                             break;
                     }
                     context.count++;
@@ -883,6 +885,9 @@ keras.Tensor = class {
                 }
                 results.push(this._decode(context, dimension + 1));
             }
+        }
+        if (context.shape.length == 0) {
+            return results[0];
         }
         return results;
     }

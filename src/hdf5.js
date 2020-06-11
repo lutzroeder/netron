@@ -383,7 +383,7 @@ hdf5.Reader = class {
             while (this._buffer[position] != 0) {
                 position++;
             }
-            size = position - this._position + this._offset + 1;
+            size = position - this._position - this._offset + 1;
         }
         const data = this.bytes(size);
         return hdf5.Reader.decode(data, encoding);
@@ -816,10 +816,33 @@ hdf5.Datatype = class {
         this._class = format & 0xf;
         switch (version) {
             case 1:
-            case 2:
+            case 2: {
                 this._flags = reader.byte() | reader.byte() << 8 | reader.byte() << 16;
                 this._size = reader.uint32();
+                switch (this._class) {
+                    case 0: {
+                        this._bitOffset = reader.uint16();
+                        this._bitPrecision = reader.uint16();
+                        break;
+                    }
+                    case 8: {
+                        this._base = new hdf5.Datatype(reader);
+                        this._names = [];
+                        this._values = [];
+                        const count = this._flags & 0xffff;
+                        for (let i = 0; i < count; i++) {
+                            const name = reader.clone().string(-1, 'ascii');
+                            this._names.push(name);
+                            reader.skip(Math.round((name.length + 1) / 8) * 8);
+                        }
+                        for (let i = 0; i < count; i++) {
+                            this._values.push(this._base.read(reader));
+                        }
+                        break;
+                    }
+                }
                 break;
+            }
             default:
                 throw new hdf5.Error('Unsupported datatype version \'' + version + '\'.');
         }
@@ -863,7 +886,12 @@ hdf5.Datatype = class {
             case 5: // opaque
                 return 'uint8[]';
             case 8: // enumerated
-                return 'enumeration[' + (this._flags & 0xffff).toString() + ']';
+                if (this._base.type === 'int8' &&
+                    this._names.length === 2 && this._names[0] === 'FALSE' && this._names[1] === 'TRUE' &&
+                    this._values.length === 2 && this._values[0] === 0 && this._values[1] === 1) {
+                    return 'boolean';
+                }
+                break;
             case 9: // variable-length
                 if ((this._flags & 0x0f) == 1) { // type
                     return 'char[]';
