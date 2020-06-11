@@ -97,7 +97,7 @@ publish_winget:
 	@rm -rf ./dist/winget-pkgs
 	@git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
 	@node ./setup/winget.js ./package.json ./dist/winget-pkgs/manifests
-	@git -C ./dist/winget-pkgs add --all "manifests/*$$(node -pe "require('./package.json').productName")*"
+	@git -C ./dist/winget-pkgs add --all
 	@git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
 	@git -C ./dist/winget-pkgs push
 	@curl -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/microsoft/winget-pkgs/pulls -d "{\"title\":\"Add $$(node -pe "require('./package.json').productName") $$(node -pe "require('./package.json').version")\",\"base\":\"master\",\"head\":\"$(GITHUB_USER):master\",\"body\":\"\"}" 2>&1 > /dev/null
