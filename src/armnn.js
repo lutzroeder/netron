@@ -34,7 +34,7 @@ armnn.ModelFactory = class {
 
             return armnn.Metadata.open(host).then((metadata) => {
                 try {
-                    return new armnn.Model(model, metadata);
+                    return new armnn.Model(metadata, model);
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -47,9 +47,9 @@ armnn.ModelFactory = class {
 
 armnn.Model = class {
 
-    constructor(model, metadata) {
+    constructor(metadata, model) {
         this._graphs = [];
-        this._graphs.push(new armnn.Graph(model, metadata));
+        this._graphs.push(new armnn.Graph(metadata, model));
     }
 
     get format() {
@@ -67,7 +67,7 @@ armnn.Model = class {
 
 armnn.Graph = class {
 
-    constructor(graph, metadata) {
+    constructor(metadata, graph) {
         this._name = '';
         this._nodes = [];
         this._inputs = [];
@@ -75,21 +75,43 @@ armnn.Graph = class {
 
         // generate parameters
         const args = {};
-        for (let j = 0; j < graph.layersLength(); j++) {
-            let base = armnn.Node.getBase(graph.layers(j));
-            for (let i = 0 ; i < base.outputSlotsLength() ; i++) {
-                const key = base.index().toString() + ':' + i.toString();
-                args[key] = new armnn.Argument(key, base.outputSlots(i).tensorInfo(), null);
+        for (let i = 0; i < graph.layersLength(); i++) {
+            const base = armnn.Node.getBase(graph.layers(i));
+            for (let j = 0 ; j < base.outputSlotsLength() ; j++) {
+                const key = base.index().toString() + ':' + j.toString();
+                args[key] = new armnn.Argument(key, base.outputSlots(j).tensorInfo(), null);
             }
         }
-        for (let j = 0; j < graph.layersLength(); j++) {
-            this._nodes.push(new armnn.Node(graph.layers(j), args, metadata));
-        }
-        for (let k = 0; k < graph.inputIdsLength(); k++) {
-            // need to do something?
-        }
-        for (let l = 0; l < graph.outputIdsLength(); l++) {
-            // need to do something?
+        for (let i = 0; i < graph.layersLength(); i++) {
+            const layer = graph.layers(i);
+            const type = armnn.schema.LayerName[layer.layerType()];
+            switch (type) {
+                case 'InputLayer': {
+                    const base = armnn.Node.getBase(layer);
+                    const name = base ? base.layerName() : '';
+                    for (let j = 0; j < base.outputSlotsLength(); j++) {
+                        const argument = args[base.index().toString() + ':' + j.toString()];
+                        this._inputs.push(new armnn.Parameter(name, [ argument ]));
+                    }
+                    break;
+                }
+                case 'OutputLayer': {
+                    const base = armnn.Node.getBase(layer);
+                    const name = base ? base.layerName() : '';
+                    for (let i = 0; i < base.inputSlotsLength(); i++) {
+                        const connection = base.inputSlots(i).connection();
+                        const sourceLayerIndex = connection.sourceLayerIndex();
+                        const sourceOutputIndex = connection.outputSlotIndex();
+                        const argument = args[sourceLayerIndex.toString() + ':' + sourceOutputIndex.toString()];
+                        this._outputs.push(new armnn.Parameter(name, [ argument ]));
+                    }
+                    break;
+                }
+                default:
+                    this._nodes.push(new armnn.Node(metadata, layer, args));
+                    break;
+            }
+
         }
     }
 
@@ -116,7 +138,7 @@ armnn.Graph = class {
 
 armnn.Node = class {
 
-    constructor(layer, args, metadata) {
+    constructor(metadata, layer, args) {
         this._metadata = metadata;
         this._type = armnn.schema.LayerName[layer.layerType()];
 
@@ -137,8 +159,8 @@ armnn.Node = class {
                 this._inputs.push(new armnn.Parameter('input', [ argument ]));
             }
 
-            for (let j = 0; j < base.outputSlotsLength(); j++) {
-                const argument = args[base.index().toString() + ':' + j.toString()];
+            for (let i = 0; i < base.outputSlotsLength(); i++) {
+                const argument = args[base.index().toString() + ':' + i.toString()];
                 this._outputs.push(new armnn.Parameter('output', [ argument ]));
             }
         }

@@ -365,16 +365,10 @@
     }
   },
   {
-    "name": "QuantizeLayer",
-    "schema": {
-      "category": "Layer"
-    }
+    "name": "QuantizeLayer"
   },
   {
-    "name": "DequantizeLayer",
-    "schema": {
-      "category": "Layer"
-    }
+    "name": "DequantizeLayer"
   },
   {
     "name": "MergeLayer",
