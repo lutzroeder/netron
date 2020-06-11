@@ -624,7 +624,7 @@ class View {
             minHeight: 400,
             width: size.width > 1024 ? 1024 : size.width,
             height: size.height > 768 ? 768 : size.height,
-            webPreferences: { nodeIntegration: true }
+            webPreferences: { nodeIntegration: true, enableRemoteModule: true }
         };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
