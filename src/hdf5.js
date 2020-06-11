@@ -862,6 +862,8 @@ hdf5.Datatype = class {
                 return 'string';
             case 5: // opaque
                 return 'uint8[]';
+            case 8: // enumerated
+                return 'enumeration[' + (this._flags & 0xffff).toString() + ']';
             case 9: // variable-length
                 if ((this._flags & 0x0f) == 1) { // type
                     return 'char[]';

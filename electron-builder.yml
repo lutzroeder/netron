@@ -57,6 +57,8 @@ fileAssociations:
     ext: tfl
   - name: "Tengine"
     ext: tmfile
+  - name: "UFF Model"
+    ext: uff
 afterSign: "./setup/notarize.js"
 publish:
   - provider: github
