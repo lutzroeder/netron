@@ -938,7 +938,7 @@ tf.Attribute = class {
                 this._value = value.s;
             }
             else if (ArrayBuffer.isView(value.s)) {
-                this._value = (value.s.length === 0) ? '' : (value.s.filter(c => c <= 32 && c >= 128).length === 0) ? tf.Metadata.textDecoder.decode(value.s) : Array.from(value.s);
+                this._value = (value.s.length === 0) ? '' : (value.s.filter(c => c < 32 && c >= 127).length === 0) ? tf.Metadata.textDecoder.decode(value.s) : Array.from(value.s);
             }
             else {
                 this._value = value.s;
@@ -952,7 +952,7 @@ tf.Attribute = class {
                         return s;
                     }
                     else if (ArrayBuffer.isView(s)) {
-                        return (s.length === 0) ? '' : (s.filter(c => c <= 32 && c >= 128).length === 0) ? tf.Metadata.textDecoder.decode(s) : Array.from(s);
+                        return (s.length === 0) ? '' : (s.filter(c => c < 32 && c >= 127).length === 0) ? tf.Metadata.textDecoder.decode(s) : Array.from(s);
                     }
                     else {
                         return s;

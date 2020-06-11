@@ -1147,7 +1147,7 @@ onnx.Metadata = class {
 onnx.Utility = class {
 
     static decodeText(value) {
-        if (!value.some(c => c <= 32 || c >= 128)) {
+        if (!value.some(c => c < 32 || c >= 127)) {
             onnx.Utility._asciiDecoder = onnx.Utility._asciiDecoder || new TextDecoder('ascii');
             return onnx.Utility._asciiDecoder.decode(value);
         }
