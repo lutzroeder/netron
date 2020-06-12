@@ -22251,6 +22251,53 @@
     }
   },
   {
+    "name": "LoadDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": "",
+          "name": "compression",
+          "type": "string"
+        },
+        {
+          "name": "reader_func",
+          "type": "function"
+        },
+        {
+          "minimum": 0,
+          "name": "Treader_func_args",
+          "type": "type[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "path",
+          "type": 7
+        },
+        {
+          "name": "reader_func_other_args",
+          "typeListAttr": "Treader_func_args"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "LoadTPUEmbeddingADAMParameters",
     "schema": {
       "attributes": [
@@ -42979,6 +43026,46 @@
         }
       ],
       "summary": "Saves the input tensors to disk."
+    }
+  },
+  {
+    "name": "SaveDataset",
+    "schema": {
+      "attributes": [
+        {
+          "default": "",
+          "name": "compression",
+          "type": "string"
+        },
+        {
+          "name": "shard_func",
+          "type": "function"
+        },
+        {
+          "default": true,
+          "name": "use_shard_func",
+          "type": "boolean"
+        },
+        {
+          "minimum": 0,
+          "name": "Tshard_func_args",
+          "type": "type[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "path",
+          "type": 7
+        },
+        {
+          "name": "shard_func_other_args",
+          "typeListAttr": "Tshard_func_args"
+        }
+      ]
     }
   },
   {
