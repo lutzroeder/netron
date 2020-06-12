@@ -147,12 +147,12 @@ pytorch.Graph = class {
         else if (container.state) {
             for (const state_group of container.state) {
                 const attributes = state_group.attributes || [];
-                const inputs = state_group.states.map((state) => {
-                    const tensor = new pytorch.Tensor(state.id, state.value, this._littleEndian);
-                    const visible = state_group.states.length === 0 || tensor.type.toString() !== 'int64' || tensor.value < 1000;
-                    return new pytorch.Parameter(state.name, visible, [
-                        new pytorch.Argument(state.id, null, tensor)
-                    ]);
+                const inputs = state_group.states.map((parameter) => {
+                    return new pytorch.Parameter(parameter.name, true,
+                        parameter.arguments.map((state) => {
+                            const tensor = new pytorch.Tensor(state.id, state.value, this._littleEndian);
+                            return new pytorch.Argument(state.id, null, tensor);
+                        }));
                 });
                 const obj = {
                     name: state_group.name,
@@ -2410,7 +2410,7 @@ pytorch.Container.Tar = class {
                             state_map[state_group_name] = state_group;
                             this._state.push(state_group);
                         }
-                        state_group.states.push(state);
+                        state_group.states.push({ name: state.name, arguments: [ state ] });
                     }
                 }
             }
@@ -2583,44 +2583,71 @@ pytorch.Container.Pickle = class {
     }
 
     _convertStateDictList(list) {
+        if (list && !Array.isArray(list) && !(list instanceof Map)) {
+            list = new Map(Object.keys(list).map((key) => [ key, list[key] ]));
+        }
         if (list && list instanceof Map) {
             for (const item of list) {
                 const key = item[0];
                 const value = item[1];
-                if (!key) {
+                if (!key || !value) {
                     return null;
                 }
-                if (value && !pytorch.Utility.isTensor(value)) {
-                    return null;
+                if (pytorch.Utility.isTensor(value)) {
+                    continue;
                 }
+                if (key.endsWith('._packed_params.dtype')) {
+                    continue;
+                }
+                if (key.endsWith('._packed_params._packed_params') && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
+                    continue;
+                }
+                return null;
             }
-            const state_dict = [];
-            const state_map = {};
+            const layers = new Map();
             for (const item of list) {
                 const key = item[0];
                 const value = item[1];
                 if (value !== null) {
-                    const split = key.split('.');
-                    if (split.length < 2) {
-                        return null;
+                    let layerName = '';
+                    let parameter = '';
+                    if (key.endsWith('_packed_params.dtype')) {
+                        parameter = '_packed_params.dtype';
+                        layerName = key.substring(0, key.length - parameter.length - 1);
                     }
-                    const state = {};
-                    state.id = key;
-                    state.name = split.pop();
-                    state.value = value;
-                    const state_group_name = split.join('.');
-                    let state_group = state_map[state_group_name];
-                    if (!state_group) {
-                        state_group = {};
-                        state_group.name = state_group_name;
-                        state_group.states = [];
-                        state_map[state_group_name] = state_group;
-                        state_dict.push(state_group);
+                    else if (key.endsWith('_packed_params._packed_params') && Array.isArray(value)) {
+                        parameter = '_packed_params._packed_params';
+                        layerName = key.substring(0, key.length - parameter.length - 1);
                     }
-                    state_group.states.push(state);
+                    else {
+                        let split = key.split('.');
+                        if (split.length < 2) {
+                            split = [ '', split[0] ];
+                        }
+                        parameter = split.pop();
+                        layerName = split.join('.');
+                    }
+                    if (!layers.has(layerName)) {
+                        layers.set(layerName, { name: layerName, states: [], attributes: [] });
+                    }
+                    const layer = layers.get(layerName);
+                    switch (parameter) {
+                        case '_packed_params.dtype':
+                            layer.attributes.push({ name: parameter, value: value });
+                            break;
+                        case '_packed_params._packed_params':
+                            layer.states.push({ name: parameter, arguments: value.map((item) => { return { id: '', value: item }; }) });
+                            break;
+                        default:
+                            layer.states.push({ name: parameter, arguments: [ { id: key, value: value } ] });
+                            if (layer.name == '' && layer.states.length > 4) {
+                                return null;
+                            }
+                            break;
+                    }
                 }
             }
-            return state_dict;
+            return layers.values();
         }
         return null;
     }
@@ -2657,7 +2684,7 @@ pytorch.Container.Pickle = class {
                 state_map[state_group_name] = state_group;
                 state_dict.push(state_group);
             }
-            state_group.states.push(state);
+            state_group.states.push({ name: state.name, arguments: [ state ] });
         }
         return state_dict;
     }
@@ -2692,11 +2719,8 @@ pytorch.Container.Pickle = class {
                     if (value && !pytorch.Utility.isTensor(value)) {
                         return null;
                     }
-                    state_group.states.push({
-                        id: state_group_name + '.' + key,
-                        name: key,
-                        value: value
-                    });
+                    const argument = { id: state_group_name + '.' + key, value: value };
+                    state_group.states.push({ name: key, arguments: [ argument ] });
                 }
             }
             else if (item instanceof Uint8Array) {
@@ -2707,14 +2731,16 @@ pytorch.Container.Pickle = class {
                 for (const key in item) {
                     const value = item[key];
                     if (pytorch.Utility.isTensor(value)) {
-                        state_group.states.push({ name: key, value: value, id: state_group_name + '.' + key });
+                        const argument = { id: state_group_name + '.' + key, value: value };
+                        state_group.states.push({ name: key, arguments: [ argument ] });
                         hasTensors = true;
                     }
                     else if (value !== Object(value)) {
                         state_group.attributes.push({ name: key, value: value });
                     }
                     else if (value && value.data && value.__module__ === 'torch.nn.parameter' && value.__name__ === 'Parameter') {
-                        state_group.states.push({ name: key, value: value.data, id: state_group_name + '.' + key });
+                        const argument = { id: state_group_name + '.' + key, value: value.data };
+                        state_group.states.push({ name: key, arguments: [ argument ] });
                         hasTensors = true;
                     }
                     else {
