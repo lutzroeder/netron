@@ -115,6 +115,7 @@ setuptools.setup(
             'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
             'mxnet.js', 'mxnet-metadata.json',
             'ncnn.js', 'ncnn-metadata.json',
+            'tnn.js', 'tnn-metadata.json',
             'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
