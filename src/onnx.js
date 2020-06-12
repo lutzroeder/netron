@@ -454,14 +454,9 @@ onnx.Node = class {
         this._domain = domain || '';
         this._name = name || '';
         this._description = description || '';
-        this._attributes = [];
-        if (attributes && attributes.length > 0) {
-            for (const attribute of attributes) {
-                this._attributes.push(new onnx.Attribute(this._metadata, imageFormat, this.type, attribute));
-            }
-        }
         this._inputs = inputs;
         this._outputs = outputs;
+        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(this._metadata, imageFormat, this.type, attribute));
     }
 
     get type() {
@@ -509,37 +504,6 @@ onnx.Attribute = class {
         this._type = null;
         this._value = null;
 
-        if (attribute.ints && attribute.ints.length > 0) {
-            this._value = attribute.ints;
-        }
-        else if (attribute.floats && attribute.floats.length > 0) {
-            this._value = attribute.floats;
-        }
-        else if (attribute.strings && attribute.strings.length > 0) {
-            this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
-        }
-        else if (attribute.graphs && attribute.graphs.length > 0) {
-            this._value = attribute.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
-            this._type = 'graph[]';
-        }
-        else if (attribute.s && attribute.s.length > 0) {
-            this._value = onnx.Utility.decodeText(attribute.s);
-        }
-        else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
-            this._value = attribute.f;
-        }
-        else if (Object.prototype.hasOwnProperty.call(attribute, 'i')) {
-            this._value = attribute.i;
-        }
-        else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
-            this._type = 'tensor';
-            this._value = new onnx.Tensor(attribute.t).value;
-        }
-        else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
-            this._type = 'graph';
-            this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
-        }
-
         const attributeSchema = metadata.attribute(operator, attribute.name);
         if (!this._type) {
             if (Object.prototype.hasOwnProperty.call(attribute, 'type')) {
@@ -564,6 +528,44 @@ onnx.Attribute = class {
             else if (attributeSchema && attributeSchema.type) {
                 this._type = attributeSchema.type;
             }
+        }
+
+        if (attribute.ints && attribute.ints.length > 0) {
+            this._value = attribute.ints;
+        }
+        else if (attribute.floats && attribute.floats.length > 0) {
+            this._value = attribute.floats;
+        }
+        else if (attribute.strings && attribute.strings.length > 0) {
+            this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
+        }
+        else if (attribute.graphs && attribute.graphs.length > 0) {
+            this._value = attribute.graphs.map((graph) => new onnx.Graph(metadata, imageFormat, graph));
+            this._type = 'graph[]';
+        }
+        else if (attribute.s && attribute.s.length > 0) {
+            switch (operator) {
+                case 'Int8GivenTensorFill':
+                    this._value = Array.from(attribute.s);
+                    break;
+                default:
+                    this._value = onnx.Utility.decodeText(attribute.s);
+                    break;
+            }
+        }
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
+            this._value = attribute.f;
+        }
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'i')) {
+            this._value = attribute.i;
+        }
+        else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
+            this._type = 'tensor';
+            this._value = new onnx.Tensor(attribute.t).value;
+        }
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
+            this._type = 'graph';
+            this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
         }
 
         if (attributeSchema && Object.prototype.hasOwnProperty.call(attributeSchema, 'default') && attributeSchema.default) {
@@ -1147,11 +1149,8 @@ onnx.Metadata = class {
 onnx.Utility = class {
 
     static decodeText(value) {
-        if (!value.some(c => c <= 32 || c >= 128)) {
-            onnx.Utility._asciiDecoder = onnx.Utility._asciiDecoder || new TextDecoder('ascii');
-            return onnx.Utility._asciiDecoder.decode(value);
-        }
-        return [...value];
+        onnx.Utility._utf8Decoder = onnx.Utility._utf8Decoder || new TextDecoder('utf-8');
+        return onnx.Utility._utf8Decoder.decode(value);
     }
 };
 

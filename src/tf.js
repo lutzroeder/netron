@@ -934,30 +934,12 @@ tf.Attribute = class {
             this._value = new tf.TensorShape(value.shape);
         }
         else if (Object.prototype.hasOwnProperty.call(value, 's')) {
-            if (typeof value.s === 'string') {
-                this._value = value.s;
-            }
-            else if (ArrayBuffer.isView(value.s)) {
-                this._value = (value.s.length === 0) ? '' : (value.s.filter(c => c <= 32 && c >= 128).length === 0) ? tf.Metadata.textDecoder.decode(value.s) : Array.from(value.s);
-            }
-            else {
-                this._value = value.s;
-            }
+            this._value = tf.Utility.decodeText(value.s);
         }
         else if (Object.prototype.hasOwnProperty.call(value, 'list')) {
-            let list = value.list;
+            const list = value.list;
             if (list.s && list.s.length > 0) {
-                this._value = list.s.map((s) => {
-                    if (typeof s === 'string') {
-                        return s;
-                    }
-                    else if (ArrayBuffer.isView(s)) {
-                        return (s.length === 0) ? '' : (s.filter(c => c <= 32 && c >= 128).length === 0) ? tf.Metadata.textDecoder.decode(s) : Array.from(s);
-                    }
-                    else {
-                        return s;
-                    }
-                });
+                this._value = list.s.map((s) => tf.Utility.decodeText(s));
             }
             else if (list.i && list.i.length > 0) {
                 this._value = list.i;
@@ -1175,7 +1157,8 @@ tf.Tensor = class {
                     return results;
                 }
                 if (context.data) {
-                    results.push(this._decodeDataValue(context));
+                    const value = context.data[context.index++];
+                    results.push((this._tensor.dtype == tf.proto.DataType.DT_STRING) ? tf.Utility.decodeText(value) : value);
                     context.count++;
                 }
                 else {
@@ -1224,14 +1207,6 @@ tf.Tensor = class {
             return results[0];
         }
         return results;
-    }
-
-    _decodeDataValue(context) {
-        const value = context.data[context.index++];
-        if (this._tensor.dtype == tf.proto.DataType.DT_STRING) {
-            return tf.Metadata.textDecoder.decode(value);
-        }
-        return value;
     }
 
     static formatDataType(type) {
@@ -1634,7 +1609,6 @@ tf.GraphMetadata = class {
 tf.Metadata = class {
 
     static open(host) {
-        tf.Metadata.textDecoder = tf.Metadata.textDecoder || new TextDecoder('utf-8');
         if (tf.Metadata._metadata) {
             return Promise.resolve(tf.Metadata._metadata);
         }
@@ -1668,6 +1642,29 @@ tf.Metadata = class {
         return this._map[operator];
     }
 };
+
+tf.Utility = class {
+
+    static decodeText(value) {
+        if (value.length === 0) {
+            return '';
+        }
+        debugger;
+        if (typeof value === 'string') {
+            throw new tf.Error('1');
+        }
+        if (!ArrayBuffer.isView(value)) {
+            throw new tf.Error('2');
+        }
+        if (value.filter(c => c <= 32 && c >= 127).length !== 0) {
+            throw new tf.Error('3');
+        }
+
+        tf.Utility._utf8Decoder = tf.Utility._utf8Decoder || new TextDecoder('utf-8');
+        return tf.Utility._utf8Decoder.decode(value);
+    }
+};
+
 
 tf.Error = class extends Error {
 
