@@ -6,4 +6,87 @@ package uff;
 message MetaGraph {
     optional int64 version = 1;
     optional int64 descriptor_core_version = 2;
+    repeated Descriptor descriptors = 3;
+    repeated Graph graphs = 4;
+    repeated KeyValuePair referenced_data = 5;
+}
+
+message Descriptor {
+    required string id = 1;
+    required int64 version = 2;
+}
+
+message Graph {
+    optional string id = 1;
+    repeated Node nodes = 2;
+}
+
+message Node {
+    required string id = 1;
+    repeated string inputs = 2;
+    required string operation = 3;
+    repeated KeyValuePair fields = 4;
+    repeated KeyValuePair extra_fields = 5;
+}
+
+message KeyValuePair {
+    required string key = 1;
+    required Value value = 2;
+}
+
+message Value {
+    oneof type {
+        string s = 1;
+        ListString s_list = 2;
+        double d = 3;
+        ListDouble d_list = 4;
+        bool b = 5;
+        bool b_list = 6;
+        int64 i = 7;
+        ListInt i_list = 8;
+        bytes blob = 9;
+        string ref = 100;
+        DataType dtype = 101;
+        ListDataType dtype_list = 102;
+        DimOrders dim_orders = 103;
+        ListDimOrders dim_orders_list = 104;
+    }
+}
+
+enum DataType {
+    DT_INT8 = 0x10008;
+    DT_INT16 = 0x10010;
+    DT_INT32 = 0x10020;
+    DT_INT64 = 0x10040;
+    DT_FLOAT16 = 0x20010;
+    DT_FLOAT32 = 0x20020;
+}
+
+message DimOrder {
+    required int64 key = 1;
+    required ListInt value = 2;
+}
+
+message DimOrders {
+    repeated DimOrder orders = 1;
+}
+
+message ListString {
+    repeated string val = 1;
+}
+
+message ListInt {
+    repeated int64 val = 1;
+}
+
+message ListDouble {
+    repeated double val = 1;
+}
+
+message ListDataType {
+    repeated DataType val = 1;
+}
+
+message ListDimOrders {
+    repeated DimOrders val = 1;
 }

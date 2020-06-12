@@ -423,10 +423,10 @@ tflite.Node = class {
                                     arrayNames.add(name);
                                 }
                             }
-                            for (const name of names) {
-                                if (options[name] && typeof options[name] == 'function') {
-                                    const value = arrayNames.has(name) ? Array.from(options[name + 'Array']() || []) : options[name]();
-                                    if (name === 'fusedActivationFunction' && value !== 0) {
+                            for (const camelCaseName of names) {
+                                if (options[camelCaseName] && typeof options[camelCaseName] == 'function') {
+                                    const value = arrayNames.has(camelCaseName) ? Array.from(options[camelCaseName + 'Array']() || []) : options[camelCaseName]();
+                                    if (camelCaseName === 'fusedActivationFunction' && value !== 0) {
                                         const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
                                         if (!activationFunctionMap[value]) {
                                             throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
@@ -434,7 +434,12 @@ tflite.Node = class {
                                         const type = activationFunctionMap[value];
                                         this._chain = [ new tflite.Node(metadata, format, null, { name: type }, null, []) ];
                                     }
-                                    const schema = metadata.attribute(this.type, 'custom');
+                                    let name = '';
+                                    const lower = camelCaseName.toLowerCase();
+                                    for (let i = 0; i < camelCaseName.length; i++) {
+                                        name += (camelCaseName[i] == lower[i]) ? camelCaseName[i] : ('_' + lower[i]);
+                                    }
+                                    const schema = metadata.attribute(this.type, name);
                                     this._attributes.push(new tflite.Attribute(schema, format, name, value));
                                 }
                             }
@@ -516,15 +521,10 @@ tflite.Attribute = class {
 
     constructor(schema, format, name, value) {
         this._type = null;
-        this._name = '';
+        this._name = name;
         this._value = value;
-        const lower = name.toLowerCase();
-        for (let i = 0; i < name.length; i++) {
-            this._name += (name[i] == lower[i]) ? name[i] : ('_' + lower[i]);
-        }
         if (this._name == 'fused_activation_function') {
             this._visible = false;
-
         }
         if (schema) {
             if (schema.type) {

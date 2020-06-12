@@ -1,2 +1,129 @@
 [
+  {
+    "name": "Activation",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "Binary",
+    "schema": {
+      "inputs": [
+        { "name": "x" },
+        { "name": "y" }
+      ]
+    }
+  },
+  {
+    "name": "Unary",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "Conv",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "kernel" }
+      ]
+    }
+  },
+  {
+    "name": "FullyConnected",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" },
+        { "name": "shape" }
+      ]
+    }
+  },
+  {
+    "name": "StridedSlice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" },
+        { "name": "begin" },
+        { "name": "end" },
+        { "name": "strides" }
+      ]
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "BatchNorm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" },
+        { "name": "moving_mean" },
+        { "name": "moving_variance" }
+      ]
+    }
+  },
+  {
+    "name": "Pool",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "_MaxPool",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "category": "Tensor"
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "GatherV2",
+    "schema": {
+      "category": "Data",
+      "inputs": [
+        { "name": "input" },
+        { "name": "indices" }
+      ]
+    }
+  }
 ]

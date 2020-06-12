@@ -306,8 +306,6 @@ function request(location, cookie) {
 }
 
 function downloadFile(location, cookie) {
-    let data = [];
-    let position = 0;
     return request(location, cookie).then((response) => {
         if (response.statusCode == 200 &&
             url.parse(location).hostname == 'drive.google.com' &&
@@ -328,6 +326,8 @@ function downloadFile(location, cookie) {
             throw new Error(response.statusCode.toString() + ' ' + location);
         }
         return new Promise((resolve, reject) => {
+            let position = 0;
+            const data = [];
             const length = response.headers['content-length'] ? Number(response.headers['content-length']) : -1;
             response.on('data', (chunk) => {
                 position += chunk.length;

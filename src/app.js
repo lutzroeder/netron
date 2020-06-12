@@ -123,14 +123,10 @@ class Application {
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel',
                     'caffemodel',
-                    'model', 'dnn', 'cmf',
-                    'mar', 'params',
-                    'mnn',
+                    'model', 'dnn', 'cmf', 'mar', 'params',
                     'meta',
                     'tflite', 'lite', 'tfl', 'bin',
-                    'armnn',
-                    'param', 'ncnn',
-                    'nn',
+                    'armnn', 'param', 'ncnn', 'mnn', 'nn', 'uff', 'uff.txt',
                     'tmfile',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
@@ -629,7 +625,7 @@ class View {
             minHeight: 400,
             width: size.width > 1024 ? 1024 : size.width,
             height: size.height > 768 ? 768 : size.height,
-            webPreferences: { nodeIntegration: true }
+            webPreferences: { nodeIntegration: true, enableRemoteModule: true }
         };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
             options.x = View._position[0] + 30;
