@@ -4968,6 +4968,12 @@
   },
   {
     "type":   "tf",
+    "target": "vgg_16.ckpt",
+    "source": "http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz[vgg_16.ckpt]",
+    "format": "TensorFlow Tensor Bundle v1"
+  },
+  {
+    "type":   "tf",
     "target": "vgg_19.pb",
     "source": "https://deepdetect.com/models/tf/vgg_19/vgg_19.pb",
     "format": "TensorFlow Graph",
