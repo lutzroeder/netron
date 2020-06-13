@@ -52,6 +52,7 @@
     "type":   "bigdl",
     "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/imageclassification/imagenet/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
+    "action": "skip",
     "format": "BigDL v0.5.0",
     "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
   },
@@ -59,6 +60,7 @@
     "type":   "bigdl",
     "target": "analytics-zoo_mobilenet-v2_imagenet_0.1.0.model",
     "source": "https://analytics-zoo-models.s3-ap-southeast-1.amazonaws.com/analytics-zoo_mobilenet-v2_imagenet_0.1.0.model",
+    "action": "skip",
     "format": "BigDL v0.8.0",
     "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
   },
@@ -66,6 +68,7 @@
     "type":   "bigdl",
     "target": "analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/analytics-zoo-models/object-detection/analytics-zoo_ssd-mobilenet-300x300_PASCAL_0.1.0.model",
+    "action": "skip",
     "format": "BigDL v0.5.0",
     "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/object-detection"
   },
@@ -73,6 +76,7 @@
     "type":   "bigdl",
     "target": "bigdl_inception-v1_imagenet_0.4.0.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/bigdl-models/imageclassification/imagenet/bigdl_inception-v1_imagenet_0.4.0.model",
+    "action": "skip",
     "format": "BigDL v0.4.0",
     "link":   "https://github.com/intel-analytics/analytics-zoo/tree/master/pyzoo/zoo/examples/nnframes/imageTransferLearning"
   },
@@ -80,6 +84,7 @@
     "type":   "bigdl",
     "target": "bigdl_messi_quantize.model",
     "source": "https://s3-ap-southeast-1.amazonaws.com/bigdl-models/object-detection/bigdl_messi_quantize.model",
+    "action": "skip",
     "format": "BigDL v0.6.0",
     "link":   "https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&ved=2ahUKEwisj6SS1sDlAhWRsJ4KHU1jCPAQFjAAegQIABAB&url=https%3A%2F%2Fcode.ihub.org.cn%2Fprojects%2F224%2Frepository%2Fcommit_diff%3Fchangeset%3Dad9908ee94c150af026b0be07a7d35dea071cf15&usg=AOvVaw3jUiipbdKKG6pDJs_Z7_kE"
   },
@@ -704,7 +709,7 @@
     "target": "generalized_rcnn/net.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/2801714/net.pbtxt.txt",
     "format": "Caffe2",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/lutzroeder/netron/issues/223"
   },
   {
@@ -2760,7 +2765,7 @@
     "target": "bertsquad-10.onnx",
     "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad-10.onnx?raw=true",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
   },
   {
@@ -3774,14 +3779,14 @@
     "type":   "pytorch",
     "target": "densenet161.pt",
     "script": "./tools/pytorch sync install zoo",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161_traced.pt",
-    "render": "skip",
     "script": "./tools/pytorch sync install zoo",
+    "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -4158,8 +4163,8 @@
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pt",
-    "render": "skip",
     "script": "./tools/pytorch sync install zoo",
+    "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -4543,7 +4548,7 @@
     "target": "bert_uncased_L-12_H-768_A-12.meta",
     "source": "https://storage.googleapis.com/bert_models/2018_10_18/uncased_L-12_H-768_A-12.zip[uncased_L-12_H-768_A-12/bert_model.ckpt.meta]",
     "format": "TensorFlow MetaGraph", "producer": "TensorFlow v1.11.0-rc1",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/google-research/bert#pre-trained-models"
   },
   {
@@ -4551,7 +4556,7 @@
     "target": "bert_cased_L-24_H-1024_A-16.meta",
     "source": "https://storage.googleapis.com/bert_models/2018_10_18/cased_L-24_H-1024_A-16.zip[cased_L-24_H-1024_A-16/bert_model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/google-research/bert#pre-trained-models"
   },
   {
@@ -4559,7 +4564,7 @@
     "target": "char-rnn-tensorflow.pb",
     "source": "https://github.com/lutzroeder/netron/files/2592462/char-rnn-tensorflow.pb.zip[char-rnn-tensorflow.pb]",
     "format": "TensorFlow Graph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/lutzroeder/netron/issues/187"
   },
   {
@@ -4609,7 +4614,7 @@
     "target": "exDeepFM-criteo.meta",
     "source": "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/Leavingseason/xDeepFM"
   },
   {
@@ -4624,7 +4629,7 @@
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -4632,21 +4637,21 @@
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
     "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/model.ckpt.meta]",
-    "render": "skip",
+    "action": "skip-render",
     "format": "TensorFlow MetaGraph"
   },
   {
     "type":   "tf",
     "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08_saved_model.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/saved_model/saved_model.pb]",
-    "render": "skip",
+    "action": "skip-render",
     "format": "TensorFlow Saved Model v1"
   },
   {
@@ -4730,7 +4735,7 @@
     "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip"
+    "action": "skip-render"
   },
   {
     "type":   "tf",
@@ -4763,7 +4768,7 @@
     "target": "mobilenet_v1_1.0_224_quant.ckpt.meta",
     "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/tensorflow/models/blob/master/research/slim/nets/mobilenet_v1.md"
   },
   {
@@ -4778,7 +4783,7 @@
     "target": "mobilenet_v2_1.4_224.ckpt.meta",
     "source": "https://storage.googleapis.com/mobilenet_v2/checkpoints/mobilenet_v2_1.4_224.tgz[./mobilenet_v2_1.4_224.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://www.tensorflow.org/lite/models"
   },
   {
@@ -4855,7 +4860,7 @@
     "type":   "tf",
     "target": "netron_issue_323.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/3539403/graph.zip[graph.pbtxt]",
-    "render": "skip",
+    "action": "skip-render",
     "format": "TensorFlow Graph",
     "link":   "https://github.com/lutzroeder/netron/issues/323"
   },
@@ -4919,16 +4924,16 @@
     "type":   "tf",
     "target": "resnet_v2_fp16_savedmodel_NHWC_saved_model.pb",
     "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
-    "render": "skip",
     "format": "TensorFlow Saved Model v1",
+    "action": "skip-render",
     "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
   },
   {
     "type":   "tf",
     "target": "resnet18_model_baseline.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/2913372/resnet18_model_baseline.pbtxt.zip[resnet18_model_baseline.pbtxt]",
-    "render": "skip",
     "format": "TensorFlow Graph",
+    "action": "skip-render",
     "link":   "https://github.com/lutzroeder/netron/issues/235"
   },
   {
@@ -4947,7 +4952,7 @@
     "target": "ssd_mobilenet_v1_android_export.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_android_export.zip[ssd_mobilenet_v1_android_export.pb]",
     "format": "TensorFlow Graph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://www.tensorflow.org/lite/models"
   },
   {
@@ -4955,7 +4960,7 @@
     "target": "ssd_mobilenet_v1_coco_11_06_2017_graph.pbtxt",
     "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/graph.pbtxt]",
     "format": "TensorFlow Graph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {
@@ -4970,7 +4975,7 @@
     "target": "ssd_mobilenet_v1_coco_11_06_2017.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/ssd_mobilenet_v1_coco_11_06_2017.tar.gz[ssd_mobilenet_v1_coco_11_06_2017/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
-    "render": "skip",
+    "action": "skip-render",
     "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
   },
   {

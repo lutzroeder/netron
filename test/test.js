@@ -592,7 +592,7 @@ function next() {
         console.error("Property 'type' is required for item '" + JSON.stringify(item) + "'.");
         return;
     }
-    if (type && item.type != type) {
+    if (type && item.type !== type) {
         next();
         return;
     }
@@ -604,10 +604,14 @@ function next() {
         next();
         return;
     }
+    process.stdout.write(item.type + '/' + target + '\n');
+    if (item.action === 'skip') {
+        next();
+        return;
+    }
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
     }
-    process.stdout.write(item.type + '/' + target + '\n');
 
     let promise = null;
     if (item.script) {
@@ -624,7 +628,7 @@ function next() {
     return promise.then(() => {
         return loadModel(folder + '/' + target, item).then((model) => {
             let promise = null;
-            if (item.render == 'skip') {
+            if (item.action == 'skip-render') {
                 promise = Promise.resolve();
             }
             else {
