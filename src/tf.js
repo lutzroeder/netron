@@ -1660,6 +1660,9 @@ tf.Metadata = class {
 tf.Utility = class {
 
     static decodeText(value) {
+        if (typeof value === 'string') {
+            return value;
+        }
         if (value.length === 0) {
             return '';
         }
