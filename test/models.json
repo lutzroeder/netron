@@ -3870,15 +3870,15 @@
   },
   {
     "type":   "pytorch",
-    "target": "mnist_linear_static_quantized.pt",
-    "source": "https://github.com/lutzroeder/netron/files/4773859/mnist_linear_static_quantized.zip[mnist_linear_static_quantized.pt]",
+    "target": "mnist_linear_dynamic_quantized.pt",
+    "source": "https://github.com/lutzroeder/netron/files/4774023/mnist_linear_dynamic_quantized.zip[mnist_linear_dynamic_quantized.pt]",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/lutzroeder/netron/issues/519"
   },
   {
     "type":   "pytorch",
-    "target": "mnist_linear_dynamic_quantized.pt",
-    "source": "https://github.com/lutzroeder/netron/files/4773860/mnist_linear_dynamic_quantized.zip[mnist_linear_dynamic_quantized.pt]",
+    "target": "mnist_linear_static_quantized.pt",
+    "source": "https://github.com/lutzroeder/netron/files/4774022/mnist_linear_static_quantized.zip[mnist_linear_static_quantized.pt]",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/lutzroeder/netron/issues/519"
   },
