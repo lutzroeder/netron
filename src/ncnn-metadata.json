@@ -181,9 +181,14 @@
         { "name": "num_output", "type": "int32", "default": 0 },
         { "name": "bias_term", "default": 0, "visible": false },
         { "name": "weight_data_size", "default": 0, "visible": false },
-        { "name": "int8_scale_term", "default": 0, "id": "8" },
-        { "name": "activation_type", "default": 0, "id": "9" },
-        { "name": "activation_params", "default": 0, "id": "10" }
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "int8_scale_term", "default": 0 },
+        { "name": "activation_type", "default": 0 },
+        { "name": "activation_params", "default": 0 }
       ]
     }
   },
@@ -237,11 +242,16 @@
         { "name": "pad_left", "default": 0 },
         { "name": "global_pooling", "default": 0 },
         { "name": "pad_mode", "default": 0 },
-        { "name": "kernel_h", "default": 0, "id": 11 },
-        { "name": "stride_h", "default": 1, "id": 12 },
-        { "name": "pad_top",	"default": 0 , "id": 13 },
-        { "name": "pad_right",	"default": 0, "id": 14 },
-        { "name": "pad_bottom",	"default": 0, "id": 15 }
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "kernel_h", "default": 0 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "pad_top",	"default": 0 },
+        { "name": "pad_right",	"default": 0 },
+        { "name": "pad_bottom",	"default": 0 }
       ]
     }
   },

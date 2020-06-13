@@ -22,7 +22,7 @@ ncnn.ModelFactory = class {
         if (identifier.endsWith('.param.bin')) {
             const buffer = context.buffer;
             if (buffer.length > 4) {
-                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature == 0x007685DD) {
                     return true;
                 }
@@ -34,7 +34,7 @@ ncnn.ModelFactory = class {
             }
             const buffer = context.buffer;
             if (buffer.length > 4) {
-                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return true;
@@ -119,13 +119,9 @@ ncnn.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-
         const blobReader = new ncnn.BlobReader(bin);
-
-        const layers = (typeof param == 'string') ?
-            this._param(metadata, param, bin) :
-            this._param_bin(metadata, param, bin);
-
+        const reader = (typeof param == 'string') ? new ncnn.TextReader(param) : new ncnn.BinaryReader(metadata, param);
+        const layers = reader.layers;
         for (const layer of layers) {
             if (layer.type == 'Input') {
                 const dimensions = layer.attributes.map((a) => !isNaN(parseInt(a.value, 10)) ? parseInt(a.value, 10) : a.value);
@@ -137,106 +133,6 @@ ncnn.Graph = class {
                 this._nodes.push(new ncnn.Node(metadata, blobReader, layer));
             }
         }
-    }
-
-    _param(metadata, param) {
-        const lines = param.split(/\r?\n/);
-        const signature = lines.shift();
-        if (signature !== '7767517') {
-            throw new ncnn.Error('Invalid signature.');
-        }
-        const header = lines.shift().split(' ');
-        if (header.length !== 2) {
-            throw new ncnn.Error('Invalid header count.');
-        }
-
-        const layers = [];
-        let layer;
-        while (lines.length > 0) {
-            const line = lines.shift().trim();
-            if (line.length > 0) {
-                const columns = line.split(' ').filter((s) => s.length != 0);
-                layer = {};
-                layer.type = columns.shift();
-                layer.name = columns.shift();
-                const inputCount = parseInt(columns.shift(), 10);
-                const outputCount = parseInt(columns.shift(), 10);
-                layer.inputs = columns.splice(0, inputCount);
-                layer.outputs = columns.splice(0, outputCount);
-                layer.attr = {};
-                layer.attributes = [];
-                for (const column of columns) {
-                    const parts = column.split('=');
-                    if (parts.length === 2) {
-                        let key = parts[0].trim();
-                        let value = parts[1].trim();
-                        const keyInt = parseInt(key, 10);
-                        if (keyInt < 0) {
-                            value = value.split(',').map((v) => v.trim());
-                            value.shift();
-                            key = (-(keyInt + 23300)).toString();
-                        }
-                        layer.attr[key] = value;
-                        layer.attributes.push({ key: key, value: value });
-                    }
-                }
-                layers.push(layer);
-            }
-        }
-        return layers;
-    }
-
-    _param_bin(metadata, param) {
-        const reader = new ncnn.BinaryReader(param);
-        if (reader.int32() !== 0x007685DD) {
-            throw new ncnn.Error('Invalid signature.');
-        }
-        const layerCount = reader.int32();
-        /* const blobCount = */ reader.int32();
-        const layers = [];
-        for (let i = 0; i < layerCount; i++) {
-            const layer = {};
-            const typeIndex = reader.int32();
-            const operator = metadata.operator(typeIndex);
-            layer.type = operator || typeIndex.toString();
-            layer.name = i.toString();
-            layer.inputs = [];
-            layer.outputs = [];
-            layer.attr = {};
-            layer.attributes = [];
-            const inputCount = reader.int32();
-            const outputCount = reader.int32();
-            for (let j = 0; j < inputCount; j++) {
-                layer.inputs.push(reader.int32().toString());
-            }
-            for (let k = 0; k < outputCount; k++) {
-                layer.outputs.push(reader.int32().toString());
-            }
-            let id = reader.int32();
-            while (id != -233) {
-                let isArray = id <= -23300;
-                if (isArray) {
-                    id = -id - 23300;
-                }
-                if (isArray) {
-                    const len = reader.int32();
-                    const values = [];
-                    for (let i = 0; i < len; i++) {
-                        values.push(reader.int32());
-                    }
-                    layer.attributes.push({ key: id.toString(), value: values.toString() });
-                    layer.attr[id.toString()] = values;
-                }
-                else {
-                    const value = reader.int32();
-                    layer.attributes.push({ key: id.toString(), value: value.toString() });
-                    layer.attr[id.toString()] = value.toString();
-                }
-                id = reader.int32();
-            }
-            layers.push(layer);
-        }
-        return layers;
     }
 
     get inputs() {
@@ -317,13 +213,7 @@ ncnn.Node = class {
 
         const schema = metadata.type(this._type);
 
-        const attributeMetadata = {};
-        if (schema && schema.attributes) {
-            for (let i = 0; i < schema.attributes.length; i++) {
-                const id = schema.attributes[i].id || i.toString();
-                attributeMetadata[id] = schema.attributes[i];
-            }
-        }
+        const attributeMetadata = schema && schema.attributes ? schema && schema.attributes : [];
         for (const attribute of layer.attributes) {
             const attributeSchema = attributeMetadata[attribute.key];
             this._attributes.push(new ncnn.Attribute(attributeSchema, attribute.key, attribute.value));
@@ -370,15 +260,9 @@ ncnn.Node = class {
                 new ncnn.Argument(output, null, null)
             ]);
         }));
-
-        let num_output;
-        let weight_data_size;
-        let channels;
-        let scale_data_size;
-        let bias_data_size;
         switch (this._type) {
             case 'BatchNorm': {
-                channels = parseInt(layer.attr['0'] || 0, 10);
+                const channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ channels ], 'float32');
                 this._weight(blobReader, 'mean', [ channels ], 'float32');
                 this._weight(blobReader, 'variance', [ channels ], 'float32');
@@ -386,8 +270,8 @@ ncnn.Node = class {
                 break;
             }
             case 'InnerProduct': {
-                num_output = parseInt(layer.attr['0'] || 0, 10);
-                weight_data_size = parseInt(layer.attr['2'] || 0, 10);
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['2'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
                 if (layer.attr['1'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
@@ -395,13 +279,13 @@ ncnn.Node = class {
                 break;
             }
             case 'Bias': {
-                bias_data_size = parseInt(layer.attr['0'] || 0, 10);
+                const bias_data_size = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 break;
             }
             case 'Embed': {
-                num_output = parseInt(layer.attr['0'] || 0, 10);
-                weight_data_size = parseInt(layer.attr['3'] || 0, 10);
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['3'] || 0, 10);
                 this._weight(blobReader, 'weight', [ weight_data_size ]);
                 if (layer.attr['2'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output], 'float32');
@@ -412,10 +296,10 @@ ncnn.Node = class {
             case 'ConvolutionDepthWise':
             case 'Deconvolution':
             case 'DeconvolutionDepthWise': {
-                num_output = parseInt(layer.attr['0'] || 0, 10);
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
                 const kernel_w = parseInt(layer.attr['1'] || 0, 10);
                 const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
-                weight_data_size = parseInt(layer.attr['6'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['6'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
                 if (layer.attr['5'] == '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
@@ -424,26 +308,26 @@ ncnn.Node = class {
             }
             case 'Dequantize': {
                 if (layer.attr['1'] == '1') {
-                    bias_data_size = parseInt(layer.attr['2'] || 0, 10);
+                    const bias_data_size = parseInt(layer.attr['2'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 break;
             }
             case 'Requantize': {
                 if (layer.attr['2'] == '1') {
-                    bias_data_size = parseInt(layer.attr['3'] || 0, 10);
+                    const bias_data_size = parseInt(layer.attr['3'] || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 break;
             }
             case 'InstanceNorm': {
-                channels = parseInt(layer.attr['0'] || 0, 10);
+                const channels = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'gamma', [ channels ], 'float32');
                 this._weight(blobReader, 'beta', [ channels ], 'float32');
                 break;
             }
             case 'Scale': {
-                scale_data_size = parseInt(layer.attr['0'] || 0, 10);
+                const scale_data_size = parseInt(layer.attr['0'] || 0, 10);
                 if (scale_data_size != -233) {
                     this._weight(blobReader, 'scale', [ scale_data_size], 'float32');
                     if (layer.attr['1'] == '1') {
@@ -453,7 +337,7 @@ ncnn.Node = class {
                 break;
             }
             case 'Normalize': {
-                scale_data_size = parseInt(layer.attr['3'] || 0, 10);
+                const scale_data_size = parseInt(layer.attr['3'] || 0, 10);
                 this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
                 break;
             }
@@ -757,20 +641,132 @@ ncnn.Metadata = class {
     }
 };
 
+ncnn.TextReader = class {
+
+    constructor(text) {
+        const lines = text.split(/\r?\n/);
+        const signature = lines.shift();
+        if (signature !== '7767517') {
+            throw new ncnn.Error('Invalid signature.');
+        }
+        const header = lines.shift().split(' ');
+        if (header.length !== 2) {
+            throw new ncnn.Error('Invalid header count.');
+        }
+
+        const layers = [];
+        let layer;
+        while (lines.length > 0) {
+            const line = lines.shift().trim();
+            if (line.length > 0) {
+                const columns = line.split(' ').filter((s) => s.length != 0);
+                layer = {};
+                layer.type = columns.shift();
+                layer.name = columns.shift();
+                const inputCount = parseInt(columns.shift(), 10);
+                const outputCount = parseInt(columns.shift(), 10);
+                layer.inputs = columns.splice(0, inputCount);
+                layer.outputs = columns.splice(0, outputCount);
+                layer.attr = {};
+                layer.attributes = [];
+                for (const column of columns) {
+                    const parts = column.split('=');
+                    if (parts.length === 2) {
+                        let key = parts[0].trim();
+                        let value = parts[1].trim();
+                        const keyInt = parseInt(key, 10);
+                        if (keyInt < 0) {
+                            value = value.split(',').map((v) => v.trim());
+                            value.shift();
+                            key = (-(keyInt + 23300)).toString();
+                        }
+                        layer.attr[key] = value;
+                        layer.attributes.push({ key: key, value: value });
+                    }
+                }
+                layers.push(layer);
+            }
+        }
+        this._layers = layers;
+    }
+
+    get layers() {
+        return this._layers;
+    }
+};
+
 ncnn.BinaryReader = class {
 
-    constructor(buffer) {
+    constructor(metadata, buffer) {
         this._buffer = buffer;
         this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._position = 0;
+        if (this._int32() !== 0x007685DD) {
+            throw new ncnn.Error('Invalid signature.');
+        }
+        const layerCount = this._int32();
+        /* const blobCount = */ this._int32();
+        const layers = [];
+        for (let i = 0; i < layerCount; i++) {
+            const typeIndex = this._int32();
+            const operator = metadata.operator(typeIndex);
+            const layer = {
+                type: operator || typeIndex.toString(),
+                name: i.toString(),
+                inputs: [],
+                outputs: [],
+                attr: {},
+                attributes: []
+            };
+            const inputCount = this._int32();
+            const outputCount = this._int32();
+            for (let j = 0; j < inputCount; j++) {
+                layer.inputs.push(this._int32().toString());
+            }
+            for (let k = 0; k < outputCount; k++) {
+                layer.outputs.push(this._int32().toString());
+            }
+            let id = this._int32();
+            while (id != -233) {
+                let isArray = id <= -23300;
+                if (isArray) {
+                    id = -id - 23300;
+                }
+                if (isArray) {
+                    const len = this._int32();
+                    const values = [];
+                    for (let i = 0; i < len; i++) {
+                        values.push(this._int32());
+                    }
+                    layer.attributes.push({ key: id.toString(), value: values.toString() });
+                    layer.attr[id.toString()] = values;
+                }
+                else {
+                    const value = this._int32();
+                    layer.attributes.push({ key: id.toString(), value: value.toString() });
+                    layer.attr[id.toString()] = value.toString();
+                }
+                id = this._int32();
+            }
+            layers.push(layer);
+        }
+        this._layers = layers;
     }
 
-    int32() {
-        const position = this._position;
-        this._position += 4;
+    get layers() {
+        return this._layers;
+    }
+
+    _skip(size) {
+        this._position += size;
         if (this._position > this._buffer.length) {
             throw new ncnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
+    }
+
+    _int32() {
+        const position = this._position;
+        this._skip(4);
         return this._dataView.getInt32(position, true);
     }
 };

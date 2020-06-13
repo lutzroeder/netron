@@ -5319,6 +5319,34 @@
     "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
   },
   {
+    "type":   "tnn",
+    "target": "mobilenet_v2.onnx.opt.onnx.tnnproto",
+    "source": "https://gitee.com/darren3d/tnn-resource/raw/master/model/mobilenet_v2/mobilenet_v2.onnx.opt.onnx.tnnproto",
+    "format": "TNN",
+    "link":   "https://gitee.com/darren3d/tnn-resource/tree/master/model/mobilenet_v2"
+  },
+  {
+    "type":   "tnn",
+    "target": "squeezenet_v1.1.tnnproto,squeezenet_v1.1.tnnmodel",
+    "source": "https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnproto,https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnmodel",
+    "format": "TNN",
+    "link":   "https://github.com/Tencent/TNN"
+  },
+  {
+    "type":   "tnn",
+    "target": "version-slim-320_simplified.tnnproto,version-slim-320_simplified.tnnmodel",
+    "source": "https://gitee.com/darren3d/tnn-resource/raw/master/model/face-detector/version-slim-320_simplified.tnnproto,https://gitee.com/darren3d/tnn-resource/raw/master/model/face-detector/version-slim-320_simplified.tnnmodel",
+    "format": "TNN",
+    "link":   "https://gitee.com/darren3d/tnn-resource/raw/master/model/face-detector"
+  },
+  {
+    "type":   "tnn",
+    "target": "squeezenet_v1.1.tnnproto,squeezenet_v1.1.tnnmodel",
+    "source": "https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnproto,https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnmodel",
+    "format": "TNN",
+    "link":   "https://github.com/Tencent/TNN"
+  },
+  {
     "type":   "torch",
     "target": "2ch_notredame.t7",
     "source": "https://s3.amazonaws.com/modelzoo-networks/cvpr2015matching_networks.tar.gz[2ch/2ch_notredame.t7]",

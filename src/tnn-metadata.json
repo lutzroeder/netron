@@ -1,0 +1,1628 @@
+[
+  {
+    "name": "AbsVal",
+    "schema": {
+      "operator": 0
+    }
+  },
+  {
+    "name": "ArgMax",
+    "schema": {
+      "operator": 1
+    }
+  },
+  {
+    "name": "BatchNormCxx",
+    "schema": {
+      "operator": 2,
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "Bias",
+    "schema": {
+      "operator": 3,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "bias_data_size",
+          "default": 0,
+          "visible": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "BNLL",
+    "schema": {
+      "operator": 4
+    }
+  },
+  {
+    "name": "Concat",
+    "schema": {
+      "operator": 5,
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int32",
+          "default": 0
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "option": "variadic"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConcat",
+    "schema": {
+      "operator": 5,
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int32",
+          "default": 0
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "option": "variadic"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Convolution",
+    "schema": {
+      "operator": 6,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "group",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "input_channel",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "output_channel",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "kernel_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "stride_w",
+          "type": "int32",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "pad_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "pad_w ",
+          "default": 0
+        },
+        {
+          "name": "bias",
+          "default": 0
+        },
+        {
+          "name": "pad_type",
+          "default": []
+        },
+        {
+          "name": "dialation_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "dialation_w",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "activation_type",
+          "type": "int32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedConvolution",
+    "schema": {
+      "operator": 6,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "group",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "input_channel",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "output_channel",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "kernel_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "stride_w",
+          "type": "int32",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "pad_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "pad_w ",
+          "default": 0
+        },
+        {
+          "name": "bias",
+          "default": 0
+        },
+        {
+          "name": "pad_type",
+          "default": []
+        },
+        {
+          "name": "dialation_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "dialation_w",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "activation_type",
+          "type": "int32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Crop",
+    "schema": {
+      "operator": 7,
+      "category": "Data"
+    }
+  },
+  {
+    "name": "Deconvolution",
+    "schema": {
+      "operator": 8,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Dropout",
+    "schema": {
+      "operator": 9,
+      "category": "Dropout",
+      "attributes": [
+        {
+          "name": "scale",
+          "type": "float32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Eltwise",
+    "schema": {
+      "operator": 10
+    }
+  },
+  {
+    "name": "ELU",
+    "schema": {
+      "operator": 11
+    }
+  },
+  {
+    "name": "Embed",
+    "schema": {
+      "operator": 12,
+      "category": "Transform",
+      "attributes": [
+        {
+          "name": "num_output",
+          "default": 0
+        },
+        {
+          "name": "input_dim",
+          "default": 0
+        },
+        {
+          "name": "bias_term",
+          "default": 0
+        },
+        {
+          "name": "weight_data_size",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 13
+    }
+  },
+  {
+    "name": "Flatten",
+    "schema": {
+      "operator": 14,
+      "category": "Shape",
+      "attributes": [
+        {
+          "name": "axis",
+          "default": 1
+        },
+        {
+          "name": "num_axis",
+          "default": 4
+        }
+      ]
+    }
+  },
+  {
+    "name": "InnerProduct",
+    "schema": {
+      "operator": 15,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "num_output",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "has_bias ",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "transpose",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "axis ",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Input",
+    "schema": {
+      "operator": 16
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 17
+    }
+  },
+  {
+    "name": "LRN",
+    "schema": {
+      "operator": 18,
+      "category": "Normalization",
+      "attributes": [
+        {
+          "name": "alpha",
+          "default": 0
+        },
+        {
+          "name": "beta",
+          "default": 0.75
+        },
+        {
+          "name": "bias",
+          "default": 1
+        },
+        {
+          "name": "size",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Exp",
+    "schema": {
+      "operator": 19
+    }
+  },
+  {
+    "name": "MVN",
+    "schema": {
+      "operator": 20
+    }
+  },
+  {
+    "name": "Pooling",
+    "schema": {
+      "operator": 21,
+      "category": "Pool",
+      "attributes": [
+        {
+          "name": "pool_type",
+          "default": 0
+        },
+        {
+          "name": "kernel_h",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0
+        },
+        {
+          "name": "stride_w ",
+          "default": 0
+        },
+        {
+          "name": "pad_h",
+          "default": 0
+        },
+        {
+          "name": "pad_w",
+          "default": 0
+        },
+        {
+          "name": "kernel_h_index",
+          "default": 0
+        },
+        {
+          "name": "kernel_w_index",
+          "default": 0
+        },
+        {
+          "name": "pad_type ",
+          "default": 0
+        },
+        {
+          "name": "ceil_mode ",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizedPooling",
+    "schema": {
+      "operator": 21,
+      "category": "Pool",
+      "attributes": [
+        {
+          "name": "pool_type",
+          "default": 0
+        },
+        {
+          "name": "kernel_h",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0
+        },
+        {
+          "name": "stride_w ",
+          "default": 0
+        },
+        {
+          "name": "pad_h",
+          "default": 0
+        },
+        {
+          "name": "pad_w",
+          "default": 0
+        },
+        {
+          "name": "kernel_h_index",
+          "default": 0
+        },
+        {
+          "name": "kernel_w_index",
+          "default": 0
+        },
+        {
+          "name": "pad_type ",
+          "default": 0
+        },
+        {
+          "name": "ceil_mode ",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Power",
+    "schema": {
+      "operator": 22
+    }
+  },
+  {
+    "name": "PReLU",
+    "schema": {
+      "operator": 23,
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "channel_shared",
+          "default": 0
+        },
+        {
+          "name": "has_filler",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Proposal",
+    "schema": {
+      "operator": 24
+    }
+  },
+  {
+    "name": "Reduce",
+    "schema": {
+      "operator": 25,
+      "attributes": [
+        {
+          "name": "keep_dims",
+          "default": 0
+        },
+        {
+          "name": "axis",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "ReLU",
+    "schema": {
+      "operator": 26,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "ROIPooling",
+    "schema": {
+      "operator": 27,
+      "attributes": [
+        {
+          "name": "pool_type",
+          "default": 0
+        },
+        {
+          "name": "spatial_scale",
+          "default": 0
+        },
+        {
+          "name": "pooled_w ",
+          "default": 0
+        },
+        {
+          "name": "pooled_h",
+          "default": 0
+        },
+        {
+          "name": "pooled_d",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "operator": 28,
+      "category": "Shape",
+      "attributes": [
+        { "name": "axis", "default": 0 },
+        { "name": "num_axes", "default": 4 },
+        { "name": "top_blob_dim_size", "default": -233 },
+        { "name": "shape", "type": "int32[]", "size": 2, "default": 233 },
+        { "name": "reshape_type", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "Scale",
+    "schema": {
+      "operator": 29,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "axis",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "num_axes",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "bias_term",
+          "default": 0,
+          "visible": false
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sigmoid",
+    "schema": {
+      "operator": 30,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Slice",
+    "schema": {
+      "operator": 31,
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "slices",
+          "default": []
+        },
+        {
+          "name": "axis",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Softmax",
+    "schema": {
+      "operator": 32,
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int32",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Splitv",
+    "schema": {
+      "operator": 33,
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "option": "variadic"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SPP",
+    "schema": {
+      "operator": 34,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Tanh",
+    "schema": {
+      "operator": 35,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Threshold",
+    "schema": {
+      "operator": 36
+    }
+  },
+  {
+    "name": "Tile",
+    "schema": {
+      "operator": 37
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "operator": 38,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "LSTM",
+    "schema": {
+      "operator": 39,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "BinaryOp",
+    "schema": {
+      "operator": 40,
+      "attributes": [
+        {
+          "name": "op_type",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "b",
+          "type": "float32",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "UnaryOp",
+    "schema": {
+      "operator": 41
+    }
+  },
+  {
+    "name": "ConvolutionDepthWise",
+    "schema": {
+      "operator": 42,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "group",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "input_channel",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "output_channel",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "kernel_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "stride_w",
+          "type": "int32",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "pad_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "pad_w ",
+          "default": 0
+        },
+        {
+          "name": "bias",
+          "default": 0
+        },
+        {
+          "name": "pad_type",
+          "default": []
+        },
+        {
+          "name": "dialation_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "dialation_w",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "activation_type",
+          "type": "int32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Pad",
+    "schema": {
+      "operator": 43,
+      "attributes": [
+        {
+          "name": " n1",
+          "default": 0
+        },
+        {
+          "name": " n2",
+          "default": 0
+        },
+        {
+          "name": " pad_h",
+          "default": 0
+        },
+        {
+          "name": " pad_b",
+          "default": 0
+        },
+        {
+          "name": " pad_w",
+          "default": 0
+        },
+        {
+          "name": " pad_r",
+          "default": 0
+        },
+        {
+          "name": " c1",
+          "default": 0
+        },
+        {
+          "name": " c2",
+          "default": 0
+        },
+        {
+          "name": " type",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Squeeze",
+    "schema": {
+      "operator": 44
+    }
+  },
+  {
+    "name": "ExpandDims",
+    "schema": {
+      "operator": 45
+    }
+  },
+  {
+    "name": "Normalize",
+    "schema": {
+      "operator": 46,
+      "arributes": [
+        {
+          "name": "across_spatial",
+          "default": 0
+        },
+        {
+          "name": "epsilon",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "channel_shared",
+          "default": 0
+        },
+        {
+          "name": "axis",
+          "default": 0
+        },
+        {
+          "name": "p",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Permute",
+    "schema": {
+      "operator": 47,
+      "category": "Shape",
+      "attributes": [
+        {
+          "name": "order_size",
+          "default": 0
+        },
+        {
+          "name": "orders",
+          "type": "int32[]",
+          "size": "0"
+        }
+      ]
+    }
+  },
+  {
+    "name": "PriorBox",
+    "schema": {
+      "operator": 48,
+      "attributes": [
+        {
+          "name": "min_size",
+          "default": []
+        },
+        {
+          "name": "max_size",
+          "default": []
+        },
+        {
+          "name": "clip",
+          "default": 1
+        },
+        {
+          "name": "flip",
+          "default": 1
+        },
+        {
+          "name": "varainces0",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "varainces1",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "varainces2",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "varainces3",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "aspect_ratios",
+          "default": 0
+        },
+        {
+          "name": "img_w",
+          "default": 0
+        },
+        {
+          "name": "img_h",
+          "default": 0
+        },
+        {
+          "name": "step_w",
+          "default": -233
+        },
+        {
+          "name": "step_h",
+          "default": -233
+        },
+        {
+          "name": "offset",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "DetectionOutput",
+    "schema": {
+      "operator": 49,
+      "attributes": [
+        {
+          "name": "num_class",
+          "default": 0
+        },
+        {
+          "name": "share_location",
+          "default": 0
+        },
+        {
+          "name": "background_label_id",
+          "default": 0
+        },
+        {
+          "name": "variance_encoded_in_target",
+          "default": 0
+        },
+        {
+          "name": "code_type",
+          "default": 0
+        },
+        {
+          "name": "keep_top_k",
+          "default": 0
+        },
+        {
+          "name": "confidence_threshold",
+          "default": 0
+        },
+        {
+          "name": "nms_param.nms_threshold",
+          "default": 0
+        },
+        {
+          "name": "nms_param.top_k",
+          "default": 0
+        },
+        {
+          "name": "eta",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Interp",
+    "schema": {
+      "operator": 50
+    }
+  },
+  {
+    "name": "DeconvolutionDepthWise",
+    "schema": {
+      "operator": 51,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Shuffle",
+    "schema": {
+      "operator": 52,
+      "attributes": [
+        {
+          "name": "group",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "InstanceNorm",
+    "schema": {
+      "operator": 53
+    }
+  },
+  {
+    "name": "Clip",
+    "schema": {
+      "operator": 54,
+      "attributes": [
+        {
+          "name": "min",
+          "default": 0
+        },
+        {
+          "name": "max",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Reorg",
+    "schema": {
+      "operator": 55,
+      "attributes": [
+        {
+          "name": "stride",
+          "default": 0
+        },
+        {
+          "name": "reverse",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "YoloDetectionOutput",
+    "schema": {
+      "operator": 56
+    }
+  },
+  {
+    "name": "Quantize",
+    "schema": {
+      "operator": 57
+    }
+  },
+  {
+    "name": "Dequantize",
+    "schema": {
+      "operator": 58
+    }
+  },
+  {
+    "name": "Yolov3DetectionOutput",
+    "schema": {
+      "operator": 59
+    }
+  },
+  {
+    "name": "ROIPooling",
+    "schema": {
+      "operator": 60,
+      "attributes": [
+        {
+          "name": "pool_type",
+          "default": 0
+        },
+        {
+          "name": "pool_type",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "pooled_w",
+          "default": 0
+        },
+        {
+          "name": "pooled_h",
+          "default": 0
+        },
+        {
+          "name": "pooled_d",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "ROIAlign",
+    "schema": {
+      "operator": 61
+    }
+  },
+  {
+    "name": "Packing",
+    "schema": {
+      "operator": 62
+    }
+  },
+  {
+    "name": "Requantize",
+    "schema": {
+      "operator": 63
+    }
+  },
+  {
+    "name": "Cast",
+    "schema": {
+      "operator": 64
+    }
+  },
+  {
+    "name": "HardSigmoid",
+    "schema": {
+      "operator": 65,
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "alpha",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "beta",
+          "type": "float32",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "SELU",
+    "schema": {
+      "operator": 66,
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "alpha",
+          "default": 0
+        },
+        {
+          "name": "gamma",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "ReLU6",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Conv3D",
+    "schema": {
+      "operator": 68,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "group",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "input_channel",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "output_channel",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "kernel_w",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "kernel_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "kernel_d",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "stride_w",
+          "type": "int32",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "stride_d",
+          "type": "int32",
+          "default": 0,
+          "visible": false
+        },
+        {
+          "name": "pad_h",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "pad_w ",
+          "default": 0
+        },
+        {
+          "name": "pad_d ",
+          "default": 0
+        },
+        {
+          "name": "bias",
+          "default": 0
+        },
+        {
+          "name": "pad_type",
+          "default": []
+        },
+        {
+          "name": "dialation_w",
+          "type": "int32",
+          "default": 0
+        },
+        {
+          "name": "dialation_h",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "dialation_d",
+          "type": "int32",
+          "default": 1
+        },
+        {
+          "name": "activation_type",
+          "type": "int32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "HardSwish",
+    "schema": {
+      "operator": 69,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "alpha",
+          "type": "float32",
+          "default": 1
+        },
+        {
+          "name": "beta",
+          "type": "float32",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "HdrGuide",
+    "schema": {
+      "operator": 70,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Max",
+    "schema": {
+      "operator": 71,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Min",
+    "schema": {
+      "operator": 72,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Mul",
+    "schema": {
+      "operator": 73,
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Pooling3D",
+    "schema": {
+      "operator": 74,
+      "category": "Pool",
+      "attributes": [
+        {
+          "name": "pool_type",
+          "default": 0
+        },
+        {
+          "name": "kernel_h",
+          "default": 0
+        },
+        {
+          "name": "kernel_w",
+          "default": 0
+        },
+        {
+          "name": "kernel_d",
+          "default": 0
+        },
+        {
+          "name": "stride_h",
+          "default": 0
+        },
+        {
+          "name": "stride_w ",
+          "default": 0
+        },
+        {
+          "name": "stride_d ",
+          "default": 0
+        },
+        {
+          "name": "pad_h",
+          "default": 0
+        },
+        {
+          "name": "pad_w",
+          "default": 0
+        },
+        {
+          "name": "pad_d",
+          "default": 0
+        },
+        {
+          "name": "kernel_h_index",
+          "default": 0
+        },
+        {
+          "name": "kernel_w_index",
+          "default": 0
+        },
+        {
+          "name": "kernel_d_index",
+          "default": 0
+        },
+        {
+          "name": "pad_type ",
+          "default": 0
+        },
+        {
+          "name": "ceil_mode ",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Pow",
+    "schema": {
+      "operator": 75,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "exponent",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "scale ",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "shift ",
+          "type": "float32",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "StridedSlice",
+    "schema": {
+      "operator": 76,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "n1",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sub",
+    "schema": {
+      "operator": 77,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Upsample",
+    "schema": {
+      "operator": 78,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "type",
+          "default": 0
+        },
+        {
+          "name": "scale_h",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "scale_w",
+          "type": "float32",
+          "default": 0
+        },
+        {
+          "name": "align_corners",
+          "default": 0
+        },
+        {
+          "name": "height",
+          "default": 0
+        },
+        {
+          "name": "width",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "BlobScale",
+    "schema": {
+      "operator": 78,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Add",
+    "schema": {
+      "operator": 79,
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Div",
+    "schema": {
+      "operator": 80,
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "SplitV",
+    "schema": {
+      "operator": 81,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "axis",
+          "default": 1
+        },
+        {
+          "name": "slice_count",
+          "default": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "Sub",
+    "schema": {
+      "operator": 80,
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "InstBatchNormCxx",
+    "schema": {
+      "operator": 81,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "SoftmaxCaffe",
+    "schema": {
+      "operator": 82,
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int32",
+          "default": 0
+        }
+      ]
+    }
+  }
+]

@@ -30,7 +30,6 @@ update: install
 	@./tools/mlnet sync metadata
 	@./tools/mnn sync schema
 	@./tools/mxnet sync metadata
-	@./tools/ncnn sync
 	@./tools/onnx sync install schema metadata
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata
