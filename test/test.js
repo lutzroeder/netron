@@ -605,7 +605,7 @@ function next() {
         return;
     }
     process.stdout.write(item.type + '/' + target + '\n');
-    if (item.action === 'skip') {
+    if (item.action && item.action.split(';').some((action) => action == 'skip')) {
         next();
         return;
     }
@@ -628,7 +628,7 @@ function next() {
     return promise.then(() => {
         return loadModel(folder + '/' + target, item).then((model) => {
             let promise = null;
-            if (item.action == 'skip-render') {
+            if (item.action && item.action.split(';').some((action) => action == 'skip-render')) {
                 promise = Promise.resolve();
             }
             else {
