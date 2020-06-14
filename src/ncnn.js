@@ -120,7 +120,7 @@ ncnn.Graph = class {
         this._outputs = [];
         this._nodes = [];
         const blobReader = new ncnn.BlobReader(bin);
-        const reader = (typeof param == 'string') ? new ncnn.TextReader(param) : new ncnn.BinaryReader(metadata, param);
+        const reader = (typeof param == 'string') ? new ncnn.TextParamReader(param) : new ncnn.BinaryParamReader(metadata, param);
         const layers = reader.layers;
         for (const layer of layers) {
             if (layer.type == 'Input') {
@@ -641,7 +641,7 @@ ncnn.Metadata = class {
     }
 };
 
-ncnn.TextReader = class {
+ncnn.TextParamReader = class {
 
     constructor(text) {
         const lines = text.split(/\r?\n/);
@@ -655,12 +655,11 @@ ncnn.TextReader = class {
         }
 
         const layers = [];
-        let layer;
         while (lines.length > 0) {
             const line = lines.shift().trim();
             if (line.length > 0) {
                 const columns = line.split(' ').filter((s) => s.length != 0);
-                layer = {};
+                const layer = {};
                 layer.type = columns.shift();
                 layer.name = columns.shift();
                 const inputCount = parseInt(columns.shift(), 10);
@@ -695,20 +694,18 @@ ncnn.TextReader = class {
     }
 };
 
-ncnn.BinaryReader = class {
+ncnn.BinaryParamReader = class {
 
     constructor(metadata, buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-        if (this._int32() !== 0x007685DD) {
+        const reader = new ncnn.BinaryReader(buffer);
+        if (reader.int32() !== 0x007685DD) {
             throw new ncnn.Error('Invalid signature.');
         }
-        const layerCount = this._int32();
-        /* const blobCount = */ this._int32();
+        const layerCount = reader.int32();
+        /* const blobCount = */ reader.int32();
         const layers = [];
         for (let i = 0; i < layerCount; i++) {
-            const typeIndex = this._int32();
+            const typeIndex = reader.int32();
             const operator = metadata.operator(typeIndex);
             const layer = {
                 type: operator || typeIndex.toString(),
@@ -718,35 +715,35 @@ ncnn.BinaryReader = class {
                 attr: {},
                 attributes: []
             };
-            const inputCount = this._int32();
-            const outputCount = this._int32();
+            const inputCount = reader.int32();
+            const outputCount = reader.int32();
             for (let j = 0; j < inputCount; j++) {
-                layer.inputs.push(this._int32().toString());
+                layer.inputs.push(reader.int32().toString());
             }
-            for (let k = 0; k < outputCount; k++) {
-                layer.outputs.push(this._int32().toString());
+            for (let j = 0; j < outputCount; j++) {
+                layer.outputs.push(reader.int32().toString());
             }
-            let id = this._int32();
+            let id = reader.int32();
             while (id != -233) {
                 let isArray = id <= -23300;
                 if (isArray) {
                     id = -id - 23300;
                 }
                 if (isArray) {
-                    const len = this._int32();
+                    const len = reader.int32();
                     const values = [];
                     for (let i = 0; i < len; i++) {
-                        values.push(this._int32());
+                        values.push(reader.int32());
                     }
                     layer.attributes.push({ key: id.toString(), value: values.toString() });
                     layer.attr[id.toString()] = values;
                 }
                 else {
-                    const value = this._int32();
+                    const value = reader.int32();
                     layer.attributes.push({ key: id.toString(), value: value.toString() });
                     layer.attr[id.toString()] = value.toString();
                 }
-                id = this._int32();
+                id = reader.int32();
             }
             layers.push(layer);
         }
@@ -755,19 +752,6 @@ ncnn.BinaryReader = class {
 
     get layers() {
         return this._layers;
-    }
-
-    _skip(size) {
-        this._position += size;
-        if (this._position > this._buffer.length) {
-            throw new ncnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    _int32() {
-        const position = this._position;
-        this._skip(4);
-        return this._dataView.getInt32(position, true);
     }
 };
 
@@ -849,6 +833,28 @@ ncnn.BlobReader = class {
             return { dataType: dataType, data: data };
         }
         return null;
+    }
+};
+
+ncnn.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._position = 0;
+    }
+
+    skip(size) {
+        this._position += size;
+        if (this._position > this._buffer.length) {
+            throw new ncnn.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    int32() {
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getInt32(position, true);
     }
 };
 
