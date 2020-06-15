@@ -26,7 +26,6 @@ clean() {
     bold "pytorch clean"
     rm -rf "./third_party/env/pytorch"
     rm -rf "./third_party/src/pytorch"
-    rm -rf "./third_party/src/torchvision"
 }
 
 sync() {
@@ -36,10 +35,6 @@ sync() {
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
-    popd > /dev/null
-    [ -d "./third_party/src/torchvision" ] || git clone --quiet --recursive https://github.com/pytorch/vision.git "./third_party/src/torchvision"
-    pushd "./third_party/src/torchvision" > /dev/null
-    git pull --quiet --prune
     popd > /dev/null
 }
 

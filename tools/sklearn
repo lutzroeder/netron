@@ -22,30 +22,18 @@ venv() {
     ${python} -m pip install --quiet --upgrade pip
 }
 
-git_sync() {
-    [ -d "./third_party/src/${1}" ] || git clone --quiet --recursive ${2} "./third_party/src/${1}"
-    pushd "./third_party/src/${1}" > /dev/null
+clean() {
+    bold "sklearn clean"
+    rm -rf "./third_party/env/scikit-learn"
+}
+
+sync() {
+    [ -d "./third_party/src/scikit-learn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/src/scikit-learn"
+    pushd "./third_party/src/scikit-learn" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
-}
-
-clean() {
-    bold "sklearn clean"
-    rm -rf "./third_party/env/scikit-learn"
-    rm -rf "./third_party/src/numpy"
-    rm -rf "./third_party/src/scikit-learn"
-    rm -rf "./third_party/src/lightgbm"
-    rm -rf "./third_party/src/xgboost"
-}
-
-sync() {
-    bold "sklearn sync"
-    git_sync numpy https://github.com/numpy/numpy.git
-    git_sync scikit-learn https://github.com/scikit-learn/scikit-learn.git
-    git_sync lightgbm https://github.com/Microsoft/LightGBM.git
-    git_sync xgboost https://github.com/dmlc/xgboost.git
 }
 
 install() {

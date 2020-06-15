@@ -7,28 +7,18 @@ bold() {
     echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
 }
 
-clean() {
-    bold "torch clean"
-    rm -rf "./third_party/src/torch"
-}
-
-sync() {
-    bold "uff sync"
-    [ -d "./third_party/src/tensorrt" ] || git clone --quiet https://github.com/NVIDIA/TensorRT.git "./third_party/src/tensorrt"
-    pushd "./third_party/src/tensorrt" > /dev/null
-    git pull --quiet --prune
-    popd > /dev/null
-}
-
 schema() {
     bold "uff schema"
+    [[ $(grep -U $'\x0D' ./src/uff-proto.js) ]] && crlf=1
     npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r uff -o ./src/uff-proto.js ./tools/uff.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/uff-proto.js ./src/uff-proto.js
+    fi
 }
 
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
-        "sync") sync;;
         "schema") schema;;
     esac
 done

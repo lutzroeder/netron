@@ -3,15 +3,10 @@
 set -e
 
 root=$(cd $(dirname ${0})/..; pwd)
-setup=${root}/setup
-src=${root}/src
-icon=${root}/build/icon-update
-
-mkdir -p ${icon}
-pushd ${icon} > /dev/null
+temp=$(mktemp -d)
+pushd ${temp} > /dev/null
 npm install --silent --no-save icon-convert
-npx icon-convert --types ico,icns,png512 --out ${setup} ${setup}/icon.svg
-mv ${setup}/icon_512x512.png ${src}/icon.png
+npx icon-convert --types ico,icns,png512 --out ${root}/setup ${root}/setup/icon.svg
+mv ${root}/setup/icon_512x512.png ${root}/src/icon.png
 popd > /dev/null
-
-rm -rf ${icon}
+rm -rf ${temp}

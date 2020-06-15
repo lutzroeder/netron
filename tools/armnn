@@ -14,7 +14,7 @@ clean() {
 
 sync() {
     bold "armnn sync"
-    [ -d "./third_party/src/armnn" ] || git clone --quiet --branch master https://github.com/ARM-software/armnn.git "./third_party/src/armnn"
+    [ -d "./third_party/src/armnn" ] || git clone --quiet --depth=1 --branch master https://github.com/ARM-software/armnn.git "./third_party/src/armnn"
     pushd "./third_party/src/armnn" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
@@ -53,8 +53,10 @@ schema() {
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
-    flatc --no-js-exports -o ./tools/. --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
-    mv ./tools/ArmnnSchema_generated.js ./src/armnn-schema.js
+    temp=$(mktemp -d)
+    flatc --no-js-exports -o ${temp} --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    mv ${temp}/ArmnnSchema_generated.js ./src/armnn-schema.js
+    rm -rf ${temp}
     cat <<EOT >> ./src/armnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = { armnn_schema: armnnSerializer };

@@ -14,12 +14,8 @@ clean() {
 
 sync() {
     bold "bigdl sync"
-    [ -d "./third_party/src/bigdl" ] || git clone --quiet --recursive https://github.com/intel-analytics/BigDL.git "./third_party/src/bigdl"
-    pushd "./third_party/src/bigdl" > /dev/null
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
-    popd > /dev/null
+    mkdir -p "./third_party/src/bigdl/spark/dl/src/main/resources/serialization"
+    curl --silent --location --output "./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto?raw=true"
 }
 
 schema() {

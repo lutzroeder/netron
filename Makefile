@@ -20,25 +20,15 @@ update: install
 	@./tools/armnn sync schema
 	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
-	@./tools/coreml sync schema
-	@./tools/chainer sync
 	@./tools/cntk sync schema
-	@./tools/darknet sync
-	@./tools/dl4j sync
-	@./tools/keras sync install metadata
-	@./tools/mediapipe sync
-	@./tools/mlnet sync metadata
+	@./tools/coreml sync schema
 	@./tools/mnn sync schema
-	@./tools/mxnet sync metadata
 	@./tools/onnx sync install schema metadata
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata
 	@./tools/sklearn sync install metadata
-	@./tools/tengine sync
 	@./tools/tf sync install schema metadata
-	@./tools/tflite sync schema
-	@./tools/torch sync
-	@./tools/uff sync schema
+	@./tools/uff schema
 
 build_python: install
 	python -m pip install --user wheel

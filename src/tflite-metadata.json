@@ -4,18 +4,18 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        { "name": "input" },
-        { "name": "weights" },
-        { "name": "bias" }
+        { "name": "input", "description": "4D tensor" },
+        { "name": "filter" },
+        { "name": "bias", "description":"(optional)" }
       ],
       "outputs": [
-        { "name": "output" }
+        { "name": "output", "description": "result of 2D convolution of the input tensor" }
       ],
       "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int32", "default": 1 },
-        { "name": "stride_h", "type": "int32", "default": 1 },
+        { "name": "padding", "type": "Padding", "default": "SAME", "description": "`SAME`|`VALID`" },
+        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE", "description": "`NONE`|`RELU`|`RELU6`" },
+        { "name": "stride_w", "type": "int32", "default": 1, "description": "stride of the filter window" },
+        { "name": "stride_h", "type": "int32", "default": 1, "description": "stride of the filter window" },
         { "name": "dilation_w_factor", "type": "int32", "default": 1 },
         { "name": "dilation_h_factor", "type": "int32", "default": 1 }
       ]

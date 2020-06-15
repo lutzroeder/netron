@@ -14,22 +14,8 @@ clean() {
 
 sync() {
     bold "cntk sync"
-    case ${OSTYPE} in
-        linux*|darwin*)
-            [ -d "./third_party/src/cntk" ] || git clone --quiet --recursive https://github.com/Microsoft/CNTK.git "./third_party/src/cntk"
-            pushd "./third_party/src/cntk" > /dev/null
-            git pull --quiet --prune
-            git submodule sync --quiet
-            git submodule update --quiet --init --recursive
-            popd > /dev/null
-        ;;
-        *)
-            [ -d "./third_party/src/cntk" ] || git clone --quiet https://github.com/Microsoft/CNTK.git "./third_party/src/cntk"
-            pushd "./third_party/src/cntk" > /dev/null
-            git pull --quiet --prune
-            popd > /dev/null
-        ;;
-    esac
+    mkdir -p "./third_party/src/cntk/Source/CNTKv2LibraryDll/proto"
+    curl --silent --location --output "./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto" "https://github.com/microsoft/CNTK/blob/master/Source/CNTKv2LibraryDll/proto/CNTK.proto?raw=true"
 }
 
 schema() {

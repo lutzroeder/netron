@@ -14,12 +14,8 @@ clean() {
 
 sync() {
     bold "paddle sync"
-    [ -d "./third_party/src/paddle" ] || git clone --quiet --recursive https://github.com/PaddlePaddle/Paddle.git "./third_party/src/paddle"
-    pushd "./third_party/src/paddle" > /dev/null
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
-    popd > /dev/null
+    mkdir -p "./third_party/src/paddle/paddle/fluid/framework"
+    curl --silent --location --output "./third_party/src/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
 }
 
 schema() {

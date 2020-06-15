@@ -53,8 +53,10 @@ schema() {
             ;;
     esac
     [[ $(grep -U $'\x0D' ./src/mnn-schema.js) ]] && crlf=1
-    flatc --no-js-exports --gen-all -o ./tools/. --js ./third_party/src/mnn/schema/default/MNN.fbs
-    mv ./tools/MNN_generated.js ./src/mnn-schema.js
+    temp=$(mktemp -d)
+    flatc --no-js-exports --gen-all -o ${temp} --js ./third_party/src/mnn/schema/default/MNN.fbs
+    mv ${temp}/MNN_generated.js ./src/mnn-schema.js
+    rm -rf ${temp}
     cat <<EOT >> ./src/mnn-schema.js
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
   module.exports = { mnn_schema: MNN };

@@ -41,7 +41,9 @@ sync() {
 install() {
     bold "tf install"
     venv
+    ${python} -m pip install --quiet --upgrade wheel
     ${python} -m pip install --quiet --upgrade protobuf
+    ${python} -m pip install --quiet --upgrade tensorflow
     deactivate
 }
 
@@ -74,50 +76,116 @@ schema() {
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/tf-proto.js ./src/tf-proto.js
     fi
+    bold "tflite schema"
+    case "${OSTYPE}" in
+        linux*)
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL https://github.com/google/flatbuffers/archive/${flatc_version}.tar.gz | tar zx --strip-components 1
+                cmake -G "Unix Makefiles" . &> /dev/null
+                make > /dev/null
+                popd > /dev/null
+            fi
+            export PATH=${flatc_dir}:${PATH}
+            ;;
+        darwin*)
+            brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
+            ;;
+        msys*)
+            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
+            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
+            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
+                mkdir -p "${flatc_dir}"
+                pushd "${flatc_dir}" > /dev/null
+                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows.zip
+                unzip flatc_windows.zip > /dev/null
+                popd > /dev/null
+            fi
+            export PATH=${flatc_dir}:${PATH}
+            ;;
+    esac
+    [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
+    temp=$(mktemp -d)
+    sed 's/namespace tflite;/namespace tflite_schema;/g' < ./third_party/src/tensorflow/tensorflow/lite/schema/schema.fbs > ${temp}/tflite_schema.fbs
+    sed 's/namespace tflite;/namespace tflite_metadata_schema;/g' < ./third_party/src/tensorflow/tensorflow/lite/experimental/support/metadata/metadata_schema.fbs > ${temp}/tflite_metadata_schema.fbs
+    flatc --no-js-exports --js -o ${temp} ${temp}/tflite_schema.fbs
+    flatc --no-js-exports --js -o ${temp} ${temp}/tflite_metadata_schema.fbs
+    mv ${temp}/tflite_schema_generated.js ./src/tflite-schema.js
+    cat ${temp}/tflite_metadata_schema_generated.js >> ./src/tflite-schema.js
+    rm -rf ${temp}
+    cat <<EOT >> ./src/tflite-schema.js
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+  module.exports = { tflite_schema: tflite_schema, tflite_metadata_schema: tflite_metadata_schema };
+}
+EOT
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/tflite-schema.js ./src/tflite-schema.js
+    fi
 }
 
 metadata() {
     bold "tf metadata"
     [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
     venv
-    case "${OSTYPE}" in
-        linux*)
-            [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
-            ;;
-        darwin*)
-            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
-            ;;
-        msys*)
-            protoc_version=$(curl -s https://api.github.com/repos/protocolbuffers/protobuf/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"' | cut -f 2 -d v)
-            protoc_dir=./third_party/bin/protobuf/v${protoc_version}
-            if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
-                mkdir -p "${protoc_dir}"
-                pushd "${protoc_dir}" > /dev/null
-                curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
-                unzip protoc-${protoc_version}-win32.zip > /dev/null
-                rm protoc-${protoc_version}-win32.zip
-                popd > /dev/null
-            fi
-            export PATH="$(cygpath -a -u "${protoc_dir}/bin")":${PATH}
-            ;;
-    esac
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/attr_value.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/types.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor_shape.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/resource_handle.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/api_def.proto --python_out=./tools
-    protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/op_def.proto --python_out=./tools
-    touch ./tools/tensorflow/__init__.py
-    touch ./tools/tensorflow/core/__init__.py
-    touch ./tools/tensorflow/core/framework/__init__.py
+    # case "${OSTYPE}" in
+    #     linux*)
+    #         [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
+    #         ;;
+    #     darwin*)
+    #         brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
+    #         ;;
+    #     msys*)
+    #         protoc_version=$(curl -s https://api.github.com/repos/protocolbuffers/protobuf/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"' | cut -f 2 -d v)
+    #         protoc_dir=./third_party/bin/protobuf/v${protoc_version}
+    #         if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
+    #             mkdir -p "${protoc_dir}"
+    #             pushd "${protoc_dir}" > /dev/null
+    #             curl -sL -O https://github.com/protocolbuffers/protobuf/releases/download/v${protoc_version}/protoc-${protoc_version}-win32.zip
+    #             unzip protoc-${protoc_version}-win32.zip > /dev/null
+    #             rm protoc-${protoc_version}-win32.zip
+    #             popd > /dev/null
+    #         fi
+    #         export PATH="$(cygpath -a -u "${protoc_dir}/bin")":${PATH}
+    #         ;;
+    # esac
+    # temp=$(mktemp -d)
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/attr_value.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/types.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor_shape.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/resource_handle.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/api_def.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/op_def.proto --python_out=${temp}
+    #touch ${temp}/tensorflow/__init__.py
+    #touch ${temp}/tensorflow/core/__init__.py
+    #touch ${temp}/tensorflow/core/framework/__init__.py
+    # export PYTHONPATH="${temp}:${PYTHONPATH}"
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/tf-script.py metadata
-    rm -rf ./tools/tensorflow
+    # rm -rf ${temp}
     deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/tf-metadata.json ./src/tf-metadata.json
     fi
+    bold "keras metadata"
+    [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
+    venv
+    ${python} ./tools/keras-script.py metadata
+    deactivate
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./src/keras-metadata.json ./src/keras-metadata.json
+    fi
+}
+
+zoo() {
+    bold "keras zoo"
+    venv
+    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
+    ${python} ./tools/keras-script.py zoo
+    deactivate
 }
 
 while [ "$#" != 0 ]; do
@@ -128,5 +196,6 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
+        "zoo") zoo;;
     esac
 done

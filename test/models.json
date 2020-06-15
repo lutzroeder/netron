@@ -1968,8 +1968,8 @@
   {
     "type":   "keras",
     "target": "DenseNet121.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "keras",
@@ -1995,14 +1995,14 @@
   {
     "type":   "keras",
     "target": "InceptionResNetV2.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "keras",
     "target": "InceptionV3.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "keras",
@@ -2063,14 +2063,14 @@
   {
     "type":   "keras",
     "target": "MobileNetV2.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "keras",
     "target": "NASNetMobile.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "keras",
@@ -2172,8 +2172,8 @@
   {
     "type":   "keras",
     "target": "VGG19.h5",
-    "link":   "https://keras.io/applications",
-    "script": "./tools/keras sync install zoo"
+    "script": "./tools/tf sync install zoo",
+    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
     "type":   "mediapipe",

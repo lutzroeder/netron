@@ -45,7 +45,7 @@
 .sidebar-view-documentation h1 { font-weight: bold; font-size: 13px; line-height: 1.25; border-bottom: 1px solid #e8e8e8; padding-bottom: 0.3em; margin-top: 0; margin-bottom: 16px; }
 .sidebar-view-documentation h2 { font-weight: bold; font-size: 11px; line-height: 1.25; margin-top: 20px; margin-bottom: 16px; text-transform: uppercase; border: 0; }
 .sidebar-view-documentation h3 { font-weight: bold; font-size: 11px; line-height: 1.25; }
-.sidebar-view-documentation p { margin-top: 2px; margin-bottom: 2px; margin-left: 0px; }
+.sidebar-view-documentation p { margin-top: 4px; margin-bottom: 4px; margin-left: 0px; }
 .sidebar-view-documentation a { color: #237; }
 .sidebar-view-documentation code { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; background-color: rgba(27, 31, 35, 0.05); padding: 0.2em 0.4em; margin: 0; border-radius: 3px; }
 .sidebar-view-documentation pre { font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace; font-size: 12px; padding: 16px; overflow: auto; line-height: 1.45; background-color: rgba(27, 31, 35, 0.05); border-radius: 3px; }

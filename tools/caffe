@@ -24,9 +24,10 @@ sync() {
 schema() {
     bold "caffe schema"
     [[ $(grep -U $'\x0D' ./src/caffe-proto.js) ]] && crlf=1
-    sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/src/caffe/src/caffe/proto/caffe.proto >./tools/caffe.proto
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe -o ./src/caffe-proto.js ./tools/caffe.proto
-    rm ./tools/caffe.proto
+    temp=$(mktemp -d)
+    sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/src/caffe/src/caffe/proto/caffe.proto > ${temp}/caffe.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r caffe -o ./src/caffe-proto.js ${temp}/caffe.proto
+    rm -rf ${temp}
     node ./tools/update_pbjs.js array ./src/caffe-proto.js data float 1
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/caffe-proto.js ./src/caffe-proto.js

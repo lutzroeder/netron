@@ -1,15 +1,15 @@
 
-from __future__ import unicode_literals
-
-import json
 import io
-import sys
+import json
 import os
+import sys
 
 from tensorflow.core.framework import api_def_pb2
 from tensorflow.core.framework import op_def_pb2
 from tensorflow.core.framework import types_pb2
 from google.protobuf import text_format
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def metadata():
     categories = {
@@ -44,7 +44,7 @@ def metadata():
         'swish_f32': 'Activation',
         'Variable': 'Control',
         'VariableV2': 'Control',
-    };
+    }
 
     def find_multiline(line, colon):
         if colon == -1:
@@ -369,8 +369,6 @@ def metadata():
         json_data = json.dumps(json_root, sort_keys=True, indent=2)
         for line in json_data.splitlines():
             line = line.rstrip()
-            if sys.version_info[0] < 3:
-                line = unicode(line)
             fout.write(line)
             fout.write('\n')
 
