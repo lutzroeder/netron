@@ -66,11 +66,11 @@ mnn.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        let inputSet = new Set();
+        const inputSet = new Set();
         for (let i = 0; i < net.oplistsLength(); i++) {
             const op = net.oplists(i);
             if (mnn.schema.OpTypeName[op.type()] === 'Input') {
-                let args = [];
+                const args = [];
                 for (let j = 0; j < op.outputIndexesLength(); j++) {
                     const index = op.outputIndexes(j);
                     const name = net.tensorName(index);
@@ -164,14 +164,14 @@ mnn.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chains = [];
-        let inputs = [];
+        const inputs = [];
         for (let i = 0; i < op.inputIndexesLength(); i++) {
             const index = op.inputIndexes(i);
             const id = net.tensorName(index);
             inputs.push(new mnn.Argument(id, null, null));
         }
         this._inputs.push(new mnn.Parameter('input', true, inputs));
-        let outputs = [];
+        const outputs = [];
         for (let i = 0; i < op.outputIndexesLength(); i++) {
             const index = op.outputIndexes(i);
             const name = net.tensorName(index);
@@ -259,7 +259,7 @@ mnn.Node = class {
         if (!parameter) return;
 
         let attributeNames = [];
-        let attributeNamesMap = {};
+        const attributeNamesMap = {};
         for (const attributeName of Object.keys(Object.getPrototypeOf(parameter))) {
             if (attributeName != '__init') {
                 attributeNames.push(attributeName);
@@ -267,7 +267,7 @@ mnn.Node = class {
             attributeNamesMap[attributeName] = true;
         }
 
-        let attributeArrayNamesMap = {};
+        const attributeArrayNamesMap = {};
         for (const attributeName of Object.keys(attributeNamesMap)) {
             if (attributeNamesMap[attributeName + 'Length']) { // some bugs without array
                 attributeArrayNamesMap[attributeName] = true;
@@ -453,7 +453,7 @@ mnn.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -462,7 +462,7 @@ mnn.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -472,7 +472,7 @@ mnn.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         if (!this._data) {
             context.state = 'Tensor data is empty.';
@@ -491,8 +491,8 @@ mnn.Tensor = class {
         if (shape.length == 0) {
             shape = [ 1 ];
         }
-        let results = [];
-        let size = shape[dimension];
+        const results = [];
+        const size = shape[dimension];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
