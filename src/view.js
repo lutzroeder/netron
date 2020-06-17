@@ -1154,7 +1154,7 @@ view.ModelFactoryService = class {
         this.register('./barracuda', [ '.nn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
-        this.register('./chainer', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
+        this.register('./npz', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
     }

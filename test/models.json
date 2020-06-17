@@ -804,41 +804,6 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
-    "type":   "chainer",
-    "target": "cifar10_m4_iter_70000.caffemodel.h5",
-    "source": "https://raw.githubusercontent.com/ARM-software/ML-examples/master/cmsisnn-cifar10/models/cifar10_m4_iter_70000.caffemodel.h5",
-    "format": "Weights HDF5",
-    "link":   "https://github.com/ARM-software/ML-examples"
-  },
-  {
-    "type":   "chainer",
-    "target": "generator_model.h5",
-    "source": "https://raw.githubusercontent.com/mattya/chainer-DCGAN/master/generator_model.h5",
-    "format": "Chainer HDF5",
-    "link":   "https://github.com/mattya/chainer-DCGAN"
-  },
-  {
-    "type":   "chainer",
-    "target": "mlp.h5",
-    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.h5]",
-    "format": "Chainer HDF5",
-    "link":   "https://github.com/lutzroeder/netron/issues/337"
-  },
-  {
-    "type":   "chainer",
-    "target": "mlp.npz",
-    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.npz]",
-    "format": "Chainer NumPy",
-    "link":   "https://github.com/lutzroeder/netron/issues/337"
-  },
-  {
-    "type":   "chainer",
-    "target": "mobilenet_v1_1.0_224_quant.hdf5",
-    "source": "https://github.com/lutzroeder/netron/files/4484451/mobilenet_v1_1.0_224_quant.zip[mobilenet_v1_1.0_224_quant.hdf5]",
-    "format": "Weights HDF5",
-    "link":   "https://github.com/lutzroeder/netron/issues/467"
-  },
-  {
     "type":   "cntk",
     "target": "01_OneHidden.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",
@@ -1960,6 +1925,13 @@
   },
   {
     "type":   "keras",
+    "target": "cifar10_m4_iter_70000.caffemodel.h5",
+    "source": "https://raw.githubusercontent.com/ARM-software/ML-examples/master/cmsisnn-cifar10/models/cifar10_m4_iter_70000.caffemodel.h5",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/ARM-software/ML-examples"
+  },
+  {
+    "type":   "keras",
     "target": "CNN_SN_flaw1_v1.h5",
     "source": "https://github.com/lutzroeder/netron/files/2452413/CNN_SN_flaw1_v1.h5.zip[CNN_SN_flaw1_v1.h5]",
     "format": "Keras v2.2.3",
@@ -1977,6 +1949,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2592326/generating_images_with_vaes.h5.zip[generating_images_with_vaes.h5]",
     "format": "Keras v2.1.3",
     "link":   "https://github.com/fchollet/deep-learning-with-python-notebooks/blob/master/8.4-generating-images-with-vaes.ipynb"
+  },
+  {
+    "type":   "keras",
+    "target": "generator_model.h5",
+    "source": "https://raw.githubusercontent.com/mattya/chainer-DCGAN/master/generator_model.h5",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/mattya/chainer-DCGAN"
   },
   {
     "type":   "keras",
@@ -2027,6 +2006,13 @@
   },
   {
     "type":   "keras",
+    "target": "mlp.h5",
+    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.h5]",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/lutzroeder/netron/issues/337"
+  },
+  {
+    "type":   "keras",
     "target": "mimo.h5",
     "source": "https://github.com/lutzroeder/netron/files/2565761/mimo.h5.zip[mimo.h5]",
     "format": "Keras v2.2.0",
@@ -2059,6 +2045,13 @@
     "source": "https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5",
     "format": "Keras v2.2.2",
     "link":   "https://github.com/aio-libs/aiohttp-demos/tree/master/demos/imagetagger/tests/data"
+  },
+  {
+    "type":   "keras",
+    "target": "mobilenet_v1_1.0_224_quant.hdf5",
+    "source": "https://github.com/lutzroeder/netron/files/4484451/mobilenet_v1_1.0_224_quant.zip[mobilenet_v1_1.0_224_quant.hdf5]",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/lutzroeder/netron/issues/467"
   },
   {
     "type":   "keras",
@@ -2145,7 +2138,7 @@
     "type":   "keras",
     "target": "snapshot_parent_0097.h5",
     "source": "https://raw.githubusercontent.com/uber-research/deep-neuroevolution/master/visual_inspector/sample_data/mujoco/final_xy_bc/snapshots/snapshot_gen_0097/snapshot_parent_0097.h5",
-    "error":  "File format is not Keras HDF5 in 'snapshot_parent_0097.h5'.\nFile format is not Chainer HDF5 in 'snapshot_parent_0097.h5'.",
+    "error":  "File format is not HDF5 Weights in 'snapshot_parent_0097.h5'.",
     "link":   "https://github.com/uber-research/deep-neuroevolution"
   },
   {
@@ -2747,6 +2740,20 @@
     "link":   "https://github.com/Tencent/ncnn"
   },
   {
+    "type":   "npz",
+    "target": "cifar10-1w-1a.npz",
+    "source": "https://raw.githubusercontent.com/Xilinx/BNN-PYNQ/master/bnn/src/training/cifar10-1w-1a.npz",
+    "format": "NumPy Zip",
+    "link":   "https://github.com/Xilinx/BNN-PYNQ"
+  },
+  {
+    "type":   "npz",
+    "target": "mlp.npz",
+    "source": "https://github.com/lutzroeder/netron/files/3666244/mlp.zip[mlp.npz]",
+    "format": "NumPy Zip",
+    "link":   "https://github.com/lutzroeder/netron/issues/337"
+  },
+  {
     "type":   "onnx",
     "target": "arcface-resnet100.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
@@ -2821,11 +2828,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataRgba8_SRGB_0_255.onnx]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/183"
-  },
-  {
-    "type":   "onnx",
-    "target": "densenet121_opset_9.tar.gz",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/densenet121.tar.gz"
   },
   {
     "type":   "onnx",
