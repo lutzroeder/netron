@@ -8,7 +8,7 @@ tnn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier.toLowerCase();
-        if (identifier.endsWith('.tnnproto') || identifier.endsWith('.rapidproto')) {
+        if (identifier.endsWith('.tnnproto')) {
             let text = context.text;
             text = text.substring(0, Math.min(text.length, 128));
             const line = text.split('\n').shift().trim();
@@ -19,18 +19,7 @@ tnn.ModelFactory = class {
                 }
             }
         }
-        /*
-        if (identifier.endsWith('.tnnproto.tnnmodel')|| identifier.endsWith('.rapidproto.rapidmodel')) {
-            const buffer = context.buffer;
-            if (buffer.length > 4) {
-                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
-                if (signature == 0x007685DD) {
-                    return true;
-                }
-            }
-        }
-        */
-        if (identifier.endsWith('.tnnmodel') || identifier.endsWith('.rapidmodel')) {
+        if (identifier.endsWith('.tnnmodel')) {
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
@@ -55,35 +44,17 @@ tnn.ModelFactory = class {
                 }
             };
             let tnnmodel = null;
-            if (identifier.endsWith('.tnnproto') || identifier.endsWith('.rapidproto')) {
-                if (identifier.endsWith('.tnnproto')) {
-                    tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
-                }
-                else if (identifier.endsWith('.rapidproto')) {
-                    tnnmodel = context.identifier.substring(0, context.identifier.length - 11) + '.rapidmodel';
-                }
+            if (identifier.endsWith('.tnnproto')) {
+                tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
                 return context.request(tnnmodel, null).then((tnnmodel) => {
                     return tnnproto(context.text, tnnmodel);
                 }).catch(() => {
                     return tnnproto(context.text, null);
                 });
             }
-            else if (identifier.endsWith('.tnnproto.tnnmodel')) {
-                tnnmodel = context.identifier.substring(0, context.identifier.length - 18) + '.tnnmodel';
-                return context.request(tnnmodel, null).then((tnnmodel) => {
-                    return tnnproto(context.buffer, tnnmodel);
-                }).catch(() => {
-                    return tnnproto(context.buffer, null);
-                });
-            }
-            else if (identifier.endsWith('.tnnmodel')|| identifier.endsWith('.rapidproto')) {
+            else if (identifier.endsWith('.tnnmodel')) {
                 let text = null;
-                if  (identifier.endsWith('.tnnmodel')){
-                    text = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                }
-                else if(identifier.endsWith('.rapidmodel')){
-                    text = context.identifier.substring(0, context.identifier.length - 11) + '.rapidproto';
-                }
+                text = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
                 return context.request(text, 'utf-8').then((text) => {
                     return tnnproto(text, context.buffer);
                 }).catch((error) => {
@@ -118,7 +89,7 @@ tnn.Graph = class {
         this._outputs = [];
         this._nodes = [];
         const resources = new tnn.LayerResourceReader(tnnmodel);
-        const reader = (typeof tnnproto == 'string') ? new tnn.TextProtoReader(tnnproto) : new tnn.BinaryProtoReader(metadata, tnnproto);
+        const reader = new tnn.TextProtoReader(tnnproto);
         for (const input of reader.inputs) {
             const shape = new tnn.TensorShape(input.shape);
             const type = new tnn.TensorType('float32', shape);
@@ -688,7 +659,7 @@ tnn.TextProtoReader = class {
         this._inputs = split(lines.shift(), ':', true, false).map((input) => {
             const array = split(input, ' ', true, false);
             const name = array.shift();
-            const shape = array.map((dim) => parseInt(dim, 19));
+            const shape = array.map((dim) => parseInt(dim, 10));
             return { name: name, shape: shape };
         });
         lines.shift();
@@ -742,75 +713,6 @@ tnn.TextProtoReader = class {
         return this._layers;
     }
 };
-
-/*
-tnn.BinaryProtoReader = class {
-    constructor(metadata, buffer) {
-        const reader = new tnn.BinaryProtoReader(buffer);
-        if (reader.int32() !== 0x007685DD) {
-            throw new tnn.Error('Invalid signature.');
-        }
-        const layerCount = reader.int32();
-        this._inputs = [];
-        this._outputs = [];
-        this._layers = layers;
-        reader.int32(); // blobCount
-        const layers = [];
-        for (let i = 0; i < layerCount; i++) {
-            const typeIndex = reader.int32();
-            const operator = metadata.operator(typeIndex);
-            const layer = {
-                type: operator || typeIndex.toString(),
-                name: i.toString(),
-                inputs: [],
-                outputs: [],
-                attr: {},
-                attributes: []
-            };
-            const inputCount = reader.int32();
-            const outputCount = reader.int32();
-            for (let j = 0; j < inputCount; j++) {
-                layer.inputs.push(reader.int32().toString());
-            }
-            for (let k = 0; k < outputCount; k++) {
-                layer.outputs.push(reader.int32().toString());
-            }
-            let id = reader.int32();
-            while (id != -233) {
-                let isArray = id <= -23300;
-                if (isArray) {
-                    id = -id - 23300;
-                }
-                if (isArray) {
-                    const len = reader.int32();
-                    const values = [];
-                    for (let i = 0; i < len; i++) {
-                        values.push(reader.int32());
-                    }
-                    layer.attributes.push({ key: id.toString(), value: values.toString() });
-                    layer.attr[id.toString()] = values;
-                }
-                else {
-                    const value = reader.int32();
-                    layer.attributes.push({ key: id.toString(), value: value.toString() });
-                    layer.attr[id.toString()] = value.toString();
-                }
-                id = reader.int32();
-            }
-            this._layers.push(layer);
-        }
-    }
-    get inputs() {
-        return this._inputs;
-    }
-    get outputs() {
-        return this._outputs;
-    }
-    get layers() {
-        return this._layers;
-    }
-};
-*/
 
 tnn.LayerResourceReader = class {
 
