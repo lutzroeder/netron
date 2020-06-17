@@ -8,18 +8,29 @@ tnn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier.toLowerCase();
-        if (identifier.endsWith('.tnnproto')) {
+        if (identifier.endsWith('.tnnproto') || identifier.endsWith('.rapidproto')) {
             let text = context.text;
             text = text.substring(0, Math.min(text.length, 128));
             const line = text.split('\n').shift().trim();
             if (line.startsWith('"') && line.endsWith('"')) {
                 const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
+                if (header.length >= 3 || (header.length >= 4 && header[3] === '4206624770')) {
                     return true;
                 }
             }
         }
-        if (identifier.endsWith('.tnnmodel')) {
+        /*
+        if (identifier.endsWith('.tnnproto.tnnmodel')|| identifier.endsWith('.rapidproto.rapidmodel')) {
+            const buffer = context.buffer;
+            if (buffer.length > 4) {
+                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
+                if (signature == 0x007685DD) {
+                    return true;
+                }
+            }
+        }
+        */
+        if (identifier.endsWith('.tnnmodel') || identifier.endsWith('.rapidmodel')) {
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
@@ -44,17 +55,35 @@ tnn.ModelFactory = class {
                 }
             };
             let tnnmodel = null;
-            if (identifier.endsWith('.tnnproto')) {
-                tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+            if (identifier.endsWith('.tnnproto') || identifier.endsWith('.rapidproto')) {
+                if (identifier.endsWith('.tnnproto')) {
+                    tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+                }
+                else if (identifier.endsWith('.rapidproto')) {
+                    tnnmodel = context.identifier.substring(0, context.identifier.length - 11) + '.rapidmodel';
+                }
                 return context.request(tnnmodel, null).then((tnnmodel) => {
                     return tnnproto(context.text, tnnmodel);
                 }).catch(() => {
                     return tnnproto(context.text, null);
                 });
             }
-            else if (identifier.endsWith('.tnnmodel')) {
+            else if (identifier.endsWith('.tnnproto.tnnmodel')) {
+                tnnmodel = context.identifier.substring(0, context.identifier.length - 18) + '.tnnmodel';
+                return context.request(tnnmodel, null).then((tnnmodel) => {
+                    return tnnproto(context.buffer, tnnmodel);
+                }).catch(() => {
+                    return tnnproto(context.buffer, null);
+                });
+            }
+            else if (identifier.endsWith('.tnnmodel')|| identifier.endsWith('.rapidproto')) {
                 let text = null;
-                text = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                if  (identifier.endsWith('.tnnmodel')){
+                    text = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                }
+                else if(identifier.endsWith('.rapidmodel')){
+                    text = context.identifier.substring(0, context.identifier.length - 11) + '.rapidproto';
+                }
                 return context.request(text, 'utf-8').then((text) => {
                     return tnnproto(text, context.buffer);
                 }).catch((error) => {
@@ -89,7 +118,7 @@ tnn.Graph = class {
         this._outputs = [];
         this._nodes = [];
         const resources = new tnn.LayerResourceReader(tnnmodel);
-        const reader =  new tnn.TextProtoReader(tnnproto);
+        const reader = (typeof tnnproto == 'string') ? new tnn.TextProtoReader(tnnproto) : new tnn.BinaryProtoReader(metadata, tnnproto);
         for (const input of reader.inputs) {
             const shape = new tnn.TensorShape(input.shape);
             const type = new tnn.TensorType('float32', shape);
@@ -245,104 +274,104 @@ tnn.Node = class {
             }));
         }
         switch (this._type) {
-        case 'Convolution':
-        case 'ConvolutionDepthWise':
-        case 'Deconvolution':
-        case 'DeconvolutionDepthWise': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                const num_output = parseInt(layer.attr['2'] || 0, 10);
-                const kernel_w = parseInt(layer.attr['3'] || 0, 10);
-                const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
-                const weight_data_size = resource.filter.length;
-                this._weight(resource, 'filter', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
-                if (resource.bias) {
-                    this._weight(resource, 'bias', [ num_output ]);
-                }
-                if (resource.quantized) {
-                    this._weight(resource, 'quantized', [ num_output ]);
-                }
-            }
-            break;
-        }
-        case 'Conv3D':{
-            const resource = resources.read(this._name);
-            if (resource) {
-                const num_output = parseInt(layer.attr['2'] || 0, 10);
-                const kernel_w = parseInt(layer.attr['3'] || 0, 10);
-                const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
-                const kernel_d = parseInt(layer.attr['5'] || kernel_w, 10);
-                const weight_data_size = resource.filter.length;
-                this._weight(resource, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d ]);
-                if (resource.bias) {
-                    this._weight(resources, 'bias', [ num_output ]);
-                }
-            }
-            break;
-        }
-        case 'InnerProduct': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = resource.weight.length;
-                this._weight(resource, 'weight', [ num_output, weight_data_size / num_output ]);
-                this._weight(resource, 'bias', [ num_output ]);
-                if (resource.weight.dataType === 'int8') {
-                    this._weight(resource, 'scale', [ num_output ]);
-                }
-            }
-            break;
-        }
-        case 'PReLU': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                this._weight(resource, 'slope', [ resource.slope.length ]);
-            }
-            break;
-        }
-        case 'BatchNormCxx': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                this._weight(resource, 'scale', [ resource.scale.length ]);
-                this._weight(resource, 'bias', [ resource.bias.length ]);
-            }
-            break;
-        }
-        case 'Div':
-        case 'Sub':
-        case 'Add':
-        case 'Mul': {
-            if (this._inputs.length === 1) {
+            case 'Convolution':
+            case 'ConvolutionDepthWise':
+            case 'Deconvolution':
+            case 'DeconvolutionDepthWise': {
                 const resource = resources.read(this._name);
                 if (resource) {
-                    const num_output = resource.slope.length;
-                    this._weight(resource, 'slope', [ num_output ]);
+                    const num_output = parseInt(layer.attr['2'] || 0, 10);
+                    const kernel_w = parseInt(layer.attr['3'] || 0, 10);
+                    const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
+                    const weight_data_size = resource.filter.length;
+                    this._weight(resource, 'filter', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                    if (resource.bias) {
+                        this._weight(resource, 'bias', [ num_output ]);
+                    }
+                    if (resource.quantized) {
+                        this._weight(resource, 'quantized', [ num_output ]);
+                    }
                 }
+                break;
             }
-            break;
-        }
-        case 'HdrGuide': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                const weight_size = resource.ccm_weight.length;
-                this._weight(resource, 'ccm_weight', [ weight_size ]);
-                this._weight(resource, 'ccm_bias', [ weight_size ]);
-                this._weight(resource, 'shifts', [ weight_size ]);
-                this._weight(resource, 'slopes', [ weight_size ]);
-                this._weight(resource, 'projection_weight', [ weight_size ]);
-                this._weight(resource, 'projection_bias', [ weight_size ]);
+            case 'Conv3D':{
+                const resource = resources.read(this._name);
+                if (resource) {
+                    const num_output = parseInt(layer.attr['2'] || 0, 10);
+                    const kernel_w = parseInt(layer.attr['3'] || 0, 10);
+                    const kernel_h = parseInt(layer.attr['4'] || kernel_w, 10);
+                    const kernel_d = parseInt(layer.attr['5'] || kernel_w, 10);
+                    const weight_data_size = resource.filter.length;
+                    this._weight(resource, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h  * kernel_d), kernel_w, kernel_h, kernel_d ]);
+                    if (resource.bias) {
+                        this._weight(resources, 'bias', [ num_output ]);
+                    }
+                }
+                break;
             }
-            break;
-        }
-        case 'BlobScale': {
-            const resource = resources.read(this._name);
-            if (resource) {
-                const scale_data_size = resource.scale.length;
-                this._weight(resource, 'scale', [ scale_data_size]);
-                this._weight(resource, 'bias', [ scale_data_size ]);
+            case 'InnerProduct': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    const num_output = parseInt(layer.attr['0'] || 0, 10);
+                    const weight_data_size = resource.weight.length;
+                    this._weight(resource, 'weight', [ num_output, weight_data_size / num_output ]);
+                    this._weight(resource, 'bias', [ num_output ]);
+                    if (resource.weight.dataType === 'int8') {
+                        this._weight(resource, 'scale', [ num_output ]);
+                    }
+                }
+                break;
             }
-            break;
-        }
+            case 'PReLU': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    this._weight(resource, 'slope', [ resource.slope.length ]);
+                }
+                break;
+            }
+            case 'BatchNormCxx': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    this._weight(resource, 'scale', [ resource.scale.length ]);
+                    this._weight(resource, 'bias', [ resource.bias.length ]);
+                }
+                break;
+            }
+            case 'Div':
+            case 'Sub':
+            case 'Add':
+            case 'Mul': {
+                if (this._inputs.length === 1) {
+                    const resource = resources.read(this._name);
+                    if (resource) {
+                        const num_output = resource.slope.length;
+                        this._weight(resource, 'slope', [ num_output ]);
+                    }
+                }
+                break;
+            }
+            case 'HdrGuide': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    const weight_size = resource.ccm_weight.length;
+                    this._weight(resource, 'ccm_weight', [ weight_size ]);
+                    this._weight(resource, 'ccm_bias', [ weight_size ]);
+                    this._weight(resource, 'shifts', [ weight_size ]);
+                    this._weight(resource, 'slopes', [ weight_size ]);
+                    this._weight(resource, 'projection_weight', [ weight_size ]);
+                    this._weight(resource, 'projection_bias', [ weight_size ]);
+                }
+                break;
+            }
+            case 'BlobScale': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    const scale_data_size = resource.scale.length;
+                    this._weight(resource, 'scale', [ scale_data_size]);
+                    this._weight(resource, 'bias', [ scale_data_size ]);
+                }
+                break;
+            }
         }
     }
 
@@ -393,15 +422,15 @@ tnn.Attribute = class {
                 this._type = schema.type;
             }
             switch (this._type) {
-            case 'int32':
-                this._value = parseInt(this._value, 10);
-                break;
-            case 'float32':
-                this._value = parseFloat(this._value);
-                break;
-            case 'float32[]':
-                this._value = this._value.map((v) => parseFloat(v));
-                break;
+                case 'int32':
+                    this._value = parseInt(this._value, 10);
+                    break;
+                case 'float32':
+                    this._value = parseFloat(this._value);
+                    break;
+                case 'float32[]':
+                    this._value = this._value.map((v) => parseFloat(v));
+                    break;
             }
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -490,13 +519,13 @@ tnn.Tensor = class {
         }
 
         switch (this._type.dataType) {
-        case 'float16':
-        case 'float32':
-            context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
-            break;
-        default:
-            context.state = 'Tensor data type is not implemented.';
-            break;
+            case 'float16':
+            case 'float32':
+                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            default:
+                context.state = 'Tensor data type is not implemented.';
+                break;
         }
 
         context.dataType = this._type.dataType;
@@ -515,16 +544,16 @@ tnn.Tensor = class {
                     return results;
                 }
                 switch (this._type.dataType) {
-                case 'float32':
-                    results.push(context.data.getFloat32(context.index, true));
-                    context.index += 4;
-                    context.count++;
-                    break;
-                case 'float16':
-                    results.push(context.data.getFloat16(context.index, true));
-                    context.index += 2;
-                    context.count++;
-                    break;
+                    case 'float32':
+                        results.push(context.data.getFloat32(context.index, true));
+                        context.index += 4;
+                        context.count++;
+                        break;
+                    case 'float16':
+                        results.push(context.data.getFloat16(context.index, true));
+                        context.index += 2;
+                        context.count++;
+                        break;
                 }
             }
         }
@@ -659,7 +688,7 @@ tnn.TextProtoReader = class {
         this._inputs = split(lines.shift(), ':', true, false).map((input) => {
             const array = split(input, ' ', true, false);
             const name = array.shift();
-            const shape = array.map((dim) => parseInt(dim, 10));
+            const shape = array.map((dim) => parseInt(dim, 19));
             return { name: name, shape: shape };
         });
         lines.shift();
@@ -714,7 +743,74 @@ tnn.TextProtoReader = class {
     }
 };
 
-
+/*
+tnn.BinaryProtoReader = class {
+    constructor(metadata, buffer) {
+        const reader = new tnn.BinaryProtoReader(buffer);
+        if (reader.int32() !== 0x007685DD) {
+            throw new tnn.Error('Invalid signature.');
+        }
+        const layerCount = reader.int32();
+        this._inputs = [];
+        this._outputs = [];
+        this._layers = layers;
+        reader.int32(); // blobCount
+        const layers = [];
+        for (let i = 0; i < layerCount; i++) {
+            const typeIndex = reader.int32();
+            const operator = metadata.operator(typeIndex);
+            const layer = {
+                type: operator || typeIndex.toString(),
+                name: i.toString(),
+                inputs: [],
+                outputs: [],
+                attr: {},
+                attributes: []
+            };
+            const inputCount = reader.int32();
+            const outputCount = reader.int32();
+            for (let j = 0; j < inputCount; j++) {
+                layer.inputs.push(reader.int32().toString());
+            }
+            for (let k = 0; k < outputCount; k++) {
+                layer.outputs.push(reader.int32().toString());
+            }
+            let id = reader.int32();
+            while (id != -233) {
+                let isArray = id <= -23300;
+                if (isArray) {
+                    id = -id - 23300;
+                }
+                if (isArray) {
+                    const len = reader.int32();
+                    const values = [];
+                    for (let i = 0; i < len; i++) {
+                        values.push(reader.int32());
+                    }
+                    layer.attributes.push({ key: id.toString(), value: values.toString() });
+                    layer.attr[id.toString()] = values;
+                }
+                else {
+                    const value = reader.int32();
+                    layer.attributes.push({ key: id.toString(), value: value.toString() });
+                    layer.attr[id.toString()] = value.toString();
+                }
+                id = reader.int32();
+            }
+            this._layers.push(layer);
+        }
+    }
+    get inputs() {
+        return this._inputs;
+    }
+    get outputs() {
+        return this._outputs;
+    }
+    get layers() {
+        return this._layers;
+    }
+};
+*/
 
 tnn.LayerResourceReader = class {
 
@@ -752,67 +848,67 @@ tnn.LayerResourceReader = class {
                 resource.type = reader.string();
                 resource.name = reader.string();
                 switch (resource.type) {
-                case 'Convolution':
-                case 'ConvolutionDepthWise':
-                case 'Deconvolution':
-                case 'DeconvolutionDepthWise': {
-                    reader.expect(resource.name);
-                    const bias = reader.int32();
-                    resource.filter = raw(reader);
-                    if (bias) {
+                    case 'Convolution':
+                    case 'ConvolutionDepthWise':
+                    case 'Deconvolution':
+                    case 'DeconvolutionDepthWise': {
+                        reader.expect(resource.name);
+                        const bias = reader.int32();
+                        resource.filter = raw(reader);
+                        if (bias) {
+                            resource.bias = raw(reader);
+                        }
+                        if (resource.filter.dataType === 'int8') {
+                            resource.quantized = raw();
+                        }
+                        break;
+                    }
+                    case 'Conv3D': {
+                        reader.expect(resource.name);
+                        const bias = reader.int32();
+                        resource.filter = raw(reader);
+                        if (bias) {
+                            resource.bias = raw(reader);
+                        }
+                        break;
+                    }
+                    case 'InnerProduct': {
+                        reader.expect(resource.name);
+                        resource.weight = raw(reader);
                         resource.bias = raw(reader);
+                        if (resource.weight.dataType === 'int8') {
+                            resource.scale = raw();
+                        }
+                        break;
                     }
-                    if (resource.filter.dataType === 'int8') {
-                        resource.quantized = raw();
+                    case 'PReLU': {
+                        reader.expect(resource.name);
+                        resource.slope = raw(reader);
+                        break;
                     }
-                    break;
-                }
-                case 'Conv3D': {
-                    reader.expect(resource.name);
-                    const bias = reader.int32();
-                    resource.filter = raw(reader);
-                    if (bias) {
+                    case 'Add':
+                    case 'Mul': {
+                        resource.slope = raw(reader);
+                        break;
+                    }
+                    case 'BatchNormCxx':
+                        resource.scale = raw(reader);
                         resource.bias = raw(reader);
-                    }
-                    break;
-                }
-                case 'InnerProduct': {
-                    reader.expect(resource.name);
-                    resource.weight = raw(reader);
-                    resource.bias = raw(reader);
-                    if (resource.weight.dataType === 'int8') {
-                        resource.scale = raw();
-                    }
-                    break;
-                }
-                case 'PReLU': {
-                    reader.expect(resource.name);
-                    resource.slope = raw(reader);
-                    break;
-                }
-                case 'Add':
-                case 'Mul': {
-                    resource.slope = raw(reader);
-                    break;
-                }
-                case 'BatchNormCxx':
-                    resource.scale = raw(reader);
-                    resource.bias = raw(reader);
-                    break;
-                case 'HdrGuide':
-                    resource.ccm_weight = raw(reader);
-                    resource.ccm_bias = raw(reader);
-                    resource.shifts = raw(reader);
-                    resource.slopes = raw(reader);
-                    resource.projection_weight = raw(reader);
-                    resource.projection_bias = raw(reader);
-                    break;
-                case 'BlobScale':
-                    resource.scale = raw(reader);
-                    resource.bias = raw(reader);
-                    break;
-                default:
-                    throw new tnn.Error("Unknown layer resource type '" + resource.type + "'.");
+                        break;
+                    case 'HdrGuide':
+                        resource.ccm_weight = raw(reader);
+                        resource.ccm_bias = raw(reader);
+                        resource.shifts = raw(reader);
+                        resource.slopes = raw(reader);
+                        resource.projection_weight = raw(reader);
+                        resource.projection_bias = raw(reader);
+                        break;
+                    case 'BlobScale':
+                        resource.scale = raw(reader);
+                        resource.bias = raw(reader);
+                        break;
+                    default:
+                        throw new tnn.Error("Unknown layer resource type '" + resource.type + "'.");
                 }
                 this._layerResources.push(resource);
             }
