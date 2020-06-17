@@ -14,12 +14,12 @@ tnn.ModelFactory = class {
             const line = text.split('\n').shift().trim();
             if (line.startsWith('"') && line.endsWith('"')) {
                 const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                if (header.length >= 3 || (header.length >= 4 && header[3] === '4206624770')) {
+                if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
                     return true;
                 }
             }
         }
-        if (identifier.endsWith('.tnnmodel') || identifier.endsWith('.rapidmodel')) {
+        if (identifier.endsWith('.tnnmodel')) {
             const buffer = context.buffer;
             if (buffer.length > 4) {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
