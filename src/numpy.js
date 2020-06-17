@@ -41,7 +41,7 @@ numpy.Array = class {
                         throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
                     }
                     this._dataType = header.descr.substring(1);
-                    const size = parseInt(header.descr[2]) * this._shape.reduce((a, b) => a * b);
+                    const size = parseInt(header.descr[2], 10) * this._shape.reduce((a, b) => a * b, 1);
                     this._data = reader.bytes(size);
                     break;
                 }
