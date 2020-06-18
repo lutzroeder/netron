@@ -45,7 +45,6 @@ keras.ModelFactory = class {
         return host.require('./hdf5').then((hdf5) => {
             let format = 'Keras';
             let producer = '';
-            let version = '';
             let backend = '';
             let model_config = null;
             let rootGroup = null;
@@ -68,7 +67,7 @@ keras.ModelFactory = class {
                                 model_config = keras.JsonParser.parse(json);
                             }
                             backend = rootGroup.attribute('backend') || '';
-                            version = rootGroup.attribute('keras_version') || '';
+                            const version = rootGroup.attribute('keras_version') || '';
                             format = format + (version ? ' v' + version : '');
                             let model_weights_group = rootGroup.group('model_weights');
                             if (!model_weights_group && rootGroup.attribute('layer_names')) {
@@ -162,7 +161,7 @@ keras.ModelFactory = class {
                     case 'json': {
                         model_config = keras.JsonParser.parse(context.text);
                         if (model_config.keras_version) {
-                            version = model_config.keras_version;
+                            const version = model_config.keras_version;
                             format = format + (version ? (' v' + version) : '');
                         }
                         if (model_config.backend) {
@@ -170,7 +169,7 @@ keras.ModelFactory = class {
                         }
                         if (model_config && model_config.modelTopology) {
                             backend = model_config.modelTopology.backend;
-                            version = model_config.modelTopology.keras_version;
+                            const version = model_config.modelTopology.keras_version;
                             format = format + (version ? (' v' + version) : '');
                             format = 'TensorFlow.js ' + (model_config.format ? model_config.format : format);
                             producer = model_config.convertedBy || model_config.generatedBy || '';
