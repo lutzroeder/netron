@@ -5912,7 +5912,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node('DequantizeLinear',\n    inputs=['x', 'x_scale', 'x_zero_point'],\n    outputs=['y'],)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear')",
+          "code": "node = onnx.helper.make_node('DequantizeLinear',\n                             inputs=['x', 'x_scale', 'x_zero_point'],\n                             outputs=['y'],)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array([[[[3, 89],\n                [34, 200],\n                [74, 59]],\n\n               [[5, 24],\n                [24, 87],\n                [32, 13]],\n\n               [[245, 99],\n                [4, 142],\n                [121, 102]], ], ], dtype=np.uint8)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear_axis')",
+          "summary": "axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node('DequantizeLinear',\n                             inputs=['x', 'x_scale', 'x_zero_point'],\n                             outputs=['y'],)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear')",
           "summary": "dequantizelinear"
         }
       ],
@@ -5947,6 +5951,75 @@
         }
       ],
       "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)",
+            "tensor(int32)"
+          ],
+          "description": "Constrain 'x_zero_point' and 'x' to 8-bit/32-bit integer tensor.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "DequantizeLinear",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' must have same shape, and can be either a scalar\nfor per-tensor / per layer quantization, or a 1-D tensor for per-axis quantizations.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node('DequantizeLinear',\n                             inputs=['x', 'x_scale', 'x_zero_point'],\n                             outputs=['y'],)\n\n# 1-D tensor zero point and scale of size equal to axis 1 of the input tensor\nx = np.array([[[[3, 89],\n                [34, 200],\n                [74, 59]],\n\n               [[5, 24],\n                [24, 87],\n                [32, 13]],\n\n               [[245, 99],\n                [4, 142],\n                [121, 102]], ], ], dtype=np.uint8)\nx_scale = np.array([2, 4, 5], dtype=np.float32)\nx_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x.astype(np.float32) - x_zero_point.reshape(1, 3, 1, 1).astype(np.float32)) * x_scale.reshape(1, 3, 1, 1)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear_axis')",
+          "summary": "axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node('DequantizeLinear',\n                             inputs=['x', 'x_scale', 'x_zero_point'],\n                             outputs=['y'],)\n\n# scalar zero point and scale\nx = np.array([0, 3, 128, 255]).astype(np.uint8)\nx_scale = np.float32(2)\nx_zero_point = np.uint8(128)\ny = np.array([-256, -250, 0, 254], dtype=np.float32)\n\nexpect(node, inputs=[x, x_scale, x_zero_point], outputs=[y],\n       name='test_dequantizelinear')",
+          "summary": "dequantizelinear"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "N-D quantized input tensor to be de-quantized.",
+          "name": "x",
+          "type": "T"
+        },
+        {
+          "description": "Scale for input 'x'. It can be a scalar, which means a per-tensor/layer dequantization, or a 1-D tensor for per-axis dequantization.",
+          "name": "x_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Zero point for input 'x'. It can be a scalar, which means a per-tensor/layer dequantization, or a 1-D tensor for per-axis dequantization. It's optional. 0 is the default value when it's not specified.",
+          "name": "x_zero_point",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "2 - 3",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D full precision output tensor. It has same shape as input 'x'.",
+          "name": "y",
+          "type": "tensor(float)"
+        }
+      ],
+      "since_version": 13,
       "support_level": "common",
       "type_constraints": [
         {
@@ -19019,7 +19092,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node('QuantizeLinear',\n    inputs=['x', 'y_scale', 'y_zero_point'],\n    outputs=['y'],)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = np.uint8(128)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear')",
+          "code": "node = onnx.helper.make_node('QuantizeLinear',\n                             inputs=['x', 'y_scale', 'y_zero_point'],\n                             outputs=['y'],)\n\nx = np.array([[[[-162, 10],\n                [-100, 232],\n                [-20, -50]],\n\n               [[-76, 0],\n                [0, 252],\n                [32, -44]],\n\n               [[245, -485],\n                [-960, -270],\n                [-375, -470]], ], ], dtype=np.float32)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear_axis')",
+          "summary": "axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node('QuantizeLinear',\n                             inputs=['x', 'y_scale', 'y_zero_point'],\n                             outputs=['y'],)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = np.uint8(128)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear')",
           "summary": "quantizelinear"
         }
       ],
@@ -19054,6 +19131,82 @@
         }
       ],
       "since_version": 10,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)"
+          ],
+          "description": "Constrain 'x' to float or int32 tensor.",
+          "type_param_str": "T1"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int8)",
+            "tensor(uint8)"
+          ],
+          "description": "Constrain 'y_zero_point' and 'y' to 8-bit integer tensor.",
+          "type_param_str": "T2"
+        }
+      ]
+    }
+  },
+  {
+    "name": "QuantizeLinear",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "description": "(Optional) The axis of the quantization dimension of the input tensor. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)",
+          "name": "axis",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "The linear quantization operator. It consumes a high precision tensor, a scale, and a zero point to compute the low precision / quantized tensor. The scale factor can be a scalar\n(per-tensor/layer quantization), or a 1-D tensor for per-axis quantization. The quantization formula is y = saturate ((x / y_scale) + y_zero_point).\nFor saturation, it saturates to [0, 255] if it's uint8, or [-128, 127] if it's int8.\nFor (x / y_scale), it's rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. 'y_zero_point' and 'y' must have same type.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node('QuantizeLinear',\n                             inputs=['x', 'y_scale', 'y_zero_point'],\n                             outputs=['y'],)\n\nx = np.array([[[[-162, 10],\n                [-100, 232],\n                [-20, -50]],\n\n               [[-76, 0],\n                [0, 252],\n                [32, -44]],\n\n               [[245, -485],\n                [-960, -270],\n                [-375, -470]], ], ], dtype=np.float32)\ny_scale = np.array([2, 4, 5], dtype=np.float32)\ny_zero_point = np.array([84, 24, 196], dtype=np.uint8)\ny = (x / y_scale.reshape(1, 3, 1, 1) + y_zero_point.reshape(1, 3, 1, 1)).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear_axis')",
+          "summary": "axis"
+        },
+        {
+          "code": "node = onnx.helper.make_node('QuantizeLinear',\n                             inputs=['x', 'y_scale', 'y_zero_point'],\n                             outputs=['y'],)\n\nx = np.array([0, 2, 3, 1000, -254, -1000]).astype(np.float32)\ny_scale = np.float32(2)\ny_zero_point = np.uint8(128)\ny = np.array([128, 129, 130, 255, 1, 0]).astype(np.uint8)\n\nexpect(node, inputs=[x, y_scale, y_zero_point], outputs=[y],\n       name='test_quantizelinear')",
+          "summary": "quantizelinear"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "N-D full precision Input tensor to be quantized.",
+          "name": "x",
+          "type": "T1"
+        },
+        {
+          "description": "Scale for doing quantization to get 'y'. It can be a scalar, which means per-tensor/layer quantization, or a 1-D Tensor for per-axis quantization.",
+          "name": "y_scale",
+          "type": "tensor(float)"
+        },
+        {
+          "description": "Zero point for doing quantization to get 'y'. It can be a scalar, which means a per-tensor/layer quantization, or a 1-D tensor for per-axis quantization. Default value is uint8 typed 0 if it's not specified.",
+          "name": "y_zero_point",
+          "option": "optional",
+          "type": "T2"
+        }
+      ],
+      "inputs_range": "2 - 3",
+      "max_input": 3,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "N-D quantized output tensor. It has same shape as input 'x'.",
+          "name": "y",
+          "type": "T2"
+        }
+      ],
+      "since_version": 13,
       "support_level": "common",
       "type_constraints": [
         {
