@@ -11,7 +11,7 @@ sklearn.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if ([ 'pkl', 'joblib', 'model', 'meta', 'pb', 'pt', 'h5' ].indexOf(extension) !== -1) {
+        if ([ 'pkl', 'pickle', 'joblib', 'model', 'meta', 'pb', 'pt', 'h5' ].indexOf(extension) !== -1) {
             const buffer = context.buffer;
             if (buffer) {
                 // Reject PyTorch models with .pkl file extension.
@@ -833,6 +833,7 @@ sklearn.Container = class {
         constructorTable['sklearn.ensemble._gb_losses.BinomialDeviance'] = function() {};
         constructorTable['sklearn.ensemble._gb_losses.MultinomialDeviance'] = function() {};
         constructorTable['sklearn.ensemble._gb.GradientBoostingClassifier'] = function() {};
+        constructorTable['sklearn.ensemble._iforest.IsolationForest'] = function() {};
         constructorTable['sklearn.ensemble._voting.VotingClassifier'] = function() {};
         constructorTable['sklearn.ensemble.forest.RandomForestClassifier'] = function() {};
         constructorTable['sklearn.ensemble.forest.RandomForestRegressor'] = function() {};
@@ -915,6 +916,7 @@ sklearn.Container = class {
         constructorTable['sklearn.tree._classes.DecisionTreeClassifier'] = function() {};
         constructorTable['sklearn.tree._classes.DecisionTreeRegressor'] = function() {};
         constructorTable['sklearn.tree._classes.ExtraTreeClassifier'] = function() {};
+        constructorTable['sklearn.tree._classes.ExtraTreeRegressor'] = function() {};
         constructorTable['sklearn.tree._tree.Tree'] = function(n_features, n_classes, n_outputs) {
             this.n_features = n_features;
             this.n_classes = n_classes;
