@@ -44,8 +44,7 @@ bigdl.Model = class {
 
     constructor(metadata, module) {
         this._version = module && module.version ? module.version : '';
-        this._graphs = [];
-        this._graphs.push(new bigdl.Graph(metadata, module));
+        this._graphs = [ new bigdl.Graph(metadata, module) ];
     }
 
     get format() {
