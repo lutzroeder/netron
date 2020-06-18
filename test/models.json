@@ -3677,28 +3677,28 @@
   {
     "type":   "pytorch",
     "target": "alexnet.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "alexnet.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v1.6",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "alexnet.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "TorchScript v1.6",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "alexnet_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "TorchScript v1.6",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -3767,27 +3767,27 @@
   {
     "type":   "pytorch",
     "target": "densenet161.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "densenet161_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -3807,26 +3807,26 @@
   {
     "type":   "pytorch",
     "target": "inception_v3.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "inception_v3.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "inception_v3.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "inception_v3_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -3930,20 +3930,20 @@
   {
     "type":   "pytorch",
     "target": "mobilenet_v2.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "mobilenet_v2.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "mobilenet_v2_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -4033,26 +4033,26 @@
   {
     "type":   "pytorch",
     "target": "r3d_18.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "r3d_18.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "r3d_18.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "r3d_18_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -4093,25 +4093,25 @@
   {
     "type":   "pytorch",
     "target": "resnet101.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "resnet101.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "resnet101.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "resnet101_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
@@ -4152,20 +4152,20 @@
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "action": "skip-render",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -4178,26 +4178,26 @@
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.pkl.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.zip.pth",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1_traced.pt",
-    "script": "./tools/pytorch sync install zoo",
+    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {

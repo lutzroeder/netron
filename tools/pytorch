@@ -42,7 +42,7 @@ install() {
     bold "pytorch install"
     venv
     ${python} -m pip install --quiet --upgrade future protobuf scipy
-    ${python} -m pip install --quiet --upgrade --pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
 
@@ -57,26 +57,35 @@ schema() {
 }
 
 metadata() {
-    [[ $(grep -U $'\x0D' ./src/pytorch-metadata.json) ]] && crlf=1
+    bold "pytorch metadata"
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    bold "pytorch metadata"
+    if [[ $(grep -U $'\x0D' ./src/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/pytorch-script.py metadata
-    bold "caffe2 metadata"
-    ${python} ./tools/caffe2-script.py metadata
-    deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/pytorch-metadata.json ./src/pytorch-metadata.json
+    fi
+    deactivate
+    bold "caffe2 metadata"
+    venv
+    if [[ $(grep -U $'\x0D' ./src/caffe2-metadata.json) ]]; then crlf=1; else crlf=; fi
+    ${python} ./tools/caffe2-script.py metadata
+    if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/caffe2-metadata.json ./src/caffe2-metadata.json
     fi
+    deactivate
 }
 
 zoo() {
     bold "pytorch zoo"
+    rm -rf "./third_party/env/pytorch"
     venv
+    ${python} -m pip install --quiet --upgrade future protobuf scipy
+    ${python} -m pip install --quiet --upgrade --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/pytorch-script.py zoo
     deactivate
+    rm -rf "./third_party/env/pytorch"
 }
 
 while [ "$#" != 0 ]; do

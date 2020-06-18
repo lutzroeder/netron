@@ -128,7 +128,6 @@ EOT
 
 metadata() {
     bold "tf metadata"
-    [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
     venv
     # case "${OSTYPE}" in
     #     linux*)
@@ -163,21 +162,22 @@ metadata() {
     #touch ${temp}/tensorflow/core/__init__.py
     #touch ${temp}/tensorflow/core/framework/__init__.py
     # export PYTHONPATH="${temp}:${PYTHONPATH}"
+    if [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/tf-script.py metadata
     # rm -rf ${temp}
-    deactivate
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/tf-metadata.json ./src/tf-metadata.json
     fi
-    bold "keras metadata"
-    [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]] && crlf=1
-    venv
-    ${python} ./tools/keras-script.py metadata
     deactivate
+    bold "keras metadata"
+    venv
+    if [[ $(grep -U $'\x0D' ./src/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
+    ${python} ./tools/keras-script.py metadata
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/keras-metadata.json ./src/keras-metadata.json
     fi
+    deactivate
 }
 
 zoo() {
