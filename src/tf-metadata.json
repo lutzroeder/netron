@@ -3079,6 +3079,44 @@
     }
   },
   {
+    "name": "BandedTriangularSolve",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "lower",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "adjoint",
+          "type": "boolean"
+        },
+        {
+          "description": "Must be one of the following: `float64`, `float32`, `float16`, `complex64`, `complex128`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "matrix",
+          "typeAttr": "T"
+        },
+        {
+          "name": "rhs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Barrier",
     "schema": {
       "attributes": [
@@ -4389,7 +4427,7 @@
     }
   },
   {
-    "name": "BesselI0e",
+    "name": "BesselI0",
     "schema": {
       "attributes": [
         {
@@ -4398,7 +4436,6 @@
           "type": "type"
         }
       ],
-      "description": "Exponentially scaled modified Bessel function of order 0 defined as\n`bessel_i0e(x) = exp(-abs(x)) bessel_i0(x)`.\n\nThis function is faster and numerically stabler than `bessel_i0(x)`.",
       "inputs": [
         {
           "name": "x",
@@ -4410,8 +4447,55 @@
           "name": "y",
           "typeAttr": "T"
         }
+      ]
+    }
+  },
+  {
+    "name": "BesselI0e",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
       ],
-      "summary": "Computes the Bessel i0e function of `x` element-wise."
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselI1",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -4424,7 +4508,6 @@
           "type": "type"
         }
       ],
-      "description": "Exponentially scaled modified Bessel function of order 0 defined as\n`bessel_i1e(x) = exp(-abs(x)) bessel_i1(x)`.\n\nThis function is faster and numerically stabler than `bessel_i1(x)`.",
       "inputs": [
         {
           "name": "x",
@@ -4436,8 +4519,199 @@
           "name": "y",
           "typeAttr": "T"
         }
+      ]
+    }
+  },
+  {
+    "name": "BesselJ0",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
       ],
-      "summary": "Computes the Bessel i1e function of `x` element-wise."
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselJ1",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselK0",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselK0e",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselK1",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselK1e",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselY0",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BesselY1",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -11052,7 +11326,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -16023,7 +16297,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -17715,7 +17989,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -17739,7 +18013,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -50105,7 +50379,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         }
@@ -51305,6 +51579,71 @@
         }
       ],
       "summary": "Draws samples from a multinomial distribution."
+    }
+  },
+  {
+    "name": "StatelessParameterizedTruncatedNormal",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "S",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tseed",
+          "type": "type"
+        },
+        {
+          "description": "The type of the output. Must be one of the following: `float16`, `float32`, `float64`.",
+          "name": "dtype",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "S"
+        },
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        },
+        {
+          "description": "The mean parameter of each batch.",
+          "name": "means",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "The standard deviation parameter of each batch. Must be greater than 0.",
+          "name": "stddevs",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "The minimum cutoff. May be -infinity.",
+          "name": "minvals",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "The maximum cutoff. May be +infinity, and must be more than the minval\nfor each batch.",
+          "name": "maxvals",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The outputs are truncated normal samples and are a deterministic function of\n`shape`, `seed`, `minvals`, `maxvals`, `means` and `stddevs`.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ]
     }
   },
   {
