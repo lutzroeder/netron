@@ -43,7 +43,7 @@ install() {
     venv
     ${python} -m pip install --quiet --upgrade wheel
     ${python} -m pip install --quiet --upgrade protobuf
-    ${python} -m pip install --quiet --upgrade tensorflow
+    ${python} -m pip install --quiet --upgrade tf-nightly
     deactivate
 }
 
