@@ -79,7 +79,8 @@ request(url).then((data) => {
         '  - Arch: x86',
         '    InstallerType: nullsoft',
         '    Url: ' + url,
-        '    Sha256: ' + sha256
+        '    Sha256: ' + sha256,
+        ''
     ];
     const productDir = path.join(manifestDir, publisher.replace(' ', ''), productName);
     for (const file of fs.readdirSync(productDir)) {
