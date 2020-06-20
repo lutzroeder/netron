@@ -2858,7 +2858,7 @@
     "type":   "onnx",
     "target": "gzip_invalid_archive.tar.gz",
     "source": "https://github.com/lutzroeder/netron/files/3027192/gzip_invalid_archive.tar.gz",
-    "error":  "Invalid GZIP archive in 'gzip_invalid_archive.tar.gz'.",
+    "error":  "Invalid gzip archive in 'gzip_invalid_archive.tar.gz'.",
     "link":   "https://github.com/lutzroeder/netron/issues/249"
   },
   {
@@ -3118,7 +3118,7 @@
     "type":   "onnx",
     "target": "zip_invalid_archive.zip",
     "source": "https://github.com/lutzroeder/netron/files/3027198/zip_invalid_archive.zip",
-    "error":  "Invalid ZIP archive in 'zip_invalid_archive.zip'.",
+    "error":  "Invalid Zip archive in 'zip_invalid_archive.zip'.",
     "link":   "https://github.com/lutzroeder/netron/issues/250"
   },
   {

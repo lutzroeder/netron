@@ -9,7 +9,7 @@ zip.Archive = class {
     constructor(buffer) {
         this._entries = [];
         if (buffer.length < 4 || buffer[0] != 0x50 || buffer[1] != 0x4B) {
-            throw new zip.Error('Invalid ZIP archive.');
+            throw new zip.Error('Invalid Zip archive.');
         }
         let reader = null;
         for (let i = buffer.length - 4; i >= 0; i--) {
@@ -502,7 +502,7 @@ zip.Reader = class {
 zip.Error = class extends Error {
     constructor(message) {
         super(message);
-        this.name = 'ZIP Error';
+        this.name = 'Zip Error';
     }
 };
 

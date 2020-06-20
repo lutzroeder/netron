@@ -94,7 +94,7 @@ mxnet.ModelFactory = class {
                     }
                 }
                 catch (err) {
-                    throw new mxnet.Error('Failed to decompress ZIP archive. ' + err.message);
+                    throw new mxnet.Error('Failed to decompress Zip archive. ' + err.message);
                 }
 
                 let manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');

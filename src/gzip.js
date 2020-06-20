@@ -8,7 +8,7 @@ gzip.Archive = class {
     constructor(buffer) {
         this._entries = [];
         if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
-            throw new gzip.Error('Invalid GZIP archive.');
+            throw new gzip.Error('Invalid gzip archive.');
         }
         const reader = new gzip.Reader(buffer, 0, buffer.length);
         this._entries.push(new gzip.Entry(reader));
@@ -23,7 +23,7 @@ gzip.Entry = class {
 
     constructor(reader) {
         if (!reader.match([ 0x1f, 0x8b ])) {
-            throw new gzip.Error('Invalid GZIP signature.');
+            throw new gzip.Error('Invalid gzip signature.');
         }
         const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
@@ -159,7 +159,7 @@ gzip.Reader = class {
 gzip.Error = class extends Error {
     constructor(message) {
         super(message);
-        this.name = 'gzip Error';
+        this.name = 'Gzip Error';
     }
 };
 
