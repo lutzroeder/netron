@@ -290,11 +290,12 @@ uff.Attribute = class {
         this._name = name;
         switch(value.type) {
             case 's':  this._value = value.s; break;
-            case 'i':  this._value = value.i; break;
             case 'd':  this._value = value.d; break;
-            case 'b':  this._value = value.b; break;
-            case 'i_list':  this._value = value.i_list.val; break;
             case 'd_list':  this._value = value.d_list.val; break;
+            case 'i':  this._value = value.i; break;
+            case 'i_list':  this._value = value.i_list.val; break;
+            case 'b':  this._value = value.b; break;
+            case 'blob': this._value = value.blob; break;
             case 'dtype': this._value = new uff.TensorType(value, null).dataType; break;
             case 'dim_orders_list': this._value = value.dim_orders_list.val; break;
             default: throw new uff.Error("Unknown attribute format '" + JSON.stringify(value.type) + "'.");
