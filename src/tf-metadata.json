@@ -195,7 +195,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -2262,7 +2262,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -2623,7 +2623,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -20989,7 +20989,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -27680,7 +27680,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -37509,7 +37509,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -42921,7 +42921,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -50590,7 +50590,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -53761,7 +53761,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
