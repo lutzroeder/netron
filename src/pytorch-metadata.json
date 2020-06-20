@@ -4753,5 +4753,43 @@
         }
       ]
     }
+  },
+  {
+    "name": "torch.remainder:Tensor",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "other"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "torch.remainder:Scalar",
+    "schema": {
+      "attributes": [
+        {
+          "name": "other"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   }
 ]
