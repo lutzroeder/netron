@@ -203,7 +203,6 @@ def zoo():
     download_model('tensorflow.keras.applications.NASNetMobile', '${test}/data/keras/NASNetMobile.h5')
     download_model('tensorflow.keras.applications.ResNet50', '${test}/data/keras/ResNet50.h5')
     download_model('tensorflow.keras.applications.VGG19', '${test}/data/keras/VGG19.h5')
-    download_model('tensorflow.keras.applications.Xception', '${test}/data/keras/Xception.h5')
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

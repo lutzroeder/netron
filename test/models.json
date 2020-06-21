@@ -1843,13 +1843,6 @@
   },
   {
     "type":   "dl4j",
-    "target": "vgg19_dl4j_inference.zip",
-    "source": "https://dl4jdata.blob.core.windows.net/models/vgg19_dl4j_inference.zip",
-    "format": "Deeplearning4j",
-    "link":   "https://github.com/eclipse/deeplearning4j"
-  },
-  {
-    "type":   "dl4j",
     "target": "xception_dl4j_inference.v2.zip",
     "source": "https://dl4jdata.blob.core.windows.net/models/xception_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
@@ -5084,22 +5077,10 @@
   },
   {
     "type":   "tflite",
-    "target": "inception_v4.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v4_2018_04_27.tgz[./inception_v4.tflite]",
-    "format": "TensorFlow Lite v3"
-  },
-  {
-    "type":   "tflite",
     "target": "inception_v4_299_quant.tflite",
     "source": "http://download.tensorflow.org/models/inception_v4_299_quant_20181026.tgz[inception_v4_299_quant.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":   "tflite",
-    "target": "inceptionv3_slim_2016.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/inception_v3_slim_2016_android_2017_11_10.zip[inceptionv3_slim_2016.tflite]",
-    "format": "TensorFlow Lite v3"
   },
   {
     "type":   "tflite",
@@ -5210,13 +5191,6 @@
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/resnet_v2_50_2018_03_27.zip[resnet_v2_50.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/lite/g3doc/models.md"
-  },
-  {
-    "type":   "tflite",
-    "target": "resnet_v2_101.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/resnet_v2_101_2018_03_27.zip[resnet_v2_101.tflite]",
-    "format": "TensorFlow Lite v3",
-    "link":   "https://www.tensorflow.org/lite/models"
   },
   {
     "type":   "tflite",
