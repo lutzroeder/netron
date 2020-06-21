@@ -67,16 +67,16 @@ def metadata():
     def update_input(schema, description):
         if not 'inputs' in schema:
             schema['inputs'] = [ { name: 'input' } ]
-        parameter = next((parameter for parameter in schema['inputs'] if parameter['name'] == 'input'), None)
+        parameter = next((parameter for parameter in schema['inputs'] if (parameter['name'] == 'input' or parameter['name'] == 'inputs')), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
         else:
             raise Exception('')
 
     def update_output(schema, description):
-        if not 'output' in schema:
-            schema['output'] = [ { name: 'output' } ]
-        parameter = next((parameter for parameter in schema['output'] if parameter['name'] == 'output'), None)
+        if not 'outputs' in schema:
+            schema['outputs'] = [ { name: 'output' } ]
+        parameter = next((parameter for parameter in schema['outputs'] if parameter['name'] == 'output'), None)
         if parameter:
             parameter['description'] = remove_indentation(description)
         else:
@@ -167,7 +167,7 @@ def metadata():
                 elif key == 'Input shape':
                     update_input(schema, value)
                 elif key == 'Output shape':
-                    update_input(schema, value)
+                    update_output(schema, value)
                 elif key == 'Example' or key == 'Examples' or key == 'Usage':
                     update_examples(schema, value)
                 elif key == 'References':

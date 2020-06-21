@@ -17,7 +17,7 @@
           "name": "weights"
         },
         {
-          "description": "Optional `keras.layers.RNN`, or keras.layers.Layer` instance\n    to be used to handle backwards input processing. If `backward_layer` is\n    not provided, the layer instance passed as the `layer` argument will be\n    used to generate the backward layer automatically.\n    Note that the provided `backward_layer` layer should have properties\n    matching those of the `layer` argument, in particular it should have the\n    same values for `stateful`, `return_states`, `return_sequence`, etc.\n    In addition, `backward_layer` and `layer` should have different\n    `go_backwards` argument values.\n    A `ValueError` will be raised if these requirements are not met.",
+          "description": "Optional `keras.layers.RNN`, or `keras.layers.Layer`\n    instance to be used to handle backwards input processing.\n    If `backward_layer` is not provided, the layer instance passed as the\n    `layer` argument will be used to generate the backward layer\n    automatically.\n    Note that the provided `backward_layer` layer should have properties\n    matching those of the `layer` argument, in particular it should have the\n    same values for `stateful`, `return_states`, `return_sequence`, etc.\n    In addition, `backward_layer` and `layer` should have different\n    `go_backwards` argument values.\n    A `ValueError` will be raised if these requirements are not met.",
           "name": "backward_layer"
         }
       ],
@@ -83,13 +83,13 @@
       ],
       "inputs": [
         {
-          "description": "Same shape as input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as input.\n",
+          "description": "Same shape as input.",
           "name": "output"
         }
       ],
@@ -122,13 +122,13 @@
       ],
       "inputs": [
         {
-          "description": "Same shape as the input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as the input.\n",
+          "description": "Same shape as the input.",
           "name": "output"
         }
       ],
@@ -153,13 +153,13 @@
       ],
       "inputs": [
         {
-          "description": "Same shape as the input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the batch axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as the input.\n",
+          "description": "Same shape as the input.",
           "name": "output"
         }
       ],
@@ -197,7 +197,7 @@
       "description": "Parametric Rectified Linear Unit.\n\nIt follows:\n\n```\n  f(x) = alpha * x for x < 0\n  f(x) = x for x >= 0\n```\n\nwhere `alpha` is a learned array with the same shape as x.",
       "inputs": [
         {
-          "description": "Same shape as the input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         },
         {
@@ -206,7 +206,7 @@
       ],
       "outputs": [
         {
-          "description": "\nSame shape as the input.\n",
+          "description": "Same shape as the input.",
           "name": "output"
         }
       ],
@@ -231,13 +231,13 @@
       "description": "Exponential Linear Unit.\n\nIt follows:\n\n```\n  f(x) =  alpha * (exp(x) - 1.) for x < 0\n  f(x) = x for x >= 0\n```",
       "inputs": [
         {
-          "description": "Same shape as the input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as the input.\n",
+          "description": "Same shape as the input.",
           "name": "output"
         }
       ],
@@ -262,13 +262,13 @@
       "description": "Thresholded Rectified Linear Unit.\n\nIt follows:\n\n```\n  f(x) = x for x > theta\n  f(x) = 0 otherwise`\n```",
       "inputs": [
         {
-          "description": "Same shape as the input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as the input.\n",
+          "description": "Same shape as the input.",
           "name": "output"
         }
       ],
@@ -315,13 +315,13 @@
       "description": "Max pooling operation for 1D temporal data.\n\nDownsamples the input representation by taking the maximum value over the\nwindow defined by `pool_size`. The window is shifted by `strides`.  The\nresulting output when using \"valid\" padding option has a shape of:\n`output_shape = (input_shape - pool_size + 1) / strides)`\n\nThe resulting output shape when using the \"same\" padding option is:\n`output_shape = input_shape / strides`\n\nFor example, for strides=1 and padding=\"valid\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=1, padding='valid')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 4, 1), dtype=float32, numpy=\narray([[[2.],\n        [3.],\n        [4.],\n        [5.]]], dtype=float32)>\n```\n\nFor example, for strides=2 and padding=\"valid\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=2, padding='valid')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 2, 1), dtype=float32, numpy=\narray([[[2.],\n        [4.]]], dtype=float32)>\n```\n\nFor example, for strides=1 and padding=\"same\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=1, padding='same')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\narray([[[2.],\n        [3.],\n        [4.],\n        [5.],\n        [5.]]], dtype=float32)>\n```",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, downsampled_steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, downsampled_steps)`.",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, steps)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, downsampled_steps)`\n",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, downsampled_steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, downsampled_steps)`.",
           "name": "output"
         }
       ],
@@ -363,13 +363,13 @@
       "description": "Max pooling operation for 2D spatial data.\n\nDownsamples the input representation by taking the maximum value over the\nwindow defined by `pool_size` for each dimension along the features axis.\nThe window is shifted by `strides` in each dimension.  The resulting output\nwhen using \"valid\" padding option has a shape(number of rows or columns) of:\n`output_shape = (input_shape - pool_size + 1) / strides)`\n\nThe resulting output shape when using the \"same\" padding option is:\n`output_shape = input_shape / strides`\n\nFor example, for stride=(1,1) and padding=\"valid\":\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='valid')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 2, 2, 1), dtype=float32, numpy=\n  array([[[[5.],\n           [6.]],\n          [[8.],\n           [9.]]]], dtype=float32)>\n```\n\nFor example, for stride=(2,2) and padding=\"valid\":\n\n```\n>>> x = tf.constant([[1., 2., 3., 4.],\n...                  [5., 6., 7., 8.],\n...                  [9., 10., 11., 12.]])\n>>> x = tf.reshape(x, [1, 3, 4, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='valid')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 2, 3, 1), dtype=float32, numpy=\n  array([[[[ 6.],\n           [ 7.],\n           [ 8.]],\n          [[10.],\n           [11.],\n           [12.]]]], dtype=float32)>\n           \nUsage Example:\n```\n\n```\n>>> input_image = tf.constant([[[[1.], [1.], [2.], [4.]],\n...                            [[2.], [2.], [3.], [2.]],\n...                            [[4.], [1.], [1.], [1.]],\n...                            [[2.], [2.], [1.], [4.]]]]) \n>>> output = tf.constant([[[[1], [0]],\n...                       [[0], [1]]]]) \n>>> model = tf.keras.models.Sequential()\n>>> model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2), \n...    input_shape=(4,4,1)))\n>>> model.compile('adam', 'mean_squared_error')\n>>> model.predict(input_image, steps=1)\narray([[[[2.],\n         [4.]],\n        [[4.],\n         [4.]]]], dtype=float32)\n```\n\nFor example, for stride=(1,1) and padding=\"same\":\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='same')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 3, 3, 1), dtype=float32, numpy=\n  array([[[[5.],\n           [6.],\n           [6.]],\n          [[8.],\n           [9.],\n           [9.]],\n          [[8.],\n           [9.],\n           [9.]]]], dtype=float32)>\n```",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, rows, cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, rows, cols)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, pooled_rows, pooled_cols)`\n",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.",
           "name": "output"
         }
       ],
@@ -402,13 +402,13 @@
       "description": "Max pooling operation for 3D data (spatial or spatio-temporal).",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`",
+          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
+          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`",
           "name": "output"
         }
       ],
@@ -437,13 +437,13 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor with shape: `(batch_size, upsampled_steps, features)`.",
+          "description": "3D tensor with shape: `(batch_size, steps, features)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch, upsampled_steps, features)`.\n",
+          "description": "3D tensor with shape: `(batch_size, upsampled_steps, features)`.",
           "name": "output"
         }
       ],
@@ -477,13 +477,13 @@
       ],
       "inputs": [
         {
-          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, upsampled_rows, upsampled_cols)`",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, rows, cols)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, upsampled_rows, upsampled_cols)`\n",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, upsampled_rows, upsampled_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, upsampled_rows, upsampled_cols)`",
           "name": "output"
         }
       ],
@@ -513,13 +513,13 @@
       ],
       "inputs": [
         {
-          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, dim1, dim2, dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, dim1, dim2, dim3)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`\n",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, upsampled_dim1, upsampled_dim2, upsampled_dim3, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, upsampled_dim1, upsampled_dim2, upsampled_dim3)`",
           "name": "output"
         }
       ],
@@ -544,13 +544,13 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor with shape `(batch_size, padded_axis, features)`",
+          "description": "3D tensor with shape `(batch_size, axis_to_pad, features)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape `(batch, padded_axis, features)`\n",
+          "description": "3D tensor with shape `(batch_size, padded_axis, features)`",
           "name": "output"
         }
       ],
@@ -579,13 +579,13 @@
       ],
       "inputs": [
         {
-          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, padded_rows, padded_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, padded_rows, padded_cols)`",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, rows, cols)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, padded_rows, padded_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, padded_rows, padded_cols)`\n",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, padded_rows, padded_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, channels, padded_rows, padded_cols)`",
           "name": "output"
         }
       ],
@@ -614,13 +614,13 @@
       ],
       "inputs": [
         {
-          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, first_padded_axis, second_padded_axis, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, depth, first_padded_axis, second_padded_axis,\n      third_axis_to_pad)`",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, first_axis_to_pad, second_axis_to_pad, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, depth, first_axis_to_pad, second_axis_to_pad,\n      third_axis_to_pad)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_padded_axis, second_padded_axis, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_padded_axis, second_padded_axis, third_axis_to_pad)`\n",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch_size, first_padded_axis, second_padded_axis, third_axis_to_pad,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch_size, depth, first_padded_axis, second_padded_axis,\n      third_axis_to_pad)`",
           "name": "output"
         }
       ],
@@ -640,13 +640,13 @@
       "description": "Global max pooling operation for 1D temporal data.\n\nDownsamples the input representation by taking the maximum value over\nthe time dimension.\n\nFor example:\n\n```\n>>> x = tf.constant([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])\n>>> x = tf.reshape(x, [3, 3, 1])\n>>> x\n<tf.Tensor: shape=(3, 3, 1), dtype=float32, numpy=\narray([[[1.], [2.], [3.]],\n       [[4.], [5.], [6.]],\n       [[7.], [8.], [9.]]], dtype=float32)>\n>>> max_pool_1d = tf.keras.layers.GlobalMaxPooling1D()\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(3, 1), dtype=float32, numpy=\narray([[3.],\n       [6.],\n       [9.], dtype=float32)>\n```",
       "inputs": [
         {
-          "description": "2D tensor with shape `(batch_size, features)`.",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape:\n  `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n  3D tensor with shape:\n  `(batch_size, features, steps)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n2D tensor with shape:\n`(batch_size, features)`\n",
+          "description": "2D tensor with shape `(batch_size, features)`.",
           "name": "output"
         }
       ],
@@ -672,13 +672,13 @@
       ],
       "inputs": [
         {
-          "description": "2D tensor with shape `(batch_size, channels)`.",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, rows, cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, rows, cols)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n2D tensor with shape:\n`(batch_size, channels)`\n",
+          "description": "2D tensor with shape `(batch_size, channels)`.",
           "name": "output"
         }
       ],
@@ -703,13 +703,13 @@
       ],
       "inputs": [
         {
-          "description": "2D tensor with shape `(batch_size, features)`.",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape:\n  `(batch_size, steps, features)`\n- If `data_format='channels_first'`:\n  3D tensor with shape:\n  `(batch_size, features, steps)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n2D tensor with shape:\n`(batch_size, features)`\n",
+          "description": "2D tensor with shape `(batch_size, features)`.",
           "name": "output"
         }
       ],
@@ -735,13 +735,13 @@
       ],
       "inputs": [
         {
-          "description": "2D tensor with shape `(batch_size, channels)`.",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, rows, cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, rows, cols)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n2D tensor with shape:\n`(batch_size, channels)`\n",
+          "description": "2D tensor with shape `(batch_size, channels)`.",
           "name": "output"
         }
       ],
@@ -773,13 +773,13 @@
       "description": "Average pooling for temporal data.",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, downsampled_steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, downsampled_steps)`.",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, steps)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    3D tensor with shape:\n    `(batch_size, downsampled_steps, features)`\n- If `data_format='channels_first'`:\n    3D tensor with shape:\n    `(batch_size, features, downsampled_steps)`\n",
+          "description": "- If `data_format='channels_last'`:\n  3D tensor with shape `(batch_size, downsampled_steps, features)`.\n- If `data_format='channels_first'`:\n  3D tensor with shape `(batch_size, features, downsampled_steps)`.",
           "name": "output"
         }
       ],
@@ -812,13 +812,13 @@
       "description": "Average pooling operation for spatial data.",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, rows, cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, rows, cols)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    4D tensor with shape:\n    `(batch_size, pooled_rows, pooled_cols, channels)`\n- If `data_format='channels_first'`:\n    4D tensor with shape:\n    `(batch_size, channels, pooled_rows, pooled_cols)`\n",
+          "description": "- If `data_format='channels_last'`:\n  4D tensor with shape `(batch_size, pooled_rows, pooled_cols, channels)`.\n- If `data_format='channels_first'`:\n  4D tensor with shape `(batch_size, channels, pooled_rows, pooled_cols)`.",
           "name": "output"
         }
       ],
@@ -850,13 +850,13 @@
       "description": "Average pooling operation for 3D data (spatial or spatio-temporal).",
       "inputs": [
         {
-          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`",
+          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, spatial_dim1, spatial_dim2, spatial_dim3)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- If `data_format='channels_last'`:\n    5D tensor with shape:\n    `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n    5D tensor with shape:\n    `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`\n",
+          "description": "- If `data_format='channels_last'`:\n  5D tensor with shape:\n  `(batch_size, pooled_dim1, pooled_dim2, pooled_dim3, channels)`\n- If `data_format='channels_first'`:\n  5D tensor with shape:\n  `(batch_size, channels, pooled_dim1, pooled_dim2, pooled_dim3)`",
           "name": "output"
         }
       ],
@@ -1122,13 +1122,13 @@
       "description": "Layer that applies an update to the cost function based input activity.",
       "inputs": [
         {
-          "description": "Same shape as input.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame shape as input.\n",
+          "description": "Same shape as input.",
           "name": "output"
         }
       ],
@@ -1229,7 +1229,7 @@
       ],
       "inputs": [
         {
-          "description": "N-D tensor with shape: `(batch_size, ..., units)`.\nFor instance, for a 2D input with shape `(batch_size, input_dim)`,\nthe output would have shape `(batch_size, units)`.",
+          "description": "N-D tensor with shape: `(batch_size, ..., input_dim)`.\nThe most common situation would be\na 2D input with shape `(batch_size, input_dim)`.",
           "name": "input",
           "type": "T"
         },
@@ -1244,7 +1244,7 @@
       ],
       "outputs": [
         {
-          "description": "\nnD tensor with shape: `(batch_size, ..., units)`.\nFor instance, for a 2D input with shape `(batch_size, input_dim)`,\nthe output would have shape `(batch_size, units)`.\n",
+          "description": "N-D tensor with shape: `(batch_size, ..., units)`.\nFor instance, for a 2D input with shape `(batch_size, input_dim)`,\nthe output would have shape `(batch_size, units)`.",
           "name": "output",
           "type": "T"
         }
@@ -1332,13 +1332,13 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.",
+          "description": "3D tensor with shape: `(batch_size, steps, input_dim)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.\n",
+          "description": "3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.",
           "name": "output"
         }
       ],
@@ -1425,13 +1425,13 @@
       ],
       "inputs": [
         {
-          "description": "4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.",
+          "description": "4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -1910,13 +1910,13 @@
       "description": "Convolutional LSTM.\n\nIt is similar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.",
       "inputs": [
         {
-          "description": "- If `return_state`: a list of tensors. The first tensor is\n  the output. The remaining tensors are the last states,\n  each 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n  `rows` and `cols` values might have changed due to padding.\n- If `return_sequences`: 5D tensor with shape:\n  `(samples, timesteps, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 5D tensor with shape:\n  `(samples, timesteps, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n- Else, 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.",
+          "description": "- If data_format='channels_first'\n    5D tensor with shape:\n    `(samples, time, channels, rows, cols)`\n- If data_format='channels_last'\n    5D tensor with shape:\n    `(samples, time, rows, cols, channels)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- if `return_sequences`\n     - if data_format='channels_first'\n        5D tensor with shape:\n        `(samples, time, filters, output_row, output_col)`\n     - if data_format='channels_last'\n        5D tensor with shape:\n        `(samples, time, output_row, output_col, filters)`\n- else\n    - if data_format='channels_first'\n        4D tensor with shape:\n        `(samples, filters, output_row, output_col)`\n    - if data_format='channels_last'\n        4D tensor with shape:\n        `(samples, output_row, output_col, filters)`\n\n    where o_row and o_col depend on the shape of the filter and\n    the padding\n",
+          "description": "- If `return_state`: a list of tensors. The first tensor is\n  the output. The remaining tensors are the last states,\n  each 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n  `rows` and `cols` values might have changed due to padding.\n- If `return_sequences`: 5D tensor with shape:\n  `(samples, timesteps, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 5D tensor with shape:\n  `(samples, timesteps, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n- Else, 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.",
           "name": "output"
         }
       ],
@@ -2281,13 +2281,13 @@
       ],
       "inputs": [
         {
-          "description": "- If `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `[batch_size, state_size]`, where `state_size` could\n    be a high dimension tensor shape.\n  - If `return_sequences`: N-D tensor with shape\n    `[batch_size, timesteps, output_size]`, where `output_size` could\n    be a high dimension tensor shape, or\n    `[timesteps, batch_size, output_size]` when `time_major` is True.\n  - Else, N-D tensor with shape `[batch_size, output_size]`, where\n    `output_size` could be a high dimension tensor shape.\n\nMasking:\n  This layer supports masking for input data with a variable number\n  of timesteps. To introduce masks to your data,\n  use an [tf.keras.layers.Embedding] layer with the `mask_zero` parameter\n  set to `True`.\n\nNote on using statefulness in RNNs:\n  You can set RNN layers to be 'stateful', which means that the states\n  computed for the samples in one batch will be reused as initial states\n  for the samples in the next batch. This assumes a one-to-one mapping\n  between samples in different successive batches.\n\n  To enable statefulness:\n    - Specify `stateful=True` in the layer constructor.\n    - Specify a fixed batch size for your model, by passing\n      If sequential model:\n        `batch_input_shape=(...)` to the first layer in your model.\n      Else for functional model with 1 or more Input layers:\n        `batch_shape=(...)` to all the first layers in your model.\n      This is the expected shape of your inputs\n      *including the batch size*.\n      It should be a tuple of integers, e.g. `(32, 10, 100)`.\n    - Specify `shuffle=False` when calling fit().\n\n  To reset the states of your model, call `.reset_states()` on either\n  a specific layer, or on your entire model.\n\nNote on specifying the initial state of RNNs:\n  You can specify the initial state of RNN layers symbolically by\n  calling them with the keyword argument `initial_state`. The value of\n  `initial_state` should be a tensor or list of tensors representing\n  the initial state of the RNN layer.\n\n  You can specify the initial state of RNN layers numerically by\n  calling `reset_states` with the keyword argument `states`. The value of\n  `states` should be a numpy array or list of numpy arrays representing\n  the initial state of the RNN layer.\n\nNote on passing external constants to RNNs:\n  You can pass \"external\" constants to the cell using the `constants`\n  keyword argument of `RNN.__call__` (as well as `RNN.call`) method. This\n  requires that the `cell.call` method accepts the same keyword argument\n  `constants`. Such constants can be used to condition the cell\n  transformation on additional static inputs (not changing over time),\n  a.k.a. an attention mechanism.",
+          "description": "N-D tensor with shape `[batch_size, timesteps, ...]` or\n`[timesteps, batch_size, ...]` when time_major is True.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n- if `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `(batch_size, units)`. For example, the number of\n    state tensors is 1 (for RNN and GRU) or 2 (for LSTM).\n- if `return_sequences`: 3D tensor with shape\n    `(batch_size, timesteps, units)`.\n- else, 2D tensor with shape `(batch_size, units)`.\n",
+          "description": "- If `return_state`: a list of tensors. The first tensor is\n    the output. The remaining tensors are the last states,\n    each with shape `[batch_size, state_size]`, where `state_size` could\n    be a high dimension tensor shape.\n  - If `return_sequences`: N-D tensor with shape\n    `[batch_size, timesteps, output_size]`, where `output_size` could\n    be a high dimension tensor shape, or\n    `[timesteps, batch_size, output_size]` when `time_major` is True.\n  - Else, N-D tensor with shape `[batch_size, output_size]`, where\n    `output_size` could be a high dimension tensor shape.\n\nMasking:\n  This layer supports masking for input data with a variable number\n  of timesteps. To introduce masks to your data,\n  use an [tf.keras.layers.Embedding] layer with the `mask_zero` parameter\n  set to `True`.\n\nNote on using statefulness in RNNs:\n  You can set RNN layers to be 'stateful', which means that the states\n  computed for the samples in one batch will be reused as initial states\n  for the samples in the next batch. This assumes a one-to-one mapping\n  between samples in different successive batches.\n\n  To enable statefulness:\n    - Specify `stateful=True` in the layer constructor.\n    - Specify a fixed batch size for your model, by passing\n      If sequential model:\n        `batch_input_shape=(...)` to the first layer in your model.\n      Else for functional model with 1 or more Input layers:\n        `batch_shape=(...)` to all the first layers in your model.\n      This is the expected shape of your inputs\n      *including the batch size*.\n      It should be a tuple of integers, e.g. `(32, 10, 100)`.\n    - Specify `shuffle=False` when calling fit().\n\n  To reset the states of your model, call `.reset_states()` on either\n  a specific layer, or on your entire model.\n\nNote on specifying the initial state of RNNs:\n  You can specify the initial state of RNN layers symbolically by\n  calling them with the keyword argument `initial_state`. The value of\n  `initial_state` should be a tensor or list of tensors representing\n  the initial state of the RNN layer.\n\n  You can specify the initial state of RNN layers numerically by\n  calling `reset_states` with the keyword argument `states`. The value of\n  `states` should be a numpy array or list of numpy arrays representing\n  the initial state of the RNN layer.\n\nNote on passing external constants to RNNs:\n  You can pass \"external\" constants to the cell using the `constants`\n  keyword argument of `RNN.__call__` (as well as `RNN.call`) method. This\n  requires that the `cell.call` method accepts the same keyword argument\n  `constants`. Such constants can be used to condition the cell\n  transformation on additional static inputs (not changing over time),\n  a.k.a. an attention mechanism.",
           "name": "output"
         }
       ],
@@ -2680,7 +2680,7 @@
       ],
       "inputs": [
         {
-          "description": "3+D tensor with shape: `batch_shape + (new_steps, filters)`\n  `steps` value might have changed due to padding or strides.",
+          "description": "3+D tensor with shape: `batch_shape + (steps, input_dim)`",
           "name": "input"
         },
         {
@@ -2692,7 +2692,7 @@
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch, new_steps, filters)`\n`steps` value might have changed due to padding or strides.\n",
+          "description": "3+D tensor with shape: `batch_shape + (new_steps, filters)`\n  `steps` value might have changed due to padding or strides.",
           "name": "output"
         }
       ],
@@ -2819,7 +2819,7 @@
       ],
       "inputs": [
         {
-          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
+          "description": "4+D tensor with shape: `batch_shape + (channels, rows, cols)` if\n  `data_format='channels_first'`\nor 4+D tensor with shape: `batch_shape + (rows, cols, channels)` if\n  `data_format='channels_last'`.",
           "name": "input"
         },
         {
@@ -2831,7 +2831,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -2926,13 +2926,13 @@
       ],
       "inputs": [
         {
-          "description": "5+D tensor with shape: `batch_shape + (filters, new_conv_dim1,\n  new_conv_dim2, new_conv_dim3)` if data_format='channels_first'\nor 5+D tensor with shape: `batch_shape + (new_conv_dim1, new_conv_dim2,\n  new_conv_dim3, filters)` if data_format='channels_last'. `new_conv_dim1`,\n  `new_conv_dim2` and `new_conv_dim3` values might have changed due to\n  padding.",
+          "description": "5+D tensor with shape: `batch_shape + (channels, conv_dim1, conv_dim2,\n  conv_dim3)` if data_format='channels_first'\nor 5+D tensor with shape: `batch_shape + (conv_dim1, conv_dim2, conv_dim3,\n  channels)` if data_format='channels_last'.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n`(batch, filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)`\nif `data_format` is `\"channels_first\"`\nor 5D tensor with shape:\n`(batch, new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)`\nif `data_format` is `\"channels_last\"`.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have\nchanged due to padding.\n",
+          "description": "5+D tensor with shape: `batch_shape + (filters, new_conv_dim1,\n  new_conv_dim2, new_conv_dim3)` if data_format='channels_first'\nor 5+D tensor with shape: `batch_shape + (new_conv_dim1, new_conv_dim2,\n  new_conv_dim3, filters)` if data_format='channels_last'. `new_conv_dim1`,\n  `new_conv_dim2` and `new_conv_dim3` values might have changed due to\n  padding.",
           "name": "output"
         }
       ],
@@ -3033,7 +3033,7 @@
       "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
       "inputs": [
         {
-          "description": "4D tensor with shape:\n`(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n```\nnew_rows = ((rows - 1) * strides[0] + kernel_size[0] - 2 * padding[0] +\noutput_padding[0])\nnew_cols = ((cols - 1) * strides[1] + kernel_size[1] - 2 * padding[1] +\noutput_padding[1])\n```",
+          "description": "4D tensor with shape:\n`(batch_size, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, rows, cols, channels)` if data_format='channels_last'.",
           "name": "input"
         },
         {
@@ -3045,7 +3045,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n\n```\nnew_rows = ((rows - 1) * strides[0] + kernel_size[0]\n            - 2 * padding[0] + output_padding[0])\nnew_cols = ((cols - 1) * strides[1] + kernel_size[1]\n            - 2 * padding[1] + output_padding[1])\n```\n",
+          "description": "4D tensor with shape:\n`(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.\nIf `output_padding` is specified:\n```\nnew_rows = ((rows - 1) * strides[0] + kernel_size[0] - 2 * padding[0] +\noutput_padding[0])\nnew_cols = ((cols - 1) * strides[1] + kernel_size[1] - 2 * padding[1] +\noutput_padding[1])\n```",
           "name": "output"
         }
       ],
@@ -3078,13 +3078,13 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor with shape `(batch_size, cropped_axis, features)`",
+          "description": "3D tensor with shape `(batch_size, axis_to_crop, features)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape `(batch, cropped_axis, features)`\n",
+          "description": "3D tensor with shape `(batch_size, cropped_axis, features)`",
           "name": "output"
         }
       ],
@@ -3113,13 +3113,13 @@
       ],
       "inputs": [
         {
-          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, cropped_rows, cropped_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, channels, cropped_rows, cropped_cols)`",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, rows, cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, channels, rows, cols)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, cropped_rows, cropped_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, channels, cropped_rows, cropped_cols)`\n",
+          "description": "4D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, cropped_rows, cropped_cols, channels)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, channels, cropped_rows, cropped_cols)`",
           "name": "output"
         }
       ],
@@ -3143,13 +3143,13 @@
       "description": "Cropping layer for 3D data (e.g. spatial or spatio-temporal).\n\n  Examples:\n\n```\n>>> input_shape = (2, 28, 28, 10, 3)\n>>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n>>> y = tf.keras.layers.Cropping3D(cropping=(2, 4, 2))(x)\n>>> print(y.shape)\n(2, 24, 20, 6, 3)\n```",
       "inputs": [
         {
-          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, first_cropped_axis, second_cropped_axis, third_cropped_axis,\n    depth)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, depth, first_cropped_axis, second_cropped_axis,\n    third_cropped_axis)`",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, first_axis_to_crop, second_axis_to_crop, third_axis_to_crop,\n    depth)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, depth, first_axis_to_crop, second_axis_to_crop,\n    third_axis_to_crop)`",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n    `(batch, first_cropped_axis, second_cropped_axis, third_cropped_axis,\n      depth)`\n- If `data_format` is `\"channels_first\"`:\n    `(batch, depth,\n      first_cropped_axis, second_cropped_axis, third_cropped_axis)`\n",
+          "description": "5D tensor with shape:\n- If `data_format` is `\"channels_last\"`:\n  `(batch_size, first_cropped_axis, second_cropped_axis, third_cropped_axis,\n    depth)`\n- If `data_format` is `\"channels_first\"`:\n  `(batch_size, depth, first_cropped_axis, second_cropped_axis,\n    third_cropped_axis)`",
           "name": "output"
         }
       ],
@@ -3298,7 +3298,7 @@
       "description": "Depthwise separable 2D convolution.\n\nSeparable convolutions consist of first performing\na depthwise spatial convolution\n(which acts on each input channel separately)\nfollowed by a pointwise convolution which mixes the resulting\noutput channels. The `depth_multiplier` argument controls how many\noutput channels are generated per input channel in the depthwise step.\n\nIntuitively, separable convolutions can be understood as\na way to factorize a convolution kernel into two smaller kernels,\nor as an extreme version of an Inception block.",
       "inputs": [
         {
-          "description": "4D tensor with shape:\n`(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.",
+          "description": "4D tensor with shape:\n`(batch_size, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, rows, cols, channels)` if data_format='channels_last'.",
           "name": "input"
         },
         {
@@ -3310,7 +3310,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "4D tensor with shape:\n`(batch_size, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -3439,7 +3439,7 @@
       ],
       "inputs": [
         {
-          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
+          "description": "4+D tensor with shape: `batch_shape + (channels, rows, cols)` if\n  `data_format='channels_first'`\nor 4+D tensor with shape: `batch_shape + (rows, cols, channels)` if\n  `data_format='channels_last'`.",
           "name": "input"
         },
         {
@@ -3451,7 +3451,7 @@
       ],
       "outputs": [
         {
-          "description": "\n4D tensor with shape:\n`(batch, filters, new_rows, new_cols)`\nif `data_format` is `\"channels_first\"`\nor 4D tensor with shape:\n`(batch, new_rows, new_cols, filters)`\nif `data_format` is `\"channels_last\"`.\n`rows` and `cols` values might have changed due to padding.\n",
+          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -3705,13 +3705,13 @@
       ],
       "inputs": [
         {
-          "description": "`(batch_size,) + target_shape`",
+          "description": "Arbitrary, although all dimensions in the input shape must be known/fixed.\nUse the keyword argument `input_shape` (tuple of integers, does not include\nthe samples/batch size axis) when using this layer as the first layer\nin a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n`(batch_size,) + target_shape`\n",
+          "description": "`(batch_size,) + target_shape`",
           "name": "output"
         }
       ],
@@ -3736,13 +3736,13 @@
       ],
       "inputs": [
         {
-          "description": "Same as the input shape, but with the dimensions re-ordered according\nto the specified pattern.",
+          "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\nSame as the input shape, but with the dimensions re-ordered according\nto the specified pattern.\n",
+          "description": "Same as the input shape, but with the dimensions re-ordered according\nto the specified pattern.",
           "name": "output"
         }
       ],
@@ -3767,13 +3767,13 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor of shape `(num_samples, n, features)`.",
+          "description": "2D tensor of shape `(num_samples, features)`.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "\n3D tensor of shape `(num_samples, n, features)`.\n",
+          "description": "3D tensor of shape `(num_samples, n, features)`.",
           "name": "output"
         }
       ],
@@ -3874,7 +3874,7 @@
       ],
       "inputs": [
         {
-          "description": "3D tensor with shape: `(batch_size, input_length, output_dim)`.",
+          "description": "2D tensor with shape: `(batch_size, input_length)`.",
           "name": "input"
         },
         {
@@ -3883,7 +3883,7 @@
       ],
       "outputs": [
         {
-          "description": "\n3D tensor with shape: `(batch_size, sequence_length, output_dim)`.\n",
+          "description": "3D tensor with shape: `(batch_size, input_length, output_dim)`.",
           "name": "output"
         }
       ],
@@ -3978,7 +3978,7 @@
           "name": "output_shape"
         },
         {
-          "description": "Optional dictionary of keyword arguments to be passed to the\n    function.\nInput shape: Arbitrary. Use the keyword argument input_shape (tuple of\n  integers, does not include the samples axis) when using this layer as the\n  first layer in a model.\nOutput shape: Specified by `output_shape` argument",
+          "description": "Optional dictionary of keyword arguments to be passed to the\n    function.",
           "name": "arguments"
         },
         {
@@ -3997,14 +3997,14 @@
       ],
       "inputs": [
         {
-          "description": "\nArbitrary. Use the keyword argument input_shape\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model.\n",
+          "description": "Arbitrary. Use the keyword argument input_shape (tuple of\nintegers, does not include the samples axis) when using this layer as the\nfirst layer in a model.",
           "name": "inputs",
           "option": "variadic"
         }
       ],
       "outputs": [
         {
-          "description": "\nSpecified by `output_shape` argument\n(or auto-inferred when using TensorFlow or CNTK).\n",
+          "description": "Specified by `output_shape` argument",
           "name": "output"
         }
       ],
