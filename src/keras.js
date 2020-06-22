@@ -266,6 +266,7 @@ keras.Graph = class {
                 case 'Sequential':
                     this._loadSequential(config.config, weights, '', null, null);
                     break;
+                case 'Functional':
                 case 'Model':
                     this._loadModel(config.config, weights, '', null, null);
                     break;
