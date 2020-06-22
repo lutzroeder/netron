@@ -780,6 +780,8 @@ tnn.LayerResourceReader = class {
                         resource.slope = raw(reader);
                         break;
                     }
+                    case 'Div':
+                    case 'Sub':
                     case 'Add':
                     case 'Mul': {
                         resource.slope = raw(reader);
