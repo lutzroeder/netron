@@ -1135,6 +1135,14 @@
         {
           "description": "FP32 Tensor X.",
           "name": "X"
+        },
+        {
+          "description": "Optional scale quantization param computed on activation histogram dataWill overwrite Y_scale argument if specified",
+          "name": "Scale qparam"
+        },
+        {
+          "description": "Optionsl zero-point quantization param computed on activation dataWill overwrite Y_zero_point argument if specified",
+          "name": "Zero-point qparam"
         }
       ],
       "outputs": [
@@ -1235,6 +1243,14 @@
         {
           "description": "1D blob containing bias vector",
           "name": "b"
+        },
+        {
+          "description": "Optional scale quantization param computed on activation histogram dataWill overwrite Y_scale argument if specified",
+          "name": "Scale qparam"
+        },
+        {
+          "description": "Optionsl zero-point quantization param computed on activation dataWill overwrite Y_zero_point argument if specified",
+          "name": "Zero-point qparam"
         }
       ],
       "outputs": [
@@ -12022,7 +12038,7 @@
           "option": "optional"
         }
       ],
-      "description": "\nThis operator fills the elements of the output tensor with a constant value\nspecified by the `value` argument.\n\n- The data type is specified by the `dtype` argument\n\n- Currently, the data types supported are *float*, *int32*, *int64*, and *bool*\n\n- If the `dtype` argument is not provided, the data type of `value` is used\n\n- The output tensor shape is either specified by the `shape` argument or will\nmatch the shape of the input tensor if one is provided (if an input tensor is\nprovided, a shape argument should not be set)\n\n- Optional additional dimensions can be appended at the end as specified by\n`extra_shape` argument\n\n- If `input_as_shape` is set to True, the input should be a 1D tensor\ncontaining the desired output shape (the dimensions specified in `extra_shape`\nwill also be appended)\n\nWhen specifying `dtype` argument, use the integer keys from the *DataType* enum\nin TensorProto:\n\n```\nmessage TensorProto {\n  ...\n  enum DataType {\n    UNDEFINED = 0;\n    FLOAT = 1;  // float\n    INT32 = 2;  // int\n    BYTE = 3;  // BYTE, when deserialized, is going to be restored as uint8.\n    STRING = 4;  // string\n    BOOL = 5;  // bool\n    UINT8 = 6;  // uint8_t\n    INT8 = 7;  // int8_t\n    UINT16 = 8;  // uint16_t\n    INT16 = 9;  // int16_t\n    INT64 = 10;  // int64_t\n    FLOAT16 = 12;  // at::Half\n    DOUBLE = 13;  // double\n  }\n```\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/filler_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"ConstantFill\",\n    [],\n    [\"Y\"],\n    shape=(1,5,5)\n)\n\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nY: [[[0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]]]\n```\n</details>\n\n<details>\n<summary> <b>Example 2</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"ConstantFill\",\n    [\"X\"],\n    [\"Y\"],\n    value=4.0,\n    dtype=1,\n    extra_shape=(1,2)\n)\n\nworkspace.FeedBlob(\"X\", (np.random.randint(100, size=(3,3))).astype(np.float32))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nX: [[86. 30. 84.]\n [34. 51.  9.]\n [29. 86. 59.]]\nY: [[[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]\n\n\n [[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]\n\n\n [[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]]\n```\n\n</details>\n\n",
+      "description": "\nThis operator fills the elements of the output tensor with a constant value\nspecified by the `value` argument.\n\n- The data type is specified by the `dtype` argument\n\n- Currently, the data types supported are *float*, *int32*, *int64*, and *bool*\n\n- If the `dtype` argument is not provided, the data type of `value` is used\n\n- The output tensor shape is either specified by the `shape` argument or will\nmatch the shape of the input tensor if one is provided (if an input tensor is\nprovided, a shape argument should not be set)\n\n- Optional additional dimensions can be appended at the end as specified by\n`extra_shape` argument\n\n- If `input_as_shape` is set to True, the input should be a 1D tensor\ncontaining the desired output shape (the dimensions specified in `extra_shape`\nwill also be appended)\n\n- If a second input V is passed, fill the output with the first element of V\n\nWhen specifying `dtype` argument, use the integer keys from the *DataType* enum\nin TensorProto:\n\n```\nmessage TensorProto {\n  ...\n  enum DataType {\n    UNDEFINED = 0;\n    FLOAT = 1;  // float\n    INT32 = 2;  // int\n    BYTE = 3;  // BYTE, when deserialized, is going to be restored as uint8.\n    STRING = 4;  // string\n    BOOL = 5;  // bool\n    UINT8 = 6;  // uint8_t\n    INT8 = 7;  // int8_t\n    UINT16 = 8;  // uint16_t\n    INT16 = 9;  // int16_t\n    INT64 = 10;  // int64_t\n    FLOAT16 = 12;  // at::Half\n    DOUBLE = 13;  // double\n  }\n```\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/filler_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"ConstantFill\",\n    [],\n    [\"Y\"],\n    shape=(1,5,5)\n)\n\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nY: [[[0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]\n  [0. 0. 0. 0. 0.]]]\n```\n</details>\n\n<details>\n<summary> <b>Example 2</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"ConstantFill\",\n    [\"X\"],\n    [\"Y\"],\n    value=4.0,\n    dtype=1,\n    extra_shape=(1,2)\n)\n\nworkspace.FeedBlob(\"X\", (np.random.randint(100, size=(3,3))).astype(np.float32))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n```\n\n**Result**\n\n```\nX: [[86. 30. 84.]\n [34. 51.  9.]\n [29. 86. 59.]]\nY: [[[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]\n\n\n [[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]\n\n\n [[[4. 4.]]\n\n  [[4. 4.]]\n\n  [[4. 4.]]]]\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "*(type: Tensor)* [OPTIONAL] Input tensor to provide shape information.",
