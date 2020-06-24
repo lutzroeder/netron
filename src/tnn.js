@@ -34,27 +34,21 @@ tnn.ModelFactory = class {
     open(context, host) {
         return tnn.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
-            const tnnproto = (tnnproto, tnnmodel) => {
-                try {
-                    return new tnn.Model(metadata, tnnproto, tnnmodel);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
-            };
             if (identifier.endsWith('.tnnproto')) {
                 const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
                 return context.request(tnnmodel, null).then((tnnmodel) => {
-                    return tnnproto(context.text, tnnmodel);
+                    return new tnn.Model(metadata, context.text, tnnmodel);
                 }).catch(() => {
-                    return tnnproto(context.text, null);
+                    return new tnn.Model(metadata, context.text, null);
+                }).catch((error) => {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             }
             else if (identifier.endsWith('.tnnmodel')) {
-                const text = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                return context.request(text, 'utf-8').then((text) => {
-                    return tnnproto(text, context.buffer);
+                const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                return context.request(tnnproto, 'utf-8').then((text) => {
+                    return new tnn.Model(metadata, text, context.buffer);
                 }).catch((error) => {
                     const message = error && error.message ? error.message : error.toString();
                     throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
@@ -781,7 +775,9 @@ tnn.LayerResourceReader = class {
                         break;
                     }
                     case 'Add':
-                    case 'Mul': {
+                    case 'Div':
+                    case 'Mul':
+                    case 'Sub': {
                         resource.slope = raw(reader);
                         break;
                     }

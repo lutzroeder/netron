@@ -5271,8 +5271,8 @@
   },
   {
     "type":   "tnn",
-    "target": "squeezenet_v1.1.tnnproto,squeezenet_v1.1.tnnmodel",
-    "source": "https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnproto,https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnmodel",
+    "target": "squeezenet_v1.1.tnnmodel,squeezenet_v1.1.tnnproto",
+    "source": "https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnmodel,https://raw.githubusercontent.com/Tencent/TNN/master/model/SqueezeNet/squeezenet_v1.1.tnnproto",
     "format": "TNN",
     "link":   "https://github.com/Tencent/TNN"
   },
