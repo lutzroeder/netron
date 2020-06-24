@@ -11897,6 +11897,50 @@
     }
   },
   {
+    "name": "DecodeImage",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "description": "Number of color channels for the decoded image.",
+          "name": "channels",
+          "type": "int64"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 4
+          },
+          "description": "The desired DType of the returned Tensor. Must be one of the following: `uint8`, `uint16`, `float32`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": true,
+          "description": "Controls the output shape of the returned op. If True, the returned op will\nproduce a 3-D tensor for PNG, JPEG, and BMP files; and a 4-D tensor for all\nGIFs, whether animated or not. If, False, the returned op will produce a 3-D\ntensor for all file types and will truncate animated GIFs to the first frame.",
+          "name": "expand_animations",
+          "type": "boolean"
+        }
+      ],
+      "description": "Detects whether an image is a BMP, GIF, JPEG, or PNG, and performs the\nappropriate operation to convert the input bytes string into a Tensor of type\ndtype.\n\n*NOTE*: decode_gif returns a 4-D array [num_frames, height, width, 3], as\nopposed to decode_bmp, decode_jpeg and decode_png, which return 3-D arrays\n[height, width, num_channels]. Make sure to take this into account when\nconstructing your graph if you are intermixing GIF files with BMP, JPEG, and/or\nPNG files. Alternately, set the expand_animations argument of this function to\nFalse, in which case the op will return 3-dimensional tensors and will truncate\nanimated GIF files to the first frame.",
+      "inputs": [
+        {
+          "description": "0-D. The encoded image bytes.",
+          "name": "contents",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "description": "3-D with shape `[height, width, channels]` or 4-D with shape\n`[frame, height, width, channels]`..",
+          "name": "image",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Function for decode_bmp, decode_gif, decode_jpeg, and decode_png."
+    }
+  },
+  {
     "name": "DecodeJSONExample",
     "schema": {
       "description": "This op translates a tensor containing Example records, encoded using\nthe [standard JSON\nmapping](https://developers.google.com/protocol-buffers/docs/proto3#json),\ninto a tensor containing the same records encoded as binary protocol\nbuffers. The resulting tensor can then be fed to any of the other\nExample-parsing ops.",
