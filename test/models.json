@@ -49,6 +49,13 @@
     "link":   "https://github.com/Unity-Technologies/ml-agents"
   },
   {
+    "type":   "barracuda",
+    "target": "HighQualityTrainedModel.nn",
+    "source": "https://digital-standard.com/threedpose/models/HighQualityTrainedModel.nn",
+    "format": "Barracuda v16",
+    "link":   "https://github.com/digista-tanaka/ThreeDPoseTracker"
+  },
+  {
     "type":   "bigdl",
     "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
     "source": "https://sourceforge.net/projects/analytics-zoo/files/analytics-zoo-models/image-classification/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model/download",

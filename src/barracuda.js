@@ -148,7 +148,7 @@ barracuda.Node = class {
 
     constructor(metadata, layer, initializers) {
 
-        this._name = layer.name;
+        this._name = layer.name || '';
         this._metadata = metadata.type(layer.type) || { name: layer.type.toString() };
         this._type = this._metadata.name;
 
@@ -162,7 +162,7 @@ barracuda.Node = class {
                 return new barracuda.Argument(input, initializer ? initializer.type : null, initializer);
             })));
         }
-        else {
+        else if (layer.inputs) {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
@@ -171,26 +171,33 @@ barracuda.Node = class {
                 ]));
             }
         }
-        for (let i = 0; i < layer.tensors.length; i++) {
-            const tensor = layer.tensors[i];
-            const initializer = new barracuda.Tensor(tensor);
-            this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
-                new barracuda.Argument(tensor.name, initializer.type, initializer)
+        if (layer.tensors) {
+            for (let i = 0; i < layer.tensors.length; i++) {
+                const tensor = layer.tensors[i];
+                const initializer = new barracuda.Tensor(tensor);
+                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
+                    new barracuda.Argument(tensor.name, initializer.type, initializer)
+                ]));
+            }
+        }
+        if (layer.inputs !== undefined) {
+            this._outputs.push(new barracuda.Parameter('output', [
+                new barracuda.Argument(this._name)
             ]));
         }
-        this._outputs.push(new barracuda.Parameter('output', [
-            new barracuda.Argument(this._name)
-        ]));
+        if (!barracuda.Activation[layer.activation]) {
+            throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
+        }
         if (this._type === 'Activation') {
-            if (!barracuda.Activation[layer.activation]) {
-                throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
-            }
             this._type = barracuda.Activation[layer.activation];
         }
         else if (layer.activation !== 0) {
-            throw new barracuda.Error("Unsupported activation '" + layer.activation + "' for type '" + this._type + "'.");
+            this._chain = [ new barracuda.Node(metadata, { type: 50, activation: layer.activation }, initializers) ];
         }
         const attribute = (name, type, value, defaultValue) => {
+            if (value === undefined) {
+                return;
+            }
             if (Array.isArray(defaultValue) && Array.isArray(value) && value.length == defaultValue.length && value.every((v, i) => v === defaultValue[i])) {
                 return;
             }
@@ -232,6 +239,10 @@ barracuda.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get chain() {
+        return this._chain;
     }
 };
 
