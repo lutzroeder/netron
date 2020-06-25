@@ -291,7 +291,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    \"valid\" adds no padding.  \"same\" adds padding such that if the stride\n    is 1, the output shape is the same as the input shape.",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -339,7 +339,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    \"valid\" adds no zero padding.  \"same\" adds padding such that if the stride\n    is 1, the output shape is the same as input shape.",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -389,7 +389,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -761,7 +761,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -804,7 +804,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         }
       ],
@@ -838,7 +838,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -1269,7 +1269,7 @@
           "name": "strides"
         },
         {
-          "description": "Currently only supports `\"valid\"` (case-insensitive).\n        `\"same\"` may be supported in the future.",
+          "description": "Currently only supports `\"valid\"` (case-insensitive).\n        `\"same\"` may be supported in the future.\n        `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
@@ -1362,7 +1362,7 @@
           "name": "strides"
         },
         {
-          "description": "Currently only support `\"valid\"` (case-insensitive).\n        `\"same\"` will be supported in future.",
+          "description": "Currently only support `\"valid\"` (case-insensitive).\n        `\"same\"` will be supported in future.\n        `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
@@ -1801,7 +1801,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -2581,7 +2581,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
+          "description": "One of `\"valid\"`, `\"same\"` or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
           "name": "padding"
         },
         {
@@ -2710,7 +2710,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -2855,7 +2855,7 @@
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -2956,7 +2956,7 @@
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3167,7 +3167,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3328,7 +3328,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
