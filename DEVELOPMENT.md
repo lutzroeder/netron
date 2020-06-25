@@ -13,7 +13,7 @@ npm install
 npx electron .
 ```
 
-To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension. Open the `./netron` root folder and press `F5`. To attach the debugger to a render process select the `Debug` tab and `Debug Renderer Process` before launching.
+To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension. Open the `./netron` root folder and press <kbd>F5</kbd>. To attach the debugger to a render process select the `Debug` tab and `Debug Renderer Process` before launching.
 
 ## Develop the Python server
 
@@ -27,3 +27,4 @@ python setup.py build
 export PYTHONPATH=dist/lib:${PYTHONPATH}
 python -c "import netron; netron.start()"
 ```
+
