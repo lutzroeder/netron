@@ -275,6 +275,42 @@
                 return ModelDescription;
             })();
     
+            Specification.SerializedModel = (function() {
+    
+                function SerializedModel(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SerializedModel.prototype.identifier = "";
+                SerializedModel.prototype.model = $util.newBuffer([]);
+    
+                SerializedModel.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SerializedModel();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.identifier = reader.string();
+                            break;
+                        case 2:
+                            message.model = reader.bytes();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SerializedModel;
+            })();
+    
             Specification.Model = (function() {
     
                 function Model(properties) {
@@ -320,11 +356,12 @@
                 Model.prototype.soundAnalysisPreprocessing = null;
                 Model.prototype.gazetteer = null;
                 Model.prototype.wordEmbedding = null;
+                Model.prototype.serializedModel = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(Model.prototype, "Type", {
-                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding"]),
+                    get: $util.oneOfGetter($oneOfFields = ["pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding", "serializedModel"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -443,6 +480,9 @@
                         case 2005:
                             message.wordEmbedding = $root.CoreML.Specification.CoreMLModels.WordEmbedding.decode(reader, reader.uint32());
                             break;
+                        case 3000:
+                            message.serializedModel = $root.CoreML.Specification.SerializedModel.decode(reader, reader.uint32());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -468,11 +508,12 @@
                     }
     
                     VisionFeaturePrint.prototype.scene = null;
+                    VisionFeaturePrint.prototype.object = null;
     
                     var $oneOfFields;
     
                     Object.defineProperty(VisionFeaturePrint.prototype, "VisionFeaturePrintType", {
-                        get: $util.oneOfGetter($oneOfFields = ["scene"]),
+                        get: $util.oneOfGetter($oneOfFields = ["scene", "object"]),
                         set: $util.oneOfSetter($oneOfFields)
                     });
     
@@ -485,6 +526,9 @@
                             switch (tag >>> 3) {
                             case 20:
                                 message.scene = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.decode(reader, reader.uint32());
+                                break;
+                            case 21:
+                                message.object = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.SceneObject.decode(reader, reader.uint32());
                                 break;
                             default:
                                 reader.skipType(tag & 7);
@@ -531,6 +575,52 @@
                         })();
     
                         return Scene;
+                    })();
+    
+                    VisionFeaturePrint.SceneObject = (function() {
+    
+                        function SceneObject(properties) {
+                            this.output = [];
+                            if (properties)
+                                for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                                    if (properties[keys[i]] != null)
+                                        this[keys[i]] = properties[keys[i]];
+                        }
+    
+                        SceneObject.prototype.version = 0;
+                        SceneObject.prototype.output = $util.emptyArray;
+    
+                        SceneObject.decode = function decode(reader, length) {
+                            if (!(reader instanceof $Reader))
+                                reader = $Reader.create(reader);
+                            var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.SceneObject();
+                            while (reader.pos < end) {
+                                var tag = reader.uint32();
+                                switch (tag >>> 3) {
+                                case 1:
+                                    message.version = reader.int32();
+                                    break;
+                                case 100:
+                                    if (!(message.output && message.output.length))
+                                        message.output = [];
+                                    message.output.push(reader.string());
+                                    break;
+                                default:
+                                    reader.skipType(tag & 7);
+                                    break;
+                                }
+                            }
+                            return message;
+                        };
+    
+                        SceneObject.ObjectVersion = (function() {
+                            var valuesById = {}, values = Object.create(valuesById);
+                            values[valuesById[0] = "OBJECT_VERSION_INVALID"] = 0;
+                            values[valuesById[1] = "OBJECT_VERSION_1"] = 1;
+                            return values;
+                        })();
+    
+                        return SceneObject;
                     })();
     
                     return VisionFeaturePrint;
@@ -1535,11 +1625,19 @@
                 ArrayFeatureType.prototype.dataType = 0;
                 ArrayFeatureType.prototype.enumeratedShapes = null;
                 ArrayFeatureType.prototype.shapeRange = null;
+                ArrayFeatureType.prototype.intDefaultValue = 0;
+                ArrayFeatureType.prototype.floatDefaultValue = 0;
+                ArrayFeatureType.prototype.doubleDefaultValue = 0;
     
                 var $oneOfFields;
     
                 Object.defineProperty(ArrayFeatureType.prototype, "ShapeFlexibility", {
                     get: $util.oneOfGetter($oneOfFields = ["enumeratedShapes", "shapeRange"]),
+                    set: $util.oneOfSetter($oneOfFields)
+                });
+    
+                Object.defineProperty(ArrayFeatureType.prototype, "defaultOptionalValue", {
+                    get: $util.oneOfGetter($oneOfFields = ["intDefaultValue", "floatDefaultValue", "doubleDefaultValue"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -1568,6 +1666,15 @@
                             break;
                         case 31:
                             message.shapeRange = $root.CoreML.Specification.ArrayFeatureType.ShapeRange.decode(reader, reader.uint32());
+                            break;
+                        case 41:
+                            message.intDefaultValue = reader.int32();
+                            break;
+                        case 51:
+                            message.floatDefaultValue = reader.float();
+                            break;
+                        case 61:
+                            message.doubleDefaultValue = reader.double();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -4031,11 +4138,19 @@
                 NeuralNetworkLayer.prototype.whereBroadcastable = null;
                 NeuralNetworkLayer.prototype.layerNormalization = null;
                 NeuralNetworkLayer.prototype.NonMaximumSuppression = null;
+                NeuralNetworkLayer.prototype.oneHot = null;
+                NeuralNetworkLayer.prototype.cumSum = null;
+                NeuralNetworkLayer.prototype.clampedReLU = null;
+                NeuralNetworkLayer.prototype.argSort = null;
+                NeuralNetworkLayer.prototype.pooling3d = null;
+                NeuralNetworkLayer.prototype.globalPooling3d = null;
+                NeuralNetworkLayer.prototype.sliceBySize = null;
+                NeuralNetworkLayer.prototype.convolution3d = null;
     
                 var $oneOfFields;
     
                 Object.defineProperty(NeuralNetworkLayer.prototype, "layer", {
-                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "constantPad", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization", "NonMaximumSuppression"]),
+                    get: $util.oneOfGetter($oneOfFields = ["convolution", "pooling", "activation", "innerProduct", "embedding", "batchnorm", "mvn", "l2normalize", "softmax", "lrn", "crop", "padding", "upsample", "resizeBilinear", "cropResize", "unary", "add", "multiply", "average", "scale", "bias", "max", "min", "dot", "reduce", "loadConstant", "reshape", "flatten", "permute", "concat", "split", "sequenceRepeat", "reorganizeData", "slice", "simpleRecurrent", "gru", "uniDirectionalLSTM", "biDirectionalLSTM", "custom", "copy", "branch", "loop", "loopBreak", "loopContinue", "rangeStatic", "rangeDynamic", "clip", "ceil", "floor", "sign", "round", "exp2", "sin", "cos", "tan", "asin", "acos", "atan", "sinh", "cosh", "tanh", "asinh", "acosh", "atanh", "erf", "gelu", "equal", "notEqual", "lessThan", "lessEqual", "greaterThan", "greaterEqual", "logicalOr", "logicalXor", "logicalNot", "logicalAnd", "modBroadcastable", "minBroadcastable", "maxBroadcastable", "addBroadcastable", "powBroadcastable", "divideBroadcastable", "floorDivBroadcastable", "multiplyBroadcastable", "subtractBroadcastable", "tile", "stack", "gather", "scatter", "gatherND", "scatterND", "softmaxND", "gatherAlongAxis", "scatterAlongAxis", "reverse", "reverseSeq", "splitND", "concatND", "transpose", "sliceStatic", "sliceDynamic", "slidingWindows", "topK", "argMin", "argMax", "embeddingND", "batchedMatmul", "getShape", "loadConstantND", "fillLike", "fillStatic", "fillDynamic", "broadcastToLike", "broadcastToStatic", "broadcastToDynamic", "squeeze", "expandDims", "flattenTo2D", "reshapeLike", "reshapeStatic", "reshapeDynamic", "rankPreservingReshape", "constantPad", "randomNormalLike", "randomNormalStatic", "randomNormalDynamic", "randomUniformLike", "randomUniformStatic", "randomUniformDynamic", "randomBernoulliLike", "randomBernoulliStatic", "randomBernoulliDynamic", "categoricalDistribution", "reduceL1", "reduceL2", "reduceMax", "reduceMin", "reduceSum", "reduceProd", "reduceMean", "reduceLogSum", "reduceSumSquare", "reduceLogSumExp", "whereNonZero", "matrixBandPart", "lowerTriangular", "upperTriangular", "whereBroadcastable", "layerNormalization", "NonMaximumSuppression", "oneHot", "cumSum", "clampedReLU", "argSort", "pooling3d", "globalPooling3d", "sliceBySize", "convolution3d"]),
                     set: $util.oneOfSetter($oneOfFields)
                 });
     
@@ -4521,6 +4636,30 @@
                             break;
                         case 1400:
                             message.NonMaximumSuppression = $root.CoreML.Specification.NonMaximumSuppressionLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1450:
+                            message.oneHot = $root.CoreML.Specification.OneHotLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1455:
+                            message.cumSum = $root.CoreML.Specification.CumSumLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1460:
+                            message.clampedReLU = $root.CoreML.Specification.ClampedReLULayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1461:
+                            message.argSort = $root.CoreML.Specification.ArgSortLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1465:
+                            message.pooling3d = $root.CoreML.Specification.Pooling3DLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1466:
+                            message.globalPooling3d = $root.CoreML.Specification.GlobalPooling3DLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1470:
+                            message.sliceBySize = $root.CoreML.Specification.SliceBySizeLayerParams.decode(reader, reader.uint32());
+                            break;
+                        case 1471:
+                            message.convolution3d = $root.CoreML.Specification.Convolution3DLayerParams.decode(reader, reader.uint32());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -5231,6 +5370,7 @@
                 WeightParams.prototype.floatValue = $util.emptyArray;
                 WeightParams.prototype.float16Value = $util.newBuffer([]);
                 WeightParams.prototype.rawValue = $util.newBuffer([]);
+                WeightParams.prototype.int8RawValue = $util.newBuffer([]);
                 WeightParams.prototype.quantization = null;
                 WeightParams.prototype.isUpdatable = false;
     
@@ -5269,6 +5409,9 @@
                             break;
                         case 30:
                             message.rawValue = reader.bytes();
+                            break;
+                        case 31:
+                            message.int8RawValue = reader.bytes();
                             break;
                         case 40:
                             message.quantization = $root.CoreML.Specification.QuantizationParams.decode(reader, reader.uint32());
@@ -5558,6 +5701,146 @@
                 return ConvolutionLayerParams;
             })();
     
+            Specification.Convolution3DLayerParams = (function() {
+    
+                function Convolution3DLayerParams(properties) {
+                    this.outputShape = [];
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Convolution3DLayerParams.prototype.outputChannels = 0;
+                Convolution3DLayerParams.prototype.inputChannels = 0;
+                Convolution3DLayerParams.prototype.nGroups = 0;
+                Convolution3DLayerParams.prototype.kernelDepth = 0;
+                Convolution3DLayerParams.prototype.kernelHeight = 0;
+                Convolution3DLayerParams.prototype.kernelWidth = 0;
+                Convolution3DLayerParams.prototype.strideDepth = 0;
+                Convolution3DLayerParams.prototype.strideHeight = 0;
+                Convolution3DLayerParams.prototype.strideWidth = 0;
+                Convolution3DLayerParams.prototype.dilationDepth = 0;
+                Convolution3DLayerParams.prototype.dilationHeight = 0;
+                Convolution3DLayerParams.prototype.dilationWidth = 0;
+                Convolution3DLayerParams.prototype.hasBias = false;
+                Convolution3DLayerParams.prototype.weights = null;
+                Convolution3DLayerParams.prototype.bias = null;
+                Convolution3DLayerParams.prototype.paddingType = 0;
+                Convolution3DLayerParams.prototype.customPaddingFront = 0;
+                Convolution3DLayerParams.prototype.customPaddingBack = 0;
+                Convolution3DLayerParams.prototype.customPaddingTop = 0;
+                Convolution3DLayerParams.prototype.customPaddingBottom = 0;
+                Convolution3DLayerParams.prototype.customPaddingLeft = 0;
+                Convolution3DLayerParams.prototype.customPaddingRight = 0;
+                Convolution3DLayerParams.prototype.isDeconvolution = false;
+                Convolution3DLayerParams.prototype.outputShape = $util.emptyArray;
+    
+                Convolution3DLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Convolution3DLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.outputChannels = reader.int32();
+                            break;
+                        case 2:
+                            message.inputChannels = reader.int32();
+                            break;
+                        case 10:
+                            message.nGroups = reader.int32();
+                            break;
+                        case 20:
+                            message.kernelDepth = reader.int32();
+                            break;
+                        case 21:
+                            message.kernelHeight = reader.int32();
+                            break;
+                        case 22:
+                            message.kernelWidth = reader.int32();
+                            break;
+                        case 31:
+                            message.strideDepth = reader.int32();
+                            break;
+                        case 32:
+                            message.strideHeight = reader.int32();
+                            break;
+                        case 33:
+                            message.strideWidth = reader.int32();
+                            break;
+                        case 40:
+                            message.dilationDepth = reader.int32();
+                            break;
+                        case 41:
+                            message.dilationHeight = reader.int32();
+                            break;
+                        case 42:
+                            message.dilationWidth = reader.int32();
+                            break;
+                        case 50:
+                            message.hasBias = reader.bool();
+                            break;
+                        case 60:
+                            message.weights = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 61:
+                            message.bias = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 70:
+                            message.paddingType = reader.int32();
+                            break;
+                        case 80:
+                            message.customPaddingFront = reader.int32();
+                            break;
+                        case 81:
+                            message.customPaddingBack = reader.int32();
+                            break;
+                        case 82:
+                            message.customPaddingTop = reader.int32();
+                            break;
+                        case 83:
+                            message.customPaddingBottom = reader.int32();
+                            break;
+                        case 84:
+                            message.customPaddingLeft = reader.int32();
+                            break;
+                        case 85:
+                            message.customPaddingRight = reader.int32();
+                            break;
+                        case 86:
+                            message.isDeconvolution = reader.bool();
+                            break;
+                        case 87:
+                            if (!(message.outputShape && message.outputShape.length))
+                                message.outputShape = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.outputShape.push(reader.uint64());
+                            } else
+                                message.outputShape.push(reader.uint64());
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Convolution3DLayerParams.PaddingType = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "CUSTOM"] = 0;
+                    values[valuesById[1] = "VALID"] = 1;
+                    values[valuesById[2] = "SAME"] = 2;
+                    return values;
+                })();
+    
+                return Convolution3DLayerParams;
+            })();
+    
             Specification.InnerProductLayerParams = (function() {
     
                 function InnerProductLayerParams(properties) {
@@ -5572,6 +5855,7 @@
                 InnerProductLayerParams.prototype.hasBias = false;
                 InnerProductLayerParams.prototype.weights = null;
                 InnerProductLayerParams.prototype.bias = null;
+                InnerProductLayerParams.prototype.int8DynamicQuantize = false;
     
                 InnerProductLayerParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -5594,6 +5878,9 @@
                             break;
                         case 21:
                             message.bias = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 22:
+                            message.int8DynamicQuantize = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -5891,6 +6178,148 @@
                 })();
     
                 return PoolingLayerParams;
+            })();
+    
+            Specification.Pooling3DLayerParams = (function() {
+    
+                function Pooling3DLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                Pooling3DLayerParams.prototype.type = 0;
+                Pooling3DLayerParams.prototype.kernelDepth = 0;
+                Pooling3DLayerParams.prototype.kernelHeight = 0;
+                Pooling3DLayerParams.prototype.kernelWidth = 0;
+                Pooling3DLayerParams.prototype.strideDepth = 0;
+                Pooling3DLayerParams.prototype.strideHeight = 0;
+                Pooling3DLayerParams.prototype.strideWidth = 0;
+                Pooling3DLayerParams.prototype.paddingType = 0;
+                Pooling3DLayerParams.prototype.customPaddingFront = 0;
+                Pooling3DLayerParams.prototype.customPaddingBack = 0;
+                Pooling3DLayerParams.prototype.customPaddingTop = 0;
+                Pooling3DLayerParams.prototype.customPaddingBottom = 0;
+                Pooling3DLayerParams.prototype.customPaddingLeft = 0;
+                Pooling3DLayerParams.prototype.customPaddingRight = 0;
+                Pooling3DLayerParams.prototype.countExcludePadding = false;
+    
+                Pooling3DLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.Pooling3DLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.type = reader.int32();
+                            break;
+                        case 2:
+                            message.kernelDepth = reader.int32();
+                            break;
+                        case 3:
+                            message.kernelHeight = reader.int32();
+                            break;
+                        case 4:
+                            message.kernelWidth = reader.int32();
+                            break;
+                        case 5:
+                            message.strideDepth = reader.int32();
+                            break;
+                        case 6:
+                            message.strideHeight = reader.int32();
+                            break;
+                        case 7:
+                            message.strideWidth = reader.int32();
+                            break;
+                        case 15:
+                            message.paddingType = reader.int32();
+                            break;
+                        case 8:
+                            message.customPaddingFront = reader.int32();
+                            break;
+                        case 9:
+                            message.customPaddingBack = reader.int32();
+                            break;
+                        case 10:
+                            message.customPaddingTop = reader.int32();
+                            break;
+                        case 11:
+                            message.customPaddingBottom = reader.int32();
+                            break;
+                        case 12:
+                            message.customPaddingLeft = reader.int32();
+                            break;
+                        case 13:
+                            message.customPaddingRight = reader.int32();
+                            break;
+                        case 14:
+                            message.countExcludePadding = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                Pooling3DLayerParams.PoolingType3D = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "MAX"] = 0;
+                    values[valuesById[1] = "AVERAGE"] = 1;
+                    return values;
+                })();
+    
+                Pooling3DLayerParams.Pooling3DPaddingType = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "CUSTOM"] = 0;
+                    values[valuesById[1] = "VALID"] = 1;
+                    values[valuesById[2] = "SAME"] = 2;
+                    return values;
+                })();
+    
+                return Pooling3DLayerParams;
+            })();
+    
+            Specification.GlobalPooling3DLayerParams = (function() {
+    
+                function GlobalPooling3DLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                GlobalPooling3DLayerParams.prototype.type = 0;
+    
+                GlobalPooling3DLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.GlobalPooling3DLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.type = reader.int32();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                GlobalPooling3DLayerParams.GlobalPoolingType3D = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "MAX"] = 0;
+                    values[valuesById[1] = "AVERAGE"] = 1;
+                    return values;
+                })();
+    
+                return GlobalPooling3DLayerParams;
             })();
     
             Specification.PaddingLayerParams = (function() {
@@ -6294,6 +6723,7 @@
     
                 function UpsampleLayerParams(properties) {
                     this.scalingFactor = [];
+                    this.fractionalScalingFactor = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -6301,7 +6731,9 @@
                 }
     
                 UpsampleLayerParams.prototype.scalingFactor = $util.emptyArray;
+                UpsampleLayerParams.prototype.fractionalScalingFactor = $util.emptyArray;
                 UpsampleLayerParams.prototype.mode = 0;
+                UpsampleLayerParams.prototype.linearUpsampleMode = 0;
     
                 UpsampleLayerParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -6320,8 +6752,21 @@
                             } else
                                 message.scalingFactor.push(reader.uint64());
                             break;
+                        case 7:
+                            if (!(message.fractionalScalingFactor && message.fractionalScalingFactor.length))
+                                message.fractionalScalingFactor = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.fractionalScalingFactor.push(reader.float());
+                            } else
+                                message.fractionalScalingFactor.push(reader.float());
+                            break;
                         case 5:
                             message.mode = reader.int32();
+                            break;
+                        case 6:
+                            message.linearUpsampleMode = reader.int32();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -6335,6 +6780,14 @@
                     var valuesById = {}, values = Object.create(valuesById);
                     values[valuesById[0] = "NN"] = 0;
                     values[valuesById[1] = "BILINEAR"] = 1;
+                    return values;
+                })();
+    
+                UpsampleLayerParams.LinearUpsampleMode = (function() {
+                    var valuesById = {}, values = Object.create(valuesById);
+                    values[valuesById[0] = "DEFAULT"] = 0;
+                    values[valuesById[1] = "ALIGN_CORNERS_TRUE"] = 1;
+                    values[valuesById[2] = "ALIGN_CORNERS_FALSE"] = 2;
                     return values;
                 })();
     
@@ -6792,6 +7245,7 @@
                     var valuesById = {}, values = Object.create(valuesById);
                     values[valuesById[0] = "SPACE_TO_DEPTH"] = 0;
                     values[valuesById[1] = "DEPTH_TO_SPACE"] = 1;
+                    values[valuesById[2] = "PIXEL_SHUFFLE"] = 2;
                     return values;
                 })();
     
@@ -7719,6 +8173,7 @@
                 BatchedMatMulLayerParams.prototype.hasBias = false;
                 BatchedMatMulLayerParams.prototype.weights = null;
                 BatchedMatMulLayerParams.prototype.bias = null;
+                BatchedMatMulLayerParams.prototype.int8DynamicQuantize = false;
     
                 BatchedMatMulLayerParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -7747,6 +8202,9 @@
                             break;
                         case 9:
                             message.bias = $root.CoreML.Specification.WeightParams.decode(reader, reader.uint32());
+                            break;
+                        case 10:
+                            message.int8DynamicQuantize = reader.bool();
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -10654,6 +11112,7 @@
                     this.endIds = [];
                     this.endMasks = [];
                     this.strides = [];
+                    this.squeezeMasks = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -10665,6 +11124,7 @@
                 SliceStaticLayerParams.prototype.endIds = $util.emptyArray;
                 SliceStaticLayerParams.prototype.endMasks = $util.emptyArray;
                 SliceStaticLayerParams.prototype.strides = $util.emptyArray;
+                SliceStaticLayerParams.prototype.squeezeMasks = $util.emptyArray;
     
                 SliceStaticLayerParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -10723,6 +11183,16 @@
                             } else
                                 message.strides.push(reader.int64());
                             break;
+                        case 6:
+                            if (!(message.squeezeMasks && message.squeezeMasks.length))
+                                message.squeezeMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.squeezeMasks.push(reader.bool());
+                            } else
+                                message.squeezeMasks.push(reader.bool());
+                            break;
                         default:
                             reader.skipType(tag & 7);
                             break;
@@ -10741,6 +11211,7 @@
                     this.endIds = [];
                     this.endMasks = [];
                     this.strides = [];
+                    this.squeezeMasks = [];
                     if (properties)
                         for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                             if (properties[keys[i]] != null)
@@ -10751,6 +11222,7 @@
                 SliceDynamicLayerParams.prototype.endIds = $util.emptyArray;
                 SliceDynamicLayerParams.prototype.endMasks = $util.emptyArray;
                 SliceDynamicLayerParams.prototype.strides = $util.emptyArray;
+                SliceDynamicLayerParams.prototype.squeezeMasks = $util.emptyArray;
     
                 SliceDynamicLayerParams.decode = function decode(reader, length) {
                     if (!(reader instanceof $Reader))
@@ -10798,6 +11270,16 @@
                                     message.strides.push(reader.int64());
                             } else
                                 message.strides.push(reader.int64());
+                            break;
+                        case 6:
+                            if (!(message.squeezeMasks && message.squeezeMasks.length))
+                                message.squeezeMasks = [];
+                            if ((tag & 7) === 2) {
+                                var end2 = reader.uint32() + reader.pos;
+                                while (reader.pos < end2)
+                                    message.squeezeMasks.push(reader.bool());
+                            } else
+                                message.squeezeMasks.push(reader.bool());
                             break;
                         default:
                             reader.skipType(tag & 7);
@@ -11156,6 +11638,114 @@
                 return NonMaximumSuppressionLayerParams;
             })();
     
+            Specification.ClampedReLULayerParams = (function() {
+    
+                function ClampedReLULayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ClampedReLULayerParams.prototype.alpha = 0;
+                ClampedReLULayerParams.prototype.beta = 0;
+    
+                ClampedReLULayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ClampedReLULayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.alpha = reader.float();
+                            break;
+                        case 2:
+                            message.beta = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ClampedReLULayerParams;
+            })();
+    
+            Specification.ArgSortLayerParams = (function() {
+    
+                function ArgSortLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                ArgSortLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                ArgSortLayerParams.prototype.descending = false;
+    
+                ArgSortLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.ArgSortLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.descending = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return ArgSortLayerParams;
+            })();
+    
+            Specification.SliceBySizeLayerParams = (function() {
+    
+                function SliceBySizeLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                SliceBySizeLayerParams.prototype.size = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                SliceBySizeLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+    
+                SliceBySizeLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.SliceBySizeLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 2:
+                            message.size = reader.int64();
+                            break;
+                        case 3:
+                            message.axis = reader.int64();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return SliceBySizeLayerParams;
+            })();
+    
             Specification.NeuralNetworkClassifier = (function() {
     
                 function NeuralNetworkClassifier(properties) {
@@ -11227,6 +11817,90 @@
                 };
     
                 return NeuralNetworkClassifier;
+            })();
+    
+            Specification.OneHotLayerParams = (function() {
+    
+                function OneHotLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                OneHotLayerParams.prototype.oneHotVectorSize = $util.Long ? $util.Long.fromBits(0,0,true) : 0;
+                OneHotLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                OneHotLayerParams.prototype.onValue = 0;
+                OneHotLayerParams.prototype.offValue = 0;
+    
+                OneHotLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.OneHotLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.oneHotVectorSize = reader.uint64();
+                            break;
+                        case 2:
+                            message.axis = reader.int64();
+                            break;
+                        case 3:
+                            message.onValue = reader.float();
+                            break;
+                        case 4:
+                            message.offValue = reader.float();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return OneHotLayerParams;
+            })();
+    
+            Specification.CumSumLayerParams = (function() {
+    
+                function CumSumLayerParams(properties) {
+                    if (properties)
+                        for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                            if (properties[keys[i]] != null)
+                                this[keys[i]] = properties[keys[i]];
+                }
+    
+                CumSumLayerParams.prototype.axis = $util.Long ? $util.Long.fromBits(0,0,false) : 0;
+                CumSumLayerParams.prototype.excludeFinalSum = false;
+                CumSumLayerParams.prototype.reverse = false;
+    
+                CumSumLayerParams.decode = function decode(reader, length) {
+                    if (!(reader instanceof $Reader))
+                        reader = $Reader.create(reader);
+                    var end = length === undefined ? reader.len : reader.pos + length, message = new $root.CoreML.Specification.CumSumLayerParams();
+                    while (reader.pos < end) {
+                        var tag = reader.uint32();
+                        switch (tag >>> 3) {
+                        case 1:
+                            message.axis = reader.int64();
+                            break;
+                        case 2:
+                            message.excludeFinalSum = reader.bool();
+                            break;
+                        case 3:
+                            message.reverse = reader.bool();
+                            break;
+                        default:
+                            reader.skipType(tag & 7);
+                            break;
+                        }
+                    }
+                    return message;
+                };
+    
+                return CumSumLayerParams;
             })();
     
             Specification.NeuralNetworkRegressor = (function() {
