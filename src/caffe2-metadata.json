@@ -1143,6 +1143,10 @@
         {
           "description": "Optionsl zero-point quantization param computed on activation dataWill overwrite Y_zero_point argument if specified",
           "name": "Zero-point qparam"
+        },
+        {
+          "description": "Optional Qparam blob that constans quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
+          "name": "Qparam"
         }
       ],
       "outputs": [
@@ -1251,6 +1255,10 @@
         {
           "description": "Optionsl zero-point quantization param computed on activation dataWill overwrite Y_zero_point argument if specified",
           "name": "Zero-point qparam"
+        },
+        {
+          "description": "Optional Qparam blob that constans quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
+          "name": "Qparam"
         }
       ],
       "outputs": [
@@ -18591,6 +18599,29 @@
         {
           "description": "Regularized parameters",
           "name": "output_param"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Int8GenQuantParams",
+    "schema": {
+      "description": "Operator wrapper for generating int8 tensor quantization parameters given the input data and quant scheme",
+      "inputs": [
+        {
+          "description": "The input data, or last N samples of the output activations.",
+          "name": "X"
+        },
+        {
+          "description": "Int8QuantSchemeBlob that specifies the quantization kind and preserve_sparsity options when generating the quant params.",
+          "name": "quant_scheme"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Int8QuantParamsBlob that contains the scale and zero_point info in TensorQuantizationParams type.",
+          "name": "quant_param"
         }
       ],
       "support_level": "default"
