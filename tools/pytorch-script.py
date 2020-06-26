@@ -35,14 +35,14 @@ def metadata():
                 raise Exception('\'' + class_name + '\' missing __doc__.')
             # print(docstring)
 
-    with io.open(json_file, 'w', newline='') as fout:
-        json_data = json.dumps(json_root, sort_keys=True, indent=2)
-        for line in json_data.splitlines():
-            line = line.rstrip()
-            if sys.version_info[0] < 3:
-                line = unicode(line)
-            fout.write(line)
-            fout.write('\n')
+    # with io.open(json_file, 'w', newline='') as fout:
+    #     json_data = json.dumps(json_root, sort_keys=True, indent=2)
+    #     for line in json_data.splitlines():
+    #         line = line.rstrip()
+    #         if sys.version_info[0] < 3:
+    #             line = unicode(line)
+    #         fout.write(line)
+    #         fout.write('\n')
 
 def download_torchvision_model(name, input):
     folder = os.path.expandvars('${test}/data/pytorch')
