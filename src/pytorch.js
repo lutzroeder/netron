@@ -2236,7 +2236,7 @@ pytorch.Container = class {
         }
         const buffer = context.buffer;
         const signature = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x05 && signature.every((v, i) => v == buffer[i + 2])) {
+        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x10 && signature.every((v, i) => v == buffer[i + 2])) {
             return new pytorch.Container.Pickle(buffer, pickle, exception);
         }
         if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
@@ -3119,8 +3119,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     while (inputSchemas.length > 0) {
                         const inputSchema = inputSchemas.shift();
                         const argument = this.expression(callArgs.shift(), context);
-                        if ((Array.isArray(argument) && inputSchema.type !== 'T[]') ||
-                            (!Array.isArray(argument) && inputSchema.type === 'T[]')) {
+                        if ((Array.isArray(argument) && inputSchema.type !== 'tensor[]') ||
+                            (!Array.isArray(argument) && inputSchema.type === 'tensor[]')) {
                             next = true;
                             break;
                         }
@@ -3166,7 +3166,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     }
                     const outputs = [];
                     for (let i = 0; i < schema.outputs.length; i++) {
-                        if (schema.outputs[i].type && schema.outputs[i].type !== 'T') {
+                        if (schema.outputs[i].type && schema.outputs[i].type !== 'tensor') {
                             if (!outputTypes || outputTypes.length !== schema.outputs.length || schema.outputs[i].type !== outputTypes[i]) {
                                 next = true;
                                 break;
