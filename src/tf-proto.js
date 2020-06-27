@@ -3828,6 +3828,7 @@
             function SavedObject(properties) {
                 this.children = [];
                 this.slot_variables = [];
+                this.saveable_objects = {};
                 if (properties)
                     for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                         if (properties[keys[i]] != null)
@@ -3843,6 +3844,7 @@
             SavedObject.prototype.bare_concrete_function = null;
             SavedObject.prototype.constant = null;
             SavedObject.prototype.resource = null;
+            SavedObject.prototype.saveable_objects = $util.emptyObject;
     
             var $oneOfFields;
     
@@ -3854,7 +3856,7 @@
             SavedObject.decode = function decode(reader, length) {
                 if (!(reader instanceof $Reader))
                     reader = $Reader.create(reader);
-                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedObject();
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SavedObject(), key;
                 while (reader.pos < end) {
                     var tag = reader.uint32();
                     switch (tag >>> 3) {
@@ -3889,6 +3891,14 @@
                     case 10:
                         message.resource = $root.tensorflow.SavedResource.decode(reader, reader.uint32());
                         break;
+                    case 11:
+                        reader.skip().pos++;
+                        if (message.saveable_objects === $util.emptyObject)
+                            message.saveable_objects = {};
+                        key = reader.string();
+                        reader.pos++;
+                        message.saveable_objects[key] = $root.tensorflow.SaveableObject.decode(reader, reader.uint32());
+                        break;
                     default:
                         reader.skipType(tag & 7);
                         break;
@@ -3898,7 +3908,7 @@
             };
     
             SavedObject.decodeText = function decodeText(reader) {
-                var message = new $root.tensorflow.SavedObject();
+                var message = new $root.tensorflow.SavedObject(), key, value;
                 reader.start();
                 while (!reader.end()) {
                     var tag = reader.tag();
@@ -3933,6 +3943,23 @@
                         break;
                     case "resource":
                         message.resource = $root.tensorflow.SavedResource.decodeText(reader, true);
+                        break;
+                    case "saveable_objects":
+                        if (message.saveable_objects === $util.emptyObject)
+                            message.saveable_objects = {};
+                        reader.start();
+                        key = "";
+                        value = null;
+                        while (!reader.end())
+                            switch (reader.tag()) {
+                            case "key":
+                                key = reader.string();
+                                break;
+                            case "value":
+                                value = $root.tensorflow.SaveableObject.decodeText(reader, true);
+                                break;
+                            }
+                        message.saveable_objects[key] = value;
                         break;
                     default:
                         reader.field(tag, message);
@@ -4520,6 +4547,62 @@
             };
     
             return SavedResource;
+        })();
+    
+        tensorflow.SaveableObject = (function() {
+    
+            function SaveableObject(properties) {
+                if (properties)
+                    for (var keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                        if (properties[keys[i]] != null)
+                            this[keys[i]] = properties[keys[i]];
+            }
+    
+            SaveableObject.prototype.save_function = 0;
+            SaveableObject.prototype.restore_function = 0;
+    
+            SaveableObject.decode = function decode(reader, length) {
+                if (!(reader instanceof $Reader))
+                    reader = $Reader.create(reader);
+                var end = length === undefined ? reader.len : reader.pos + length, message = new $root.tensorflow.SaveableObject();
+                while (reader.pos < end) {
+                    var tag = reader.uint32();
+                    switch (tag >>> 3) {
+                    case 2:
+                        message.save_function = reader.int32();
+                        break;
+                    case 3:
+                        message.restore_function = reader.int32();
+                        break;
+                    default:
+                        reader.skipType(tag & 7);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            SaveableObject.decodeText = function decodeText(reader) {
+                var message = new $root.tensorflow.SaveableObject();
+                reader.start();
+                while (!reader.end()) {
+                    var tag = reader.tag();
+                    switch (tag) {
+                    case "save_function":
+                        message.save_function = reader.int32();
+                        break;
+                    case "restore_function":
+                        message.restore_function = reader.int32();
+                        break;
+                    default:
+                        reader.field(tag, message);
+                        break;
+                    }
+                }
+                return message;
+            };
+    
+            return SaveableObject;
         })();
     
         tensorflow.TrackableObjectGraph = (function() {
