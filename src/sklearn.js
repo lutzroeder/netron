@@ -49,9 +49,6 @@ sklearn.ModelFactory = class {
                         if (!container.data) {
                             throw new sklearn.Error('No root object.');
                         }
-                        if (Array.isArray(container.data)) {
-                            throw new sklearn.Error('Array is not a valid root object.');
-                        }
                     }
                     return new sklearn.Model(metadata, container.data, container.weights);
                 }
@@ -67,24 +64,30 @@ sklearn.ModelFactory = class {
 
 sklearn.Model = class {
 
-    constructor(metadata, obj, weights) {
-        if (obj && obj.__module__ && obj.__module__.startsWith('sklearn.')) {
-            this._format = 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+    constructor(metadata, root, weights) {
+        const list = Array.isArray(root) ? root : [ root ];
+        const format = Array.from(new Set(list.map((obj) => {
+            if (obj && obj.__module__) {
+                if (obj.__module__.startsWith('sklearn.')) {
+                    return 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                }
+                else if (obj.__module__.startsWith('xgboost.')) {
+                    return 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                }
+                else if (obj.__module__.startsWith('nolearn.lasagne.')) {
+                    return 'Lasagne';
+                }
+                else if (obj.__module__.startsWith('gensim.')) {
+                    return 'gensim';
+                }
+            }
+            return 'Pickle';
+        })).values());
+        if (format.length > 1) {
+            throw new sklearn.Error("Invalid array format '" + JSON.stringify(format) + "'.");
         }
-        else if (obj && obj.__module__ && obj.__module__.startsWith('xgboost.')) {
-            this._format = 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-        }
-        else if (obj && obj.__module__ && obj.__module__.startsWith('nolearn.lasagne.')) {
-            this._format = 'Lasagne';
-        }
-        else if (obj && obj.__module__ && obj.__module__.startsWith('gensim.')) {
-            this._format = 'gensim';
-        }
-        else {
-            this._format = 'Pickle';
-        }
-        this._graphs = [];
-        this._graphs.push(new sklearn.Graph(metadata, obj, weights));
+        this._format = format[0];
+        this._graphs = list.map((obj, index) => new sklearn.Graph(metadata, index, obj, weights));
     }
 
     get format() {
@@ -98,7 +101,8 @@ sklearn.Model = class {
 
 sklearn.Graph = class {
 
-    constructor(metadata, obj, weights) {
+    constructor(metadata, index, obj, weights) {
+        this._name = index.toString();
         this._metadata = metadata;
         this._nodes = [];
         this._groups = false;
@@ -205,6 +209,10 @@ sklearn.Graph = class {
 
     _concat(parent, name){
         return (parent === '' ?  name : `${parent}/${name}`);
+    }
+
+    get name() {
+        return this._name;
     }
 
     get groups() {

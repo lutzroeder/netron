@@ -4440,6 +4440,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "svm.pkl",
+    "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
+    "format": "scikit-learn",
+    "link":   "https://github.com/dfridovi/imagelib/blob/master/svm.pkl"
+  },
+  {
+    "type":   "sklearn",
     "target": "wiki-aa-mlp.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2674319/wiki-aa-mlp.pkl.zip[wiki-aa-mlp.pkl]",
     "format": "scikit-learn v0.19.0",
