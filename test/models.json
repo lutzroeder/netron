@@ -3973,16 +3973,14 @@
     "type":   "pytorch",
     "target": "netron_issue_529.pt",
     "source": "https://github.com/lutzroeder/netron/files/4834633/netron_issue_529.zip[netron_issue_529.pt]",
-    "error":  "Unsupported function 'torch.layer_norm' in 'netron_issue_529.pt'.",
-    "format": "TorchScript v1.3",
+    "format": "TorchScript v1.4",
     "link":   "https://github.com/lutzroeder/netron/issues/529"
   },
   {
     "type":   "pytorch",
     "target": "netron_issue_529_traced.pt",
     "source": "https://github.com/lutzroeder/netron/files/4834633/netron_issue_529.zip[netron_issue_529_traced.pt]",
-    "error":  "Unsupported function 'torch.layer_norm' in 'netron_issue_529_traced.pt'.",
-    "format": "TorchScript v1.3",
+    "format": "TorchScript v1.4",
     "link":   "https://github.com/lutzroeder/netron/issues/529"
   },
   {
