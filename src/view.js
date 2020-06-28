@@ -1055,10 +1055,15 @@ class ModelContext {
                         break;
                     }
                     case 'pb': {
+                        const tagTypes = new Set([ 0, 1, 2, 3, 5 ]);
                         const reader = new protobuf.Reader.create(this.buffer);
                         while (reader.pos < reader.len) {
                             const tagType = reader.uint32();
                             tags.set(tagType >>> 3, tagType & 7);
+                            if (!tagTypes.has(tagType & 7)) {
+                                tags = new Map();
+                                break;
+                            }
                             try {
                                 reader.skipType(tagType & 7);
                             }
