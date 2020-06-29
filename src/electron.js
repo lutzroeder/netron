@@ -117,6 +117,10 @@ host.ElectronHost = class {
             this._view.toggleNames();
             this._update('show-names', this._view.showNames);
         });
+        electron.ipcRenderer.on('toggle-direction', () => {
+            this._view.toggleDirection();
+            this._update('show-horizontal', this._view.showHorizontal);
+        });
         electron.ipcRenderer.on('zoom-in', () => {
             this.document.getElementById('zoom-in-button').click();
         });

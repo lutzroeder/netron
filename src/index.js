@@ -134,6 +134,11 @@ host.BrowserHost = class {
             accelerator: 'CmdOrCtrl+U',
             click: () => this._view.toggleNames()
         });
+        this._menu.add({
+            label: () => !this._view.showHorizontal ? 'Show Horizontal' : 'Show Vertical',
+            accelerator: 'CmdOrCtrl+K',
+            click: () => this._view.toggleDirection()
+        });
         this._menu.add({});
         this._menu.add({
             label: 'Zoom In',

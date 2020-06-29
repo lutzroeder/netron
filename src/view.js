@@ -27,6 +27,7 @@ view.View = class {
             this._showAttributes = false;
             this._showInitializers = true;
             this._showNames = false;
+            this._showHorizontal = false;
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
             this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
@@ -138,6 +139,15 @@ view.View = class {
 
     get showNames() {
         return this._showNames;
+    }
+
+    toggleDirection() {
+        this._showHorizontal = !this._showHorizontal;
+        this._reload();
+    }
+
+    get showHorizontal() {
+        return this._showHorizontal;
     }
 
     _reload() {
@@ -382,6 +392,9 @@ view.View = class {
                 const graphOptions = {};
                 graphOptions.nodesep = 25;
                 graphOptions.ranksep = 20;
+                if (this._showHorizontal) {
+                    graphOptions.rankdir = "LR";
+                }
 
                 const g = new dagre.graphlib.Graph({ compound: groups });
                 g.setGraph(graphOptions);
@@ -775,7 +788,9 @@ view.View = class {
                                 if (ys.every(y => y == ys[0])) {
                                     x = xs.reduce((a,b) => { return a + b; }) / xs.length;
                                 }
-                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width / 2) - x, (svgSize.height / 4) - y));
+                                const sx = (svgSize.width / (this._showHorizontal ? 4 : 2)) - x;
+                                const sy = (svgSize.height / (this._showHorizontal ? 2 : 4)) - y;
+                                this._zoom.transform(svg, d3.zoomIdentity.translate(sx, sy));
                             }
                             else {
                                 this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
