@@ -2941,5 +2941,33 @@
         { "name": "output", "type": "tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.scatter_:src",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "dim", "type": "int64" },
+        { "name": "index", "type": "tensor" },
+        { "name": "src", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.scatter_:value",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "dim", "type": "int64" },
+        { "name": "index", "type": "tensor" },
+        { "name": "src", "type": "scalar" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
   }
 ]
