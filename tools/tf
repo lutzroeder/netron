@@ -50,27 +50,7 @@ install() {
 schema() {
     bold "tf schema"
     [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/saved_model.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/meta_graph.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/saver.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/graph.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/op_def.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/tensor_shape.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/types.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/node_def.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/versions.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/function.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/attr_value.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/tensor.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/variable.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/resource_handle.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/saved_object_graph.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/trackable_object_graph.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/struct.proto \
-        ./third_party/src/tensorflow/tensorflow/core/protobuf/tensor_bundle.proto \
-        ./third_party/src/tensorflow/tensorflow/core/framework/tensor_slice.proto \
-        ./third_party/src/tensorflow/tensorflow/core/util/saved_tensor_slice.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js --path ./third_party/src/tensorflow tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
     node ./tools/update_pbjs.js array ./src/tf-proto.js float_val float 1
     node ./tools/update_pbjs.js array ./src/tf-proto.js double_val double 1
     if [[ -n ${crlf} ]]; then
