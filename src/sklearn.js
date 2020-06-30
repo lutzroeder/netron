@@ -829,6 +829,7 @@ sklearn.Container = class {
         constructorTable['sklearn.compose._column_transformer.ColumnTransformer'] = function() {};
         constructorTable['sklearn.compose._target.TransformedTargetRegressor'] = function() {};
         constructorTable['sklearn.cluster._dbscan.DBSCAN'] = function() {};
+        constructorTable['sklearn.cluster._kmeans.KMeans'] = function() {};
         constructorTable['sklearn.decomposition._pca.PCA'] = function() {};
         constructorTable['sklearn.decomposition.PCA'] = function() {};
         constructorTable['sklearn.decomposition.pca.PCA'] = function() {};
