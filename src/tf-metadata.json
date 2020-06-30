@@ -7212,6 +7212,72 @@
     }
   },
   {
+    "name": "CSVDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `int64`, `string`.",
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "filenames",
+          "type": 7
+        },
+        {
+          "name": "compression_type",
+          "type": 7
+        },
+        {
+          "name": "buffer_size",
+          "type": 9
+        },
+        {
+          "name": "header",
+          "type": 10
+        },
+        {
+          "name": "field_delim",
+          "type": 7
+        },
+        {
+          "name": "use_quote_delim",
+          "type": 10
+        },
+        {
+          "name": "na_value",
+          "type": 7
+        },
+        {
+          "name": "select_cols",
+          "type": 9
+        },
+        {
+          "name": "record_defaults",
+          "typeListAttr": "output_types"
+        },
+        {
+          "name": "exclude_cols",
+          "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "CTCBeamSearchDecoder",
     "schema": {
       "attributes": [
