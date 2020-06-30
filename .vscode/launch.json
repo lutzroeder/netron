@@ -24,7 +24,7 @@
               "--enable-logging",
               "--remote-debugging-port=9222"
             ],
-            "webRoot": "${workspaceRoot}"  
-        }        
+            "webRoot": "${workspaceRoot}"
+        }
     ]
 }
