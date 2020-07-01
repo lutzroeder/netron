@@ -2791,7 +2791,7 @@ pytorch.Container.Zip = class {
                 if (!version) {
                     this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + versionNumber + "'."));
                 }
-                this._format = (this._entry('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v#' + versionNumber.toString() );
+                this._format = (this._entry('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v-' + versionNumber.toString() );
             }
         }
         return this._format;
