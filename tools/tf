@@ -36,6 +36,10 @@ sync() {
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
+    [ -d "./third_party/src/tflite-support" ] || git clone --quiet --recursive https://github.com/tensorflow/tflite-support.git "./third_party/src/tflite-support"
+    pushd "./third_party/src/tflite-support" > /dev/null
+    git pull --quiet --prune
+    popd > /dev/null
 }
 
 install() {
@@ -90,7 +94,7 @@ schema() {
     [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
     temp=$(mktemp -d)
     sed 's/namespace tflite;/namespace tflite_schema;/g' < ./third_party/src/tensorflow/tensorflow/lite/schema/schema.fbs > ${temp}/tflite_schema.fbs
-    sed 's/namespace tflite;/namespace tflite_metadata_schema;/g' < ./third_party/src/tensorflow/tensorflow/lite/experimental/support/metadata/metadata_schema.fbs > ${temp}/tflite_metadata_schema.fbs
+    sed 's/namespace tflite;/namespace tflite_metadata_schema;/g' < ./third_party/src/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs > ${temp}/tflite_metadata_schema.fbs
     flatc --no-js-exports --js -o ${temp} ${temp}/tflite_schema.fbs
     flatc --no-js-exports --js -o ${temp} ${temp}/tflite_metadata_schema.fbs
     mv ${temp}/tflite_schema_generated.js ./src/tflite-schema.js
