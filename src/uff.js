@@ -289,17 +289,23 @@ uff.Attribute = class {
     constructor(metadata, name, value) {
         this._name = name;
         switch(value.type) {
-            case 's':  this._value = value.s; break;
-            case 'd':  this._value = value.d; break;
-            case 'd_list':  this._value = value.d_list.val; break;
-            case 'i':  this._value = value.i; break;
-            case 'i_list':  this._value = value.i_list.val; break;
-            case 'b':  this._value = value.b; break;
+            case 's':  this._value = value.s; this._type = 'string'; break;
+            case 's_list':  this._value = value.s_list; this._type = 'string[]'; break;
+            case 'd':  this._value = value.d; this._type = 'float64'; break;
+            case 'd_list':  this._value = value.d_list.val; this._type = 'float64[]'; break;
+            case 'i':  this._value = value.i; this._type = 'int64'; break;
+            case 'i_list':  this._value = value.i_list.val; this._type = 'int64[]'; break;
+            case 'b':  this._value = value.b; this._type = 'boolean'; break;
+            case 'b_list': this._value = value.b_list; this._type = 'boolean[]'; break;
             case 'blob': this._value = value.blob; break;
             case 'dtype': this._value = new uff.TensorType(value, null).dataType; break;
             case 'dim_orders_list': this._value = value.dim_orders_list.val; break;
-            default: throw new uff.Error("Unknown attribute format '" + JSON.stringify(value.type) + "'.");
+            default: throw new uff.Error("Unknown attribute '" + name + "'format '" + JSON.stringify(value) + "'.");
         }
+    }
+
+    get type() {
+        return this._type;
     }
 
     get name() {
