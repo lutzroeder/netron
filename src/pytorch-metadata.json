@@ -2372,6 +2372,39 @@
     }
   },
   {
+    "name": "torch.empty:names",
+    "schema": {
+      "attributes": [
+        { "name": "size", "type": "int64[]" },
+        { "name": "names", "type": "Dimname[]", "optional": true, "default": null },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
+        { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.empty:memory_format",
+    "schema": {
+      "attributes": [
+        { "name": "size", "type": "int64[]" },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
+        { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.zeros",
     "schema": {
       "attributes": [
