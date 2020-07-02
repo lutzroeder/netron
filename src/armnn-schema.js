@@ -4511,10 +4511,19 @@ armnnSerializer.GatherLayer.prototype.base = function(obj) {
 };
 
 /**
+ * @param {armnnSerializer.GatherDescriptor=} obj
+ * @returns {armnnSerializer.GatherDescriptor|null}
+ */
+armnnSerializer.GatherLayer.prototype.descriptor = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new armnnSerializer.GatherDescriptor).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.GatherLayer.startGatherLayer = function(builder) {
-  builder.startObject(1);
+  builder.startObject(2);
 };
 
 /**
@@ -4523,6 +4532,14 @@ armnnSerializer.GatherLayer.startGatherLayer = function(builder) {
  */
 armnnSerializer.GatherLayer.addBase = function(builder, baseOffset) {
   builder.addFieldOffset(0, baseOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} descriptorOffset
+ */
+armnnSerializer.GatherLayer.addDescriptor = function(builder, descriptorOffset) {
+  builder.addFieldOffset(1, descriptorOffset, 0);
 };
 
 /**
@@ -4537,12 +4554,102 @@ armnnSerializer.GatherLayer.endGatherLayer = function(builder) {
 /**
  * @param {flatbuffers.Builder} builder
  * @param {flatbuffers.Offset} baseOffset
+ * @param {flatbuffers.Offset} descriptorOffset
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.GatherLayer.createGatherLayer = function(builder, baseOffset) {
+armnnSerializer.GatherLayer.createGatherLayer = function(builder, baseOffset, descriptorOffset) {
   armnnSerializer.GatherLayer.startGatherLayer(builder);
   armnnSerializer.GatherLayer.addBase(builder, baseOffset);
+  armnnSerializer.GatherLayer.addDescriptor(builder, descriptorOffset);
   return armnnSerializer.GatherLayer.endGatherLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.GatherDescriptor = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.GatherDescriptor}
+ */
+armnnSerializer.GatherDescriptor.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.GatherDescriptor=} obj
+ * @returns {armnnSerializer.GatherDescriptor}
+ */
+armnnSerializer.GatherDescriptor.getRootAsGatherDescriptor = function(bb, obj) {
+  return (obj || new armnnSerializer.GatherDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.GatherDescriptor=} obj
+ * @returns {armnnSerializer.GatherDescriptor}
+ */
+armnnSerializer.GatherDescriptor.getSizePrefixedRootAsGatherDescriptor = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.GatherDescriptor).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @returns {number}
+ */
+armnnSerializer.GatherDescriptor.prototype.axis = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.readInt32(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.GatherDescriptor.startGatherDescriptor = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ */
+armnnSerializer.GatherDescriptor.addAxis = function(builder, axis) {
+  builder.addFieldInt32(0, axis, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.GatherDescriptor.endGatherDescriptor = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} axis
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.GatherDescriptor.createGatherDescriptor = function(builder, axis) {
+  armnnSerializer.GatherDescriptor.startGatherDescriptor(builder);
+  armnnSerializer.GatherDescriptor.addAxis(builder, axis);
+  return armnnSerializer.GatherDescriptor.endGatherDescriptor(builder);
 }
 
 /**
