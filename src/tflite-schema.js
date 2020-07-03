@@ -13201,7 +13201,9 @@ tflite_metadata_schema.ProcessUnitOptions = {
   NONE: 0,
   NormalizationOptions: 1,
   ScoreCalibrationOptions: 2,
-  ScoreThresholdingOptions: 3
+  ScoreThresholdingOptions: 3,
+  BertTokenizerOptions: 4,
+  SentencePieceTokenizerOptions: 5
 };
 
 /**
@@ -13211,7 +13213,9 @@ tflite_metadata_schema.ProcessUnitOptionsName = {
   '0': 'NONE',
   '1': 'NormalizationOptions',
   '2': 'ScoreCalibrationOptions',
-  '3': 'ScoreThresholdingOptions'
+  '3': 'ScoreThresholdingOptions',
+  '4': 'BertTokenizerOptions',
+  '5': 'SentencePieceTokenizerOptions'
 };
 
 /**
@@ -14415,6 +14419,293 @@ tflite_metadata_schema.ScoreThresholdingOptions.createScoreThresholdingOptions =
 /**
  * @constructor
  */
+tflite_metadata_schema.BertTokenizerOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_metadata_schema.BertTokenizerOptions}
+ */
+tflite_metadata_schema.BertTokenizerOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.BertTokenizerOptions=} obj
+ * @returns {tflite_metadata_schema.BertTokenizerOptions}
+ */
+tflite_metadata_schema.BertTokenizerOptions.getRootAsBertTokenizerOptions = function(bb, obj) {
+  return (obj || new tflite_metadata_schema.BertTokenizerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.BertTokenizerOptions=} obj
+ * @returns {tflite_metadata_schema.BertTokenizerOptions}
+ */
+tflite_metadata_schema.BertTokenizerOptions.getSizePrefixedRootAsBertTokenizerOptions = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tflite_metadata_schema.BertTokenizerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @param {tflite_metadata_schema.AssociatedFile=} obj
+ * @returns {tflite_metadata_schema.AssociatedFile}
+ */
+tflite_metadata_schema.BertTokenizerOptions.prototype.vocabFile = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new tflite_metadata_schema.AssociatedFile).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.BertTokenizerOptions.prototype.vocabFileLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_metadata_schema.BertTokenizerOptions.startBertTokenizerOptions = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} vocabFileOffset
+ */
+tflite_metadata_schema.BertTokenizerOptions.addVocabFile = function(builder, vocabFileOffset) {
+  builder.addFieldOffset(0, vocabFileOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.BertTokenizerOptions.createVocabFileVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.BertTokenizerOptions.startVocabFileVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.BertTokenizerOptions.endBertTokenizerOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} vocabFileOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.BertTokenizerOptions.createBertTokenizerOptions = function(builder, vocabFileOffset) {
+  tflite_metadata_schema.BertTokenizerOptions.startBertTokenizerOptions(builder);
+  tflite_metadata_schema.BertTokenizerOptions.addVocabFile(builder, vocabFileOffset);
+  return tflite_metadata_schema.BertTokenizerOptions.endBertTokenizerOptions(builder);
+}
+
+/**
+ * @constructor
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_metadata_schema.SentencePieceTokenizerOptions}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.SentencePieceTokenizerOptions=} obj
+ * @returns {tflite_metadata_schema.SentencePieceTokenizerOptions}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.getRootAsSentencePieceTokenizerOptions = function(bb, obj) {
+  return (obj || new tflite_metadata_schema.SentencePieceTokenizerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.SentencePieceTokenizerOptions=} obj
+ * @returns {tflite_metadata_schema.SentencePieceTokenizerOptions}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.getSizePrefixedRootAsSentencePieceTokenizerOptions = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tflite_metadata_schema.SentencePieceTokenizerOptions).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {number} index
+ * @param {tflite_metadata_schema.AssociatedFile=} obj
+ * @returns {tflite_metadata_schema.AssociatedFile}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.prototype.sentencePieceModel = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new tflite_metadata_schema.AssociatedFile).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.prototype.sentencePieceModelLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} index
+ * @param {tflite_metadata_schema.AssociatedFile=} obj
+ * @returns {tflite_metadata_schema.AssociatedFile}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.prototype.vocabFile = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? (obj || new tflite_metadata_schema.AssociatedFile).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.prototype.vocabFileLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.startSentencePieceTokenizerOptions = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sentencePieceModelOffset
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.addSentencePieceModel = function(builder, sentencePieceModelOffset) {
+  builder.addFieldOffset(0, sentencePieceModelOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.createSentencePieceModelVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.startSentencePieceModelVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} vocabFileOffset
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.addVocabFile = function(builder, vocabFileOffset) {
+  builder.addFieldOffset(1, vocabFileOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.createVocabFileVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.startVocabFileVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.endSentencePieceTokenizerOptions = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} sentencePieceModelOffset
+ * @param {flatbuffers.Offset} vocabFileOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SentencePieceTokenizerOptions.createSentencePieceTokenizerOptions = function(builder, sentencePieceModelOffset, vocabFileOffset) {
+  tflite_metadata_schema.SentencePieceTokenizerOptions.startSentencePieceTokenizerOptions(builder);
+  tflite_metadata_schema.SentencePieceTokenizerOptions.addSentencePieceModel(builder, sentencePieceModelOffset);
+  tflite_metadata_schema.SentencePieceTokenizerOptions.addVocabFile(builder, vocabFileOffset);
+  return tflite_metadata_schema.SentencePieceTokenizerOptions.endSentencePieceTokenizerOptions(builder);
+}
+
+/**
+ * @constructor
+ */
 tflite_metadata_schema.ProcessUnit = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -15112,10 +15403,46 @@ tflite_metadata_schema.SubGraphMetadata.prototype.associatedFilesLength = functi
 };
 
 /**
+ * @param {number} index
+ * @param {tflite_metadata_schema.ProcessUnit=} obj
+ * @returns {tflite_metadata_schema.ProcessUnit}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.inputProcessUnits = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? (obj || new tflite_metadata_schema.ProcessUnit).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.inputProcessUnitsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 14);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} index
+ * @param {tflite_metadata_schema.ProcessUnit=} obj
+ * @returns {tflite_metadata_schema.ProcessUnit}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.outputProcessUnits = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? (obj || new tflite_metadata_schema.ProcessUnit).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.outputProcessUnitsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_metadata_schema.SubGraphMetadata.startSubGraphMetadata = function(builder) {
-  builder.startObject(5);
+  builder.startObject(7);
 };
 
 /**
@@ -15223,6 +15550,64 @@ tflite_metadata_schema.SubGraphMetadata.startAssociatedFilesVector = function(bu
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputProcessUnitsOffset
+ */
+tflite_metadata_schema.SubGraphMetadata.addInputProcessUnits = function(builder, inputProcessUnitsOffset) {
+  builder.addFieldOffset(5, inputProcessUnitsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SubGraphMetadata.createInputProcessUnitsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SubGraphMetadata.startInputProcessUnitsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} outputProcessUnitsOffset
+ */
+tflite_metadata_schema.SubGraphMetadata.addOutputProcessUnits = function(builder, outputProcessUnitsOffset) {
+  builder.addFieldOffset(6, outputProcessUnitsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SubGraphMetadata.createOutputProcessUnitsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SubGraphMetadata.startOutputProcessUnitsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata = function(builder) {
@@ -15237,15 +15622,19 @@ tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata = function(builder) 
  * @param {flatbuffers.Offset} inputTensorMetadataOffset
  * @param {flatbuffers.Offset} outputTensorMetadataOffset
  * @param {flatbuffers.Offset} associatedFilesOffset
+ * @param {flatbuffers.Offset} inputProcessUnitsOffset
+ * @param {flatbuffers.Offset} outputProcessUnitsOffset
  * @returns {flatbuffers.Offset}
  */
-tflite_metadata_schema.SubGraphMetadata.createSubGraphMetadata = function(builder, nameOffset, descriptionOffset, inputTensorMetadataOffset, outputTensorMetadataOffset, associatedFilesOffset) {
+tflite_metadata_schema.SubGraphMetadata.createSubGraphMetadata = function(builder, nameOffset, descriptionOffset, inputTensorMetadataOffset, outputTensorMetadataOffset, associatedFilesOffset, inputProcessUnitsOffset, outputProcessUnitsOffset) {
   tflite_metadata_schema.SubGraphMetadata.startSubGraphMetadata(builder);
   tflite_metadata_schema.SubGraphMetadata.addName(builder, nameOffset);
   tflite_metadata_schema.SubGraphMetadata.addDescription(builder, descriptionOffset);
   tflite_metadata_schema.SubGraphMetadata.addInputTensorMetadata(builder, inputTensorMetadataOffset);
   tflite_metadata_schema.SubGraphMetadata.addOutputTensorMetadata(builder, outputTensorMetadataOffset);
   tflite_metadata_schema.SubGraphMetadata.addAssociatedFiles(builder, associatedFilesOffset);
+  tflite_metadata_schema.SubGraphMetadata.addInputProcessUnits(builder, inputProcessUnitsOffset);
+  tflite_metadata_schema.SubGraphMetadata.addOutputProcessUnits(builder, outputProcessUnitsOffset);
   return tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata(builder);
 }
 
