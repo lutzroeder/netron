@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    env_dir=./third_party/env/tensorflow
+    env_dir=./third_party/env/tf
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -24,14 +24,14 @@ venv() {
 
 clean() {
     bold "tf clean"
-    rm -rf "./third_party/env/tensorflow"
-    rm -rf "./third_party/src/tensorflow"
+    rm -rf "./third_party/env/tf"
+    rm -rf "./third_party/src/tf"
 }
 
 sync() {
     bold "tf sync"
-    [ -d "./third_party/src/tensorflow" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/src/tensorflow"
-    pushd "./third_party/src/tensorflow" > /dev/null
+    [ -d "./third_party/src/tf" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/src/tf"
+    pushd "./third_party/src/tf" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -54,7 +54,7 @@ install() {
 schema() {
     bold "tf schema"
     [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js --path ./third_party/src/tensorflow tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
+    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js --path ./third_party/src/tf tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
     node ./tools/update_pbjs.js array ./src/tf-proto.js float_val float 1
     node ./tools/update_pbjs.js array ./src/tf-proto.js double_val double 1
     if [[ -n ${crlf} ]]; then
@@ -93,7 +93,7 @@ schema() {
     esac
     [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
     temp=$(mktemp -d)
-    sed 's/namespace tflite;/namespace tflite_schema;/g' < ./third_party/src/tensorflow/tensorflow/lite/schema/schema.fbs > ${temp}/tflite_schema.fbs
+    sed 's/namespace tflite;/namespace tflite_schema;/g' < ./third_party/src/tf/tensorflow/lite/schema/schema.fbs > ${temp}/tflite_schema.fbs
     sed 's/namespace tflite;/namespace tflite_metadata_schema;/g' < ./third_party/src/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs > ${temp}/tflite_metadata_schema.fbs
     flatc --no-js-exports --js -o ${temp} ${temp}/tflite_schema.fbs
     flatc --no-js-exports --js -o ${temp} ${temp}/tflite_metadata_schema.fbs
@@ -135,13 +135,13 @@ metadata() {
     #         ;;
     # esac
     # temp=$(mktemp -d)
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/attr_value.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/types.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/tensor_shape.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/resource_handle.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/api_def.proto --python_out=${temp}
-    #protoc --proto_path ./third_party/src/tensorflow ./third_party/src/tensorflow/tensorflow/core/framework/op_def.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/attr_value.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/tensor.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/types.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/tensor_shape.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/resource_handle.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/api_def.proto --python_out=${temp}
+    #protoc --proto_path ./third_party/src/tf ./third_party/src/tf/tensorflow/core/framework/op_def.proto --python_out=${temp}
     #touch ${temp}/tensorflow/__init__.py
     #touch ${temp}/tensorflow/core/__init__.py
     #touch ${temp}/tensorflow/core/framework/__init__.py
