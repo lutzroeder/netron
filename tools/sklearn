@@ -13,7 +13,7 @@ bold() {
 }
 
 venv() {
-    env_dir=./third_party/env/scikit-learn
+    env_dir=./third_party/env/sklearn
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -24,12 +24,12 @@ venv() {
 
 clean() {
     bold "sklearn clean"
-    rm -rf "./third_party/env/scikit-learn"
+    rm -rf "./third_party/env/sklearn"
 }
 
 sync() {
-    [ -d "./third_party/src/scikit-learn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/src/scikit-learn"
-    pushd "./third_party/src/scikit-learn" > /dev/null
+    [ -d "./third_party/src/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/src/sklearn"
+    pushd "./third_party/src/sklearn" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -41,7 +41,7 @@ install() {
     venv
     ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid isort
     ${python} -m pip install --quiet --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
-    # ${python} -m pip install --quiet ./third_party/src/scikit-learn
+    # ${python} -m pip install --quiet ./third_party/src/sklearn
     deactivate
 }
 
