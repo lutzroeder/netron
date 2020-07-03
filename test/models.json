@@ -1575,12 +1575,6 @@
   },
   {
     "type":   "coreml",
-    "target": "TinyDrawingEmbedding.mlmodel",
-    "source": "https://github.com/apple/coremltools/raw/master/examples/updatable_models/models/TinyDrawingEmbedding.mlmodel",
-    "link":   "https://github.com/apple/coremltools"
-  },
-  {
-    "type":   "coreml",
     "target": "TinyYOLO.mlmodel",
     "source": "https://raw.githubusercontent.com/hollance/YOLO-CoreML-MPSNNGraph/master/TinyYOLO-CoreML/TinyYOLO-CoreML/TinyYOLO.mlmodel"
   },
@@ -1798,13 +1792,6 @@
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo9000.cfg",
     "format": "Darknet",
     "link":   "https://github.com/AlexeyAB/darknet"
-  },
-  {
-    "type":   "dl4j",
-    "target": "darknet19_dl4j_inference.v2.zip",
-    "source": "https://dl4jdata.blob.core.windows.net/models/darknet19_dl4j_inference.v2.zip",
-    "format": "Deeplearning4j",
-    "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
     "type":   "dl4j",
