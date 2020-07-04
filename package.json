@@ -31,7 +31,7 @@
         "electron": "9.0.5",
         "electron-builder": "22.7.0",
         "electron-notarize": "1.0.0",
-        "eslint": "7.3.1",
+        "eslint": "7.4.0",
         "xmldom": "0.3.0"
     }
 }
