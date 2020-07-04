@@ -13,7 +13,7 @@ const request = (url, timeout) => {
         const httpModule = url.split(':').shift() === 'https' ? https : http;
         httpModule.get(url, (response) => {
             if (response.statusCode === 200) {
-                let data = [];
+                const data = [];
                 let position = 0;
                 response.on('data', (chunk) => {
                     data.push(chunk);

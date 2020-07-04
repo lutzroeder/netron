@@ -1172,16 +1172,16 @@ coreml.Metadata = class {
     }
 
     getInputs(type, inputs) {
-        let results = [];
+        const results = [];
         const schema = this._map[type];
         let index = 0;
         while (index < inputs.length) {
-            let result = { arguments: [] };
+            const result = { arguments: [] };
             let count = 1;
             let name = null;
             if (schema && schema.inputs) {
                 if (index < schema.inputs.length) {
-                    let input = schema.inputs[index];
+                    const input = schema.inputs[index];
                     name = input.name;
                     if (schema.inputs[index].option == 'variadic') {
                         count = inputs.length - index;
@@ -1194,7 +1194,7 @@ coreml.Metadata = class {
                 }
             }
             result.name = name ? name : '(' + index.toString() + ')';
-            let array = inputs.slice(index, index + count);
+            const array = inputs.slice(index, index + count);
             for (let j = 0; j < array.length; j++) {
                 result.arguments.push({ name: array[j] });
             }
@@ -1207,11 +1207,11 @@ coreml.Metadata = class {
     getOutputName(type, index) {
         const schema = this._map[type];
         if (schema) {
-            let outputs = schema.outputs;
+            const outputs = schema.outputs;
             if (outputs && index < outputs.length) {
-                let output = outputs[index];
+                const output = outputs[index];
                 if (output) {
-                    let name = output.name;
+                    const name = output.name;
                     if (name) {
                         return name;
                     }

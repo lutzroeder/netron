@@ -3179,7 +3179,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 break;
                             }
                             case 'tensor[]': {
-                                let argument = copyEvalArgs[0];
+                                const argument = copyEvalArgs[0];
                                 if (!Array.isArray(argument) || !argument.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
                                     if (parameter.optional) {
                                         continue;

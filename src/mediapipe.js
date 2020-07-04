@@ -1,5 +1,4 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var mediapipe = mediapipe || {};
 var prototxt = prototxt || require('protobufjs/ext/prototxt');
@@ -60,7 +59,7 @@ mediapipe.Graph = class {
             if (root.input_stream) {
                 const inputs = Array.isArray(root.input_stream) ? root.input_stream : [ root.input_stream ];
                 for (const input of inputs) {
-                    let parts = input.split(':');
+                    const parts = input.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._inputs.push(new mediapipe.Parameter(name, [
@@ -71,7 +70,7 @@ mediapipe.Graph = class {
             if (root.output_stream) {
                 const outputs = Array.isArray(root.output_stream) ? root.output_stream : [ root.output_stream ];
                 for (const output of outputs) {
-                    let parts = output.split(':');
+                    const parts = output.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._outputs.push(new mediapipe.Parameter(name, [
@@ -82,7 +81,7 @@ mediapipe.Graph = class {
             if (root.input_side_packet) {
                 const inputs = Array.isArray(root.input_side_packet) ? root.input_side_packet : [ root.input_side_packet ];
                 for (const input of inputs) {
-                    let parts = input.split(':');
+                    const parts = input.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._inputs.push(new mediapipe.Parameter(name, [
@@ -93,7 +92,7 @@ mediapipe.Graph = class {
             if (root.output_side_packet) {
                 const outputs = Array.isArray(root.output_side_packet) ? root.output_side_packet : [ root.output_side_packet ];
                 for (const output of outputs) {
-                    let parts = output.split(':');
+                    const parts = output.split(':');
                     const type = (parts.length > 1) ? parts.shift() : '';
                     const name = parts.shift();
                     this._outputs.push(new mediapipe.Parameter(output, [
@@ -133,10 +132,10 @@ mediapipe.Node = class {
         this._attributes = [];
 
         if (node.input_stream) {
-            let args = [];
+            const args = [];
             const inputs = Array.isArray(node.input_stream) ? node.input_stream : [ node.input_stream ];
             for (const input of inputs) {
-                let parts = input.split(':');
+                const parts = input.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
@@ -144,10 +143,10 @@ mediapipe.Node = class {
             this._inputs.push(new mediapipe.Parameter('input_stream', args));
         }
         if (node.output_stream) {
-            let args = [];
+            const args = [];
             const outputs = Array.isArray(node.output_stream) ? node.output_stream : [ node.output_stream ];
             for (const output of outputs) {
-                let parts = output.split(':');
+                const parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
@@ -155,10 +154,10 @@ mediapipe.Node = class {
             this._outputs.push(new mediapipe.Parameter('output_stream', args));
         }
         if (node.input_side_packet) {
-            let args = [];
+            const args = [];
             const inputs = Array.isArray(node.input_side_packet) ? node.input_side_packet : [ node.input_side_packet ];
             for (const input of inputs) {
-                let parts = input.split(':');
+                const parts = input.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
@@ -166,17 +165,17 @@ mediapipe.Node = class {
             this._inputs.push(new mediapipe.Parameter('input_side_packet', args));
         }
         if (node.output_side_packet) {
-            let args = [];
+            const args = [];
             const outputs = Array.isArray(node.output_side_packet) ? node.output_side_packet : [ node.output_side_packet ];
             for (const output of outputs) {
-                let parts = output.split(':');
+                const parts = output.split(':');
                 const type = (parts.length > 1) ? parts.shift() : '';
                 const name = parts.shift();
                 args.push(new mediapipe.Argument(name, type, null));
             }
             this._outputs.push(new mediapipe.Parameter('output_side_packet', args));
         }
-        let options = node.options || node.node_options || null;
+        const options = node.options || node.node_options || null;
         if (options) {
             for (const key of Object.keys(options)) {
                 if (key === '__type__') {
@@ -297,7 +296,7 @@ mediapipe.Object = class {
             reader.start();
             close = true;
         }
-        let arrayTags = new Set();
+        const arrayTags = new Set();
         while (!reader.end()) {
             var tag = reader.tag();
             var next = reader.peek();

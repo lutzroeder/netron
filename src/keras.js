@@ -1091,7 +1091,7 @@ keras.Group = class {
                 let index = 0;
                 value = [];
                 for (;;) {
-                    let chunk = this._group.attribute(name + index.toString());
+                    const chunk = this._group.attribute(name + index.toString());
                     if (!chunk) {
                         break;
                     }
@@ -1104,7 +1104,7 @@ keras.Group = class {
     }
 
     group(name) {
-        let value = this._group.group(name);
+        const value = this._group.group(name);
         if (value) {
             return new keras.Group(value);
         }
@@ -1256,7 +1256,7 @@ keras.JsonParser = class {
     }
 
     _array() {
-        let arr = [];
+        const arr = [];
         if (this._ch === '[') {
             this._expect('[');
             this._whitespace();
@@ -1280,7 +1280,7 @@ keras.JsonParser = class {
 
     _object() {
         let key;
-        let obj = {};
+        const obj = {};
         if (this._ch === '{') {
             this._expect('{');
             this._whitespace();

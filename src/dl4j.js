@@ -301,7 +301,7 @@ dl4j.Node = class {
         let attributes = layer;
 
         if (layer.activationFn) {
-            let activation = dl4j.Node._object(layer.activationFn);
+            const activation = dl4j.Node._object(layer.activationFn);
             if (activation.__type__ !== 'ActivationIdentity' && activation.__type__ !== 'Identity') {
                 if (activation.__type__.startsWith('Activation')) {
                     activation.__type__ = activation.__type__.substring('Activation'.length);
@@ -529,9 +529,9 @@ dl4j.Metadata = class {
 dl4j.NDArrayReader = class {
 
     constructor(buffer) {
-        let reader = new dl4j.BinaryReader(buffer);
+        const reader = new dl4j.BinaryReader(buffer);
         /* let shape = */ dl4j.NDArrayReader._header(reader);
-        let data = dl4j.NDArrayReader._header(reader);
+        const data = dl4j.NDArrayReader._header(reader);
         this._dataType = data.type;
     }
 
@@ -540,7 +540,7 @@ dl4j.NDArrayReader = class {
     }
 
     static _header(reader) {
-        let header = {};
+        const header = {};
         header.alloc = reader.string();
         header.length = 0;
         switch (header.alloc) {
@@ -578,14 +578,14 @@ dl4j.BinaryReader = class {
     }
 
     bytes(size) {
-        let data = this._buffer.subarray(this._position, this._position + size);
+        const data = this._buffer.subarray(this._position, this._position + size);
         this._position += size;
         return data;
     }
 
     string() {
-        let size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
-        let buffer = this.bytes(size);
+        const size = this._buffer[this._position++] << 8 | this._buffer[this._position++];
+        const buffer = this.bytes(size);
         return new TextDecoder('ascii').decode(buffer);
     }
 
@@ -597,8 +597,8 @@ dl4j.BinaryReader = class {
     }
 
     int64() {
-        let hi = this.int32();
-        let lo = this.int32();
+        const hi = this.int32();
+        const lo = this.int32();
         return new long.Long(hi, lo, true).toNumber();
     }
 };

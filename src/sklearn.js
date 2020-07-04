@@ -416,7 +416,7 @@ sklearn.Attribute = class {
             return false;
         }
         while (size--) {
-            let key = keys[size];
+            const key = keys[size];
             if (!(Object.prototype.hasOwnProperty.call(b, key) && sklearn.Attribute._isEquivalent(a[key], b[key]))) {
                 return false;
             }

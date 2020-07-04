@@ -71,8 +71,8 @@ torch.Graph = class {
             root = root.model;
         }
 
-        let inputs = [];
-        let outputs = [];
+        const inputs = [];
+        const outputs = [];
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
         this._inputs = this._inputs.concat(inputs.map((input, index) => {
@@ -130,8 +130,8 @@ torch.Graph = class {
                 let newOutputs = [];
                 let index = 0;
                 for (const subModule of module.modules) {
-                    let subInputs = [].concat(inputs);
-                    let subOutputs = [].concat(outputs);
+                    const subInputs = [].concat(inputs);
+                    const subOutputs = [].concat(outputs);
                     this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
                         newInputs = newInputs.concat(subInputs);
@@ -157,8 +157,8 @@ torch.Graph = class {
                 let concatInputs = [];
                 let index = 0;
                 for (const subModule of module.modules) {
-                    let streamInputs = inputs.map((input) => input);
-                    let streamOutputs = [];
+                    const streamInputs = inputs.map((input) => input);
+                    const streamOutputs = [];
                     this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
                     concatInputs = concatInputs.concat(streamOutputs);
                     index++;
@@ -253,7 +253,7 @@ torch.Node = class {
         for (const key of Object.keys(module)) {
             const obj = module[key];
             if (obj && obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Storage')) {
-                let array = [];
+                const array = [];
                 obj.reset();
                 for (let i = 0; i < obj.size; i++) {
                     array.push(obj.read());
@@ -496,7 +496,7 @@ torch.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -505,7 +505,7 @@ torch.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
@@ -515,7 +515,7 @@ torch.Tensor = class {
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -547,7 +547,7 @@ torch.Tensor = class {
     }
 
     _decode(context, dimension) {
-        let results = [];
+        const results = [];
         const size = context.dimensions[dimension];
         if (dimension == context.dimensions.length - 1) {
             for (let i = 0; i < size; i++) {
@@ -634,7 +634,7 @@ torch.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     item.schema.name = item.name;
@@ -891,7 +891,7 @@ torch.T7Reader = class {
     }
 
     object() {
-        let index = this.int32();
+        const index = this.int32();
         if (this._memo.has(index)) {
             return this._memo.get(index);
         }
@@ -907,7 +907,7 @@ torch.T7Reader = class {
             version = 0;
         }
 
-        let obj = { __type__: name };
+        const obj = { __type__: name };
         this._memo.set(index, obj);
 
         let constructor = this._registry[name];
@@ -929,14 +929,14 @@ torch.T7Reader = class {
         if (this._memo.has(index)) {
             return this._memo.get(index);
         }
-        let table = {};
+        const table = {};
         this._memo.set(index, table);
         const size = this.int32();
         let convert = true;
         let sum = 0;
         for (let i = 0; i < size; i++) {
-            let key = this.read();
-            let value = this.read();
+            const key = this.read();
+            const value = this.read();
             table[key] = value;
             if (Number.isInteger(key) && key >= 0) {
                 sum += key;
@@ -945,9 +945,9 @@ torch.T7Reader = class {
                 convert = false;
             }
         }
-        let n = Object.keys(table).length;
+        const n = Object.keys(table).length;
         if (convert && (n * (n + 1)) == (2 * sum)) {
-            let list = [];
+            const list = [];
             for (let j = 0; j < n; j++) {
                 let item = table[j + 1];
                 if (item == table) {
@@ -1079,7 +1079,7 @@ torch.BinaryReader = class {
     }
 
     int64s(size) {
-        let array = [];
+        const array = [];
         for (let i = 0; i < size; i++) {
             array.push(this.int64());
         }
@@ -1166,7 +1166,7 @@ torch.TextReader = class {
     }
 
     int64s(size) {
-        let array = [];
+        const array = [];
         if (size > 0) {
             const text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
             for (const token of text.split(' ')) {

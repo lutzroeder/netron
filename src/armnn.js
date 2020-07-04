@@ -228,7 +228,7 @@ armnn.Node = class {
     }
 
     static castLayer(layer) {
-        let layerType = layer.layerType();
+        const layerType = layer.layerType();
         for (const k of Object.keys(armnn.schema.Layer)) {
             if (layerType == armnn.schema.Layer[k]) {
                 return layer.layer(new armnn.schema[k]);
@@ -261,7 +261,7 @@ armnn.Node = class {
         const type = attr.src_type;
 
         if (typeof type != "undefined") {
-            let value = this.getAttr(descriptor, key);
+            const value = this.getAttr(descriptor, key);
             if (typeof armnn.schema[type + "Name"] != "undefined") {
                 return armnn.schema[type + "Name"][value];
             }
@@ -270,7 +270,7 @@ armnn.Node = class {
             }
         }
         else if (Array.isArray(key)) {
-            let values = [];
+            const values = [];
             for (let i = 0 ; i < key.length ; i++) {
                 values.push(this.getAttr(descriptor, key[i]));
             }
@@ -411,7 +411,7 @@ armnn.Tensor = class {
     }
 
     get value() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return null;
         }
@@ -420,17 +420,17 @@ armnn.Tensor = class {
     }
 
     toString() {
-        let context = this._context();
+        const context = this._context();
         if (context.state) {
             return '';
         }
         context.limit = 10000;
-        let value = this._decode(context, 0);
+        const value = this._decode(context, 0);
         return JSON.stringify(value, null, 4);
     }
 
     _context() {
-        let context = {};
+        const context = {};
         context.state = null;
         context.index = 0;
         context.count = 0;
@@ -452,8 +452,8 @@ armnn.Tensor = class {
         if (shape.length == 0) {
             shape = [ 1 ];
         }
-        let size = shape[dimension];
-        let results = [];
+        const size = shape[dimension];
+        const results = [];
         if (dimension == shape.length - 1) {
             for (let i = 0; i < size; i++) {
                 if (context.count > context.limit) {
@@ -529,8 +529,8 @@ armnn.TensorType = class {
             default: throw new armnn.Error("Unknown data type '" + dataType + "'.");
         }
 
-        let dimensions = [];
-        let dimensionsLength = tensorInfo.dimensionsLength();
+        const dimensions = [];
+        const dimensionsLength = tensorInfo.dimensionsLength();
         if (dimensionsLength > 0) {
             for (let i = 0; i < dimensionsLength; i++) {
                 dimensions.push(tensorInfo.dimensions(i));
@@ -588,7 +588,7 @@ armnn.Metadata = class {
     constructor(data) {
         this._map = {};
         if (data) {
-            let items = JSON.parse(data);
+            const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
@@ -617,7 +617,7 @@ armnn.Metadata = class {
                 }
                 schema.attributeMap = attributeMap;
             }
-            let attributeSchema = attributeMap[name];
+            const attributeSchema = attributeMap[name];
             if (attributeSchema) {
                 return attributeSchema;
             }

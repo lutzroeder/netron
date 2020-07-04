@@ -13,22 +13,22 @@ grapher.Renderer = class {
 
     render(graph) {
 
-        let svgClusterGroup = this.createElement('g');
+        const svgClusterGroup = this.createElement('g');
         svgClusterGroup.setAttribute('id', 'clusters');
         svgClusterGroup.setAttribute('class', 'clusters');
         this._svgElement.appendChild(svgClusterGroup);
 
-        let svgEdgePathGroup = this.createElement('g');
+        const svgEdgePathGroup = this.createElement('g');
         svgEdgePathGroup.setAttribute('id', 'edge-paths');
         svgEdgePathGroup.setAttribute('class', 'edge-paths');
         this._svgElement.appendChild(svgEdgePathGroup);
 
-        let svgEdgeLabelGroup = this.createElement('g');
+        const svgEdgeLabelGroup = this.createElement('g');
         svgEdgeLabelGroup.setAttribute('id', 'edge-labels');
         svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
         this._svgElement.appendChild(svgEdgeLabelGroup);
 
-        let svgNodeGroup = this.createElement('g');
+        const svgNodeGroup = this.createElement('g');
         svgNodeGroup.setAttribute('id', 'nodes');
         svgNodeGroup.setAttribute('class', 'nodes');
         this._svgElement.appendChild(svgNodeGroup);
@@ -59,7 +59,7 @@ grapher.Renderer = class {
         for (const edgeId of graph.edges()) {
             const edge = graph.edge(edgeId);
             if (edge.label) {
-                let tspan = this.createElement('tspan');
+                const tspan = this.createElement('tspan');
                 tspan.setAttribute('xml:space', 'preserve');
                 tspan.setAttribute('dy', '1em');
                 tspan.setAttribute('x', '1');
@@ -162,7 +162,7 @@ grapher.Renderer = class {
     }
 
     static _computeCurvePath(edge, tail, head) {
-        let points = edge.points.slice(1, edge.points.length - 1);
+        const points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(grapher.Renderer.intersectRect(tail, points[0]));
         points.push(grapher.Renderer.intersectRect(head, points[points.length - 1]));
 
@@ -231,12 +231,12 @@ grapher.NodeElement = class {
     }
 
     format(contextElement) {
-        let rootElement = this.createElement('g');
+        const rootElement = this.createElement('g');
         contextElement.appendChild(rootElement);
 
         let width = 0;
         let height = 0;
-        let tops = [];
+        const tops = [];
 
         for (const block of this._blocks) {
             tops.push(height);
@@ -248,11 +248,11 @@ grapher.NodeElement = class {
         }
 
         for (let i = 0; i < this._blocks.length; i++) {
-            let top = tops.shift();
+            const top = tops.shift();
             this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
         }
 
-        let borderElement = this.createElement('path');
+        const borderElement = this.createElement('path');
         borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
         borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
         rootElement.appendChild(borderElement);
@@ -306,15 +306,15 @@ grapher.NodeElement.Header = class {
         this._height = 0;
         this._elements = [];
         let x = 0;
-        let y = 0;
+        const y = 0;
         for (const item of this._items) {
-            let yPadding = 4;
-            let xPadding = 7;
-            let element = this.createElement('g');
+            const yPadding = 4;
+            const xPadding = 7;
+            const element = this.createElement('g');
             let classList = [ 'node-item' ];
             parentElement.appendChild(element);
-            let pathElement = this.createElement('path');
-            let textElement = this.createElement('text');
+            const pathElement = this.createElement('path');
+            const textElement = this.createElement('text');
             element.appendChild(pathElement);
             element.appendChild(textElement);
             if (item.classList) {
@@ -328,16 +328,16 @@ grapher.NodeElement.Header = class {
                 element.addEventListener('click', item.handler);
             }
             if (item.tooltip) {
-                let titleElement = this.createElement('title');
+                const titleElement = this.createElement('title');
                 titleElement.textContent = item.tooltip;
                 element.appendChild(titleElement);
             }
             if (item.content) {
                 textElement.textContent = item.content;
             }
-            let boundingBox = textElement.getBBox();
-            let width = boundingBox.width + xPadding + xPadding;
-            let height = boundingBox.height + yPadding + yPadding;
+            const boundingBox = textElement.getBBox();
+            const width = boundingBox.width + xPadding + xPadding;
+            const height = boundingBox.height + yPadding + yPadding;
             this._elements.push({
                 'group': element,
                 'text': textElement,
@@ -366,7 +366,7 @@ grapher.NodeElement.Header = class {
 
     update(parentElement, top, width, first, last) {
 
-        let dx = width - this._width;
+        const dx = width - this._width;
         let i;
         let element;
 
@@ -385,10 +385,10 @@ grapher.NodeElement.Header = class {
         for (i = 0; i < this._elements.length; i++) {
             element = this._elements[i];
             element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
-            let r1 = i == 0 && first;
-            let r2 = i == this._elements.length - 1 && first;
-            let r3 = i == this._elements.length - 1 && last;
-            let r4 = i == 0 && last;
+            const r1 = i == 0 && first;
+            const r2 = i == this._elements.length - 1 && first;
+            const r3 = i == this._elements.length - 1 && last;
+            const r4 = i == 0 && last;
             element.path.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
             element.text.setAttribute('x', 6);
             element.text.setAttribute('y', element.ty);
@@ -446,8 +446,8 @@ grapher.NodeElement.List = class {
     layout(parentElement) {
         this._width = 0;
         this._height = 0;
-        let x = 0;
-        let y = 0;
+        const x = 0;
+        const y = 0;
         this._element = this.createElement('g');
         this._element.setAttribute('class', 'node-attribute');
         parentElement.appendChild(this._element);
@@ -461,24 +461,24 @@ grapher.NodeElement.List = class {
         for (const item of this._items) {
             const yPadding = 1;
             const xPadding = 6;
-            let textElement = this.createElement('text');
+            const textElement = this.createElement('text');
             if (item.id) {
                 textElement.setAttribute('id', item.id);
             }
             textElement.setAttribute('xml:space', 'preserve');
             this._element.appendChild(textElement);
             if (item.tooltip) {
-                let titleElement = this.createElement('title');
+                const titleElement = this.createElement('title');
                 titleElement.textContent = item.tooltip;
                 textElement.appendChild(titleElement);
             }
-            let textNameElement = this.createElement('tspan');
+            const textNameElement = this.createElement('tspan');
             textNameElement.textContent = item.name;
             if (item.separator.trim() != '=') {
                 textNameElement.style.fontWeight = 'bold';
             }
             textElement.appendChild(textNameElement);
-            let textValueElement = this.createElement('tspan');
+            const textValueElement = this.createElement('tspan');
             textValueElement.textContent = item.separator + item.value;
             textElement.appendChild(textValueElement);
             const size = textElement.getBBox();
@@ -509,14 +509,14 @@ grapher.NodeElement.List = class {
 
         this._element.setAttribute('transform', 'translate(0,' + top + ')');
 
-        let r1 = first;
-        let r2 = first;
-        let r3 = last;
-        let r4 = last;
+        const r1 = first;
+        const r2 = first;
+        const r3 = last;
+        const r4 = last;
         this._backgroundElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
 
         if (!first) {
-            let lineElement = this.createElement('line');
+            const lineElement = this.createElement('line');
             lineElement.setAttribute('class', 'node');
             lineElement.setAttribute('x1', 0);
             lineElement.setAttribute('x2', width);

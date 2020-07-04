@@ -725,7 +725,7 @@ ncnn.BinaryParamReader = class {
             }
             let id = reader.int32();
             while (id != -233) {
-                let isArray = id <= -23300;
+                const isArray = id <= -23300;
                 if (isArray) {
                     id = -id - 23300;
                 }

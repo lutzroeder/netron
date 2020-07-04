@@ -284,7 +284,7 @@ mnn.Node = class {
             if (parameter[attributeName] && typeof parameter[attributeName] == 'function') {
                 let value = null;
                 if (attributeArrayNamesMap[attributeName]) {
-                    let array = [];
+                    const array = [];
                     const length = parameter[attributeName + 'Length']();
                     for (let i = 0; i < length; i++) {
                         array.push(parameter[attributeName](i));

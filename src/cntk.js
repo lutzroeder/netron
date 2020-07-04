@@ -824,7 +824,7 @@ cntk.Metadata = class {
         let map = this._attributeCache[type];
         if (!map) {
             map = {};
-            let schema = this.type(type);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     map[attribute.name] = attribute;
@@ -839,14 +839,14 @@ cntk.Metadata = class {
 cntk_v1.ComputationNetwork = class {
 
     constructor(buffer) {
-        let reader = new cntk_v1.Reader(buffer);
+        const reader = new cntk_v1.Reader(buffer);
         reader.assert('BCN');
         reader.assert('BVersion');
         this.version = reader.uint64();
         reader.assert('EVersion');
-        let numNodes = reader.uint64();
+        const numNodes = reader.uint64();
         reader.assert('BNodeList');
-        let op = {};
+        const op = {};
         op.Minus = function() {};
         op.Plus = function() {};
         op.GreaterEqual = function() {};
@@ -865,7 +865,7 @@ cntk_v1.ComputationNetwork = class {
             this.sampleLayout = new cntk_v1.TensorShape(reader, true);
             this.dynamicAxisNodeName = '';
             if (version >= 8) {
-                let nrAxes = reader.uint32();
+                const nrAxes = reader.uint32();
                 if (nrAxes == 1) {
                     this.dynamicAxisNodeName = reader.string();
                 }
@@ -1012,8 +1012,8 @@ cntk_v1.ComputationNetwork = class {
                 this.useCntkEngine = reader.boolean();
             }
             else {
-                let verWritten = reader.int32();
-                let verReadable = reader.int32();
+                const verWritten = reader.int32();
+                const verReadable = reader.int32();
                 if (verReadable > verWritten || verWritten < 0x00010001 || verReadable > 0x00010004) {
                     throw new cntk.Error('BatchNormalization version not supported.');
                 }
@@ -1071,7 +1071,7 @@ cntk_v1.ComputationNetwork = class {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
             else {
-                let rows = reader.uint64();
+                const rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
@@ -1085,7 +1085,7 @@ cntk_v1.ComputationNetwork = class {
                 this.sampleLayout = new cntk_v1.TensorShape(reader, false);
             }
             else {
-                let rows = reader.uint64();
+                const rows = reader.uint64();
                 reader.uint64();
                 this.sampleLayout = new cntk_v1.TensorShape([ rows ], true);
             }
@@ -1098,7 +1098,7 @@ cntk_v1.ComputationNetwork = class {
                 this.axis1 = reader.int32();
                 this.axis2 = reader.int32();
                 if (version >= 25 && this.axis1 == 0 && this.axis2 == 0) {
-                    let size = reader.uint64();
+                    const size = reader.uint64();
                     this.perm = [];
                     for (let i = 0; i < size; i++) {
                         this.perm.push(reader.uint64());
@@ -1125,14 +1125,14 @@ cntk_v1.ComputationNetwork = class {
         op.Softmax = function() {};
         op.DynamicAxis = function() {};
 
-        let nodes = [];
+        const nodes = [];
         this.nodes = {};
         for (let i = 0; i < numNodes; i++) {
             const precision = this.version >= 7 ? reader.string() : '';
             if (precision != 'float' && precision != 'double' && precision != 'half' && precision != '') {
                 throw new cntk.Error("Invalid precision format '" + precision + "'.");
             }
-            let obj = { __type__: reader.string() };
+            const obj = { __type__: reader.string() };
             obj.name = reader.string();
             obj.precision = precision;
             const constructor = op[obj.__type__];
@@ -1149,7 +1149,7 @@ cntk_v1.ComputationNetwork = class {
             const nodeName = reader.string();
             const node = this.nodes[nodeName];
             const numChildren = reader.uint64();
-            let children = [];
+            const children = [];
             for (let k = 0; k < numChildren; k++) {
                 children.push(reader.string());
             }
@@ -1220,7 +1220,7 @@ cntk_v1.Reader = class {
     }
 
     match(text) {
-        let position = this._position;
+        const position = this._position;
         for (let i = 0; i < text.length; i++) {
             if (this.uint16() != text.charCodeAt(i)) {
                 this._position = position;
@@ -1252,7 +1252,7 @@ cntk_v1.Reader = class {
     }
 
     booleans(count) {
-        let array = [];
+        const array = [];
         for (let i = 0; i < count; i++) {
             array.push(this.boolean());
         }
@@ -1321,7 +1321,7 @@ cntk_v1.Reader = class {
     }
 
     strings(count) {
-        let array = [];
+        const array = [];
         for (let i = 0; i < count; i++) {
             array.push(this.string());
         }
@@ -1341,7 +1341,7 @@ cntk_v1.TensorShape = class {
             return;
         }
         this.dims = [];
-        let rank = reader.uint32();
+        const rank = reader.uint32();
         let dim0 = 0;
         if (rank > 0) {
             dim0 = reader.uint32();
@@ -1355,7 +1355,7 @@ cntk_v1.TensorShape = class {
             }
         }
         else {
-            let dim = reader.uint32();
+            const dim = reader.uint32();
             this.dims.push(reader.uint32());
             this.dims.push(rank);
             this.dims.push(dim);
@@ -1366,7 +1366,7 @@ cntk_v1.TensorShape = class {
 cntk_v1.Matrix = class {
 
     constructor(reader) {
-        let type = reader.byte();
+        const type = reader.byte();
         switch (type) {
             case 100: {
                 // dense

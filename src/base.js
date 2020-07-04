@@ -45,7 +45,7 @@ if (!DataView.prototype.setFloat16) {
     DataView.__float16_base = new Uint32Array(256);
     DataView.__float16_shift = new Uint32Array(256);
     for (let i = 0; i < 256; ++i) {
-        let e = i - 127;
+        const e = i - 127;
         if (e < -27) {
             DataView.__float16_base[i] = 0x0000;
             DataView.__float16_shift[i] = 24;

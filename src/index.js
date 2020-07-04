@@ -264,7 +264,7 @@ host.BrowserHost = class {
         }
         return new Promise((resolve, reject) => {
             window.module = { exports: {} };
-            let script = document.createElement('script');
+            const script = document.createElement('script');
             script.setAttribute('id', id);
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
@@ -287,7 +287,7 @@ host.BrowserHost = class {
     }
 
     export(file, blob) {
-        let element = this.document.createElement('a');
+        const element = this.document.createElement('a');
         element.download = file;
         element.href = URL.createObjectURL(blob);
         this.document.body.appendChild(element);
@@ -306,7 +306,7 @@ host.BrowserHost = class {
 
     exception(error, fatal) {
         if (this._telemetry && window.ga) {
-            let description = [];
+            const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
                 const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
@@ -730,7 +730,7 @@ host.Dropdown = class {
                     item.accelerator.text += keyTable[key] ? keyTable[key] : key;
                 }
                 else {
-                    let list = [];
+                    const list = [];
                     if (cmdOrCtrl) {
                         list.push('Ctrl');
                     }
@@ -773,7 +773,7 @@ host.Dropdown = class {
 
         for (const item of this._items) {
             if (Object.keys(item).length > 0) {
-                let button = this._document.createElement('button');
+                const button = this._document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
                 button.addEventListener('click', () => {
                     this.close();
@@ -783,14 +783,14 @@ host.Dropdown = class {
                 });
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
-                    let accelerator = this._document.createElement('span');
+                    const accelerator = this._document.createElement('span');
                     accelerator.style.float = 'right';
                     accelerator.innerHTML = item.accelerator.text;
                     button.appendChild(accelerator);
                 }
             }
             else {
-                let separator = this._document.createElement('div');
+                const separator = this._document.createElement('div');
                 separator.setAttribute('class', 'separator');
                 this._dropdown.appendChild(separator);
             }
@@ -835,7 +835,7 @@ class BrowserFileContext {
             return Promise.reject(new Error("File not found '" + file + "'."));
         }
         return new Promise((resolve, reject) => {
-            let reader = new FileReader();
+            const reader = new FileReader();
             reader.onload = (e) => {
                 resolve(encoding ? e.target.result : new Uint8Array(e.target.result));
             };

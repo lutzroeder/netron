@@ -39,7 +39,7 @@ global.TextDecoder = class {
             return String.fromCharCode.apply(null, data);
         }
 
-        let buffer = [];
+        const buffer = [];
         let start = 0;
         do {
             let end = start + 32;
@@ -54,10 +54,10 @@ global.TextDecoder = class {
     }
 };
 
-let filter = process.argv.length > 2 ? process.argv[2] : null;
+const filter = process.argv.length > 2 ? process.argv[2] : null;
 const type = filter ? filter.split('/').shift() : '';
 const dataFolder = __dirname + '/data';
-let items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
+const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {
 
@@ -446,7 +446,7 @@ function script(folder, targets, command, args) {
 
 function loadModel(target, item) {
     const host = new TestHost();
-    let exceptions = [];
+    const exceptions = [];
     host.on('exception', (_, data) => {
         exceptions.push(data.exception);
     });

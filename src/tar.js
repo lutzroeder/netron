@@ -95,7 +95,7 @@ tar.Reader = class {
         let position = 0;
         let str = '';
         for (let i = 0; i < size; i++) {
-            let c = buffer[position++];
+            const c = buffer[position++];
             if (c == 0) {
                 break;
             }

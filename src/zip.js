@@ -183,8 +183,8 @@ zip.Inflater = class {
         zip.Inflater.initilize();
         zip.HuffmanTree.initialize();
 
-        let reader = new zip.BitReader(data);
-        let output = new zip.Ouptut();
+        const reader = new zip.BitReader(data);
+        const output = new zip.Ouptut();
 
         const literalLengthTree = new zip.HuffmanTree();
         const distanceTree = new zip.HuffmanTree();
@@ -355,7 +355,7 @@ zip.Ouptut = class {
         for (const block1 of this._blocks) {
             size += block1.length;
         }
-        let output = new Uint8Array(size);
+        const output = new Uint8Array(size);
         let offset = 0;
         for (const block2 of this._blocks) {
             output.set(block2, offset);

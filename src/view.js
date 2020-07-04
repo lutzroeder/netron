@@ -689,7 +689,7 @@ view.View = class {
                     if (tuple.from != null) {
                         for (const to of tuple.to) {
                             let text = '';
-                            let type = tuple.from.type;
+                            const type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.join('\u00D7');
                             }
@@ -784,7 +784,7 @@ view.View = class {
                                     ys.push(inputTransform.f);
                                 }
                                 let x = xs[0];
-                                let y = ys[0];
+                                const y = ys[0];
                                 if (ys.every(y => y == ys[0])) {
                                     x = xs.reduce((a,b) => { return a + b; }) / xs.length;
                                 }
@@ -932,7 +932,7 @@ view.View = class {
                                 [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
                                 [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
                             ]);
-                            let array = new numpy.Array();
+                            const array = new numpy.Array();
                             array.shape = tensor.type.shape.dimensions;
                             array.data = tensor.value;
                             array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
@@ -1313,7 +1313,7 @@ view.ModelFactoryService = class {
         }
 
         try {
-            let folders = {};
+            const folders = {};
             for (const entry of archive.entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
@@ -1328,7 +1328,7 @@ view.ModelFactoryService = class {
             let rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
             rootFolder = rootFolder == '/' ? '' : rootFolder;
             let matches = [];
-            let entries = archive.entries.slice();
+            const entries = archive.entries.slice();
             const nextEntry = () => {
                 if (entries.length > 0) {
                     const entry = entries.shift();

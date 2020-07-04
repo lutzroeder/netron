@@ -27,7 +27,7 @@ bson.Reader = class {
         if (size < 5 || start + size > this._buffer.length || this._buffer[start + size - 1] != 0x00) {
             throw new bson.Reader('Invalid BSON size.');
         }
-        let element = isArray ? [] : {};
+        const element = isArray ? [] : {};
         let index = 0;
         for (;;) {
             const type = this.byte();

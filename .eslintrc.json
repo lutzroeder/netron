@@ -13,8 +13,10 @@
         "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
         "indent": [ "error", 4 ],
         "linebreak-style": "off",
-        "semi": 2,
-        "no-trailing-spaces": "error"
+        "no-unused-vars": 0,
+        "no-trailing-spaces": "error",
+        "prefer-const": ["error", { "destructuring": "all" } ],
+        "semi": [ "error", "always" ]
     },
     "overrides": [
       { "files": ["src/*-proto.js"], "rules": { "brace-style": "off", "no-trailing-spaces": "off" } },
