@@ -4945,24 +4945,40 @@ MNN.Relu6.getSizePrefixedRootAsRelu6 = function(bb, obj) {
 /**
  * @returns {number}
  */
-MNN.Relu6.prototype.slope = function() {
+MNN.Relu6.prototype.minValue = function() {
   var offset = this.bb.__offset(this.bb_pos, 4);
   return offset ? this.bb.readFloat32(this.bb_pos + offset) : 0.0;
+};
+
+/**
+ * @returns {number}
+ */
+MNN.Relu6.prototype.maxValue = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.readFloat32(this.bb_pos + offset) : 6.0;
 };
 
 /**
  * @param {flatbuffers.Builder} builder
  */
 MNN.Relu6.startRelu6 = function(builder) {
-  builder.startObject(1);
+  builder.startObject(2);
 };
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} slope
+ * @param {number} minValue
  */
-MNN.Relu6.addSlope = function(builder, slope) {
-  builder.addFieldFloat32(0, slope, 0.0);
+MNN.Relu6.addMinValue = function(builder, minValue) {
+  builder.addFieldFloat32(0, minValue, 0.0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} maxValue
+ */
+MNN.Relu6.addMaxValue = function(builder, maxValue) {
+  builder.addFieldFloat32(1, maxValue, 6.0);
 };
 
 /**
@@ -4976,12 +4992,14 @@ MNN.Relu6.endRelu6 = function(builder) {
 
 /**
  * @param {flatbuffers.Builder} builder
- * @param {number} slope
+ * @param {number} minValue
+ * @param {number} maxValue
  * @returns {flatbuffers.Offset}
  */
-MNN.Relu6.createRelu6 = function(builder, slope) {
+MNN.Relu6.createRelu6 = function(builder, minValue, maxValue) {
   MNN.Relu6.startRelu6(builder);
-  MNN.Relu6.addSlope(builder, slope);
+  MNN.Relu6.addMinValue(builder, minValue);
+  MNN.Relu6.addMaxValue(builder, maxValue);
   return MNN.Relu6.endRelu6(builder);
 }
 
