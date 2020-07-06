@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 /* eslint "no-console": off */
 
 const fs = require('fs');
@@ -11,7 +10,7 @@ const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
 const url = require('url');
-const protobuf = require('protobufjs');
+const protobuf = require('../src/protobuf');
 const sidebar = require('../src/view-sidebar.js');
 const view = require('../src/view.js');
 const zip = require('../src/zip');

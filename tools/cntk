@@ -21,8 +21,7 @@ sync() {
 schema() {
     bold "cntk schema"
     [[ $(grep -U $'\x0D' ./src/cntk-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r cntk -o ./src/cntk-proto.js ./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
-    node ./tools/update_pbjs.js array ./src/cntk-proto.js value float 1
+    node ./tools/protoc.js --root cntk --out ./src/cntk-proto.js ./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/cntk-proto.js ./src/cntk-proto.js
     fi

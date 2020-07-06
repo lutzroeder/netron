@@ -1,11 +1,10 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
 var bigdl = bigdl || {};
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
+var protobuf = protobuf || require('./protobuf');
 
 bigdl.ModelFactory = class {
 
@@ -26,8 +25,9 @@ bigdl.ModelFactory = class {
                 const identifier = context.identifier;
                 try {
                     // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
-                    bigdl.proto = protobuf.roots.bigdl.com.intel.analytics.bigdl.serialization;
-                    const module = bigdl.proto.BigDLModule.decode(context.buffer);
+                    bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
+                    const reader = protobuf.Reader.create(context.buffer);
+                    const module = bigdl.proto.BigDLModule.decode(reader);
                     return new bigdl.Model(metadata, module);
                 }
                 catch (error) {

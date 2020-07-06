@@ -1,9 +1,8 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var cntk = cntk || {};
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
+var protobuf = protobuf || require('./protobuf');
 
 var cntk_v1 = {};
 var cntk_v2 = null;
@@ -52,9 +51,10 @@ cntk.ModelFactory = class {
             }
             try {
                 if (!obj) {
-                    cntk_v2 = protobuf.roots.cntk.CNTK.proto;
+                    cntk_v2 = protobuf.get('cntk').CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const dictionary = cntk_v2.Dictionary.decode(context.buffer);
+                    const reader = protobuf.Reader.create(context.buffer);
+                    const dictionary = cntk_v2.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;
                 }

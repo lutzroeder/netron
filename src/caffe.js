@@ -1,10 +1,8 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var caffe = caffe || {};
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 caffe.ModelFactory = class {
 
@@ -46,14 +44,14 @@ caffe.ModelFactory = class {
 
     open(context, host) {
         return host.require('./caffe-proto').then(() => {
-            caffe.proto = protobuf.roots.caffe.caffe;
+            caffe.proto = protobuf.get('caffe').caffe;
             return caffe.Metadata.open(host).then((metadata) => {
                 const extension = context.identifier.split('.').pop();
                 if (extension == 'pbtxt' || extension == 'prototxt' || extension == 'pt') {
                     const tags = context.tags('pbtxt');
                     if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
-                            const reader = prototxt.TextReader.create(context.text);
+                            const reader = protobuf.TextReader.create(context.text);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
@@ -93,7 +91,8 @@ caffe.ModelFactory = class {
 
     _openNetParameterBuffer(metadata, identifier, buffer, host, resolve, reject) {
         try {
-            const netParameter = caffe.proto.NetParameter.decode(buffer);
+            const reader = protobuf.Reader.create(buffer);
+            const netParameter = caffe.proto.NetParameter.decode(reader);
             return this._openNetParameter(metadata, netParameter, host, resolve, reject);
         }
         catch (error) {
@@ -103,7 +102,7 @@ caffe.ModelFactory = class {
 
     _openNetParameterText(metadata, identifier, text, host) {
         try {
-            const reader = prototxt.TextReader.create(text);
+            const reader = protobuf.TextReader.create(text);
             reader.field = function(tag, message) {
                 const type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {

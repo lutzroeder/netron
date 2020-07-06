@@ -16,8 +16,6 @@ node_dependencies = [
         'node_modules/marked/marked.min.js',
         'node_modules/pako/dist/pako.min.js',
         'node_modules/long/dist/long.js',
-        'node_modules/protobufjs/dist/protobuf.min.js',
-        'node_modules/protobufjs/ext/prototxt/prototxt.js',
         'node_modules/flatbuffers/js/flatbuffers.js' ] )
 ]
 
@@ -95,7 +93,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'base.js', 
+            'base.js', 'protobuf.js',
             'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
             'zip.js', 'tar.js', 'gzip.js',
             'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',

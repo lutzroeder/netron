@@ -1,13 +1,11 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
 var uff = uff || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 uff.ModelFactory = class {
 
@@ -41,8 +39,8 @@ uff.ModelFactory = class {
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
                 try {
-                    uff.proto = protobuf.roots.uff.uff;
-                    const reader = prototxt.TextReader.create(context.text);
+                    uff.proto = protobuf.get('uff').uff;
+                    const reader = protobuf.TextReader.create(context.text);
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 }
                 catch (error) {
@@ -51,8 +49,9 @@ uff.ModelFactory = class {
             }
             else {
                 try {
-                    uff.proto = protobuf.roots.uff.uff;
-                    meta_graph = uff.proto.MetaGraph.decode(context.buffer);
+                    uff.proto = protobuf.get('uff').uff;
+                    const reader = protobuf.Reader.create(context.buffer);
+                    meta_graph = uff.proto.MetaGraph.decode(reader);
                 }
                 catch (error) {
                     throw  new uff.Error("File format is not uff.MetaGraph (" + error.message + ") in '" + identifier + "'.");

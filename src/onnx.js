@@ -1,11 +1,9 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var onnx = onnx || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 onnx.ModelFactory = class {
 
@@ -71,8 +69,8 @@ onnx.ModelFactory = class {
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
-                    onnx.proto = protobuf.roots.onnx.onnx;
-                    const reader = prototxt.TextReader.create(context.text);
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const reader = protobuf.TextReader.create(context.text);
                     model = onnx.proto.ModelProto.decodeText(reader);
                 }
                 catch (error) {
@@ -81,8 +79,9 @@ onnx.ModelFactory = class {
             }
             else {
                 try {
-                    onnx.proto = protobuf.roots.onnx.onnx;
-                    model = onnx.proto.ModelProto.decode(context.buffer);
+                    onnx.proto = protobuf.get('onnx').onnx;
+                    const reader = protobuf.Reader.create(context.buffer);
+                    model = onnx.proto.ModelProto.decode(reader);
                 }
                 catch (error) {
                     throw  new onnx.Error("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");

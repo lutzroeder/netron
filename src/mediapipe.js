@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var mediapipe = mediapipe || {};
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 mediapipe.ModelFactory = class {
 
@@ -21,7 +21,7 @@ mediapipe.ModelFactory = class {
     open(context, host) {
         const identifier = context.identifier;
         try {
-            const reader = prototxt.TextReader.create(context.text);
+            const reader = protobuf.TextReader.create(context.text);
             const root = new mediapipe.Object(reader);
             return Promise.resolve(new mediapipe.Model(root));
         }

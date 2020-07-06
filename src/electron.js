@@ -10,7 +10,7 @@ const process = require('process');
 const path = require('path');
 const view = require('./view');
 
-global.protobuf = require('protobufjs');
+global.protobuf = require('./protobuf');
 
 host.ElectronHost = class {
 

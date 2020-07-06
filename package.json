@@ -24,7 +24,6 @@
         "long": "4.0.0",
         "marked": "1.1.0",
         "pako": "1.0.11",
-        "protobufjs": "github:lutzroeder/protobuf.js",
         "universal-analytics": "0.4.20"
     },
     "devDependencies": {

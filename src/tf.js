@@ -1,12 +1,10 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 // Experimental
 
 var tf = tf || {};
 var long = long || { Long: require('long') };
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 tf.ModelFactory = class {
 
@@ -89,7 +87,7 @@ tf.ModelFactory = class {
 
     open(context, host) {
         return host.require('./tf-proto').then(() => {
-            tf.proto = protobuf.roots.tf.tensorflow;
+            tf.proto = protobuf.get('tf').tensorflow;
             let saved_model = null;
             let format = null;
             let producer = null;
@@ -126,7 +124,7 @@ tf.ModelFactory = class {
                         if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                             try {
                                 if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                                    saved_model = tf.proto.SavedModel.decodeText(prototxt.TextReader.create(context.text));
+                                    saved_model = tf.proto.SavedModel.decodeText(protobuf.TextReader.create(context.text));
                                     format = 'TensorFlow Saved Model';
                                     if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
                                         format = format + ' v' + saved_model.saved_model_schema_version.toString();
@@ -140,7 +138,7 @@ tf.ModelFactory = class {
                         else if (tags.has('graph_def')) {
                             try {
                                 if (!saved_model) {
-                                    const meta_graph = tf.proto.MetaGraphDef.decodeText(prototxt.TextReader.create(context.text));
+                                    const meta_graph = tf.proto.MetaGraphDef.decodeText(protobuf.TextReader.create(context.text));
                                     saved_model = new tf.proto.SavedModel();
                                     saved_model.meta_graphs.push(meta_graph);
                                     format = 'TensorFlow MetaGraph';
@@ -152,7 +150,7 @@ tf.ModelFactory = class {
                         }
                         else if (tags.has('node')) {
                             try {
-                                const graph_def = tf.proto.GraphDef.decodeText(prototxt.TextReader.create(context.text));
+                                const graph_def = tf.proto.GraphDef.decodeText(protobuf.TextReader.create(context.text));
                                 const meta_graph = new tf.proto.MetaGraphDef();
                                 meta_graph.graph_def = graph_def;
                                 saved_model = new tf.proto.SavedModel();
@@ -167,7 +165,8 @@ tf.ModelFactory = class {
                     else {
                         try {
                             if (identifier.endsWith('saved_model.pb')) {
-                                saved_model = tf.proto.SavedModel.decode(context.buffer);
+                                const reader = protobuf.Reader.create(context.buffer);
+                                saved_model = tf.proto.SavedModel.decode(reader);
                                 format = 'TensorFlow Saved Model';
                                 if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
                                     format = format + ' v' + saved_model.saved_model_schema_version.toString();
@@ -182,7 +181,8 @@ tf.ModelFactory = class {
                         }
                         try {
                             if (!saved_model && extension == 'meta') {
-                                const meta_graph = tf.proto.MetaGraphDef.decode(context.buffer);
+                                const reader = protobuf.Reader.create(context.buffer);
+                                const meta_graph = tf.proto.MetaGraphDef.decode(reader);
                                 saved_model = new tf.proto.SavedModel();
                                 saved_model.meta_graphs.push(meta_graph);
                                 format = 'TensorFlow MetaGraph';
@@ -193,7 +193,8 @@ tf.ModelFactory = class {
                         }
                         try {
                             if (!saved_model) {
-                                const graph_def = tf.proto.GraphDef.decode(context.buffer);
+                                const reader = protobuf.Reader.create(context.buffer);
+                                const graph_def = tf.proto.GraphDef.decode(reader);
                                 const meta_graph = new tf.proto.MetaGraphDef();
                                 meta_graph.graph_def = graph_def;
                                 saved_model = new tf.proto.SavedModel();
@@ -1292,20 +1293,20 @@ tf.TensorBundle = class {
         if (buffer.length <= 48) {
             throw new tf.Error('Invalid index file size.');
         }
-        const reader = new tf.TensorBundle.BinaryReader(buffer, host);
-        reader.seek(-8);
+        const binaryReader = new tf.TensorBundle.BinaryReader(buffer, host);
+        binaryReader.seek(-8);
         const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-        if (!reader.bytes(8).every((value, index) => value === signature[index])) {
+        if (!binaryReader.bytes(8).every((value, index) => value === signature[index])) {
             throw new tf.Error('Invalid table signature.');
         }
-        reader.seek(-48);
-        reader.varint64(); // metaindex offset
-        reader.varint64(); // metaindex size
-        const indexOffset = reader.varint64();
-        const indexSize = reader.varint64();
-        reader.seek(indexOffset);
-        const indexReader = reader.clone(indexSize);
-        const indexCompression = reader.byte();
+        binaryReader.seek(-48);
+        binaryReader.varint64(); // metaindex offset
+        binaryReader.varint64(); // metaindex size
+        const indexOffset = binaryReader.varint64();
+        const indexSize = binaryReader.varint64();
+        binaryReader.seek(indexOffset);
+        const indexReader = binaryReader.clone(indexSize);
+        const indexCompression = binaryReader.byte();
         if (indexCompression !== 0) { // kNoCompression
             throw new tf.Error("Unsupported block compression '" + indexCompression + "'.");
         }
@@ -1325,8 +1326,8 @@ tf.TensorBundle = class {
             const indexValueSize = indexReader.varint32();
             indexReader.skip(indexNonSharedSize);
             const indexValueReader = indexReader.clone(indexValueSize);
-            reader.seek(indexValueReader.varint64());
-            const blockReader = reader.clone(indexValueReader.varint64());
+            binaryReader.seek(indexValueReader.varint64());
+            const blockReader = binaryReader.clone(indexValueReader.varint64());
             let key = '';
             while (!blockReader.end()) {
                 const sharedSize = blockReader.varint32();
@@ -1347,7 +1348,9 @@ tf.TensorBundle = class {
         if (format === 1) {
             return Promise.resolve(new tf.TensorBundle(format, entries, []));
         }
-        const header = tf.proto.BundleHeaderProto.decode(entries.get(''));
+        const entry = entries.get('');
+        const reader = protobuf.Reader.create(entry);
+        const header = tf.proto.BundleHeaderProto.decode(reader);
         const numShards = header.num_shards;
         const promises = [];
         for (let i = 0; i < numShards; i++) {
@@ -1372,11 +1375,14 @@ tf.TensorBundle = class {
         this._tensors = [];
         switch (format) {
             case 1: {
-                const header = tf.proto.SavedTensorSlices.decode(entries.get(''));
+                const buffer = entries.get('');
+                const reader = protobuf.Reader.create(buffer);
+                const header = tf.proto.SavedTensorSlices.decode(reader);
                 const data = new Map();
                 for (const pair of entries) {
                     if (pair[0] !== '' && pair[0] !== 'global_step') {
-                        const slices = tf.proto.SavedTensorSlices.decode(pair[1]);
+                        const reader = protobuf.Reader.create(pair[1]);
+                        const slices = tf.proto.SavedTensorSlices.decode(reader);
                         const name = slices.data.name;
                         const tensor = slices.data.data;
                         if (!data.has(name)) {
@@ -1418,7 +1424,8 @@ tf.TensorBundle = class {
             case 2: {
                 entries.forEach((value, name) => {
                     if (name !== '') {
-                        const entry = tf.proto.BundleEntryProto.decode(value);
+                        const reader = protobuf.Reader.create(value);
+                        const entry = tf.proto.BundleEntryProto.decode(reader);
                         const tensor = new tf.proto.TensorProto();
                         tensor.dtype = entry.dtype;
                         tensor.tensor_shape = entry.shape;

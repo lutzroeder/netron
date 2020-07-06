@@ -21,7 +21,7 @@ sync() {
 schema() {
     bold "paddle schema"
     [[ $(grep -U $'\x0D' ./src/paddle-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r paddle -o ./src/paddle-proto.js ./third_party/src/paddle/paddle/fluid/framework/framework.proto
+    node ./tools/protoc.js --root paddle --out ./src/paddle-proto.js ./third_party/src/paddle/paddle/fluid/framework/framework.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/paddle-proto.js ./src/paddle-proto.js
     fi

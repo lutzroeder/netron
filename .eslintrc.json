@@ -11,7 +11,7 @@
     },
     "rules": {
         "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
-        "indent": [ "error", 4 ],
+        "indent": [ "error", 4, { "SwitchCase": 1 } ],
         "linebreak-style": "off",
         "no-unused-vars": 0,
         "no-trailing-spaces": "error",
@@ -19,7 +19,6 @@
         "semi": [ "error", "always" ]
     },
     "overrides": [
-      { "files": ["src/*-proto.js"], "rules": { "brace-style": "off", "no-trailing-spaces": "off" } },
       { "files": ["src/*-schema.js"], "rules": { "indent": "off", "semi": "off" } }
     ],
     "globals": {

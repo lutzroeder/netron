@@ -91,9 +91,7 @@ install() {
 schema() {
     bold "onnx schema"
     [[ $(grep -U $'\x0D' ./src/onnx-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r onnx -o ./src/onnx-proto.js ./third_party/src/onnx/onnx/onnx-ml.proto ./third_party/src/onnx/onnx/onnx-operators-ml.proto
-    node ./tools/update_pbjs.js array ./src/onnx-proto.js float_data float 1
-    node ./tools/update_pbjs.js array ./src/onnx-proto.js double_data double 1
+    node ./tools/protoc.js --text --root onnx --out ./src/onnx-proto.js --path ./third_party/src/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/onnx-proto.js ./src/onnx-proto.js
     fi

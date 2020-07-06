@@ -1,9 +1,7 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var caffe2 = caffe2 || {};
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 caffe2.ModelFactory = class {
 
@@ -71,8 +69,8 @@ caffe2.ModelFactory = class {
                         let predict_net = null;
                         let init_net = null;
                         try {
-                            caffe2.proto = protobuf.roots.caffe2.caffe2;
-                            const reader = prototxt.TextReader.create(predict);
+                            caffe2.proto = protobuf.get('caffe2').caffe2;
+                            const reader = protobuf.TextReader.create(predict);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe2.proto.DeviceOption) {
                                     message[tag] = this.skip();
@@ -86,10 +84,10 @@ caffe2.ModelFactory = class {
                             throw new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
                         }
                         try {
-                            caffe2.proto = protobuf.roots.caffe2.caffe2;
+                            caffe2.proto = protobuf.get('caffe2').caffe2;
                             init_net = (typeof init === 'string') ?
-                                caffe2.proto.NetDef.decodeText(prototxt.TextReader.create(init)) :
-                                caffe2.proto.NetDef.decode(init);
+                                caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(init)) :
+                                caffe2.proto.NetDef.decode(protobuf.Reader.create(init));
                         }
                         catch (error) {
                             // continue regardless of error
@@ -134,16 +132,18 @@ caffe2.ModelFactory = class {
                         let predict_net = null;
                         let init_net = null;
                         try {
-                            caffe2.proto = protobuf.roots.caffe2.caffe2;
-                            predict_net = caffe2.proto.NetDef.decode(predict);
+                            caffe2.proto = protobuf.get('caffe2').caffe2;
+                            const reader = protobuf.Reader.create(predict);
+                            predict_net = caffe2.proto.NetDef.decode(reader);
                         }
                         catch (error) {
                             throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
                         }
                         try {
                             if (init) {
-                                caffe2.proto = protobuf.roots.caffe2.caffe2;
-                                init_net = caffe2.proto.NetDef.decode(init);
+                                caffe2.proto = protobuf.get('caffe2').caffe2;
+                                const reader = protobuf.Reader.create(init);
+                                init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }
                         catch (error) {
@@ -274,7 +274,7 @@ caffe2.Graph = class {
                         default:
                             throw new caffe2.Error("Unknown init op '" + op.type + "'.");
                     }
-                    if (initializer.values && (initializer.values.floats.length !== 1 || initializer.values.floats[0] !== 0)) {
+                    if (initializer.values && initializer.values.floats && (initializer.values.floats.length !== 1 || initializer.values.floats[0] !== 0)) {
                         initializer.input = false;
                     }
                 }
@@ -655,7 +655,7 @@ caffe2.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
-        if (this._values.floats == -1) {
+        if (this._values.floats === undefined) {
             context.state = 'Tensor data is too large to load in Chrome.';
             return context;
         }

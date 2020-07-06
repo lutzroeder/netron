@@ -10,7 +10,7 @@ bold() {
 schema() {
     bold "uff schema"
     [[ $(grep -U $'\x0D' ./src/uff-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r uff -o ./src/uff-proto.js ./tools/uff.proto
+    node ./tools/protoc.js --text --root uff --out ./src/uff-proto.js ./tools/uff.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/uff-proto.js ./src/uff-proto.js
     fi

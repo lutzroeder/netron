@@ -21,7 +21,7 @@ sync() {
 schema() {
     bold "bigdl schema"
     [[ $(grep -U $'\x0D' ./src/bigdl-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r bigdl -o ./src/bigdl-proto.js ./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
+    node ./tools/protoc.js --root bigdl --out ./src/bigdl-proto.js ./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/bigdl-proto.js ./src/bigdl-proto.js
     fi

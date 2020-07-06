@@ -1,13 +1,11 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var view = view || {};
 
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
-var protobuf = protobuf || require('protobufjs');
-var prototxt = prototxt || require('protobufjs/ext/prototxt');
+var protobuf = protobuf || require('./protobuf');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -1060,7 +1058,7 @@ class ModelContext {
                         if (!signature && b.subarray(0, Math.min(1024, length)).some((c) => c < 7 || (c > 14 && c < 32))) {
                             break;
                         }
-                        const reader = prototxt.TextReader.create(this.text);
+                        const reader = protobuf.TextReader.create(this.text);
                         reader.start(false);
                         while (!reader.end(false)) {
                             const tag = reader.tag();
@@ -1071,8 +1069,9 @@ class ModelContext {
                     }
                     case 'pb': {
                         const tagTypes = new Set([ 0, 1, 2, 3, 5 ]);
-                        const reader = new protobuf.Reader.create(this.buffer);
-                        while (reader.pos < reader.len) {
+                        const reader = protobuf.Reader.create(this.buffer);
+                        const end = reader.next();
+                        while (reader.pos < end) {
                             const tagType = reader.uint32();
                             tags.set(tagType >>> 3, tagType & 7);
                             if (!tagTypes.has(tagType & 7)) {

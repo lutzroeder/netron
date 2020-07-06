@@ -1,8 +1,7 @@
 /* jshint esversion: 6 */
-/* eslint "indent": [ "error", 4, { "SwitchCase": 1 } ] */
 
 var paddle = paddle || {};
-var protobuf = protobuf || require('protobufjs');
+var protobuf = protobuf || require('./protobuf');
 var base = base || require('./base');
 
 paddle.ModelFactory = class {
@@ -21,8 +20,9 @@ paddle.ModelFactory = class {
             let desc = null;
             const identifier = context.identifier;
             try {
-                paddle.proto = protobuf.roots.paddle.paddle.framework.proto;
-                desc = paddle.proto.ProgramDesc.decode(context.buffer);
+                paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                const reader = protobuf.Reader.create(context.buffer);
+                desc = paddle.proto.ProgramDesc.decode(reader);
             }
             catch (error) {
                 throw new paddle.Error("File format is not paddle.ProgramDesc (" + error.message + ") in '" + identifier + "'.");

@@ -39,12 +39,7 @@ sync() {
 schema() {
     bold "coreml schema"
     [[ $(grep -U $'\x0D' ./src/coreml-proto.js) ]] && crlf=1
-    temp=$(mktemp -d)
-    cp ./third_party/src/coremltools/mlmodel/format/* ${temp}
-    sed 's/ Object / SceneObject /g' < ./third_party/src/coremltools/mlmodel/format/VisionFeaturePrint.proto > ${temp}/VisionFeaturePrint.proto
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case -r coreml -o ./src/coreml-proto.js ${temp}/Model.proto
-    node ./tools/update_pbjs.js array ./src/coreml-proto.js floatValue float 2
-    rm -rf ${temp}
+    node ./tools/protoc.js --root coreml --out ./src/coreml-proto.js --path ./third_party/src/coremltools/mlmodel/format Model.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/coreml-proto.js ./src/coreml-proto.js
     fi

@@ -54,9 +54,7 @@ install() {
 schema() {
     bold "tf schema"
     [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
-    npx pbjs -t static-module -w closure --no-encode --no-delimited --no-comments --no-convert --no-verify --no-create --keep-case --decode-text -r tf -o ./src/tf-proto.js --path ./third_party/src/tf tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
-    node ./tools/update_pbjs.js array ./src/tf-proto.js float_val float 1
-    node ./tools/update_pbjs.js array ./src/tf-proto.js double_val double 1
+    node ./tools/protoc.js --text --root tf --out ./src/tf-proto.js --path ./third_party/src/tf tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/tf-proto.js ./src/tf-proto.js
     fi
