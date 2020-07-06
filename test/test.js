@@ -186,6 +186,7 @@ class HTMLDocument {
 class HTMLElement {
 
     constructor() {
+        this._childNodes = [];
         this._attributes = new Map();
         this._style = new CSSStyleDeclaration();
     }
@@ -195,19 +196,38 @@ class HTMLElement {
 
     }
 
-    appendChild(/* node */) {
+    appendChild(node) {
+        this._childNodes.push(node);
     }
 
     setAttribute(name, value) {
         this._attributes.set(name, value);
     }
 
+    hasAttribute(name) {
+        return this._attributes.has(name);
+    }
+
+    getAttribute(name) {
+        return this._attributes.get(name);
+    }
+
     getBBox() {
         return { x: 0, y: 0, width: 10, height: 10 };
     }
 
-    getElementsByClassName(/* name */) {
-        return null;
+    getElementsByClassName(name) {
+        let elements = [];
+        for (const node of this._childNodes) {
+            if (node instanceof HTMLElement) {
+                elements = elements.concat(node.getElementsByClassName(name));
+                if (node.hasAttribute('class') &&
+                    node.getAttribute('class').split(' ').find((text) => text === name)) {
+                    elements.push(node);
+                }
+            }
+        }
+        return elements;
     }
 
     addEventListener(/* event, callback */) {
@@ -217,7 +237,7 @@ class HTMLElement {
     }
 
     get classList() {
-        return new DOMTokenList();
+        return new DOMTokenList(this);
     }
 }
 
@@ -240,7 +260,7 @@ class CSSStyleDeclaration {
 
 class DOMTokenList {
 
-    add(/* token1 */) {
+    add(/* token */) {
     }
 }
 

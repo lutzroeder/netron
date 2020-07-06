@@ -390,7 +390,10 @@ view.View = class {
                 const graphOptions = {};
                 graphOptions.nodesep = 25;
                 graphOptions.ranksep = 20;
-                if (this._showHorizontal) {
+
+                const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
+                const showHorizontal = rotate ? !this._showHorizontal : this._showHorizontal;
+                if (showHorizontal) {
                     graphOptions.rankdir = "LR";
                 }
 
@@ -589,10 +592,10 @@ view.View = class {
 
                     const nodeName = node.name;
                     if (nodeName) {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName });
+                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName, class: 'graph-node' });
                     }
                     else {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString() });
+                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString(), class: 'graph-node' });
                         id++;
                     }
 
@@ -739,7 +742,13 @@ view.View = class {
                     const graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
-                    const inputElements = graphElement.getElementsByClassName('graph-input');
+                    const originElements = Array.from(graphElement.getElementsByClassName('graph-input') || []);
+                    if (originElements.length === 0) {
+                        const nodeElements = Array.from(graphElement.getElementsByClassName('graph-node') || []);
+                        if (nodeElements.length > 0) {
+                            originElements.push(nodeElements[0]);
+                        }
+                    }
 
                     switch (this._host.environment('zoom')) {
                         case 'scroll': {
@@ -758,10 +767,10 @@ view.View = class {
                             graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
                             graphElement.setAttribute('width', width);
                             graphElement.setAttribute('height', height);
-                            if (inputElements && inputElements.length > 0) {
+                            if (originElements && originElements.length > 0) {
                                 // Center view based on input elements
-                                for (let j = 0; j < inputElements.length; j++) {
-                                    inputElements[j].scrollIntoView({ behavior: 'instant' });
+                                for (let j = 0; j < originElements.length; j++) {
+                                    originElements[j].scrollIntoView({ behavior: 'instant' });
                                     break;
                                 }
                             }
@@ -772,12 +781,12 @@ view.View = class {
                         }
                         case 'd3': {
                             const svgSize = graphElement.getBoundingClientRect();
-                            if (inputElements && inputElements.length > 0) {
+                            if (originElements && originElements.length > 0) {
                                 // Center view based on input elements
                                 const xs = [];
                                 const ys = [];
-                                for (let i = 0; i < inputElements.length; i++) {
-                                    const inputTransform = inputElements[i].transform.baseVal.consolidate().matrix;
+                                for (let i = 0; i < originElements.length; i++) {
+                                    const inputTransform = originElements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
                                     ys.push(inputTransform.f);
                                 }
