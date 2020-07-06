@@ -1150,9 +1150,11 @@ sklearn.Utility = class {
     }
 
     static applyType(obj, name){
-        const parts = name.split('.');
-        obj.__name__ = parts.pop();
-        obj.__module__ = parts.join('.');
+        if (name) {
+            const parts = name.split('.');
+            obj.__name__ = parts.pop();
+            obj.__module__ = parts.join('.');
+        }
     }
 };
 
