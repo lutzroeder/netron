@@ -1788,6 +1788,16 @@
   },
   {
     "type":   "darknet",
+    "target": "yolov4-tiny.cfg,yolov4-tiny.weights",
+    "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov4-tiny.cfg,https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/531"
+  },
+
+
+
+  {
+    "type":   "darknet",
     "target": "yolo9000.cfg",
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo9000.cfg",
     "format": "Darknet",

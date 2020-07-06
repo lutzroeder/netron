@@ -587,14 +587,15 @@ darknet.Graph = class {
                     }
                     case 'route': {
                         const layers = [].concat(layer.layers);
+                        const groups = option_find_int(options, 'groups', 1);
                         layer.out = 0;
                         for (const next of layers) {
-                            layer.out += next.out;
+                            layer.out += next.outputs / groups;
                         }
                         const first = layers.shift();
                         layer.out_w = first.out_w;
                         layer.out_h = first.out_h;
-                        layer.out_c = first.out_c;
+                        layer.out_c = first.out_c / groups;
                         while (layers.length > 0) {
                             const next = layers.shift();
                             if (next.out_w === first.out_w && next.out_h === first.out_h) {
