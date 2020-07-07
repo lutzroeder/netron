@@ -2731,8 +2731,8 @@
     "schema": {
       "attributes": [
         { "name": "output_size", "type": "int64[]" },
-        { "name": "scales_h", "type": "float32" },
-        { "name": "scales_w", "type": "float32" }
+        { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+        { "name": "scales_w", "type": "float32", "optional": true, "default": null }
       ],
       "category": "Layer",
       "inputs": [
