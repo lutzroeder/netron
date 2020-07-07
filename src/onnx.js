@@ -250,6 +250,7 @@ onnx.Graph = class {
         this._outputs = [];
 
         if (graph) {
+
             this._name = graph.name || null;
             this._description = graph.doc_string || '';
 
@@ -293,10 +294,21 @@ onnx.Graph = class {
                 }
             }
 
+            const annotations = new Map();
+            for (const tensor_annotation of graph.quantization_annotation) {
+                const annotation = {};
+                for (const pair of tensor_annotation.quant_parameter_tensor_names) {
+                    annotation[pair.key] = pair.value;
+                }
+                annotations.set(tensor_annotation.tensor_name, annotation);
+            }
+
             const args = new Map();
             const arg = (id, type, description, initializer, imageFormat) => {
                 if (!args.has(id)) {
-                    args.set(id, new onnx.Argument(id, initializer ? initializer.type : type ? onnx.Tensor._formatType(type, imageFormat) : null, initializer, description));
+                    type = initializer ? initializer.type : type ? onnx.Tensor._formatType(type, imageFormat) : null;
+                    const annotation = annotations.get(id);
+                    args.set(id, new onnx.Argument(id, type, initializer, annotation, description));
                 }
                 return args.get(id);
             };
@@ -418,13 +430,14 @@ onnx.Parameter = class {
 
 onnx.Argument = class {
 
-    constructor(name, type, initializer, description) {
+    constructor(name, type, initializer, annotation, description) {
         if (typeof name !== 'string') {
             throw new onnx.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
+        this._annotation = annotation;
         this._description = description || '';
     }
 
@@ -438,6 +451,13 @@ onnx.Argument = class {
 
     get description() {
         return this._description;
+    }
+
+    get quantization() {
+        if (this._annotation) {
+            return Object.keys(this._annotation).map((key) => key + ': ' + this._annotation[key]).join(', ');
+        }
+        return null;
     }
 
     get initializer() {

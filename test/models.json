@@ -2828,6 +2828,13 @@
   },
   {
     "type":   "onnx",
+    "target": "end2end_tfc_w1a1_oqnt_streamlined.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/4885362/end2end_tfc_w1a1_oqnt_streamlined.zip[end2end_tfc_w1a1_oqnt_streamlined.onnx]",
+    "format": "ONNX v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/532"
+  },
+  {
+    "type":   "onnx",
     "target": "Exermote.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
     "format": "ONNX v3",
