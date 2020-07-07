@@ -53653,6 +53653,11 @@
           "default": false,
           "name": "allow_soft_placement",
           "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "use_spmd_for_xla_partitioning",
+          "type": "boolean"
         }
       ],
       "description": "This operation holds the metadata common to operations of a `tpu.replicate()` computation subgraph.",
