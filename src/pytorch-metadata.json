@@ -2128,6 +2128,38 @@
     }
   },
   {
+    "name": "torch.glu",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64", "default": -1 }
+      ],
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.elu",
+    "schema": {
+      "attributes": [
+        { "name": "alpha", "type": "scalar", "default": 1 },
+        { "name": "scale", "type": "scalar", "default": 1 },
+        { "name": "input_scale", "type": "scalar", "default": 1 }
+      ],
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.elu_",
     "schema": {
       "attributes": [
@@ -3091,6 +3123,25 @@
         { "name": "self", "type": "tensor" },
         { "name": "indices", "type": "tensor[]" },
         { "name": "values", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.new_zeros",
+    "schema": {
+      "category": [
+        { "name": "size", "type": "int64[]" },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
