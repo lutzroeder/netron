@@ -2860,6 +2860,13 @@
   },
   {
     "type":   "onnx",
+    "target": "FCLayer_graph.onnx",
+    "source": "https://raw.githubusercontent.com/Xilinx/finn/master/notebooks/FCLayer_graph.onnx",
+    "format": "ONNX v6",
+    "link":   "https://github.com/Xilinx/finn/tree/master/notebooks"
+  },
+  {
+    "type":   "onnx",
     "target": "gzip_invalid_archive.tar.gz",
     "source": "https://github.com/lutzroeder/netron/files/3027192/gzip_invalid_archive.tar.gz",
     "error":  "Invalid gzip archive in 'gzip_invalid_archive.tar.gz'.",
