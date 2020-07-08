@@ -5169,6 +5169,7 @@
           "type": "int64[]"
         }
       ],
+      "category": "Layer",
       "description": "The integer convolution operator consumes an input tensor, its zero-point, a filter, and its zero-point,\nand computes the output. The production MUST never overflow. The accumulation may overflow if and only if in 32 bits.\n",
       "domain": "ai.onnx",
       "examples": [

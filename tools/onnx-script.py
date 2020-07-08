@@ -19,6 +19,7 @@ categories = {
     'Constant': 'Constant',
 
     'Conv': 'Layer',
+    'ConvInteger': 'Layer',
     'ConvTranspose': 'Layer',
     'FC': 'Layer',
     'RNN': 'Layer',
