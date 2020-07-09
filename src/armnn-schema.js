@@ -205,7 +205,8 @@ armnnSerializer.LayerType = {
   ElementwiseUnary: 54,
   Transpose: 55,
   QLstm: 56,
-  Fill: 57
+  Fill: 57,
+  Rank: 58
 };
 
 /**
@@ -269,7 +270,8 @@ armnnSerializer.LayerTypeName = {
   '54': 'ElementwiseUnary',
   '55': 'Transpose',
   '56': 'QLstm',
-  '57': 'Fill'
+  '57': 'Fill',
+  '58': 'Rank'
 };
 
 /**
@@ -462,7 +464,8 @@ armnnSerializer.Layer = {
   ElementwiseUnaryLayer: 55,
   TransposeLayer: 56,
   QLstmLayer: 57,
-  FillLayer: 58
+  FillLayer: 58,
+  RankLayer: 59
 };
 
 /**
@@ -527,7 +530,8 @@ armnnSerializer.LayerName = {
   '55': 'ElementwiseUnaryLayer',
   '56': 'TransposeLayer',
   '57': 'QLstmLayer',
-  '58': 'FillLayer'
+  '58': 'FillLayer',
+  '59': 'RankLayer'
 };
 
 /**
@@ -658,10 +662,18 @@ armnnSerializer.TensorInfo.prototype.quantizationDim = function() {
 };
 
 /**
+ * @returns {number}
+ */
+armnnSerializer.TensorInfo.prototype.dimensionality = function() {
+  var offset = this.bb.__offset(this.bb_pos, 16);
+  return offset ? this.bb.readUint32(this.bb_pos + offset) : 1;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 armnnSerializer.TensorInfo.startTensorInfo = function(builder) {
-  builder.startObject(6);
+  builder.startObject(7);
 };
 
 /**
@@ -756,6 +768,14 @@ armnnSerializer.TensorInfo.addQuantizationDim = function(builder, quantizationDi
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {number} dimensionality
+ */
+armnnSerializer.TensorInfo.addDimensionality = function(builder, dimensionality) {
+  builder.addFieldInt32(6, dimensionality, 1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 armnnSerializer.TensorInfo.endTensorInfo = function(builder) {
@@ -771,9 +791,10 @@ armnnSerializer.TensorInfo.endTensorInfo = function(builder) {
  * @param {number} quantizationOffset
  * @param {flatbuffers.Offset} quantizationScalesOffset
  * @param {number} quantizationDim
+ * @param {number} dimensionality
  * @returns {flatbuffers.Offset}
  */
-armnnSerializer.TensorInfo.createTensorInfo = function(builder, dimensionsOffset, dataType, quantizationScale, quantizationOffset, quantizationScalesOffset, quantizationDim) {
+armnnSerializer.TensorInfo.createTensorInfo = function(builder, dimensionsOffset, dataType, quantizationScale, quantizationOffset, quantizationScalesOffset, quantizationDim, dimensionality) {
   armnnSerializer.TensorInfo.startTensorInfo(builder);
   armnnSerializer.TensorInfo.addDimensions(builder, dimensionsOffset);
   armnnSerializer.TensorInfo.addDataType(builder, dataType);
@@ -781,6 +802,7 @@ armnnSerializer.TensorInfo.createTensorInfo = function(builder, dimensionsOffset
   armnnSerializer.TensorInfo.addQuantizationOffset(builder, quantizationOffset);
   armnnSerializer.TensorInfo.addQuantizationScales(builder, quantizationScalesOffset);
   armnnSerializer.TensorInfo.addQuantizationDim(builder, quantizationDim);
+  armnnSerializer.TensorInfo.addDimensionality(builder, dimensionality);
   return armnnSerializer.TensorInfo.endTensorInfo(builder);
 }
 
@@ -15487,6 +15509,95 @@ armnnSerializer.StandInLayer.createStandInLayer = function(builder, baseOffset, 
   armnnSerializer.StandInLayer.addBase(builder, baseOffset);
   armnnSerializer.StandInLayer.addDescriptor(builder, descriptorOffset);
   return armnnSerializer.StandInLayer.endStandInLayer(builder);
+}
+
+/**
+ * @constructor
+ */
+armnnSerializer.RankLayer = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {armnnSerializer.RankLayer}
+ */
+armnnSerializer.RankLayer.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.RankLayer=} obj
+ * @returns {armnnSerializer.RankLayer}
+ */
+armnnSerializer.RankLayer.getRootAsRankLayer = function(bb, obj) {
+  return (obj || new armnnSerializer.RankLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {armnnSerializer.RankLayer=} obj
+ * @returns {armnnSerializer.RankLayer}
+ */
+armnnSerializer.RankLayer.getSizePrefixedRootAsRankLayer = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new armnnSerializer.RankLayer).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {armnnSerializer.LayerBase=} obj
+ * @returns {armnnSerializer.LayerBase|null}
+ */
+armnnSerializer.RankLayer.prototype.base = function(obj) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? (obj || new armnnSerializer.LayerBase).__init(this.bb.__indirect(this.bb_pos + offset), this.bb) : null;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+armnnSerializer.RankLayer.startRankLayer = function(builder) {
+  builder.startObject(1);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ */
+armnnSerializer.RankLayer.addBase = function(builder, baseOffset) {
+  builder.addFieldOffset(0, baseOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.RankLayer.endRankLayer = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} baseOffset
+ * @returns {flatbuffers.Offset}
+ */
+armnnSerializer.RankLayer.createRankLayer = function(builder, baseOffset) {
+  armnnSerializer.RankLayer.startRankLayer(builder);
+  armnnSerializer.RankLayer.addBase(builder, baseOffset);
+  return armnnSerializer.RankLayer.endRankLayer(builder);
 }
 
 /**
