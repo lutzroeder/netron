@@ -1168,7 +1168,7 @@ view.ModelFactoryService = class {
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.json', '.index', '.ckpt' ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
-        this.register('./uff', [ '.uff', '.pb', '.trt', '.pbtxt', '.uff.txt' ]);
+        this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.paddle', '__model__' ]);
@@ -1199,7 +1199,7 @@ view.ModelFactoryService = class {
                 context = new ModelContext(context);
                 const identifier = context.identifier;
                 const extension = identifier.split('.').pop().toLowerCase();
-                const modules = this._filter(context);
+                const modules = this._filter(context).filter((module) => module && module.length > 0);
                 if (modules.length == 0) {
                     throw new ModelError("Unsupported file extension '." + extension + "'.");
                 }
@@ -1431,7 +1431,8 @@ view.ModelFactoryService = class {
             { name: 'Vulkan SwiftShader ICD manifest', value: /^{\s*"file_format_version":\s*"1.0.0"\s*,\s*"ICD":/ },
             { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*id:/ },
             { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*name:/ },
-            { name: 'Python source code', value: /^\s*import sys, types, os;/ }
+            { name: 'Python source code', value: /^\s*import sys, types, os;/ },
+            { name: 'undocumented TensorRT engine data', value: /^ptrt/ }
         ];
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
         for (const item of list) {
