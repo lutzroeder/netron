@@ -3914,13 +3914,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "mobilenet_quantized_scripted_925.pt",
-    "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/mobilenet_quantized_scripted_925.pt",
-    "format": "TorchScript v1.3",
-    "link":   "https://github.com/pytorch/android-demo-app"
-  },
-  {
-    "type":   "pytorch",
     "target": "mobilenet_v2.pkl.pth",
     "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
