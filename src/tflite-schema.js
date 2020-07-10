@@ -14995,6 +14995,144 @@ tflite_metadata_schema.Stats.createStats = function(builder, maxOffset, minOffse
 /**
  * @constructor
  */
+tflite_metadata_schema.TensorGroup = function() {
+  /**
+   * @type {flatbuffers.ByteBuffer}
+   */
+  this.bb = null;
+
+  /**
+   * @type {number}
+   */
+  this.bb_pos = 0;
+};
+
+/**
+ * @param {number} i
+ * @param {flatbuffers.ByteBuffer} bb
+ * @returns {tflite_metadata_schema.TensorGroup}
+ */
+tflite_metadata_schema.TensorGroup.prototype.__init = function(i, bb) {
+  this.bb_pos = i;
+  this.bb = bb;
+  return this;
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.TensorGroup=} obj
+ * @returns {tflite_metadata_schema.TensorGroup}
+ */
+tflite_metadata_schema.TensorGroup.getRootAsTensorGroup = function(bb, obj) {
+  return (obj || new tflite_metadata_schema.TensorGroup).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.ByteBuffer} bb
+ * @param {tflite_metadata_schema.TensorGroup=} obj
+ * @returns {tflite_metadata_schema.TensorGroup}
+ */
+tflite_metadata_schema.TensorGroup.getSizePrefixedRootAsTensorGroup = function(bb, obj) {
+  bb.setPosition(bb.position() + flatbuffers.SIZE_PREFIX_LENGTH);
+  return (obj || new tflite_metadata_schema.TensorGroup).__init(bb.readInt32(bb.position()) + bb.position(), bb);
+};
+
+/**
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array|null}
+ */
+tflite_metadata_schema.TensorGroup.prototype.name = function(optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 4);
+  return offset ? this.bb.__string(this.bb_pos + offset, optionalEncoding) : null;
+};
+
+/**
+ * @param {number} index
+ * @param {flatbuffers.Encoding=} optionalEncoding
+ * @returns {string|Uint8Array}
+ */
+tflite_metadata_schema.TensorGroup.prototype.tensorNames = function(index, optionalEncoding) {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__string(this.bb.__vector(this.bb_pos + offset) + index * 4, optionalEncoding) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.TensorGroup.prototype.tensorNamesLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 6);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ */
+tflite_metadata_schema.TensorGroup.startTensorGroup = function(builder) {
+  builder.startObject(2);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ */
+tflite_metadata_schema.TensorGroup.addName = function(builder, nameOffset) {
+  builder.addFieldOffset(0, nameOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} tensorNamesOffset
+ */
+tflite_metadata_schema.TensorGroup.addTensorNames = function(builder, tensorNamesOffset) {
+  builder.addFieldOffset(1, tensorNamesOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.TensorGroup.createTensorNamesVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.TensorGroup.startTensorNamesVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.TensorGroup.endTensorGroup = function(builder) {
+  var offset = builder.endObject();
+  return offset;
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} nameOffset
+ * @param {flatbuffers.Offset} tensorNamesOffset
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.TensorGroup.createTensorGroup = function(builder, nameOffset, tensorNamesOffset) {
+  tflite_metadata_schema.TensorGroup.startTensorGroup(builder);
+  tflite_metadata_schema.TensorGroup.addName(builder, nameOffset);
+  tflite_metadata_schema.TensorGroup.addTensorNames(builder, tensorNamesOffset);
+  return tflite_metadata_schema.TensorGroup.endTensorGroup(builder);
+}
+
+/**
+ * @constructor
+ */
 tflite_metadata_schema.TensorMetadata = function() {
   /**
    * @type {flatbuffers.ByteBuffer}
@@ -15439,10 +15577,46 @@ tflite_metadata_schema.SubGraphMetadata.prototype.outputProcessUnitsLength = fun
 };
 
 /**
+ * @param {number} index
+ * @param {tflite_metadata_schema.TensorGroup=} obj
+ * @returns {tflite_metadata_schema.TensorGroup}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.inputTensorGroups = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? (obj || new tflite_metadata_schema.TensorGroup).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.inputTensorGroupsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 18);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
+ * @param {number} index
+ * @param {tflite_metadata_schema.TensorGroup=} obj
+ * @returns {tflite_metadata_schema.TensorGroup}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.outputTensorGroups = function(index, obj) {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? (obj || new tflite_metadata_schema.TensorGroup).__init(this.bb.__indirect(this.bb.__vector(this.bb_pos + offset) + index * 4), this.bb) : null;
+};
+
+/**
+ * @returns {number}
+ */
+tflite_metadata_schema.SubGraphMetadata.prototype.outputTensorGroupsLength = function() {
+  var offset = this.bb.__offset(this.bb_pos, 20);
+  return offset ? this.bb.__vector_len(this.bb_pos + offset) : 0;
+};
+
+/**
  * @param {flatbuffers.Builder} builder
  */
 tflite_metadata_schema.SubGraphMetadata.startSubGraphMetadata = function(builder) {
-  builder.startObject(7);
+  builder.startObject(9);
 };
 
 /**
@@ -15608,6 +15782,64 @@ tflite_metadata_schema.SubGraphMetadata.startOutputProcessUnitsVector = function
 
 /**
  * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} inputTensorGroupsOffset
+ */
+tflite_metadata_schema.SubGraphMetadata.addInputTensorGroups = function(builder, inputTensorGroupsOffset) {
+  builder.addFieldOffset(7, inputTensorGroupsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SubGraphMetadata.createInputTensorGroupsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SubGraphMetadata.startInputTensorGroupsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {flatbuffers.Offset} outputTensorGroupsOffset
+ */
+tflite_metadata_schema.SubGraphMetadata.addOutputTensorGroups = function(builder, outputTensorGroupsOffset) {
+  builder.addFieldOffset(8, outputTensorGroupsOffset, 0);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {Array.<flatbuffers.Offset>} data
+ * @returns {flatbuffers.Offset}
+ */
+tflite_metadata_schema.SubGraphMetadata.createOutputTensorGroupsVector = function(builder, data) {
+  builder.startVector(4, data.length, 4);
+  for (var i = data.length - 1; i >= 0; i--) {
+    builder.addOffset(data[i]);
+  }
+  return builder.endVector();
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
+ * @param {number} numElems
+ */
+tflite_metadata_schema.SubGraphMetadata.startOutputTensorGroupsVector = function(builder, numElems) {
+  builder.startVector(4, numElems, 4);
+};
+
+/**
+ * @param {flatbuffers.Builder} builder
  * @returns {flatbuffers.Offset}
  */
 tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata = function(builder) {
@@ -15624,9 +15856,11 @@ tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata = function(builder) 
  * @param {flatbuffers.Offset} associatedFilesOffset
  * @param {flatbuffers.Offset} inputProcessUnitsOffset
  * @param {flatbuffers.Offset} outputProcessUnitsOffset
+ * @param {flatbuffers.Offset} inputTensorGroupsOffset
+ * @param {flatbuffers.Offset} outputTensorGroupsOffset
  * @returns {flatbuffers.Offset}
  */
-tflite_metadata_schema.SubGraphMetadata.createSubGraphMetadata = function(builder, nameOffset, descriptionOffset, inputTensorMetadataOffset, outputTensorMetadataOffset, associatedFilesOffset, inputProcessUnitsOffset, outputProcessUnitsOffset) {
+tflite_metadata_schema.SubGraphMetadata.createSubGraphMetadata = function(builder, nameOffset, descriptionOffset, inputTensorMetadataOffset, outputTensorMetadataOffset, associatedFilesOffset, inputProcessUnitsOffset, outputProcessUnitsOffset, inputTensorGroupsOffset, outputTensorGroupsOffset) {
   tflite_metadata_schema.SubGraphMetadata.startSubGraphMetadata(builder);
   tflite_metadata_schema.SubGraphMetadata.addName(builder, nameOffset);
   tflite_metadata_schema.SubGraphMetadata.addDescription(builder, descriptionOffset);
@@ -15635,6 +15869,8 @@ tflite_metadata_schema.SubGraphMetadata.createSubGraphMetadata = function(builde
   tflite_metadata_schema.SubGraphMetadata.addAssociatedFiles(builder, associatedFilesOffset);
   tflite_metadata_schema.SubGraphMetadata.addInputProcessUnits(builder, inputProcessUnitsOffset);
   tflite_metadata_schema.SubGraphMetadata.addOutputProcessUnits(builder, outputProcessUnitsOffset);
+  tflite_metadata_schema.SubGraphMetadata.addInputTensorGroups(builder, inputTensorGroupsOffset);
+  tflite_metadata_schema.SubGraphMetadata.addOutputTensorGroups(builder, outputTensorGroupsOffset);
   return tflite_metadata_schema.SubGraphMetadata.endSubGraphMetadata(builder);
 }
 
