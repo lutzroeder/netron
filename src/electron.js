@@ -87,7 +87,9 @@ host.ElectronHost = class {
         this._view.show('welcome');
 
         electron.ipcRenderer.on('open', (_, data) => {
-            this._openFile(data.file);
+            if (this._view.accept(data.file)) {
+                this._openFile(data.file);
+            }
         });
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
@@ -155,13 +157,7 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
-            const files = [];
-            for (let i = 0; i < e.dataTransfer.files.length; i++) {
-                const file = e.dataTransfer.files[i].path;
-                if (this._view.accept(file)) {
-                    files.push(e.dataTransfer.files[i].path);
-                }
-            }
+            const files = Array.from(e.dataTransfer.files).map(((file) => file.path));
             if (files.length > 0) {
                 electron.ipcRenderer.send('drop-files', { files: files });
             }

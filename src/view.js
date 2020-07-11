@@ -21,7 +21,6 @@ view.View = class {
             this._model = null;
             this._selection = [];
             this._sidebar = new sidebar.Sidebar(this._host);
-            this._host.start();
             this._showAttributes = false;
             this._showInitializers = true;
             this._showNames = false;
@@ -63,6 +62,7 @@ view.View = class {
                     this._updateZoom(this._gestureStartZoom * e.scale, e);
                 }, false);
             }
+            this._host.start();
         }).catch((err) => {
             this.error(err.message, err);
         });
@@ -1394,9 +1394,11 @@ view.ModelFactoryService = class {
     }
 
     accept(identifier) {
+        const extension = identifier.split('.').pop().toLowerCase();
         identifier = identifier.toLowerCase();
-        for (const extension of this._extensions) {
-            if (identifier.endsWith(extension.extension)) {
+        for (const entry of this._extensions) {
+            if (identifier.endsWith(entry.extension)) {
+                this._host.event('File', 'Accept', extension, 1);
                 return true;
             }
         }
@@ -1404,8 +1406,10 @@ view.ModelFactoryService = class {
             identifier.endsWith('.tar') ||
             identifier.endsWith('.tar.gz') ||
             identifier.endsWith('.tgz')) {
+            this._host.event('File', 'Accept', extension, 1);
             return true;
         }
+        this._host.event('File', 'Reject', extension, 1);
         return false;
     }
 

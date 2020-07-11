@@ -178,16 +178,21 @@ host.BrowserHost = class {
         this.document.getElementById('version').innerText = this.version;
 
         if (this._meta.file) {
-            this._openModel(this._meta.file[0], null);
-            return;
+            const url = this._meta.file[0];
+            if (this._view.accept(url)) {
+                this._openModel(url, null);
+                return;
+            }
         }
 
         const url = params.get('url');
         if (url) {
             const identifier = params.get('identifier') || null;
             const location = url.replace(new RegExp('^https://github.com/([\\w]*/[\\w]*)/blob/([\\w/_.]*)(\\?raw=true)?$'), 'https://raw.githubusercontent.com/$1/$2');
-            this._openModel(location, identifier);
-            return;
+            if (this._view.accept(identifier || location)) {
+                this._openModel(location, identifier);
+                return;
+            }
         }
 
         const gist = params.get('gist');
@@ -453,28 +458,20 @@ host.BrowserHost = class {
         this._view.show('welcome spinner');
         const url = 'https://api.github.com/gists/' + gist;
         this._request(url, 'utf-8').then((text) => {
-            let identifier = null;
-            let buffer = null;
             const json = JSON.parse(text);
             if (json.message) {
                 this.error('Error while loading Gist.', json.message);
                 return;
             }
-            if (json.files) {
-                for (const key of Object.keys(json.files)) {
-                    const file = json.files[key];
-                    identifier = file.filename;
-                    const extension = identifier.split('.').pop().toLowerCase();
-                    if (extension == 'json' || extension == 'pbtxt' || extension == 'prototxt') {
-                        const encoder = new TextEncoder();
-                        buffer = encoder.encode(file.content);
-                    }
-                }
-            }
-            if (buffer == null || identifier == null) {
-                this.error('Error while loading Gist.', 'Gist does not contain model file.');
+            const key = Object.keys(json.files).find((key) => this._view.accept(json.files[key].filename));
+            if (!key) {
+                this.error('Error while loading Gist.', 'Gist does not contain a model file.');
                 return;
             }
+            const file = json.files[key];
+            const identifier = file.filename;
+            const encoder = new TextEncoder();
+            const buffer = encoder.encode(file.content);
             const context = new BrowserContext(this, '', identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier;
