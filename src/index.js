@@ -457,7 +457,7 @@ host.BrowserHost = class {
     _openGist(gist) {
         this._view.show('welcome spinner');
         const url = 'https://api.github.com/gists/' + gist;
-        this._request(url, 'utf-8').then((text) => {
+        this._request(url, { 'Content-Type': 'application/json' }, 'utf-8').then((text) => {
             const json = JSON.parse(text);
             if (json.message) {
                 this.error('Error while loading Gist.', json.message);
