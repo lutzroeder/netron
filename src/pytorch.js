@@ -1595,7 +1595,12 @@ pytorch.Execution = class {
         });
         this._registerFunction('torch.gt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
-                return left > right;
+                if (!isNaN(left) && !isNaN(right)) {
+                    return left > right;
+                }
+            }
+            if (isNaN(left) && !isNaN(right)) {
+                return true;
             }
             throw new pytorch.Error("Unknown 'torch.gt' expression type.");
         });

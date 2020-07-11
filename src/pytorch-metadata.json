@@ -533,6 +533,34 @@
     }
   },
   {
+    "name": "ops.prepacked.conv2d_clamp_run",
+    "schema": {
+      "attributes": [
+        { "name": "op_context", "type": "Conv2dOpContext" }
+      ],
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.prepacked.linear_clamp_run",
+    "schema": {
+      "attributes": [
+        { "name": "op_context", "type": "Conv2dOpContext" }
+      ],
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "ops.quantized.add",
     "schema": {
       "attributes": [
