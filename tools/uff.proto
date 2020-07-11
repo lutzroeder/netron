@@ -1,59 +1,83 @@
 
-syntax = "proto2";
+syntax = "proto3";
 
 package uff;
 
 message MetaGraph {
-    optional int64 version = 1;
-    optional int64 descriptor_core_version = 2;
+    int64 version = 1;
+    int64 descriptor_core_version = 2;
     repeated Descriptor descriptors = 3;
     repeated Graph graphs = 4;
-    repeated KeyValuePair referenced_data = 5;
+    repeated ReferencedDataEntry referenced_data = 5;
+    repeated ExtraFieldsEntry extra_fields = 100;
+
+    message ReferencedDataEntry {
+        string key = 1;
+        Data value = 2;
+    }
+
+    message ExtraFieldsEntry {
+        string key = 1;
+        Data value = 2;
+    }
 }
 
 message Descriptor {
-    required string id = 1;
-    required int64 version = 2;
+    string id = 1;
+    int64 version = 2;
+    bool optional = 3;
 }
 
 message Graph {
-    optional string id = 1;
+    string id = 1;
     repeated Node nodes = 2;
+    repeated ExtraFieldsEntry extra_fields = 100;
+
+    message ExtraFieldsEntry {
+        string key = 1;
+        Data value = 2;
+    }
 }
 
 message Node {
-    required string id = 1;
+    string id = 1;
     repeated string inputs = 2;
-    required string operation = 3;
-    repeated KeyValuePair fields = 4;
-    repeated KeyValuePair extra_fields = 5;
+    string operation = 3;
+    repeated FieldsEntry fields = 4;
+    repeated ExtraFieldsEntry extra_fields = 100;
+
+    message FieldsEntry {
+        string key = 1;
+        Data value = 2;
+    }
+
+    message ExtraFieldsEntry {
+        string key = 1;
+        Data value = 2;
+    }
 }
 
-message KeyValuePair {
-    required string key = 1;
-    required Value value = 2;
-}
-
-message Value {
+message Data {
     oneof type {
         string s = 1;
         ListString s_list = 2;
         double d = 3;
         ListDouble d_list = 4;
         bool b = 5;
-        bool b_list = 6;
+        ListBool b_list = 6;
         int64 i = 7;
-        ListInt i_list = 8;
+        ListInt64 i_list = 8;
         bytes blob = 9;
         string ref = 100;
         DataType dtype = 101;
         ListDataType dtype_list = 102;
-        DimOrders dim_orders = 103;
-        ListDimOrders dim_orders_list = 104;
+        DimensionOrders dim_orders = 103;
+        ListDimensionOrders dim_orders_list = 104;
     }
 }
 
 enum DataType {
+    DT_INVALID = 0;
     DT_INT8 = 0x10008;
     DT_INT16 = 0x10010;
     DT_INT32 = 0x10020;
@@ -62,31 +86,42 @@ enum DataType {
     DT_FLOAT32 = 0x20020;
 }
 
-message DimOrder {
-    required int64 key = 1;
-    required ListInt value = 2;
+enum OrderEnum {
+    OE_ZERO = 0;
+    OE_SPECIAL = -1;
+    OE_INCREMENT = 0x7FFFFFFF;
+    OE_DECREMENT = -0x80000000;
 }
 
-message DimOrders {
-    repeated DimOrder orders = 1;
+message DimensionOrders {
+    repeated OrdersEntry orders = 1;
+
+    message OrdersEntry {
+        OrderEnum key = 1;
+        ListInt64 value = 2;
+    }
 }
 
 message ListString {
     repeated string val = 1;
 }
 
-message ListInt {
-    repeated int64 val = 1;
-}
-
 message ListDouble {
     repeated double val = 1;
+}
+
+message ListBool {
+    repeated bool val = 1;
+}
+
+message ListInt64 {
+    repeated int64 val = 1;
 }
 
 message ListDataType {
     repeated DataType val = 1;
 }
 
-message ListDimOrders {
-    repeated DimOrders val = 1;
+message ListDimensionOrders {
+    repeated DimensionOrders val = 1;
 }
