@@ -207,7 +207,7 @@ protobuf.Reader = class {
 
 
     skip(length) {
-        if (typeof length === "number") {
+        if (typeof length === 'number') {
             if (this._position + length > this._length) {
                 throw this._indexOutOfRangeError(length);
             }
@@ -244,14 +244,14 @@ protobuf.Reader = class {
                 this.skip(4);
                 break;
             default:
-                throw new protobuf.Error("invalid wire type " + wireType + " at offset " + this._position);
+                throw new protobuf.Error('invalid wire type ' + wireType + ' at offset ' + this._position);
         }
     }
 
     pair(obj, key, value) {
         this.skip();
         this._position++;
-        const k = typeof key === "object" ? protobuf.LongBits.hash(key()) : key();
+        const k = typeof key === 'object' ? protobuf.LongBits.hash(key()) : key();
         this._position++;
         const v = value();
         obj[k] = v;
@@ -317,25 +317,25 @@ protobuf.Reader = class {
                     return bits;
             }
         }
-        throw new protobuf.Error("Invalid varint encoding.");
+        throw new protobuf.Error('Invalid varint encoding.');
     }
 
     _indexOutOfRangeError(length) {
-        return RangeError("index out of range: " + this.pos + " + " + (length || 1) + " > " + this.len);
+        return RangeError('index out of range: ' + this.pos + ' + ' + (length || 1) + ' > ' + this.len);
     }
 };
 
 protobuf.TextReader = class {
 
     constructor(text) {
-        this.text = text;
-        this.position = 0;
-        this.lineEnd = -1;
-        this.lineStart = 0;
-        this.line = -1;
-        this.depth = 0;
-        this.array_depth = 0;
-        this.token = "";
+        this._text = text;
+        this._position = 0;
+        this._lineEnd = -1;
+        this._lineStart = 0;
+        this._line = -1;
+        this._depth = 0;
+        this._arrayDepth = 0;
+        this._token = '';
     }
 
     static create(text) {
@@ -343,28 +343,28 @@ protobuf.TextReader = class {
     }
 
     start() {
-        if (this.depth > 0) {
-            this.expect("{");
+        if (this._depth > 0) {
+            this.expect('{');
         }
-        this.depth++;
+        this._depth++;
     }
 
     end() {
         const token = this.peek();
-        if (this.depth > 0 && token === "}") {
-            this.expect("}");
-            this.match(";");
-            this.depth--;
+        if (this._depth > 0 && token === '}') {
+            this.expect('}');
+            this.match(';');
+            this._depth--;
             return true;
         }
-        return token === "";
+        return token === '';
     }
 
     tag() {
         const name = this.read();
         const separator = this.peek();
-        if (separator !== "[" && separator !== "{") {
-            this.expect(":");
+        if (separator !== '[' && separator !== '{') {
+            this.expect(':');
         }
         return name;
     }
@@ -412,16 +412,16 @@ protobuf.TextReader = class {
 
     double() {
         let token = this.read();
-        if (token.startsWith("nan")) {
+        if (token.startsWith('nan')) {
             return NaN;
         }
-        if (token.startsWith("inf")) {
+        if (token.startsWith('inf')) {
             return Infinity;
         }
-        if (token.startsWith("-inf")) {
+        if (token.startsWith('-inf')) {
             return -Infinity;
         }
-        if (token.endsWith("f")) {
+        if (token.endsWith('f')) {
             token = token.substring(0, token.length - 1);
         }
         const value = Number.parseFloat(token);
@@ -435,14 +435,14 @@ protobuf.TextReader = class {
     string() {
         const token = this.read();
         if (token.length < 2) {
-            throw new protobuf.Error("String is too short" + this.location());
+            throw new protobuf.Error('String is too short' + this.location());
         }
         const quote = token[0];
-        if (quote !== "'" && quote !== "\"") {
-            throw new protobuf.Error("String is not in quotes" + this.location());
+        if (quote !== "'" && quote !== '"') {
+            throw new protobuf.Error('String is not in quotes' + this.location());
         }
         if (quote !== token[token.length - 1]) {
-            throw new protobuf.Error("String quotes do not match" + this.location());
+            throw new protobuf.Error('String quotes do not match' + this.location());
         }
         const value = token.substring(1, token.length - 1);
         this.semicolon();
@@ -479,7 +479,7 @@ protobuf.TextReader = class {
             }
             else {
                 if (i >= length) {
-                    throw new protobuf.Error("Unexpected end of bytes string" + this.location());
+                    throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                 }
                 c = token.charCodeAt(i++);
                 switch (c) {
@@ -494,7 +494,7 @@ protobuf.TextReader = class {
                     case 0x78: // X
                         for (let xi = 0; xi < 2; xi++) {
                             if (i >= length) {
-                                throw new protobuf.Error("Unexpected end of bytes string" + this.location());
+                                throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                             }
                             let xd = token.charCodeAt(i++);
                             xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
@@ -512,7 +512,7 @@ protobuf.TextReader = class {
                         i--;
                         for (let oi = 0; oi < 3; oi++) {
                             if (i >= length) {
-                                throw new protobuf.Error("Unexpected end of bytes string" + this.location());
+                                throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                             }
                             const od = token.charCodeAt(i++);
                             if (od < 48 || od > 57) {
@@ -543,18 +543,18 @@ protobuf.TextReader = class {
     }
 
     any(message) {
-        if (this.match("[")) {
+        if (this.match('[')) {
             this.read();
-            const begin = this.position;
-            const end = this.text.indexOf("]", begin);
+            const begin = this._position;
+            const end = this._text.indexOf(']', begin);
             if (end === -1 || end >= this.next) {
-                throw new protobuf.Error("End of Any type_url not found" + this.location());
+                throw new protobuf.Error('End of Any type_url not found' + this.location());
             }
-            message.type_url = this.text.substring(begin, end);
-            this.position = end + 1;
+            message.type_url = this._text.substring(begin, end);
+            this._position = end + 1;
             message.value = this.skip().substring(1);
-            this.expect("}");
-            this.match(";");
+            this.expect('}');
+            this.match(';');
             return true;
         }
         return false;
@@ -566,10 +566,10 @@ protobuf.TextReader = class {
         let v;
         while (!this.end()) {
             switch (this.tag()) {
-                case "key":
+                case 'key':
                     k = key();
                     break;
-                case "value":
+                case 'value':
                     v = value();
                     break;
             }
@@ -590,16 +590,16 @@ protobuf.TextReader = class {
     }
 
     first() {
-        if (this.match("[")) {
-            this.array_depth++;
+        if (this.match('[')) {
+            this._arrayDepth++;
             return true;
         }
         return false;
     }
 
     last() {
-        if (this.match("]")) {
-            this.array_depth--;
+        if (this.match(']')) {
+            this._arrayDepth--;
             return true;
         }
         return false;
@@ -607,11 +607,11 @@ protobuf.TextReader = class {
 
     next() {
         const token = this.peek();
-        if (token === ",") {
+        if (token === ',') {
             this.read();
             return;
         }
-        if (token === "]") {
+        if (token === ']') {
             return;
         }
         this.handle(token);
@@ -619,37 +619,37 @@ protobuf.TextReader = class {
 
     skip() {
         let token = this.peek();
-        if (token === "{") {
-            const message = this.position;
-            const depth = this.depth;
+        if (token === '{') {
+            const message = this._position;
+            const depth = this._depth;
             this.start();
-            while (!this.end() || depth < this.depth) {
+            while (!this.end() || depth < this._depth) {
                 token = this.peek();
-                if (token === "{") {
+                if (token === '{') {
                     this.start();
                 }
-                else if (token !== "}") {
+                else if (token !== '}') {
                     this.read();
-                    this.match(";");
+                    this.match(';');
                 }
             }
-            return this.text.substring(message, this.position);
+            return this._text.substring(message, this._position);
         }
-        else if (token === "[") {
-            const list = this.position;
+        else if (token === '[') {
+            const list = this._position;
             this.read();
             while (!this.last()) {
                 token = this.read();
-                if (token === "") {
+                if (token === '') {
                     this.handle(token);
                 }
             }
-            return this.text.substring(list, this.position);
+            return this._text.substring(list, this._position);
         }
-        const position = this.position;
+        const position = this._position;
         this.read();
         this.semicolon();
-        return this.text.substring(position, this.position);
+        return this._text.substring(position, this._position);
     }
 
     handle(token) {
@@ -662,27 +662,27 @@ protobuf.TextReader = class {
 
     whitespace() {
         for (;;) {
-            while (this.position >= this.lineEnd) {
-                this.lineStart = this.lineEnd + 1;
-                this.position = this.lineStart;
-                if (this.position >= this.text.length) {
+            while (this._position >= this._lineEnd) {
+                this._lineStart = this._lineEnd + 1;
+                this._position = this._lineStart;
+                if (this._position >= this._text.length) {
                     return false;
                 }
-                this.lineEnd = this.text.indexOf("\n", this.position);
-                if (this.lineEnd === -1) {
-                    this.lineEnd = this.text.length;
+                this._lineEnd = this._text.indexOf('\n', this._position);
+                if (this._lineEnd === -1) {
+                    this._lineEnd = this._text.length;
                 }
-                this.line++;
+                this._line++;
             }
-            const c = this.text[this.position];
+            const c = this._text[this._position];
             switch (c) {
-                case " ":
-                case "\r":
-                case "\t":
-                    this.position++;
+                case ' ':
+                case '\r':
+                case '\t':
+                    this._position++;
                     break;
-                case "#":
-                    this.position = this.lineEnd;
+                case '#':
+                    this._position = this._lineEnd;
                     break;
                 default:
                     return true;
@@ -692,62 +692,62 @@ protobuf.TextReader = class {
 
     tokenize() {
         if (!this.whitespace()) {
-            this.token = "";
-            return this.token;
+            this._token = '';
+            return this._token;
         }
-        let c = this.text[this.position];
-        if (c === "[" && this.position + 2 < this.lineEnd) {
-            let i = this.position + 1;
-            let x = this.text[i];
-            if (x >= "a" && x <= "z" || x >= "A" && x <= "Z") {
+        let c = this._text[this._position];
+        if (c === '[' && this._position + 2 < this._lineEnd) {
+            let i = this._position + 1;
+            let x = this._text[i];
+            if (x >= 'a' && x <= 'z' || x >= 'A' && x <= 'Z') {
                 i++;
-                while (i < this.lineEnd) {
-                    x = this.text[i];
+                while (i < this._lineEnd) {
+                    x = this._text[i];
                     i++;
-                    if (x >= "a" && x <= "z" || x >= "A" && x <= "Z" || x >= "0" && x <= "9" || x === "." || x === "/") {
+                    if (x >= 'a' && x <= 'z' || x >= 'A' && x <= 'Z' || x >= '0' && x <= '9' || x === '.' || x === '/') {
                         continue;
                     }
-                    if (x === "]") {
-                        this.token = this.text.substring(this.position, i);
-                        return this.token;
+                    if (x === ']') {
+                        this._token = this._text.substring(this._position, i);
+                        return this._token;
                     }
                 }
             }
         }
-        if (c === "{" || c === "}" || c === ":" || c === "[" || c === "," || c === "]" || c === ";") {
-            this.token = c;
-            return this.token;
+        if (c === '{' || c === '}' || c === ':' || c === '[' || c === ',' || c === ']' || c === ';') {
+            this._token = c;
+            return this._token;
         }
-        let position = this.position + 1;
-        if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c === "_" || c === "$") {
-            while (position < this.lineEnd) {
-                c = this.text[position];
-                if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c >= "0" && c <= "9" || c === "_" || c === "+" || c === "-") {
+        let position = this._position + 1;
+        if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c === '_' || c === '$') {
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c === '_' || c === '+' || c === '-') {
                     position++;
                     continue;
                 }
                 break;
             }
-            this.token = this.text.substring(this.position, position);
-            return this.token;
+            this._token = this._text.substring(this._position, position);
+            return this._token;
         }
-        if (c >= "0" && c <= "9" || c === "-" || c === "+" || c === ".") {
-            while (position < this.lineEnd) {
-                c = this.text[position];
-                if (c >= "a" && c <= "z" || c >= "A" && c <= "Z" || c >= "0" && c <= "9" || c === "_" || c === "+" || c === "-" || c === ".") {
+        if (c >= '0' && c <= '9' || c === '-' || c === '+' || c === '.') {
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c === '_' || c === '+' || c === '-' || c === '.') {
                     position++;
                     continue;
                 }
                 break;
             }
-            this.token = this.text.substring(this.position, position);
-            return this.token;
+            this._token = this._text.substring(this._position, position);
+            return this._token;
         }
-        if (c === "\"" || c === "'") {
+        if (c === '"' || c === "'") {
             const quote = c;
-            while (position < this.lineEnd) {
-                c = this.text[position];
-                if (c === "\\" && position < this.lineEnd) {
+            while (position < this._lineEnd) {
+                c = this._text[position];
+                if (c === '\\' && position < this._lineEnd) {
                     position += 2;
                     continue;
                 }
@@ -756,27 +756,27 @@ protobuf.TextReader = class {
                     break;
                 }
             }
-            this.token = this.text.substring(this.position, position);
-            return this.token;
+            this._token = this._text.substring(this._position, position);
+            return this._token;
         }
         throw new protobuf.Error("Unexpected token '" + c + "'" + this.location());
     }
 
     peek() {
-        if (!this.cache) {
-            this.token = this.tokenize();
-            this.cache = true;
+        if (!this._cache) {
+            this._token = this.tokenize();
+            this._cache = true;
         }
-        return this.token;
+        return this._token;
     }
 
     read() {
-        if (!this.cache) {
-            this.token = this.tokenize();
+        if (!this._cache) {
+            this._token = this.tokenize();
         }
-        this.position += this.token.length;
-        this.cache = false;
-        return this.token;
+        this._position += this._token.length;
+        this._cache = false;
+        return this._token;
     }
 
     expect(value) {
@@ -795,13 +795,13 @@ protobuf.TextReader = class {
     }
 
     semicolon() {
-        if (this.array_depth === 0) {
-            this.match(";");
+        if (this._arrayDepth === 0) {
+            this.match(';');
         }
     }
 
     location() {
-        return " at " + (this.line + 1).toString() + ":" + (this.position - this.lineStart + 1).toString();
+        return ' at ' + (this._line + 1).toString() + ':' + (this._position - this._lineStart + 1).toString();
     }
 };
 
@@ -853,10 +853,10 @@ protobuf.LongBits = class {
     }
 
     from(value) {
-        if (typeof value === "number") {
+        if (typeof value === 'number') {
             return protobuf.LongBits.fromNumber(value);
         }
-        if (typeof value === "string" || value instanceof String) {
+        if (typeof value === 'string' || value instanceof String) {
             if (!protobuf.Long) {
                 return protobuf.LongBits.fromNumber(parseInt(value, 10));
             }
@@ -876,19 +876,14 @@ protobuf.LongBits.zero.zzDecode = function() { return this; };
 
 protobuf.Error = class extends Error {
 
-    constructor(message, properties) {
+    constructor(message) {
         super(message);
         this.name = 'Protocol Buffer Error';
         this.message = message;
-        if (properties) {
-            for (const key of Object.keys(properties)) {
-                this[key] = properties[key];
-            }
-        }
     }
 };
 
-if (typeof module !== "undefined" && typeof module.exports === "object") {
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Reader = protobuf.Reader;
     module.exports.TextReader = protobuf.TextReader;
     module.exports.Error = protobuf.Error;

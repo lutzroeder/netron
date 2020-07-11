@@ -434,182 +434,11 @@ protoc.MapField = class extends protoc.Field {
     }
 };
 
-protoc.Tokenizer = class {
-
-    constructor(source, file) {
-        this._source = source.toString();
-        this._file = file;
-        this._offset = 0;
-        this._length = source.length;
-        this._line = 1;
-        this._stack = [];
-        this._delimiter = null;
-    }
-
-    get file() {
-        return this._file;
-    }
-
-    get line() {
-        return this._line;
-    }
-
-    next() {
-        if (this._stack.length > 0) {
-            return this._stack.shift();
-        }
-        if (this._delimiter) {
-            return this._readString();
-        }
-
-        let repeat;
-        let prev;
-        let curr;
-        do {
-            if (this._offset === this._length) {
-                return null;
-            }
-            repeat = false;
-            while (/\s/.test(curr = this._get(this._offset))) {
-                if (curr === '\n') {
-                    this._line++;
-                }
-                if (++this._offset === this._length) {
-                    return null;
-                }
-            }
-
-            if (this._get(this._offset) === '/') {
-                if (++this._offset === this._length) {
-                    throw this._readError('Invalid comment');
-                }
-                if (this._get(this._offset) === '/') {
-                    while (this._get(++this._offset) !== '\n') {
-                        if (this._offset === this._length) {
-                            return null;
-                        }
-                    }
-                    this._offset++;
-                    this._line++;
-                    repeat = true;
-                }
-                else if ((curr = this._get(this._offset)) === '*') {
-                    do {
-                        if (curr === '\n') {
-                            this._line++;
-                        }
-                        if (++this._offset === this._length) {
-                            throw this._readError('Invalid comment');
-                        }
-                        prev = curr;
-                        curr = this._get(this._offset);
-                    } while (prev !== '*' || curr !== '/');
-                    this._offset++;
-                    repeat = true;
-                }
-                else {
-                    return '/';
-                }
-            }
-        }
-        while (repeat);
-
-        let end = this._offset;
-        const delimRe = /[\s{}=;:[\],'"()<>]/g;
-        delimRe.lastIndex = 0;
-        const delim = delimRe.test(this._get(end++));
-        if (!delim) {
-            while (end < this._length && !delimRe.test(this._get(end))) {
-                end++;
-            }
-        }
-        const token = this._source.substring(this._offset, this._offset = end);
-        if (token === '"' || token === "'") {
-            this._delimiter = token;
-        }
-        return token;
-    }
-
-    peek() {
-        if (!this._stack.length) {
-            const token = this.next();
-            if (token === null) {
-                return null;
-            }
-            this.push(token);
-        }
-        return this._stack[0];
-    }
-
-    push(token) {
-        this._stack.push(token);
-    }
-
-    expect(value) {
-        const token = this.peek();
-        if (token !== value) {
-            throw this._readError("Unexpected '" + token + "' instead of '" + value + "'");
-        }
-        this.next();
-    }
-
-    eat(value) {
-        const token = this.peek();
-        if (token === value) {
-            this.next();
-            return true;
-        }
-        return false;
-    }
-
-    _get(pos) {
-        return this._source.charAt(pos);
-    }
-
-    static _unescape(str) {
-        return str.replace(/\\(.?)/g, function($0, $1) {
-            switch ($1) {
-                case '\\':
-                case '':
-                    return $1;
-                case '0':
-                    return '\0';
-                case 'r':
-                    return '\r';
-                case 'n':
-                    return '\n';
-                case 't':
-                    return '\t';
-                default:
-                    return '';
-            }
-        });
-    }
-
-    _readString() {
-        const re = this._delimiter === "'" ? /(?:'([^'\\]*(?:\\.[^'\\]*)*)')/g : /(?:"([^"\\]*(?:\\.[^"\\]*)*)")/g;
-        re.lastIndex = this._offset - 1;
-        const match = re.exec(this._source);
-        if (!match) {
-            throw this._readError('Invalid string');
-        }
-        this._offset = re.lastIndex;
-        this.push(this._delimiter);
-        this._delimiter = null;
-        return protoc.Tokenizer._unescape(match[1]);
-    }
-
-    _readError(message) {
-        const location = ' at ' + this._file + ':' + this._line.toString();
-        return new protoc.Error(message + location + '.');
-    }
-};
-
 protoc.Parser = class {
 
-    constructor(source, file, root) {
+    constructor(text, file, root) {
         this._context = root;
-        this._tokenizer = new protoc.Tokenizer(source, file);
+        this._tokenizer = new protoc.Parser.Tokenizer(text, file);
         this._head = true;
         this._imports = [];
         this._weakImports = [];
@@ -1116,6 +945,180 @@ protoc.Parser = class {
     }
 };
 
+protoc.Parser.Tokenizer = class {
+
+    constructor(text, file) {
+        this._text = text;
+        this._file = file;
+        this._position = 0;
+        this._length = text.length;
+        this._line = 1;
+        this._stack = [];
+        this._delimiter = null;
+    }
+
+    get file() {
+        return this._file;
+    }
+
+    get line() {
+        return this._line;
+    }
+
+    next() {
+        if (this._stack.length > 0) {
+            return this._stack.shift();
+        }
+        if (this._delimiter) {
+            return this._readString();
+        }
+
+        let repeat;
+        let prev;
+        let curr;
+        do {
+            if (this._position === this._length) {
+                return null;
+            }
+            repeat = false;
+            while (/\s/.test(curr = this._get(this._position))) {
+                if (curr === '\n') {
+                    this._line++;
+                }
+                this._position++;
+                if (this._position === this._length) {
+                    return null;
+                }
+            }
+
+            if (this._get(this._position) === '/') {
+                this._position++;
+                if (this._position === this._length) {
+                    throw this._readError('Invalid comment');
+                }
+                if (this._get(this._position) === '/') {
+                    while (this._get(++this._position) !== '\n') {
+                        if (this._position === this._length) {
+                            return null;
+                        }
+                    }
+                    this._position++;
+                    this._line++;
+                    repeat = true;
+                }
+                else if ((curr = this._get(this._position)) === '*') {
+                    do {
+                        if (curr === '\n') {
+                            this._line++;
+                        }
+                        this._position++;
+                        if (this._position === this._length) {
+                            throw this._readError('Invalid comment');
+                        }
+                        prev = curr;
+                        curr = this._get(this._position);
+                    } while (prev !== '*' || curr !== '/');
+                    this._position++;
+                    repeat = true;
+                }
+                else {
+                    return '/';
+                }
+            }
+        }
+        while (repeat);
+
+        let end = this._position;
+        const delimRe = /[\s{}=;:[\],'"()<>]/g;
+        delimRe.lastIndex = 0;
+        const delim = delimRe.test(this._get(end++));
+        if (!delim) {
+            while (end < this._length && !delimRe.test(this._get(end))) {
+                end++;
+            }
+        }
+        const token = this._text.substring(this._position, this._position = end);
+        if (token === '"' || token === "'") {
+            this._delimiter = token;
+        }
+        return token;
+    }
+
+    peek() {
+        if (!this._stack.length) {
+            const token = this.next();
+            if (token === null) {
+                return null;
+            }
+            this.push(token);
+        }
+        return this._stack[0];
+    }
+
+    push(token) {
+        this._stack.push(token);
+    }
+
+    expect(value) {
+        const token = this.peek();
+        if (token !== value) {
+            throw this._readError("Unexpected '" + token + "' instead of '" + value + "'");
+        }
+        this.next();
+    }
+
+    eat(value) {
+        const token = this.peek();
+        if (token === value) {
+            this.next();
+            return true;
+        }
+        return false;
+    }
+
+    _get(pos) {
+        return this._text.charAt(pos);
+    }
+
+    static _unescape(str) {
+        return str.replace(/\\(.?)/g, function($0, $1) {
+            switch ($1) {
+                case '\\':
+                case '':
+                    return $1;
+                case '0':
+                    return '\0';
+                case 'r':
+                    return '\r';
+                case 'n':
+                    return '\n';
+                case 't':
+                    return '\t';
+                default:
+                    return '';
+            }
+        });
+    }
+
+    _readString() {
+        const re = this._delimiter === "'" ? /(?:'([^'\\]*(?:\\.[^'\\]*)*)')/g : /(?:"([^"\\]*(?:\\.[^"\\]*)*)")/g;
+        re.lastIndex = this._position - 1;
+        const match = re.exec(this._text);
+        if (!match) {
+            throw this._readError('Invalid string');
+        }
+        this._position = re.lastIndex;
+        this.push(this._delimiter);
+        this._delimiter = null;
+        return protoc.Parser.Tokenizer._unescape(match[1]);
+    }
+
+    _readError(message) {
+        const location = ' at ' + this._file + ':' + this._line.toString();
+        return new protoc.Error(message + location + '.');
+    }
+};
+
 protoc.Generator = class {
 
     constructor(root, text) {
@@ -1492,48 +1495,42 @@ protoc.Error = class extends Error {
 
 const main = (args) => {
 
-    let verbose = false;
-    let root = 'default';
-    let out = '';
-    let text = false;
-    const paths = [];
-    const files = [];
-
+    const options = { verbose: false, root: 'default', out: '', text: false, paths: [], files: [] };
     while (args.length > 0) {
         const arg = args.shift();
         switch (arg) {
             case '--verbose':
-                verbose = true;
+                options.verbose = true;
                 break;
             case '--out':
-                out = args.shift();
+                options.out = args.shift();
                 break;
             case '--root':
-                root = args.shift();
+                options.root = args.shift();
                 break;
             case '--text':
-                text = true;
+                options.text = true;
                 break;
             case '--path':
-                paths.push(args.shift());
+                options.paths.push(args.shift());
                 break;
             default:
                 if (arg.startsWith('-')) {
                     throw new protoc.Error("Invalid command line argument '" + arg + "'.");
                 }
-                files.push(arg);
+                options.files.push(arg);
                 break;
         }
     }
 
     try {
-        const content = new protoc.Generator(new protoc.Root(root, paths, files), text).content;
-        if (out) {
-            fs.writeFileSync(out, content, 'utf-8');
+        const content = new protoc.Generator(new protoc.Root(options.root, options.paths, options.files), options.text).content;
+        if (options.out) {
+            fs.writeFileSync(options.out, content, 'utf-8');
         }
     }
     catch (err) {
-        if (err instanceof protoc.Error && !verbose) {
+        if (err instanceof protoc.Error && !options.verbose) {
             process.stderr.write(err.message + '\n');
         }
         else {
