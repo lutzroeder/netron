@@ -100,7 +100,7 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                            throw $protobuf.Error("Excepted 'type'.");
+                            throw new $protobuf.Error("Excepted 'type'.");
                         }
                         return message;
                     };
@@ -185,10 +185,10 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-                                throw $protobuf.Error("Excepted 'name'.");
+                                throw new $protobuf.Error("Excepted 'name'.");
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                                throw $protobuf.Error("Excepted 'type'.");
+                                throw new $protobuf.Error("Excepted 'type'.");
                             }
                             return message;
                         };
@@ -223,7 +223,7 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'parameter')) {
-                                throw $protobuf.Error("Excepted 'parameter'.");
+                                throw new $protobuf.Error("Excepted 'parameter'.");
                             }
                             return message;
                         };
@@ -275,10 +275,10 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                            throw $protobuf.Error("Excepted 'type'.");
+                            throw new $protobuf.Error("Excepted 'type'.");
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'comment')) {
-                            throw $protobuf.Error("Excepted 'comment'.");
+                            throw new $protobuf.Error("Excepted 'comment'.");
                         }
                         return message;
                     };
@@ -321,10 +321,10 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-                                throw $protobuf.Error("Excepted 'name'.");
+                                throw new $protobuf.Error("Excepted 'name'.");
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'comment')) {
-                                throw $protobuf.Error("Excepted 'comment'.");
+                                throw new $protobuf.Error("Excepted 'comment'.");
                             }
                             return message;
                         };
@@ -366,13 +366,13 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-                                throw $protobuf.Error("Excepted 'name'.");
+                                throw new $protobuf.Error("Excepted 'name'.");
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                                throw $protobuf.Error("Excepted 'type'.");
+                                throw new $protobuf.Error("Excepted 'type'.");
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'comment')) {
-                                throw $protobuf.Error("Excepted 'comment'.");
+                                throw new $protobuf.Error("Excepted 'comment'.");
                             }
                             return message;
                         };
@@ -425,7 +425,7 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                            throw $protobuf.Error("Excepted 'type'.");
+                            throw new $protobuf.Error("Excepted 'type'.");
                         }
                         return message;
                     };
@@ -483,7 +483,7 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'data_type')) {
-                                throw $protobuf.Error("Excepted 'data_type'.");
+                                throw new $protobuf.Error("Excepted 'data_type'.");
                             }
                             return message;
                         };
@@ -517,7 +517,7 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'tensor')) {
-                                throw $protobuf.Error("Excepted 'tensor'.");
+                                throw new $protobuf.Error("Excepted 'tensor'.");
                             }
                             return message;
                         };
@@ -551,7 +551,7 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'tensor')) {
-                                throw $protobuf.Error("Excepted 'tensor'.");
+                                throw new $protobuf.Error("Excepted 'tensor'.");
                             }
                             return message;
                         };
@@ -652,10 +652,10 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-                            throw $protobuf.Error("Excepted 'name'.");
+                            throw new $protobuf.Error("Excepted 'name'.");
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                            throw $protobuf.Error("Excepted 'type'.");
+                            throw new $protobuf.Error("Excepted 'type'.");
                         }
                         return message;
                     };
@@ -703,10 +703,10 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'idx')) {
-                            throw $protobuf.Error("Excepted 'idx'.");
+                            throw new $protobuf.Error("Excepted 'idx'.");
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'parent_idx')) {
-                            throw $protobuf.Error("Excepted 'parent_idx'.");
+                            throw new $protobuf.Error("Excepted 'parent_idx'.");
                         }
                         return message;
                     };
@@ -740,10 +740,10 @@
                             }
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'version')) {
-                            throw $protobuf.Error("Excepted 'version'.");
+                            throw new $protobuf.Error("Excepted 'version'.");
                         }
                         if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-                            throw $protobuf.Error("Excepted 'type'.");
+                            throw new $protobuf.Error("Excepted 'type'.");
                         }
                         return message;
                     };
@@ -816,10 +816,10 @@
                                 }
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'op_name')) {
-                                throw $protobuf.Error("Excepted 'op_name'.");
+                                throw new $protobuf.Error("Excepted 'op_name'.");
                             }
                             if (!Object.prototype.hasOwnProperty.call(message, 'compatible_info')) {
-                                throw $protobuf.Error("Excepted 'compatible_info'.");
+                                throw new $protobuf.Error("Excepted 'compatible_info'.");
                             }
                             return message;
                         };

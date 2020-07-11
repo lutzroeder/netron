@@ -279,10 +279,10 @@
                         }
                     }
                     if (!Object.prototype.hasOwnProperty.call(message, 'begin')) {
-                        throw $protobuf.Error("Excepted 'begin'.");
+                        throw new $protobuf.Error("Excepted 'begin'.");
                     }
                     if (!Object.prototype.hasOwnProperty.call(message, 'end')) {
-                        throw $protobuf.Error("Excepted 'end'.");
+                        throw new $protobuf.Error("Excepted 'end'.");
                     }
                     return message;
                 };
@@ -305,9 +305,9 @@
                         }
                     }
                     if (!Object.prototype.hasOwnProperty.call(message, "begin"))
-                        throw $protobuf.Error("Excepted 'begin'.");
+                        throw new $protobuf.Error("Excepted 'begin'.");
                     if (!Object.prototype.hasOwnProperty.call(message, "end"))
-                        throw $protobuf.Error("Excepted 'end'.");
+                        throw new $protobuf.Error("Excepted 'end'.");
                     return message;
                 };
 
@@ -387,16 +387,16 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'precision')) {
-                    throw $protobuf.Error("Excepted 'precision'.");
+                    throw new $protobuf.Error("Excepted 'precision'.");
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'scale')) {
-                    throw $protobuf.Error("Excepted 'scale'.");
+                    throw new $protobuf.Error("Excepted 'scale'.");
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'bias')) {
-                    throw $protobuf.Error("Excepted 'bias'.");
+                    throw new $protobuf.Error("Excepted 'bias'.");
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'is_signed')) {
-                    throw $protobuf.Error("Excepted 'is_signed'.");
+                    throw new $protobuf.Error("Excepted 'is_signed'.");
                 }
                 return message;
             };
@@ -449,13 +449,13 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, "precision"))
-                    throw $protobuf.Error("Excepted 'precision'.");
+                    throw new $protobuf.Error("Excepted 'precision'.");
                 if (!Object.prototype.hasOwnProperty.call(message, "scale"))
-                    throw $protobuf.Error("Excepted 'scale'.");
+                    throw new $protobuf.Error("Excepted 'scale'.");
                 if (!Object.prototype.hasOwnProperty.call(message, "bias"))
-                    throw $protobuf.Error("Excepted 'bias'.");
+                    throw new $protobuf.Error("Excepted 'bias'.");
                 if (!Object.prototype.hasOwnProperty.call(message, "is_signed"))
-                    throw $protobuf.Error("Excepted 'is_signed'.");
+                    throw new $protobuf.Error("Excepted 'is_signed'.");
                 return message;
             };
 
@@ -1131,10 +1131,10 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'key')) {
-                    throw $protobuf.Error("Excepted 'key'.");
+                    throw new $protobuf.Error("Excepted 'key'.");
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'val')) {
-                    throw $protobuf.Error("Excepted 'val'.");
+                    throw new $protobuf.Error("Excepted 'val'.");
                 }
                 return message;
             };
@@ -1157,9 +1157,9 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, "key"))
-                    throw $protobuf.Error("Excepted 'key'.");
+                    throw new $protobuf.Error("Excepted 'key'.");
                 if (!Object.prototype.hasOwnProperty.call(message, "val"))
-                    throw $protobuf.Error("Excepted 'val'.");
+                    throw new $protobuf.Error("Excepted 'val'.");
                 return message;
             };
 
@@ -1193,7 +1193,7 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'backend_name')) {
-                    throw $protobuf.Error("Excepted 'backend_name'.");
+                    throw new $protobuf.Error("Excepted 'backend_name'.");
                 }
                 return message;
             };
@@ -1216,7 +1216,7 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, "backend_name"))
-                    throw $protobuf.Error("Excepted 'backend_name'.");
+                    throw new $protobuf.Error("Excepted 'backend_name'.");
                 return message;
             };
 
@@ -1259,7 +1259,7 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, 'name')) {
-                    throw $protobuf.Error("Excepted 'name'.");
+                    throw new $protobuf.Error("Excepted 'name'.");
                 }
                 return message;
             };
@@ -1288,7 +1288,7 @@
                     }
                 }
                 if (!Object.prototype.hasOwnProperty.call(message, "name"))
-                    throw $protobuf.Error("Excepted 'name'.");
+                    throw new $protobuf.Error("Excepted 'name'.");
                 return message;
             };
 
