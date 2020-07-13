@@ -917,53 +917,57 @@ tf.Attribute = class {
         else if (schema && schema.type) {
             this._type = schema.type;
         }
-        if (Object.prototype.hasOwnProperty.call(value, 'type')) {
-            this._type = 'type';
-            this._value = tf.Tensor.formatDataType(value.type);
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'i')) {
-            this._value = value.i;
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'f')) {
-            this._value = value.f;
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'b')) {
-            this._value = value.b;
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'shape')) {
-            this._type = 'shape';
-            this._value = new tf.TensorShape(value.shape);
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 's')) {
-            this._value = tf.Utility.decodeText(value.s);
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'list')) {
-            const list = value.list;
-            if (list.s && list.s.length > 0) {
-                this._value = list.s.map((s) => tf.Utility.decodeText(s));
+        switch (value.value) {
+            case 'type':
+                this._type = 'type';
+                this._value = tf.Tensor.formatDataType(value.type);
+                break;
+            case 'i':
+                this._value = value.i;
+                break;
+            case 'f':
+                this._value = value.f;
+                break;
+            case 'b':
+                this._value = value.b;
+                break;
+            case 'shape':
+                this._type = 'shape';
+                this._value = new tf.TensorShape(value.shape);
+                break;
+            case 's':
+                this._value = tf.Utility.decodeText(value.s);
+                break;
+            case 'func': {
+                const func = value.func;
+                this._type = 'function';
+                this._value = func.name;
+                break;
             }
-            else if (list.i && list.i.length > 0) {
-                this._value = list.i;
+            case 'list': {
+                const list = value.list;
+                if (list.s && list.s.length > 0) {
+                    this._value = list.s.map((s) => tf.Utility.decodeText(s));
+                }
+                else if (list.i && list.i.length > 0) {
+                    this._value = list.i;
+                }
+                else if (list.f && list.f.length > 0) {
+                    this._value = list.f;
+                }
+                else if (list.type && list.type.length > 0) {
+                    this._type = 'type[]';
+                    this._value = list.type.map((type) => tf.Tensor.formatDataType(type));
+                }
+                else if (list.shape && list.shape.length > 0) {
+                    this._type = 'shape[]';
+                    this._value = list.shape.map((shape) => new tf.TensorShape(shape));
+                }
+                else {
+                    this._value = [];
+                }
+                break;
             }
-            else if (list.f && list.f.length > 0) {
-                this._value = list.f;
-            }
-            else if (list.type && list.type.length > 0) {
-                this._type = 'type[]';
-                this._value = list.type.map((type) => tf.Tensor.formatDataType(type));
-            }
-            else if (list.shape && list.shape.length > 0) {
-                this._type = 'shape[]';
-                this._value = list.shape.map((shape) => new tf.TensorShape(shape));
-            }
-            else {
-                this._value = [];
-            }
-        }
-        else if (Object.prototype.hasOwnProperty.call(value, 'func')) {
-            const func = value.func;
-            this._type = 'function';
-            this._value = func.name;
         }
 
         if (schema) {

@@ -101,7 +101,8 @@ keras.ModelFactory = class {
                             }
                         }
                         else {
-                            if (Object.keys(rootGroup.attributes).length !== 0 || rootGroup.value !== null) {
+                            const attributes = new Set([ 'nb_layers' ]);
+                            if (Object.keys(rootGroup.attributes).filter((name) => !attributes.has(name)).length !== 0 || rootGroup.value !== null) {
                                 throw new keras.Error('File format is not HDF5 Weights');
                             }
                             format = 'HDF5 Weights';

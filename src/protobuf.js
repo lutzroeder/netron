@@ -151,7 +151,7 @@ protobuf.Reader = class {
 
     floats(obj, tag) {
         if ((tag & 7) === 2) {
-            if (obj.length > 0) {
+            if (obj && obj.length > 0) {
                 throw new protobuf.Error('Invalid packed float array.');
             }
             const size = this.uint32();
@@ -179,7 +179,7 @@ protobuf.Reader = class {
 
     doubles(obj, tag) {
         if ((tag & 7) === 2) {
-            if (obj.length > 0) {
+            if (obj && obj.length > 0) {
                 throw new protobuf.Error('Invalid packed float array.');
             }
             const size = this.uint32();
@@ -204,7 +204,6 @@ protobuf.Reader = class {
         }
         return obj;
     }
-
 
     skip(length) {
         if (typeof length === 'number') {
