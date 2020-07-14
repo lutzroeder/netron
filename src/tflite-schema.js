@@ -20,7 +20,8 @@ tflite_schema.TensorType = {
   INT16: 7,
   COMPLEX64: 8,
   INT8: 9,
-  FLOAT64: 10
+  FLOAT64: 10,
+  COMPLEX128: 11
 };
 
 /**
@@ -37,7 +38,8 @@ tflite_schema.TensorTypeName = {
   '7': 'INT16',
   '8': 'COMPLEX64',
   '9': 'INT8',
-  '10': 'FLOAT64'
+  '10': 'FLOAT64',
+  '11': 'COMPLEX128'
 };
 
 /**
