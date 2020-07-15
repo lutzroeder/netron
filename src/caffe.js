@@ -309,21 +309,24 @@ caffe.Graph = class {
             }
         }
 
-        if (net.input && net.input.length > 0) {
-            index = 0;
-            for (const input of net.input) {
+        if (net.input) {
+            for (let i = 0; i < net.input.length; i++) {
+                const input = net.input[i];
+                if (this._inputs.some((item) => item.name === input)) {
+                    continue;
+                }
                 let inputType = null;
-                if (net.input_shape && index < net.input_shape.length) {
-                    const blobShape = net.input_shape[index];
+                if (net.input_shape && i < net.input_shape.length) {
+                    const blobShape = net.input_shape[i];
                     if (blobShape && blobShape.dim) {
                         inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
                     }
                 }
-                if (inputType == null && net.input.length == 1 && net.input_dim && net.input_dim.length > 0) {
-                    inputType = new caffe.TensorType(null, new caffe.TensorShape(net.input_dim));
+                const dim = i * 4;
+                if (!inputType && net.input_dim && net.input_dim.length >= dim) {
+                    inputType = new caffe.TensorType(null, new caffe.TensorShape(net.input_dim.slice(dim, dim + 4)));
                 }
                 this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, inputType, null) ]));
-                index++;
             }
         }
 
@@ -415,7 +418,6 @@ caffe.Node = class {
         this._metadata = metadata;
         this._chain = [];
         this._attributes = [];
-
         switch (version) {
             case 0: {
                 this._name = layer.layer.name;
@@ -443,16 +445,16 @@ caffe.Node = class {
                 }
                 break;
             }
-            case 2:
+            case 2: {
                 this._name = layer.name;
                 this._type = layer.type;
                 break;
+            }
         }
 
         let initializers = [];
-
         switch (version) {
-            case 0:
+            case 0: {
                 for (const attributeName of Object.keys(layer.layer)) {
                     if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
                         this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, attributeName), attributeName, layer.layer[attributeName]));
@@ -460,8 +462,9 @@ caffe.Node = class {
                 }
                 initializers = layer.layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
+            }
             case 1:
-            case 2:
+            case 2: {
                 for (const layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
                         const param = layer[layer_kind];
@@ -490,10 +493,10 @@ caffe.Node = class {
                 }
                 initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
+            }
         }
 
         const schema = this._metadata.type(this.type);
-
         this._inputs = [];
         const inputs = layer.input.concat(initializers);
         let inputIndex = 0;

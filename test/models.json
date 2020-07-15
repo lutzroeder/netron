@@ -113,6 +113,13 @@
   },
   {
     "type":   "caffe",
+    "target": "autocolorize.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/4923194/autocolorize.zip[autocolorize.prototxt]",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
     "target": "bvlc_alexnet.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/bvlc_alexnet.caffemodel",
     "format": "Caffe v1",
