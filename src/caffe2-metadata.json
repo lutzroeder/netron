@@ -18183,6 +18183,11 @@
           "description": "Default 1e-5",
           "name": "epsilon",
           "option": "optional"
+        },
+        {
+          "description": "rounding option: 0 for nearest rounding, 1 for stochastic rounding",
+          "name": "round_option",
+          "option": "optional"
         }
       ],
       "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientSumGradient (gradient of SparseLengthsSum) +\nRowWiseSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsSumGradient operator.\n\n",
@@ -18622,6 +18627,177 @@
         {
           "description": "Int8QuantParamsBlob that contains the scale and zero_point info in TensorQuantizationParams type.",
           "name": "quant_param"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsSumGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "rounding option: 0 for nearest rounding, 1 for stochastic rounding",
+          "name": "round_option",
+          "option": "optional"
+        },
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientSumGradient (gradient of SparseLengthsSum) +\nRowWiseSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsSumGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsSumGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientSumGradient (gradient of SparseLengthsSum) +\nSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsIndicesInGradientSumGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "MishGradient",
+    "schema": {
+      "description": "\nMishGradient takes X, Y and dY and uses this to update dX according to the\nchain rule and derivatives of the Mish function.\n",
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SelfBinningHistogram",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of bins to use for the histogram. Must be >= 1.",
+          "name": "num_bins",
+          "option": "optional"
+        },
+        {
+          "description": "A string indicating 'linear' or 'logarithmic' spacing for the bins.",
+          "name": "bin_spacing",
+          "option": "optional"
+        },
+        {
+          "description": "A float that's used as the starting point for logarithmic spacing. Since logarithmic spacing cannot contain <=0 values this value will be used to represent all such values.",
+          "name": "logspace_start",
+          "option": "optional"
+        }
+      ],
+      "description": "\n            Computes a histogram for values in the given list of tensors.\n            For logging activation histograms for post-hoc analyses, consider using the\n            HistogramObserver observer.\n            For iteratively computing a histogram for all input tensors encountered through\n            history, consider using the AccumulateHistogram operator.\n            ",
+      "inputs": [
+        {
+          "description": "*(type: Tensor`<float>`)* List of input tensors.",
+          "name": "X1, X2, ..."
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D tensor of edges of the bins, of dimension [num_bins+1]. The range appears as: [first, ..., last), wherein the i-th element expresses the start of a bin and i+1-th value represents the exclusive end of that bin.",
+          "name": "histogram_values"
+        },
+        {
+          "description": "1D tensor of counts of each bin, of dimension [num_bins+1]. It is guaranteed to end with a 0 since the last edge is exclusive.",
+          "name": "histogram_counts"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Mish",
+    "schema": {
+      "description": "\nMish takes one input data (Tensor) and produces one output data\n(Tensor) where the Mish function, y = x / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
+      "inputs": [
+        {
+          "description": "1D input tensor",
+          "name": "X"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D output tensor",
+          "name": "Y"
         }
       ],
       "support_level": "default"
