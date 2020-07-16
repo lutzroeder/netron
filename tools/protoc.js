@@ -3,6 +3,7 @@
 const protoc = {};
 const fs = require('fs');
 const long = require('long');
+const { SSL_OP_NO_QUERY_MTU } = require('constants');
 
 protoc.Object = class {
 
@@ -318,8 +319,9 @@ protoc.Enum = class extends protoc.Type {
 
 protoc.PrimitiveType = class extends protoc.Type {
 
-    constructor(name, long, mapKey, packed, defaultValue) {
+    constructor(name, text, long, mapKey, packed, defaultValue) {
         super(null, name);
+        this.text = text;
         this.long = long;
         this.mapKey = mapKey;
         this.packed = packed;
@@ -330,21 +332,21 @@ protoc.PrimitiveType = class extends protoc.Type {
         if (!this._map) {
             this._map = new Map();
             const register = (type) => this._map.set(type.name, type);
-            register(new protoc.PrimitiveType('double', false, false, true, 0));
-            register(new protoc.PrimitiveType('float', false, false, true, 0));
-            register(new protoc.PrimitiveType('int32', false, true, true, 0));
-            register(new protoc.PrimitiveType('uint32', false, true, true, 0));
-            register(new protoc.PrimitiveType('sint32', false, true, true, 0));
-            register(new protoc.PrimitiveType('fixed32', false, true, true, 0));
-            register(new protoc.PrimitiveType('sfixed32', false, true, true, 0));
-            register(new protoc.PrimitiveType('int64', true, true, true, 0));
-            register(new protoc.PrimitiveType('uint64', true, true, true, 0));
-            register(new protoc.PrimitiveType('sint64', true, true, true, 0));
-            register(new protoc.PrimitiveType('fixed64', true, true, true, 0));
-            register(new protoc.PrimitiveType('sfixed64', true, true, true, 0));
-            register(new protoc.PrimitiveType('bool', false, true, true, false));
-            register(new protoc.PrimitiveType('string', false, true, false, ''));
-            register(new protoc.PrimitiveType('bytes', false, true, false, []));
+            register(new protoc.PrimitiveType('double', 'float', false, false, true, 0));
+            register(new protoc.PrimitiveType('float', 'float', false, false, true, 0));
+            register(new protoc.PrimitiveType('int32', 'integer', false, true, true, 0));
+            register(new protoc.PrimitiveType('uint32', 'integer', false, true, true, 0));
+            register(new protoc.PrimitiveType('sint32', 'integer', false, true, true, 0));
+            register(new protoc.PrimitiveType('fixed32', 'integer', false, true, true, 0));
+            register(new protoc.PrimitiveType('sfixed32', 'integer', false, true, true, 0));
+            register(new protoc.PrimitiveType('int64', 'integer', true, true, true, 0));
+            register(new protoc.PrimitiveType('uint64', 'integer', true, true, true, 0));
+            register(new protoc.PrimitiveType('sint64', 'integer', true, true, true, 0));
+            register(new protoc.PrimitiveType('fixed64', 'integer', true, true, true, 0));
+            register(new protoc.PrimitiveType('sfixed64', 'integer', true, true, true, 0));
+            register(new protoc.PrimitiveType('bool', 'boolean', false, true, true, false));
+            register(new protoc.PrimitiveType('string', 'string', false, true, false, ''));
+            register(new protoc.PrimitiveType('bytes', 'bytes', false, true, false, []));
         }
         return this._map.get(name);
     }
@@ -431,7 +433,7 @@ protoc.MapField = class extends protoc.Field {
 
     constructor(parent, name, id, keyType, type) {
         super(parent, name, id, type);
-        this.keyType = keyType;
+        this.keyType = protoc.PrimitiveType.get(keyType);
     }
 };
 
@@ -1273,7 +1275,7 @@ protoc.Generator = class {
                                 const value = field.type instanceof protoc.PrimitiveType ?
                                     'reader.' + field.type.name + '()' :
                                     fieldTypeName(field) + '.decode(reader, reader.uint32())';
-                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType + '(), () => ' + value + ');');
+                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType.name + '(), () => ' + value + ');');
                             }
                             else if (field.repeated) {
                                 if (field.type.name === 'float' || field.type.name === 'double') {
@@ -1366,14 +1368,14 @@ protoc.Generator = class {
                                 const value = field.type instanceof protoc.PrimitiveType ?
                                     'reader.' + field.type.name + '()' :
                                     fieldTypeName(field) + '.decodeText(reader, true)';
-                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType + '(), () => ' + value + ');');
+                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
                             }
                             else if (field.repeated) { // Repeated fields
                                 if (field.type instanceof protoc.Enum) {
                                     this._builder.add('reader.array(' + variable + ', () => reader.enum(' + fieldTypeName(field) + '));');
                                 }
                                 else if (field.type instanceof protoc.PrimitiveType) {
-                                    this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.name + '());');
+                                    this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.text + '());');
                                 }
                                 else {
                                     this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decodeText(reader, true));');
@@ -1384,7 +1386,7 @@ protoc.Generator = class {
                                 this._builder.add(variable + ' = reader.enum(' + fieldTypeName(field) + ');');
                             }
                             else if (field.type instanceof protoc.PrimitiveType) {
-                                this._builder.add(variable + ' = reader.' + field.type.name + '();');
+                                this._builder.add(variable + ' = reader.' + field.type.text + '();');
                             }
                             else {
                                 this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decodeText(reader, true);');

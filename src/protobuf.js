@@ -375,41 +375,17 @@ protobuf.TextReader = class {
         }
     }
 
-    int32() {
+    integer() {
         const token = this.read();
         const value = Number.parseInt(token, 10);
         if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse int '" + token + "'" + this.location());
-        }
-        this.semicolon();
-        return value;
-    }
-
-    uint32() {
-        const token = this.read();
-        const value = Number.parseInt(token, 10);
-        if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse int '" + token + "'" + this.location());
-        }
-        this.semicolon();
-        return value;
-    }
-
-    int64() {
-        const token = this.read();
-        const value = Number.parseInt(token, 10);
-        if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse int '" + token + "'" + this.location());
+            throw new protobuf.Error("Couldn't parse integer '" + token + "'" + this.location());
         }
         this.semicolon();
         return value;
     }
 
     float() {
-        return this.double();
-    }
-
-    double() {
         let token = this.read();
         if (token.startsWith('nan')) {
             return NaN;
@@ -448,7 +424,7 @@ protobuf.TextReader = class {
         return value;
     }
 
-    bool() {
+    boolean() {
         const token = this.read();
         switch (token) {
             case 'true':

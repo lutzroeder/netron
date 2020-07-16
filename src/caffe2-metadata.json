@@ -18802,5 +18802,210 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsMeanGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "rounding option: 0 for nearest rounding, 1 for stochastic rounding",
+          "name": "round_option",
+          "option": "optional"
+        },
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientMeanGradient (gradient of SparseLengthsMean) +\nRowWiseSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsMeanGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsMeanGradientApprox",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientMeanGradient (gradient of SparseLengthsMean) +\nSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsIndicesInGradientMeanGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "SparseAdagradFusedWithSparseLengthsMeanGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientMeanGradient (gradient of SparseLengthsMean) +\nSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the sparse AdaGrad\nupdate on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsIndicesInGradientMeanGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "RowWiseSparseAdagradFusedWithSparseLengthsMeanGradient",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Default 1e-5",
+          "name": "epsilon",
+          "option": "optional"
+        }
+      ],
+      "description": "\n\nFused operator of\nSparseLengthsIndicesInGradientMeanGradient (gradient of SparseLengthsMean) +\nRowWiseSparseAdagrad.\n\nGiven inputs (param, moment, indices, grad, lr), runs the row-wise sparse\nAdaGrad update on (param, grad, moment[indices], lr), and returns (new_param,\nnew_moment) as in the dense case. Additional input (lengths) is for fused\nSparseLengthsMeanGradient operator.\n\n",
+      "inputs": [
+        {
+          "description": "Parameters to be updated",
+          "name": "param"
+        },
+        {
+          "description": "Moment history",
+          "name": "moment"
+        },
+        {
+          "description": "Integer vector containing indices of the first dimension of param for the slices that are being updated",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed",
+          "name": "grad"
+        },
+        {
+          "description": "learning rate",
+          "name": "lr"
+        },
+        {
+          "description": "Non negative vector with sum of elements equal to indices length",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Updated parameters",
+          "name": "output_param"
+        },
+        {
+          "description": "Updated moment",
+          "name": "output_moment"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]

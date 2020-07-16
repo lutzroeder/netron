@@ -50,13 +50,13 @@ $root.caffe2.ExternalDataProto = class ExternalDataProto {
                     message.record_id = reader.string();
                     break;
                 case "record_size":
-                    message.record_size = reader.uint64();
+                    message.record_size = reader.integer();
                     break;
                 case "offset":
-                    message.offset = reader.int64();
+                    message.offset = reader.integer();
                     break;
                 case "strides":
-                    reader.array(message.strides, () => reader.int64());
+                    reader.array(message.strides, () => reader.integer());
                     break;
                 default:
                     reader.field(tag, message);
@@ -151,7 +151,7 @@ $root.caffe2.TensorProto = class TensorProto {
             const tag = reader.tag();
             switch (tag) {
                 case "dims":
-                    reader.array(message.dims, () => reader.int64());
+                    reader.array(message.dims, () => reader.integer());
                     break;
                 case "data_type":
                     message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
@@ -163,7 +163,7 @@ $root.caffe2.TensorProto = class TensorProto {
                     reader.array(message.float_data, () => reader.float());
                     break;
                 case "int32_data":
-                    reader.array(message.int32_data, () => reader.int32());
+                    reader.array(message.int32_data, () => reader.integer());
                     break;
                 case "byte_data":
                     message.byte_data = reader.bytes();
@@ -172,10 +172,10 @@ $root.caffe2.TensorProto = class TensorProto {
                     reader.array(message.string_data, () => reader.bytes());
                     break;
                 case "double_data":
-                    reader.array(message.double_data, () => reader.double());
+                    reader.array(message.double_data, () => reader.float());
                     break;
                 case "int64_data":
-                    reader.array(message.int64_data, () => reader.int64());
+                    reader.array(message.int64_data, () => reader.integer());
                     break;
                 case "raw_data":
                     message.raw_data = reader.bytes();
@@ -272,10 +272,10 @@ $root.caffe2.TensorProto.Segment = class Segment {
             const tag = reader.tag();
             switch (tag) {
                 case "begin":
-                    message.begin = reader.int64();
+                    message.begin = reader.integer();
                     break;
                 case "end":
-                    message.end = reader.int64();
+                    message.end = reader.integer();
                     break;
                 default:
                     reader.field(tag, message);
@@ -371,22 +371,22 @@ $root.caffe2.QTensorProto = class QTensorProto {
             const tag = reader.tag();
             switch (tag) {
                 case "dims":
-                    reader.array(message.dims, () => reader.int64());
+                    reader.array(message.dims, () => reader.integer());
                     break;
                 case "precision":
-                    message.precision = reader.int32();
+                    message.precision = reader.integer();
                     break;
                 case "scale":
-                    message.scale = reader.double();
+                    message.scale = reader.float();
                     break;
                 case "bias":
-                    message.bias = reader.double();
+                    message.bias = reader.float();
                     break;
                 case "is_signed":
-                    message.is_signed = reader.bool();
+                    message.is_signed = reader.boolean();
                     break;
                 case "data":
-                    reader.array(message.data, () => reader.int32());
+                    reader.array(message.data, () => reader.integer());
                     break;
                 case "name":
                     message.name = reader.string();
@@ -395,16 +395,16 @@ $root.caffe2.QTensorProto = class QTensorProto {
                     message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                     break;
                 case "scales":
-                    reader.array(message.scales, () => reader.double());
+                    reader.array(message.scales, () => reader.float());
                     break;
                 case "biases":
-                    reader.array(message.biases, () => reader.double());
+                    reader.array(message.biases, () => reader.float());
                     break;
                 case "axis":
-                    message.axis = reader.int32();
+                    message.axis = reader.integer();
                     break;
                 case "is_multiparam":
-                    message.is_multiparam = reader.bool();
+                    message.is_multiparam = reader.boolean();
                     break;
                 default:
                     reader.field(tag, message);
@@ -516,16 +516,16 @@ $root.caffe2.TensorShape = class TensorShape {
             const tag = reader.tag();
             switch (tag) {
                 case "dims":
-                    reader.array(message.dims, () => reader.int64());
+                    reader.array(message.dims, () => reader.integer());
                     break;
                 case "data_type":
                     message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                     break;
                 case "unknown_dims":
-                    reader.array(message.unknown_dims, () => reader.int32());
+                    reader.array(message.unknown_dims, () => reader.integer());
                     break;
                 case "unknown_shape":
-                    message.unknown_shape = reader.bool();
+                    message.unknown_shape = reader.boolean();
                     break;
                 case "name":
                     message.name = reader.string();
@@ -689,10 +689,10 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
                     message.shapes.push($root.caffe2.TensorBoundShape.decodeText(reader, true));
                     break;
                 case "max_batch_size":
-                    message.max_batch_size = reader.int64();
+                    message.max_batch_size = reader.integer();
                     break;
                 case "max_feature_len":
-                    message.max_feature_len = reader.int64();
+                    message.max_feature_len = reader.integer();
                     break;
                 default:
                     reader.field(tag, message);
@@ -780,7 +780,7 @@ $root.caffe2.Argument = class Argument {
                     message.f = reader.float();
                     break;
                 case "i":
-                    message.i = reader.int64();
+                    message.i = reader.integer();
                     break;
                 case "s":
                     message.s = reader.bytes();
@@ -795,7 +795,7 @@ $root.caffe2.Argument = class Argument {
                     reader.array(message.floats, () => reader.float());
                     break;
                 case "ints":
-                    reader.array(message.ints, () => reader.int64());
+                    reader.array(message.ints, () => reader.integer());
                     break;
                 case "strings":
                     reader.array(message.strings, () => reader.bytes());
@@ -885,19 +885,19 @@ $root.caffe2.DeviceOption = class DeviceOption {
             const tag = reader.tag();
             switch (tag) {
                 case "device_type":
-                    message.device_type = reader.int32();
+                    message.device_type = reader.integer();
                     break;
                 case "device_id":
-                    message.device_id = reader.int32();
+                    message.device_id = reader.integer();
                     break;
                 case "random_seed":
-                    message.random_seed = reader.uint32();
+                    message.random_seed = reader.integer();
                     break;
                 case "node_name":
                     message.node_name = reader.string();
                     break;
                 case "numa_node_id":
-                    message.numa_node_id = reader.int32();
+                    message.numa_node_id = reader.integer();
                     break;
                 case "extra_info":
                     reader.array(message.extra_info, () => reader.string());
@@ -1007,7 +1007,7 @@ $root.caffe2.OperatorDef = class OperatorDef {
                     reader.array(message.control_input, () => reader.string());
                     break;
                 case "is_gradient_op":
-                    message.is_gradient_op = reader.bool();
+                    message.is_gradient_op = reader.boolean();
                     break;
                 case "debug_info":
                     message.debug_info = reader.string();
@@ -1016,7 +1016,7 @@ $root.caffe2.OperatorDef = class OperatorDef {
                     message.domain = reader.string();
                     break;
                 case "op_version":
-                    message.op_version = reader.int64();
+                    message.op_version = reader.integer();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1195,7 +1195,7 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
                     message.name = reader.string();
                     break;
                 case "device_id":
-                    reader.array(message.device_id, () => reader.int32());
+                    reader.array(message.device_id, () => reader.integer());
                     break;
                 case "extra_info":
                     message.extra_info = reader.string();
@@ -1284,7 +1284,7 @@ $root.caffe2.NetDef = class NetDef {
                     message.type = reader.string();
                     break;
                 case "num_workers":
-                    message.num_workers = reader.int32();
+                    message.num_workers = reader.integer();
                     break;
                 case "device_option":
                     message.device_option = $root.caffe2.DeviceOption.decodeText(reader, true);
@@ -1391,7 +1391,7 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
                     reader.array(message.network, () => reader.string());
                     break;
                 case "num_iter":
-                    message.num_iter = reader.int64();
+                    message.num_iter = reader.integer();
                     break;
                 case "criteria_network":
                     message.criteria_network = reader.string();
@@ -1400,25 +1400,25 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
                     message.report_net = reader.string();
                     break;
                 case "report_interval":
-                    message.report_interval = reader.int32();
+                    message.report_interval = reader.integer();
                     break;
                 case "run_every_ms":
-                    message.run_every_ms = reader.int64();
+                    message.run_every_ms = reader.integer();
                     break;
                 case "concurrent_substeps":
-                    message.concurrent_substeps = reader.bool();
+                    message.concurrent_substeps = reader.boolean();
                     break;
                 case "should_stop_blob":
                     message.should_stop_blob = reader.string();
                     break;
                 case "only_once":
-                    message.only_once = reader.bool();
+                    message.only_once = reader.boolean();
                     break;
                 case "create_workspace":
-                    message.create_workspace = reader.bool();
+                    message.create_workspace = reader.boolean();
                     break;
                 case "num_concurrent_instances":
-                    message.num_concurrent_instances = reader.int32();
+                    message.num_concurrent_instances = reader.integer();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1559,10 +1559,10 @@ $root.caffe2.BlobProto = class BlobProto {
                     message.qtensor = $root.caffe2.QTensorProto.decodeText(reader, true);
                     break;
                 case "content_num_chunks":
-                    message.content_num_chunks = reader.int32();
+                    message.content_num_chunks = reader.integer();
                     break;
                 case "content_chunk_id":
-                    message.content_chunk_id = reader.int32();
+                    message.content_chunk_id = reader.integer();
                     break;
                 default:
                     reader.field(tag, message);
