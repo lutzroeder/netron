@@ -17,7 +17,7 @@
           "name": "weights"
         },
         {
-          "description": "Optional `keras.layers.RNN`, or keras.layers.Layer` instance\n    to be used to handle backwards input processing. If `backward_layer` is\n    not provided, the layer instance passed as the `layer` argument will be\n    used to generate the backward layer automatically.\n    Note that the provided `backward_layer` layer should have properties\n    matching those of the `layer` argument, in particular it should have the\n    same values for `stateful`, `return_states`, `return_sequence`, etc.\n    In addition, `backward_layer` and `layer` should have different\n    `go_backwards` argument values.\n    A `ValueError` will be raised if these requirements are not met.",
+          "description": "Optional `keras.layers.RNN`, or `keras.layers.Layer`\n    instance to be used to handle backwards input processing.\n    If `backward_layer` is not provided, the layer instance passed as the\n    `layer` argument will be used to generate the backward layer\n    automatically.\n    Note that the provided `backward_layer` layer should have properties\n    matching those of the `layer` argument, in particular it should have the\n    same values for `stateful`, `return_states`, `return_sequence`, etc.\n    In addition, `backward_layer` and `layer` should have different\n    `go_backwards` argument values.\n    A `ValueError` will be raised if these requirements are not met.",
           "name": "backward_layer"
         }
       ],
@@ -291,7 +291,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    \"valid\" adds no padding.  \"same\" adds padding such that if the stride\n    is 1, the output shape is the same as the input shape.",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -339,7 +339,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    \"valid\" adds no zero padding.  \"same\" adds padding such that if the stride\n    is 1, the output shape is the same as input shape.",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -389,7 +389,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -761,7 +761,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -804,7 +804,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         }
       ],
@@ -838,7 +838,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -1269,7 +1269,7 @@
           "name": "strides"
         },
         {
-          "description": "Currently only supports `\"valid\"` (case-insensitive).\n        `\"same\"` may be supported in the future.",
+          "description": "Currently only supports `\"valid\"` (case-insensitive).\n        `\"same\"` may be supported in the future.\n        `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
@@ -1362,7 +1362,7 @@
           "name": "strides"
         },
         {
-          "description": "Currently only support `\"valid\"` (case-insensitive).\n        `\"same\"` will be supported in future.",
+          "description": "Currently only support `\"valid\"` (case-insensitive).\n        `\"same\"` will be supported in future.\n        `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
@@ -1801,7 +1801,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -1882,7 +1882,7 @@
           "visible": false
         },
         {
-          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence.",
+          "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence. (default False)",
           "name": "return_sequences"
         },
         {
@@ -1916,7 +1916,7 @@
       ],
       "outputs": [
         {
-          "description": "- If `return_sequences`\n   - If data_format='channels_first'\n      5D tensor with shape:\n      `(samples, time, filters, output_row, output_col)`\n   - If data_format='channels_last'\n      5D tensor with shape:\n      `(samples, time, output_row, output_col, filters)`\n- Else\n  - If data_format ='channels_first'\n      4D tensor with shape:\n      `(samples, filters, output_row, output_col)`\n  - If data_format='channels_last'\n      4D tensor with shape:\n      `(samples, output_row, output_col, filters)`\n  where `o_row` and `o_col` depend on the shape of the filter and\n  the padding",
+          "description": "- If `return_state`: a list of tensors. The first tensor is\n  the output. The remaining tensors are the last states,\n  each 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n  `rows` and `cols` values might have changed due to padding.\n- If `return_sequences`: 5D tensor with shape:\n  `(samples, timesteps, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 5D tensor with shape:\n  `(samples, timesteps, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n- Else, 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.",
           "name": "output"
         }
       ],
@@ -2581,7 +2581,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"`, `\"causal\"` or `\"same\"` (case-insensitive).\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
+          "description": "One of `\"valid\"`, `\"same\"` or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
           "name": "padding"
         },
         {
@@ -2705,12 +2705,12 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+          "description": "Activation function to use. If you don't specify anything, no\n    activation is applied (see `keras.activations`).",
           "name": "activation"
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -2721,7 +2721,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be `channels_last`.",
+          "description": "A string, one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs. `channels_last` corresponds\n    to inputs with shape `(batch_size, height, width, channels)` while\n    `channels_first` corresponds to inputs with shape `(batch_size, channels,\n    height, width)`. It defaults to the `image_data_format` value found in\n    your Keras config file at `~/.keras/keras.json`. If you never set it, then\n    it will be `channels_last`.",
           "name": "data_format"
         },
         {
@@ -2729,7 +2729,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers, specifying the strides of\n    the convolution along the height and width. Can be a single integer to\n    specify the same value for all spatial dimensions. Specifying any stride\n    value != 1 is incompatible with specifying any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -2737,7 +2737,7 @@
             1,
             1
           ],
-          "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 2 integers, specifying the\n    dilation rate to use for dilated convolution. Can be a single integer to\n    specify the same value for all spatial dimensions. Currently, specifying\n    any `dilation_rate` value != 1 is incompatible with specifying any stride\n    value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -2745,7 +2745,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -2759,45 +2759,45 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space (i.e. the number of\n    output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the height\n    and width of the 2D convolution window. Can be a single integer to specify\n    the same value for all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\n    the `kernel` weights matrix (see `keras.regularizers`).",
+          "description": "Regularizer function applied to the `kernel` weights\n    matrix (see `keras.regularizers`).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the bias vector (see\n    `keras.regularizers`).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\") (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the output of the\n    layer (its \"activation\") (see `keras.regularizers`).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the kernel matrix (see\n    `keras.constraints`).",
           "name": "kernel_constraint",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the bias vector (see\n    `keras.constraints`).",
           "name": "bias_constraint",
           "visible": false
         },
         {
-          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved\n    separately with `filters / groups` filters. The output is the\n    concatenation of all the `groups` results along the channel axis.\n    Input channels and `filters` must both be divisible by `groups`.",
+          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved separately\n    with `filters / groups` filters. The output is the concatenation of all\n    the `groups` results along the channel axis. Input channels and `filters`\n    must both be divisible by `groups`.",
           "name": "groups"
         }
       ],
@@ -2819,7 +2819,7 @@
       ],
       "inputs": [
         {
-          "description": "4+D tensor with shape:\n`batch_shape + (channels, rows, cols)` if `data_format='channels_first'`\nor 4+D tensor with shape:\n`batch_shape + (rows, cols, channels)` if `data_format='channels_last'`.",
+          "description": "4+D tensor with shape: `batch_shape + (channels, rows, cols)` if\n  `data_format='channels_first'`\nor 4+D tensor with shape: `batch_shape + (rows, cols, channels)` if\n  `data_format='channels_last'`.",
           "name": "input"
         },
         {
@@ -2831,7 +2831,7 @@
       ],
       "outputs": [
         {
-          "description": "4+D tensor with shape:\n`batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape:\n`batch_shape + (new_rows, new_cols, filters)` if\n`data_format='channels_last'`.\n\n`rows` and `cols` values might have changed due to padding.",
+          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -2843,31 +2843,31 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space (i.e. the number of\n    output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 3 integers, specifying the\n    depth, height and width of the 3D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
+          "description": "An integer or tuple/list of 3 integers, specifying the depth,\n    height and width of the 3D convolution window. Can be a single integer to\n    specify the same value for all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 3 integers,\n    specifying the strides of the convolution along each spatial\n      dimension.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 3 integers, specifying the strides of\n    the convolution along each spatial dimension. Can be a single integer to\n    specify the same value for all spatial dimensions. Specifying any stride\n    value != 1 is incompatible with specifying any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
-          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `batch_shape + (spatial_dim1, spatial_dim2, spatial_dim3, channels)`\n    while `channels_first` corresponds to inputs with shape\n    `batch_shape + (channels, spatial_dim1, spatial_dim2, spatial_dim3)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+          "description": "A string, one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs. `channels_last` corresponds\n    to inputs with shape `batch_shape + (spatial_dim1, spatial_dim2,\n    spatial_dim3, channels)` while `channels_first` corresponds to inputs with\n    shape `batch_shape + (channels, spatial_dim1, spatial_dim2,\n    spatial_dim3)`. It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`. If you never set it, then it\n    will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "an integer or tuple/list of 3 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 3 integers, specifying the\n    dilation rate to use for dilated convolution. Can be a single integer to\n    specify the same value for all spatial dimensions. Currently, specifying\n    any `dilation_rate` value != 1 is incompatible with specifying any stride\n    value != 1.",
           "name": "dilation_rate"
         },
         {
-          "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+          "description": "Activation function to use. If you don't specify anything, no\n    activation is applied (see `keras.activations`).",
           "name": "activation"
         },
         {
@@ -2877,40 +2877,40 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
           "name": "bias_initializer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n    the `kernel` weights matrix (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the `kernel` weights\n    matrix (see `keras.regularizers`).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the bias vector (see\n    `keras.regularizers`).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\") (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the output of the\n    layer (its \"activation\") (see `keras.regularizers`).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the kernel matrix (see\n    `keras.constraints`).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the bias vector (see\n    `keras.constraints`).",
           "name": "bias_constraint"
         },
         {
-          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved\n    separately with `filters / groups` filters. The output is the\n    concatenation of all the `groups` results along the channel axis.\n    Input channels and `filters` must both be divisible by `groups`.",
+          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved separately\n    with `filters / groups` filters. The output is the concatenation of all\n    the `groups` results along the channel axis. Input channels and `filters`\n    must both be divisible by `groups`.",
           "name": "groups"
         }
       ],
@@ -2926,13 +2926,13 @@
       ],
       "inputs": [
         {
-          "description": "5+D tensor with shape:\n`batch_shape + (channels, conv_dim1, conv_dim2, conv_dim3)` if\n  data_format='channels_first'\nor 5+D tensor with shape:\n`batch_shape + (conv_dim1, conv_dim2, conv_dim3, channels)` if\n  data_format='channels_last'.",
+          "description": "5+D tensor with shape: `batch_shape + (channels, conv_dim1, conv_dim2,\n  conv_dim3)` if data_format='channels_first'\nor 5+D tensor with shape: `batch_shape + (conv_dim1, conv_dim2, conv_dim3,\n  channels)` if data_format='channels_last'.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "5+D tensor with shape:\n`batch_shape + (filters, new_conv_dim1, new_conv_dim2, new_conv_dim3)` if\n  data_format='channels_first'\nor 5+D tensor with shape:\n`batch_shape + (new_conv_dim1, new_conv_dim2, new_conv_dim3, filters)` if\n  data_format='channels_last'.\n`new_conv_dim1`, `new_conv_dim2` and `new_conv_dim3` values might have\n  changed due to padding.",
+          "description": "5+D tensor with shape: `batch_shape + (filters, new_conv_dim1,\n  new_conv_dim2, new_conv_dim3)` if data_format='channels_first'\nor 5+D tensor with shape: `batch_shape + (new_conv_dim1, new_conv_dim2,\n  new_conv_dim3, filters)` if data_format='channels_last'. `new_conv_dim1`,\n  `new_conv_dim2` and `new_conv_dim3` values might have changed due to\n  padding.",
           "name": "output"
         }
       ],
@@ -2956,7 +2956,7 @@
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3167,7 +3167,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3323,12 +3323,12 @@
       "attributes": [
         {
           "default": "linear",
-          "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+          "description": "Activation function to use. If you don't specify anything, no\n    activation is applied (see `keras.activations`).",
           "name": "activation"
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to \n    the left/right or up/down of the input such that output has the same \n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3339,7 +3339,7 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch_size, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be `channels_last`.",
+          "description": "A string, one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs. `channels_last` corresponds\n    to inputs with shape `(batch_size, height, width, channels)` while\n    `channels_first` corresponds to inputs with shape `(batch_size, channels,\n    height, width)`. It defaults to the `image_data_format` value found in\n    your Keras config file at `~/.keras/keras.json`. If you never set it, then\n    it will be `channels_last`.",
           "name": "data_format"
         },
         {
@@ -3347,7 +3347,7 @@
             1,
             1
           ],
-          "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of 2 integers, specifying the strides of\n    the convolution along the height and width. Can be a single integer to\n    specify the same value for all spatial dimensions. Specifying any stride\n    value != 1 is incompatible with specifying any `dilation_rate` value != 1.",
           "name": "strides"
         },
         {
@@ -3355,7 +3355,7 @@
             1,
             1
           ],
-          "description": "an integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+          "description": "an integer or tuple/list of 2 integers, specifying the\n    dilation rate to use for dilated convolution. Can be a single integer to\n    specify the same value for all spatial dimensions. Currently, specifying\n    any `dilation_rate` value != 1 is incompatible with specifying any stride\n    value != 1.",
           "name": "dilation_rate"
         },
         {
@@ -3367,7 +3367,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3381,43 +3381,43 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space (i.e. the number of\n    output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\n    height and width of the 2D convolution window.\n    Can be a single integer to specify the same value for\n    all spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the height\n    and width of the 2D convolution window. Can be a single integer to specify\n    the same value for all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "Regularizer function applied to\n    the `kernel` weights matrix (see `keras.regularizers`).",
+          "description": "Regularizer function applied to the `kernel` weights\n    matrix (see `keras.regularizers`).",
           "name": "kernel_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the bias vector (see\n    `keras.regularizers`).",
           "name": "bias_regularizer",
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n    the output of the layer (its \"activation\") (\n    see `keras.regularizers`).",
+          "description": "Regularizer function applied to the output of the\n    layer (its \"activation\") (see `keras.regularizers`).",
           "name": "activity_regularizer",
           "visible": false
         },
         {
-          "description": "Constraint function applied to the kernel matrix (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the kernel matrix (see\n    `keras.constraints`).",
           "name": "kernel_constraint"
         },
         {
-          "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+          "description": "Constraint function applied to the bias vector (see\n    `keras.constraints`).",
           "name": "bias_constraint"
         },
         {
-          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved\n    separately with `filters / groups` filters. The output is the\n    concatenation of all the `groups` results along the channel axis.\n    Input channels and `filters` must both be divisible by `groups`.",
+          "description": "A positive integer specifying the number of groups in which the\n    input is split along the channel axis. Each group is convolved separately\n    with `filters / groups` filters. The output is the concatenation of all\n    the `groups` results along the channel axis. Input channels and `filters`\n    must both be divisible by `groups`.",
           "name": "groups"
         }
       ],
@@ -3439,7 +3439,7 @@
       ],
       "inputs": [
         {
-          "description": "4+D tensor with shape:\n`batch_shape + (channels, rows, cols)` if `data_format='channels_first'`\nor 4+D tensor with shape:\n`batch_shape + (rows, cols, channels)` if `data_format='channels_last'`.",
+          "description": "4+D tensor with shape: `batch_shape + (channels, rows, cols)` if\n  `data_format='channels_first'`\nor 4+D tensor with shape: `batch_shape + (rows, cols, channels)` if\n  `data_format='channels_last'`.",
           "name": "input"
         },
         {
@@ -3451,7 +3451,7 @@
       ],
       "outputs": [
         {
-          "description": "4+D tensor with shape:\n`batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape:\n`batch_shape + (new_rows, new_cols, filters)` if\n`data_format='channels_last'`.\n\n`rows` and `cols` values might have changed due to padding.",
+          "description": "4+D tensor with shape: `batch_shape + (filters, new_rows, new_cols)` if\n`data_format='channels_first'` or 4+D tensor with shape: `batch_shape +\n  (new_rows, new_cols, filters)` if `data_format='channels_last'`.  `rows`\n  and `cols` values might have changed due to padding.",
           "name": "output"
         }
       ],
@@ -3978,7 +3978,7 @@
           "name": "output_shape"
         },
         {
-          "description": "Optional dictionary of keyword arguments to be passed to the\n    function.\nInput shape: Arbitrary. Use the keyword argument input_shape (tuple of\n  integers, does not include the samples axis) when using this layer as the\n  first layer in a model.\nOutput shape: Specified by `output_shape` argument",
+          "description": "Optional dictionary of keyword arguments to be passed to the\n    function.",
           "name": "arguments"
         },
         {
