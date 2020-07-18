@@ -1436,7 +1436,8 @@ view.ModelFactoryService = class {
             { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*id:/ },
             { name: 'StringIntLabelMapProto data', value: /^item\s*{\r?\n\s*name:/ },
             { name: 'Python source code', value: /^\s*import sys, types, os;/ },
-            { name: 'undocumented TensorRT engine data', value: /^ptrt/ }
+            { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
+            { name: 'TSD header', value: /^%TSD-Header-###%/ },
         ];
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
         for (const item of list) {
