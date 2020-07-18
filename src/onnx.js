@@ -49,13 +49,16 @@ onnx.ModelFactory = class {
             }
             return true;
         }
-        if (extension == 'pbtxt' || extension == 'prototxt') {
+        if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'model') {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
             }
             const tags = context.tags('pbtxt');
-            if (tags.has('ir_version') || tags.has('graph')) {
+            if (tags.has('ir_version')) {
+                return true;
+            }
+            if (tags.has('graph') && extension !== 'model') {
                 return true;
             }
         }
