@@ -18,9 +18,6 @@
         "prefer-const": ["error", { "destructuring": "all" } ],
         "semi": [ "error", "always" ]
     },
-    "overrides": [
-      { "files": ["src/*-schema.js"], "rules": { "indent": "off", "semi": "off" } }
-    ],
     "globals": {
         "flatbuffers": "readonly",
         "protobuf": "readonly"

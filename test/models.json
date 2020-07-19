@@ -15,6 +15,13 @@
   },
   {
     "type":   "armnn",
+    "target": "ssd_mobilenet_v3_small_coco_2019_08_14_q8.json",
+    "source": "https://github.com/lutzroeder/netron/files/4945145/ssd_mobilenet_v3_small_coco_2019_08_14_q8.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q8.json]",
+    "format": "Arm NN",
+    "link":   "https://github.com/lutzroeder/netron/issues/515"
+  },
+  {
+    "type":   "armnn",
     "target": "ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn",
     "source": "https://github.com/lutzroeder/netron/files/3839429/samples.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn]",
     "format": "Arm NN",

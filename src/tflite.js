@@ -2,7 +2,7 @@
 
 var tflite = tflite || {};
 var base = base || require('./base');
-var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
+var flatbuffers = flatbuffers || require('./flatbuffers');
 var long = long || { Long: require('long') };
 
 tflite.ModelFactory = class {
@@ -18,7 +18,7 @@ tflite.ModelFactory = class {
         }
         if (extension === 'json') {
             const json = context.text;
-            if (json.indexOf("\"subgraphs\"", 0) !== -1 && json.indexOf("\"operator_codes\"", 0) !== -1) {
+            if (json.indexOf('"subgraphs"', 0) !== -1 && json.indexOf('"operator_codes"', 0) !== -1) {
                 return true;
             }
         }
@@ -26,25 +26,25 @@ tflite.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./tflite-schema').then((schema) => {
-            tflite.schema = schema.tflite_schema;
-            tflite.metadata_schema = schema.tflite_metadata_schema;
+        return host.require('./tflite-schema').then(() => {
+            tflite.schema = flatbuffers.get('tflite').tflite;
             return tflite.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
                     const extension = identifier.split('.').pop().toLowerCase();
                     switch (extension) {
                         default: {
-                            const buffer = new flatbuffers.ByteBuffer(context.buffer);
-                            if (!tflite.schema.Model.bufferHasIdentifier(buffer)) {
+                            const reader = new flatbuffers.Reader(context.buffer);
+                            if (!tflite.schema.Model.identifier(reader)) {
                                 throw new tflite.Error("File format is not tflite.Model.");
                             }
-                            const model = tflite.schema.Model.getRootAsModel(buffer);
-                            return new tflite.Model(metadata, null, model);
+                            const model = tflite.schema.Model.create(reader);
+                            return new tflite.Model(metadata, model);
                         }
                         case 'json': {
-                            const model = JSON.parse(context.text);
-                            return new tflite.Model(metadata, 'json', model);
+                            const reader = new flatbuffers.TextReader(context.text);
+                            const model = tflite.schema.Model.createText(reader);
+                            return new tflite.Model(metadata, model);
                         }
                     }
                 }
@@ -59,98 +59,58 @@ tflite.ModelFactory = class {
 
 tflite.Model = class {
 
-    constructor(metadata, format, model) {
+    constructor(metadata, model) {
         this._graphs = [];
         this._format = 'TensorFlow Lite';
-        switch (format) {
-            default: {
-                this._format = this._format + ' v' + model.version().toString();
-                this._description = model.description() || '';
-                const operators = [];
-                const builtinOperatorMap = {};
-                for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
-                    const index = tflite.schema.BuiltinOperator[key];
-                    builtinOperatorMap[index] = tflite.Utility.type(key);
-                }
-                for (let i = 0; i < model.operatorCodesLength(); i++) {
-                    const operatorCode = model.operatorCodes(i);
-                    const code = operatorCode.builtinCode();
-                    const version = operatorCode.version();
-                    const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
-                    const name = custom ? operatorCode.customCode() : builtinOperatorMap[code];
-                    if (!name) {
-                        throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
-                    }
-                    operators.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
-                }
-                /*
-                for (let i = 0; i < model.metadataBufferLength(); i++) {
-                    const metadataBufferIndex = model.metadataBuffer(i);
-                    const data = model.buffers(metadataBufferIndex).dataArray();
-                    // file_identifier "FDMD"
-                    // file_identifier "MSMD"
-                    // file_identifier "SEMD"
-                }
-                */
-                let modelMetadata = null;
-                for (let i = 0; i < model.metadataLength(); i++) {
-                    const metadata = model.metadata(i);
-                    switch (metadata.name()) {
-                        case 'min_runtime_version': {
-                            const data = model.buffers(metadata.buffer()).dataArray();
-                            this._runtime = data ? new TextDecoder().decode(data) : undefined;
-                            break;
-                        }
-                        case 'TFLITE_METADATA': {
-                            const buffer = new flatbuffers.ByteBuffer(model.buffers(metadata.buffer()).dataArray() || []);
-                            if (tflite.metadata_schema.ModelMetadata.bufferHasIdentifier(buffer)) {
-                                modelMetadata = tflite.metadata_schema.ModelMetadata.getRootAsModelMetadata(buffer);
-                                this._name = modelMetadata.name() || '';
-                                this._version = modelMetadata.version() || '';
-                                this._description = modelMetadata.description() ? [ this.description, modelMetadata.description()].join(' ') : this._description;
-                                this._author = modelMetadata.author() || '';
-                                this._license = modelMetadata.license() || '';
-                            }
-                            break;
-                        }
-                    }
-                }
-                const subgraphsLength = model.subgraphsLength();
-                for (let i = 0; i < subgraphsLength; i++) {
-                    const subgraph = model.subgraphs(i);
-                    const name = subgraphsLength > 1 ? i.toString() : '';
-                    const subgraphMetadata = modelMetadata && i < modelMetadata.subgraphMetadataLength() ? modelMetadata.subgraphMetadata(i) : null;
-                    this._graphs.push(new tflite.Graph(metadata, format, subgraph, subgraphMetadata, name, operators, model));
-                }
-                break;
+        this._format = this._format + ' v' + model.version.toString();
+        this._description = model.description || '';
+        const operatorList = [];
+        const builtinOperatorMap = {};
+        for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
+            const index = tflite.schema.BuiltinOperator[key];
+            builtinOperatorMap[index] = tflite.Utility.type(key);
+        }
+        for (let i = 0; i < model.operator_codes.length; i++) {
+            const operatorCode = model.operator_codes[i];
+            const code = operatorCode.builtin_code;
+            const version = operatorCode.version;
+            const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
+            const name = custom ? operatorCode.custom_code : builtinOperatorMap[code];
+            if (!name) {
+                throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
             }
-            case 'json': {
-                this._format = this._format + (model.version ? ' v' + model.version.toString() : '');
-                this._description = model.description || '';
-                const operators = [];
-                if (model.operator_codes && Array.isArray(model.operator_codes)) {
-                    for (let i = 0; i < model.operator_codes.length; i++) {
-                        const operatorCode = model.operator_codes[i];
-                        const code = operatorCode.builtin_code;
-                        const version = operatorCode.version || 1;
-                        const custom = code === 'CUSTOM';
-                        const name = custom ? operatorCode.custom_code : tflite.Utility.type(code);
-                        if (!name) {
-                            throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
-                        }
-                        operators.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
-                    }
+            operatorList.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
+        }
+        let modelMetadata = null;
+        for (const metadata of model.metadata) {
+            switch (metadata.name) {
+                case 'min_runtime_version': {
+                    const data = model.buffers[metadata.buffer].data;
+                    this._runtime = data ? new TextDecoder().decode(data) : undefined;
+                    break;
                 }
-                if (model.subgraphs && Array.isArray(model.subgraphs)) {
-                    const subgraphsLength = model.subgraphs.length;
-                    for (let i = 0; i < subgraphsLength; i++) {
-                        const subgraph = model.subgraphs[i];
-                        const name = subgraphsLength > 1 ? i.toString() : '';
-                        this._graphs.push(new tflite.Graph(metadata, format, subgraph, null, name, operators, model));
+                case 'TFLITE_METADATA': {
+                    const data = model.buffers[metadata.buffer].data || new Uint8Array(0);
+                    const reader = new flatbuffers.Reader(data);
+                    if (tflite.schema.ModelMetadata.identifier(reader)) {
+                        modelMetadata = tflite.schema.ModelMetadata.create(reader);
+                        this._name = modelMetadata.name || '';
+                        this._version = modelMetadata.version || '';
+                        this._description = modelMetadata.description ? [ this.description, modelMetadata.description].join(' ') : this._description;
+                        this._author = modelMetadata.author || '';
+                        this._license = modelMetadata.license || '';
                     }
+                    break;
                 }
-                break;
             }
+        }
+        const subgraphs = model.subgraphs;
+        const subgraphsMetadata = modelMetadata ? modelMetadata.subgraph_metadata : null;
+        for (let i = 0; i < subgraphs.length; i++) {
+            const subgraph = subgraphs[i];
+            const name = subgraphs.length > 1 ? i.toString() : '';
+            const subgraphMetadata = subgraphsMetadata && i < subgraphsMetadata.length ? subgraphsMetadata[i] : null;
+            this._graphs.push(new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operatorList, model));
         }
     }
 
@@ -189,115 +149,75 @@ tflite.Model = class {
 
 tflite.Graph = class {
 
-    constructor(metadata, format, subgraph, subgraphMetadata, name, operators, model) {
+    constructor(metadata, subgraph, subgraphMetadata, name, operatorList, model) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        switch (format) {
-            default: {
-                this._name = subgraph.name() || name;
-                const args = [];
-                const tensorNames = [];
-                for (let i = 0; i < subgraph.tensorsLength(); i++) {
-                    const tensor = subgraph.tensors(i);
-                    const buffer = model.buffers(tensor.buffer());
-                    const is_variable = tensor.isVariable();
-                    const initializer = buffer.dataLength() > 0 || is_variable ? new tflite.Tensor(format, i, tensor, buffer, is_variable) : null;
-                    args.push(new tflite.Argument(format, i, tensor, initializer));
-                    tensorNames.push(tensor.name());
+        this._name = subgraph.name || name;
+        const args = [];
+        const tensorNames = [];
+        for (let i = 0; i < subgraph.tensors.length; i++) {
+            const tensor = subgraph.tensors[i];
+            const buffer = model.buffers[tensor.buffer];
+            const is_variable = tensor.is_variable;
+            const data = buffer.data;
+            const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(i, tensor, buffer, is_variable) : null;
+            args.push(new tflite.Argument(i, tensor, initializer));
+            tensorNames.push(tensor.name);
+        }
+        const operators = subgraph.operators;
+        for (let i = 0; i < subgraph.operators.length; i++) {
+            const node = operators[i];
+            const index = node.opcode_index;
+            const operator = index < operatorList.length ? operatorList[index] : { name: '(' + index.toString() + ')' };
+            this._nodes.push(new tflite.Node(metadata, node, operator, i.toString(), args));
+        }
+        const applyTensorMetadata = (argument, tensorMetadata) => {
+            if (tensorMetadata) {
+                const description = tensorMetadata.description;
+                if (description) {
+                    argument.description = description;
                 }
-                for (let i = 0; i < subgraph.operatorsLength(); i++) {
-                    const node = subgraph.operators(i);
-                    const index = node.opcodeIndex();
-                    const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
-                    this._nodes.push(new tflite.Node(metadata, format, node, operator, i.toString(), args));
-                }
-                const applyTensorMetadata = (argument, tensorMetadata) => {
-                    if (tensorMetadata) {
-                        const description = tensorMetadata.description();
-                        if (description) {
-                            argument.description = description;
-                        }
-                        const content = tensorMetadata.content();
-                        if (argument.type && content) {
-                            let denotation = null;
-                            switch (content.contentPropertiesType()) {
-                                case 1: {
-                                    denotation = 'Feature';
-                                    break;
-                                }
-                                case 2: {
-                                    denotation = 'Image';
-                                    const imageProperties = content.contentProperties(Reflect.construct(tflite.metadata_schema.ImageProperties, []));
-                                    switch(imageProperties.colorSpace()) {
-                                        case 1: denotation += '(RGB)'; break;
-                                        case 2: denotation += '(Grayscale)'; break;
-                                    }
-                                    break;
-                                }
-                                case 3: {
-                                    denotation = 'BoundingBox';
-                                    break;
-                                }
-                            }
-                            if (denotation) {
-                                argument.type.denotation = denotation;
-                            }
+                const content = tensorMetadata.content;
+                if (argument.type && content) {
+                    let denotation = null;
+                    const contentProperties = content.content_properties;
+                    if (contentProperties instanceof tflite.schema.FeatureProperties) {
+                        denotation = 'Feature';
+                    }
+                    else if (contentProperties instanceof tflite.schema.ImageProperties) {
+                        denotation = 'Image';
+                        switch(contentProperties.color_space) {
+                            case 1: denotation += '(RGB)'; break;
+                            case 2: denotation += '(Grayscale)'; break;
                         }
                     }
-                };
-                for (let i = 0; i < subgraph.inputsLength(); i++) {
-                    const input = subgraph.inputs(i);
-                    const argument = args[input];
-                    if (subgraphMetadata && i < subgraphMetadata.inputTensorMetadataLength()) {
-                        applyTensorMetadata(argument, subgraphMetadata.inputTensorMetadata(i));
+                    else if (contentProperties instanceof tflite.schema.BoundingBoxProperties) {
+                        denotation = 'BoundingBox';
                     }
-                    this._inputs.push(new tflite.Parameter(tensorNames[input], true, [ argument ]));
-                }
-                for (let i = 0; i < subgraph.outputsLength(); i++) {
-                    const output = subgraph.outputs(i);
-                    const argument = args[output];
-                    if (subgraphMetadata && i < subgraphMetadata.outputTensorMetadataLength()) {
-                        applyTensorMetadata(argument, subgraphMetadata.outputTensorMetadata(i));
+                    if (denotation) {
+                        argument.type.denotation = denotation;
                     }
-                    this._outputs.push(new tflite.Parameter(tensorNames[output], true, [ argument ]));
                 }
-                break;
             }
-            case 'json': {
-                this._name = subgraph.name || '';
-                const args = [];
-                const tensorNames = [];
-                if (subgraph.tensors && Array.isArray(subgraph.tensors)) {
-                    for (let i = 0; i < subgraph.tensors.length; i++) {
-                        const tensor = subgraph.tensors[i];
-                        const buffer = model.buffers[tensor.buffer];
-                        const is_variable = tensor.isVariable;
-                        const initializer = buffer.data && buffer.data.length > 0 || is_variable ? new tflite.Tensor(format, i, tensor, buffer, is_variable) : null;
-                        args.push(new tflite.Argument(format, i, tensor, initializer));
-                        tensorNames.push(tensor.name);
-                    }
-                }
-                if (subgraph.operators && Array.isArray(subgraph.operators)) {
-                    for (let i = 0; i < subgraph.operators.length; i++) {
-                        const node = subgraph.operators[i];
-                        const index = node.opcode_index;
-                        const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
-                        this._nodes.push(new tflite.Node(metadata, format, node, operator, i.toString(), args));
-                    }
-                }
-                if (subgraph.inputs && Array.isArray(subgraph.inputs)) {
-                    for (const input of subgraph.inputs) {
-                        this._inputs.push(new tflite.Parameter(tensorNames[input], true, [ args[input] ]));
-                    }
-                }
-                if (subgraph.outputs && Array.isArray(subgraph.outputs)) {
-                    for (const output of subgraph.outputs) {
-                        this._outputs.push(new tflite.Parameter(tensorNames[output], true, [ args[output] ]));
-                    }
-                }
-                break;
+        };
+        const inputs = subgraph.inputs;
+        for (let i = 0; i < inputs.length; i++) {
+            const input = inputs[i];
+            const argument = args[input];
+            if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
+                applyTensorMetadata(argument, subgraphMetadata.input_tensor_metadata[i]);
             }
+            this._inputs.push(new tflite.Parameter(tensorNames[input], true, [ argument ]));
+        }
+        const outputs = subgraph.outputs;
+        for (let i = 0; i < outputs.length; i++) {
+            const output = outputs[i];
+            const argument = args[output];
+            if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
+                applyTensorMetadata(argument, subgraphMetadata.output_tensor_metadata[i]);
+            }
+            this._outputs.push(new tflite.Parameter(tensorNames[output], true, [ argument ]));
         }
     }
 
@@ -324,7 +244,7 @@ tflite.Graph = class {
 
 tflite.Node = class {
 
-    constructor(metadata, format, node, type, location, args) {
+    constructor(metadata, node, type, location, args) {
         this._metadata = metadata;
         this._location = location;
         this._type = type;
@@ -334,18 +254,8 @@ tflite.Node = class {
         if (node) {
             let inputs = [];
             let outputs = [];
-            switch (format) {
-                default: {
-                    inputs = Array.from(node.inputsArray() || []);
-                    outputs = Array.from(node.outputsArray() || []);
-                    break;
-                }
-                case 'json': {
-                    inputs = node.inputs && Array.isArray(node.inputs) ? node.inputs : [];
-                    outputs = node.outputs && Array.isArray(node.outputs) ? node.outputs : [];
-                    break;
-                }
-            }
+            inputs = Array.from(node.inputs || new Int32Array(0));
+            outputs = Array.from(node.outputs || new Int32Array(0));
             const schema = this._metadata.type(this.type);
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
@@ -385,74 +295,24 @@ tflite.Node = class {
                 }
                 this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
             }
-            switch (format) {
-                default: {
-                    if (type.custom && node.customOptionsLength() > 0) {
-                        const custom = Array.from(node.customOptionsArray() || []);
-                        const schema = metadata.attribute(this.type, 'custom');
-                        this._attributes.push(new tflite.Attribute(schema, format, 'custom', custom));
-                    }
-                    const builtinOptionsType = node.builtinOptionsType();
-                    if (builtinOptionsType !== 0) {
-                        const builtinOptionsTypeName = tflite.schema[tflite.Utility.enum('BuiltinOptions', node.builtinOptionsType())];
-                        if (builtinOptionsTypeName) {
-                            const options = node.builtinOptions(Reflect.construct(builtinOptionsTypeName, []));
-                            if (options) {
-                                const names = new Set(Object.keys(Object.getPrototypeOf(options)).filter((name) => name !== '__init'));
-                                const arrayNames = new Set();
-                                for (const name of new Set(names)) {
-                                    if (names.has(name + 'Array') && names.has(name + 'Length')) {
-                                        names.delete(name + 'Array');
-                                        names.delete(name + 'Length');
-                                        arrayNames.add(name);
-                                    }
-                                }
-                                for (const camelCaseName of names) {
-                                    if (options[camelCaseName] && typeof options[camelCaseName] == 'function') {
-                                        const value = arrayNames.has(camelCaseName) ? Array.from(options[camelCaseName + 'Array']() || []) : options[camelCaseName]();
-                                        if (camelCaseName === 'fusedActivationFunction' && value !== 0) {
-                                            const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
-                                            if (!activationFunctionMap[value]) {
-                                                throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
-                                            }
-                                            const type = activationFunctionMap[value];
-                                            this._chain = [ new tflite.Node(metadata, format, null, { name: type }, null, []) ];
-                                        }
-                                        let name = '';
-                                        const lower = camelCaseName.toLowerCase();
-                                        for (let i = 0; i < camelCaseName.length; i++) {
-                                            name += (camelCaseName[i] == lower[i]) ? camelCaseName[i] : ('_' + lower[i]);
-                                        }
-                                        const schema = metadata.attribute(this.type, name);
-                                        this._attributes.push(new tflite.Attribute(schema, format, name, value));
-                                    }
-                                }
-                            }
+            if (type.custom && node.custom_options.length > 0) {
+                const schema = metadata.attribute(this.type, 'custom');
+                this._attributes.push(new tflite.Attribute(schema, 'custom', Array.from(node.custom_options)));
+            }
+            const options = node.builtin_options;
+            if (options) {
+                for (const name of Object.keys(options)) {
+                    const value = options[name];
+                    if (name === 'fused_activation_function' && value !== 0) {
+                        const activationFunctionMap = { 1: 'Relu', 2: 'ReluN1To1', 3: 'Relu6', 4: 'Tanh', 5: 'SignBit' };
+                        if (!activationFunctionMap[value]) {
+                            throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
                         }
+                        const type = activationFunctionMap[value];
+                        this._chain = [ new tflite.Node(metadata, null, { name: type }, null, []) ];
                     }
-                    break;
-                }
-                case 'json': {
-                    if (node.builtin_options && !Array.isArray(node.builtin_options)) {
-                        if (type.custom && Array.isArray(type.custom)) {
-                            const schema = metadata.attribute(this.type, 'custom');
-                            this._attributes.push(new tflite.Attribute(schema, format, 'custom', type.custom));
-                        }
-                        for (const name of Object.keys(node.builtin_options)) {
-                            const value = node.builtin_options[name];
-                            if (name === 'fused_activation_function' && value !== 'NONE') {
-                                const activationFunctionMap = { 'RELU': 'Relu', 'RELU_N1_TO_1': 'ReluN1To1', 'RELU6': 'Relu6', 'TANH': 'Tanh', 'SIGN_BIT': 'SignBit' };
-                                if (!activationFunctionMap[value]) {
-                                    throw new tflite.Error("Unknown activation funtion index '" + JSON.stringify(value) + "'.");
-                                }
-                                const type = activationFunctionMap[value];
-                                this._chain = [ new tflite.Node(metadata, format, null, { name: type }, null, []) ];
-                            }
-                            const schema = metadata.attribute(this.type, name);
-                            this._attributes.push(new tflite.Attribute(schema, format, name, value));
-                        }
-                    }
-                    break;
+                    const schema = metadata.attribute(this.type, name);
+                    this._attributes.push(new tflite.Attribute(schema, name, value));
                 }
             }
         }
@@ -504,7 +364,7 @@ tflite.Node = class {
 
 tflite.Attribute = class {
 
-    constructor(schema, format, name, value) {
+    constructor(schema, name, value) {
         this._type = null;
         this._name = name;
         this._value = value;
@@ -521,7 +381,7 @@ tflite.Attribute = class {
                         this._value = new tflite.TensorShape(value);
                         break;
                     case 'TensorType':
-                        this._value = tflite.Utility.dataType(format, this._value);
+                        this._value = tflite.Utility.dataType(this._value);
                         break;
                     default:
                         this._value = tflite.Utility.enum(this._type, this._value);
@@ -583,36 +443,27 @@ tflite.Parameter = class {
 
 tflite.Argument = class {
 
-    constructor(format, index, tensor, initializer) {
+    constructor(index, tensor, initializer) {
         this._location = index.toString();
-        this._type = new tflite.TensorType(format, tensor);
+        this._type = new tflite.TensorType(tensor);
         this._initializer = initializer;
-        switch (format) {
-            default: {
-                this._name = tensor.name();
-                const quantization = tensor.quantization();
-                if (quantization) {
-                    let value = 'q';
-                    const scale = (quantization.scaleLength() == 1) ? quantization.scale(0) : 0;
-                    const zeroPoint = (quantization.zeroPointLength() == 1) ? quantization.zeroPoint(0).toFloat64() : 0;
-                    if (scale != 0 || zeroPoint != 0) {
-                        value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
-                    }
-                    if (quantization.minLength() == 1) {
-                        value = quantization.min(0).toString() + ' \u2264 ' + value;
-                    }
-                    if (quantization.maxLength() == 1) {
-                        value = value + ' \u2264 ' + quantization.max(0).toString();
-                    }
-                    if (value != 'q') {
-                        this._quantization = value;
-                    }
-                }
-                break;
+        this._name = tensor.name;
+        const quantization = tensor.quantization;
+        if (quantization) {
+            let value = 'q';
+            const scale = (quantization.scale.length == 1) ? quantization.scale[0] : 0;
+            const zeroPoint = (quantization.zero_point.length == 1) ? quantization.zero_point[0] : 0;
+            if (scale != 0 || zeroPoint != 0) {
+                value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
             }
-            case 'json': {
-                this._name = tensor.name || '';
-                break;
+            if (quantization.min.length == 1) {
+                value = quantization.min[0].toString() + ' \u2264 ' + value;
+            }
+            if (quantization.max.length == 1) {
+                value = value + ' \u2264 ' + quantization.max[0].toString();
+            }
+            if (value != 'q') {
+                this._quantization = value;
             }
         }
     }
@@ -648,22 +499,12 @@ tflite.Argument = class {
 
 tflite.Tensor = class {
 
-    constructor(format, index, tensor, buffer, is_variable) {
+    constructor(index, tensor, buffer, is_variable) {
         this._location = index.toString();
-        this._type = new tflite.TensorType(format, tensor);
+        this._type = new tflite.TensorType(tensor);
         this._is_variable = is_variable;
-        switch (format) {
-            default: {
-                this._name = tensor.name();
-                this._data = buffer.dataLength() > 0 ? buffer.dataArray() || [] : null;
-                break;
-            }
-            case 'json': {
-                this._name = tensor.name || '';
-                this._data = buffer.data && buffer.data.length > 0 ? new Uint8Array(buffer.data) : null;
-                break;
-            }
-        }
+        this._name = tensor.name;
+        this._data = buffer.data.slice(0);
     }
 
     get kind() {
@@ -711,7 +552,7 @@ tflite.Tensor = class {
         context.index = 0;
         context.count = 0;
 
-        if (this._data == null) {
+        if (this._data == null || this._data.length === 0) {
             context.state = 'Tensor data is empty.';
             return context;
         }
@@ -819,19 +660,9 @@ tflite.Tensor = class {
 
 tflite.TensorType = class {
 
-    constructor(format, tensor) {
-        switch (format) {
-            default: {
-                this._dataType = tflite.Utility.dataType(format, tensor.type());
-                this._shape = new tflite.TensorShape(Array.from(tensor.shapeArray() || []));
-                break;
-            }
-            case 'json': {
-                this._dataType = tflite.Utility.dataType(format, tensor.type);
-                this._shape = new tflite.TensorShape(tensor.shape || []);
-                break;
-            }
-        }
+    constructor(tensor) {
+        this._dataType = tflite.Utility.dataType(tensor.type);
+        this._shape = new tflite.TensorShape(Array.from(tensor.shape || []));
     }
 
     get dataType() {
@@ -929,45 +760,31 @@ tflite.Metadata = class {
 
 tflite.Utility = class {
 
-    static dataType(format, type) {
-        switch (format) {
-            default: {
-                if (!tflite.Utility._tensorTypeMap) {
-                    tflite.Utility._tensorTypeMap = new Map();
-                    for (const name of Object.keys(tflite.schema.TensorType)) {
-                        tflite.Utility._tensorTypeMap.set(tflite.schema.TensorType[name], name.toLowerCase());
-                    }
-                    tflite.Utility._tensorTypeMap.set(6, 'boolean');
-                }
-                return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
+    static dataType(type) {
+        if (!tflite.Utility._tensorTypeMap) {
+            tflite.Utility._tensorTypeMap = new Map();
+            for (const name of Object.keys(tflite.schema.TensorType)) {
+                tflite.Utility._tensorTypeMap.set(tflite.schema.TensorType[name], name.toLowerCase());
             }
-            case 'json': {
-                switch (type) {
-                    case 'BOOL': return 'boolean';
-                    default: return type.toLowerCase();
-                }
-            }
+            tflite.Utility._tensorTypeMap.set(6, 'boolean');
         }
+        return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
     }
 
-    static enum(type, value) {
-        if (type && tflite.schema && tflite.schema[type]) {
-            if (!tflite.Utility._enumTypeMap) {
-                tflite.Utility._enumTypeMap = new Map();
-            }
-            let typeMap = tflite.Utility._enumTypeMap.get(type);
-            if (!typeMap) {
-                typeMap = new Map();
-                const enumType = tflite.schema[type];
-                if (enumType) {
-                    for (const key of Object.keys(enumType)) {
-                        typeMap.set(enumType[key], key);
-                    }
+    static enum(name, value) {
+        const type = name && tflite.schema ? tflite.schema[name] : undefined;
+        if (type) {
+            tflite.Utility._enumKeyMap = tflite.Utility._enumKeyMap || new Map();
+            if (!tflite.Utility._enumKeyMap.has(name)) {
+                const map = new Map();
+                for (const key of Object.keys(type)) {
+                    map.set(type[key], key);
                 }
-                tflite.Utility._enumTypeMap.set(type, typeMap);
+                tflite.Utility._enumKeyMap.set(name, map);
             }
-            if (typeMap.has(value)) {
-                return typeMap.get(value);
+            const map = tflite.Utility._enumKeyMap.get(name);
+            if (map.has(value)) {
+                return map.get(value);
             }
         }
         return value;

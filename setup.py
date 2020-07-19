@@ -14,8 +14,7 @@ node_dependencies = [
         'node_modules/dagre/dist/dagre.min.js',
         'node_modules/marked/marked.min.js',
         'node_modules/pako/dist/pako.min.js',
-        'node_modules/long/dist/long.js',
-        'node_modules/flatbuffers/js/flatbuffers.js' ] )
+        'node_modules/long/dist/long.js' ] )
 ]
 
 class build(distutils.command.build.build):
@@ -92,7 +91,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'base.js', 'protobuf.js',
+            'base.js', 'protobuf.js', 'flatbuffers.js',
             'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
             'zip.js', 'tar.js', 'gzip.js',
             'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',

@@ -22,46 +22,8 @@ sync() {
 
 schema() {
     bold "mnn schema"
-    case "${OSTYPE}" in
-        linux*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL https://github.com/google/flatbuffers/archive/${flatc_version}.tar.gz | tar zx --strip-components 1
-                cmake -G "Unix Makefiles" . &> /dev/null
-                make > /dev/null
-                popd > /dev/null
-            fi
-            export PATH=${flatc_dir}:${PATH}
-            ;;
-        darwin*)
-            brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            ;;
-        msys*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows.zip
-                unzip flatc_windows.zip > /dev/null
-                popd > /dev/null
-            fi
-            export PATH=${flatc_dir}:${PATH}
-            ;;
-    esac
     [[ $(grep -U $'\x0D' ./src/mnn-schema.js) ]] && crlf=1
-    temp=$(mktemp -d)
-    flatc --no-js-exports --gen-all -o ${temp} --js ./third_party/src/mnn/schema/default/MNN.fbs
-    mv ${temp}/MNN_generated.js ./src/mnn-schema.js
-    rm -rf ${temp}
-    cat <<EOT >> ./src/mnn-schema.js
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = { mnn_schema: MNN };
-}
-EOT
+    node ./tools/flatc.js --root mnn --out ./src/mnn-schema.js ./third_party/src/mnn/schema/default/MNN.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/mnn-schema.js ./src/mnn-schema.js
     fi

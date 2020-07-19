@@ -11,6 +11,7 @@ const http = require('http');
 const https = require('https');
 const url = require('url');
 const protobuf = require('../src/protobuf');
+const flatbuffers = require('../src/flatbuffers');
 const sidebar = require('../src/view-sidebar.js');
 const view = require('../src/view.js');
 const zip = require('../src/zip');
@@ -19,6 +20,7 @@ const tar = require('../src/tar');
 const xmldom = require('xmldom');
 
 global.protobuf = protobuf;
+global.flatbuffers = flatbuffers;
 global.DOMParser = xmldom.DOMParser;
 global.TextDecoder = class {
 

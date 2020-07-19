@@ -22,46 +22,8 @@ sync() {
 
 schema() {
     bold "armnn schema"
-    case "${OSTYPE}" in
-        linux*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL https://github.com/google/flatbuffers/archive/${flatc_version}.tar.gz | tar zx --strip-components 1
-                cmake -G "Unix Makefiles" . &> /dev/null
-                make > /dev/null
-                popd > /dev/null
-            fi
-            export PATH=${flatc_dir}:${PATH}
-            ;;
-        darwin*)
-            brew list flatbuffers > /dev/null 2>&1 || brew install flatbuffers > /dev/null
-            ;;
-        msys*)
-            flatc_version=$(curl -s https://api.github.com/repos/google/flatbuffers/releases/latest | grep tag_name | cut -f 2 -d : | cut -f 2 -d '"')
-            flatc_dir=./third_party/bin/flatbuffers/${flatc_version}
-            if [ ! -f "${flatc_dir}/flatc.exe" ]; then
-                mkdir -p "${flatc_dir}"
-                pushd "${flatc_dir}" > /dev/null
-                curl -sL -O https://github.com/google/flatbuffers/releases/download/${flatc_version}/flatc_windows.zip
-                unzip flatc_windows.zip > /dev/null
-                popd > /dev/null
-            fi
-            export PATH=${flatc_dir}:${PATH}
-            ;;
-    esac
     [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
-    temp=$(mktemp -d)
-    flatc --no-js-exports -o ${temp} --js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
-    mv ${temp}/ArmnnSchema_generated.js ./src/armnn-schema.js
-    rm -rf ${temp}
-    cat <<EOT >> ./src/armnn-schema.js
-if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-  module.exports = { armnn_schema: armnnSerializer };
-}
-EOT
+    node ./tools/flatc.js --text --root armnn --out ./src/armnn-schema.js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./src/armnn-schema.js ./src/armnn-schema.js
     fi

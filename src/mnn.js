@@ -2,7 +2,7 @@
 
 var mnn = mnn || {};
 var base = base || require('./base');
-var flatbuffers = flatbuffers || require('flatbuffers').flatbuffers;
+var flatbuffers = flatbuffers || require('./flatbuffers');
 
 mnn.ModelFactory = class {
 
@@ -19,9 +19,9 @@ mnn.ModelFactory = class {
             return mnn.Metadata.open(host).then((metadata) => {
                 const identifier = context.identifier;
                 try {
-                    mnn.schema = schema.mnn_schema;
-                    const byteBuffer = new flatbuffers.ByteBuffer(context.buffer);
-                    const net = mnn.schema.Net.getRootAsNet(byteBuffer);
+                    mnn.schema = flatbuffers.get('mnn').MNN;
+                    const reader = new flatbuffers.Reader(context.buffer);
+                    const net = mnn.schema.Net.create(reader);
                     return new mnn.Model(metadata, net);
                 }
                 catch (error) {
@@ -37,7 +37,7 @@ mnn.ModelFactory = class {
 mnn.Model = class {
 
     constructor(metadata, net) {
-        switch (net.sourceType()) {
+        switch (net.sourceType) {
             case mnn.schema.NetSource.CAFFE: this._source = 'Caffe'; break;
             case mnn.schema.NetSource.TENSORFLOW: this._source = 'TensorFlow'; break;
             case mnn.schema.NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
@@ -66,35 +66,35 @@ mnn.Graph = class {
         this._inputs = [];
         this._outputs = [];
         const inputSet = new Set();
-        for (let i = 0; i < net.oplistsLength(); i++) {
-            const op = net.oplists(i);
-            if (mnn.schema.OpTypeName[op.type()] === 'Input') {
+        for (let i = 0; i < net.oplists.length; i++) {
+            const op = net.oplists[i];
+            if (op.type === mnn.schema.OpType.Input) {
                 const args = [];
-                for (let j = 0; j < op.outputIndexesLength(); j++) {
-                    const index = op.outputIndexes(j);
-                    const name = net.tensorName(index);
-                    const extraTensorDescribe = net.extraTensorDescribe(index);
-                    const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
-                    const type = blob ? mnn.Graph._blobTensorType(blob) : null;
+                for (let j = 0; j < op.outputIndexes.length; j++) {
+                    const index = op.outputIndexes[j];
+                    const name = net.tensorName[index];
+                    const extraTensorDescribe = net.extraTensorDescribe[index];
+                    const blob = extraTensorDescribe ? extraTensorDescribe.blob : null;
+                    const type = blob ? new mnn.TensorType(blob.dataType, new mnn.TensorShape(blob.dims)) : null;
                     args.push(new mnn.Argument(name, type, null));
                 }
-                this._inputs.push(new mnn.Parameter(op.name(), true, args));
+                this._inputs.push(new mnn.Parameter(op.name, true, args));
             }
             else {
                 this._nodes.push(new mnn.Node(metadata, op, net));
             }
-            for (let k = 0; k < op.inputIndexesLength(); k++) {
-                const index = op.inputIndexes(k);
+            for (let k = 0; k < op.inputIndexes.length; k++) {
+                const index = op.inputIndexes[k];
                 inputSet.add(index);
             }
         }
 
-        for (let i = 0; i < net.tensorNameLength(); i++) {
+        for (let i = 0; i < net.tensorName.length; i++) {
             if (!inputSet.has(i)) {
-                const name = net.tensorName(i);
-                const extraTensorDescribe = net.extraTensorDescribe(i);
-                const blob = extraTensorDescribe ? extraTensorDescribe.blob() : null;
-                const type = blob ? mnn.Graph._blobTensorType(blob) : null;
+                const name = net.tensorName[i];
+                const extraTensorDescribe = net.extraTensorDescribe[i];
+                const blob = extraTensorDescribe ? extraTensorDescribe.blob : null;
+                const type = blob ? new mnn.TensorType(blob.dataType, new mnn.TensorShape(blob.dims)) : null;
                 this._outputs.push(new mnn.Parameter(name, true, [
                     new mnn.Argument(name, type, null)
                 ]));
@@ -121,129 +121,94 @@ mnn.Graph = class {
     get inputs() {
         return this._inputs;
     }
-
-    static _blobTensorType(blob) {
-        mnn.Graph._blobTensorTypeMap = mnn.Graph._blobTensorTypeMap || new Map([
-            [ mnn.schema.DataType.DT_INVALID, '?' ],
-            [ mnn.schema.DataType.DT_FLOAT, 'float32' ],
-            [ mnn.schema.DataType.DT_DOUBLE, 'float64' ],
-            [ mnn.schema.DataType.DT_INT32, 'int32' ],
-            [ mnn.schema.DataType.DT_UINT8, 'uint8' ],
-            [ mnn.schema.DataType.DT_INT16, 'int16' ],
-            [ mnn.schema.DataType.DT_INT8, 'int8' ],
-            [ mnn.schema.DataType.DT_STRING, 'string' ],
-            [ mnn.schema.DataType.DT_COMPLEX64, 'complex64' ],
-            [ mnn.schema.DataType.DT_INT64, 'int64' ],
-            [ mnn.schema.DataType.DT_BOOL, 'boolean' ],
-            [ mnn.schema.DataType.DT_QINT8, 'qint8' ],
-            [ mnn.schema.DataType.DT_QUINT8, 'quint8' ],
-            [ mnn.schema.DataType.DT_QINT32, 'qint32' ],
-            [ mnn.schema.DataType.DT_BFLOAT16, 'bfloat16' ],
-            [ mnn.schema.DataType.DT_QINT16, 'qint16' ],
-            [ mnn.schema.DataType.DT_QUINT16, 'quint16' ],
-            [ mnn.schema.DataType.DT_UINT16, 'uint16' ],
-            [ mnn.schema.DataType.DT_COMPLEX128, 'complex128' ],
-            [ mnn.schema.DataType.DT_HALF, 'float16' ],
-            [ mnn.schema.DataType.DT_RESOURCE, 'resource' ],
-            [ mnn.schema.DataType.DT_VARIANT, 'variant' ],
-        ]);
-        const dataType = mnn.Graph._blobTensorTypeMap.has(blob.dataType()) ? mnn.Graph._blobTensorTypeMap.get(blob.dataType()) : '?';
-        const dimensions = blob.dimsArray() || [];
-        return new mnn.TensorType(dataType, new mnn.TensorShape(dimensions));
-    }
 };
 
 mnn.Node = class {
 
     constructor(metadata, op, net) {
         this._metadata = metadata;
-        this._type = mnn.schema.OpTypeName[op.type()] || '(' + op.type().toString() + ')';
-        this._name = op.name() || '';
+        this._type = mnn.Utility.enum('OpType', op.type) || '(' + op.type.toString() + ')';
+        this._name = op.name || '';
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._chains = [];
         const inputs = [];
-        for (let i = 0; i < op.inputIndexesLength(); i++) {
-            const index = op.inputIndexes(i);
-            const id = net.tensorName(index);
+        for (let i = 0; i < op.inputIndexes.length; i++) {
+            const index = op.inputIndexes[i];
+            const id = net.tensorName[index];
             inputs.push(new mnn.Argument(id, null, null));
         }
         this._inputs.push(new mnn.Parameter('input', true, inputs));
         const outputs = [];
-        for (let i = 0; i < op.outputIndexesLength(); i++) {
-            const index = op.outputIndexes(i);
-            const name = net.tensorName(index);
+        for (let i = 0; i < op.outputIndexes.length; i++) {
+            const index = op.outputIndexes[i];
+            const name = net.tensorName[index];
             outputs.push(new mnn.Argument(name, null, null));
         }
         this._outputs.push(new mnn.Parameter('output', true, outputs));
 
-        const parameterType = mnn.schema.OpParameterName[op.mainType()];
-        const parameterConstructor = mnn.schema[parameterType];
-        if (typeof parameterConstructor === 'function') {
-            const parameter = op.main(Reflect.construct(parameterConstructor, []));
-            if (parameter !== null && parameter instanceof mnn.schema.Blob) {
-                const type = mnn.Graph._blobTensorType(parameter);
+        const parameter = op.main;
+        if (parameter) {
+            const ignoreAttributes = new Set();
+            if (parameter instanceof mnn.schema.Blob) {
+                const type = new mnn.TensorType(parameter.dataType, new mnn.TensorShape(parameter.dims));
                 let data = null;
                 switch (type.dataType) {
-                    case 'int32': data = parameter.int32sArray(); break;
-                    case 'float32': data = parameter.float32sArray(); break;
+                    case 'int32': data = parameter.int32s; break;
+                    case 'float32': data = parameter.float32s; break;
                 }
                 this._inputs.push(new mnn.Parameter('value', true, [
                     new mnn.Argument('', null, new mnn.Tensor('Blob', type, data))
                 ]));
             }
-            else {
-                // weights & bias
-                let invisibleAttributes = null;
-                switch (parameterType) {
-                    case 'Convolution2D': {
-                        const common = parameter.common();
-                        const outputCount = common.outputCount();
-                        const inputCount = common.inputCount();
-                        const kernelX = common.kernelX();
-                        const kernelY = common.kernelY();
-                        this._buildTensor('float32', 'weight', [ outputCount, inputCount, kernelX, kernelY ], parameter.weightArray());
-                        this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
-                        invisibleAttributes = { "weight": true, "bias": true };
-                        break;
-                    }
-                    case 'InnerProduct': {
-                        const outputCount = parameter.outputCount();
-                        const inputCount = parameter.weightSize() / outputCount;
-                        this._buildTensor('float32', 'weight', [ outputCount, inputCount ], parameter.weightArray());
-                        this._buildTensor('float32', 'bias', [ outputCount ], parameter.biasArray());
-                        invisibleAttributes = { 'weight': true, 'bias': true };
-                        break;
-                    }
-                    case 'Scale': {
-                        const scaleDataCount = parameter.channels();
-                        this._buildTensor('float32', 'scale', [ scaleDataCount ], parameter.scaleDataArray());
-                        this._buildTensor('float32', 'bias', [ scaleDataCount ], parameter.biasDataArray());
-                        invisibleAttributes = { 'scaleData': true, 'biasData': true };
-                        break;
-                    }
-                    case 'BatchNorm': {
-                        const channels = parameter.channels();
-                        this._buildTensor('float32', 'mean', [ channels ], parameter.meanDataArray());
-                        this._buildTensor('float32', 'slope', [ channels ], parameter.slopeDataArray());
-                        this._buildTensor('float32', 'variance', [ channels ], parameter.varDataArray());
-                        this._buildTensor('float32', 'bias', [ channels ], parameter.biasDataArray());
-                        invisibleAttributes = { 'slopeData': true, 'meanData': true, 'varData': true, 'biasData': true };
-                        break;
-                    }
-                    case 'PRelu': {
-                        this._buildTensor('float32', 'slope', [ parameter.slopeCount() ], parameter.slopeArray());
-                        invisibleAttributes = { 'slope': true };
-                        break;
-                    }
-                    case 'Normalize': {
-                        this._buildTensor('float32', 'scale', [ parameter.scaleLength() ], parameter.scaleArray());
-                        invisibleAttributes = { 'scale': true };
-                        break;
-                    }
-                }
-                this._recursivelyBuildAttributes(metadata, net, parameter, parameterType, invisibleAttributes, this._attributes);
+            else if (parameter instanceof mnn.schema.Convolution2D) {
+                const common = parameter.common;
+                const outputCount = common.outputCount;
+                const inputCount = common.inputCount;
+                const kernelX = common.kernelX;
+                const kernelY = common.kernelY;
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'weight', [ outputCount, inputCount, kernelX, kernelY ], parameter.weight);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ outputCount ], parameter.bias);
+                ignoreAttributes.add('weight');
+                ignoreAttributes.add('bias');
+            }
+            else if (parameter instanceof mnn.schema.InnerProduct) {
+                const outputCount = parameter.outputCount;
+                const inputCount = parameter.weightSize / outputCount;
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'weight', [ outputCount, inputCount ], parameter.weight);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ outputCount ], parameter.bias);
+                ignoreAttributes.add('weight');
+                ignoreAttributes.add('bias');
+            }
+            else if (parameter instanceof mnn.schema.Scale) {
+                const scaleDataCount = parameter.channels;
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'scale', [ scaleDataCount ], parameter.scaleData);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ scaleDataCount ], parameter.biasData);
+                ignoreAttributes.add('scaleData');
+                ignoreAttributes.add('biasData');
+            }
+            else if (parameter instanceof mnn.schema.BatchNorm) {
+                const channels = parameter.channels;
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'mean', [ channels ], parameter.meanData);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'slope', [ channels ], parameter.slopeData);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'variance', [ channels ], parameter.varData);
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ channels ], parameter.biasData);
+                ignoreAttributes.add('slopeData');
+                ignoreAttributes.add('meanData');
+                ignoreAttributes.add('varData');
+                ignoreAttributes.add('biasData');
+            }
+            else if (parameter instanceof mnn.schema.PRelu) {
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'slope', [ parameter.slopeCount ], parameter.slope);
+                ignoreAttributes.add('slope');
+            }
+            else if (parameter instanceof mnn.schema.Normalize) {
+                this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'scale', [ parameter.scale.length ], parameter.scale);
+                ignoreAttributes.add('scale');
+            }
+            if (ignoreAttributes.size > 0) {
+                this._buildAttributes(metadata, parameter, ignoreAttributes, this._attributes);
             }
         }
     }
@@ -254,61 +219,20 @@ mnn.Node = class {
         ]));
     }
 
-    _recursivelyBuildAttributes(metadata, net, parameter, paramterType, invisibleAttributes, attributeHolders) {
-        if (!parameter) return;
-
-        let attributeNames = [];
-        const attributeNamesMap = {};
-        for (const attributeName of Object.keys(Object.getPrototypeOf(parameter))) {
-            if (attributeName != '__init') {
-                attributeNames.push(attributeName);
-            }
-            attributeNamesMap[attributeName] = true;
-        }
-
-        const attributeArrayNamesMap = {};
-        for (const attributeName of Object.keys(attributeNamesMap)) {
-            if (attributeNamesMap[attributeName + 'Length']) { // some bugs without array
-                attributeArrayNamesMap[attributeName] = true;
-                attributeNames = attributeNames.filter((item) => item != (attributeName + 'Array') && item != (attributeName + 'Length'));
-            }
-        }
-
-        for (const attributeName of attributeNames) {
-
-            if (invisibleAttributes && invisibleAttributes[attributeName]) {
-                continue;
-            }
-
-            if (parameter[attributeName] && typeof parameter[attributeName] == 'function') {
-                let value = null;
-                if (attributeArrayNamesMap[attributeName]) {
-                    const array = [];
-                    const length = parameter[attributeName + 'Length']();
-                    for (let i = 0; i < length; i++) {
-                        array.push(parameter[attributeName](i));
-                    }
-                    value = array;
+    _buildAttributes(metadata, parameter, ignoreAttributes, attributes) {
+        if (parameter) {
+            for (const key of Object.keys(parameter)) {
+                if (ignoreAttributes && ignoreAttributes.has(key)) {
+                    continue;
                 }
-                else {
-                    value = parameter[attributeName]();
-                    if (typeof value === 'object') {
-                        let name = null;
-                        for (const key of Object.getOwnPropertyNames(mnn.schema)) {
-                            const type = mnn.schema[key];
-                            if (typeof type === "function" && value instanceof type) {
-                                name = key;
-                                break;
-                            }
-                        }
-                        this._recursivelyBuildAttributes(metadata, net, value, name, null, attributeHolders);
-                        value = null;
-                    }
+                const value = parameter[key];
+                if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
+                    this._buildAttributes(metadata, value, null, attributes);
+                    continue;
                 }
-
-                if (value != null) {
-                    const schema = metadata.attribute(this.type, attributeName);
-                    attributeHolders.push(new mnn.Attribute(schema, attributeName, value));
+                if (value) {
+                    const schema = metadata.attribute(this.type, key);
+                    attributes.push(new mnn.Attribute(schema, key, value));
                 }
             }
         }
@@ -355,7 +279,7 @@ mnn.Attribute = class {
 
     constructor(schema, name, value, visible) {
         this._type = null;
-        this._value = value;
+        this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
         this._name = name;
         this._visible = visible;
         if (schema) {
@@ -436,7 +360,7 @@ mnn.Tensor = class {
     constructor(kind, type, data) {
         this._kind = kind;
         this._type = type;
-        this._data = data;
+        this._data = data.slice(0);
     }
 
     get kind() {
@@ -473,7 +397,7 @@ mnn.Tensor = class {
     _context() {
         const context = {};
         context.state = null;
-        if (!this._data) {
+        if (!this._data || this._data.length === 0) {
             context.state = 'Tensor data is empty.';
             return context;
         }
@@ -481,7 +405,7 @@ mnn.Tensor = class {
         context.count = 0;
         context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
-        context.data = this._dataType;
+        context.data = this._data;
         return context;
     }
 
@@ -498,7 +422,7 @@ mnn.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                results.push(this._data[context.index]);
+                results.push(context.data[context.index]);
                 context.index++;
                 context.count++;
             }
@@ -522,7 +446,32 @@ mnn.Tensor = class {
 mnn.TensorType = class {
 
     constructor(dataType, shape) {
-        this._dataType = dataType || '?';
+
+        switch (dataType) {
+            case mnn.schema.DataType.DT_INVALID: this._dataType = '?'; break;
+            case mnn.schema.DataType.DT_FLOAT: this._dataType = 'float32'; break;
+            case mnn.schema.DataType.DT_DOUBLE: this._dataType = 'float64'; break;
+            case mnn.schema.DataType.DT_INT32: this._dataType = 'int32'; break;
+            case mnn.schema.DataType.DT_UINT8: this._dataType = 'uint8'; break;
+            case mnn.schema.DataType.DT_INT16: this._dataType = 'int16'; break;
+            case mnn.schema.DataType.DT_INT8: this._dataType = 'int8'; break;
+            case mnn.schema.DataType.DT_STRING: this._dataType = 'string'; break;
+            case mnn.schema.DataType.DT_COMPLEX64: this._dataType = 'complex64'; break;
+            case mnn.schema.DataType.DT_INT64: this._dataType = 'int64'; break;
+            case mnn.schema.DataType.DT_BOOL: this._dataType = 'boolean'; break;
+            case mnn.schema.DataType.DT_QINT8: this._dataType = 'qint8'; break;
+            case mnn.schema.DataType.DT_QUINT8: this._dataType = 'quint8'; break;
+            case mnn.schema.DataType.DT_QINT32: this._dataType = 'qint32'; break;
+            case mnn.schema.DataType.DT_BFLOAT16: this._dataType = 'bfloat16'; break;
+            case mnn.schema.DataType.DT_QINT16: this._dataType = 'qint16'; break;
+            case mnn.schema.DataType.DT_QUINT16: this._dataType = 'quint16'; break;
+            case mnn.schema.DataType.DT_UINT16: this._dataType = 'uint16'; break;
+            case mnn.schema.DataType.DT_COMPLEX128: this._dataType = 'complex128'; break;
+            case mnn.schema.DataType.DT_HALF: this._dataType = 'float16'; break;
+            case mnn.schema.DataType.DT_RESOURCE: this._dataType = 'resource'; break;
+            case mnn.schema.DataType.DT_VARIANT: this._dataType = 'variant'; break;
+            default: throw new mnn.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
+        }
         this._shape = shape;
     }
 
@@ -542,7 +491,7 @@ mnn.TensorType = class {
 mnn.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions;
+        this._dimensions = Array.from(dimensions);
     }
 
     get dimensions() {
@@ -610,6 +559,28 @@ mnn.Metadata = class {
             }
         }
         return null;
+    }
+};
+
+mnn.Utility = class {
+
+    static enum(name, value) {
+        const type = name && mnn.schema ? mnn.schema[name] : undefined;
+        if (type) {
+            mnn.Utility._enumKeyMap = mnn.Utility._enumKeyMap || new Map();
+            if (!mnn.Utility._enumKeyMap.has(name)) {
+                const map = new Map();
+                for (const key of Object.keys(type)) {
+                    map.set(type[key], key);
+                }
+                mnn.Utility._enumKeyMap.set(name, map);
+            }
+            const map = mnn.Utility._enumKeyMap.get(name);
+            if (map.has(value)) {
+                return map.get(value);
+            }
+        }
+        return value;
     }
 };
 

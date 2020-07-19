@@ -11,6 +11,7 @@ const path = require('path');
 const view = require('./view');
 
 global.protobuf = require('./protobuf');
+global.flatbuffers = require('./flatbuffers');
 
 host.ElectronHost = class {
 
