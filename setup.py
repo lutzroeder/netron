@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import distutils
 import io
 import json
 import os
