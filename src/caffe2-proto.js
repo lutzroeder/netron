@@ -1,4 +1,4 @@
-const $root = protobuf.get('caffe2');
+var $root = protobuf.get('caffe2');
 
 $root.caffe2 = {};
 

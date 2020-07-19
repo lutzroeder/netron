@@ -1,4 +1,4 @@
-const $root = protobuf.get('cntk');
+var $root = protobuf.get('cntk');
 
 $root.CNTK = {};
 

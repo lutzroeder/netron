@@ -1,4 +1,4 @@
-const $root = protobuf.get('bigdl');
+var $root = protobuf.get('bigdl');
 
 $root.com = {};
 

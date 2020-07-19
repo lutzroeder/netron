@@ -1,4 +1,4 @@
-const $root = protobuf.get('onnx');
+var $root = protobuf.get('onnx');
 
 $root.onnx = {};
 

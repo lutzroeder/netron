@@ -1,4 +1,4 @@
-const $root = protobuf.get('coreml');
+var $root = protobuf.get('coreml');
 
 $root.CoreML = {};
 

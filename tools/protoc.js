@@ -1130,7 +1130,7 @@ protoc.Generator = class {
         this._root = root;
         this._text = text;
         this._builder = new protoc.Generator.StringBuilder();
-        this._builder.add("const $root = protobuf.get('" + this._root.alias + "');");
+        this._builder.add("var $root = protobuf.get('" + this._root.alias + "');");
         this._buildContent(this._root);
         this._content = this._builder.toString();
     }
@@ -1421,7 +1421,7 @@ protoc.Generator = class {
     }
 
     static _escapeName(name) {
-        return !name ? "$root" : protoc.Generator._isKeyword(name) ? name + "_" : name;
+        return !name ? '$root' : protoc.Generator._isKeyword(name) ? name + '_' : name;
     }
 
     static _propertyReference(name) {

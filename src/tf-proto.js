@@ -1,4 +1,4 @@
-const $root = protobuf.get('tf');
+var $root = protobuf.get('tf');
 
 $root.tensorflow = {};
 

@@ -1,4 +1,4 @@
-const $root = protobuf.get('paddle');
+var $root = protobuf.get('paddle');
 
 $root.paddle = {};
 
