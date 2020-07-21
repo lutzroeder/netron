@@ -86,6 +86,8 @@ snap:
 win:
   target:
   - nsis
+  signingHashAlgorithms:
+  - sha256
   verifyUpdateCodeSignature: false
 dmg:
   iconSize: 160
