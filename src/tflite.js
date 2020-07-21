@@ -792,9 +792,7 @@ tflite.Utility = class {
 
     static type(name) {
         const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
-        if (name === 'BATCH_MATMUL') {
-            return "BatchMatMul";
-        }
+        name === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : name;
         return name.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');
     }
 };
