@@ -341,7 +341,8 @@ $root.tflite.BuiltinOperator = {
     SELECT_V2: 123,
     DENSIFY: 124,
     SEGMENT_SUM: 125,
-    BATCH_MATMUL: 126
+    BATCH_MATMUL: 126,
+    BROADCAST_TO: 127
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -449,6 +450,7 @@ $root.tflite.BuiltinOptions = class {
             case 99: return $root.tflite.DensifyOptions.decode(reader, position);
             case 100: return $root.tflite.SegmentSumOptions.decode(reader, position);
             case 101: return $root.tflite.BatchMatMulOptions.decode(reader, position);
+            case 102: return $root.tflite.BroadcastToOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -556,6 +558,7 @@ $root.tflite.BuiltinOptions = class {
             case 'DensifyOptions': return $root.tflite.DensifyOptions.decodeText(reader, json);
             case 'SegmentSumOptions': return $root.tflite.SegmentSumOptions.decodeText(reader, json);
             case 'BatchMatMulOptions': return $root.tflite.BatchMatMulOptions.decodeText(reader, json);
+            case 'BroadcastToOptions': return $root.tflite.BroadcastToOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2155,6 +2158,19 @@ $root.tflite.BatchMatMulOptions = class BatchMatMulOptions {
     }
 };
 
+$root.tflite.BroadcastToOptions = class BroadcastToOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.BroadcastToOptions();
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.BroadcastToOptions();
+        return $;
+    }
+};
+
 $root.tflite.OperatorCode = class OperatorCode {
 
     static decode(reader, position) {
@@ -2477,6 +2493,16 @@ $root.tflite.SentencePieceTokenizerOptions = class SentencePieceTokenizerOptions
     }
 };
 
+$root.tflite.RegexTokenizerOptions = class RegexTokenizerOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.RegexTokenizerOptions();
+        $.delim_regex_pattern = reader.string_(position, 4, null);
+        $.vocab_file = reader.tableArray(position, 6, $root.tflite.AssociatedFile.decode);
+        return $;
+    }
+};
+
 $root.tflite.ProcessUnitOptions = class {
 
     static decode(reader, position, type) {
@@ -2486,6 +2512,7 @@ $root.tflite.ProcessUnitOptions = class {
             case 3: return $root.tflite.ScoreThresholdingOptions.decode(reader, position);
             case 4: return $root.tflite.BertTokenizerOptions.decode(reader, position);
             case 5: return $root.tflite.SentencePieceTokenizerOptions.decode(reader, position);
+            case 6: return $root.tflite.RegexTokenizerOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -2497,6 +2524,7 @@ $root.tflite.ProcessUnitOptions = class {
             case 'ScoreThresholdingOptions': return $root.tflite.ScoreThresholdingOptions.decodeText(reader, json);
             case 'BertTokenizerOptions': return $root.tflite.BertTokenizerOptions.decodeText(reader, json);
             case 'SentencePieceTokenizerOptions': return $root.tflite.SentencePieceTokenizerOptions.decodeText(reader, json);
+            case 'RegexTokenizerOptions': return $root.tflite.RegexTokenizerOptions.decodeText(reader, json);
         }
         return undefined;
     }
