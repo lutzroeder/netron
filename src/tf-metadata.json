@@ -8510,6 +8510,24 @@
     }
   },
   {
+    "name": "ComputeBatchSize",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "batch_size",
+          "type": 9
+        }
+      ],
+      "summary": "Computes the static batch size of a dataset sans partial batches."
+    }
+  },
+  {
     "name": "Concat",
     "schema": {
       "attributes": [
