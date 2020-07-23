@@ -5023,6 +5023,12 @@
   },
   {
     "type":   "tfjs",
+    "target": "age_gender_model/age_gender_model-weights_manifest.json,age_gender_model/age_gender_model-shard1",
+    "source": "https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-weights_manifest.json,https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-shard1",
+    "format": "TensorFlow.js Weights"
+  },
+  {
+    "type":   "tfjs",
     "target": "mnist_transfer_cnn_v1/model.json,mnist_transfer_cnn_v1/group1-shard1of1,mnist_transfer_cnn_v1/group2-shard1of1,mnist_transfer_cnn_v1/group3-shard1of1,mnist_transfer_cnn_v1/group4-shard1of1",
     "source": "https://github.com/lutzroeder/netron/files/3361048/mnist_transfer_cnn_v1.zip[model.json,group1-shard1of1,group2-shard1of1,group3-shard1of1,group4-shard1of1]",
     "format": "TensorFlow.js Keras v2.1.4",

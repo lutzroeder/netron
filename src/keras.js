@@ -31,6 +31,9 @@ keras.ModelFactory = class {
                     if (root && root.class_name) {
                         return true;
                     }
+                    if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
+                        return true;
+                    }
                 }
                 catch (err) {
                     // continue regardless of error
@@ -159,32 +162,46 @@ keras.ModelFactory = class {
                         break;
                     }
                     case 'json': {
-                        model_config = keras.JsonParser.parse(context.text);
-                        if (model_config.keras_version) {
-                            const version = model_config.keras_version;
-                            format = format + (version ? (' v' + version) : '');
+                        const root = keras.JsonParser.parse(context.text);
+                        if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
+                            format = 'TensorFlow.js Weights';
+                            rootGroup = {};
+                            for (const manifest of root) {
+                                for (const weight of manifest.weights) {
+                                    const tensor = new keras.Tensor(weight.name, weight.dtype, weight.shape, false, null, manifest.paths.join(';'));
+                                    const parts = weight.name.split('/');
+                                    parts.pop();
+                                    const layer = parts.join('/');
+                                    weights.add(layer, tensor);
+                                }
+                            }
                         }
-                        if (model_config.backend) {
-                            backend = model_config.backend;
-                        }
-                        if (model_config && model_config.modelTopology) {
-                            backend = model_config.modelTopology.backend;
-                            const version = model_config.modelTopology.keras_version;
-                            format = format + (version ? (' v' + version) : '');
-                            format = 'TensorFlow.js ' + (model_config.format ? model_config.format : format);
-                            producer = model_config.convertedBy || model_config.generatedBy || '';
-                            if (model_config.weightsManifest) {
+                        else {
+                            if (root.keras_version) {
+                                const version = root.keras_version;
+                                format = format + (version ? (' v' + version) : '');
+                            }
+                            if (root.backend) {
+                                backend = root.backend;
+                            }
+                            model_config = root;
+                            if (model_config && model_config.modelTopology) {
+                                backend = model_config.modelTopology.backend;
+                                const version = model_config.modelTopology.keras_version;
+                                format = format + (version ? (' v' + version) : '');
+                                format = 'TensorFlow.js ' + (model_config.format ? model_config.format : format);
+                                producer = model_config.convertedBy || model_config.generatedBy || '';
                                 for (const manifest of model_config.weightsManifest) {
                                     for (const weight of manifest.weights) {
                                         const tensor = new keras.Tensor(weight.name, weight.dtype, weight.shape, false, null, manifest.paths.join(';'));
                                         weights.add('', tensor);
                                     }
                                 }
+                                model_config = model_config.modelTopology;
                             }
-                            model_config = model_config.modelTopology;
-                        }
-                        if (model_config.model_config) {
-                            model_config = model_config.model_config;
+                            if (model_config.model_config) {
+                                model_config = model_config.model_config;
+                            }
                         }
                         break;
                     }
@@ -641,7 +658,7 @@ keras.Node = class {
                     const parts = inputArguments[0].initializer.name.split('/').pop().split(':').shift().split('_');
                     const inputName1 = parts.pop();
                     const inputName2 = parts.length > 0 ? [ parts.pop(), inputName1 ].join('_') : '';
-                    const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance' ]);
+                    const inputNames = new Set([ 'recurrent_kernel', 'running_mean', 'running_std', 'moving_mean', 'moving_variance', 'depthwise_filter', 'pointwise_filter' ]);
                     inputName = inputNames.has(inputName2) ? inputName2 : inputName1;
                 }
             }
