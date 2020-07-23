@@ -344,9 +344,7 @@ host.ElectronHost = class {
                     this._update('show-names', this._view.showNames);
                 }).catch((error) => {
                     if (error) {
-                        this._view.show(null);
-                        this.exception(error, false);
-                        this.error(error.name, error.message);
+                        this._view.error(error, null, null);
                         this._update('path', null);
                     }
                     this._update('show-attributes', this._view.showAttributes);
@@ -354,9 +352,7 @@ host.ElectronHost = class {
                     this._update('show-names', this._view.showNames);
                 });
             }).catch((error) => {
-                this.exception(error, false);
-                this._view.show(null);
-                this.error('Error while reading file.', error.message);
+                this._view.error(error, 'Error while reading file.', null);
                 this._update('path', null);
             });
         }

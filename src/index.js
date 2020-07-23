@@ -427,9 +427,7 @@ host.BrowserHost = class {
                 this.document.title = identifier || context.identifier;
             }).catch((err) => {
                 if (err) {
-                    this.exception(err, false);
-                    this.error(err.name, err.message);
-                    this._view.show('welcome');
+                    this._view.error(err, null, 'welcome');
                 }
             });
         }).catch((err) => {
@@ -448,9 +446,7 @@ host.BrowserHost = class {
                 return model;
             });
         }).catch((error) => {
-            this._view.show(null);
-            this.exception(error, false);
-            this.error(error.name, error.message);
+            this._view.error(error, null, null);
         });
     }
 
@@ -477,13 +473,11 @@ host.BrowserHost = class {
                 this.document.title = identifier;
             }).catch((error) => {
                 if (error) {
-                    this.exception(error, false);
-                    this.error(error.name, error.message);
+                    this._view.show(error.name, error, 'welcome');
                 }
             });
         }).catch((err) => {
-            this.error('Model load request failed.', err.message);
-            this._view.show('welcome');
+            this._view.show('Model load request failed.', err, 'welcome');
         });
     }
 
