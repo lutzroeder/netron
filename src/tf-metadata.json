@@ -2951,6 +2951,7 @@
           "type": "type"
         }
       ],
+      "description": "Each entry in `output` is the mean of the corresponding size `ksize` window in\n`value`.",
       "inputs": [
         {
           "description": "Shape `[batch, depth, rows, cols, channels]` tensor to pool over.",
@@ -37622,6 +37623,47 @@
           "description": "A scalar representing the number of replicas to distribute this batch across. As\na result of this transformation the current batch size would end up being\ndivided  by this parameter.",
           "name": "num_replicas",
           "type": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that changes the batch size."
+    }
+  },
+  {
+    "name": "RebatchDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "description": "Creates a dataset that rebatches elements from `input_dataset` into new batch\nsizes.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A vector of integers representing the size of batches to produce. These values\nare cycled through in order.",
+          "name": "batch_sizes",
+          "type": 9
+        },
+        {
+          "name": "drop_remainder",
+          "type": 10
         }
       ],
       "outputs": [
