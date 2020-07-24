@@ -1732,6 +1732,20 @@
   },
   {
     "type":   "darknet",
+    "target": "netron_issue_539.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4968179/netron_issue_539.zip[netron_issue_539.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/539"
+  },
+  {
+    "type":   "darknet",
+    "target": "netron_issue_541.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4968181/netron_issue_541.zip[netron_issue_541.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/541"
+  },
+  {
+    "type":   "darknet",
     "target": "resnet18.cfg,resnet18.weights",
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet18.cfg,https://pjreddie.com/media/files/resnet18.weights",
     "format": "Darknet",

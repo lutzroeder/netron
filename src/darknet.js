@@ -592,22 +592,32 @@ darknet.Graph = class {
                         for (const next of layers) {
                             layer.out += next.outputs / groups;
                         }
-                        const first = layers.shift();
-                        layer.out_w = first.out_w;
-                        layer.out_h = first.out_h;
-                        layer.out_c = first.out_c / groups;
-                        while (layers.length > 0) {
-                            const next = layers.shift();
-                            if (next.out_w === first.out_w && next.out_h === first.out_h) {
-                                layer.out_c += next.out_c;
+                        if (layers.length > 0) {
+                            const first = layers.shift();
+                            layer.out_w = first.out_w;
+                            layer.out_h = first.out_h;
+                            layer.out_c = first.out_c / groups;
+                            while (layers.length > 0) {
+                                const next = layers.shift();
+                                if (next.out_w === first.out_w && next.out_h === first.out_h) {
+                                    layer.out_c += next.out_c;
+                                    continue;
+                                }
+                                infer = false;
+                                break;
                             }
-                            else {
-                                layer.out_h = 0;
-                                layer.out_w = 0;
-                                layer.out_c = 0;
+                            if (infer) {
+                                layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'route'));
                             }
                         }
-                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'route'));
+                        else {
+                            infer = false;
+                        }
+                        if (!infer) {
+                            layer.out_h = 0;
+                            layer.out_w = 0;
+                            layer.out_c = 0;
+                        }
                         break;
                     }
                     case 'shortcut':
