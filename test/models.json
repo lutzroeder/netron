@@ -4649,13 +4649,6 @@
   },
   {
     "type":   "tf",
-    "target": "mnist_model.pbtxt",
-    "source": "https://raw.githubusercontent.com/ShauralP/MobileML/master/SimpleMNIST/mnist_model.pbtxt",
-    "format": "TensorFlow Graph",
-    "link":   "https://github.com/ShauralP/MobileML"
-  },
-  {
-    "type":   "tf",
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
     "format": "TensorFlow Graph",
@@ -4714,6 +4707,12 @@
   },
   {
     "type":   "tf",
+    "target": "imagenet_2012_challenge_label_map_proto.pbtxt",
+    "source": "https://raw.githubusercontent.com/dmlc/web-data/master/tensorflow/models/InceptionV1/imagenet_2012_challenge_label_map_proto.pbtxt",
+    "error":  "Invalid file content. File contains ImageNet LabelMap data."
+  },
+  {
+    "type":   "tf",
     "target": "inception_v1_2016_08_28_frozen.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_resnet_v2_2016_08_30_frozen.pb.tar.gz[inception_resnet_v2_2016_08_30_frozen.pb]",
     "format": "TensorFlow Graph",
@@ -4766,6 +4765,13 @@
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
     "action": "skip-render"
+  },
+  {
+    "type":   "tf",
+    "target": "mnist_model.pbtxt",
+    "source": "https://raw.githubusercontent.com/ShauralP/MobileML/master/SimpleMNIST/mnist_model.pbtxt",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/ShauralP/MobileML"
   },
   {
     "type":   "tf",
