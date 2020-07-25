@@ -50810,7 +50810,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Returns (x - y)(x - y) element-wise."
+      "summary": "Returns conj(x - y)(x - y) element-wise."
     }
   },
   {
