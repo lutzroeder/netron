@@ -3,7 +3,6 @@
 const protoc = {};
 const fs = require('fs');
 const long = require('long');
-const { SSL_OP_NO_QUERY_MTU } = require('constants');
 
 protoc.Object = class {
 
