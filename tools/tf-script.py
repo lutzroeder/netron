@@ -29,6 +29,7 @@ def metadata():
         'Identity': 'Control',
         'LeakyRelu': 'Activation',
         'LRN': 'Normalization',
+        'LSTMBlockCell': 'Layer',
         'MaxPool': 'Pool',
         'MaxPoolV2': 'Pool',
         'Pad': 'Tensor',

@@ -21934,6 +21934,7 @@
           "type": "type"
         }
       ],
+      "category": "Layer",
       "description": "This implementation uses 1 weight matrix and 1 bias vector, and there's an\noptional peephole connection.\n\nThis kernel op implements the following mathematical equations:\n\n```python\nxh = [x, h_prev]\n[i, f, ci, o] = xh * w + b\nf = f + forget_bias\n\nif not use_peephole:\n  wci = wcf = wco = 0\n\ni = sigmoid(cs_prev * wci + i)\nf = sigmoid(cs_prev * wcf + f)\nci = tanh(ci)\n\ncs = ci .* i + cs_prev .* f\ncs = clip(cs, cell_clip)\n\no = sigmoid(cs * wco + o)\nco = tanh(cs)\nh = co .* o\n```",
       "inputs": [
         {
@@ -25341,7 +25342,7 @@
           "type": "type"
         }
       ],
-      "description": "adjoints (conjugate transposes).\n\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the inverse for all input submatrices `[..., :, :]`.\n\nThe op uses LU decomposition with partial pivoting to compute the inverses.\n\nIf a matrix is not invertible there is no guarantee what the op does. It\nmay detect the condition and raise an exception or it may simply return a\ngarbage result.",
+      "description": "\nThe input is a tensor of shape `[..., M, M]` whose inner-most 2 dimensions\nform square matrices. The output is a tensor of the same shape as the input\ncontaining the inverse for all input submatrices `[..., :, :]`.\n\nThe op uses LU decomposition with partial pivoting to compute the inverses.\n\nIf a matrix is not invertible there is no guarantee what the op does. It\nmay detect the condition and raise an exception or it may simply return a\ngarbage result.",
       "inputs": [
         {
           "description": "Shape is `[..., M, M]`.",
@@ -25356,7 +25357,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Computes the inverse of one or more square invertible matrices or their"
+      "summary": "Computes the inverse of one or more square invertible matrices or their adjoints (conjugate transposes)."
     }
   },
   {
