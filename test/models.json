@@ -4326,6 +4326,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "valid-bert-base-uncased.pt",
+    "source": "https://github.com/lutzroeder/netron/files/4977150/valid-bert-base-uncased.zip[valid-bert-base-uncased.pt]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":   "pytorch",
     "target": "vgg-cifar10.pth.tar",
     "source": "http://www.cs.unc.edu/~cyfu/cifar10/model_best.pth.tar",
     "format": "PyTorch v0.1.10",

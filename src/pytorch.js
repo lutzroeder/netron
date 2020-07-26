@@ -1,5 +1,7 @@
 /* jshint esversion: 6 */
 
+const { stat } = require('fs');
+
 // Experimental
 
 var pytorch = pytorch || {};
@@ -155,7 +157,7 @@ pytorch.Graph = class {
                 });
                 const obj = {
                     name: state_group.name,
-                    type: 'torch.nn.Module',
+                    type: state_group.type || 'torch.nn.Module',
                     attributes: attributes,
                     inputs: inputs,
                     outputs: []
@@ -2587,6 +2589,23 @@ pytorch.Container.Pickle = class {
     }
 
     _convertStateDictList(list) {
+        if (list && Array.isArray(list) && list.every((obj) => obj.__module__ && obj.__name__ && Object.keys(obj).filter((key) => pytorch.Utility.isTensor(obj[key]).length > 0))) {
+            const layers = [];
+            for (const obj of list) {
+                const layer = { type: obj.__module__ + '.' + obj.__name__, states: [], attributes: [] };
+                for (const key of Object.keys(obj)) {
+                    const value = obj[key];
+                    if (pytorch.Utility.isTensor(value)) {
+                        layer.states.push({ name: key, arguments: [ { id: '', value: value } ] });
+                    }
+                    else {
+                        layer.attributes.push({ name: key, value: value });
+                    }
+                }
+                layers.push(layer);
+            }
+            return layers;
+        }
         if (list && !Array.isArray(list) && !(list instanceof Map)) {
             list = new Map(Object.keys(list).map((key) => [ key, list[key] ]));
         }
