@@ -1138,7 +1138,7 @@ class ArchiveContext {
             for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
                     const name = entry.name.substring(rootFolder.length);
-                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                    if (name.length > 0 && name.indexOf('/') === -1) {
                         this._entries[name] = entry;
                     }
                 }
