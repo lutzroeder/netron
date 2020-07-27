@@ -3675,6 +3675,13 @@
   },
   {
     "type":   "paddle",
+    "target": "recognize_digits_multilayer_perceptron_model.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4985730/recognize_digits_multilayer_perceptron_model.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":   "paddle",
     "target": "resnet50_int8_model.tar.gz",
     "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
     "format": "PaddlePaddle",

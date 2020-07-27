@@ -1138,7 +1138,7 @@ class ArchiveContext {
             for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
                     const name = entry.name.substring(rootFolder.length);
-                    if (identifier.length > 0 && identifier.indexOf('/') < 0) {
+                    if (name.length > 0 && name.indexOf('/') === -1) {
                         this._entries[name] = entry;
                     }
                 }
@@ -1193,7 +1193,7 @@ view.ModelFactoryService = class {
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./paddle', [ '.paddle', '__model__' ]);
+        this.register('./paddle', [ '.paddle', '.pdmodel', '__model__' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
@@ -1344,7 +1344,8 @@ view.ModelFactoryService = class {
 
         try {
             const folders = {};
-            for (const entry of archive.entries) {
+            const entries = archive.entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
+            for (const entry of entries) {
                 if (entry.name.indexOf('/') != -1) {
                     folders[entry.name.split('/').shift() + '/'] = true;
                 }
@@ -1358,10 +1359,10 @@ view.ModelFactoryService = class {
             let rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
             rootFolder = rootFolder == '/' ? '' : rootFolder;
             let matches = [];
-            const entries = archive.entries.slice();
+            const queue = entries.slice(0);
             const nextEntry = () => {
-                if (entries.length > 0) {
-                    const entry = entries.shift();
+                if (queue.length > 0) {
+                    const entry = queue.shift();
                     if (entry.name.startsWith(rootFolder)) {
                         const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
@@ -1405,7 +1406,7 @@ view.ModelFactoryService = class {
                         return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches[0];
-                    return Promise.resolve(new ModelContext(new ArchiveContext(archive.entries, rootFolder, match.name, match.data)));
+                    return Promise.resolve(new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
                 }
             };
             return nextEntry();

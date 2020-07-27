@@ -59,6 +59,10 @@ fileAssociations:
     ext: tmfile
   - name: "UFF Model"
     ext: uff
+  - name: "PaddlePaddle"
+    ext: paddle
+  - name: "PaddlePaddle"
+    ext: pdmodel
 afterSign: "./setup/notarize.js"
 publish:
   - provider: github
