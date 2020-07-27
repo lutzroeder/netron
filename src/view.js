@@ -17,11 +17,12 @@ var grapher = grapher || require('./view-grapher');
 
 view.View = class {
 
-    constructor(host) {
+    constructor(host, idPrefix) {
         this._host = host;
+        this._idPrefix = idPrefix || '';
         this._model = null;
         this._selection = [];
-        this._sidebar = new sidebar.Sidebar(this._host);
+        this._sidebar = new sidebar.Sidebar(this._host,this._idPrefix);
         this._host.initialize(this);
         this._showAttributes = false;
         this._showInitializers = true;
@@ -30,37 +31,37 @@ view.View = class {
         this._modelFactoryService = new view.ModelFactoryService(this._host);
         this._host.document.documentElement.style.overflow = 'hidden';
         this._host.document.body.scroll = 'no';
-        this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
+        this._host.document.getElementById('zoom-in-button'+this._idPrefix).addEventListener('click', () => {
             this.zoomIn();
         });
-        this._host.document.getElementById('zoom-out-button').addEventListener('click', () => {
+        this._host.document.getElementById('zoom-out-button'+this._idPrefix).addEventListener('click', () => {
             this.zoomOut();
         });
-        this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
+        this._host.document.getElementById('toolbar'+this._idPrefix).addEventListener('mousewheel', (e) => {
             this._preventZoom(e);
         });
-        this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
+        this._host.document.getElementById('sidebar'+this._idPrefix).addEventListener('mousewheel', (e) => {
             this._preventZoom(e);
         });
         this._host.document.addEventListener('keydown', () => {
             this.clearSelection();
         });
         if (this._host.environment('zoom') == 'scroll') {
-            this._host.document.getElementById('graph-container').addEventListener('mousewheel', (e) => {
+            this._host.document.getElementById('graph-container'+this._idPrefix).addEventListener('mousewheel', (e) => {
                 this._mouseWheelHandler(e);
             });
-            this._host.document.getElementById('graph-container').addEventListener('scroll', (e) => {
+            this._host.document.getElementById('graph-container'+this._idPrefix).addEventListener('scroll', (e) => {
                 this._scrollHandler(e);
             });
-            this._host.document.getElementById('graph-container').addEventListener('gesturestart', (e) => {
+            this._host.document.getElementById('graph-container'+this._idPrefix).addEventListener('gesturestart', (e) => {
                 e.preventDefault();
                 this._gestureStartZoom = this._zoom;
             }, false);
-            this._host.document.getElementById('graph-container').addEventListener('gesturechange', (e) => {
+            this._host.document.getElementById('graph-container'+this._idPrefix).addEventListener('gesturechange', (e) => {
                 e.preventDefault();
                 this._updateZoom(this._gestureStartZoom * e.scale, e);
             }, false);
-            this._host.document.getElementById('graph-container').addEventListener('gestureend', (e) => {
+            this._host.document.getElementById('graph-container'+this._idPrefix).addEventListener('gestureend', (e) => {
                 e.preventDefault();
                 this._updateZoom(this._gestureStartZoom * e.scale, e);
             }, false);
@@ -80,8 +81,8 @@ view.View = class {
         let welcomeElement = this._host.document.getElementById('welcome');
         let openFileButton = this._host.document.getElementById('open-file-button');
         let spinnerElement = this._host.document.getElementById('spinner');
-        let graphElement = this._host.document.getElementById('graph');
-        let toolbarElement = this._host.document.getElementById('toolbar');
+        let graphElement = this._host.document.getElementById('graph'+this._idPrefix);
+        let toolbarElement = this._host.document.getElementById('toolbar'+this._idPrefix);
     
         if (page == 'Welcome') {
             this._host.document.body.style.cursor = 'default';
@@ -135,7 +136,7 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            let graphElement = document.getElementById('graph');
+            let graphElement = document.getElementById('graph'+this._idPrefix);
             let view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
@@ -200,7 +201,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 1.2);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph'+this._idPrefix)), 1.2);
                 }
                 break;
         }
@@ -213,7 +214,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph')), 0.8);
+                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('graph'+this._idPrefix)), 0.8);
                 }
                 break;
         }
@@ -226,7 +227,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('graph')), 1);
+                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('graph'+this._idPrefix)), 1);
                 }
                 break;
         }
@@ -240,7 +241,7 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        let container = this._host.document.getElementById('graph-container');
+        let container = this._host.document.getElementById('graph-container'+this._idPrefix);
 
         let min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
@@ -256,7 +257,7 @@ view.View = class {
         x += scrollLeft;
         y += scrollTop;
 
-        let graph = this._host.document.getElementById('graph');
+        let graph = this._host.document.getElementById('graph'+this._idPrefix);
         graph.style.width = zoom * this._width;
         graph.style.height = zoom * this._height
 
@@ -290,7 +291,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            let graphElement = this._host.document.getElementById('graph');
+            let graphElement = this._host.document.getElementById('graph'+this._idPrefix);
             let graphRect = graphElement.getBoundingClientRect();
             let x = 0;
             let y = 0;
@@ -402,7 +403,7 @@ view.View = class {
                 return Promise.resolve();
             }
             else {
-                let graphElement = this._host.document.getElementById('graph');
+                let graphElement = this._host.document.getElementById('graph'+this._idPrefix);
                 while (graphElement.lastChild) {
                     graphElement.removeChild(graphElement.lastChild);
                 }
@@ -857,7 +858,7 @@ view.View = class {
             extension = file.substring(lastIndex + 1);
         }
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            const graphElement = this._host.document.getElementById('graph');
+            const graphElement = this._host.document.getElementById('graph'+this._idPrefix);
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');

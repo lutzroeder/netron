@@ -7,8 +7,9 @@ var Handlebars = Handlebars || require('handlebars');
 
 sidebar.Sidebar = class {
 
-    constructor(host) {
+    constructor(host,prefix) {
         this._host = host;
+        this._idPrefix = prefix || '';
         this._stack = [];
         this._closeSidebarHandler = () => {
             this._pop();
@@ -20,7 +21,7 @@ sidebar.Sidebar = class {
             }
         };
         this._resizeSidebarHandler = () => {
-            let contentElement = this._host.document.getElementById('sidebar-content');
+            let contentElement = this._host.document.getElementById('sidebar-content'+this._idPrefix);
             if (contentElement) {
                 contentElement.style.height = window.innerHeight - 60;
             }
@@ -58,16 +59,16 @@ sidebar.Sidebar = class {
     }
 
     _hide() {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
         if (sidebarElement) {
             sidebarElement.style.width = '0';
         }
     }
 
     _deactivate() {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
         if (sidebarElement) {
-            let closeButton = this._host.document.getElementById('sidebar-closebutton');
+            let closeButton = this._host.document.getElementById('sidebar-closebutton'+this._idPrefix);
             if (closeButton) {
                 closeButton.removeEventListener('click', this._closeSidebarHandler);
                 closeButton.style.color = '#f8f8f8';
@@ -79,7 +80,7 @@ sidebar.Sidebar = class {
     }
 
     _activate(item) {
-        let sidebarElement = this._host.document.getElementById('sidebar');
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
         if (sidebarElement) {
             sidebarElement.innerHTML = '';
 
