@@ -53,8 +53,9 @@ protobuf.Reader = class {
         const length = this.uint32();
         const start = this._position;
         const end = this._position + length;
-        if (end > this._length)
+        if (end > this._length) {
             throw this._indexOutOfRangeError(length);
+        }
         this._position += length;
         return this._buffer.slice(start, end);
     }
@@ -278,14 +279,16 @@ protobuf.Reader = class {
             for (; i < 4; ++i) {
                 // 1st..4th
                 bits.lo = (bits.lo | (this._buffer[this._position] & 127) << i * 7) >>> 0;
-                if (this._buffer[this._position++] < 128)
+                if (this._buffer[this._position++] < 128) {
                     return bits;
+                }
             }
             // 5th
             bits.lo = (bits.lo | (this._buffer[this._position] & 127) << 28) >>> 0;
             bits.hi = (bits.hi | (this._buffer[this._position] & 127) >>  4) >>> 0;
-            if (this._buffer[this._position++] < 128)
+            if (this._buffer[this._position++] < 128) {
                 return bits;
+            }
             i = 0;
         }
         else {
@@ -293,8 +296,9 @@ protobuf.Reader = class {
                 if (this._position >= this._length)
                     throw this._indexOutOfRangeError();
                 bits.lo = (bits.lo | (this._buffer[this._position] & 127) << i * 7) >>> 0;
-                if (this._buffer[this._position++] < 128)
+                if (this._buffer[this._position++] < 128) {
                     return bits;
+                }
             }
             bits.lo = (bits.lo | (this._buffer[this._position++] & 127) << i * 7) >>> 0;
             return bits;
@@ -302,8 +306,9 @@ protobuf.Reader = class {
         if (this._length - this._position > 4) {
             for (; i < 5; ++i) {
                 bits.hi = (bits.hi | (this._buffer[this._position] & 127) << i * 7 + 3) >>> 0;
-                if (this._buffer[this._position++] < 128)
+                if (this._buffer[this._position++] < 128) {
                     return bits;
+                }
             }
         }
         else {
@@ -312,15 +317,16 @@ protobuf.Reader = class {
                     throw this._indexOutOfRangeError();
                 }
                 bits.hi = (bits.hi | (this._buffer[this._position] & 127) << i * 7 + 3) >>> 0;
-                if (this._buffer[this._position++] < 128)
+                if (this._buffer[this._position++] < 128) {
                     return bits;
+                }
             }
         }
         throw new protobuf.Error('Invalid varint encoding.');
     }
 
     _indexOutOfRangeError(length) {
-        return RangeError('index out of range: ' + this.pos + ' + ' + (length || 1) + ' > ' + this.len);
+        return RangeError('index out of range: ' + this._position + ' + ' + (length || 1) + ' > ' + this._length);
     }
 };
 
