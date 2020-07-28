@@ -378,7 +378,7 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeature
     }
 
     get VisionFeaturePrintType() {
-        $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet || new Set([ "scene", "object"]);
+        $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet || new Set([ "scene", "objects"]);
         return Object.keys(this).find((key) => $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.VisionFeaturePrintTypeSet.has(key) && this[key] != null);
     }
 
@@ -392,7 +392,7 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeature
                     message.scene = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.decode(reader, reader.uint32());
                     break;
                 case 21:
-                    message.object = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object.decode(reader, reader.uint32());
+                    message.objects = $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -433,14 +433,14 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene.SceneVersion = 
     "SCENE_VERSION_1": 1
 };
 
-$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object = class Object {
+$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects = class Objects {
 
     constructor() {
         this.output = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object();
+        const message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects();
         const end = reader.next(length);
         while (reader.end(end)) {
             const tag = reader.uint32();
@@ -460,11 +460,11 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object = class Object
     }
 };
 
-$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object.prototype.version = 0;
+$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.prototype.version = 0;
 
-$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Object.ObjectVersion = {
-    "OBJECT_VERSION_INVALID": 0,
-    "OBJECT_VERSION_1": 1
+$root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.ObjectsVersion = {
+    "OBJECTS_VERSION_INVALID": 0,
+    "OBJECTS_VERSION_1": 1
 };
 
 $root.CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
