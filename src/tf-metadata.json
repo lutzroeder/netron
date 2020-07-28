@@ -21698,6 +21698,31 @@
     }
   },
   {
+    "name": "KthOrderStatistic",
+    "schema": {
+      "attributes": [
+        {
+          "name": "k",
+          "type": "int64"
+        }
+      ],
+      "description": "implementation uses a binary search requiring exactly 32 passes over\nthe input data. The running time is linear with respect to input\nsize. The median-of-medians algorithm is probably faster, but is\ndifficult to implement efficiently in XLA. The implementation imposes\na total ordering on floats. The ordering is consistent with the usual\npartial order.  Positive NaNs are greater than positive\ninfinity. Negative NaNs are less than negative infinity. NaNs with\ndistinct payloads are treated as distinct. Subnormal numbers are\npreserved (not flushed to zero). Positive infinity is greater than all\nnumbers. Negative infinity is less than all numbers. Positive is\ngreater than negative zero. There are less than k values greater than\nthe kth order statistic. There are at least k values greater than or\nequal to the Kth order statistic. The semantics are not the same as\ntop_k_unique.",
+      "inputs": [
+        {
+          "name": "input",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 1
+        }
+      ],
+      "summary": "Computes the Kth order statistic of a data set. The current"
+    }
+  },
+  {
     "name": "L2Loss",
     "schema": {
       "attributes": [
@@ -24403,6 +24428,25 @@
         }
       ],
       "summary": "Makes a new iterator from the given `dataset` and stores it in `iterator`."
+    }
+  },
+  {
+    "name": "MakeUnique",
+    "schema": {
+      "description": "their initial value. Never returns a sub-normal number. Never returns\nzero. The sign of each input element is always identical to the sign\nof the corresponding output element. Behavior for infinite elements is\nundefined. Behavior for subnormal elements is undefined.",
+      "inputs": [
+        {
+          "name": "input",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 1
+        }
+      ],
+      "summary": "Make all elements in the non-Batch dimension unique, but \\\"close\\\" to"
     }
   },
   {
@@ -53554,6 +53598,78 @@
     }
   },
   {
+    "name": "TPUCompile",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "num_computations",
+          "type": "int64"
+        },
+        {
+          "name": "function",
+          "type": "function"
+        },
+        {
+          "name": "metadata",
+          "type": "string"
+        },
+        {
+          "minimum": 0,
+          "name": "NumDynamicShapes",
+          "type": "int64"
+        },
+        {
+          "minimum": 0,
+          "name": "Tguaranteed_constants",
+          "type": "type[]"
+        }
+      ],
+      "description": "For the internal use of the distributed TPU compiler.\n\n'num_computations' is the number of computations to be compiled.\n'function' is a function containing the computation to compile.\n'dynamic_shapes' contains dynamic shapes of arguments whose shapes were not\nknown statically at TPUReplication rewrite time.\n'guaranteed_constants' is a list of tensors which have been guaranteed to not\nchange their values during the session lifetime. These contain tensors marked as\nconstant using the GuaranteeConstOp.\n'metadata' is a serialized TPUCompileMetadataProto describing\nthe shapes and types of the inputs to the computation, as well as a mapping onto\nthe TPU pod topology.\nEach 'program' output is a string key that is passed to the _TPUExecute op and\nused to look up the program in the compilation cache.\n'may_modify_variables' indicates whether variables may be modified.",
+      "inputs": [
+        {
+          "name": "dynamic_shapes",
+          "numberAttr": "NumDynamicShapes",
+          "type": 9
+        },
+        {
+          "name": "guaranteed_constants",
+          "typeListAttr": "Tguaranteed_constants"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "compilation_status",
+          "type": 7
+        },
+        {
+          "name": "program",
+          "numberAttr": "num_computations",
+          "type": 7
+        },
+        {
+          "name": "may_modify_variables",
+          "numberAttr": "num_computations",
+          "type": 10
+        }
+      ],
+      "summary": "Compiles a computations for execution on one or more TPU devices."
+    }
+  },
+  {
+    "name": "TPUCompileSucceededAssert",
+    "schema": {
+      "description": "device during failure to ensure all pending device interactions fail.\n\n'compilation_status' is a serialized CompilationResultProto.",
+      "inputs": [
+        {
+          "name": "compilation_status",
+          "type": 7
+        }
+      ],
+      "summary": "Asserts that compilation succeeded. This op produces no output and closes the"
+    }
+  },
+  {
     "name": "TPUEmbeddingActivations",
     "schema": {
       "attributes": [
@@ -53590,6 +53706,86 @@
         }
       ],
       "summary": "An op enabling differentiation of TPU Embeddings."
+    }
+  },
+  {
+    "name": "TPUExecute",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "Targs",
+          "type": "type[]"
+        },
+        {
+          "minimum": 0,
+          "name": "Tresults",
+          "type": "type[]"
+        }
+      ],
+      "description": "For the internal use of the distributed TPU compiler.",
+      "inputs": [
+        {
+          "name": "args",
+          "typeListAttr": "Targs"
+        },
+        {
+          "name": "key",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "results",
+          "typeListAttr": "Tresults"
+        }
+      ],
+      "summary": "Op that loads and executes a TPU program on a TPU device."
+    }
+  },
+  {
+    "name": "TPUExecuteAndUpdateVariables",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "Targs",
+          "type": "type[]"
+        },
+        {
+          "minimum": 0,
+          "name": "Tresults",
+          "type": "type[]"
+        },
+        {
+          "minimum": 0,
+          "name": "device_var_reads_indices",
+          "type": "int64[]"
+        },
+        {
+          "minimum": 0,
+          "name": "device_var_updates_indices",
+          "type": "int64[]"
+        }
+      ],
+      "description": "It (optionally) reads device variables, loads and executes a TPU program on a\nTPU device, and then (optionally) in-place updates variables using the program\noutputs, as specified in attributes device_var_reads_indices (program input\nindices from directly reading variables) and device_var_updates_indices (program\noutput indices used to update variables, -1 means no-update/read-only). Such\nprogram outputs are consumed by these variables will not appear in the op\noutput. For the internal use of the distributed TPU compiler.",
+      "inputs": [
+        {
+          "name": "args",
+          "typeListAttr": "Targs"
+        },
+        {
+          "name": "key",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "results",
+          "typeListAttr": "Tresults"
+        }
+      ],
+      "summary": "Op that executes a program with optional in-place variable updates."
     }
   },
   {
@@ -53653,6 +53849,83 @@
         }
       ],
       "summary": "Calls a function placed on a specified TPU device."
+    }
+  },
+  {
+    "name": "TPUPartitionedInput",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "N",
+          "type": "int64"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": 0,
+          "description": "An integer describles which dimension is partitioned. -1 means\nthose inputs are replicated.",
+          "name": "partition_dim",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of partitioned inputs which must have the same shape.",
+          "name": "inputs",
+          "numberAttr": "N",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A handle which represents the full shape of partitioned tensors.",
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "An op that groups a list of partitioned inputs together. This op"
+    }
+  },
+  {
+    "name": "TPUPartitionedOutput",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "minimum": 1,
+          "name": "num_splits",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "description": "An integer describles which dimension is partitioned.",
+          "name": "partition_dim",
+          "type": "int64"
+        }
+      ],
+      "description": "outputs outside the XLA computation.",
+      "inputs": [
+        {
+          "description": "A tensor which represents the full shape of partitioned tensors.",
+          "name": "inputs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of partitioned inputs which must have the same shape.",
+          "name": "output",
+          "numberAttr": "num_splits",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "An op that demultiplexes a tensor to be sharded by XLA to a list of partitioned"
     }
   },
   {
@@ -56785,6 +57058,35 @@
     }
   },
   {
+    "name": "TopKUnique",
+    "schema": {
+      "attributes": [
+        {
+          "name": "k",
+          "type": "int64"
+        }
+      ],
+      "description": "running time is proportional to the product of K and the input\nsize. Sorting the whole array is more efficient for sufficiently large\nvalues of K. The median-of-medians algorithm is probably faster, but\ndifficult to implement efficiently in XLA. If there are fewer than K\nunique numbers (not NANs), the results are padded with negative\ninfinity. NaNs are never returned. Subnormal numbers are flushed to\nzero. If an element appears at multiple indices, the highest index is\nreturned. If a TopK element never appears in the input due to padding\nvalues, the indices are padded with negative one. If a padding value\nappears in the input and padding is needed, the highest index of the\npadding value will be returned. The semantics are not the same as\nkth_order_statistic.",
+      "inputs": [
+        {
+          "name": "input",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "topk",
+          "type": 1
+        },
+        {
+          "name": "topk_indices",
+          "type": 3
+        }
+      ],
+      "summary": "Returns the TopK unique values in the array in sorted order. The"
+    }
+  },
+  {
     "name": "TopKV2",
     "schema": {
       "attributes": [
@@ -56826,6 +57128,35 @@
         }
       ],
       "summary": "Finds values and indices of the `k` largest elements for the last dimension."
+    }
+  },
+  {
+    "name": "TopKWithUnique",
+    "schema": {
+      "attributes": [
+        {
+          "name": "k",
+          "type": "int64"
+        }
+      ],
+      "description": "of MakeUnique and TopKUnique. The returned top-K will have its lower bits\nreplaced by iota, thus it will be close to the original value but not exactly\nthe same. The running time is proportional to the product of K and the input\nsize. NaNs are never returned. Subnormal numbers are flushed to zero.",
+      "inputs": [
+        {
+          "name": "input",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "topk",
+          "type": 1
+        },
+        {
+          "name": "topk_indices",
+          "type": 3
+        }
+      ],
+      "summary": "Returns the TopK values in the array in sorted order. This is a combination"
     }
   },
   {
@@ -58896,6 +59227,120 @@
         }
       ],
       "summary": "Returns 0 if x == 0, and x / y otherwise, elementwise."
+    }
+  },
+  {
+    "name": "XlaHostCompute",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `inputs`.",
+          "minimum": 0,
+          "name": "Tinputs",
+          "type": "type[]"
+        },
+        {
+          "description": "The element types of each element in `outputs`.",
+          "minimum": 0,
+          "name": "Toutputs",
+          "type": "type[]"
+        },
+        {
+          "description": "A list of names of HostCompute computations that must be\nsequenced before this computation.",
+          "minimum": 0,
+          "name": "ancestors",
+          "type": "string[]"
+        },
+        {
+          "description": "If shape_inference_graph is empty, a list of the shapes of `outputs`.",
+          "minimum": 0,
+          "name": "shapes",
+          "type": "shape[]"
+        },
+        {
+          "description": "If non-empty, a serialized GraphDef representing a graph\nthat must be analyzed at compile time to determine the shapes of the outputs.",
+          "name": "shape_inference_graph",
+          "type": "function"
+        },
+        {
+          "description": "A unique identifier for this region used to match up host transfers.",
+          "name": "key",
+          "type": "string"
+        },
+        {
+          "default": 1000000,
+          "description": "Estimated duration of the host computation in nanoseconds.",
+          "name": "cost_estimate_ns",
+          "type": "int64"
+        },
+        {
+          "default": 0,
+          "description": "Default core to use for host to device transfers.",
+          "name": "tpu_core",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A list of tensors that will be sent to the host.",
+          "name": "inputs",
+          "typeListAttr": "Tinputs"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of tensors that will be returned to the device.",
+          "name": "outputs",
+          "typeListAttr": "Toutputs"
+        }
+      ],
+      "summary": "A pseudo-op to represent host-side computation in an XLA program."
+    }
+  },
+  {
+    "name": "XlaRecvFromHost",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Toutput",
+          "type": "type"
+        },
+        {
+          "name": "shape",
+          "type": "shape"
+        },
+        {
+          "name": "key",
+          "type": "string"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "Toutput"
+        }
+      ]
+    }
+  },
+  {
+    "name": "XlaSendToHost",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tinput",
+          "type": "type"
+        },
+        {
+          "name": "key",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tinput"
+        }
+      ]
     }
   },
   {
