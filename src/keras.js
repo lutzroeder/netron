@@ -1136,7 +1136,7 @@ keras.Group = class {
 keras.JsonParser = class {
 
     static parse(text) {
-        if (text && text.indexOf('NaN') !== -1) {
+        if (text && (text.indexOf('NaN') !== -1 || text.indexOf('Infinity') !== -1)) {
             try {
                 return JSON.parse(text);
             }
