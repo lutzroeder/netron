@@ -7,9 +7,9 @@ var Handlebars = Handlebars || require('handlebars');
 
 sidebar.Sidebar = class {
 
-    constructor(host,prefix) {
+    constructor(host,suffix) {
         this._host = host;
-        this._idPrefix = prefix || '';
+        this._idSuffix = suffix || '';
         this._stack = [];
         this._closeSidebarHandler = () => {
             this._pop();
@@ -21,7 +21,7 @@ sidebar.Sidebar = class {
             }
         };
         this._resizeSidebarHandler = () => {
-            let contentElement = this._host.document.getElementById('sidebar-content'+this._idPrefix);
+            let contentElement = this._host.document.getElementById('sidebar-content'+this._idSuffix);
             if (contentElement) {
                 contentElement.style.height = window.innerHeight - 60;
             }
@@ -59,16 +59,16 @@ sidebar.Sidebar = class {
     }
 
     _hide() {
-        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idSuffix);
         if (sidebarElement) {
             sidebarElement.style.width = '0';
         }
     }
 
     _deactivate() {
-        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idSuffix);
         if (sidebarElement) {
-            let closeButton = this._host.document.getElementById('sidebar-closebutton'+this._idPrefix);
+            let closeButton = this._host.document.getElementById('sidebar-closebutton'+this._idSuffix);
             if (closeButton) {
                 closeButton.removeEventListener('click', this._closeSidebarHandler);
                 closeButton.style.color = '#f8f8f8';
@@ -80,7 +80,7 @@ sidebar.Sidebar = class {
     }
 
     _activate(item) {
-        let sidebarElement = this._host.document.getElementById('sidebar'+this._idPrefix);
+        let sidebarElement = this._host.document.getElementById('sidebar'+this._idSuffix);
         if (sidebarElement) {
             sidebarElement.innerHTML = '';
 
