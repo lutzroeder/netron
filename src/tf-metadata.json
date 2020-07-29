@@ -28641,6 +28641,58 @@
     }
   },
   {
+    "name": "OptimizeDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": [],
+          "name": "optimization_configs",
+          "type": "string[]"
+        }
+      ],
+      "description": "Creates a dataset by applying related optimizations to `input_dataset`.",
+      "inputs": [
+        {
+          "description": "A variant tensor representing the input dataset.",
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "description": "A `tf.string` vector `tf.Tensor` identifying user enabled optimizations.",
+          "name": "optimizations_enabled",
+          "type": 7
+        },
+        {
+          "description": "A `tf.string` vector `tf.Tensor` identifying user disabled optimizations.",
+          "name": "optimizations_disabled",
+          "type": 7
+        },
+        {
+          "description": "A `tf.string` vector `tf.Tensor` identifying optimizations by default.",
+          "name": "optimizations_default",
+          "type": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset by applying related optimizations to `input_dataset`."
+    }
+  },
+  {
     "name": "OptionalFromValue",
     "schema": {
       "attributes": [
