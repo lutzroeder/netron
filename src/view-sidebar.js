@@ -343,7 +343,7 @@ sidebar.NodeSidebar = class {
             }
         }
         let objectType = value.__type__;
-        if (!objectType && value.constructor.name && value.constructor.name && value.constructor.name !== 'Object') {
+        if (!objectType && value.constructor.name && value.constructor.name !== 'Object') {
             objectType = value.constructor.name;
         }
         if (objectType) {
