@@ -305,7 +305,8 @@ view.View = class {
             { name: 'Error loading Keras model.', message: /^Unsupported data object header version/, url: 'https://github.com/lutzroeder/netron/issues/548' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx\.ModelProto/, url: 'https://github.com/lutzroeder/netron/issues/549' },
             { name: 'Error loading model.', message: /^Unsupported file content \(/, url: 'https://github.com/lutzroeder/netron/issues/550' },
-            { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' }
+            { name: 'Error', message: /^EPERM: operation not permitted/, url: 'https://github.com/lutzroeder/netron/issues/551' },
+            { name: 'Error loading UFF model.', message: /^Unknown data type/, url: 'https://github.com/lutzroeder/netron/issues/561' }
         ];
         const known = knowns.find((known) => err.name === known.name && err.message.match(known.message));
         const message = (name ? err.toString() : err.message) + (known ? '\n\nPlease provide information about this issue at ' + known.url + '.' : '');
