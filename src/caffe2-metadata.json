@@ -19007,5 +19007,43 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "MergeDenseFeatureTensors",
+    "schema": {
+      "attributes": [
+        {
+          "description": "feature ids",
+          "name": "feature_ids",
+          "option": "optional"
+        }
+      ],
+      "description": "Merge given multi-feature dense tensors  into one multi-feature tensor.\n  Single-feature representation:\n  - scalar features:\n    <feature full name> T\n  - list features:\n    <feature full name>.lengths int32\n    <feature full name>.values T\n  - map features:\n    <feature full name>.lengths int32\n    <feature full name>.keys K\n    <feature full name>.values V\n\n  Missing values are set to zero, and value presence flag is set accordingly:\n    <feature full name>.presence bool\n\n  Multi-feature representation:\n  - scalar features:\n    <feature type>.lengths int32\n    <feature type>.keys int64\n    <feature type>.values T\n  - list features:\n    <feature type>.lengths int32\n    <feature type>.keys int64\n    <feature type>.values.lengths int32\n    <feature type>.values.values T\n  - map features:\n    <feature type>.lengths int32\n    <feature type>.keys int64\n    <feature type>.values.lengths int32\n    <feature type>.values.keys K\n    <feature type>.values.values V\n\n  You can read more about representing batches of lists and maps here:\n  https://our.intern.facebook.com/intern/dex/caffe2/sparse-operations/\n",
+      "inputs": [
+        {
+          "description": "",
+          "name": "in1"
+        },
+        {
+          "description": ".presence",
+          "name": "in1_presence"
+        }
+      ],
+      "outputs": [
+        {
+          "description": ".lengths",
+          "name": "out_lengths"
+        },
+        {
+          "description": ".keys",
+          "name": "out_keys"
+        },
+        {
+          "description": ".values",
+          "name": "out_values"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
