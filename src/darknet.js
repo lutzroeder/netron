@@ -489,6 +489,65 @@ darknet.Graph = class {
                         weights = null;
                         break;
                     }
+                    case 'conv_lstm': {
+                        const size = option_find_int(options, "size", 3);
+                        const stride = option_find_int(options, "stride", 1);
+                        const output_filters = option_find_int(options, "output", 1);
+                        const groups = option_find_int(options, "groups", 1);
+                        const pad = option_find_int(options, "pad", 0);
+                        const padding = pad ? (size >> 1) : option_find_int(options, 'padding', 0);
+                        const batch_normalize = option_find_int(options, 'batch_normalize', 0);
+                        const bottleneck = option_find_int(options, "bottleneck", 0);
+                        const peephole = option_find_int(options, "peephole", 0);
+                        layer.uf = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                        make_convolutional_layer(layer.uf, 'uf_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                        layer.ui = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                        make_convolutional_layer(layer.ui, 'ui_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                        layer.ug = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                        make_convolutional_layer(layer.ug, 'ug_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                        layer.uo = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                        make_convolutional_layer(layer.uo, 'uo_', params.h, params.w, params.c, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                        layer.weights = layer.weights.concat(layer.uf.weights);
+                        layer.weights = layer.weights.concat(layer.ui.weights);
+                        layer.weights = layer.weights.concat(layer.ug.weights);
+                        layer.weights = layer.weights.concat(layer.uo.weights);
+                        if (bottleneck) {
+                            layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters * 2, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.weights = layer.weights.concat(layer.wf.weights);
+                        }
+                        else {
+                            layer.wf = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wf, 'wf_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.wi = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wi, 'wi_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.wg = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wg, 'wg_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.wo = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wo, 'wo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.weights = layer.weights.concat(layer.wf.weights);
+                            layer.weights = layer.weights.concat(layer.wi.weights);
+                            layer.weights = layer.weights.concat(layer.wg.weights);
+                            layer.weights = layer.weights.concat(layer.wo.weights);
+                        }
+                        if (peephole) {
+                            layer.vf = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.vf, 'vf_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.vi = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.vi, 'vi_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.vo = { weights: [], outputs: [ new darknet.Argument('', null, null) ] };
+                            make_convolutional_layer(layer.wo, 'vo_', params.h, params.w, output_filters, output_filters, groups, size, stride, stride, padding, batch_normalize);
+                            layer.weights = layer.weights.concat(layer.vf.weights);
+                            layer.weights = layer.weights.concat(layer.vi.weights);
+                            layer.weights = layer.weights.concat(layer.vo.weights);
+                        }
+                        layer.out_h = layer.uo.out_h;
+                        layer.out_w = layer.uo.out_w;
+                        layer.out_c = output_filters;
+                        layer.out = layer.out_h * layer.out_w * layer.out_c;
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'conv_lstm'));
+                        break;
+                    }
                     case 'softmax': {
                         layer.out_w = params.w;
                         layer.out_h = params.h;

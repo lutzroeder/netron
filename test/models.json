@@ -1795,6 +1795,13 @@
   },
   {
     "type":   "darknet",
+    "target": "yolo_v3_tiny_lstm.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/4999065/yolo_v3_tiny_lstm.zip[yolo_v3_tiny_lstm.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/562"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-spp.cfg,yolov3-spp.weights",
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/yolov3-spp.cfg,https://pjreddie.com/media/files/yolov3-spp.weights",
     "format": "Darknet",
