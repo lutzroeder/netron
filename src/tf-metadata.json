@@ -3787,7 +3787,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         },
@@ -8229,6 +8229,58 @@
         {
           "name": "input",
           "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Mutually reduces multiple tensors of identical type and shape."
+    }
+  },
+  {
+    "name": "CollectiveReduceV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float16`, `float64`, `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `Min`, `Max`, `Mul`, `Add`.",
+          "name": "merge_op",
+          "type": "string"
+        },
+        {
+          "description": "Must be one of the following: `Id`, `Div`.",
+          "name": "final_op",
+          "type": "string"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "group_size",
+          "type": 3
+        },
+        {
+          "name": "group_key",
+          "type": 3
+        },
+        {
+          "name": "instance_key",
+          "type": 3
         }
       ],
       "outputs": [
