@@ -2532,23 +2532,13 @@ pytorch.Container.Pickle = class {
             }
             storage.data = unpickler.read(storage.dataTypeSize * storage.size);
         }
-        this._data = this._findRootModule(data);
+        this._data = pytorch.Utility.findRootModule(data);
         if (!this._data) {
             this._state = this._findStateDict(data);
         }
         if (!this._data && !this._state && data !== 'None') {
             throw new pytorch.Error('File does not contain root module or state dictionary.');
         }
-    }
-
-    _findRootModule(root) {
-        const candidates = [ root, root.model, root.net ];
-        for (const obj of candidates) {
-            if (obj && obj._modules) {
-                return obj;
-            }
-        }
-        return null;
     }
 
     _findStateDict(root) {
@@ -2909,6 +2899,10 @@ pytorch.Container.Zip = class {
                     }
                 }
             }
+        }
+        const data = pytorch.Utility.findRootModule(this._data);
+        if (data) {
+            this._data = data;
         }
         return this._data;
     }
@@ -3404,6 +3398,16 @@ pytorch.Utility = class {
                 return obj !== null || obj !== Object(obj);
         }
         return true;
+    }
+
+    static findRootModule(root) {
+        const candidates = [ root, root.model, root.net ];
+        for (const obj of candidates) {
+            if (obj && obj._modules) {
+                return obj;
+            }
+        }
+        return null;
     }
 };
 
