@@ -12,8 +12,6 @@ flatbuffers.get = (name) => {
     return flatbuffers._map.get(name);
 };
 
-flatbuffers.Long = long.Long;
-
 flatbuffers.Reader = class {
 
     constructor(buffer) {
@@ -102,11 +100,11 @@ flatbuffers.Reader = class {
     }
 
     int64(offset) {
-        return new flatbuffers.Long(this.int32(offset), this.int32(offset + 4));
+        return new long.Long(this.int32(offset), this.int32(offset + 4), false);
     }
 
     uint64(offset) {
-        return new flatbuffers.Long(this.uint32(offset), this.uint32(offset + 4));
+        return new long.Long(this.uint32(offset), this.uint32(offset + 4), true);
     }
 
     float32(offset) {
@@ -198,7 +196,21 @@ flatbuffers.Reader = class {
             offset = this._vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = new flatbuffers.Long(this.uint32(offset + (i >> 3)), this.uint32(offset + (i >> 3) + 4), false);
+                array[i] = this.int64(offset + (i >> 3));
+            }
+            return array;
+        }
+        return [];
+    }
+
+    uint64s_(position, offset) {
+        offset = this._offset(position, offset);
+        if (offset) {
+            const length = this._length(position + offset);
+            offset = this._vector(position + offset);
+            const array = new Array(length);
+            for (let i = 0; i < length; i++) {
+                array[i] = this.uint64(offset + (i >> 3));
             }
             return array;
         }
@@ -355,6 +367,5 @@ if (typeof module !== "undefined" && typeof module.exports === "object") {
     module.exports.Reader = flatbuffers.Reader;
     module.exports.TextReader = flatbuffers.TextReader;
     module.exports.Error = flatbuffers.Error;
-    module.exports.Long = flatbuffers.Long;
     module.exports.get = flatbuffers.get;
 }
