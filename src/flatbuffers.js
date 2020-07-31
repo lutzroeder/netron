@@ -26,16 +26,16 @@ flatbuffers.Reader = class {
         return this.int32(this._position) + this._position;
     }
 
-    identifier(value) {
-        if (value.length !== 4) {
+    identifier(text) {
+        if (text.length !== 4) {
             throw new flatbuffers.Error('File identifier must be 4 characters in length.');
         }
-        for (let i = 0; i < 4; i++) {
-            if (value.charCodeAt(i) != this.int8(this._position + 4 + i)) {
-                return false;
-            }
+        const start = this._position + 4;
+        const end = start + 4;
+        if (end > this._buffer.length) {
+            return false;
         }
-        return true;
+        return this._buffer.slice(start, end).every((value, index) => value === text.charCodeAt(index));
     }
 
     bool(offset) {
