@@ -51789,6 +51789,57 @@
     }
   },
   {
+    "name": "StatelessCase",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A list of input types.",
+          "minimum": 0,
+          "name": "Tin",
+          "type": "type[]"
+        },
+        {
+          "description": "A list of output types.",
+          "minimum": 0,
+          "name": "Tout",
+          "type": "type[]"
+        },
+        {
+          "description": "      A list of functions each of which takes 'inputs' and returns a list of\n      tensors, whose types are the same as what every other branch returns.",
+          "minimum": 1,
+          "name": "branches",
+          "type": "function[]"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "description": "    An n-way switch statement, implementing the following:\n    ```\n    switch (branch_index) {\n      case 0:\n        output = branches[0](input);\n        break;\n      case 1:\n        output = branches[1](input);\n        break;\n      ...\n      case [[nbranches-1]]:\n      default:\n        output = branches[nbranches-1](input);\n        break;\n    }\n    ```\n\n    This should only be used when the none of branches has stateful ops.",
+      "inputs": [
+        {
+          "description": "The branch selector, an int32 Tensor.",
+          "name": "branch_index",
+          "type": 3
+        },
+        {
+          "description": "A list of input tensors passed to the branch function.",
+          "name": "input",
+          "typeListAttr": "Tin"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of return values.",
+          "name": "output",
+          "typeListAttr": "Tout"
+        }
+      ],
+      "summary": "An n-way switch statement which calls a single branch function."
+    }
+  },
+  {
     "name": "StatelessIf",
     "schema": {
       "attributes": [
