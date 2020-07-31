@@ -2932,8 +2932,8 @@
     "type":   "onnx",
     "target": "input_0.pb",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/shufflenet.tar.gz[shufflenet/test_data_set_0/input_0.pb]",
-    "error":  "Unsupported file content (0801080308e00108e00110014a80e024) for extension '.pb' in 'input_0.pb'.",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+    "format": "ONNX Tensor",
+    "link":   "https://github.com/lutzroeder/netron/issues/550"
   },
   {
     "type":   "onnx",

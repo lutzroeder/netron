@@ -24,15 +24,11 @@ onnx.ModelFactory = class {
             if (tags.size === 0) {
                 return false;
             }
-            // ignore input_0.pb, output_0.pb
-            if (tags.size > 0 &&
-                tags.has(1) && tags.get(1) === 0 &&
-                tags.has(2) && tags.get(2) === 0 &&
-                tags.has(9) && tags.get(9) === 2) {
-                return false;
+            // input_0.pb, output_0.pb
+            if (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2) {
+                return true;
             }
-            if (tags.size > 0 &&
-                Array.from(tags.values()).some((v) => v === 5)) {
+            if (Array.from(tags.values()).some((v) => v === 5)) {
                 return false;
             }
             // check ir_version and graph present
@@ -68,6 +64,7 @@ onnx.ModelFactory = class {
     open(context, host) {
         return host.require('./onnx-proto').then(() => {
             let model = null;
+            let format = null;
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension == 'pbtxt' || extension == 'prototxt') {
@@ -75,6 +72,7 @@ onnx.ModelFactory = class {
                     onnx.proto = protobuf.get('onnx').onnx;
                     const reader = protobuf.TextReader.create(context.text);
                     model = onnx.proto.ModelProto.decodeText(reader);
+                    format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                 }
                 catch (error) {
                     throw new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
@@ -84,7 +82,27 @@ onnx.ModelFactory = class {
                 try {
                     onnx.proto = protobuf.get('onnx').onnx;
                     const reader = protobuf.Reader.create(context.buffer);
-                    model = onnx.proto.ModelProto.decode(reader);
+                    const tags = context.tags('pb');
+                    if (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2) {
+                        // input_0.pb, output_0.pb
+                        const tensor = onnx.proto.TensorProto.decode(reader);
+                        tensor.name = tensor.name || context.identifier;
+                        model = new onnx.proto.ModelProto();
+                        model.graph = new onnx.proto.GraphProto();
+                        model.graph.initializer = [ tensor ];
+                        model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
+                        model.graph.value_info[0].name = tensor.name;
+                        model.graph.node = [ new onnx.proto.NodeProto() ];
+                        model.graph.node[0].op_type = 'Constant';
+                        model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
+                        model.graph.node[0].attribute[0].name = 'value';
+                        model.graph.node[0].attribute[0].t = tensor;
+                        format = 'ONNX Tensor';
+                    }
+                    else {
+                        model = onnx.proto.ModelProto.decode(reader);
+                        format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                    }
                 }
                 catch (error) {
                     throw  new onnx.Error("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
@@ -92,7 +110,7 @@ onnx.ModelFactory = class {
             }
             return onnx.Metadata.open(host).then((metadata) => {
                 try {
-                    return new onnx.Model(metadata, model);
+                    return new onnx.Model(metadata, model, format);
                 }
                 catch (error) {
                     host.exception(error, false);
@@ -106,9 +124,9 @@ onnx.ModelFactory = class {
 
 onnx.Model = class {
 
-    constructor(metadata, model) {
+    constructor(metadata, model, format) {
         this._graphs = [];
-        this._irVersion = model.ir_version;
+        this._format = format;
         this._producerName = model.producer_name;
         this._producerVersion = model.producer_version;
         this._domain = model.domain;
@@ -173,13 +191,12 @@ onnx.Model = class {
         this._graphs = [];
         if (model && model.graph) {
             const graphMetadata = new onnx.GraphMetadata(metadata, imports);
-            const graph = new onnx.Graph(graphMetadata, imageFormat, model.graph);
-            this._graphs.push(graph);
+            this._graphs = [ new onnx.Graph(graphMetadata, imageFormat, model.graph) ];
         }
     }
 
     get format() {
-        return 'ONNX' + (this._irVersion ? ' v' + this._irVersion.toString() : '');
+        return this._format;
     }
 
     get imports() {
@@ -583,7 +600,7 @@ onnx.Attribute = class {
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
             this._type = 'tensor';
-            this._value = new onnx.Tensor(attribute.t).value;
+            this._value = new onnx.Tensor(attribute.t);
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
             this._type = 'graph';
