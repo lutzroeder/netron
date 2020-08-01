@@ -1,8 +1,6 @@
 /* jshint esversion: 6 */
 
 var keras = keras || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 
 keras.ModelFactory = class {
 
@@ -952,7 +950,7 @@ keras.Tensor = class {
                         context.index += 1;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.data.getUint32(context.index + (littleEndian ? 0 : 4), littleEndian), context.data.getUint32(context.index + + (littleEndian ? 4 : 0), littleEndian), false));
+                        results.push(context.data.getInt64(context.index, littleEndian));
                         context.index += 8;
                         break;
                     case 'string':

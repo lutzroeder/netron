@@ -3,7 +3,6 @@
 // Experimental
 
 var pytorch = pytorch || {};
-var base = base || require('./base');
 var long = long || { Long: require('long') };
 
 pytorch.ModelFactory = class {
@@ -782,7 +781,7 @@ pytorch.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.dataView.getUint32(context.index, true), context.dataView.getUint32(context.index + 4, true), false));
+                        results.push(context.dataView.getInt64(context.index, this._littleEndian));
                         context.index += 8;
                         context.count++;
                         break;
@@ -1409,7 +1408,7 @@ pytorch.Execution = class {
                 case 'int32':
                     return dataView.getInt32(0, true);
                 case 'int64':
-                    return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), false);
+                    return dataView.getInt64(0, true);
             }
             throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
         });

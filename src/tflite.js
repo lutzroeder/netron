@@ -1,9 +1,7 @@
 /* jshint esversion: 6 */
 
 var tflite = tflite || {};
-var base = base || require('./base');
 var flatbuffers = flatbuffers || require('./flatbuffers');
-var long = long || { Long: require('long') };
 
 tflite.ModelFactory = class {
 
@@ -614,7 +612,7 @@ tflite.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), false));
+                        results.push(context.data.getInt64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;

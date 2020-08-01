@@ -3,8 +3,6 @@
 // Experimental
 
 var uff = uff || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 
 uff.ModelFactory = class {
@@ -407,7 +405,7 @@ uff.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), false));
+                        results.push(context.data.getInt64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;

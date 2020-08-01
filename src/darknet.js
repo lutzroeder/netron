@@ -1,8 +1,6 @@
 /* jshint esversion: 6 */
 
 var darknet = darknet || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 
 darknet.ModelFactory = class {
 
@@ -1075,9 +1073,9 @@ darknet.Weights = class {
     }
 
     int64() {
-        const hi = this.int32();
-        const lo = this.int32();
-        return new long.Long(hi, lo, true).toNumber();
+        const position = this._position;
+        this.skip(8);
+        return this._dataView.getInt64(position, true);
     }
 
     bytes(length) {

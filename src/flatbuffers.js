@@ -2,7 +2,6 @@
 /* jshint esversion: 6 */
 
 var flatbuffers = {};
-var long = long || { Long: require('long') };
 
 flatbuffers.get = (name) => {
     flatbuffers._map = flatbuffers._map || new Map();
@@ -100,11 +99,11 @@ flatbuffers.Reader = class {
     }
 
     int64(offset) {
-        return new long.Long(this.int32(offset), this.int32(offset + 4), false);
+        return this._dataView.getInt64(offset, true);
     }
 
     uint64(offset) {
-        return new long.Long(this.uint32(offset), this.uint32(offset + 4), true);
+        return this._dataView.getUint64(offset, true);
     }
 
     float32(offset) {

@@ -3,7 +3,6 @@
 // Experimental HDF5 JavaScript reader
 
 var hdf5 = hdf5 || {};
-var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 
 hdf5.File = class {
@@ -299,43 +298,39 @@ hdf5.Reader = class {
     }
 
     int16() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(2);
-        return this._dataView.getInt16(this._position + offset, true);
+        return this._dataView.getInt16(offset, true);
     }
 
     uint16() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(2);
-        return this._dataView.getUint16(this._position + offset, true);
+        return this._dataView.getUint16(offset, true);
     }
 
     int32() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(4);
-        return this._dataView.getInt32(this._position + offset, true);
+        return this._dataView.getInt32(offset, true);
     }
 
     uint32() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(4);
-        return this._dataView.getUint32(this._position + offset, true);
+        return this._dataView.getUint32(offset, true);
     }
 
     int64() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(8);
-        const lo = this._dataView.getUint32(this._position + offset, true);
-        const hi = this._dataView.getUint32(this._position + offset + 4, true);
-        return new long.Long(lo, hi, false).toNumber();
+        return this._dataView.getInt64(offset, true).toNumber();
     }
 
     uint64() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(8);
-        const lo = this._dataView.getUint32(this._position + offset, true);
-        const hi = this._dataView.getUint32(this._position + offset + 4, true);
-        return new long.Long(lo, hi, true).toNumber();
+        return this._dataView.getUint64(offset, true).toNumber();
     }
 
     uint(type) {
@@ -365,15 +360,15 @@ hdf5.Reader = class {
     }
 
     float32() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(4);
-        return this._dataView.getFloat32(this._position + offset, true);
+        return this._dataView.getFloat32(offset, true);
     }
 
     float64() {
-        const offset = this._offset;
+        const offset = this._position + this._offset;
         this.skip(8);
-        return this._dataView.getFloat64(this._position + offset, true);
+        return this._dataView.getFloat64(offset, true);
     }
 
     string(size, encoding) {
@@ -408,12 +403,13 @@ hdf5.Reader = class {
     offset() {
         switch (this._offsetSize) {
             case 8: {
-                const lo = this.uint32();
-                const hi = this.uint32();
-                if (lo === 0xffffffff && hi === 0xffffffff) {
+                const position = this._position + this._offset;
+                this.skip(8);
+                const value = this._dataView.getUint64(position, true);
+                if (value.low === -1 && value.high === -1) {
                     return undefined;
                 }
-                return new long.Long(lo, hi, true).toNumber();
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();
@@ -429,12 +425,13 @@ hdf5.Reader = class {
     length() {
         switch (this._lengthSize) {
             case 8: {
-                const lo = this.uint32();
-                const hi = this.uint32();
-                if (lo === 0xffffffff && hi === 0xffffffff) {
+                const position = this._position + this._offset;
+                this.skip(8);
+                const value = this._dataView.getUint64(position, true);
+                if (value.low === -1 && value.high === -1) {
                     return undefined;
                 }
-                return new long.Long(lo, hi, true).toNumber();
+                return value.toNumber();
             }
             case 4: {
                 const value = this.uint32();

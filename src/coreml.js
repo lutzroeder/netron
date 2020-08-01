@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var coreml = coreml || {};
-var base = base || require('./base');
 var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 

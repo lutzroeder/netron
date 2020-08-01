@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var mnn = mnn || {};
-var base = base || require('./base');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 
 mnn.ModelFactory = class {

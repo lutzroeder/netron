@@ -2,8 +2,6 @@
 // Experimental
 
 var barracuda = barracuda || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 
 barracuda.ModelFactory = class {
 

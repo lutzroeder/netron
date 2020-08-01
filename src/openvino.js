@@ -1,8 +1,6 @@
 /* jshint esversion: 6 */
 
 var openvino = openvino || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 
 openvino.ModelFactory = class {
 
@@ -803,7 +801,7 @@ openvino.Tensor = class {
                         context.count++;
                         break;
                     case 'int64':
-                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), false));
+                        results.push(context.data.getInt64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
@@ -823,7 +821,7 @@ openvino.Tensor = class {
                         context.count++;
                         break;
                     case 'uint64':
-                        results.push(new long.Long(context.data.getUint32(context.index, true), context.data.getUint32(context.index + 4, true), true));
+                        results.push(context.data.getUint64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;

@@ -1,8 +1,6 @@
 /* jshint esversion: 6 */
 
 var onnx = onnx || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 
 onnx.ModelFactory = class {
@@ -868,12 +866,12 @@ onnx.Tensor = class {
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT64:
-                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), false));
+                            results.push(context.rawData.getInt64(context.index, true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT64:
-                            results.push(new long.Long(context.rawData.getUint32(context.index, true), context.rawData.getUint32(context.index + 4, true), true));
+                            results.push(context.rawData.getUint64(context.index, true));
                             context.index += 8;
                             context.count++;
                             break;

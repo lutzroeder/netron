@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var base = base || {};
+var long = (typeof window !== 'undefined' && typeof window.Long != 'undefined') ? { Long: window.Long } : { Long: require('long') };
 
 base.Int64 = class Int64 {
 
@@ -115,8 +116,11 @@ if (!DataView.prototype.setFloat16) {
 
 DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset, littleEndian) {
     return littleEndian ?
-        new base.Int64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
-        new base.Int64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
+        new long.Long(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true), false) :
+        new long.Long(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true), false);
+    // return littleEndian ?
+    //     new base.Int64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
+    //     new base.Int64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
 };
 
 DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset, value, littleEndian) {
@@ -132,8 +136,11 @@ DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset
 
 DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffset, littleEndian) {
     return littleEndian ?
-        new base.Uint64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
-        new base.Uint64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
+        new long.Long(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true), true) :
+        new long.Long(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true), true);
+    // return littleEndian ?
+    //     new base.Uint64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
+    //     new base.Uint64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
 };
 
 DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffset, value, littleEndian) {

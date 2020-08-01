@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var tnn = tnn || {};
-var base = base || require('./base');
 
 tnn.ModelFactory = class {
 

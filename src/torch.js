@@ -1,8 +1,6 @@
 /* jshint esversion: 6 */
 
 var torch = torch || {};
-var base = base || require('./base');
-var long = long || { Long: require('long') };
 
 torch.ModelFactory = class {
 
@@ -1072,9 +1070,7 @@ torch.BinaryReader = class {
     int64() {
         const position = this._position;
         this.skip(8);
-        const lo = this._dataView.getUint32(position, true);
-        const hi = this._dataView.getUint32(position + 4, true);
-        return new long.Long(lo, hi, false).toNumber();
+        return this._dataView.getInt64(position, true).toNumber();
     }
 
     int64s(size) {

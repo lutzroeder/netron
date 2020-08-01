@@ -133,17 +133,15 @@ bson.Reader = class {
     }
 
     int64() {
-        const low = this._view.getUint32(this._position, true);
-        const hi = this._view.getUint32(this._position + 4, true);
+        const value = this._view.getInt64(this._position, true).toNumber();
         this._position += 8;
-        return new long.Long(low, hi, false).toNumber();
+        return value;
     }
 
     uint64() {
-        const low = this._view.getUint32(this._position, true);
-        const hi = this._view.getUint32(this._position + 4, true);
+        const value = this._view.getUint64(this._position, true).toNumber();
         this._position += 8;
-        return new long.Long(low, hi, true).toNumber();
+        return value;
     }
 };
 

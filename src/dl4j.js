@@ -3,7 +3,6 @@
 // Experimental
 
 var dl4j = dl4j || {};
-var long = long || { Long: require('long') };
 
 dl4j.ModelFactory = class {
 
@@ -574,6 +573,7 @@ dl4j.BinaryReader = class {
     constructor(buffer) {
         this._buffer = buffer;
         this._position = 0;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
     bytes(size) {
@@ -589,16 +589,15 @@ dl4j.BinaryReader = class {
     }
 
     int32() {
-        return this._buffer[this._position++] << 24 |
-            this._buffer[this._position++] << 16 |
-            this._buffer[this._position++] << 8 |
-            this._buffer[this._position++];
+        const position = this._position;
+        this._position += 4;
+        return this._view.getInt32(position, false);
     }
 
     int64() {
-        const hi = this.int32();
-        const lo = this.int32();
-        return new long.Long(hi, lo, true).toNumber();
+        const position = this._position;
+        this._position += 4;
+        return this._view.getInt64(position, false).toNumber();
     }
 };
 

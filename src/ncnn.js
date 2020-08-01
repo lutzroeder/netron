@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var ncnn = ncnn || {};
-var base = base || require('./base');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table

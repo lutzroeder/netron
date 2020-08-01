@@ -2,7 +2,6 @@
 // Experimental
 
 var tengine = tengine || {};
-var base = base || require('./base');
 
 tengine.ModelFactory = class {
 

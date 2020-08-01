@@ -2,6 +2,7 @@
 
 var view = view || {};
 
+var base = base || require('./base');
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');

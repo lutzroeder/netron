@@ -445,7 +445,7 @@ npz.Tensor = class  {
                             results.push(context.rawData.getInt32(context.index, littleEndian));
                             break;
                         case 'int64':
-                            results.push(long.Long.fromBytes(context.data.subarray(context.index, context.index + 8), true, littleEndian));
+                            results.push(context.rawData.getInt64(context.index, littleEndian));
                             break;
                         case 'uint8':
                             results.push(context.rawData.getUint8(context.index, littleEndian));
