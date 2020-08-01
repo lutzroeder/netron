@@ -930,7 +930,7 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -942,7 +942,7 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -954,7 +954,7 @@
     "schema": {
       "category": "Activation",
       "inputs": [
-        { "name": "input", "type": "tensor" },
+        { "name": "self", "type": "tensor" },
         { "name": "weight", "type": "tensor" }
       ],
       "outputs": [
@@ -2178,6 +2178,18 @@
     }
   },
   {
+    "name": "torch.gelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.elu",
     "schema": {
       "attributes": [
@@ -3174,6 +3186,21 @@
         { "name": "device", "type": "Device", "optional": true, "default": null },
         { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
 
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.softplus",
+    "schema": {
+      "category": [
+        { "name": "beta", "type": "scalar", "default": 1 },
+        { "name": "threshold", "type": "scalar", "default": 20 }
       ],
       "inputs": [
         { "name": "self", "type": "tensor" }
