@@ -66,20 +66,20 @@ const url = repository + '/releases/download/v#{version}/' + productName + '-#{v
 request(url.replace(/#{version}/g, version)).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
     const lines = [
-        "cask '" + name + "' do",
-        "  version '" + version + "'",
-        "  sha256 '" + sha256 + "'",
-        "",
+        'cask "' + name + '" do',
+        '  version "' + version + '"',
+        '  sha256 "' + sha256 + '"',
+        '',
         '  url "' + url + '"',
-        "  appcast '" + repository + "/releases.atom'",
-        "  name '" + productName + "'",
-        "  homepage '" + repository + "'",
-        "",
-        "  auto_updates true",
-        "",
-        "  app '" + productName + ".app'",
-        "end",
-        ""
+        '  appcast "' + repository + '/releases.atom"',
+        '  name "' + productName + '"',
+        '  homepage "' + repository + '"',
+        '',
+        '  auto_updates true',
+        '',
+        '  app "' + productName + '.app"',
+        'end',
+        ''
     ];
     fs.writeFileSync(caskFile, lines.join('\n'));
 
