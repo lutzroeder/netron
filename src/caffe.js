@@ -51,7 +51,7 @@ caffe.ModelFactory = class {
                     const tags = context.tags('pbtxt');
                     if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                         try {
-                            const reader = protobuf.TextReader.create(context.text);
+                            const reader = protobuf.TextReader.create(context.buffer);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
                                     message[tag] = this.skip();
@@ -66,8 +66,8 @@ caffe.ModelFactory = class {
                             else if (solver.net || solver.train_net) {
                                 let file = solver.net || solver.train_net;
                                 file = file.split('/').pop();
-                                return context.request(file, 'utf-8').then((text) => {
-                                    return this._openNetParameterText(metadata, context.identifier, text, host);
+                                return context.request(file, null).then((buffer) => {
+                                    return this._openNetParameterText(metadata, context.identifier, buffer, host);
                                 }).catch((error) => {
                                     if (error) {
                                         const message = error && error.message ? error.message : error.toString();
@@ -80,7 +80,7 @@ caffe.ModelFactory = class {
                             // continue regardless of error
                         }
                     }
-                    return this._openNetParameterText(metadata, context.identifier, context.text, host);
+                    return this._openNetParameterText(metadata, context.identifier, context.buffer, host);
                 }
                 else {
                     return this._openNetParameterBuffer(metadata, context.identifier, context.buffer, host);
@@ -100,9 +100,9 @@ caffe.ModelFactory = class {
         }
     }
 
-    _openNetParameterText(metadata, identifier, text, host) {
+    _openNetParameterText(metadata, identifier, buffer, host) {
         try {
-            const reader = protobuf.TextReader.create(text);
+            const reader = protobuf.TextReader.create(buffer);
             reader.field = function(tag, message) {
                 const type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {

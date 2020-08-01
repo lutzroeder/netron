@@ -65,12 +65,12 @@ caffe2.ModelFactory = class {
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
                 if (extension == 'pbtxt' || extension == 'prototxt') {
-                    const open_text = (predict, init) => {
+                    const openText = (predictBuffer, initBuffer, initTextFormat) => {
                         let predict_net = null;
                         let init_net = null;
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            const reader = protobuf.TextReader.create(predict);
+                            const reader = protobuf.TextReader.create(predictBuffer);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe2.proto.DeviceOption) {
                                     message[tag] = this.skip();
@@ -85,9 +85,9 @@ caffe2.ModelFactory = class {
                         }
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            init_net = (typeof init === 'string') ?
-                                caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(init)) :
-                                caffe2.proto.NetDef.decode(protobuf.Reader.create(init));
+                            init_net = initTextFormat ?
+                                caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(initBuffer)) :
+                                caffe2.proto.NetDef.decode(protobuf.Reader.create(initBuffer));
                         }
                         catch (error) {
                             // continue regardless of error
@@ -102,47 +102,47 @@ caffe2.ModelFactory = class {
                         }
                     };
                     if (base.toLowerCase().endsWith('init_net') || base.toLowerCase().startsWith('init_net')) {
-                        return context.request(identifier.replace('init_net', 'predict_net'), 'utf-8').then((text) => {
-                            return open_text(text, context.text);
+                        return context.request(identifier.replace('init_net', 'predict_net'), 'utf-8').then((buffer) => {
+                            return openText(buffer, context.buffer, false);
                         }).catch(() => {
-                            return open_text(context.text, null);
+                            return openText(context.buffer, null, false);
                         });
                     }
                     else if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                         return context.request(identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb'), null).then((buffer) => {
-                            return open_text(context.text, buffer);
+                            return openText(context.buffer, buffer, true);
                         }).catch(() => {
-                            return context.request(identifier.replace('predict_net', 'init_net'), 'utf-8').then((text) => {
-                                return open_text(context.text, text);
+                            return context.request(identifier.replace('predict_net', 'init_net'), null).then((buffer) => {
+                                return openText(context.buffer, buffer, true);
                             }).catch(() => {
-                                return open_text(context.text, null);
+                                return openText(context.buffer, null, true);
                             });
                         });
                     }
                     else {
                         return context.request(base + '_init.pb', null).then((buffer) => {
-                            return open_text(context.text, buffer);
+                            return openText(context.buffer, buffer, false);
                         }).catch(() => {
-                            return open_text(context.text, null);
+                            return openText(context.buffer, null);
                         });
                     }
                 }
                 else {
-                    const open_binary = (predict, init) => {
+                    const openBinary = (predictBuffer, initBuffer) => {
                         let predict_net = null;
                         let init_net = null;
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            const reader = protobuf.Reader.create(predict);
+                            const reader = protobuf.Reader.create(predictBuffer);
                             predict_net = caffe2.proto.NetDef.decode(reader);
                         }
                         catch (error) {
                             throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
                         }
                         try {
-                            if (init) {
+                            if (initBuffer) {
                                 caffe2.proto = protobuf.get('caffe2').caffe2;
-                                const reader = protobuf.Reader.create(init);
+                                const reader = protobuf.Reader.create(initBuffer);
                                 init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }
@@ -160,30 +160,30 @@ caffe2.ModelFactory = class {
                     };
                     if (base.toLowerCase().endsWith('init_net')) {
                         return context.request(base.replace(/init_net$/, '') + 'predict_net.' + extension, null).then((buffer) => {
-                            return open_binary(buffer, context.buffer);
+                            return openBinary(buffer, context.buffer);
                         }).catch(() => {
-                            return open_binary(context.buffer, null);
+                            return openBinary(context.buffer, null);
                         });
                     }
                     else if (base.toLowerCase().endsWith('_init')) {
                         return context.request(base.replace(/_init$/, '') + '.' + extension, null).then((buffer) => {
-                            return open_binary(buffer, context.buffer);
+                            return openBinary(buffer, context.buffer);
                         }).catch(() => {
-                            return open_binary(context.buffer, null);
+                            return openBinary(context.buffer, null);
                         });
                     }
                     else if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                         return context.request(identifier.replace('predict_net', 'init_net'), null).then((buffer) => {
-                            return open_binary(context.buffer, buffer);
+                            return openBinary(context.buffer, buffer);
                         }).catch(() => {
-                            return open_binary(context.buffer, null);
+                            return openBinary(context.buffer, null);
                         });
                     }
                     else {
                         return context.request(base + '_init.' + extension, null).then((buffer) => {
-                            return open_binary(context.buffer, buffer);
+                            return openBinary(context.buffer, buffer);
                         }).catch(() => {
-                            return open_binary(context.buffer, null);
+                            return openBinary(context.buffer, null);
                         });
                     }
                 }

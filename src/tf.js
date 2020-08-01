@@ -124,7 +124,7 @@ tf.ModelFactory = class {
                         if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                             try {
                                 if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                                    saved_model = tf.proto.SavedModel.decodeText(protobuf.TextReader.create(context.text));
+                                    saved_model = tf.proto.SavedModel.decodeText(protobuf.TextReader.create(context.buffer));
                                     format = 'TensorFlow Saved Model';
                                     if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
                                         format = format + ' v' + saved_model.saved_model_schema_version.toString();
@@ -138,7 +138,7 @@ tf.ModelFactory = class {
                         else if (tags.has('graph_def')) {
                             try {
                                 if (!saved_model) {
-                                    const meta_graph = tf.proto.MetaGraphDef.decodeText(protobuf.TextReader.create(context.text));
+                                    const meta_graph = tf.proto.MetaGraphDef.decodeText(protobuf.TextReader.create(context.buffer));
                                     saved_model = new tf.proto.SavedModel();
                                     saved_model.meta_graphs.push(meta_graph);
                                     format = 'TensorFlow MetaGraph';
@@ -150,7 +150,7 @@ tf.ModelFactory = class {
                         }
                         else if (tags.has('node')) {
                             try {
-                                const graph_def = tf.proto.GraphDef.decodeText(protobuf.TextReader.create(context.text));
+                                const graph_def = tf.proto.GraphDef.decodeText(protobuf.TextReader.create(context.buffer));
                                 const meta_graph = new tf.proto.MetaGraphDef();
                                 meta_graph.graph_def = graph_def;
                                 saved_model = new tf.proto.SavedModel();

@@ -68,7 +68,7 @@ onnx.ModelFactory = class {
             if (extension == 'pbtxt' || extension == 'prototxt') {
                 try {
                     onnx.proto = protobuf.get('onnx').onnx;
-                    const reader = protobuf.TextReader.create(context.text);
+                    const reader = protobuf.TextReader.create(context.buffer);
                     model = onnx.proto.ModelProto.decodeText(reader);
                     format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                 }

@@ -1029,7 +1029,7 @@ class ModelContext {
 
     get text() {
         if (!this._text) {
-            this._text = new TextDecoder('utf-8').decode(this.buffer);
+            this._text = new TextDecoder('utf-8', { fatal: true }).decode(this.buffer);
         }
         return this._text;
     }
@@ -1093,7 +1093,7 @@ class ModelContext {
                         if (!signature && b.subarray(0, Math.min(1024, length)).some((c) => c < 7 || (c > 14 && c < 32))) {
                             break;
                         }
-                        const reader = protobuf.TextReader.create(this.text);
+                        const reader = protobuf.TextReader.create(this.buffer);
                         reader.start(false);
                         while (!reader.end(false)) {
                             const tag = reader.tag();
@@ -1271,8 +1271,9 @@ view.ModelFactoryService = class {
                         ]);
                         const skip = knownUnsupportedIdentifiers.has(identifier);
                         const buffer = context.buffer;
-                        const content = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                        throw new ModelError("Unsupported file content (" + content + ") for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                        const bytes = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+                        const content = buffer.length > 268435456 ? '(' + bytes + ') [' + buffer.length.toString() + ']': '(' + bytes + ')';
+                        throw new ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
                     }
                 };
                 return nextModule();

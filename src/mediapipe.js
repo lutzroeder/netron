@@ -21,7 +21,7 @@ mediapipe.ModelFactory = class {
     open(context, host) {
         const identifier = context.identifier;
         try {
-            const reader = protobuf.TextReader.create(context.text);
+            const reader = protobuf.TextReader.create(context.buffer);
             const root = new mediapipe.Object(reader);
             return Promise.resolve(new mediapipe.Model(root));
         }
