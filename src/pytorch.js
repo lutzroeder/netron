@@ -1,7 +1,5 @@
 /* jshint esversion: 6 */
 
-const { stat } = require('fs');
-
 // Experimental
 
 var pytorch = pytorch || {};
