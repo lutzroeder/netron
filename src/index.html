@@ -34,7 +34,7 @@ body { overflow: hidden; margin: 0; width: 100vw; height: 100vh; font-family: -a
 .dropdown .separator { margin-top: 2px; margin-bottom: 2px; border-top: 1px; border-bottom: 0; border-style: solid; border-color: #e5e5e5; }
 .about { background-color: #ffffff; }
 .about { overflow: hidden; }
-.about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; }
+.about .logo { background-color: #ececec; color: #242424; width: 320px; height: 170px; padding: 40px; opacity: 1.0; border-radius: 5px; border: 0.5px solid #cccccc; box-shadow: 0 0 30px #ddd; }
 .about.desktop .logo { border: None; border-radius: 0px; }
 .about.desktop .graph { display: none; opacity: 0; }
 .about.desktop .transparent { display: none; opacity: 0; }
@@ -95,7 +95,7 @@ body { overflow: hidden; margin: 0; width: 100vw; height: 100vh; font-family: -a
 @media (prefers-color-scheme: dark) {
 .default { background-color: #404040; }
 .about { background-color: #404040; }
-.about .logo { background-color: #2d2d2d; color: #dfdfdf; border-color: #000000; }
+.about .logo { background-color: #2d2d2d; color: #dfdfdf; border-color: #000000; box-shadow: 0 0 30px #333; }
 .about a { color: #dfdfdf; }
 .about a:hover { color: #ffffff; }
 .about .logo-stroke { stroke: #dfdfdf; }
