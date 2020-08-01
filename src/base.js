@@ -2,9 +2,53 @@
 
 var base = base || {};
 
-if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
-    window.long = { Long: window.Long };
-}
+base.Int64 = class Int64 {
+
+    constructor(low, high) {
+        this.low = low;
+        this.high = high;
+    }
+
+    toNumber() {
+        return (this.high * 4294967296) + (this.low >>> 0);
+    }
+
+    toString(radix) {
+        radix = radix || 10;
+        if (radix < 2 || 36 < radix) {
+            throw RangeError('radix');
+        }
+        if (this.high === 0 && this.low === 0) {
+            return '0';
+        }
+        if (this.high < 0) {
+            throw new Error('Not implemented.');
+        }
+        throw new Error('Not implemented.');
+    }
+};
+
+base.Uint64 = class Uint64 {
+
+    constructor(low, high) {
+        this.low = low;
+        this.high = high;
+    }
+
+    toNumber() {
+        return ((this.high >>> 0) * 4294967296) + (this.low >>> 0);
+    }
+
+    toString(radix) {
+        if (radix < 2 || 36 < radix) {
+            throw RangeError('radix');
+        }
+        if (this.high === 0 && this.low === 0) {
+            return '0';
+        }
+        throw new Error('Not implemented.');
+    }
+};
 
 if (!DataView.prototype.getFloat16) {
     DataView.prototype.getFloat16 = function(byteOffset, littleEndian) {
@@ -69,24 +113,66 @@ if (!DataView.prototype.setFloat16) {
     }
 }
 
-if (!DataView.prototype.getBits) {
-    DataView.prototype.getBits = function(offset, bits /*, signed */) {
-        offset = offset * bits;
-        const available = (this.byteLength << 3) - offset;
-        if (bits > available) {
-            throw new RangeError();
-        }
-        let value = 0;
-        let index = 0;
-        while (index < bits) {
-            const remainder = offset & 7;
-            const size = Math.min(bits - index, 8 - remainder);
-            value <<= size;
-            value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
-            offset += size;
-            index += size;
-        }
-        return value;
-    };
+DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset, littleEndian) {
+    return littleEndian ?
+        new base.Int64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
+        new base.Int64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
+};
+
+DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset, value, littleEndian) {
+    if (littleEndian) {
+        this.setUInt32(byteOffset, value.high, true);
+        this.setUInt32(byteOffset + 4, value.low, true);
+    }
+    else {
+        this.setUInt32(byteOffset + 4, value.high, false);
+        this.setUInt32(byteOffset, value.low, false);
+    }
+};
+
+DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffset, littleEndian) {
+    return littleEndian ?
+        new base.Uint64(this.getUint32(byteOffset, true), this.getUint32(byteOffset + 4, true)) :
+        new base.Uint64(this.getUint32(byteOffset + 4, true), this.getUint32(byteOffset, true));
+};
+
+DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffset, value, littleEndian) {
+    if (littleEndian) {
+        this.setUInt32(byteOffset, value.high, true);
+        this.setUInt32(byteOffset + 4, value.low, true);
+    }
+    else {
+        this.setUInt32(byteOffset + 4, value.high, false);
+        this.setUInt32(byteOffset, value.low, false);
+    }
+};
+
+DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits /*, signed */) {
+    offset = offset * bits;
+    const available = (this.byteLength << 3) - offset;
+    if (bits > available) {
+        throw new RangeError();
+    }
+    let value = 0;
+    let index = 0;
+    while (index < bits) {
+        const remainder = offset & 7;
+        const size = Math.min(bits - index, 8 - remainder);
+        value <<= size;
+        value |= (this.getUint8(offset >> 3) >> (8 - size - remainder)) & ~(0xff << size);
+        offset += size;
+        index += size;
+    }
+    return value;
+};
+
+if (typeof window !== 'undefined' && typeof window.Long != 'undefined') {
+    window.long = { Long: window.Long };
+    window.Int64 = base.Int64;
+    window.Uint64 = base.Uint64;
 }
 
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Int64 = base.Int64;
+    module.exports.Uint64 = base.Uint64;
+}

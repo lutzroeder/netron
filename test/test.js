@@ -17,8 +17,11 @@ const view = require('../src/view.js');
 const zip = require('../src/zip');
 const gzip = require('../src/gzip');
 const tar = require('../src/tar');
+const base = require('../src/base');
 const xmldom = require('xmldom');
 
+global.Int64 = base.Int64;
+global.Uint64 = base.Uint64;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
 global.DOMParser = xmldom.DOMParser;
