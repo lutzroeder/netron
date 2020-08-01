@@ -150,6 +150,13 @@
     }
   },
   {
+    "name": "torch.nn.modules.activation.GELU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation"
+    }
+  },
+  {
     "name": "torch.nn.modules.activation.GLU",
     "schema": {
       "attributes": [],
