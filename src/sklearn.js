@@ -924,6 +924,7 @@ sklearn.Container = class {
         constructorTable['sklearn.preprocessing.label.LabelEncoder'] = function() {};
         constructorTable['sklearn.preprocessing.label.MultiLabelBinarizer'] = function() {};
         constructorTable['sklearn.svm._classes.SVC'] = function() {};
+        constructorTable['sklearn.svm._classes.SVR'] = function() {};
         constructorTable['sklearn.svm.classes.LinearSVC'] = function() {};
         constructorTable['sklearn.svm.classes.SVC'] = function() {};
         constructorTable['sklearn.svm.classes.SVR'] = function() {};
