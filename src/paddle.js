@@ -1,7 +1,5 @@
 /* jshint esversion: 6 */
 
-const { desktopCapturer } = require('electron');
-
 var paddle = paddle || {};
 var base = base || require('./base');
 var long = long || { Long: require('long') };
