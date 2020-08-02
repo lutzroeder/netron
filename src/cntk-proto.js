@@ -263,7 +263,7 @@ $root.CNTK.proto.Dictionary = class Dictionary {
                     message.version = reader.uint64();
                     break;
                 case 2:
-                    reader.pair(message.data, () => reader.string(), () => $root.CNTK.proto.DictionaryValue.decode(reader, reader.uint32()));
+                    reader.entry(message.data, () => reader.string(), () => $root.CNTK.proto.DictionaryValue.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -274,7 +274,7 @@ $root.CNTK.proto.Dictionary = class Dictionary {
     }
 };
 
-$root.CNTK.proto.Dictionary.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CNTK.proto.Dictionary.prototype.version = protobuf.Uint64.create(0);
 
 $root.CNTK.proto.DictionaryValue = class DictionaryValue {
 
@@ -340,7 +340,7 @@ $root.CNTK.proto.DictionaryValue = class DictionaryValue {
     }
 };
 
-$root.CNTK.proto.DictionaryValue.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CNTK.proto.DictionaryValue.prototype.version = protobuf.Uint64.create(0);
 $root.CNTK.proto.DictionaryValue.prototype.value_type = 0;
 
 $root.CNTK.proto.DictionaryValue.Type = {

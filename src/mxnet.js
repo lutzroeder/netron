@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var mxnet = mxnet || {};
-var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 var ndarray = ndarray || {};
 

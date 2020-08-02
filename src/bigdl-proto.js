@@ -51,7 +51,7 @@ $root.com.intel.analytics.bigdl.serialization.BigDLModule = class BigDLModule {
                     message.moduleType = reader.string();
                     break;
                 case 8:
-                    reader.pair(message.attr, () => reader.string(), () => $root.com.intel.analytics.bigdl.serialization.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.com.intel.analytics.bigdl.serialization.AttrValue.decode(reader, reader.uint32()));
                     break;
                 case 9:
                     message.version = reader.string();
@@ -549,7 +549,7 @@ $root.com.intel.analytics.bigdl.serialization.NameAttrList = class NameAttrList 
                     message.name = reader.string();
                     break;
                 case 2:
-                    reader.pair(message.attr, () => reader.string(), () => $root.com.intel.analytics.bigdl.serialization.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.com.intel.analytics.bigdl.serialization.AttrValue.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);

@@ -3,7 +3,6 @@
 // Experimental
 
 var sklearn = sklearn || {};
-var long = long || { Long: require('long') };
 var zip = zip || require('./zip');
 
 sklearn.ModelFactory = class {

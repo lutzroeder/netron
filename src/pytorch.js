@@ -3,7 +3,7 @@
 // Experimental
 
 var pytorch = pytorch || {};
-var long = long || { Long: require('long') };
+var base = base || require('./base');
 
 pytorch.ModelFactory = class {
 
@@ -829,7 +829,7 @@ pytorch.Tensor = class {
             result.push(indentation + ']');
             return result.join('\n');
         }
-        if (value && long.Long.isLong(value)) {
+        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
             return indentation + value.toString();
         }
         if (typeof value == 'string') {
@@ -2322,7 +2322,7 @@ pytorch.Container.Tar = class {
                 const storage_args = unpickler.load();
                 const storage_key = storage_args[0];
                 const storage_type = storage_args[2];
-                const size = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
+                const size = pytorch.Utility.readInt64(unpickler.read(8));
                 const storage = execution.invoke(storage_type, [ size ]);
                 storage.data = unpickler.read(storage.dataTypeSize * storage.size);
                 deserialized_objects[storage_key] = storage;
@@ -2343,17 +2343,17 @@ pytorch.Container.Tar = class {
                 const tensor_key = tensor_args[0];
                 const storage_id = tensor_args[1];
                 const storage = deserialized_objects[storage_id];
-                const ndim = long.Long.fromBytesLE(unpickler.read(4), false).toNumber();
+                const ndim = pytorch.Utility.readInt32(unpickler.read(4));
                 unpickler.read(4);
                 const shape = [];
                 for (let k = 0; k < ndim; k++) {
-                    shape.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber());
+                    shape.push(pytorch.Utility.readInt64(unpickler.read(8)));
                 }
                 const stride = [];
                 for (let l = 0; l < ndim; l++) {
-                    stride.push(long.Long.fromBytesLE(unpickler.read(8), false).toNumber());
+                    stride.push(pytorch.Utility.readInt64(unpickler.read(8)));
                 }
-                const storage_offset = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
+                const storage_offset = pytorch.Utility.readInt64(unpickler.read(8));
                 const tensor_type_name = storage.__name__.replace('Storage', 'Tensor');
                 const tensor = execution.invoke(storage.__module__ + '.' + tensor_type_name, []);
                 tensor.__setstate__([ storage, storage_offset, shape, stride ]);
@@ -2523,7 +2523,7 @@ pytorch.Container.Pickle = class {
         const deserialized_storage_keys = unpickler.load();
         for (const deserialized_storage_key of deserialized_storage_keys) {
             const storage = deserialized_objects.get(deserialized_storage_key);
-            const size = long.Long.fromBytesLE(unpickler.read(8), false).toNumber();
+            const size = pytorch.Utility.readInt64(unpickler.read(8));
             if (size != storage.size) {
                 throw new pytorch.Error('Storage size mismatch.');
             }
@@ -3405,6 +3405,16 @@ pytorch.Utility = class {
             }
         }
         return null;
+    }
+
+    static readInt32(buffer) {
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        return view.getInt32(0, true);
+    }
+
+    static readInt64(buffer) {
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        return view.getInt64(0, true).toNumber();
     }
 };
 

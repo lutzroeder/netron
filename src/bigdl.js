@@ -3,7 +3,6 @@
 // Experimental
 
 var bigdl = bigdl || {};
-var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 
 bigdl.ModelFactory = class {
@@ -411,12 +410,10 @@ bigdl.TensorType = class {
 bigdl.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions.map((dimension) => {
-            if (dimension && long.Long.isLong(dimension)) {
-                return dimension.toNumber();
-            }
-            return dimension;
-        });
+        this._dimensions = dimensions;
+        if (!dimensions.every((dimension) => Number.isInteger(dimension))) {
+            throw new bigdl.Error("Invalid tensor shape '" + JSON.stringify(dimensions) + "'.");
+        }
     }
 
     get dimensions() {

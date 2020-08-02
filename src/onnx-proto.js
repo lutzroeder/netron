@@ -154,7 +154,7 @@ $root.onnx.AttributeProto.prototype.ref_attr_name = "";
 $root.onnx.AttributeProto.prototype.doc_string = "";
 $root.onnx.AttributeProto.prototype.type = 0;
 $root.onnx.AttributeProto.prototype.f = 0;
-$root.onnx.AttributeProto.prototype.i = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.AttributeProto.prototype.i = protobuf.Int64.create(0);
 $root.onnx.AttributeProto.prototype.s = new Uint8Array([]);
 $root.onnx.AttributeProto.prototype.t = null;
 $root.onnx.AttributeProto.prototype.g = null;
@@ -476,11 +476,11 @@ $root.onnx.ModelProto = class ModelProto {
     }
 };
 
-$root.onnx.ModelProto.prototype.ir_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.ModelProto.prototype.ir_version = protobuf.Int64.create(0);
 $root.onnx.ModelProto.prototype.producer_name = "";
 $root.onnx.ModelProto.prototype.producer_version = "";
 $root.onnx.ModelProto.prototype.domain = "";
-$root.onnx.ModelProto.prototype.model_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.ModelProto.prototype.model_version = protobuf.Int64.create(0);
 $root.onnx.ModelProto.prototype.doc_string = "";
 $root.onnx.ModelProto.prototype.graph = null;
 
@@ -879,8 +879,8 @@ $root.onnx.TensorProto.Segment = class Segment {
     }
 };
 
-$root.onnx.TensorProto.Segment.prototype.begin = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.onnx.TensorProto.Segment.prototype.end = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
+$root.onnx.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
 
 $root.onnx.TensorProto.DataLocation = {
     "DEFAULT": 0,
@@ -1405,7 +1405,7 @@ $root.onnx.OperatorSetIdProto = class OperatorSetIdProto {
 };
 
 $root.onnx.OperatorSetIdProto.prototype.domain = "";
-$root.onnx.OperatorSetIdProto.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.OperatorSetIdProto.prototype.version = protobuf.Int64.create(0);
 
 $root.onnx.OperatorStatus = {
     "EXPERIMENTAL": 0,
@@ -1506,7 +1506,7 @@ $root.onnx.FunctionProto = class FunctionProto {
 };
 
 $root.onnx.FunctionProto.prototype.name = "";
-$root.onnx.FunctionProto.prototype.since_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.FunctionProto.prototype.since_version = protobuf.Int64.create(0);
 $root.onnx.FunctionProto.prototype.status = 0;
 $root.onnx.FunctionProto.prototype.doc_string = "";
 
@@ -1569,7 +1569,7 @@ $root.onnx.OperatorProto = class OperatorProto {
 };
 
 $root.onnx.OperatorProto.prototype.op_type = "";
-$root.onnx.OperatorProto.prototype.since_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.OperatorProto.prototype.since_version = protobuf.Int64.create(0);
 $root.onnx.OperatorProto.prototype.status = 0;
 $root.onnx.OperatorProto.prototype.doc_string = "";
 
@@ -1664,9 +1664,9 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
 };
 
 $root.onnx.OperatorSetProto.prototype.magic = "";
-$root.onnx.OperatorSetProto.prototype.ir_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.OperatorSetProto.prototype.ir_version = protobuf.Int64.create(0);
 $root.onnx.OperatorSetProto.prototype.ir_version_prerelease = "";
 $root.onnx.OperatorSetProto.prototype.ir_build_metadata = "";
 $root.onnx.OperatorSetProto.prototype.domain = "";
-$root.onnx.OperatorSetProto.prototype.opset_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.onnx.OperatorSetProto.prototype.opset_version = protobuf.Int64.create(0);
 $root.onnx.OperatorSetProto.prototype.doc_string = "";

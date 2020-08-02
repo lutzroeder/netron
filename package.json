@@ -20,7 +20,6 @@
         "d3": "5.16.0",
         "dagre": "0.8.5",
         "electron-updater": "4.3.4",
-        "long": "4.0.0",
         "marked": "1.1.1",
         "pako": "1.0.11",
         "universal-analytics": "0.4.23"

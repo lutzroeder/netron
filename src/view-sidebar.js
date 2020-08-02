@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var sidebar = sidebar || {};
-var long = long || { Long: require('long') };
+var base = base || require('./base');
 var marked = marked || require('marked');
 
 sidebar.Sidebar = class {
@@ -273,10 +273,7 @@ sidebar.NodeSidebar = class {
         if (typeof value === 'function') {
             return value();
         }
-        if (value && long.Long.isLong(value)) {
-            return value.toString();
-        }
-        if (value && long.Long.isLong(value)) {
+        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
             return value.toString();
         }
         if (Number.isNaN(value)) {
@@ -310,7 +307,7 @@ sidebar.NodeSidebar = class {
                 ellipsis = true;
             }
             const array = value.map((item) => {
-                if (item && long.Long.isLong(item)) {
+                if (item && (item instanceof base.Int64 || item instanceof base.Uint64)) {
                     return item.toString();
                 }
                 if (Number.isNaN(item)) {

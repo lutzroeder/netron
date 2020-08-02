@@ -49,7 +49,7 @@ $root.tensorflow.SavedModel = class SavedModel {
     }
 };
 
-$root.tensorflow.SavedModel.prototype.saved_model_schema_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.SavedModel.prototype.saved_model_schema_version = protobuf.Int64.create(0);
 
 $root.tensorflow.MetaGraphDef = class MetaGraphDef {
 
@@ -75,10 +75,10 @@ $root.tensorflow.MetaGraphDef = class MetaGraphDef {
                     message.saver_def = $root.tensorflow.SaverDef.decode(reader, reader.uint32());
                     break;
                 case 4:
-                    reader.pair(message.collection_def, () => reader.string(), () => $root.tensorflow.CollectionDef.decode(reader, reader.uint32()));
+                    reader.entry(message.collection_def, () => reader.string(), () => $root.tensorflow.CollectionDef.decode(reader, reader.uint32()));
                     break;
                 case 5:
-                    reader.pair(message.signature_def, () => reader.string(), () => $root.tensorflow.SignatureDef.decode(reader, reader.uint32()));
+                    reader.entry(message.signature_def, () => reader.string(), () => $root.tensorflow.SignatureDef.decode(reader, reader.uint32()));
                     break;
                 case 6:
                     message.asset_file_def.push($root.tensorflow.AssetFileDef.decode(reader, reader.uint32()));
@@ -110,10 +110,10 @@ $root.tensorflow.MetaGraphDef = class MetaGraphDef {
                     message.saver_def = $root.tensorflow.SaverDef.decodeText(reader, true);
                     break;
                 case "collection_def":
-                    reader.pair(message.collection_def, () => reader.string(), () => $root.tensorflow.CollectionDef.decodeText(reader, true));
+                    reader.entry(message.collection_def, () => reader.string(), () => $root.tensorflow.CollectionDef.decodeText(reader, true));
                     break;
                 case "signature_def":
-                    reader.pair(message.signature_def, () => reader.string(), () => $root.tensorflow.SignatureDef.decodeText(reader, true));
+                    reader.entry(message.signature_def, () => reader.string(), () => $root.tensorflow.SignatureDef.decodeText(reader, true));
                     break;
                 case "asset_file_def":
                     message.asset_file_def.push($root.tensorflow.AssetFileDef.decodeText(reader, true));
@@ -170,7 +170,7 @@ $root.tensorflow.MetaGraphDef.MetaInfoDef = class MetaInfoDef {
                     message.stripped_default_attrs = reader.bool();
                     break;
                 case 8:
-                    reader.pair(message.function_aliases, () => reader.string(), () => reader.string());
+                    reader.entry(message.function_aliases, () => reader.string(), () => reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -208,7 +208,7 @@ $root.tensorflow.MetaGraphDef.MetaInfoDef = class MetaInfoDef {
                     message.stripped_default_attrs = reader.boolean();
                     break;
                 case "function_aliases":
-                    reader.pair(message.function_aliases, () => reader.string(), () => reader.string());
+                    reader.entry(message.function_aliases, () => reader.string(), () => reader.string());
                     break;
                 default:
                     reader.field(tag, message);
@@ -691,10 +691,10 @@ $root.tensorflow.SignatureDef = class SignatureDef {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.inputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decode(reader, reader.uint32()));
+                    reader.entry(message.inputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decode(reader, reader.uint32()));
                     break;
                 case 2:
-                    reader.pair(message.outputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decode(reader, reader.uint32()));
+                    reader.entry(message.outputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decode(reader, reader.uint32()));
                     break;
                 case 3:
                     message.method_name = reader.string();
@@ -714,10 +714,10 @@ $root.tensorflow.SignatureDef = class SignatureDef {
             const tag = reader.tag();
             switch (tag) {
                 case "inputs":
-                    reader.pair(message.inputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decodeText(reader, true));
+                    reader.entry(message.inputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decodeText(reader, true));
                     break;
                 case "outputs":
-                    reader.pair(message.outputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decodeText(reader, true));
+                    reader.entry(message.outputs, () => reader.string(), () => $root.tensorflow.TensorInfo.decodeText(reader, true));
                     break;
                 case "method_name":
                     message.method_name = reader.string();
@@ -914,22 +914,22 @@ $root.tensorflow.FunctionDef = class FunctionDef {
                     message.signature = $root.tensorflow.OpDef.decode(reader, reader.uint32());
                     break;
                 case 5:
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
                     break;
                 case 7:
-                    reader.pair(message.arg_attr, () => reader.uint32(), () => $root.tensorflow.FunctionDef.ArgAttrs.decode(reader, reader.uint32()));
+                    reader.entry(message.arg_attr, () => reader.uint32(), () => $root.tensorflow.FunctionDef.ArgAttrs.decode(reader, reader.uint32()));
                     break;
                 case 8:
-                    reader.pair(message.resource_arg_unique_id, () => reader.uint32(), () => reader.uint32());
+                    reader.entry(message.resource_arg_unique_id, () => reader.uint32(), () => reader.uint32());
                     break;
                 case 3:
                     message.node_def.push($root.tensorflow.NodeDef.decode(reader, reader.uint32()));
                     break;
                 case 4:
-                    reader.pair(message.ret, () => reader.string(), () => reader.string());
+                    reader.entry(message.ret, () => reader.string(), () => reader.string());
                     break;
                 case 6:
-                    reader.pair(message.control_ret, () => reader.string(), () => reader.string());
+                    reader.entry(message.control_ret, () => reader.string(), () => reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -949,22 +949,22 @@ $root.tensorflow.FunctionDef = class FunctionDef {
                     message.signature = $root.tensorflow.OpDef.decodeText(reader, true);
                     break;
                 case "attr":
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
                     break;
                 case "arg_attr":
-                    reader.pair(message.arg_attr, () => reader.integer(), () => $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader, true));
+                    reader.entry(message.arg_attr, () => reader.integer(), () => $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader, true));
                     break;
                 case "resource_arg_unique_id":
-                    reader.pair(message.resource_arg_unique_id, () => reader.integer(), () => reader.uint32());
+                    reader.entry(message.resource_arg_unique_id, () => reader.integer(), () => reader.uint32());
                     break;
                 case "node_def":
                     message.node_def.push($root.tensorflow.NodeDef.decodeText(reader, true));
                     break;
                 case "ret":
-                    reader.pair(message.ret, () => reader.string(), () => reader.string());
+                    reader.entry(message.ret, () => reader.string(), () => reader.string());
                     break;
                 case "control_ret":
-                    reader.pair(message.control_ret, () => reader.string(), () => reader.string());
+                    reader.entry(message.control_ret, () => reader.string(), () => reader.string());
                     break;
                 default:
                     reader.field(tag, message);
@@ -990,7 +990,7 @@ $root.tensorflow.FunctionDef.ArgAttrs = class ArgAttrs {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1007,7 +1007,7 @@ $root.tensorflow.FunctionDef.ArgAttrs = class ArgAttrs {
             const tag = reader.tag();
             switch (tag) {
                 case "attr":
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1272,7 +1272,7 @@ $root.tensorflow.NameAttrList = class NameAttrList {
                     message.name = reader.string();
                     break;
                 case 2:
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1292,7 +1292,7 @@ $root.tensorflow.NameAttrList = class NameAttrList {
                     message.name = reader.string();
                     break;
                 case "attr":
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1589,7 +1589,7 @@ $root.tensorflow.ResourceHandleProto = class ResourceHandleProto {
 $root.tensorflow.ResourceHandleProto.prototype.device = "";
 $root.tensorflow.ResourceHandleProto.prototype.container = "";
 $root.tensorflow.ResourceHandleProto.prototype.name = "";
-$root.tensorflow.ResourceHandleProto.prototype.hash_code = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.tensorflow.ResourceHandleProto.prototype.hash_code = protobuf.Uint64.create(0);
 $root.tensorflow.ResourceHandleProto.prototype.maybe_type_name = "";
 
 $root.tensorflow.ResourceHandleProto.DtypeAndShape = class DtypeAndShape {
@@ -1736,7 +1736,7 @@ $root.tensorflow.TensorShapeProto.Dim = class Dim {
     }
 };
 
-$root.tensorflow.TensorShapeProto.Dim.prototype.size = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.TensorShapeProto.Dim.prototype.size = protobuf.Int64.create(0);
 $root.tensorflow.TensorShapeProto.Dim.prototype.name = "";
 
 $root.tensorflow.DataType = {
@@ -1815,7 +1815,7 @@ $root.tensorflow.NodeDef = class NodeDef {
                     message.device = reader.string();
                     break;
                 case 5:
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
                     break;
                 case 6:
                     message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decode(reader, reader.uint32());
@@ -1847,7 +1847,7 @@ $root.tensorflow.NodeDef = class NodeDef {
                     message.device = reader.string();
                     break;
                 case "attr":
-                    reader.pair(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
+                    reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader, true));
                     break;
                 case "experimental_debug_info":
                     message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decodeText(reader, true);
@@ -2198,7 +2198,7 @@ $root.tensorflow.OpDef.AttrDef.prototype.type = "";
 $root.tensorflow.OpDef.AttrDef.prototype.default_value = null;
 $root.tensorflow.OpDef.AttrDef.prototype.description = "";
 $root.tensorflow.OpDef.AttrDef.prototype.has_minimum = false;
-$root.tensorflow.OpDef.AttrDef.prototype.minimum = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.OpDef.AttrDef.prototype.minimum = protobuf.Int64.create(0);
 $root.tensorflow.OpDef.AttrDef.prototype.allowed_values = null;
 
 $root.tensorflow.OpDeprecation = class OpDeprecation {
@@ -2364,7 +2364,7 @@ $root.tensorflow.SavedObjectGraph = class SavedObjectGraph {
                     message.nodes.push($root.tensorflow.SavedObject.decode(reader, reader.uint32()));
                     break;
                 case 2:
-                    reader.pair(message.concrete_functions, () => reader.string(), () => $root.tensorflow.SavedConcreteFunction.decode(reader, reader.uint32()));
+                    reader.entry(message.concrete_functions, () => reader.string(), () => $root.tensorflow.SavedConcreteFunction.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2384,7 +2384,7 @@ $root.tensorflow.SavedObjectGraph = class SavedObjectGraph {
                     message.nodes.push($root.tensorflow.SavedObject.decodeText(reader, true));
                     break;
                 case "concrete_functions":
-                    reader.pair(message.concrete_functions, () => reader.string(), () => $root.tensorflow.SavedConcreteFunction.decodeText(reader, true));
+                    reader.entry(message.concrete_functions, () => reader.string(), () => $root.tensorflow.SavedConcreteFunction.decodeText(reader, true));
                     break;
                 default:
                     reader.field(tag, message);
@@ -2442,7 +2442,7 @@ $root.tensorflow.SavedObject = class SavedObject {
                     message.resource = $root.tensorflow.SavedResource.decode(reader, reader.uint32());
                     break;
                 case 11:
-                    reader.pair(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decode(reader, reader.uint32()));
+                    reader.entry(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2486,7 +2486,7 @@ $root.tensorflow.SavedObject = class SavedObject {
                     message.resource = $root.tensorflow.SavedResource.decodeText(reader, true);
                     break;
                 case "saveable_objects":
-                    reader.pair(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decodeText(reader, true));
+                    reader.entry(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decodeText(reader, true));
                     break;
                 default:
                     reader.field(tag, message);
@@ -2754,7 +2754,7 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
 };
 
 $root.tensorflow.SavedBareConcreteFunction.prototype.concrete_function_name = "";
-$root.tensorflow.SavedBareConcreteFunction.prototype.allowed_positional_arguments = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.SavedBareConcreteFunction.prototype.allowed_positional_arguments = protobuf.Int64.create(0);
 
 $root.tensorflow.SavedConstant = class SavedConstant {
 
@@ -3449,7 +3449,7 @@ $root.tensorflow.DictValue = class DictValue {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.fields, () => reader.string(), () => $root.tensorflow.StructuredValue.decode(reader, reader.uint32()));
+                    reader.entry(message.fields, () => reader.string(), () => $root.tensorflow.StructuredValue.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -3466,7 +3466,7 @@ $root.tensorflow.DictValue = class DictValue {
             const tag = reader.tag();
             switch (tag) {
                 case "fields":
-                    reader.pair(message.fields, () => reader.string(), () => $root.tensorflow.StructuredValue.decodeText(reader, true));
+                    reader.entry(message.fields, () => reader.string(), () => $root.tensorflow.StructuredValue.decodeText(reader, true));
                     break;
                 default:
                     reader.field(tag, message);
@@ -4266,8 +4266,8 @@ $root.tensorflow.BundleEntryProto = class BundleEntryProto {
 $root.tensorflow.BundleEntryProto.prototype.dtype = 0;
 $root.tensorflow.BundleEntryProto.prototype.shape = null;
 $root.tensorflow.BundleEntryProto.prototype.shard_id = 0;
-$root.tensorflow.BundleEntryProto.prototype.offset = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.tensorflow.BundleEntryProto.prototype.size = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.BundleEntryProto.prototype.offset = protobuf.Int64.create(0);
+$root.tensorflow.BundleEntryProto.prototype.size = protobuf.Int64.create(0);
 $root.tensorflow.BundleEntryProto.prototype.crc32c = 0;
 
 $root.tensorflow.TensorSliceProto = class TensorSliceProto {
@@ -4362,7 +4362,7 @@ $root.tensorflow.TensorSliceProto.Extent = class Extent {
     }
 };
 
-$root.tensorflow.TensorSliceProto.Extent.prototype.start = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.tensorflow.TensorSliceProto.Extent.prototype.start = protobuf.Int64.create(0);
 
 $root.tensorflow.SavedSliceMeta = class SavedSliceMeta {
 

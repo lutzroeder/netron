@@ -3,7 +3,6 @@
 // Experimental BSON JavaScript reader
 
 var bson = {};
-var long = long || { Long: require('long') };
 
 // http://bsonspec.org/spec.html
 bson.Reader = class {

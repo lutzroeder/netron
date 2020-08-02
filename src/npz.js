@@ -3,7 +3,6 @@
 // Experimental
 
 var npz = npz || {};
-var long = long || { Long: require('long') };
 
 npz.ModelFactory = class {
 

@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var coreml = coreml || {};
-var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 
 coreml.ModelFactory = class {
@@ -825,12 +824,7 @@ coreml.Attribute = class {
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (Array.isArray(value)) {
-                    value = value.map((item) => {
-                        if (item && long.Long.isLong(item)) {
-                            return item.toNumber();
-                        }
-                        return item;
-                    });
+                    value = value.map((item) => item.toNumber());
                 }
                 if (JSON.stringify(schema.default) == JSON.stringify(value)) {
                     this._visible = false;
@@ -960,7 +954,7 @@ coreml.Tensor = class {
             default:
                 if (this._quantization) {
                     context.dataType = 'quantization';
-                    context.bits = long.Long.isLong(this._quantization.numberOfBits) ? this._quantization.numberOfBits.toNumber() : this._quantization.numberOfBits;
+                    context.bits = this._quantization.numberOfBits.toNumber();
                     context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 }
                 else {

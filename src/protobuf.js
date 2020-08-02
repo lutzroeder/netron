@@ -2,7 +2,7 @@
 /* jshint esversion: 6 */
 
 var protobuf = protobuf || {};
-var long = long || { Long: require('long') };
+var base = base || require('./base');
 
 protobuf.get = (name) => {
     protobuf._map = protobuf._map || new Map();
@@ -18,7 +18,7 @@ protobuf.Reader = class {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._decoder = new TextDecoder('utf-8');
     }
 
@@ -88,35 +88,39 @@ protobuf.Reader = class {
     }
 
     int64() {
-        return this._readLongVarint().toLong(false);
+        return this._varint().toInt64();
     }
 
     uint64() {
-        return this._readLongVarint().toLong(true);
+        return this._varint().toInt64();
     }
 
     sint64() {
-        return this._readLongVarint().zzDecode().toLong(false);
+        return this._varint().zzDecode().toInt64();
     }
 
     fixed64() {
-        return this._readFixed64().toLong(true);
+        const position = this._position;
+        this.skip(8);
+        return this._view.getUint64(position, true);
     }
 
     sfixed64() {
-        return this._readFixed64().toLong(false);
+        const position = this._position;
+        this.skip(8);
+        return this._view.getInt64(position, true);
     }
 
     fixed32() {
-        if (this._position + 4 > this._length) {
-            throw this._indexOutOfRangeError(4);
-        }
-        this._position += 4;
-        return this._readFixed32();
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
     }
 
     sfixed32() {
-        return this.fixed32() | 0;
+        const position = this._position;
+        this.skip(4);
+        return this._view.getInt32(position, true);
     }
 
     float() {
@@ -125,7 +129,7 @@ protobuf.Reader = class {
         }
         const position = this._position;
         this._position += 4;
-        return this._dataView.getFloat32(position, true);
+        return this._view.getFloat32(position, true);
     }
 
     double() {
@@ -134,7 +138,7 @@ protobuf.Reader = class {
         }
         const position = this._position;
         this._position += 8;
-        return this._dataView.getFloat64(position, true);
+        return this._view.getFloat64(position, true);
     }
 
     array(obj, item, tag) {
@@ -161,7 +165,7 @@ protobuf.Reader = class {
             obj = size > 1048576 ? new Float32Array(length) : new Array(length);
             let position = this._position;
             for (let i = 0; i < length; i++) {
-                obj[i] = this._dataView.getFloat32(position, true);
+                obj[i] = this._view.getFloat32(position, true);
                 position += 4;
             }
             this._position = end;
@@ -189,7 +193,7 @@ protobuf.Reader = class {
             obj = size > 1048576 ? new Float64Array(length) : new Array(length);
             let position = this._position;
             for (let i = 0; i < length; i++) {
-                obj[i] = this._dataView.getFloat64(position, true);
+                obj[i] = this._view.getFloat64(position, true);
                 position += 8;
             }
             this._position = end;
@@ -206,28 +210,26 @@ protobuf.Reader = class {
         return obj;
     }
 
-    skip(length) {
-        if (typeof length === 'number') {
-            if (this._position + length > this._length) {
-                throw this._indexOutOfRangeError(length);
-            }
-            this._position += length;
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._length) {
+            throw this._indexOutOfRangeError(length);
         }
-        else {
-            do {
-                if (this._position >= this._length) {
-                    throw this._indexOutOfRangeError();
-                }
+    }
+
+    skipVarint() {
+        do {
+            if (this._position >= this._length) {
+                throw this._indexOutOfRangeError();
             }
-            while (this._buffer[this._position++] & 128);
         }
-        return this;
+        while (this._buffer[this._position++] & 128);
     }
 
     skipType(wireType) {
         switch (wireType) {
             case 0:
-                this.skip();
+                this.skipVarint();
                 break;
             case 1:
                 this.skip(8);
@@ -248,31 +250,19 @@ protobuf.Reader = class {
         }
     }
 
-    pair(obj, key, value) {
-        this.skip();
+    entry(obj, key, value) {
+        this.skipVarint();
         this._position++;
-        const k = typeof key === 'object' ? protobuf.LongBits.hash(key()) : key();
+        let k = key();
+        if (!Number.isInteger(k) && typeof k !== 'string') {
+            k = k.toNumber();
+        }
         this._position++;
         const v = value();
         obj[k] = v;
     }
 
-    _readFixed32() {
-        return (this._buffer[this._position - 4] | this._buffer[this._position - 3] << 8 | this._buffer[this._position - 2] << 16 | this._buffer[this._position - 1] << 24) >>> 0;
-    }
-
-    _readFixed64() {
-        if (this._position + 8 > this._length) {
-            throw this._indexOutOfRangeError(8);
-        }
-        this._position += 4;
-        const lo = this._readFixed32();
-        this._position += 4;
-        const hi = this._readFixed32();
-        return new protobuf.LongBits(lo, hi);
-    }
-
-    _readLongVarint() {
+    _varint() {
         const bits = new protobuf.LongBits(0, 0);
         let i = 0;
         if (this._length - this._position > 4) { // fast route (lo)
@@ -537,7 +527,7 @@ protobuf.TextReader = class {
         return false;
     }
 
-    pair(obj, key, value) {
+    entry(obj, key, value) {
         this.start();
         let k;
         let v;
@@ -801,44 +791,14 @@ protobuf.TextReader = class {
     }
 };
 
-protobuf.Long = long.Long;
+protobuf.Int64 = base.Int64;
+protobuf.Uint64 = base.Uint64;
 
 protobuf.LongBits = class {
 
     constructor(lo, hi) {
         this.lo = lo >>> 0;
         this.hi = hi >>> 0;
-    }
-
-    toLong(unsigned) {
-        return protobuf.Long
-            ? new protobuf.Long(this.lo | 0, this.hi | 0, unsigned)
-            : { low: this.lo | 0, high: this.hi | 0, unsigned: unsigned };
-    }
-
-    toNumber(unsigned) {
-        if (!unsigned && this.hi >>> 31) {
-            const lo = ~this.lo + 1 >>> 0;
-            let hi = ~this.hi     >>> 0;
-            if (!lo) {
-                hi = hi + 1 >>> 0;
-            }
-            return -(lo + hi * 4294967296);
-        }
-        return this.lo + this.hi * 4294967296;
-    }
-
-    toHash() {
-        return String.fromCharCode(
-            this.lo        & 255,
-            this.lo >>> 8  & 255,
-            this.lo >>> 16 & 255,
-            this.lo >>> 24      ,
-            this.hi        & 255,
-            this.hi >>> 8  & 255,
-            this.hi >>> 16 & 255,
-            this.hi >>> 24
-        );
     }
 
     zzDecode() {
@@ -848,27 +808,14 @@ protobuf.LongBits = class {
         return this;
     }
 
-    from(value) {
-        if (typeof value === 'number') {
-            return protobuf.LongBits.fromNumber(value);
-        }
-        if (typeof value === 'string' || value instanceof String) {
-            if (!protobuf.Long) {
-                return protobuf.LongBits.fromNumber(parseInt(value, 10));
-            }
-            value = protobuf.Long.fromString(value);
-        }
-        return value.low || value.high ? new protobuf.LongBits(value.low >>> 0, value.high >>> 0) : protobuf.LongBits.zero;
+    toUint64() {
+        return new base.Uint64(this.lo, this.hi);
     }
 
-    hash(value) {
-        return value ? protobuf.LongBits.from(value).toHash() : '\0\0\0\0\0\0\0\0';
+    toInt64() {
+        return new base.Int64(this.lo, this.hi);
     }
 };
-
-protobuf.LongBits.zero = new protobuf.LongBits(0, 0);
-protobuf.LongBits.zero.toNumber = function() { return 0; };
-protobuf.LongBits.zero.zzDecode = function() { return this; };
 
 protobuf.Error = class extends Error {
 
@@ -883,6 +830,7 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Reader = protobuf.Reader;
     module.exports.TextReader = protobuf.TextReader;
     module.exports.Error = protobuf.Error;
-    module.exports.Long = protobuf.Long;
+    module.exports.Int64 = protobuf.Int64;
+    module.exports.Uint64 = protobuf.Uint64;
     module.exports.get = protobuf.get;
 }

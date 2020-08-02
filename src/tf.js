@@ -3,7 +3,7 @@
 // Experimental
 
 var tf = tf || {};
-var long = long || { Long: require('long') };
+var base = base || require('./base');
 var protobuf = protobuf || require('./protobuf');
 
 tf.ModelFactory = class {
@@ -1433,8 +1433,8 @@ tf.TensorBundle = class {
                         const tensor = new tf.proto.TensorProto();
                         tensor.dtype = entry.dtype;
                         tensor.tensor_shape = entry.shape;
-                        const offset = (entry.offset instanceof long.Long) ? entry.offset.toNumber() : entry.offset;
-                        const size = (entry.size instanceof long.Long) ? entry.size.toNumber() : entry.size;
+                        const offset = Number.isInteger(entry.offset) ? entry.offset : entry.offset.toNumber();
+                        const size = Number.isInteger(entry.size) ? entry.size : entry.size.toNumber();
                         if (shards) {
                             tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
                         }
@@ -1608,7 +1608,7 @@ tf.GraphMetadata = class {
         if (value == null) {
             return null;
         }
-        if (value && long.Long.isLong(value)) {
+        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
             value = value.toNumber();
         }
         if (Array.isArray(value)) {

@@ -29,7 +29,7 @@ $root.paddle.framework.proto.Version = class Version {
     }
 };
 
-$root.paddle.framework.proto.Version.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.paddle.framework.proto.Version.prototype.version = protobuf.Int64.create(0);
 
 $root.paddle.framework.proto.AttrType = {
     "INT": 0,
@@ -171,7 +171,7 @@ $root.paddle.framework.proto.OpDesc.Attr.prototype.f = 0;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.s = "";
 $root.paddle.framework.proto.OpDesc.Attr.prototype.b = false;
 $root.paddle.framework.proto.OpDesc.Attr.prototype.block_idx = 0;
-$root.paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.paddle.framework.proto.OpDesc.Attr.prototype.l = protobuf.Int64.create(0);
 
 $root.paddle.framework.proto.OpDesc.Var = class Var {
 

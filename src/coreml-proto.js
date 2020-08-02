@@ -140,7 +140,7 @@ $root.CoreML.Specification.Metadata = class Metadata {
                     message.license = reader.string();
                     break;
                 case 100:
-                    reader.pair(message.userDefined, () => reader.string(), () => reader.string());
+                    reader.entry(message.userDefined, () => reader.string(), () => reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -700,7 +700,7 @@ $root.CoreML.Specification.StringToInt64Map = class StringToInt64Map {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.map, () => reader.string(), () => reader.int64());
+                    reader.entry(message.map, () => reader.string(), () => reader.int64());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -724,7 +724,7 @@ $root.CoreML.Specification.Int64ToStringMap = class Int64ToStringMap {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.map, () => reader.int64(), () => reader.string());
+                    reader.entry(message.map, () => reader.int64(), () => reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -748,7 +748,7 @@ $root.CoreML.Specification.StringToDoubleMap = class StringToDoubleMap {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.map, () => reader.string(), () => reader.double());
+                    reader.entry(message.map, () => reader.string(), () => reader.double());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -772,7 +772,7 @@ $root.CoreML.Specification.Int64ToDoubleMap = class Int64ToDoubleMap {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    reader.pair(message.map, () => reader.int64(), () => reader.double());
+                    reader.entry(message.map, () => reader.int64(), () => reader.double());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -905,8 +905,8 @@ $root.CoreML.Specification.Int64Range = class Int64Range {
     }
 };
 
-$root.CoreML.Specification.Int64Range.prototype.minValue = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.Int64Range.prototype.maxValue = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.Int64Range.prototype.minValue = protobuf.Int64.create(0);
+$root.CoreML.Specification.Int64Range.prototype.maxValue = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.Int64Set = class Int64Set {
 
@@ -1047,8 +1047,8 @@ $root.CoreML.Specification.SizeRange = class SizeRange {
     }
 };
 
-$root.CoreML.Specification.SizeRange.prototype.lowerBound = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.SizeRange.prototype.upperBound = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.SizeRange.prototype.lowerBound = protobuf.Uint64.create(0);
+$root.CoreML.Specification.SizeRange.prototype.upperBound = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.ImageFeatureType = class ImageFeatureType {
 
@@ -1090,8 +1090,8 @@ $root.CoreML.Specification.ImageFeatureType = class ImageFeatureType {
     }
 };
 
-$root.CoreML.Specification.ImageFeatureType.prototype.width = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.ImageFeatureType.prototype.height = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ImageFeatureType.prototype.width = protobuf.Int64.create(0);
+$root.CoreML.Specification.ImageFeatureType.prototype.height = protobuf.Int64.create(0);
 $root.CoreML.Specification.ImageFeatureType.prototype.colorSpace = 0;
 
 $root.CoreML.Specification.ImageFeatureType.ColorSpace = {
@@ -1127,8 +1127,8 @@ $root.CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
     }
 };
 
-$root.CoreML.Specification.ImageFeatureType.ImageSize.prototype.width = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.ImageFeatureType.ImageSize.prototype.height = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.ImageFeatureType.ImageSize.prototype.width = protobuf.Uint64.create(0);
+$root.CoreML.Specification.ImageFeatureType.ImageSize.prototype.height = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes = class EnumeratedImageSizes {
 
@@ -1668,7 +1668,7 @@ $root.CoreML.Specification.CustomModel = class CustomModel {
                     message.className = reader.string();
                     break;
                 case 30:
-                    reader.pair(message.parameters, () => reader.string(), () => $root.CoreML.Specification.CustomModel.CustomModelParamValue.decode(reader, reader.uint32()));
+                    reader.entry(message.parameters, () => reader.string(), () => $root.CoreML.Specification.CustomModel.CustomModelParamValue.decode(reader, reader.uint32()));
                     break;
                 case 40:
                     message.description = reader.string();
@@ -1810,7 +1810,7 @@ $root.CoreML.Specification.FeatureVectorizer.InputColumn = class InputColumn {
 };
 
 $root.CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputColumn = "";
-$root.CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputDimensions = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.FeatureVectorizer.InputColumn.prototype.inputDimensions = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.GLMRegressor = class GLMRegressor {
 
@@ -2206,7 +2206,7 @@ $root.CoreML.Specification.Int64Parameter = class Int64Parameter {
     }
 };
 
-$root.CoreML.Specification.Int64Parameter.prototype.defaultValue = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.Int64Parameter.prototype.defaultValue = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.DoubleParameter = class DoubleParameter {
 
@@ -3517,7 +3517,7 @@ $root.CoreML.Specification.LoopLayerParams = class LoopLayerParams {
     }
 };
 
-$root.CoreML.Specification.LoopLayerParams.prototype.maxLoopIterations = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.LoopLayerParams.prototype.maxLoopIterations = protobuf.Uint64.create(0);
 $root.CoreML.Specification.LoopLayerParams.prototype.conditionVar = "";
 $root.CoreML.Specification.LoopLayerParams.prototype.conditionNetwork = null;
 $root.CoreML.Specification.LoopLayerParams.prototype.bodyNetwork = null;
@@ -3862,8 +3862,8 @@ $root.CoreML.Specification.BorderAmounts.EdgeSizes = class EdgeSizes {
     }
 };
 
-$root.CoreML.Specification.BorderAmounts.EdgeSizes.prototype.startEdgeSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.BorderAmounts.EdgeSizes.prototype.endEdgeSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.BorderAmounts.EdgeSizes.prototype.startEdgeSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.BorderAmounts.EdgeSizes.prototype.endEdgeSize = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.ValidPadding = class ValidPadding {
 
@@ -4063,7 +4063,7 @@ $root.CoreML.Specification.QuantizationParams = class QuantizationParams {
     }
 };
 
-$root.CoreML.Specification.QuantizationParams.prototype.numberOfBits = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.QuantizationParams.prototype.numberOfBits = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.LinearQuantizationParams = class LinearQuantizationParams {
 
@@ -4185,9 +4185,9 @@ $root.CoreML.Specification.ConvolutionLayerParams = class ConvolutionLayerParams
     }
 };
 
-$root.CoreML.Specification.ConvolutionLayerParams.prototype.outputChannels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.ConvolutionLayerParams.prototype.kernelChannels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.ConvolutionLayerParams.prototype.nGroups = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.ConvolutionLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
+$root.CoreML.Specification.ConvolutionLayerParams.prototype.kernelChannels = protobuf.Uint64.create(0);
+$root.CoreML.Specification.ConvolutionLayerParams.prototype.nGroups = protobuf.Uint64.create(0);
 $root.CoreML.Specification.ConvolutionLayerParams.prototype.isDeconvolution = false;
 $root.CoreML.Specification.ConvolutionLayerParams.prototype.hasBias = false;
 $root.CoreML.Specification.ConvolutionLayerParams.prototype.weights = null;
@@ -4354,8 +4354,8 @@ $root.CoreML.Specification.InnerProductLayerParams = class InnerProductLayerPara
     }
 };
 
-$root.CoreML.Specification.InnerProductLayerParams.prototype.inputChannels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.InnerProductLayerParams.prototype.outputChannels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.InnerProductLayerParams.prototype.inputChannels = protobuf.Uint64.create(0);
+$root.CoreML.Specification.InnerProductLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
 $root.CoreML.Specification.InnerProductLayerParams.prototype.hasBias = false;
 $root.CoreML.Specification.InnerProductLayerParams.prototype.weights = null;
 $root.CoreML.Specification.InnerProductLayerParams.prototype.bias = null;
@@ -4396,8 +4396,8 @@ $root.CoreML.Specification.EmbeddingLayerParams = class EmbeddingLayerParams {
     }
 };
 
-$root.CoreML.Specification.EmbeddingLayerParams.prototype.inputDim = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.EmbeddingLayerParams.prototype.outputChannels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.EmbeddingLayerParams.prototype.inputDim = protobuf.Uint64.create(0);
+$root.CoreML.Specification.EmbeddingLayerParams.prototype.outputChannels = protobuf.Uint64.create(0);
 $root.CoreML.Specification.EmbeddingLayerParams.prototype.hasBias = false;
 $root.CoreML.Specification.EmbeddingLayerParams.prototype.weights = null;
 $root.CoreML.Specification.EmbeddingLayerParams.prototype.bias = null;
@@ -4437,8 +4437,8 @@ $root.CoreML.Specification.EmbeddingNDLayerParams = class EmbeddingNDLayerParams
     }
 };
 
-$root.CoreML.Specification.EmbeddingNDLayerParams.prototype.vocabSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.EmbeddingNDLayerParams.prototype.embeddingSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.EmbeddingNDLayerParams.prototype.vocabSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.EmbeddingNDLayerParams.prototype.embeddingSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.EmbeddingNDLayerParams.prototype.hasBias = false;
 $root.CoreML.Specification.EmbeddingNDLayerParams.prototype.weights = null;
 $root.CoreML.Specification.EmbeddingNDLayerParams.prototype.bias = null;
@@ -4487,7 +4487,7 @@ $root.CoreML.Specification.BatchnormLayerParams = class BatchnormLayerParams {
     }
 };
 
-$root.CoreML.Specification.BatchnormLayerParams.prototype.channels = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.BatchnormLayerParams.prototype.channels = protobuf.Uint64.create(0);
 $root.CoreML.Specification.BatchnormLayerParams.prototype.computeMeanVar = false;
 $root.CoreML.Specification.BatchnormLayerParams.prototype.instanceNormalization = false;
 $root.CoreML.Specification.BatchnormLayerParams.prototype.epsilon = 0;
@@ -4866,7 +4866,7 @@ $root.CoreML.Specification.LRNLayerParams = class LRNLayerParams {
 
 $root.CoreML.Specification.LRNLayerParams.prototype.alpha = 0;
 $root.CoreML.Specification.LRNLayerParams.prototype.beta = 0;
-$root.CoreML.Specification.LRNLayerParams.prototype.localSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.LRNLayerParams.prototype.localSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.LRNLayerParams.prototype.k = 0;
 
 $root.CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
@@ -4912,7 +4912,7 @@ $root.CoreML.Specification.SplitLayerParams = class SplitLayerParams {
     }
 };
 
-$root.CoreML.Specification.SplitLayerParams.prototype.nOutputs = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SplitLayerParams.prototype.nOutputs = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.AddLayerParams = class AddLayerParams {
 
@@ -5373,7 +5373,7 @@ $root.CoreML.Specification.ReorganizeDataLayerParams = class ReorganizeDataLayer
 };
 
 $root.CoreML.Specification.ReorganizeDataLayerParams.prototype.mode = 0;
-$root.CoreML.Specification.ReorganizeDataLayerParams.prototype.blockSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.ReorganizeDataLayerParams.prototype.blockSize = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.ReorganizeDataLayerParams.ReorganizationType = {
     "SPACE_TO_DEPTH": 0,
@@ -5413,9 +5413,9 @@ $root.CoreML.Specification.SliceLayerParams = class SliceLayerParams {
     }
 };
 
-$root.CoreML.Specification.SliceLayerParams.prototype.startIndex = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.SliceLayerParams.prototype.endIndex = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.SliceLayerParams.prototype.stride = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SliceLayerParams.prototype.startIndex = protobuf.Int64.create(0);
+$root.CoreML.Specification.SliceLayerParams.prototype.endIndex = protobuf.Int64.create(0);
+$root.CoreML.Specification.SliceLayerParams.prototype.stride = protobuf.Uint64.create(0);
 $root.CoreML.Specification.SliceLayerParams.prototype.axis = 0;
 
 $root.CoreML.Specification.SliceLayerParams.SliceAxis = {
@@ -5648,7 +5648,7 @@ $root.CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayer
     }
 };
 
-$root.CoreML.Specification.SequenceRepeatLayerParams.prototype.nRepetitions = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SequenceRepeatLayerParams.prototype.nRepetitions = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLayerParams {
 
@@ -5697,8 +5697,8 @@ $root.CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLay
     }
 };
 
-$root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.inputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.outputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.activation = null;
 $root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.sequenceOutput = false;
 $root.CoreML.Specification.SimpleRecurrentLayerParams.prototype.hasBiasVector = false;
@@ -5773,8 +5773,8 @@ $root.CoreML.Specification.GRULayerParams = class GRULayerParams {
     }
 };
 
-$root.CoreML.Specification.GRULayerParams.prototype.inputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.GRULayerParams.prototype.outputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.GRULayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.GRULayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.GRULayerParams.prototype.sequenceOutput = false;
 $root.CoreML.Specification.GRULayerParams.prototype.hasBiasVectors = false;
 $root.CoreML.Specification.GRULayerParams.prototype.updateGateWeightMatrix = null;
@@ -5953,8 +5953,8 @@ $root.CoreML.Specification.UniDirectionalLSTMLayerParams = class UniDirectionalL
     }
 };
 
-$root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.params = null;
 $root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.weightParams = null;
 $root.CoreML.Specification.UniDirectionalLSTMLayerParams.prototype.reverseInput = false;
@@ -6000,8 +6000,8 @@ $root.CoreML.Specification.BiDirectionalLSTMLayerParams = class BiDirectionalLST
     }
 };
 
-$root.CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.inputVectorSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.outputVectorSize = protobuf.Uint64.create(0);
 $root.CoreML.Specification.BiDirectionalLSTMLayerParams.prototype.params = null;
 
 $root.CoreML.Specification.CustomLayerParams = class CustomLayerParams {
@@ -6024,7 +6024,7 @@ $root.CoreML.Specification.CustomLayerParams = class CustomLayerParams {
                     message.weights.push($root.CoreML.Specification.WeightParams.decode(reader, reader.uint32()));
                     break;
                 case 30:
-                    reader.pair(message.parameters, () => reader.string(), () => $root.CoreML.Specification.CustomLayerParams.CustomLayerParamValue.decode(reader, reader.uint32()));
+                    reader.entry(message.parameters, () => reader.string(), () => $root.CoreML.Specification.CustomLayerParams.CustomLayerParamValue.decode(reader, reader.uint32()));
                     break;
                 case 40:
                     message.description = reader.string();
@@ -6151,8 +6151,8 @@ $root.CoreML.Specification.BatchedMatMulLayerParams = class BatchedMatMulLayerPa
 
 $root.CoreML.Specification.BatchedMatMulLayerParams.prototype.transposeA = false;
 $root.CoreML.Specification.BatchedMatMulLayerParams.prototype.transposeB = false;
-$root.CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixFirstDimension = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixSecondDimension = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixFirstDimension = protobuf.Uint64.create(0);
+$root.CoreML.Specification.BatchedMatMulLayerParams.prototype.weightMatrixSecondDimension = protobuf.Uint64.create(0);
 $root.CoreML.Specification.BatchedMatMulLayerParams.prototype.hasBias = false;
 $root.CoreML.Specification.BatchedMatMulLayerParams.prototype.weights = null;
 $root.CoreML.Specification.BatchedMatMulLayerParams.prototype.bias = null;
@@ -6181,7 +6181,7 @@ $root.CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
     }
 };
 
-$root.CoreML.Specification.ConcatNDLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ConcatNDLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
 
@@ -6206,7 +6206,7 @@ $root.CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
     }
 };
 
-$root.CoreML.Specification.SoftmaxNDLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.SoftmaxNDLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.ReverseLayerParams = class ReverseLayerParams {
 
@@ -6258,8 +6258,8 @@ $root.CoreML.Specification.ReverseSeqLayerParams = class ReverseSeqLayerParams {
     }
 };
 
-$root.CoreML.Specification.ReverseSeqLayerParams.prototype.batchAxis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.ReverseSeqLayerParams.prototype.sequenceAxis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ReverseSeqLayerParams.prototype.batchAxis = protobuf.Int64.create(0);
+$root.CoreML.Specification.ReverseSeqLayerParams.prototype.sequenceAxis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.LoadConstantNDLayerParams = class LoadConstantNDLayerParams {
 
@@ -6715,8 +6715,8 @@ $root.CoreML.Specification.MatrixBandPartLayerParams = class MatrixBandPartLayer
     }
 };
 
-$root.CoreML.Specification.MatrixBandPartLayerParams.prototype.numLower = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.MatrixBandPartLayerParams.prototype.numUpper = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.MatrixBandPartLayerParams.prototype.numLower = protobuf.Int64.create(0);
+$root.CoreML.Specification.MatrixBandPartLayerParams.prototype.numUpper = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLayerParams {
 
@@ -6741,7 +6741,7 @@ $root.CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLay
     }
 };
 
-$root.CoreML.Specification.UpperTriangularLayerParams.prototype.k = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.UpperTriangularLayerParams.prototype.k = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLayerParams {
 
@@ -6766,7 +6766,7 @@ $root.CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLay
     }
 };
 
-$root.CoreML.Specification.LowerTriangularLayerParams.prototype.k = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.LowerTriangularLayerParams.prototype.k = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.BroadcastToLikeLayerParams = class BroadcastToLikeLayerParams {
 
@@ -7015,7 +7015,7 @@ $root.CoreML.Specification.GatherLayerParams = class GatherLayerParams {
     }
 };
 
-$root.CoreML.Specification.GatherLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.GatherLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.ScatterMode = {
     "SCATTER_UPDATE": 0,
@@ -7053,7 +7053,7 @@ $root.CoreML.Specification.ScatterLayerParams = class ScatterLayerParams {
     }
 };
 
-$root.CoreML.Specification.ScatterLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ScatterLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.ScatterLayerParams.prototype.mode = 0;
 
 $root.CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
@@ -7124,7 +7124,7 @@ $root.CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLay
     }
 };
 
-$root.CoreML.Specification.GatherAlongAxisLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.GatherAlongAxisLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisLayerParams {
 
@@ -7152,7 +7152,7 @@ $root.CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisL
     }
 };
 
-$root.CoreML.Specification.ScatterAlongAxisLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ScatterAlongAxisLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.ScatterAlongAxisLayerParams.prototype.mode = 0;
 
 $root.CoreML.Specification.StackLayerParams = class StackLayerParams {
@@ -7178,7 +7178,7 @@ $root.CoreML.Specification.StackLayerParams = class StackLayerParams {
     }
 };
 
-$root.CoreML.Specification.StackLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.StackLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.RankPreservingReshapeLayerParams = class RankPreservingReshapeLayerParams {
 
@@ -7266,7 +7266,7 @@ $root.CoreML.Specification.RandomNormalLikeLayerParams = class RandomNormalLikeL
     }
 };
 
-$root.CoreML.Specification.RandomNormalLikeLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomNormalLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomNormalLikeLayerParams.prototype.mean = 0;
 $root.CoreML.Specification.RandomNormalLikeLayerParams.prototype.stdDev = 0;
 
@@ -7303,7 +7303,7 @@ $root.CoreML.Specification.RandomNormalStaticLayerParams = class RandomNormalSta
     }
 };
 
-$root.CoreML.Specification.RandomNormalStaticLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomNormalStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomNormalStaticLayerParams.prototype.mean = 0;
 $root.CoreML.Specification.RandomNormalStaticLayerParams.prototype.stdDev = 0;
 
@@ -7336,7 +7336,7 @@ $root.CoreML.Specification.RandomNormalDynamicLayerParams = class RandomNormalDy
     }
 };
 
-$root.CoreML.Specification.RandomNormalDynamicLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomNormalDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomNormalDynamicLayerParams.prototype.mean = 0;
 $root.CoreML.Specification.RandomNormalDynamicLayerParams.prototype.stdDev = 0;
 
@@ -7369,7 +7369,7 @@ $root.CoreML.Specification.RandomUniformLikeLayerParams = class RandomUniformLik
     }
 };
 
-$root.CoreML.Specification.RandomUniformLikeLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomUniformLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomUniformLikeLayerParams.prototype.minVal = 0;
 $root.CoreML.Specification.RandomUniformLikeLayerParams.prototype.maxVal = 0;
 
@@ -7406,7 +7406,7 @@ $root.CoreML.Specification.RandomUniformStaticLayerParams = class RandomUniformS
     }
 };
 
-$root.CoreML.Specification.RandomUniformStaticLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomUniformStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomUniformStaticLayerParams.prototype.minVal = 0;
 $root.CoreML.Specification.RandomUniformStaticLayerParams.prototype.maxVal = 0;
 
@@ -7439,7 +7439,7 @@ $root.CoreML.Specification.RandomUniformDynamicLayerParams = class RandomUniform
     }
 };
 
-$root.CoreML.Specification.RandomUniformDynamicLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomUniformDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomUniformDynamicLayerParams.prototype.minVal = 0;
 $root.CoreML.Specification.RandomUniformDynamicLayerParams.prototype.maxVal = 0;
 
@@ -7469,7 +7469,7 @@ $root.CoreML.Specification.RandomBernoulliLikeLayerParams = class RandomBernoull
     }
 };
 
-$root.CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomBernoulliLikeLayerParams.prototype.prob = 0;
 
 $root.CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernoulliStaticLayerParams {
@@ -7502,7 +7502,7 @@ $root.CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernou
     }
 };
 
-$root.CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomBernoulliStaticLayerParams.prototype.prob = 0;
 
 $root.CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBernoulliDynamicLayerParams {
@@ -7531,7 +7531,7 @@ $root.CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBerno
     }
 };
 
-$root.CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.seed = protobuf.Int64.create(0);
 $root.CoreML.Specification.RandomBernoulliDynamicLayerParams.prototype.prob = 0;
 
 $root.CoreML.Specification.CategoricalDistributionLayerParams = class CategoricalDistributionLayerParams {
@@ -7569,8 +7569,8 @@ $root.CoreML.Specification.CategoricalDistributionLayerParams = class Categorica
     }
 };
 
-$root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.seed = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.numSamples = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.seed = protobuf.Int64.create(0);
+$root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.numSamples = protobuf.Int64.create(0);
 $root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.isLogits = false;
 $root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.eps = 0;
 $root.CoreML.Specification.CategoricalDistributionLayerParams.prototype.temperature = 0;
@@ -7952,7 +7952,7 @@ $root.CoreML.Specification.FlattenTo2DLayerParams = class FlattenTo2DLayerParams
     }
 };
 
-$root.CoreML.Specification.FlattenTo2DLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.FlattenTo2DLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.ReshapeStaticLayerParams = class ReshapeStaticLayerParams {
 
@@ -8076,8 +8076,8 @@ $root.CoreML.Specification.TopKLayerParams = class TopKLayerParams {
     }
 };
 
-$root.CoreML.Specification.TopKLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.TopKLayerParams.prototype.K = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TopKLayerParams.prototype.axis = protobuf.Int64.create(0);
+$root.CoreML.Specification.TopKLayerParams.prototype.K = protobuf.Uint64.create(0);
 $root.CoreML.Specification.TopKLayerParams.prototype.useBottomK = false;
 
 $root.CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
@@ -8106,7 +8106,7 @@ $root.CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
     }
 };
 
-$root.CoreML.Specification.ArgMaxLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ArgMaxLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.ArgMaxLayerParams.prototype.removeDim = false;
 
 $root.CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
@@ -8135,7 +8135,7 @@ $root.CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
     }
 };
 
-$root.CoreML.Specification.ArgMinLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ArgMinLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.ArgMinLayerParams.prototype.removeDim = false;
 
 $root.CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
@@ -8168,8 +8168,8 @@ $root.CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
     }
 };
 
-$root.CoreML.Specification.SplitNDLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.SplitNDLayerParams.prototype.numSplits = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SplitNDLayerParams.prototype.axis = protobuf.Int64.create(0);
+$root.CoreML.Specification.SplitNDLayerParams.prototype.numSplits = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 
@@ -8550,9 +8550,9 @@ $root.CoreML.Specification.SlidingWindowsLayerParams = class SlidingWindowsLayer
     }
 };
 
-$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.windowSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.step = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.axis = protobuf.Int64.create(0);
+$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.windowSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.SlidingWindowsLayerParams.prototype.step = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.LayerNormalizationLayerParams = class LayerNormalizationLayerParams {
 
@@ -8625,7 +8625,7 @@ $root.CoreML.Specification.NonMaximumSuppressionLayerParams = class NonMaximumSu
 
 $root.CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.iouThreshold = 0;
 $root.CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.scoreThreshold = 0;
-$root.CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.maxBoxes = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.maxBoxes = protobuf.Uint64.create(0);
 $root.CoreML.Specification.NonMaximumSuppressionLayerParams.prototype.perClassSuppression = false;
 
 $root.CoreML.Specification.ClampedReLULayerParams = class ClampedReLULayerParams {
@@ -8683,7 +8683,7 @@ $root.CoreML.Specification.ArgSortLayerParams = class ArgSortLayerParams {
     }
 };
 
-$root.CoreML.Specification.ArgSortLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.ArgSortLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.ArgSortLayerParams.prototype.descending = false;
 
 $root.CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams {
@@ -8712,8 +8712,8 @@ $root.CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams
     }
 };
 
-$root.CoreML.Specification.SliceBySizeLayerParams.prototype.size = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.CoreML.Specification.SliceBySizeLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.SliceBySizeLayerParams.prototype.size = protobuf.Int64.create(0);
+$root.CoreML.Specification.SliceBySizeLayerParams.prototype.axis = protobuf.Int64.create(0);
 
 $root.CoreML.Specification.NeuralNetworkClassifier = class NeuralNetworkClassifier {
 
@@ -8803,8 +8803,8 @@ $root.CoreML.Specification.OneHotLayerParams = class OneHotLayerParams {
     }
 };
 
-$root.CoreML.Specification.OneHotLayerParams.prototype.oneHotVectorSize = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.OneHotLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.OneHotLayerParams.prototype.oneHotVectorSize = protobuf.Uint64.create(0);
+$root.CoreML.Specification.OneHotLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.OneHotLayerParams.prototype.onValue = 0;
 $root.CoreML.Specification.OneHotLayerParams.prototype.offValue = 0;
 
@@ -8837,7 +8837,7 @@ $root.CoreML.Specification.CumSumLayerParams = class CumSumLayerParams {
     }
 };
 
-$root.CoreML.Specification.CumSumLayerParams.prototype.axis = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.CoreML.Specification.CumSumLayerParams.prototype.axis = protobuf.Int64.create(0);
 $root.CoreML.Specification.CumSumLayerParams.prototype.excludeFinalSum = false;
 $root.CoreML.Specification.CumSumLayerParams.prototype.reverse = false;
 
@@ -9765,7 +9765,7 @@ $root.CoreML.Specification.TreeEnsembleParameters = class TreeEnsembleParameters
     }
 };
 
-$root.CoreML.Specification.TreeEnsembleParameters.prototype.numPredictionDimensions = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TreeEnsembleParameters.prototype.numPredictionDimensions = protobuf.Uint64.create(0);
 
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
 
@@ -9818,13 +9818,13 @@ $root.CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
     }
 };
 
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.treeId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.treeId = protobuf.Uint64.create(0);
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeId = protobuf.Uint64.create(0);
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.nodeBehavior = 0;
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureIndex = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureIndex = protobuf.Uint64.create(0);
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.branchFeatureValue = 0;
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.trueChildNodeId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.falseChildNodeId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.trueChildNodeId = protobuf.Uint64.create(0);
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.falseChildNodeId = protobuf.Uint64.create(0);
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.missingValueTracksTrueChild = false;
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.prototype.relativeHitRate = 0;
 
@@ -9864,7 +9864,7 @@ $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo = clas
     }
 };
 
-$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationIndex = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationIndex = protobuf.Uint64.create(0);
 $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo.prototype.evaluationValue = 0;
 
 $root.CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier {
@@ -10019,7 +10019,7 @@ $root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem = class Conne
     }
 };
 
-$root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.itemId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.itemId = protobuf.Uint64.create(0);
 $root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem.prototype.similarityScore = 0;
 
 $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class SimilarItems {
@@ -10052,7 +10052,7 @@ $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class Simila
     }
 };
 
-$root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemId = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
+$root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemId = protobuf.Uint64.create(0);
 $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems.prototype.itemScoreAdjustment = 0;
 
 $root.CoreML.Specification.LinkedModel = class LinkedModel {

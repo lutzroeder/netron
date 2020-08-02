@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var cntk = cntk || {};
-var long = long || { Long: require('long') };
 var protobuf = protobuf || require('./protobuf');
 
 var cntk_v1 = {};
@@ -720,9 +719,7 @@ cntk.TensorType = class {
                 this._shape = new cntk.TensorShape(version, shape);
                 break;
             case 2:
-                if (long.Long.isLong(dataType)) {
-                    dataType = dataType.toNumber();
-                }
+                dataType = dataType.toNumber();
                 switch (dataType) {
                     case 1: this._dataType = 'float32'; break;
                 }
@@ -752,15 +749,7 @@ cntk.TensorShape = class {
                 this._dimensions = shape.dims;
                 break;
             case 2:
-                this._dimensions = shape.shape_dim.map((dimension) => {
-                    if (dimension.low == -1 && dimension.high == -1 && dimension.unsigned == true) {
-                        return -1;
-                    }
-                    if (dimension && long.Long.isLong(dimension)) {
-                        return dimension.toNumber();
-                    }
-                    return dimension;
-                });
+                this._dimensions = shape.shape_dim.map((dimension) => dimension.toNumber());
                 break;
         }
     }

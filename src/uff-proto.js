@@ -76,8 +76,8 @@ $root.uff.MetaGraph = class MetaGraph {
     }
 };
 
-$root.uff.MetaGraph.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.uff.MetaGraph.prototype.descriptor_core_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.uff.MetaGraph.prototype.version = protobuf.Int64.create(0);
+$root.uff.MetaGraph.prototype.descriptor_core_version = protobuf.Int64.create(0);
 
 $root.uff.MetaGraph.ReferencedDataEntry = class ReferencedDataEntry {
 
@@ -230,7 +230,7 @@ $root.uff.Descriptor = class Descriptor {
 };
 
 $root.uff.Descriptor.prototype.id = "";
-$root.uff.Descriptor.prototype.version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.uff.Descriptor.prototype.version = protobuf.Int64.create(0);
 $root.uff.Descriptor.prototype.optional = false;
 
 $root.uff.Graph = class Graph {

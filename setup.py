@@ -13,8 +13,7 @@ node_dependencies = [
         'node_modules/d3/dist/d3.min.js',
         'node_modules/dagre/dist/dagre.min.js',
         'node_modules/marked/marked.min.js',
-        'node_modules/pako/dist/pako.min.js',
-        'node_modules/long/dist/long.js' ] )
+        'node_modules/pako/dist/pako.min.js' ] )
 ]
 
 class build(distutils.command.build.build):

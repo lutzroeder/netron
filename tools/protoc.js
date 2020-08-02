@@ -2,7 +2,6 @@
 
 const protoc = {};
 const fs = require('fs');
-const long = require('long');
 
 protoc.Object = class {
 
@@ -405,11 +404,7 @@ protoc.Field = class extends protoc.Object {
                 value = type.values[value];
             }
         }
-        if (type.long) {
-            const unsigned = type.name === 'uint64' || type.name === 'fixed64';
-            value = long.fromNumber(value, unsigned);
-        }
-        else if (type === 'bytes' && typeof value === 'string') {
+        if (type === 'bytes' && typeof value === 'string') {
             throw new protoc.Error('Unsupported bytes field.');
         }
         return value;
@@ -1217,8 +1212,12 @@ protoc.Generator = class {
                 first = false;
             }
             if (field.type.long) {
-                const unsigned = field.type.name === 'uint64' || field.type.name === 'fixed64';
-                this._builder.add(name + '.prototype' + protoc.Generator._propertyReference(field.name) + ' = protobuf.Long ? protobuf.Long.fromBits(' + JSON.stringify(field.defaultValue.low) + ', ' + JSON.stringify(field.defaultValue.high) + ', ' + JSON.stringify(field.defaultValue.unsigned) + ') : ' + field.defaultValue.toNumber(unsigned) + ';');
+                if (field.type.name === 'uint64' || field.type.name === 'fixed64') {
+                    this._builder.add(name + '.prototype' + protoc.Generator._propertyReference(field.name) + ' = protobuf.Uint64.create(' + field.defaultValue + ');');
+                }
+                else {
+                    this._builder.add(name + '.prototype' + protoc.Generator._propertyReference(field.name) + ' = protobuf.Int64.create(' + field.defaultValue + ');');
+                }
             }
             else if (field.type.name === 'bytes') {
                 this._builder.add(name + '.prototype' + protoc.Generator._propertyReference(field.name) + ' = new Uint8Array(' + JSON.stringify(Array.prototype.slice.call(field.defaultValue)) + ");");
@@ -1274,7 +1273,7 @@ protoc.Generator = class {
                                 const value = field.type instanceof protoc.PrimitiveType ?
                                     'reader.' + field.type.name + '()' :
                                     fieldTypeName(field) + '.decode(reader, reader.uint32())';
-                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType.name + '(), () => ' + value + ');');
+                                this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.name + '(), () => ' + value + ');');
                             }
                             else if (field.repeated) {
                                 if (field.type.name === 'float' || field.type.name === 'double') {
@@ -1367,7 +1366,7 @@ protoc.Generator = class {
                                 const value = field.type instanceof protoc.PrimitiveType ?
                                     'reader.' + field.type.name + '()' :
                                     fieldTypeName(field) + '.decodeText(reader, true)';
-                                this._builder.add('reader.pair(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
+                                this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
                             }
                             else if (field.repeated) { // Repeated fields
                                 if (field.type instanceof protoc.Enum) {

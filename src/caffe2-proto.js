@@ -69,8 +69,8 @@ $root.caffe2.ExternalDataProto = class ExternalDataProto {
 
 $root.caffe2.ExternalDataProto.prototype.source_type = 0;
 $root.caffe2.ExternalDataProto.prototype.record_id = "";
-$root.caffe2.ExternalDataProto.prototype.record_size = protobuf.Long ? protobuf.Long.fromBits(0, 0, true) : 0;
-$root.caffe2.ExternalDataProto.prototype.offset = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.ExternalDataProto.prototype.record_size = protobuf.Uint64.create(0);
+$root.caffe2.ExternalDataProto.prototype.offset = protobuf.Int64.create(0);
 
 $root.caffe2.ExternalDataProto.SourceType = {
     "INLINE_CONTAINER": 0,
@@ -290,8 +290,8 @@ $root.caffe2.TensorProto.Segment = class Segment {
     }
 };
 
-$root.caffe2.TensorProto.Segment.prototype.begin = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.caffe2.TensorProto.Segment.prototype.end = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.TensorProto.Segment.prototype.begin = protobuf.Int64.create(0);
+$root.caffe2.TensorProto.Segment.prototype.end = protobuf.Int64.create(0);
 
 $root.caffe2.QTensorProto = class QTensorProto {
 
@@ -703,8 +703,8 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
     }
 };
 
-$root.caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
-$root.caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Int64.create(0);
+$root.caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Int64.create(0);
 
 $root.caffe2.Argument = class Argument {
 
@@ -820,7 +820,7 @@ $root.caffe2.Argument = class Argument {
 
 $root.caffe2.Argument.prototype.name = "";
 $root.caffe2.Argument.prototype.f = 0;
-$root.caffe2.Argument.prototype.i = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.Argument.prototype.i = protobuf.Int64.create(0);
 $root.caffe2.Argument.prototype.s = new Uint8Array([]);
 $root.caffe2.Argument.prototype.t = null;
 $root.caffe2.Argument.prototype.n = null;
@@ -1034,7 +1034,7 @@ $root.caffe2.OperatorDef.prototype.engine = "";
 $root.caffe2.OperatorDef.prototype.is_gradient_op = false;
 $root.caffe2.OperatorDef.prototype.debug_info = "";
 $root.caffe2.OperatorDef.prototype.domain = "";
-$root.caffe2.OperatorDef.prototype.op_version = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.OperatorDef.prototype.op_version = protobuf.Int64.create(0);
 
 $root.caffe2.MapFieldEntry = class MapFieldEntry {
 
@@ -1430,11 +1430,11 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
 };
 
 $root.caffe2.ExecutionStep.prototype.name = "";
-$root.caffe2.ExecutionStep.prototype.num_iter = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.ExecutionStep.prototype.num_iter = protobuf.Int64.create(0);
 $root.caffe2.ExecutionStep.prototype.criteria_network = "";
 $root.caffe2.ExecutionStep.prototype.report_net = "";
 $root.caffe2.ExecutionStep.prototype.report_interval = 0;
-$root.caffe2.ExecutionStep.prototype.run_every_ms = protobuf.Long ? protobuf.Long.fromBits(0, 0, false) : 0;
+$root.caffe2.ExecutionStep.prototype.run_every_ms = protobuf.Int64.create(0);
 $root.caffe2.ExecutionStep.prototype.concurrent_substeps = false;
 $root.caffe2.ExecutionStep.prototype.should_stop_blob = "";
 $root.caffe2.ExecutionStep.prototype.only_once = false;
