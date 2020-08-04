@@ -1008,6 +1008,7 @@ pytorch.Execution = class {
             }
         });
         this._registerConstructor('torch.distributions.multivariate_normal.MultivariateNormal', function() {});
+        this._registerConstructor('torch.distributions.transforms.LowerCholeskyTransform', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
