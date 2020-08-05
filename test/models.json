@@ -1746,6 +1746,13 @@
   },
   {
     "type":   "darknet",
+    "target": "netron_issue_569.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/5025566/netron_issue_569.zip[netron_issue_569.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/569"
+  },
+  {
+    "type":   "darknet",
     "target": "resnet18.cfg,resnet18.weights",
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet18.cfg,https://pjreddie.com/media/files/resnet18.weights",
     "format": "Darknet",

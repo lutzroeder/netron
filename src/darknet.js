@@ -229,6 +229,7 @@ darknet.Graph = class {
                     index = (index < 0) ? i + index : index;
                     const item = sections[index].layer;
                     if (item) {
+                        layer.from = item;
                         layer.inputs.push(item.outputs[0]);
                     }
                     delete options.from;
@@ -677,9 +678,20 @@ darknet.Graph = class {
                         }
                         break;
                     }
-                    case 'shortcut':
-                    case 'scale_channels':
-                    case 'sam': {
+                    case 'sam':
+                    case 'scale_channels': {
+                        const activation = option_find_str(options, 'activation', 'linear');
+                        layer.out_w = layer.from.out_w;
+                        layer.out_h = layer.from.out_h;
+                        layer.out_c = layer.from.out_c;
+                        layer.out = layer.out_w * layer.out_h * layer.out_c;
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'shortcut|scale_channels|sam'));
+                        if (activation !== 'linear') {
+                            section.chain.push({ type: activation });
+                        }
+                        break;
+                    }
+                    case 'shortcut': {
                         const activation = option_find_str(options, 'activation', 'linear');
                         layer.out_w = params.w;
                         layer.out_h = params.h;
