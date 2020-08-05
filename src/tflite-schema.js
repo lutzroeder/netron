@@ -831,12 +831,14 @@ $root.tflite.AddOptions = class AddOptions {
     static decode(reader, position) {
         const $ = new $root.tflite.AddOptions();
         $.fused_activation_function = reader.int8_(position, 4, 0);
+        $.pot_scale_int16 = reader.bool_(position, 6, true);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.tflite.AddOptions();
         $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
+        $.pot_scale_int16 = reader.value(json.pot_scale_int16, true);
         return $;
     }
 };
@@ -1142,12 +1144,14 @@ $root.tflite.SubOptions = class SubOptions {
     static decode(reader, position) {
         const $ = new $root.tflite.SubOptions();
         $.fused_activation_function = reader.int8_(position, 4, 0);
+        $.pot_scale_int16 = reader.bool_(position, 6, true);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.tflite.SubOptions();
         $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
+        $.pot_scale_int16 = reader.value(json.pot_scale_int16, true);
         return $;
     }
 };
