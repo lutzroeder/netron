@@ -1317,9 +1317,13 @@ view.ModelFactoryService = class {
                 case 'tar': {
                     // handle .pth.tar
                     const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-                    if (!buffer || buffer.length < 14 || buffer[0] != 0x80 || !torch.every((v, i) => v == buffer[i + 2])) {
-                        archive = new tar.Archive(buffer);
+                    if (buffer && buffer.length >= 14 && buffer[0] === 0x80 && torch.every((v, i) => v === buffer[i + 2])) {
+                        break;
                     }
+                    if (buffer && buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
+                        break;
+                    }
+                    archive = new tar.Archive(buffer);
                     break;
                 }
                 case 'zip': {
