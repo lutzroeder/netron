@@ -154,7 +154,29 @@ keras.ModelFactory = class {
                                 }
                             }
                             else {
-                                throw new keras.Error('Module group format is not HDF5 Weights');
+                                const walk = function(group) {
+                                    if (Object.keys(group.attributes).length === 0 && group.value === null && group.groups.length > 0) {
+                                        for (const subGroup of group.groups) {
+                                            walk(subGroup);
+                                        }
+                                    }
+                                    else if (Object.keys(group.attributes).length === 0 && group.value !== null && group.groups.length === 0) {
+                                        const variable = group.value;
+                                        const variableName = group.path;
+                                        let moduleName = variableName;
+                                        const parts = variableName.split('/');
+                                        if (parts.length > 1) {
+                                            parts.pop();
+                                            moduleName = parts.join('/');
+                                        }
+                                        const tensor = new keras.Tensor(variableName, variable.type, variable.shape, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                                        weights.add(moduleName, tensor);
+                                    }
+                                    else {
+                                        throw new keras.Error('Module group format is not HDF5 Weights');
+                                    }
+                                };
+                                walk(rootGroup);
                             }
                         }
                         break;
