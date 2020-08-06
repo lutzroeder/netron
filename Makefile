@@ -44,7 +44,7 @@ lint: install
 	npx eslint src/*.js test/*.js setup/*.js tools/*.js
 
 test: install
-	node ./test/test.js
+	node ./test/models.js
 
 start: install
 	npx electron .
