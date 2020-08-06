@@ -37,6 +37,10 @@ host.ElectronHost = class {
         return 'Electron';
     }
 
+    get browser() {
+        return false;
+    }
+
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {

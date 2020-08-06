@@ -35,6 +35,10 @@ host.BrowserHost = class {
         return this._type;
     }
 
+    get browser() {
+        return true;
+    }
+
     initialize(view) {
         this._view = view;
         return new Promise((resolve /*, reject */) => {
@@ -305,7 +309,7 @@ host.BrowserHost = class {
     }
 
     openURL(url) {
-        window.open(url, '_target');
+        window.location = url;
     }
 
     exception(error, fatal) {

@@ -974,15 +974,17 @@ sidebar.DocumentationSidebar = class {
                 this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.since_version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
             }
 
-            element.addEventListener('click', (e) => {
-                if (e.target && e.target.href) {
-                    const link = e.target.href;
-                    if (link.startsWith('http://') || link.startsWith('https://')) {
-                        e.preventDefault();
-                        this._raise('navigate', { link: link });
+            if (!this._host.browser) {
+                element.addEventListener('click', (e) => {
+                    if (e.target && e.target.href) {
+                        const link = e.target.href;
+                        if (link.startsWith('http://') || link.startsWith('https://')) {
+                            e.preventDefault();
+                            this._raise('navigate', { link: link });
+                        }
                     }
-                }
-            });
+                });
+            }
             this._elements = [ element ];
         }
         return this._elements;
@@ -1014,37 +1016,42 @@ sidebar.DocumentationSidebar = class {
     static formatDocumentation(data) {
         if (data) {
             data = JSON.parse(JSON.stringify(data));
+            const options = {};
+            options.renderer = new marked.Renderer();
+            options.renderer.link = (href, title, text) => {
+                return '<a href="'+ href + '"' + (title ? '" title="' + title + '"' : '') + ' target="_blank">' + text + '</a>';
+            };
             if (data.summary) {
-                data.summary = marked(data.summary);
+                data.summary = marked(data.summary, options);
             }
             if (data.description) {
-                data.description = marked(data.description);
+                data.description = marked(data.description, options);
             }
             if (data.attributes) {
                 for (const attribute of data.attributes) {
                     if (attribute.description) {
-                        attribute.description = marked(attribute.description);
+                        attribute.description = marked(attribute.description, options);
                     }
                 }
             }
             if (data.inputs) {
                 for (const input of data.inputs) {
                     if (input.description) {
-                        input.description = marked(input.description);
+                        input.description = marked(input.description, options);
                     }
                 }
             }
             if (data.outputs) {
                 for (const output of data.outputs) {
                     if (output.description) {
-                        output.description = marked(output.description);
+                        output.description = marked(output.description, options);
                     }
                 }
             }
             if (data.references) {
                 for (const reference of data.references) {
                     if (reference) {
-                        reference.description = marked(reference.description);
+                        reference.description = marked(reference.description, options);
                     }
                 }
             }
