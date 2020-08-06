@@ -25128,6 +25128,12 @@
     "schema": {
       "description": "Outputs a tensor sequence that inserts 'tensor' into 'input_sequence' at 'position'.\n'tensor' must have the same data type as 'input_sequence'.\nAccepted range for 'position' is in `[-n, n]`, where `n` is the number of tensors in 'input_sequence'.\nNegative value means counting positions from the back.\n'position' is optional, by default it inserts 'tensor' to the back of 'input_sequence'.\n",
       "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "test_cases = {\n    'at_back': [np.array([10, 11, 12])],\n    'at_front': [np.array([-2, -1, 0]), np.array([0])]\n}\nsequence = [np.array([1, 2, 3, 4]), np.array([5, 6, 7]), np.array([8, 9])]\n\nfor test_name, test_inputs in test_cases.items():\n    tensor = test_inputs[0]\n\n    if len(test_inputs) > 1:\n        node = onnx.helper.make_node(\n            'SequenceInsert',\n            inputs=['sequence', 'tensor', 'position'],\n            outputs=['output_sequence']\n        )\n        position = test_inputs[1]\n        inserted = sequence_insert_reference_implementation(sequence, tensor, position)\n        expect(node, inputs=[sequence, tensor, position], outputs=[inserted],\n               name='test_sequence_insert_' + test_name)\n    else:\n        node = onnx.helper.make_node(\n            'SequenceInsert',\n            inputs=['sequence', 'tensor'],\n            outputs=['output_sequence']\n        )\n        inserted = sequence_insert_reference_implementation(sequence, tensor)\n        expect(node, inputs=[sequence, tensor], outputs=[inserted],\n               name='test_sequence_insert_' + test_name)",
+          "summary": "sequenceinsert"
+        }
+      ],
       "inputs": [
         {
           "description": "Input sequence.",
