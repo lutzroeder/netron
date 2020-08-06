@@ -4603,6 +4603,13 @@
   },
   {
     "type":   "tengine",
+    "target": "retinaface_benchmark.tmfile",
+    "source": "https://raw.githubusercontent.com/OAID/Tengine/tengine-lite/benchmark/models/retinaface_benchmark.tmfile",
+    "format": "Tengine v2.0",
+    "link":   "https://github.com/OAID/Tengine"
+  },
+  {
+    "type":   "tengine",
     "target": "squeezenet.tmfile",
     "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/squeezenet.tmfile",
     "format": "Tengine v2.0",

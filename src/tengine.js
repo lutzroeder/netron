@@ -714,14 +714,13 @@ tengine.ModelFileReader = class {
                     node.params[6] = (this._originalFormat == 5) ? node.params[6] : 0;
                 }
 
-                node.attributes = [];
-                for (const attributeOffset of attributeOffsets) {
+                node.attributes = attributeOffsets.map((attributeOffset) => {
                     reader.seek(attributeOffset);
                     const name = reader.string();
                     const value = reader.string();
                     const type = reader.int32();
-                    node.attributes.push({ name: name, value: value, type: type });
-                }
+                    return { name: name, value: value, type: type };
+                });
 
                 if (node.type !== 'Const') {
                     subgraph.nodes.push(node);
@@ -729,16 +728,19 @@ tengine.ModelFileReader = class {
             }
 
             // buffers
-            const buffers = [];
-            for (const buffersOffset of bufferOffsets) {
-                reader.seek(buffersOffset);
+            const buffers = bufferOffsets.map((bufferOffset) => {
+                reader.seek(bufferOffset);
                 const size = reader.uint32();
-                reader.seek(reader.int32());
-                buffers.push(reader.bytes(size));
-            }
+                const offset = reader.int32();
+                if (offset !== 0) {
+                    reader.seek(offset);
+                    return reader.bytes(size);
+                }
+                return null;
+            });
 
             // tensors
-            for (const tensorOffset of tensorOffsets) {
+            subgraph.tensors = tensorOffsets.map((tensorOffset) => {
                 reader.seek(tensorOffset);
                 const tensor = {};
                 tensor.id = reader.int32();
@@ -757,8 +759,8 @@ tengine.ModelFileReader = class {
                         width: reader.int32()
                     };
                 }
-                subgraph.tensors.push(tensor);
-            }
+                return tensor;
+            });
 
             for (const node of subgraph.nodes) {
                 if (node.type === 'Convolution') {
