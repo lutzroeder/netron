@@ -3178,15 +3178,10 @@
   },
   {
     "type":   "onnx",
-    "target": "vgg16-bn.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/vgg/vgg16-bn/vgg16-bn.onnx",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
-  },
-  {
-    "type":   "onnx",
     "target": "vgg19.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg",
+    "link":   "ONNX v3"
   },
   {
     "type":   "onnx",
