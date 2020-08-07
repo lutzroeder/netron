@@ -9889,7 +9889,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "The type of elements to be summed. Must be one of the following: `bfloat16`, `float32`, `int32`, `uint32`.",
+          "description": "The type of elements to be summed. Must be one of the following: `float16`, `bfloat16`, `float32`, `int32`, `uint32`.",
           "name": "T",
           "type": "type"
         }
