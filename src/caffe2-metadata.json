@@ -1145,7 +1145,7 @@
           "name": "Zero-point qparam"
         },
         {
-          "description": "Optional Qparam blob that constans quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
+          "description": "Optional Qparam blob that contains quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
           "name": "Qparam"
         }
       ],
@@ -1257,7 +1257,7 @@
           "name": "Zero-point qparam"
         },
         {
-          "description": "Optional Qparam blob that constans quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
+          "description": "Optional Qparam blob that contains quant param computed on activation histogram dataWill overwrite Y_scale and Y_zero_point argument if specified",
           "name": "Qparam"
         }
       ],
