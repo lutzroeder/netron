@@ -5610,31 +5610,31 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y']\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.array([0]).astype(np.int32)\ny = np.array([1., 3., 6., 10., 15.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y']\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([1., 3., 6., 10., 15.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d')",
           "summary": "cumsum_1d"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    exclusive=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.array([0]).astype(np.int32)\ny = np.array([0., 1., 3., 6., 10.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_exclusive')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    exclusive=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([0., 1., 3., 6., 10.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_exclusive')",
           "summary": "cumsum_1d_exclusive"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    reverse=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.array([0]).astype(np.int32)\ny = np.array([15., 14., 12., 9., 5.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_reverse')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    reverse=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([15., 14., 12., 9., 5.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_reverse')",
           "summary": "cumsum_1d_reverse"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    reverse=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.array([0]).astype(np.int32)\ny = np.array([14., 12., 9., 5., 0.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_reverse_exclusive')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n    reverse=1,\n    exclusive=1\n)\nx = np.array([1., 2., 3., 4., 5.]).astype(np.float64)\naxis = np.int32(0)\ny = np.array([14., 12., 9., 5., 0.]).astype(np.float64)\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_1d_reverse_exclusive')",
           "summary": "cumsum_1d_reverse_exclusive"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.array([0]).astype(np.int32)\ny = np.array([1., 2., 3., 5., 7., 9.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_axis_0')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.int32(0)\ny = np.array([1., 2., 3., 5., 7., 9.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_axis_0')",
           "summary": "cumsum_2d_axis_0"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.array([1]).astype(np.int32)\ny = np.array([1., 3., 6., 4., 9., 15.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_axis_1')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.int32(1)\ny = np.array([1., 3., 6., 4., 9., 15.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_axis_1')",
           "summary": "cumsum_2d_axis_1"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.array([-1]).astype(np.int32)\ny = np.array([1., 3., 6., 4., 9., 15.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_negative_axis')",
+          "code": "node = onnx.helper.make_node(\n    'CumSum',\n    inputs=['x', 'axis'],\n    outputs=['y'],\n)\nx = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float64).reshape((2, 3))\naxis = np.int32(-1)\ny = np.array([1., 3., 6., 4., 9., 15.]).astype(np.float64).reshape((2, 3))\nexpect(node, inputs=[x, axis], outputs=[y],\n       name='test_cumsum_2d_negative_axis')",
           "summary": "cumsum_2d_negative_axis"
         }
       ],
@@ -5645,7 +5645,7 @@
           "type": "T"
         },
         {
-          "description": "(Optional) A 0-D tensor. Must be in the range [-rank(x), rank(x)-1]. Negative value means counting dimensions from the back.",
+          "description": "A 0-D tensor. Must be in the range [-rank(x), rank(x)-1]. Negative value means counting dimensions from the back.",
           "name": "axis",
           "type": "T2"
         }
