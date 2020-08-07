@@ -164,12 +164,13 @@ tengine.Node = class {
     constructor(metadata, node, tensors) {
         this._metadata = metadata;
         this._name = node.name;
-        this._type = node.type + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
+        this._type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
+        this._version = node.version;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
 
-        const schema = metadata.type(this._type);
+        const schema = metadata.type(this._type, this._version);
 
         for (let i = 0; i < node.params.length; i++) {
             const attributeSchema = (schema && schema.attributes && i < schema.attributes.length) ? schema.attributes[i] : null;
@@ -217,7 +218,7 @@ tengine.Node = class {
     }
 
     get type() {
-        return this._type.split(':')[0];
+        return this._type;
     }
 
     get name() {
@@ -225,7 +226,7 @@ tengine.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._type);
+        return this._metadata.type(this._type, this._version);
     }
 
     get attributes() {
@@ -477,39 +478,38 @@ tengine.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
         if (data) {
             const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
                     if (item.name && item.schema) {
                         item.schema.name = item.name;
-                        const name = item.name + (item.version && item.version !== 1 ? ':' + item.version.toString() : '');
-                        this._map[name] = item.schema;
+                        const version = item.version || 0;
+                        const name = item.name + ':' + version.toString();
+                        this._map.set(name, item.schema);
                     }
                 }
             }
         }
     }
 
-    type(name) {
-        return this._map[name] || null;
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
+    type(name, version) {
+        let current = version;
+        while (current > 0) {
+            if (this._map.has(name + ':' + current.toString())) {
+                break;
             }
-            this._attributeCache[type] = map;
+            current--;
         }
-        return map[name] || null;
+        if (current >= 0) {
+            const schema = this._map.get(name + ':' + current.toString());
+            if (current !== version) {
+                this._map.set(name + ':' + version.toString(), schema);
+            }
+            return schema;
+        }
+        return null;
     }
 };
 
@@ -524,99 +524,116 @@ tengine.ModelFileReader = class {
         const register = (index, version, name, params) => {
             types.set(index.toString() + ':' + version.toString(), { name: name, params: params });
         };
-        register( 0, 1, 'Accuracy', []);
-        register( 1, 1, 'BatchNormalization', [ 'f', 'f', 'i' ]);
-        register( 2, 1, 'BilinearResize', [ 'f', 'f', 'i' ]);
-        register( 3, 1, 'Concat', [ 'i' ]);
-        register( 4, 1, 'Const', []);
-        register( 5, 1, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register( 6, 1, 'DeConvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register( 7, 1, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
-        register( 8, 1, 'DropOut', []);
-        register( 9, 1, 'Eltwise', [ 'i', 'i' ]);
-        register(10, 1, 'Flatten', [ 'i' ]);
-        register(11, 1, 'FullyConnected', [ 'i' ]);
-        register(12, 1, 'INPUT', []);
-        register(13, 1, 'LRN', [ 'i', 'f', 'f', 'i', 'f' ]);
-        register(14, 1, 'Normalize', [ 'i', 'i' ]);
-        register(15, 1, 'Permute', [ 'i', 'i', 'i', 'i', 'i' ]);
-        register(16, 1, 'Pooling', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(17, 1, 'Prelu', []);
-        register(18, 1, 'PriorBox', [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ]);
-        register(19, 1, 'Region', [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ]);
-        register(20, 1, 'ReLU', [ 'f' ]);
-        register(21, 1, 'ReLU6', []);
-        register(22, 1, 'Reorg', [ 'i' ]);
-        register(23, 1, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        const operator = (index, version) => {
+            let current = version;
+            while (current >= 0) {
+                if (types.has(index.toString() + ':' + current.toString())) {
+                    break;
+                }
+                current--;
+            }
+            if (current >= 0) {
+                const schema = types.get(index.toString() + ':' + current.toString());
+                if (current !== version) {
+                    types.set(index.toString() + ':' + version.toString(), schema);
+                }
+                return schema;
+            }
+            return null;
+        };
+        register( 0, 0, 'Accuracy', []);
+        register( 1, 0, 'BatchNormalization', [ 'f', 'f', 'i' ]);
+        register( 2, 0, 'BilinearResize', [ 'f', 'f', 'i' ]);
+        register( 3, 0, 'Concat', [ 'i' ]);
+        register( 4, 0, 'Const', []);
+        register( 5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register( 6, 0, 'DeConvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register( 7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
+        register( 8, 0, 'DropOut', []);
+        register( 9, 0, 'Eltwise', [ 'i', 'i' ]);
+        register(10, 0, 'Flatten', [ 'i' ]);
+        register(11, 0, 'FullyConnected', [ 'i' ]);
+        register(12, 0, 'INPUT', []);
+        register(13, 0, 'LRN', [ 'i', 'f', 'f', 'i', 'f' ]);
+        register(14, 0, 'Normalize', [ 'i', 'i' ]);
+        register(15, 0, 'Permute', [ 'i', 'i', 'i', 'i', 'i' ]);
+        register(16, 0, 'Pooling', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(17, 0, 'Prelu', []);
+        register(18, 0, 'PriorBox', [ 'f[]', 'f[]', 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'f', 'f', 'i', 'i' ]);
+        register(19, 0, 'Region', [ 'i', 'i', 'i', 'i', 'f', 'f', 'f[]' ]);
+        register(20, 0, 'ReLU', [ 'f' ]);
+        register(21, 0, 'ReLU6', []);
+        register(22, 0, 'Reorg', [ 'i' ]);
+        register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
         register(23, 2, 'Reshape', [ 'i', 'i', 'i[]' ]);
-        register(24, 1, 'RoiPooling', [ 'i', 'i', 'f' ]);
-        register(25, 1, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
-        register(26, 1, 'Scale', [ 'i', 'i', 'i' ]);
-        register(27, 1, 'Slice', [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ]);
-        register(28, 1, 'SoftMax', [ 'i' ]);
-        register(29, 1, 'Split', [ 'i', 'i', 'boolean', 'boolean', 'i[]' ]);
-        register(30, 1, 'DetectionPostProcess', [ 'i', 'i', 'f', 'f', 'i', 'f[]' ]);
-        register(31, 1, 'Gemm', [ 'f', 'f', 'i', 'i' ]);
-        register(32, 1, 'Generic', [ 'i', 'i', 'string' ]);
-        register(33, 1, 'Logistic', []);
-        register(34, 1, 'LSTM', [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(35, 1, 'RNN', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(36, 1, 'TanH', []);
-        register(37, 1, 'Sigmoid', []);
-        register(38, 1, 'Squeeze', [ 'i', 'i', 'i', 'i' ]);
-        register(39, 1, 'FusedbnScaleRelu', []);
-        register(40, 1, 'Pad', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ]);
-        register(41, 1, 'StridedSlice', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(42, 1, 'ArgMax', [ 'i' ]);
-        register(43, 1, 'ArgMin', [ 'i' ]);
-        register(44, 1, 'TopKV2', [ 'i', 'i' ]);
-        register(45, 1, 'Reduction', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(46, 1, 'Max', []);
-        register(47, 1, 'Min', []);
-        register(48, 1, 'GRU', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(49, 1, 'Addn', 'i');
-        register(50, 1, 'SwapAxis', [ 'i', 'i' ]);
-        register(51, 1, 'Upsample', [ 'f' ]);
-        register(52, 1, 'SpaceToBatchND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(53, 1, 'BatchToSpaceND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(54, 1, 'Resize', [ 'f', 'f', 'i' ]);
-        register(55, 1, 'ShuffleChannel', [ 'i' ]);
-        register(56, 1, 'Crop', [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ]);
-        register(57, 1, 'ROIAlign', [ 'i', 'i', 'f' ]);
-        register(58, 1, 'Psroipooling', [ 'i', 'i', 'f', 'i' ]);
-        register(59, 1, 'Unary', [ 'i' ]);
-        register(60, 1, 'Expanddims', [ 'i' ]);
-        register(61, 1, 'Bias', [ 'i' ]);
-        register(62, 1, 'Noop', []);
-        register(63, 1, 'Threshold', [ 'f' ]);
-        register(64, 1, 'Hardsigmoid', [ 'f', 'f' ]);
-        register(65, 1, 'Embed', [ 'f', 'f', 'f', 'f' ]);
-        register(66, 1, 'InstanceNorm', [ 'f' ]);
-        register(67, 1, 'MVN', [ 'i', 'i', 'f' ]);
-        register(68, 1, 'Absval', []);
-        register(69, 1, 'Cast', [ 'i', 'i' ]);
-        register(70, 1, 'HardSwish', [ 'f', 'f' ]);
-        register(71, 1, 'Interp', [ 'i', 'i', 'f', 'f', 'i' ]);
-        register(72, 1, 'SELU', [ 'f', 'f' ]);
-        register(73, 1, 'ELU', [ 'f' ]);
-        register(74, 1, 'BroadMul', []);
-        register(75, 1, 'Logical', [ 'i' ]);
-        register(76, 1, 'Gather', [ 'i', 'i' ]);
-        register(77, 1, 'Transpose', [ 'i[]' ]);
-        register(78, 1, 'Comparison', [ 'i' ]);
-        register(79, 1, 'SpaceToDepth', [ 'i' ]);
-        register(80, 1, 'DepthToSpace', [ 'i' ]);
-        register(81, 1, 'Reverse', []);
-        register(82, 1, 'SparseToDense', [ 'i','i','i' ]);
-        register(83, 1, 'Ceil', []);
-        register(84, 1, 'SquaredDifference', []);
-        register(85, 1, 'Round', []);
-        register(86, 1, 'ZerosLike', []);
-        register(87, 1, 'Clip', [ 'f','f' ]);
-        register(88, 1, 'MatMul', []);
-        register(89, 1, 'ReduceL2', [ 'i','i' ]);
-        register(90, 1, 'Unsqueeze', [ 'i[]' ]); /* need fix*/
-        register(91, 1, 'Num', []);
+        register(24, 0, 'RoiPooling', [ 'i', 'i', 'f' ]);
+        register(25, 0, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
+        register(26, 0, 'Scale', [ 'i', 'i', 'i' ]);
+        register(27, 0, 'Slice', [ 'i', 'i[]', 'i[]', 'i[]', 'i', 'i', 'i', 'i', 'i' ]);
+        register(28, 0, 'SoftMax', [ 'i' ]);
+        register(29, 0, 'Split', [ 'i', 'i', 'boolean', 'boolean', 'i[]' ]);
+        register(30, 0, 'DetectionPostProcess', [ 'i', 'i', 'f', 'f', 'i', 'f[]' ]);
+        register(31, 0, 'Gemm', [ 'f', 'f', 'i', 'i' ]);
+        register(32, 0, 'Generic', [ 'i', 'i', 'string' ]);
+        register(33, 0, 'Logistic', []);
+        register(34, 0, 'LSTM', [ 'f', 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(35, 0, 'RNN', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(36, 0, 'TanH', []);
+        register(37, 0, 'Sigmoid', []);
+        register(38, 0, 'Squeeze', [ 'i', 'i', 'i', 'i' ]);
+        register(39, 0, 'FusedbnScaleRelu', []);
+        register(40, 0, 'Pad', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'f' ]);
+        register(41, 0, 'StridedSlice', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(42, 0, 'ArgMax', [ 'i' ]);
+        register(43, 0, 'ArgMin', [ 'i' ]);
+        register(44, 0, 'TopKV2', [ 'i', 'i' ]);
+        register(45, 0, 'Reduction', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(46, 0, 'Max', []);
+        register(47, 0, 'Min', []);
+        register(48, 0, 'GRU', [ 'f', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(49, 0, 'Addn', 'i');
+        register(50, 0, 'SwapAxis', [ 'i', 'i' ]);
+        register(51, 0, 'Upsample', [ 'f' ]);
+        register(52, 0, 'SpaceToBatchND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(53, 0, 'BatchToSpaceND', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(54, 0, 'Resize', [ 'f', 'f', 'i' ]);
+        register(55, 0, 'ShuffleChannel', [ 'i' ]);
+        register(56, 0, 'Crop', [ 'i', 'i', 'i', 'i', 'i', 'i', 'boolean', 'i', 'i' ]);
+        register(57, 0, 'ROIAlign', [ 'i', 'i', 'f' ]);
+        register(58, 0, 'Psroipooling', [ 'i', 'i', 'f', 'i' ]);
+        register(59, 0, 'Unary', [ 'i' ]);
+        register(60, 0, 'Expanddims', [ 'i' ]);
+        register(61, 0, 'Bias', [ 'i' ]);
+        register(62, 0, 'Noop', []);
+        register(63, 0, 'Threshold', [ 'f' ]);
+        register(64, 0, 'Hardsigmoid', [ 'f', 'f' ]);
+        register(65, 0, 'Embed', [ 'f', 'f', 'f', 'f' ]);
+        register(66, 0, 'InstanceNorm', [ 'f' ]);
+        register(67, 0, 'MVN', [ 'i', 'i', 'f' ]);
+        register(68, 0, 'Absval', []);
+        register(69, 0, 'Cast', [ 'i', 'i' ]);
+        register(70, 0, 'HardSwish', [ 'f', 'f' ]);
+        register(71, 0, 'Interp', [ 'i', 'i', 'f', 'f', 'i' ]);
+        register(72, 0, 'SELU', [ 'f', 'f' ]);
+        register(73, 0, 'ELU', [ 'f' ]);
+        register(74, 0, 'BroadMul', []);
+        register(75, 0, 'Logical', [ 'i' ]);
+        register(76, 0, 'Gather', [ 'i', 'i' ]);
+        register(77, 0, 'Transpose', [ 'i[]' ]);
+        register(78, 0, 'Comparison', [ 'i' ]);
+        register(79, 0, 'SpaceToDepth', [ 'i' ]);
+        register(80, 0, 'DepthToSpace', [ 'i' ]);
+        register(81, 0, 'Reverse', []);
+        register(82, 0, 'SparseToDense', [ 'i','i','i' ]);
+        register(83, 0, 'Ceil', []);
+        register(84, 0, 'SquaredDifference', []);
+        register(85, 0, 'Round', []);
+        register(86, 0, 'ZerosLike', []);
+        register(87, 0, 'Clip', [ 'f','f' ]);
+        register(88, 0, 'MatMul', []);
+        register(89, 0, 'ReduceL2', [ 'i','i' ]);
+        register(90, 0, 'Unsqueeze', [ 'i[]' ]); /* need fix*/
+        register(91, 0, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
@@ -670,8 +687,7 @@ tengine.ModelFileReader = class {
                 const index = reader.int32();
                 const paramsOffset = reader.uint32();
 
-                const type = index.toString() + ':' + node.version.toString();
-                const schema = types.has(type) ? types.get(type) : null;
+                const schema = operator(index, node.version);
                 node.type = schema ? schema.name : index.toString();
                 const paramTypes = schema ? schema.params : [];
 
