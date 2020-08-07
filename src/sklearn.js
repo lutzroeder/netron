@@ -111,12 +111,16 @@ sklearn.Graph = class {
         else if (weights instanceof Map) {
             const group_map = new Map();
             const groups = [];
+            let separator = '_';
+            if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) && !Array.from(weights.keys()).every((key) => key.indexOf('_') !== -1)) {
+                separator = '.';
+            }
             for (const pair of weights) {
                 const key = pair[0];
-                const parts = key.split('_');
+                const parts = key.split(separator);
                 const value = pair[1];
                 const name = parts.length > 1 ? parts.pop() : '?';
-                const id = parts.join('_');
+                const id = parts.join(separator);
                 let group = group_map.get(id);
                 if (!group) {
                     group = { id: id, arrays: [] };
@@ -1099,18 +1103,29 @@ sklearn.Container = class {
         const find_weights = function(objs) {
 
             for (const dict of objs) {
-                if (dict && !Array.isArray(dict)) {
+                if (dict) {
                     const weights = new Map();
-                    for (const key in dict) {
-                        const value = dict[key];
-                        if (key != 'weight_order' && key != 'lr') {
-                            if (!key || !sklearn.Utility.isTensor(value)) {
+                    if (dict instanceof Map) {
+                        for (const pair of dict) {
+                            if (!sklearn.Utility.isTensor(pair[1])) {
                                 return null;
                             }
-                            weights.set(key, value);
+                            weights.set(pair[0], pair[1]);
                         }
+                        return weights;
                     }
-                    return weights;
+                    else if (!Array.isArray(dict)) {
+                        for (const key in dict) {
+                            const value = dict[key];
+                            if (key != 'weight_order' && key != 'lr') {
+                                if (!key || !sklearn.Utility.isTensor(value)) {
+                                    return null;
+                                }
+                                weights.set(key, value);
+                            }
+                        }
+                        return weights;
+                    }
                 }
             }
 

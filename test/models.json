@@ -4435,6 +4435,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "mobilenet_v2_normal_72820.pkl",
+    "source": "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
+    "format": "Pickle",
+    "link":   "https://github.com/MegEngine/Models/tree/master/official/quantization"
+  },
+  {
+    "type":   "sklearn",
     "target": "LDA_model.pkl",
     "source": "https://raw.githubusercontent.com/rainer85ah/DCS/master/Output/LDA_model.pkl",
     "format": "scikit-learn",
