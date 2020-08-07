@@ -1078,6 +1078,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm1d', function() {});
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm2d', function() {});
         this._registerConstructor('torch.nn.modules.instancenorm.InstanceNorm3d', function() {});
+        this._registerConstructor('torch.nn.modules.linear._LinearWithBias', function() {});
         this._registerConstructor('torch.nn.modules.linear.Linear', function() {});
         this._registerConstructor('torch.nn.modules.linear.Identity', function() {});
         this._registerConstructor('torch.nn.modules.loss.BCELoss', function() {});
