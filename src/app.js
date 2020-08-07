@@ -371,7 +371,7 @@ class Application {
                     { role: 'hideothers' },
                     { role: 'unhide' },
                     { type: 'separator' },
-                    { role: "quit" }
+                    { role: 'quit' }
                 ]
             });
         }
@@ -692,11 +692,11 @@ class View {
     open(file) {
         this._openPath = file;
         if (this._ready) {
-            this._window.webContents.send("open", { file: file });
+            this._window.webContents.send('open', { file: file });
         }
         else {
             this._window.webContents.on('dom-ready', () => {
-                this._window.webContents.send("open", { file: file });
+                this._window.webContents.send('open', { file: file });
             });
             const location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
             this._window.loadURL(location);
