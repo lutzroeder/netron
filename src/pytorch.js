@@ -1125,6 +1125,9 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.rnn.RNN', function() {});
         this._registerConstructor('torch.nn.modules.sparse.Embedding', function() {});
         this._registerConstructor('torch.nn.modules.sparse.EmbeddingBag', function() {});
+        this._registerConstructor('torch.nn.modules.transformer.Transformer', function() {});
+        this._registerConstructor('torch.nn.modules.transformer.TransformerDecoder', function() {});
+        this._registerConstructor('torch.nn.modules.transformer.TransformerDecoderLayer', function() {});
         this._registerConstructor('torch.nn.modules.transformer.TransformerEncoder', function() {});
         this._registerConstructor('torch.nn.modules.transformer.TransformerEncoderLayer', function() {});
         this._registerConstructor('torch.nn.modules.upsampling.Upsample', function() {});
@@ -2924,7 +2927,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
         }
         if (callTarget) {
             const type = callTarget + '.' + name;
-            // ./third_party/src/pytorch/aten/src/ATen/native/native_functions.yaml
+            // https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/native_functions.yaml
             let schemas = this._metadata.type(type);
             if (schemas) {
                 if (!Array.isArray(schemas)) {
