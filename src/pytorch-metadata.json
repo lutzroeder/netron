@@ -2535,13 +2535,11 @@
     "name": "torch.arange",
     "schema": {
       "attributes": [
+        { "name": "end", "type": "scalar" },
         { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
         { "name": "layout", "type": "Layout", "optional": true, "default": null },
         { "name": "device", "type": "Device", "optiona": true, "default": null },
         { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
-      ],
-      "inputs": [
-        { "name": "input", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
