@@ -3663,7 +3663,7 @@
           "type": "boolean"
         }
       ],
-      "description": "So, for example, in the following code\n\n  ```python\n\n  # This input will be captured.\n  y = tf.placeholder_with_default(1.0, shape=[])\n\n  @tf.Defun(tf.float32)\n  def computation(a):\n    return tf.matmul(a, a) + y\n\n  b = gen_batch_ops.batch_function(\n          f=computation\n          in_tensors=[a],\n          captured_tensors=computation.captured_inputs,\n          Tout=[o.type for o in computation.definition.signature.output_arg],\n          num_batch_threads=1,\n          max_batch_size=10,\n          batch_timeout_micros=100000,  # 100ms\n          allowed_batch_sizes=[3, 10],\n          batching_queue=\"\")\n\nIf more than one session.run call is simultaneously trying to compute `b`\nthe values of `a` will be gathered, non-deterministically concatenated\nalong the first axis, and only one thread will run the computation.\n\nAssumes that all arguments of the function are Tensors which will be batched\nalong their first dimension.\n\nArguments that are captured, are not batched. The session.run call which does\nthe concatenation, will use the values of the captured tensors available to it.\nTherefore, typical uses of captured tensors should involve values which remain\nunchanged across session.run calls. Inference is a good example of this.\n\nSparseTensor is not supported. The return value of the decorated function\nmust be a Tensor or a list/tuple of Tensors.",
+      "description": "So, for example, in the following code\n\n  ```python\n\n  # This input will be captured.\n  y = tf.placeholder_with_default(1.0, shape=[])\n\n  @tf.Defun(tf.float32)\n  def computation(a):\n    return tf.matmul(a, a) + y\n\n  b = gen_batch_ops.batch_function(\n          f=computation\n          in_tensors=[a],\n          captured_tensors=computation.captured_inputs,\n          Tout=[o.type for o in computation.definition.signature.output_arg],\n          num_batch_threads=1,\n          max_batch_size=10,\n          batch_timeout_micros=100000,  # 100ms\n          allowed_batch_sizes=[3, 10],\n          batching_queue=\"\")\n  ```\n\nIf more than one session.run call is simultaneously trying to compute `b`\nthe values of `a` will be gathered, non-deterministically concatenated\nalong the first axis, and only one thread will run the computation.\n\nAssumes that all arguments of the function are Tensors which will be batched\nalong their first dimension.\n\nArguments that are captured, are not batched. The session.run call which does\nthe concatenation, will use the values of the captured tensors available to it.\nTherefore, typical uses of captured tensors should involve values which remain\nunchanged across session.run calls. Inference is a good example of this.\n\nSparseTensor is not supported. The return value of the decorated function\nmust be a Tensor or a list/tuple of Tensors.",
       "inputs": [
         {
           "description": "The tensors to be batched.",
@@ -14103,6 +14103,19 @@
         }
       ],
       "summary": "Creates and returns an empty tensor list."
+    }
+  },
+  {
+    "name": "EmptyTensorMap",
+    "schema": {
+      "description": "handle: an empty tensor map",
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates and returns an empty tensor map."
     }
   },
   {
@@ -56432,6 +56445,161 @@
         }
       ],
       "summary": "Stacks all tensors in the list."
+    }
+  },
+  {
+    "name": "TensorMapErase",
+    "schema": {
+      "attributes": [
+        {
+          "name": "key_dtype",
+          "type": "type"
+        },
+        {
+          "name": "value_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "input_handle: the original map\noutput_handle: the map with value from given key removed\nkey: the key of the value to be erased\nvalue: the value that was erased",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "key",
+          "typeAttr": "key_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        },
+        {
+          "name": "value",
+          "typeAttr": "value_dtype"
+        }
+      ],
+      "summary": "Returns a tensor map with item from given key erased."
+    }
+  },
+  {
+    "name": "TensorMapHasKey",
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "input_handle: the input map\nkey: the key to check\nhas_key: whether the key is already in the map or not",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "key",
+          "typeAttr": "element_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "has_key",
+          "type": 10
+        }
+      ],
+      "summary": "Returns whether the given key exists in the map."
+    }
+  },
+  {
+    "name": "TensorMapInsert",
+    "schema": {
+      "attributes": [
+        {
+          "name": "key_dtype",
+          "type": "type"
+        },
+        {
+          "name": "value_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "input_handle: the original map\noutput_handle: the map with key and value inserted\nkey: the key to be inserted\nvalue: the value to be inserted",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "key",
+          "typeAttr": "key_dtype"
+        },
+        {
+          "name": "value",
+          "typeAttr": "value_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output_handle",
+          "type": 21
+        }
+      ],
+      "summary": "Returns a map that is the 'input_handle' with the given key-value pair inserted."
+    }
+  },
+  {
+    "name": "TensorMapLookup",
+    "schema": {
+      "attributes": [
+        {
+          "name": "key_dtype",
+          "type": "type"
+        },
+        {
+          "name": "value_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "input_handle: the input map\nkey: the key to be looked up\nvalue: the value found from the given key",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        },
+        {
+          "name": "key",
+          "typeAttr": "key_dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "value",
+          "typeAttr": "value_dtype"
+        }
+      ],
+      "summary": "Returns the value from a given key in a tensor map."
+    }
+  },
+  {
+    "name": "TensorMapSize",
+    "schema": {
+      "description": "input_handle: the input map\nsize: the number of tensors in the map",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "size",
+          "type": 3
+        }
+      ],
+      "summary": "Returns the number of tensors in the input tensor map."
     }
   },
   {
