@@ -145,7 +145,9 @@ def update_attributes(schema, lines):
             "dict or list of dictionaries",
             "int, or str, default=n_jobs",
             "'raise' or numeric, default=np.nan",
-            "'auto' or float, default=None"
+            "'auto' or float, default=None",
+            "float, default=np.finfo(float).eps",
+            "int, float, str, np.nan or None, default=np.nan"
         }
         if line == 'str':
             line = 'string'

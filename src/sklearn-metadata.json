@@ -26,13 +26,16 @@
     "schema": {
       "attributes": [
         {
+          "default": null,
           "description": "Indicates an ordering for the class labels.\nAll entries should be unique (cannot contain duplicate classes).\n",
           "name": "classes",
           "option": "optional"
         },
         {
+          "default": false,
           "description": "Set to true if output binary array is desired in CSR sparse format\n",
-          "name": "sparse_output"
+          "name": "sparse_output",
+          "type": "boolean"
         }
       ],
       "description": "Transform between iterable of iterables and a multilabel format\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n"
@@ -242,7 +245,7 @@
           "type": "boolean"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`sklearn.svm.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n"
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n"
     }
   },
   {
@@ -350,7 +353,7 @@
           "type": "boolean"
         }
       ],
-      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`sklearn.svm.LinearSVC` or\n:class:`sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n"
+      "description": "C-Support Vector Classification.\n\nThe implementation is based on libsvm. The fit time scales at least\nquadratically with the number of samples and may be impractical\nbeyond tens of thousands of samples. For large datasets\nconsider using :class:`~sklearn.svm.LinearSVC` or\n:class:`~sklearn.linear_model.SGDClassifier` instead, possibly after a\n:class:`~sklearn.kernel_approximation.Nystroem` transformer.\n\nThe multiclass support is handled according to a one-vs-one scheme.\n\nFor details on the precise mathematical formulation of the provided\nkernel functions and how `gamma`, `coef0` and `degree` affect each\nother, see the corresponding section in the narrative documentation:\n:ref:`svm_kernels`.\n\nRead more in the :ref:`User Guide <svm_classification>`.\n"
     }
   },
   {
@@ -793,7 +796,7 @@
         },
         {
           "default": true,
-          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n",
+          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n",
           "name": "normalize",
           "option": "optional",
           "type": "boolean"
@@ -812,7 +815,7 @@
           "type": "int32"
         },
         {
-          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\nBy default, ``np.finfo(np.float).eps`` is used.\n",
+          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\nBy default, ``np.finfo(float).eps`` is used.\n",
           "name": "eps",
           "option": "optional",
           "type": "float32"
@@ -843,8 +846,10 @@
           "type": "float32"
         },
         {
+          "default": null,
           "description": "Determines random number generation for jittering. Pass an int\nfor reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`. Ignored if `jitter` is None.\n",
-          "name": "random_state"
+          "name": "random_state",
+          "type": "int32"
         }
       ],
       "description": "Lasso model fit with Least Angle Regression a.k.a. Lars\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n"
@@ -888,7 +893,7 @@
         },
         {
           "default": null,
-          "description": "Used when ``svd_solver`` == 'arpack' or 'randomized'. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
+          "description": "Used when the 'arpack' or 'randomized' solvers are used. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
           "name": "random_state",
           "type": "int32"
         }
@@ -935,7 +940,7 @@
         },
         {
           "default": null,
-          "description": "Used when ``svd_solver`` == 'arpack' or 'randomized'. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
+          "description": "Used when the 'arpack' or 'randomized' solvers are used. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
           "name": "random_state",
           "option": "optional",
           "type": "int32"
@@ -949,21 +954,30 @@
     "schema": {
       "attributes": [
         {
-          "description": "The classifier whose output need to be calibrated to provide more\naccurate `predict_proba` outputs.\n",
+          "default": null,
+          "description": "The classifier whose output need to be calibrated to provide more\naccurate `predict_proba` outputs. The default classifier is\na :class:`~sklearn.svm.LinearSVC`.\n",
           "name": "base_estimator"
         },
         {
+          "default": "sigmoid",
           "description": "The method to use for calibration. Can be 'sigmoid' which\ncorresponds to Platt's method (i.e. a logistic regression model) or\n'isotonic' which is a non-parametric approach. It is not advised to\nuse isotonic calibration with too few calibration samples\n``(<<1000)`` since it tends to overfit.\n",
           "name": "method"
         },
         {
-          "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`sklearn.model_selection.KFold`\nis used.\n\nRefer :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that `base_estimator` has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
+          "default": null,
+          "description": "Determines the cross-validation splitting strategy.\nPossible inputs for cv are:\n\n- None, to use the default 5-fold cross-validation,\n- integer, to specify the number of folds.\n- :term:`CV splitter`,\n- An iterable yielding (train, test) splits as arrays of indices.\n\nFor integer/None inputs, if ``y`` is binary or multiclass,\n:class:`~sklearn.model_selection.StratifiedKFold` is used. If ``y`` is\nneither binary nor multiclass, :class:`~sklearn.model_selection.KFold`\nis used.\n\nRefer to the :ref:`User Guide <cross_validation>` for the various\ncross-validation strategies that can be used here.\n\nIf \"prefit\" is passed, it is assumed that `base_estimator` has been\nfitted already and all data is used for calibration.\n\n.. versionchanged:: 0.22\n``cv`` default value if None changed from 3-fold to 5-fold.\n",
           "name": "cv",
           "option": "optional",
           "type": "int32"
+        },
+        {
+          "default": null,
+          "description": "Number of jobs to run in parallel.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors.\n\nBase estimator clones are fitted in parallel across cross-validation\niterations. Therefore parallelism happens only when cv != \"prefit\".\n\nSee :term:`Glossary <n_jobs>` for more details.\n\n.. versionadded:: 0.24\n",
+          "name": "n_jobs",
+          "type": "int32"
         }
       ],
-      "description": "Probability calibration with isotonic regression or logistic regression.\n\nThe calibration is based on the :term:`decision_function` method of the\n`base_estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n"
+      "description": "Probability calibration with isotonic regression or logistic regression.\n\nThis class uses cross-validation to both estimate the parameters of a\nclassifier and subsequently calibrate a classifier. For each cv split it\nfits a copy of the base estimator to the training folds, and calibrates it\nusing the testing fold. For prediction, predicted probabilities are\naveraged across these individual calibrated classifiers.\n\nAlready fitted classifiers can be calibrated via the parameter cv=\"prefit\".\nIn this case, no cross-validation is used and all provided data is used\nfor calibration. The user has to take care manually that data for model\nfitting and calibration are disjoint.\n\nThe calibration is based on the :term:`decision_function` method of the\n`base_estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n"
     }
   },
   {
@@ -1000,7 +1014,7 @@
         },
         {
           "default": null,
-          "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
+          "description": "Override the preprocessing (strip_accents and lowercase) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
           "name": "preprocessor"
         },
         {
@@ -1015,6 +1029,7 @@
           "type": "string"
         },
         {
+          "default": "r\"(?u)/b/w/w+/b",
           "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp select tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
           "name": "token_pattern",
           "type": "string"
@@ -1400,7 +1415,7 @@
         },
         {
           "default": false,
-          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`sklearn.preprocessing.StandardScaler` before calling ``fit`` on\nan estimator with ``normalize=False``.\n",
+          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n",
           "name": "normalize",
           "option": "optional",
           "type": "boolean"
@@ -1418,6 +1433,12 @@
           "name": "n_jobs",
           "option": "optional",
           "type": "int32"
+        },
+        {
+          "default": false,
+          "description": "When set to ``True``, forces the coefficients to be positive. This\noption is only supported for dense arrays.\n\n.. versionadded:: 0.24\n",
+          "name": "positive",
+          "type": "boolean"
         }
       ],
       "description": "\nOrdinary least squares Linear Regression.\n\nLinearRegression fits a linear model with coefficients w = (w1, ..., wp)\nto minimize the residual sum of squares between the observed targets in\nthe dataset, and the targets predicted by the linear approximation.\n"
@@ -1428,7 +1449,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "List of transformer objects to be applied to the data. The first\nhalf of each tuple is the name of the transformer.\n\n.. versionchanged:: 0.22\nDeprecated `None` as a transformer in favor of 'drop'.\n",
+          "description": "List of transformer objects to be applied to the data. The first\nhalf of each tuple is the name of the transformer. The tranformer can\nbe 'drop' for it to be ignored.\n\n.. versionchanged:: 0.22\nDeprecated `None` as a transformer in favor of 'drop'.\n",
           "name": "transformer_list"
         },
         {
@@ -1510,7 +1531,7 @@
           "type": "boolean"
         },
         {
-          "default": "np.float",
+          "default": "float",
           "description": "Desired dtype of output.\n",
           "name": "dtype"
         },
@@ -1528,6 +1549,7 @@
     "schema": {
       "attributes": [
         {
+          "default": "f_classif",
           "description": "Function taking two arrays X and y, and returning a pair of arrays\n(scores, pvalues) or a single array with scores.\nDefault is f_classif (see below \"See also\"). The default function only\nworks with classification tasks.\n\n.. versionadded:: 0.18\n",
           "name": "score_func"
         },
@@ -1628,7 +1650,7 @@
           "type": "boolean"
         },
         {
-          "description": "Controls the verbosity: the higher, the more messages.\n",
+          "description": "Controls the verbosity: the higher, the more messages.\n\n- >1 : the computation time for each fold and parameter candidate is\ndisplayed;\n- >2 : the score is also displayed;\n- >3 : the fold and candidate parameter indexes are also displayed\ntogether with the starting time of the computation.\n",
           "name": "verbose",
           "type": "int32"
         },
@@ -1643,7 +1665,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Exhaustive search over specified parameter values for an estimator.\n\nImportant members are fit, predict.\n\nGridSearchCV implements a \"fit\" and a \"score\" method.\nIt also implements \"predict\", \"predict_proba\", \"decision_function\",\n\"transform\" and \"inverse_transform\" if they are implemented in the\nestimator used.\n\nThe parameters of the estimator used to apply these methods are optimized\nby cross-validated grid-search over a parameter grid.\n\nRead more in the :ref:`User Guide <grid_search>`.\n"
+      "description": "Exhaustive search over specified parameter values for an estimator.\n\nImportant members are fit, predict.\n\nGridSearchCV implements a \"fit\" and a \"score\" method.\nIt also implements \"score_samples\", \"predict\", \"predict_proba\",\n\"decision_function\", \"transform\" and \"inverse_transform\" if they are\nimplemented in the estimator used.\n\nThe parameters of the estimator used to apply these methods are optimized\nby cross-validated grid-search over a parameter grid.\n\nRead more in the :ref:`User Guide <grid_search>`.\n"
     }
   },
   {

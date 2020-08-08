@@ -28,6 +28,7 @@ clean() {
 }
 
 sync() {
+    bold "sklearn sync"
     [ -d "./third_party/src/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/src/sklearn"
     pushd "./third_party/src/sklearn" > /dev/null
     git pull --quiet --prune
@@ -39,8 +40,8 @@ sync() {
 install() {
     bold "sklearn install"
     venv
-    ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid isort
-    ${python} -m pip install --quiet --pre -f https://sklearn-nightly.scdn8.secure.raxcdn.com scikit-learn
+    ${python} -m pip install --quiet --use-feature=2020-resolver six cython pytest flake8 numpy scipy pylint astroid
+    ${python} -m pip install --quiet --use-feature=2020-resolver --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
     # ${python} -m pip install --quiet ./third_party/src/sklearn
     deactivate
 }
