@@ -15,10 +15,19 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'json') {
-            const json = context.text;
-            if (json.indexOf('"nodes":', 0) != -1) {
+            const contains = (buffer, text, length) => {
+                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (contains(context.buffer, '"nodes":')) {
                 try {
-                    const symbol = JSON.parse(json);
+                    const symbol = JSON.parse(context.text);
                     if (symbol && symbol.nodes && symbol.arg_nodes && symbol.heads) {
                         return true;
                     }

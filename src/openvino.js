@@ -8,7 +8,17 @@ openvino.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
-            if (context.text.includes('<net')) {
+            const contains = (buffer, text, length) => {
+                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (contains(context.buffer, '<net')) {
                 return true;
             }
         }

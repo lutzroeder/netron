@@ -9,9 +9,19 @@ mediapipe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'pbtxt') {
+            const contains = (buffer, text, length) => {
+                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
             const tags = context.tags('pbtxt');
-            const text = context.text;
-            if (tags.has('node') && (text.indexOf('input_stream:') !== -1 || text.indexOf('input_side_packet:') !== -1 || text.indexOf('output_stream:') !== -1)) {
+            const buffer = context.buffer;
+            if (tags.has('node') && (contains(buffer, 'input_stream:') || contains(buffer, 'input_side_packet:') || contains(buffer, 'output_stream:'))) {
                 return true;
             }
         }

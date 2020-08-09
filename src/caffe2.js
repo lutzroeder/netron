@@ -48,7 +48,17 @@ caffe2.ModelFactory = class {
             }
             const tags = context.tags('pbtxt');
             if (tags.has('op')) {
-                if (context.identifier === 'ops.pbtxt' && context.text.indexOf('  attr {') !== -1) {
+                const contains = (buffer, text, length) => {
+                    length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                    const match = Array.from(text).map((c) => c.charCodeAt(0));
+                    for (let i = 0; i < length; i++) {
+                        if (match.every((c, index) => buffer[i + index] === c)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                };
+                if (context.identifier === 'ops.pbtxt' && contains(context.buffer, '  attr {', 1024)) {
                     return false;
                 }
                 return true;

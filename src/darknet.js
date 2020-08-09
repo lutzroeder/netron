@@ -7,8 +7,17 @@ darknet.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'cfg' || extension == 'model') {
-            const text = context.text;
-            if (text.substring(0, Math.min(text.length, 1024)).indexOf('[net]') !== -1) {
+            const contains = (buffer, length, text) => {
+                length = Math.min(buffer.length - text.length, length - text.length);
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (contains(context.buffer, 1024, '[net]')) {
                 return true;
             }
         }
@@ -42,8 +51,7 @@ darknet.ModelFactory = class {
 darknet.Model = class {
 
     constructor(metadata, cfg, weights) {
-        this._graphs = [];
-        this._graphs.push(new darknet.Graph(metadata, cfg, weights));
+        this._graphs = [ new darknet.Graph(metadata, cfg, weights) ];
     }
 
     get format() {

@@ -15,8 +15,18 @@ tflite.ModelFactory = class {
             }
         }
         if (extension === 'json') {
-            const json = context.text;
-            if (json.indexOf('"subgraphs"', 0) !== -1 && json.indexOf('"operator_codes"', 0) !== -1) {
+            const contains = (buffer, text, length) => {
+                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            const buffer = context.buffer;
+            if (contains(buffer, '"subgraphs"') && contains(buffer, '"operator_codes"')) {
                 return true;
             }
         }

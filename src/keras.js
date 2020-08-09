@@ -13,10 +13,19 @@ keras.ModelFactory = class {
             return buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i]);
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
-            const json = context.text;
-            if (json.indexOf('"mxnet_version":', 0) == -1) {
+            const contains = (buffer, text, length) => {
+                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
+                const match = Array.from(text).map((c) => c.charCodeAt(0));
+                for (let i = 0; i < length; i++) {
+                    if (match.every((c, index) => buffer[i + index] === c)) {
+                        return true;
+                    }
+                }
+                return false;
+            };
+            if (!contains(context.buffer, '"mxnet_version":')) {
                 try {
-                    let root = keras.JsonParser.parse(json);
+                    let root = keras.JsonParser.parse(context.text);
                     if (root && root.nodes && root.arg_nodes && root.heads) {
                         return false;
                     }
