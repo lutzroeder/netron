@@ -223,7 +223,7 @@ darknet.Graph = class {
                     const from = options.from ? options.from.split(',').map((item) => Number.parseInt(item.trim(), 10)) : [];
                     for (let index of from) {
                         index = (index < 0) ? i + index : index;
-                        const item = sections[index].layer;
+                        const item = sections[index] ? sections[index].layer : null;
                         if (item) {
                             layer.inputs.push(item.outputs[0]);
                         }
@@ -235,7 +235,7 @@ darknet.Graph = class {
                 case 'scale_channels': {
                     let index = option_find_int(options, 'from', 0);
                     index = (index < 0) ? i + index : index;
-                    const item = sections[index].layer;
+                    const item = index < sections.length ? sections[index].layer : null;
                     if (item) {
                         layer.from = item;
                         layer.inputs.push(item.outputs[0]);
@@ -249,10 +249,10 @@ darknet.Graph = class {
                     const routes = options.layers ? options.layers.split(',').map((route) => Number.parseInt(route.trim(), 10)) : [];
                     for (let j = 0; j < routes.length; j++) {
                         const index = (routes[j] < 0) ? i + routes[j] : routes[j];
-                        const route = sections[index].layer;
-                        if (route) {
-                            layer.inputs.push(route.outputs[0]);
-                            layer.layers.push(route);
+                        const item = index < sections.length ? sections[index].layer : null;
+                        if (item) {
+                            layer.inputs.push(item.outputs[0]);
+                            layer.layers.push(item);
                         }
                     }
                     delete options.layers;
@@ -736,14 +736,6 @@ darknet.Graph = class {
         for (let i = 0; i < sections.length; i++) {
             this._nodes.push(new darknet.Node(metadata, net, sections[i]));
         }
-
-        /* if (sections.length > 0) {
-            const last = sections[sections.length - 1].layer;
-            for (let i = 0; i < last.outputs.length; i++) {
-                const outputName = 'output' + (i > 1 ? i.toString() : '');
-                this._outputs.push(new darknet.Parameter(outputName, true, [ last.outputs[i] ]));
-            }
-        } */
 
         if (weights) {
             weights.validate();
