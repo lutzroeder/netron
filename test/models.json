@@ -3830,13 +3830,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "densenet161.pkl.pth",
-    "script": "./tools/pytorch zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
     "target": "densenet161.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -3878,12 +3871,6 @@
   {
     "type":   "pytorch",
     "target": "inception_v3.pt",
-    "script": "./tools/pytorch zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "inception_v3.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -3983,13 +3970,6 @@
     "source": "https://github.com/lutzroeder/netron/files/4111581/mobilenet_quantization_scripted_quantized.pth.zip[mobilenet_quantization_scripted_quantized.pth]",
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/421"
-  },
-  {
-    "type":   "pytorch",
-    "target": "mobilenet_v2.pkl.pth",
-    "script": "./tools/pytorch zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",
@@ -4103,13 +4083,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "r3d_18.pkl.pth",
-    "script": "./tools/pytorch zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
     "target": "r3d_18.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -4169,12 +4142,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "resnet101.zip.pth",
-    "script": "./tools/pytorch zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
     "target": "resnet101.pt",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -4222,13 +4189,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "shufflenet_v2_x1_0.pkl.pth",
-    "script": "./tools/pytorch zoo",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
@@ -4251,12 +4211,6 @@
     "target": "squeezenet1_1.pkl.pth",
     "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "squeezenet1_1.zip.pth",
-    "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
