@@ -24,24 +24,24 @@ bold() {
 
 clean() {
     bold "coreml clean"
-    rm -rf "./third_party/src/env/coremltools"
-    rm -rf "./third_party/src/coremltools"
+    rm -rf "./third_party/source/env/coremltools"
+    rm -rf "./third_party/source/coremltools"
 }
 
 sync() {
     bold "coreml sync"
-    [ -d "./third_party/src/coremltools" ] || git clone --quiet https://github.com/apple/coremltools.git "./third_party/src/coremltools"
-    pushd "./third_party/src/coremltools" > /dev/null
+    [ -d "./third_party/source/coremltools" ] || git clone --quiet https://github.com/apple/coremltools.git "./third_party/source/coremltools"
+    pushd "./third_party/source/coremltools" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
 }
 
 schema() {
     bold "coreml schema"
-    [[ $(grep -U $'\x0D' ./src/coreml-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --root coreml --out ./src/coreml-proto.js --path ./third_party/src/coremltools/mlmodel/format Model.proto
+    [[ $(grep -U $'\x0D' ./source/coreml-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --root coreml --out ./source/coreml-proto.js --path ./third_party/source/coremltools/mlmodel/format Model.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/coreml-proto.js ./src/coreml-proto.js
+        unix2dos --quiet --newfile ./source/coreml-proto.js ./source/coreml-proto.js
     fi
 }
 
@@ -49,7 +49,7 @@ convert() {
     bold "coreml convert"
     venv
     ${python} -m pip install --quiet --upgrade six numpy protobuf
-    ${python} -m pip install --quiet ./third_party/src/coremltools
+    ${python} -m pip install --quiet ./third_party/source/coremltools
     ${python} -m pip install --quiet onnx
     ${python} -m pip install --quiet sklearn
     ${python} ./tools/coreml-script.py convert ${1}

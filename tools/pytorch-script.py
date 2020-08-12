@@ -10,7 +10,7 @@ import re
 import sys
 
 def metadata():
-    json_file = os.path.join(os.path.dirname(__file__), '../src/pytorch-metadata.json')
+    json_file = os.path.join(os.path.dirname(__file__), '../source/pytorch-metadata.json')
     json_data = open(json_file).read()
     json_root = json.loads(json_data)
 
@@ -52,9 +52,9 @@ def download_torchvision_model(pkl_format, zip_format, jit_format, traced_format
     model = pydoc.locate(name)(pretrained=True)
     import torch
     if pkl_format:
-        torch.save(model, base + '.pkl.pth', _use_new_zipfile_serialization=False);
+        torch.save(model, base + '.pkl.pth', _use_new_zipfile_serialization=False)
     if zip_format:
-        torch.save(model, base + '.zip.pth', _use_new_zipfile_serialization=True);
+        torch.save(model, base + '.zip.pth', _use_new_zipfile_serialization=True)
     model.eval()
     if jit_format:
         torch.jit.script(model).save(base + '.pt')
@@ -76,5 +76,5 @@ def zoo():
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }
-    command = sys.argv[1];
+    command = sys.argv[1]
     command_table[command]()

@@ -131,7 +131,7 @@ def format_description(description):
         url = match.group(2)
         if not url.startswith("http://") and not url.startswith("https://"):
             url = "https://github.com/onnx/onnx/blob/master/docs/" + url
-        return "[" + link + "](" + url + ")";
+        return "[" + link + "](" + url + ")"
     description = re.sub("\\[(.+)\\]\\(([^ ]+?)( \"(.+)\")?\\)", replace_line, description)
     return description
 
@@ -176,9 +176,9 @@ def generate_json(schemas, json_file):
         json_schema['min_output'] = schema.min_output
         json_schema['max_output'] = schema.max_output
         if schema.min_input != schema.max_input:
-            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input);
+            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input)
         if schema.min_output != schema.max_output:
-            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output);
+            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output)
         if schema.attributes:
             json_schema['attributes'] = []
             for _, attribute in sorted(schema.attributes.items()):
@@ -228,7 +228,7 @@ def generate_json(schemas, json_file):
 def metadata():
     schemas = defs.get_all_schemas_with_history()
     schemas = sorted(schemas, key=lambda schema: schema.name)
-    json_file = os.path.join(os.path.dirname(__file__), '../src/onnx-metadata.json')
+    json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     generate_json(schemas, json_file)
 
 def convert():

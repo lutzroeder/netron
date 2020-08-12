@@ -517,7 +517,7 @@ tengine.ModelFileReader = class {
 
     constructor(buffer) {
 
-        // ./third_party/src/tengine/serializer/include/tengine/v2/tm2_format.h
+        // https://github.com/OAID/Tengine/blob/tengine-lite/src/serializer/tm/tm2_format.h
         // https://github.com/OAID/Tengine/wiki/The-format-of-tmfile
 
         const types = new Map();

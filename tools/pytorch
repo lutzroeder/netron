@@ -25,13 +25,13 @@ venv() {
 clean() {
     bold "pytorch clean"
     rm -rf "./third_party/env/pytorch"
-    rm -rf "./third_party/src/pytorch"
+    rm -rf "./third_party/source/pytorch"
 }
 
 sync() {
     bold "pytorch sync"
-    [ -d "./third_party/src/pytorch" ] || git clone --quiet --recursive https://github.com/pytorch/pytorch.git "./third_party/src/pytorch"
-    pushd "./third_party/src/pytorch" > /dev/null
+    [ -d "./third_party/source/pytorch" ] || git clone --quiet --recursive https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
+    pushd "./third_party/source/pytorch" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -48,10 +48,10 @@ install() {
 
 schema() {
     bold "caffe2 schema"
-    [[ $(grep -U $'\x0D' ./src/caffe2-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root caffe2 --out ./src/caffe2-proto.js ./third_party/src/pytorch/caffe2/proto/caffe2.proto
+    [[ $(grep -U $'\x0D' ./source/caffe2-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root caffe2 --out ./source/caffe2-proto.js ./third_party/source/pytorch/caffe2/proto/caffe2.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/caffe2-proto.js ./src/caffe2-proto.js
+        unix2dos --quiet --newfile ./source/caffe2-proto.js ./source/caffe2-proto.js
     fi
 }
 
@@ -59,18 +59,18 @@ metadata() {
     bold "pytorch metadata"
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    if [[ $(grep -U $'\x0D' ./src/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
+    if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/pytorch-script.py metadata
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/pytorch-metadata.json ./src/pytorch-metadata.json
+        unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
     fi
     deactivate
     bold "caffe2 metadata"
     venv
-    if [[ $(grep -U $'\x0D' ./src/caffe2-metadata.json) ]]; then crlf=1; else crlf=; fi
+    if [[ $(grep -U $'\x0D' ./source/caffe2-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/caffe2-script.py metadata
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/caffe2-metadata.json ./src/caffe2-metadata.json
+        unix2dos --quiet --newfile ./source/caffe2-metadata.json ./source/caffe2-metadata.json
     fi
     deactivate
 }

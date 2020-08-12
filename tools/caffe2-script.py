@@ -154,7 +154,7 @@ def metadata():
 
     import caffe2.python.core
 
-    json_file = os.path.join(os.path.dirname(__file__), '../src/caffe2-metadata.json')
+    json_file = os.path.join(os.path.dirname(__file__), '../source/caffe2-metadata.json')
     json_data = open(json_file).read()
     json_root = json.loads(json_data)
 

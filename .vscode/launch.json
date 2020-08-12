@@ -5,7 +5,7 @@
             "name": "Launch Program",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceFolder}/src/app.js",
+            "program": "${workspaceFolder}/source/app.js",
             "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
             "windows": {
                 "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"

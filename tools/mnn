@@ -9,23 +9,23 @@ bold() {
 
 clean() {
     bold "mnn clean"
-    rm -rf "./third_party/src/mnn"
+    rm -rf "./third_party/source/mnn"
 }
 
 sync() {
     bold "mnn sync"
-    [ -d "./third_party/src/mnn" ] || git clone --quiet https://github.com/alibaba/MNN.git "./third_party/src/mnn"
-    pushd "./third_party/src/mnn" > /dev/null
+    [ -d "./third_party/source/mnn" ] || git clone --quiet https://github.com/alibaba/MNN.git "./third_party/source/mnn"
+    pushd "./third_party/source/mnn" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
 }
 
 schema() {
     bold "mnn schema"
-    [[ $(grep -U $'\x0D' ./src/mnn-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root mnn --out ./src/mnn-schema.js ./third_party/src/mnn/schema/default/MNN.fbs
+    [[ $(grep -U $'\x0D' ./source/mnn-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root mnn --out ./source/mnn-schema.js ./third_party/source/mnn/schema/default/MNN.fbs
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/mnn-schema.js ./src/mnn-schema.js
+        unix2dos --quiet --newfile ./source/mnn-schema.js ./source/mnn-schema.js
     fi
 }
 

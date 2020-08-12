@@ -29,8 +29,8 @@ clean() {
 
 sync() {
     bold "sklearn sync"
-    [ -d "./third_party/src/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/src/sklearn"
-    pushd "./third_party/src/sklearn" > /dev/null
+    [ -d "./third_party/source/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/sklearn"
+    pushd "./third_party/source/sklearn" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -42,19 +42,19 @@ install() {
     venv
     ${python} -m pip install --quiet --use-feature=2020-resolver six cython pytest flake8 numpy scipy pylint astroid
     ${python} -m pip install --quiet --use-feature=2020-resolver --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
-    # ${python} -m pip install --quiet ./third_party/src/sklearn
+    # ${python} -m pip install --quiet ./third_party/source/sklearn
     deactivate
 }
 
 metadata() {
     bold "sklearn metadata"
-    [[ $(grep -U $'\x0D' ./src/sklearn-metadata.json) ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./source/sklearn-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/sklearn-script.py
     deactivate
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/sklearn-metadata.json ./src/sklearn-metadata.json
+        unix2dos --quiet --newfile ./source/sklearn-metadata.json ./source/sklearn-metadata.json
     fi
 }
 

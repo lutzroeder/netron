@@ -10,14 +10,14 @@ const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
 const url = require('url');
-const protobuf = require('../src/protobuf');
-const flatbuffers = require('../src/flatbuffers');
-const sidebar = require('../src/view-sidebar.js');
-const view = require('../src/view.js');
-const zip = require('../src/zip');
-const gzip = require('../src/gzip');
-const tar = require('../src/tar');
-const base = require('../src/base');
+const protobuf = require('../source/protobuf');
+const flatbuffers = require('../source/flatbuffers');
+const sidebar = require('../source/view-sidebar.js');
+const view = require('../source/view.js');
+const zip = require('../source/zip');
+const gzip = require('../source/gzip');
+const tar = require('../source/tar');
+const base = require('../source/base');
 const xmldom = require('xmldom');
 
 global.Int64 = base.Int64;
@@ -92,7 +92,7 @@ class TestHost {
 
     require(id) {
         try {
-            const file = path.join(path.join(__dirname, '../src'), id + '.js');
+            const file = path.join(path.join(__dirname, '../source'), id + '.js');
             return Promise.resolve(require(file));
         }
         catch (error) {
@@ -101,7 +101,7 @@ class TestHost {
     }
 
     request(base, file, encoding) {
-        const pathname = path.join(base || path.join(__dirname, '../src'), file);
+        const pathname = path.join(base || path.join(__dirname, '../source'), file);
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("File not found '" + file + "'."));
         }

@@ -2592,7 +2592,7 @@ pytorch.Container.Zip = class {
                 this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
             else if (this._entry('data.pkl')) {
-                // kProducedFileFormatVersion in ./third_party/src/pytorch/caffe2/serialize/inline_container.h
+                // kProducedFileFormatVersion in https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
                 const versionEntry = this._entry('version');
                 const versionNumber = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
                 const versionTable = { '1': 'v1.3', '2': 'v1.4', '3': 'v1.6', '4': 'v1.7' };

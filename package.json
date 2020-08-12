@@ -10,7 +10,7 @@
     "description": "Visualizer for neural network, deep learning and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
-    "main": "src/app.js",
+    "main": "source/app.js",
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",

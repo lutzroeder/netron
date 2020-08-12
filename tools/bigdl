@@ -9,21 +9,21 @@ bold() {
 
 clean() {
     bold "bigdl clean"
-    rm -rf ./third_party/src/bigdl
+    rm -rf ./third_party/source/bigdl
 }
 
 sync() {
     bold "bigdl sync"
-    mkdir -p "./third_party/src/bigdl/spark/dl/src/main/resources/serialization"
-    curl --silent --location --output "./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto?raw=true"
+    mkdir -p "./third_party/source/bigdl/spark/dl/src/main/resources/serialization"
+    curl --silent --location --output "./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto?raw=true"
 }
 
 schema() {
     bold "bigdl schema"
-    [[ $(grep -U $'\x0D' ./src/bigdl-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --root bigdl --out ./src/bigdl-proto.js ./third_party/src/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
+    [[ $(grep -U $'\x0D' ./source/bigdl-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --root bigdl --out ./source/bigdl-proto.js ./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/bigdl-proto.js ./src/bigdl-proto.js
+        unix2dos --quiet --newfile ./source/bigdl-proto.js ./source/bigdl-proto.js
     fi
 }
 

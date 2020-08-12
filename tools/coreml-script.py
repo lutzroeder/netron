@@ -4,7 +4,7 @@ import os
 import sys
 
 def convert():
-    file = sys.argv[2];
+    file = sys.argv[2]
     base, extension = os.path.splitext(file)
     if extension == '.h5':
         import coremltools
@@ -19,5 +19,5 @@ def convert():
 
 if __name__ == '__main__':
     command_table = { 'convert': convert }
-    command = sys.argv[1];
+    command = sys.argv[1]
     command_table[command]()

@@ -9,23 +9,23 @@ bold() {
 
 clean() {
     bold "armnn clean"
-    rm -rf ./third_party/src/armnn
+    rm -rf ./third_party/source/armnn
 }
 
 sync() {
     bold "armnn sync"
-    [ -d "./third_party/src/armnn" ] || git clone --quiet --depth=1 --branch master https://github.com/ARM-software/armnn.git "./third_party/src/armnn"
-    pushd "./third_party/src/armnn" > /dev/null
+    [ -d "./third_party/source/armnn" ] || git clone --quiet --depth=1 --branch master https://github.com/ARM-software/armnn.git "./third_party/source/armnn"
+    pushd "./third_party/source/armnn" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
 }
 
 schema() {
     bold "armnn schema"
-    [[ $(grep -U $'\x0D' ./src/armnn-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --text --root armnn --out ./src/armnn-schema.js ./third_party/src/armnn/src/armnnSerializer/ArmnnSchema.fbs
+    [[ $(grep -U $'\x0D' ./source/armnn-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --text --root armnn --out ./source/armnn-schema.js ./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/armnn-schema.js ./src/armnn-schema.js
+        unix2dos --quiet --newfile ./source/armnn-schema.js ./source/armnn-schema.js
     fi
 }
 

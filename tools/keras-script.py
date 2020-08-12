@@ -133,7 +133,7 @@ def metadata():
                 schema['references'] = []
             schema['references'].append({ 'description': reference })
 
-    json_path = os.path.join(os.path.dirname(__file__), '../src/keras-metadata.json')
+    json_path = os.path.join(os.path.dirname(__file__), '../source/keras-metadata.json')
     json_file = open(json_path)
     json_root = json.loads(json_file.read())
     json_file.close()

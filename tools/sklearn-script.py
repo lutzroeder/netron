@@ -9,7 +9,7 @@ import pydoc
 import re
 import sys
 
-json_file = os.path.join(os.path.dirname(__file__), '../src/sklearn-metadata.json')
+json_file = os.path.join(os.path.dirname(__file__), '../source/sklearn-metadata.json')
 json_data = open(json_file).read()
 json_root = json.loads(json_data)
 
@@ -236,7 +236,7 @@ def update_attributes(schema, lines):
 
 for entry in json_root:
     name = entry['name']
-    entry['schema'] = entry['schema'] if 'schema' in entry else {};
+    entry['schema'] = entry['schema'] if 'schema' in entry else {}
     schema = entry['schema']
     skip_modules = [
         'lightgbm.',

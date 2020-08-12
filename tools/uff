@@ -9,10 +9,10 @@ bold() {
 
 schema() {
     bold "uff schema"
-    [[ $(grep -U $'\x0D' ./src/uff-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root uff --out ./src/uff-proto.js ./tools/uff.proto
+    [[ $(grep -U $'\x0D' ./source/uff-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root uff --out ./source/uff-proto.js ./tools/uff.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/uff-proto.js ./src/uff-proto.js
+        unix2dos --quiet --newfile ./source/uff-proto.js ./source/uff-proto.js
     fi
 }
 

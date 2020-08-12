@@ -10,26 +10,26 @@ bold() {
 
 clean() {
     bold "caffe clean"
-    rm -rf "./third_party/src/caffe"
+    rm -rf "./third_party/source/caffe"
 }
 
 sync() {
     bold "caffe sync"
-    [ -d "./third_party/src/caffe" ] || git clone --quiet https://github.com/BVLC/caffe.git "./third_party/src/caffe"
-    pushd "./third_party/src/caffe" > /dev/null
+    [ -d "./third_party/source/caffe" ] || git clone --quiet https://github.com/BVLC/caffe.git "./third_party/source/caffe"
+    pushd "./third_party/source/caffe" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
 }
 
 schema() {
     bold "caffe schema"
-    [[ $(grep -U $'\x0D' ./src/caffe-proto.js) ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./source/caffe-proto.js) ]] && crlf=1
     temp=$(mktemp -d)
-    sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/src/caffe/src/caffe/proto/caffe.proto > ${temp}/caffe.proto
-    node ./tools/protoc.js --text --root caffe --out ./src/caffe-proto.js ${temp}/caffe.proto
+    sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/source/caffe/src/caffe/proto/caffe.proto > ${temp}/caffe.proto
+    node ./tools/protoc.js --text --root caffe --out ./source/caffe-proto.js ${temp}/caffe.proto
     rm -rf ${temp}
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/caffe-proto.js ./src/caffe-proto.js
+        unix2dos --quiet --newfile ./source/caffe-proto.js ./source/caffe-proto.js
     fi
 }
 

@@ -9,21 +9,21 @@ bold() {
 
 clean() {
     bold "cntk clean"
-    rm -rf "./third_party/src/cntk"
+    rm -rf "./third_party/source/cntk"
 }
 
 sync() {
     bold "cntk sync"
-    mkdir -p "./third_party/src/cntk/Source/CNTKv2LibraryDll/proto"
-    curl --silent --location --output "./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto" "https://github.com/microsoft/CNTK/blob/master/Source/CNTKv2LibraryDll/proto/CNTK.proto?raw=true"
+    mkdir -p "./third_party/source/cntk/Source/CNTKv2LibraryDll/proto"
+    curl --silent --location --output "./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto" "https://github.com/microsoft/CNTK/blob/master/Source/CNTKv2LibraryDll/proto/CNTK.proto?raw=true"
 }
 
 schema() {
     bold "cntk schema"
-    [[ $(grep -U $'\x0D' ./src/cntk-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --root cntk --out ./src/cntk-proto.js ./third_party/src/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
+    [[ $(grep -U $'\x0D' ./source/cntk-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --root cntk --out ./source/cntk-proto.js ./third_party/source/cntk/Source/CNTKv2LibraryDll/proto/CNTK.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/cntk-proto.js ./src/cntk-proto.js
+        unix2dos --quiet --newfile ./source/cntk-proto.js ./source/cntk-proto.js
     fi
 }
 

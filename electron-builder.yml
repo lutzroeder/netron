@@ -1,7 +1,7 @@
 appId: com.lutzroeder.netron
 productName: Netron
 files:
-  - 'src/**/*'
+  - 'source/**/*'
 directories:
   buildResources: ./setup
 fileAssociations:

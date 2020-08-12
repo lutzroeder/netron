@@ -82,7 +82,7 @@ setuptools.setup(
         'build_py': build_py
     },
     package_dir={
-        'netron': 'src'
+        'netron': 'source'
     },
     packages=[
         'netron'

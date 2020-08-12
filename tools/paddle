@@ -9,21 +9,21 @@ bold() {
 
 clean() {
     bold "paddle clean"
-    rm -rf "./third_party/src/paddle"
+    rm -rf "./third_party/source/paddle"
 }
 
 sync() {
     bold "paddle sync"
-    mkdir -p "./third_party/src/paddle/paddle/fluid/framework"
-    curl --silent --location --output "./third_party/src/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
+    mkdir -p "./third_party/source/paddle/paddle/fluid/framework"
+    curl --silent --location --output "./third_party/source/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
 }
 
 schema() {
     bold "paddle schema"
-    [[ $(grep -U $'\x0D' ./src/paddle-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --root paddle --out ./src/paddle-proto.js ./third_party/src/paddle/paddle/fluid/framework/framework.proto
+    [[ $(grep -U $'\x0D' ./source/paddle-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --root paddle --out ./source/paddle-proto.js ./third_party/source/paddle/paddle/fluid/framework/framework.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/paddle-proto.js ./src/paddle-proto.js
+        unix2dos --quiet --newfile ./source/paddle-proto.js ./source/paddle-proto.js
     fi
 }
 

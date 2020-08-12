@@ -41,7 +41,7 @@ build_electron: install
 	npx electron-builder --linux snap --publish never
 
 lint: install
-	npx eslint src/*.js test/*.js setup/*.js tools/*.js
+	npx eslint source/*.js test/*.js setup/*.js tools/*.js
 
 test: install
 	node ./test/models.js

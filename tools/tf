@@ -25,19 +25,19 @@ venv() {
 clean() {
     bold "tf clean"
     rm -rf "./third_party/env/tf"
-    rm -rf "./third_party/src/tf"
+    rm -rf "./third_party/source/tf"
 }
 
 sync() {
     bold "tf sync"
-    [ -d "./third_party/src/tf" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/src/tf"
-    pushd "./third_party/src/tf" > /dev/null
+    [ -d "./third_party/source/tf" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/source/tf"
+    pushd "./third_party/source/tf" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
-    [ -d "./third_party/src/tflite-support" ] || git clone --quiet --recursive https://github.com/tensorflow/tflite-support.git "./third_party/src/tflite-support"
-    pushd "./third_party/src/tflite-support" > /dev/null
+    [ -d "./third_party/source/tflite-support" ] || git clone --quiet --recursive https://github.com/tensorflow/tflite-support.git "./third_party/source/tflite-support"
+    pushd "./third_party/source/tflite-support" > /dev/null
     git pull --quiet --prune
     popd > /dev/null
 }
@@ -53,41 +53,41 @@ install() {
 
 schema() {
     bold "tf schema"
-    [[ $(grep -U $'\x0D' ./src/tf-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root tf --out ./src/tf-proto.js --path ./third_party/src/tf tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
+    [[ $(grep -U $'\x0D' ./source/tf-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root tf --out ./source/tf-proto.js --path ./third_party/source/tf tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/tf-proto.js ./src/tf-proto.js
+        unix2dos --quiet --newfile ./source/tf-proto.js ./source/tf-proto.js
     fi
     bold "tflite schema"
-    [[ $(grep -U $'\x0D' ./src/tflite-schema.js) ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./source/tflite-schema.js) ]] && crlf=1
     temp1=$(mktemp -d)
     temp2=$(mktemp -d)
-    node ./tools/flatc.js --text --root tflite --out ./src/tflite-schema.js ./third_party/src/tf/tensorflow/lite/schema/schema.fbs
-    node ./tools/flatc.js --root tflite --out ${temp1}/tflite-metadata-schema.js ./third_party/src/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
+    node ./tools/flatc.js --text --root tflite --out ./source/tflite-schema.js ./third_party/source/tf/tensorflow/lite/schema/schema.fbs
+    node ./tools/flatc.js --root tflite --out ${temp1}/tflite-metadata-schema.js ./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs
     sed "s/var \$root = flatbuffers.get('tflite');//g" < ${temp1}/tflite-metadata-schema.js >> ${temp2}/tflite-metadata-schema.js
-    cat ${temp2}/tflite-metadata-schema.js >> ./src/tflite-schema.js
+    cat ${temp2}/tflite-metadata-schema.js >> ./source/tflite-schema.js
     rm -rf ${temp1} ${temp2}
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/tflite-schema.js ./src/tflite-schema.js
+        unix2dos --quiet --newfile ./source/tflite-schema.js ./source/tflite-schema.js
     fi
 }
 
 metadata() {
     bold "tf metadata"
     venv
-    if [[ $(grep -U $'\x0D' ./src/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
+    if [[ $(grep -U $'\x0D' ./source/tf-metadata.json) ]]; then crlf=1; else crlf=; fi
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/tf-script.py metadata
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/tf-metadata.json ./src/tf-metadata.json
+        unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
     deactivate
     bold "keras metadata"
     venv
-    if [[ $(grep -U $'\x0D' ./src/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
+    if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/keras-script.py metadata
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/keras-metadata.json ./src/keras-metadata.json
+        unix2dos --quiet --newfile ./source/keras-metadata.json ./source/keras-metadata.json
     fi
     deactivate
 }

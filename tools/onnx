@@ -25,8 +25,8 @@ venv() {
 }
 
 git_sync() {
-    [ -d "./third_party/src/${1}" ] || git clone --quiet --recursive ${2} "./third_party/src/${1}"
-    pushd "./third_party/src/${1}" > /dev/null
+    [ -d "./third_party/source/${1}" ] || git clone --quiet --recursive ${2} "./third_party/source/${1}"
+    pushd "./third_party/source/${1}" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -36,8 +36,8 @@ git_sync() {
 clean() {
     bold "onnx clean"
     rm -rf "./third_party/env/onnx"
-    rm -rf "./third_party/src/onnx"
-    rm -rf "./third_party/src/onnxmltools"
+    rm -rf "./third_party/source/onnx"
+    rm -rf "./third_party/source/onnxmltools"
 }
 
 sync() {
@@ -84,35 +84,35 @@ install() {
     ${python} -m pip install --quiet --upgrade ${protobuf}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet "./third_party/src/onnx"
+    ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
 
 schema() {
     bold "onnx schema"
-    [[ $(grep -U $'\x0D' ./src/onnx-proto.js) ]] && crlf=1
-    node ./tools/protoc.js --text --root onnx --out ./src/onnx-proto.js --path ./third_party/src/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
+    [[ $(grep -U $'\x0D' ./source/onnx-proto.js) ]] && crlf=1
+    node ./tools/protoc.js --text --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/onnx-proto.js ./src/onnx-proto.js
+        unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
 }
 
 metadata() {
     bold "onnx metadata"
-    [[ $(grep -U $'\x0D' ./src/onnx-metadata.json) ]] && crlf=1
+    [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/onnx-script.py metadata
     deactivate
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./src/onnx-metadata.json ./src/onnx-metadata.json
+        unix2dos --quiet --newfile ./source/onnx-metadata.json ./source/onnx-metadata.json
     fi
 }
 
 convert() {
     bold "onnx convert"
     venv
-    ${python} -m pip install --quiet ./third_party/src/onnxmltools
+    ${python} -m pip install --quiet ./third_party/source/onnxmltools
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/onnx-script.py convert ${1}
     deactivate
