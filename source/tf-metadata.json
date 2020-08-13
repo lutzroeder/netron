@@ -2837,6 +2837,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": 0,
+          "name": "num_replicas",
+          "type": "int64"
         }
       ],
       "description": "Creates a dataset that shards the input dataset by num_workers, returning a\nsharded dataset for the index-th worker. This attempts to automatically shard\na dataset by examining the Dataset graph and inserting a shard op before the\ninputs to a reader Dataset (e.g. CSVDataset, TFRecordDataset).\n\nThis dataset will throw a NotFound error if we cannot shard the dataset\nautomatically.",
@@ -15493,6 +15498,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": false,
+          "name": "log_warning",
+          "type": "boolean"
         }
       ],
       "inputs": [
@@ -20404,6 +20414,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": false,
+          "name": "log_warning",
+          "type": "boolean"
         }
       ],
       "inputs": [
