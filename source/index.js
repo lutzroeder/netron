@@ -426,7 +426,7 @@ host.BrowserHost = class {
         url = url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime();
         this._view.show('welcome spinner');
         this._request(url).then((buffer) => {
-            const context = new BrowserContext(this, url, identifier, buffer);
+            const context = new host.BrowserHost.BrowserContext(this, url, identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier || context.identifier;
             }).catch((err) => {
@@ -442,7 +442,7 @@ host.BrowserHost = class {
 
     _open(file, files) {
         this._view.show('welcome spinner');
-        const context = new BrowserFileContext(file, files);
+        const context = new host.BrowserHost.BrowserFileContext(file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
                 this._view.show(null);
@@ -472,7 +472,7 @@ host.BrowserHost = class {
             const identifier = file.filename;
             const encoder = new TextEncoder();
             const buffer = encoder.encode(file.content);
-            const context = new BrowserContext(this, '', identifier, buffer);
+            const context = new host.BrowserHost.BrowserContext(this, '', identifier, buffer);
             this._view.open(context).then(() => {
                 this.document.title = identifier;
             }).catch((error) => {
@@ -799,7 +799,7 @@ host.Dropdown = class {
 };
 
 
-class BrowserFileContext {
+host.BrowserContext.BrowserFileContext = class {
 
     constructor(file, blobs) {
         this._file = file;
@@ -860,9 +860,9 @@ class BrowserFileContext {
             }
         });
     }
-}
+};
 
-class BrowserContext {
+host.BrowserHost.BrowserContext = class {
 
     constructor(host, url, identifier, buffer) {
         this._host = host;
@@ -892,6 +892,6 @@ class BrowserContext {
     get buffer() {
         return this._buffer;
     }
-}
+};
 
 window.__view__ = new view.View(new host.BrowserHost());

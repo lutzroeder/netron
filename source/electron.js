@@ -8,10 +8,6 @@ const http = require('http');
 const https = require('https');
 const process = require('process');
 const path = require('path');
-const view = require('./view');
-
-global.protobuf = require('./protobuf');
-global.flatbuffers = require('./flatbuffers');
 
 host.ElectronHost = class {
 
@@ -337,7 +333,7 @@ host.ElectronHost = class {
         if (file) {
             this._view.show('welcome spinner');
             this._readFile(file).then((buffer) => {
-                const context = new ElectonContext(this, path.dirname(file), path.basename(file), buffer);
+                const context = new host.ElectronHost.ElectonContext(this, path.dirname(file), path.basename(file), buffer);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {
@@ -440,7 +436,7 @@ host.ElectronHost = class {
     }
 };
 
-class ElectonContext {
+host.ElectronHost.ElectonContext = class {
 
     constructor(host, folder, identifier, buffer) {
         this._host = host;
@@ -460,6 +456,11 @@ class ElectonContext {
     get buffer() {
         return this._buffer;
     }
-}
+};
 
-window.__view__ = new view.View(new host.ElectronHost());
+window.addEventListener('load', () => {
+    global.protobuf = require('./protobuf');
+    global.flatbuffers = require('./flatbuffers');
+    const view = require('./view');
+    window.__view__ = new view.View(new host.ElectronHost());
+});
