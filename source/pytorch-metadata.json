@@ -3012,7 +3012,7 @@
     }
   },
   {
-    "name": "torch.split",
+    "name": "torch.unsafe_split:Tensor",
     "schema": {
       "attributes": [
         { "name": "split_size", "type": "int64" },
@@ -3021,6 +3021,38 @@
       "category": "Tensor",
       "inputs": [
         { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "outputs", "type": "tensor[]" }
+      ]
+    }
+  },
+  {
+    "name": "torch.split:Tensor",
+    "schema": {
+      "attributes": [
+        { "name": "split_size", "type": "int64" },
+        { "name": "dim", "type": "int64" }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "outputs", "type": "tensor[]" }
+      ]
+    }
+  },
+  {
+    "name": "torch.split_with_sizes",
+    "schema": {
+      "attributes": [
+        { "name": "split_sizes", "type": "int64[]" },
+        { "name": "dim", "type": "int64" }
+      ],
+      "category": "Tensor",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "outputs", "type": "tensor[]" }
