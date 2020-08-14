@@ -59404,6 +59404,7 @@
           "type": "int64"
         }
       ],
+      "description": "Writes encoded audio summary `tensor` at `step` with `tag` using summary `writer`.\n`sample_rate` is the audio sample rate is Hz.",
       "inputs": [
         {
           "name": "writer",
@@ -59425,7 +59426,8 @@
           "name": "sample_rate",
           "type": 1
         }
-      ]
+      ],
+      "summary": "Writes an audio summary."
     }
   },
   {
@@ -59450,6 +59452,7 @@
   {
     "name": "WriteGraphSummary",
     "schema": {
+      "description": "Writes TensorFlow graph `tensor` at `step` using summary `writer`.",
       "inputs": [
         {
           "name": "writer",
@@ -59463,7 +59466,8 @@
           "name": "tensor",
           "type": 7
         }
-      ]
+      ],
+      "summary": "Writes a graph summary."
     }
   },
   {
@@ -59480,6 +59484,7 @@
           "type": "type"
         }
       ],
+      "description": "Writes histogram `values` at `step` with `tag` using summary `writer`.",
       "inputs": [
         {
           "name": "writer",
@@ -59497,7 +59502,8 @@
           "name": "values",
           "typeAttr": "T"
         }
-      ]
+      ],
+      "summary": "Writes a histogram summary."
     }
   },
   {
@@ -59520,6 +59526,7 @@
           "type": "type"
         }
       ],
+      "description": "Writes image `tensor` at `step` with `tag` using summary `writer`.\n`tensor` is image with shape [height, width, channels].",
       "inputs": [
         {
           "name": "writer",
@@ -59541,12 +59548,14 @@
           "name": "bad_color",
           "type": 4
         }
-      ]
+      ],
+      "summary": "Writes an image summary."
     }
   },
   {
     "name": "WriteRawProtoSummary",
     "schema": {
+      "description": "Writes `tensor`, a serialized proto at `step` using summary `writer`.",
       "inputs": [
         {
           "name": "writer",
@@ -59560,7 +59569,8 @@
           "name": "tensor",
           "type": 7
         }
-      ]
+      ],
+      "summary": "Writes a serialized proto summary."
     }
   },
   {
@@ -59573,6 +59583,7 @@
           "type": "type"
         }
       ],
+      "description": "Writes scalar `value` at `step` with `tag` using summary `writer`.",
       "inputs": [
         {
           "name": "writer",
@@ -59590,7 +59601,8 @@
           "name": "value",
           "typeAttr": "T"
         }
-      ]
+      ],
+      "summary": "Writes a scalar summary."
     }
   },
   {
@@ -59602,6 +59614,7 @@
           "type": "type"
         }
       ],
+      "description": "Writes `tensor` at `step` with `tag` using summary `writer`.",
       "inputs": [
         {
           "name": "writer",
@@ -59623,7 +59636,8 @@
           "name": "summary_metadata",
           "type": 7
         }
-      ]
+      ],
+      "summary": "Writes a tensor summary."
     }
   },
   {
