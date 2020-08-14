@@ -1471,7 +1471,8 @@ view.ModelFactoryService = class {
             { name: 'Python source code', value: /^\s*import sys, types, os;/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
-            { name: 'Darkflow metadata', value: /^{"net":\s*{"type":/ }
+            { name: 'Darkflow metadata', value: /^{"net":\s*{"type":/ },
+            { name: 'keras-yolo2 configuation', value: /^{\s*"model"\s*:\s*{\s*"architecture"/ }
         ];
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
         for (const item of list) {
