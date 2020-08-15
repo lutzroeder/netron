@@ -559,14 +559,13 @@
     "name": "Sigmoid",
     "schema": {
       "operator": 81,
-      "category": "Layer"
+      "category": "Activation"
     }
   },
   {
     "name": "Size",
     "schema": {
-      "operator": 82,
-      "category": "Activation"
+      "operator": 82
     }
   },
   {
