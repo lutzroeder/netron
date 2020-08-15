@@ -248,6 +248,7 @@ tf.ModelFactory = class {
     static _openBundle(context, host) {
         return tf.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
+
             return tf.TensorBundle.open(context.buffer, identifier, context, host).then((bundle) => {
                 return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
             }).catch((error) => {
@@ -1294,65 +1295,14 @@ tf.TensorBundle = class {
 
     static open(buffer, identifier, context, host) {
         const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
-        if (buffer.length <= 48) {
-            throw new tf.Error('Invalid index file size.');
-        }
-        const binaryReader = new tf.TensorBundle.BinaryReader(buffer, host);
-        binaryReader.seek(-8);
-        const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-        if (!binaryReader.bytes(8).every((value, index) => value === signature[index])) {
-            throw new tf.Error('Invalid table signature.');
-        }
-        binaryReader.seek(-48);
-        binaryReader.varint64(); // metaindex offset
-        binaryReader.varint64(); // metaindex size
-        const indexOffset = binaryReader.varint64();
-        const indexSize = binaryReader.varint64();
-        binaryReader.seek(indexOffset);
-        const indexReader = binaryReader.clone(indexSize);
-        const indexCompression = binaryReader.byte();
-        if (indexCompression !== 0) { // kNoCompression
-            throw new tf.Error("Unsupported block compression '" + indexCompression + "'.");
-        }
-        indexReader.seek(-4);
-        const numRestarts = indexReader.int32();
-        indexReader.seek(-4 - (4 * numRestarts));
-        const restartOffsets = [];
-        for (let i = 0; i < numRestarts; i++) {
-            restartOffsets.push(indexReader.int32());
-        }
-        const textDecoder = new TextDecoder();
-        const entries = new Map();
-        for (let i = 0; i < numRestarts; i++) {
-            indexReader.seek(restartOffsets[i]);
-            indexReader.varint32(); // index shared size
-            const indexNonSharedSize = indexReader.varint32();
-            const indexValueSize = indexReader.varint32();
-            indexReader.skip(indexNonSharedSize);
-            const indexValueReader = indexReader.clone(indexValueSize);
-            binaryReader.seek(indexValueReader.varint64());
-            const blockReader = binaryReader.clone(indexValueReader.varint64());
-            let key = '';
-            while (!blockReader.end()) {
-                const sharedSize = blockReader.varint32();
-                const nonSharedSize = blockReader.varint32();
-                const valueSize = blockReader.varint32();
-                if (sharedSize === 0 && nonSharedSize === 0 && valueSize === 0) {
-                    break;
-                }
-                key = key.substring(0, sharedSize);
-                key = key + textDecoder.decode(blockReader.bytes(nonSharedSize));
-                const value = blockReader.bytes(valueSize);
-                entries.set(key, value);
-            }
-        }
-        if (!entries.has('')) {
+        const table = new tf.TensorBundle.Table(buffer);
+        if (!table.entries.has('')) {
             throw new tf.Error('Bundle header not available.');
         }
         if (format === 1) {
-            return Promise.resolve(new tf.TensorBundle(format, entries, []));
+            return Promise.resolve(new tf.TensorBundle(format, table.entries, []));
         }
-        const entry = entries.get('');
+        const entry = table.entries.get('');
         const reader = protobuf.Reader.create(entry);
         const header = tf.proto.BundleHeaderProto.decode(reader);
         const numShards = header.num_shards;
@@ -1367,10 +1317,10 @@ tf.TensorBundle = class {
             promises.push(context.request(name, null));
         }
         return Promise.all(promises).then((shards) => {
-            return new tf.TensorBundle(format, entries, shards);
+            return new tf.TensorBundle(format, table.entries, shards);
         }).catch((error) => {
             host.exception(error, false);
-            return new tf.TensorBundle(format, entries, null);
+            return new tf.TensorBundle(format, table.entries, null);
         });
     }
 
@@ -1455,6 +1405,87 @@ tf.TensorBundle = class {
     }
 };
 
+tf.TensorBundle.Table = class {
+
+    constructor(buffer) {
+        // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/io/table.cc
+        this.entries = new Map();
+        if (buffer.length <= 48) {
+            throw new tf.Error('Invalid index file size.');
+        }
+        const reader = new tf.TensorBundle.BinaryReader(buffer);
+        reader.seek(-8);
+        const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+        if (!reader.bytes(8).every((value, index) => value === signature[index])) {
+            throw new tf.Error('Invalid table signature.');
+        }
+        reader.seek(-48); // kEncodedLength
+        reader.varint64(); // metaindex offset
+        reader.varint64(); // metaindex size
+        const indexOffset = reader.varint64();
+        const indexSize = reader.varint64();
+        const indexBlock = new tf.TensorBundle.Table.Block(reader, indexOffset, indexSize);
+        for (const entry of indexBlock.entries) {
+            const valueReader = new tf.TensorBundle.BinaryReader(entry[1]);
+            const offset = valueReader.varint64();
+            const size = valueReader.varint64();
+            const block = new tf.TensorBundle.Table.Block(reader, offset, size);
+            for (const pair of block.entries) {
+                this.entries.set(pair[0], pair[1]);
+            }
+        }
+    }
+};
+
+tf.TensorBundle.Table.Block = class {
+
+    constructor(reader, offset, size) {
+        // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/io/block.cc
+        this.entries = new Map();
+        reader.seek(offset);
+        const buffer = reader.bytes(size); // blockContents
+        const compression = reader.byte();
+        reader.uint32(); // crc32
+        reader = new tf.TensorBundle.BinaryReader(buffer);
+        switch (compression) {
+            case 0: { // kNoCompression
+                break;
+            }
+            case 1: { // kSnappyCompression
+                reader = new tf.TensorBundle.BinaryReader(reader.unsnappy());
+                break;
+            }
+            default: {
+                throw new tf.Error("Unsupported block compression '" + compression + "'.");
+            }
+        }
+        reader.seek(-4);
+        const numRestarts = reader.int32();
+        reader.seek(-4 - (4 * numRestarts));
+        const restartOffsets = [];
+        for (let i = 0; i < numRestarts; i++) {
+            restartOffsets.push(reader.int32());
+        }
+        const textDecoder = new TextDecoder();
+        for (let i = 0; i < numRestarts; i++) {
+            reader.seek(restartOffsets[i]);
+            let key = '';
+            while (!reader.end()) {
+                const sharedSize = reader.varint32(); // index shared size
+                const nonSharedSize = reader.varint32(); // index non shared size
+                const valueSize = reader.varint32();
+                if (sharedSize === 0 && nonSharedSize === 0 && valueSize === 0) {
+                    break;
+                }
+                key = key.substring(0, sharedSize);
+                key = key + textDecoder.decode(reader.bytes(nonSharedSize));
+                const value = reader.bytes(valueSize);
+                this.entries.set(key, value);
+            }
+        }
+    }
+};
+
 tf.TensorBundle.BinaryReader = class {
 
     constructor(buffer) {
@@ -1508,10 +1539,22 @@ tf.TensorBundle.BinaryReader = class {
         return this._dataView.getUint8(position);
     }
 
+    uint16() {
+        const position = this._position;
+        this.skip(2);
+        return this._dataView.getUint16(position, true);
+    }
+
     int32() {
         const position = this._position;
         this.skip(4);
         return this._dataView.getInt32(position, true);
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getUint32(position, true);
     }
 
     varint32() {
@@ -1531,6 +1574,55 @@ tf.TensorBundle.BinaryReader = class {
             }
         }
         return result;
+    }
+
+    unsnappy() {
+        const data = new Uint8Array(this.varint64());
+        const mask = [0, 0xff, 0xffff, 0xffffff, 0xffffffff];
+        let position = 0;
+        while (!this.end()) {
+            const c = this.byte();
+            if ((c & 0x03) === 0) {
+                let length = (c >>> 2) + 1;
+                if (length > 60) {
+                    const short = length - 60;
+                    length = (this.uint32() & mask[short]) + 1;
+                    this._position += short - 4;
+                }
+                const source = this.bytes(length);
+                data.set(source, position);
+                position += length;
+            }
+            else {
+                let offset = 0;
+                let length = 0;
+                switch (c & 0x03) {
+                    case 1:
+                        length = ((c >>> 2) & 0x07) + 4;
+                        offset = this.byte() + ((c >>> 5) << 8);
+                        break;
+                    case 2:
+                        length = (c >>> 2) + 1;
+                        offset = this.uint16();
+                        break;
+                    case 3:
+                        length = (c >>> 2) + 1;
+                        offset = this.uint32();
+                        this._position += 4;
+                        break;
+                    default:
+                        break;
+                }
+                if (offset === 0 || offset > position) {
+                    throw new tf.Error('Snappy decompression failed.');
+                }
+                for (let i = 0; i < length; i++) {
+                    data[position + i] = data[position + i - offset];
+                }
+                position += length;
+            }
+        }
+        return data;
     }
 };
 
