@@ -30,7 +30,7 @@ tf.ModelFactory = class {
                 return true;
             }
         }
-        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt') {
+        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;
             }
