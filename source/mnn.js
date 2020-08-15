@@ -65,6 +65,11 @@ mnn.Graph = class {
         this._inputs = [];
         this._outputs = [];
         const inputSet = new Set();
+        for (let i = 0; i < net.tensorName.length; i++) {
+            if (net.tensorName[i] === '') {
+                net.tensorName[i] = '\n' + i.toString();
+            }
+        }
         for (let i = 0; i < net.oplists.length; i++) {
             const op = net.oplists[i];
             if (op.type === mnn.schema.OpType.Input) {
