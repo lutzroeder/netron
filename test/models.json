@@ -4639,6 +4639,13 @@
   },
   {
     "type":   "tf",
+    "target": "config.pbtxt",
+    "source": "https://raw.githubusercontent.com/NVIDIA/triton-inference-server/master/docs/examples/ensemble_model_repository/preprocess_resnet50_ensemble/config.pbtxt",
+    "error":  "Invalid file content. File contains Triton Inference Server configuration.",
+    "link":   "https://github.com/NVIDIA/triton-inference-server"
+  },
+  {
+    "type":   "tf",
     "target": "conv-layers.pb.zip",
     "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip",
     "format": "TensorFlow Graph",

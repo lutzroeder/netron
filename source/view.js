@@ -1472,9 +1472,10 @@ view.ModelFactoryService = class {
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: 'Darkflow metadata', value: /^{"net":\s*{"type":/ },
-            { name: 'keras-yolo2 configuation', value: /^{\s*"model"\s*:\s*{\s*"architecture"/ }
+            { name: 'keras-yolo2 configuation', value: /^{\s*"model"\s*:\s*{\s*"architecture"/ },
+            { name: 'Triton Inference Server configuration', value: /^[\s\S]*name:\s*[\s\S]*platform:\s*[\s\S]*input\s*\[[\s\S]*\][\s\S]*output\s*\[[\s\S]*\]/ }
         ];
-        const text = new TextDecoder().decode(buffer.subarray(0, Math.min(1024, buffer.length)));
+        const text = new TextDecoder().decode(buffer.subarray(0, Math.min(4096, buffer.length)));
         for (const item of list) {
             if (text.match(item.value)) {
                 return Promise.reject(new ModelError("Invalid file content. File contains " + item.name + ".", true));
