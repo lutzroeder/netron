@@ -799,7 +799,7 @@ host.Dropdown = class {
 };
 
 
-host.BrowserContext.BrowserFileContext = class {
+host.BrowserHost.BrowserFileContext = class {
 
     constructor(file, blobs) {
         this._file = file;
