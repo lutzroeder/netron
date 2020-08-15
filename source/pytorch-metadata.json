@@ -171,6 +171,13 @@
     }
   },
   {
+    "name": "torch.nn.modules.activation.Hardswish",
+    "schema": {
+      "attributes": [],
+      "category": "Activation"
+    }
+  },
+  {
     "name": "torch.nn.modules.activation.LeakyReLU",
     "schema": {
       "attributes": [],
@@ -971,7 +978,7 @@
       ],
       "category": "Activation",
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -987,7 +994,31 @@
       ],
       "category": "Activation",
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.hardswish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.hardswish_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -1828,6 +1859,18 @@
       "attributes": [
         { "name": "dim", "type": "int64", "default": 0 }
       ],
+      "category": "Tensor",
+      "inputs": [
+        { "name": "tensors", "type": "tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.meshgrid",
+    "schema": {
       "category": "Tensor",
       "inputs": [
         { "name": "tensors", "type": "tensor[]" }
@@ -3063,7 +3106,7 @@
     "name": "torch.remainder:Tensor",
     "schema": {
       "inputs": [
-        { "name": "input", "type": "tensor" },
+        { "name": "self", "type": "tensor" },
         { "name": "other", "type": "tensor" }
       ],
       "outputs": [
@@ -3078,7 +3121,7 @@
         { "name": "other", "type": "scalar" }
       ],
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -3179,11 +3222,11 @@
     "schema": {
       "category": [
         { "name": "dim", "type": "int64" },
+        { "name": "start", "type": "int64" },
         { "name": "length", "type": "int64" }
       ],
       "inputs": [
-        { "name": "self", "type": "tensor" },
-        { "name": "start", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
