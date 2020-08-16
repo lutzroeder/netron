@@ -494,10 +494,16 @@ openvino.Node = class {
                         dimensions = [ Math.floor(c / group), n ].concat(kernel);
                         break;
                     }
+                    case 'LSTMCell:weights': {
+                        const hidden_size = parseInt(attributes['hidden_size'], 10);
+                        dimensions = [ Math.floor(size / (itemSize * hidden_size)) , hidden_size ];
+                        break;
+                    }
                     case 'ScaleShift:weights':
                     case 'ScaleShift:biases':
                     case 'Convolution:biases':
                     case 'Normalize:weights':
+                    case 'LSTMCell:biases':
                     case 'PReLU:weights': {
                         dimensions = [ Math.floor(size / itemSize) ];
                         break;
