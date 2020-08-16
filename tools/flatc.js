@@ -15,10 +15,13 @@ flatc.Object = class {
     }
 
     resolve() {
-        for (const key of this.metadata.keys()) {
-            if (key !== 'force_align' && key !== 'deprecated') {
-                throw new flatc.Error("Unsupported attribute '" + key + "'.");
+        if (!this.resolved) {
+            for (const key of this.metadata.keys()) {
+                if (key !== 'force_align' && key !== 'deprecated') {
+                    throw new flatc.Error("Unsupported attribute '" + key + "'.");
+                }
             }
+            this.resolved = true;
         }
     }
 
@@ -35,21 +38,20 @@ flatc.Namespace = class extends flatc.Object {
     }
 
     resolve() {
-        if (this._resolved) {
-            return;
-        }
-        for (const child of this.children.values()) {
-            child.resolve();
-        }
-        if (this.root_type) {
-            const type = this.find(this.root_type, flatc.Type);
-            if (!type) {
-                throw new flatc.Error("Failed to resolve root type '" + this.root_type + "'.");
+        if (!this.resolved) {
+            for (const child of this.children.values()) {
+                child.resolve();
             }
-            this.root.root_type = type;
-            delete this.root_type;
+            if (this.root_type) {
+                const type = this.find(this.root_type, flatc.Type);
+                if (!type) {
+                    throw new flatc.Error("Failed to resolve root type '" + this.root_type + "'.");
+                }
+                this.root.root_type = type;
+                delete this.root_type;
+            }
+            super.resolve();
         }
-        this._resolved = true;
     }
 
     find(name, type) {
@@ -105,18 +107,20 @@ flatc.Enum = class extends flatc.Type {
     }
 
     resolve() {
-        if (this.base instanceof flatc.TypeReference) {
-            this.base = this.base.resolve(this);
-            this.defaultValue = this.base.defaultValue;
-        }
-        let index = 0;
-        for (const key of this.values.keys()) {
-            if (this.values.get(key) === undefined) {
-                this.values.set(key, index);
+        if (!this.resolved) {
+            if (this.base instanceof flatc.TypeReference) {
+                this.base = this.base.resolve(this);
+                this.defaultValue = this.base.defaultValue;
             }
-            index = this.values.get(key) + 1;
+            let index = 0;
+            for (const key of this.values.keys()) {
+                if (this.values.get(key) === undefined) {
+                    this.values.set(key, index);
+                }
+                index = this.values.get(key) + 1;
+            }
+            super.resolve();
         }
-        super.resolve();
     }
 };
 
@@ -142,9 +146,8 @@ flatc.Union = class extends flatc.Type {
                 map.set(pair[1], type);
             }
             this.values = map;
-            this.resolved = true;
+            super.resolve();
         }
-        super.resolve();
     }
 };
 
@@ -157,13 +160,15 @@ flatc.Table = class extends flatc.Type {
     }
 
     resolve() {
-        let offset = 4;
-        for (const field of this.fields.values()) {
-            field.resolve();
-            field.offset = offset;
-            offset += (field.type instanceof flatc.Union) ? 4 : 2;
+        if (!this.resolved) {
+            let offset = 4;
+            for (const field of this.fields.values()) {
+                field.resolve();
+                field.offset = offset;
+                offset += (field.type instanceof flatc.Union) ? 4 : 2;
+            }
+            super.resolve();
         }
-        super.resolve();
     }
 };
 
@@ -176,30 +181,28 @@ flatc.Struct = class extends flatc.Type {
     }
 
     resolve() {
-        if (this._resolved) {
-            return;
+        if (!this.resolved) {
+            let offset = 0;
+            for (const field of this.fields.values()) {
+                field.resolve();
+                if (field.type instanceof flatc.PrimitiveType && field.type !== 'string') {
+                    const size = field.type.size;
+                    field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
+                    offset = field.offset + field.type.size;
+                }
+                else if (field.type instanceof flatc.Struct) {
+                    field.type.resolve();
+                    const align = 8;
+                    field.offset = (offset % align != 0) ? (Math.floor(offset / align) + 1) * align : offset;
+                    offset += field.type.size;
+                }
+                else {
+                    throw flatc.Error('Structs may contain only scalar or struct fields.');
+                }
+            }
+            this.size = offset;
+            super.resolve();
         }
-        let offset = 0;
-        for (const field of this.fields.values()) {
-            field.resolve();
-            if (field.type instanceof flatc.PrimitiveType && field.type !== 'string') {
-                const size = field.type.size;
-                field.offset = (offset % size != 0) ? (Math.floor(offset / size) + 1) * size : offset;
-                offset = field.offset + field.type.size;
-            }
-            else if (field.type instanceof flatc.Struct) {
-                field.type.resolve();
-                const align = 8;
-                field.offset = (offset % align != 0) ? (Math.floor(offset / align) + 1) * align : offset;
-                offset += field.type.size;
-            }
-            else {
-                throw flatc.Error('Structs may contain only scalar or struct fields.');
-            }
-        }
-        this.size = offset;
-        this._resolved = true;
-        super.resolve();
     }
 };
 
@@ -212,25 +215,28 @@ flatc.Field = class extends flatc.Object {
     }
 
     resolve() {
-        if (this.type instanceof flatc.TypeReference) {
-            if (this.type.repeated) {
-                this.repeated = true;
-            }
-            this.type = this.type.resolve(this);
-            if (this.defaultValue === undefined) {
-                const type = this.type instanceof flatc.Enum ? this.type.base : this.type;
-                if (type instanceof flatc.PrimitiveType) {
-                    this.defaultValue = type.defaultValue;
+        if (!this.resolved) {
+            if (this.type instanceof flatc.TypeReference) {
+                if (this.type.repeated) {
+                    this.repeated = true;
+                }
+                this.type = this.type.resolve(this);
+                if (this.defaultValue === undefined) {
+                    const type = this.type instanceof flatc.Enum ? this.type.base : this.type;
+                    if (type instanceof flatc.PrimitiveType) {
+                        this.defaultValue = type.defaultValue;
+                    }
+                }
+                else if (this.type instanceof flatc.Enum) {
+                    this.type.resolve();
+                    if (!this.type.values.has(this.defaultValue)) {
+                        throw new flatc.Error("Unknown enum value '" + this.defaultValue + "'.");
+                    }
+                    this.defaultValue = this.type.values.get(this.defaultValue);
                 }
             }
-            else if (this.type instanceof flatc.Enum) {
-                if (!this.type.values.has(this.defaultValue)) {
-                    throw new flatc.Error("Unknown enum value '" + this.defaultValue + "'.");
-                }
-                this.defaultValue = this.type.values.get(this.defaultValue);
-            }
+            super.resolve();
         }
-        super.resolve();
     }
 };
 
@@ -736,10 +742,12 @@ flatc.Root = class extends flatc.Object {
     }
 
     resolve() {
-        for (const namespace of this.namespaces.values()) {
-            namespace.resolve();
+        if (!this.resolved) {
+            for (const namespace of this.namespaces.values()) {
+                namespace.resolve();
+            }
+            super.resolve();
         }
-        super.resolve();
     }
 
     get root() {

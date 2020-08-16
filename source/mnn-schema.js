@@ -365,7 +365,7 @@ $root.MNN.Op = class Op {
         $.name = reader.string_(position, 10, null);
         $.outputIndexes = reader.typedArray(position, 12, Int32Array);
         $.type = reader.int32_(position, 14, 0);
-        $.defaultDimentionFormat = reader.int8_(position, 16, undefined);
+        $.defaultDimentionFormat = reader.int8_(position, 16, 1);
         return $;
     }
 };
@@ -660,7 +660,7 @@ $root.MNN.Input = class Input {
         const $ = new $root.MNN.Input();
         $.dims = reader.typedArray(position, 4, Int32Array);
         $.dtype = reader.int32_(position, 6, 1);
-        $.dformat = reader.int8_(position, 8, undefined);
+        $.dformat = reader.int8_(position, 8, 2);
         return $;
     }
 };
@@ -761,7 +761,7 @@ $root.MNN.Reshape = class Reshape {
     static decode(reader, position) {
         const $ = new $root.MNN.Reshape();
         $.dims = reader.typedArray(position, 4, Int32Array);
-        $.dimType = reader.int8_(position, 6, undefined);
+        $.dimType = reader.int8_(position, 6, 0);
         return $;
     }
 };
@@ -926,7 +926,7 @@ $root.MNN.Attribute = class Attribute {
         $.i = reader.int32_(position, 6, 0);
         $.b = reader.bool_(position, 8, false);
         $.key = reader.string_(position, 10, null);
-        $.type = reader.int32_(position, 12, undefined);
+        $.type = reader.int32_(position, 12, 0);
         $.f = reader.float32_(position, 14, 0);
         $.tensor = reader.table(position, 16, $root.MNN.Blob.decode);
         $.list = reader.table(position, 18, $root.MNN.ListValue.decode);
