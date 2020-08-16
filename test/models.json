@@ -2420,6 +2420,34 @@
   },
   {
     "type":   "mnn",
+    "target": "blazeface.mnn",
+    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/blazeface/tensorflow/jni/blazeface.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
+  },
+  {
+    "type":   "mnn",
+    "target": "blazeface_quant.mnn",
+    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/blazeface/tensorflow/jni/blazeface_quant.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
+  },
+  {
+    "type":   "mnn",
+    "target": "face_det.mnn",
+    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tflite/jni/face_det.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
+  },
+  {
+    "type":   "mnn",
+    "target": "face_det.mnn",
+    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tflite/jni/face_det_quant.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
+  },
+  {
+    "type":   "mnn",
     "target": "inception-v3.mnn",
     "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/inception-v3.mnn",
     "format": "MNN v2",
@@ -2459,6 +2487,13 @@
     "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/SqueezeNetV1.0.mnn",
     "format": "MNN v2",
     "link":   "https://github.com/alibaba/MNN"
+  },
+  {
+    "type":   "mnn",
+    "target": "tf_body_det.mnn",
+    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tensorflow/jni/tf_body_det.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
   },
   {
     "type":   "mxnet",
