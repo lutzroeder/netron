@@ -5284,9 +5284,14 @@
           "description": "Either NHWC or NCWH, will split on C axis, defaults to NCHW",
           "name": "order",
           "option": "optional"
+        },
+        {
+          "description": "(*bool*): Enables automatic scaling of the lengths values. When enabled will automatically find a value K >= 1, such that sum(lengths) * K == len(input).",
+          "name": "use_scaling_lengths",
+          "option": "optional"
         }
       ],
-      "description": "\nSplit a tensor into a list of tensors, given a lengths input, along the specified\n'axis'. If `K` outputs are provided, the op assumes `len(lengths) % K == 0`.\nThe `input` will be split into `K` parts. Each part of length\n`sum(lengths[i*k:i*k+k))`",
+      "description": "\nSplit a tensor into a list of tensors, given a lengths input, along the specified\n'axis'. If `K` outputs are provided, the op assumes `len(lengths) % K == 0`.\nThe `input` will be split into `K` parts. Each part of length\n`sum(lengths[i*k:i*k+k))`\n\n<details>\n\n<summary> <b>Example 1</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"SplitByLengths\",\n    [\"input\", \"lengths\"],\n    [\"output_0\",\"output_1\",\"output_2\"],\n    axis=0\n)\n\nworkspace.FeedBlob(\"input\", np.random.randint(10, size=(9)))\nworkspace.FeedBlob(\"lengths\", np.array([3,2,4], dtype=np.int32))\nprint(\"input:\", workspace.FetchBlob(\"input\"))\nprint(\"lengths:\", workspace.FetchBlob(\"lengths\"))\nworkspace.RunOperatorOnce(op)\nprint(\"output_0:\", workspace.FetchBlob(\"output_0\"))\nprint(\"output_1:\", workspace.FetchBlob(\"output_1\"))\nprint(\"output_2:\", workspace.FetchBlob(\"output_2\"))\n\n```\n\n**Result**\n\n```\n\ninput: [2 2 6 6 6 0 5 7 4]\nlengths: [3 2 4]\noutput_0: [2 2 6]\noutput_1: [6 6]\noutput_2: [0 5 7 4]\n\n```\n\n<summary> <b>Example 2</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"SplitByLengths\",\n    [\"input\", \"lengths\"],\n    [\"output_0\",\"output_1\",\"output_2\"],\n    axis=0,\n    use_scaling_lengths=true,\n)\n\nworkspace.FeedBlob(\"input\", np.random.randint(10, size=(9)))\nworkspace.FeedBlob(\"lengths\", np.array([1,1,1], dtype=np.int32))\nprint(\"input:\", workspace.FetchBlob(\"input\"))\nprint(\"lengths:\", workspace.FetchBlob(\"lengths\"))\nprint(\"output_0:\", workspace.FetchBlob(\"output_0\"))\nprint(\"output_1:\", workspace.FetchBlob(\"output_1\"))\nprint(\"output_2:\", workspace.FetchBlob(\"output_2\"))\n\n```\n\n**Result**\n\n```\n\ninput: [2 2 6 6 6 0 5 7 4]\nlengths: [1 1 1]\noutput_0: [2 2 6]\noutput_1: [6 6 6]\noutput_2: [5 7 4]\n\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "The tensor to split",
@@ -18787,7 +18792,7 @@
   {
     "name": "Mish",
     "schema": {
-      "description": "\nMish takes one input data (Tensor) and produces one output data\n(Tensor) where the Mish function, y = x / (1 + exp(-x)), is applied to the\ntensor elementwise.\n",
+      "description": "\nMish takes one input data (Tensor) and produces one output data\n(Tensor) where the Mish function, y = x * tanh(ln(1 + exp(x))), is applied to the\ntensor elementwise.\n",
       "inputs": [
         {
           "description": "1D input tensor",
