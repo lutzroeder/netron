@@ -976,19 +976,40 @@ tf.Attribute = class {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (!Array.isArray(this._value) || Array.isArray(schema.default) || this._value.length === schema.default.length) {
-                    let value = this._value;
-                    let defaultValue = schema.default;
-                    if (this._type === 'float32') {
-                        const temp = new Float32Array(1);
-                        temp[0] = value;
-                        value = temp[0];
-                        temp[0] = defaultValue;
-                        defaultValue = temp[0];
+                const equals = (value, defaultValue) => {
+                    if (!Array.isArray(defaultValue) && defaultValue === Object(defaultValue)) {
+                        switch (defaultValue.type) {
+                            case 'type':
+                                defaultValue = tf.Tensor.formatDataType(defaultValue.value);
+                                break;
+                            case 'shape':
+                            case 'tensor':
+                                defaultValue = defaultValue.value;
+                                break;
+                            default:
+                                throw new tf.Error(JSON.stringify(defaultValue));
+                        }
                     }
-                    const valueText = tf.GraphMetadata._formatAttributeValue(value);
-                    const defaultValueText = tf.GraphMetadata._formatAttributeValue(defaultValue);
-                    if (JSON.stringify(valueText) == JSON.stringify(defaultValueText)) {
+                    switch (typeof value) {
+                        case 'boolean':
+                        case 'number':
+                        case 'string':
+                            return value === defaultValue;
+                    }
+                    if (value instanceof base.Int64 || value instanceof base.Uint64) {
+                        return value.toNumber() === defaultValue;
+                    }
+                    return false;
+                };
+                const value = this._value;
+                const defaultValue = schema.default;
+                if (Array.isArray(value) && Array.isArray(defaultValue)) {
+                    if (value.length === defaultValue.length && value.every((item, index) => equals(item, defaultValue[index]))) {
+                        this._visible = false;
+                    }
+                }
+                else {
+                    if (equals(value, defaultValue)) {
                         this._visible = false;
                     }
                 }
@@ -1448,16 +1469,13 @@ tf.TensorBundle.Table.Block = class {
         reader.uint32(); // crc32
         reader = new tf.TensorBundle.BinaryReader(buffer);
         switch (compression) {
-            case 0: { // kNoCompression
+            case 0: // kNoCompression
                 break;
-            }
-            case 1: { // kSnappyCompression
+            case 1: // kSnappyCompression
                 reader = new tf.TensorBundle.BinaryReader(reader.unsnappy());
                 break;
-            }
-            default: {
+            default:
                 throw new tf.Error("Unsupported block compression '" + compression + "'.");
-            }
         }
         reader.seek(-4);
         const numRestarts = reader.int32();
@@ -1581,46 +1599,39 @@ tf.TensorBundle.BinaryReader = class {
         const mask = [0, 0xff, 0xffff, 0xffffff, 0xffffffff];
         let position = 0;
         while (!this.end()) {
+            let length = 0;
             const c = this.byte();
-            if ((c & 0x03) === 0) {
-                let length = (c >>> 2) + 1;
-                if (length > 60) {
-                    const short = length - 60;
-                    length = (this.uint32() & mask[short]) + 1;
-                    this._position += short - 4;
+            switch (c & 0x03) {
+                case 0: {
+                    length = (c >>> 2) + 1;
+                    if (length > 60) {
+                        const short = length - 60;
+                        length = (this.uint32() & mask[short]) + 1;
+                        this._position += short - 4;
+                    }
+                    data.set(this.bytes(length), position);
+                    break;
                 }
-                const source = this.bytes(length);
-                data.set(source, position);
-                position += length;
+                case 1: {
+                    length = ((c >>> 2) & 0x07) + 4;
+                    const offset = this.byte() + ((c >>> 5) << 8);
+                    data.set(data.subarray(position - offset, position - offset + length), position);
+                    break;
+                }
+                case 2: {
+                    length = (c >>> 2) + 1;
+                    const offset = this.uint16();
+                    data.set(data.subarray(position - offset, position - offset + length), position);
+                    break;
+                }
+                case 3: {
+                    length = (c >>> 2) + 1;
+                    const offset = this.uint32();
+                    data.set(data.subarray(position - offset, position - offset + length), position);
+                    break;
+                }
             }
-            else {
-                let offset = 0;
-                let length = 0;
-                switch (c & 0x03) {
-                    case 1:
-                        length = ((c >>> 2) & 0x07) + 4;
-                        offset = this.byte() + ((c >>> 5) << 8);
-                        break;
-                    case 2:
-                        length = (c >>> 2) + 1;
-                        offset = this.uint16();
-                        break;
-                    case 3:
-                        length = (c >>> 2) + 1;
-                        offset = this.uint32();
-                        this._position += 4;
-                        break;
-                    default:
-                        break;
-                }
-                if (offset === 0 || offset > position) {
-                    throw new tf.Error('Snappy decompression failed.');
-                }
-                for (let i = 0; i < length; i++) {
-                    data[position + i] = data[position + i - offset];
-                }
-                position += length;
-            }
+            position += length;
         }
         return data;
     }
@@ -1694,32 +1705,6 @@ tf.GraphMetadata = class {
             return map;
         }
         return {};
-    }
-
-    static _formatAttributeValue(value) {
-        if (value == null) {
-            return null;
-        }
-        if (value && (value instanceof base.Int64 || value instanceof base.Uint64)) {
-            value = value.toNumber();
-        }
-        if (Array.isArray(value)) {
-            return value.map((item) => tf.GraphMetadata._formatAttributeValue(item));
-        }
-        if (value === Object(value)) {
-            switch (value.type) {
-                case 'type':
-                    return tf.Tensor.formatDataType(value.value);
-                case 'shape':
-                    return value.value;
-                case 'tensor':
-                    return value.value;
-            }
-        }
-        if (typeof value === 'string') {
-            return '"' + value + '"';
-        }
-        return value.toString();
     }
 };
 
