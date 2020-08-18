@@ -78,7 +78,7 @@
     }
   },
   {
-    "name": "Deconvolution",
+    "name": "DeConvolution",
     "schema": {
       "category": "Layer",
       "attributes": [
