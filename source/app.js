@@ -675,8 +675,8 @@ class View {
         this._window.on('blur', () => {
             this._raise('deactivated');
         });
-        this._window.webContents.on('dom-ready', () => {
-            this._ready = true;
+        this._window.webContents.on('did-finish-load', () => {
+            this._didFinishLoad = true;
         });
         this._window.webContents.on('new-window', (event, url) => {
             if (url.startsWith('http://') || url.startsWith('https://')) {
@@ -701,11 +701,11 @@ class View {
 
     open(file) {
         this._openPath = file;
-        if (this._ready) {
+        if (this._didFinishLoad) {
             this._window.webContents.send('open', { file: file });
         }
         else {
-            this._window.webContents.on('dom-ready', () => {
+            this._window.webContents.on('did-finish-load', () => {
                 this._window.webContents.send('open', { file: file });
             });
             const location = url.format({ protocol: 'file:', slashes: true, pathname: path.join(__dirname, 'electron.html') });
