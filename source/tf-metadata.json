@@ -59754,12 +59754,14 @@
           "type": "string"
         }
       ],
+      "description": "output: the tensor that will be received from the host.\nToutput: element type for output.\nshape: shape for output.\nkey: A unique identifier for this region used to match up host transfers.",
       "outputs": [
         {
           "name": "output",
           "typeAttr": "Toutput"
         }
-      ]
+      ],
+      "summary": "An op to receive a tensor from the host."
     }
   },
   {
@@ -59775,12 +59777,14 @@
           "type": "string"
         }
       ],
+      "description": "input: the tensor that will be sent to the host.\nTinput: element type for input.\nkey: A unique identifier for this region used to match up host transfers.",
       "inputs": [
         {
           "name": "input",
           "typeAttr": "Tinput"
         }
-      ]
+      ],
+      "summary": "An op to send a tensor to the host."
     }
   },
   {
