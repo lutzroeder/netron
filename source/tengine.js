@@ -547,7 +547,7 @@ tengine.ModelFileReader = class {
         register( 3, 0, 'Concat', [ 'i' ]);
         register( 4, 0, 'Const', []);
         register( 5, 0, 'Convolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register( 6, 0, 'DeConvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register( 6, 0, 'Deconvolution', [ 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i', 'i' ]);
         register( 7, 0, 'DetectionOutput', [ 'i', 'i', 'i', 'f', 'f' ]);
         register( 8, 0, 'DropOut', []);
         register( 9, 0, 'Eltwise', [ 'i', 'i' ]);
