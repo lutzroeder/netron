@@ -161,6 +161,8 @@ mnn.Node = class {
                 switch (type.dataType) {
                     case 'int32': data = parameter.int32s; break;
                     case 'float32': data = parameter.float32s; break;
+                    default:
+                        throw new mnn.Error("Unknown blob data type '" + JSON.stringify(type.dataType) + "'.");
                 }
                 this._inputs.push(new mnn.Parameter('value', true, [
                     new mnn.Argument('', null, new mnn.Tensor('Blob', type, data))
@@ -364,7 +366,7 @@ mnn.Tensor = class {
     constructor(kind, type, data) {
         this._kind = kind;
         this._type = type;
-        this._data = data.slice(0);
+        this._data = data ? data.slice(0) : null;
     }
 
     get kind() {
