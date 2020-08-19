@@ -6172,6 +6172,9 @@ $root.CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
                 case 1:
                     message.axis = reader.int64();
                     break;
+                case 2:
+                    message.interleave = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6182,6 +6185,7 @@ $root.CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
 };
 
 $root.CoreML.Specification.ConcatNDLayerParams.prototype.axis = protobuf.Int64.create(0);
+$root.CoreML.Specification.ConcatNDLayerParams.prototype.interleave = false;
 
 $root.CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
 
