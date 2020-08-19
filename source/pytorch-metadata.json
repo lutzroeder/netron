@@ -2616,6 +2616,17 @@
     }
   },
   {
+    "name": "torch.abs",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.abs_",
     "schema": {
       "inputs": [
