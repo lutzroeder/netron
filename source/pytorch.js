@@ -2917,24 +2917,22 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
     }
 
     call(target, name, args, context) {
-        let callTarget = pytorch.Utility.target(target);
+        let resolvedTarget = pytorch.Utility.target(target);
         let outputTypes = null;
-        if (callTarget && callTarget + '.' + name === 'ops.prim.NumToTensor' &&
+        if (resolvedTarget && resolvedTarget + '.' + name === 'ops.prim.NumToTensor' &&
             args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
             const innerCall = args[0];
-            callTarget = pytorch.Utility.target(innerCall.target.target);
+            resolvedTarget = pytorch.Utility.target(innerCall.target.target);
             args = innerCall.arguments;
             name = innerCall.target.member.value;
             outputTypes = [ 'int64' ];
         }
-        if (callTarget) {
-            const type = callTarget + '.' + name;
+        if (resolvedTarget) {
+            const type = resolvedTarget + '.' + name;
             // https://github.com/pytorch/pytorch/blob/master/aten/src/ATen/native/native_functions.yaml
             let schemas = this._metadata.type(type);
             if (schemas) {
-                if (!Array.isArray(schemas)) {
-                    schemas = [ schemas ];
-                }
+                schemas = !Array.isArray(schemas) ? [ schemas ] : schemas;
                 const evalArgs = args.map((argument) => argument.type === '=' && argument.target && argument.target.type === 'id' ? this.expression(argument.expression, context) : this.expression(argument, context));
                 for (const schema of schemas) {
                     const copyArgs = Array.prototype.slice.call(args);
@@ -2957,9 +2955,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 map.set(parameter.name, parameter);
                             }
                             while (copyArgs.length > 0) {
-                                const arg = copyArgs.shift();
+                                const argument = copyArgs.shift();
                                 const value = copyEvalArgs.shift();
-                                const parameter = map.get(arg.target.value);
+                                const parameter = map.get(argument.target.value);
                                 if (!parameter) {
                                     next = true;
                                     break;
@@ -2979,10 +2977,26 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             break;
                         }
 
+                        const op_context = copyEvalArgs[0];
+                        if (op_context && op_context.__module__ === '__torch__.torch.classes.xnnpack') {
+                            switch (op_context.__name__) {
+                                case 'LinearOpContext':
+                                case 'Conv2dOpContext':
+                                    copyArgs.shift();
+                                    copyEvalArgs.shift();
+                                    for (const key of Object.keys(op_context).filter((key) => Number.isInteger(parseInt(key, 10)))) {
+                                        copyArgs.push({ type: null });
+                                        copyEvalArgs.push(op_context[key]);
+                                    }
+                                    break;
+                            }
+                        }
+
                         const parameter = parameters.shift();
+                        const argument = copyEvalArgs[0];
+
                         switch (parameter.type) {
                             case 'tensor': {
-                                let argument = copyEvalArgs[0];
                                 if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                                     if (parameter.optional) {
                                         if (argument === undefined) {
@@ -2996,15 +3010,13 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 }
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
-                                if (argument === null || argument === undefined) {
-                                    argument = {};
-                                }
-                                if (!argument.__variable__) {
-                                    argument.__variable__ = this._variable();
+                                const item = (argument === null || argument === undefined) ? {} : argument;
+                                if (!item.__variable__) {
+                                    item.__variable__ = this._variable();
                                 }
                                 const inputs = [];
-                                inputs.push({ id: argument.__variable__ });
-                                referencedParameters.push(argument);
+                                inputs.push({ id: item.__variable__ });
+                                referencedParameters.push(item);
                                 node.inputs.push(inputs);
                                 break;
                             }
@@ -3035,8 +3047,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             }
                             default: {
                                 const arg = copyArgs[0];
-                                const value = copyEvalArgs[0];
-                                if (!pytorch.Utility.isType(value, parameter.type)) {
+                                if (!pytorch.Utility.isType(argument, parameter.type)) {
                                     if (parameter.optional) {
                                         continue;
                                     }
@@ -3046,7 +3057,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 if (arg.type !== '=') {
                                     copyArgs.shift();
                                     copyEvalArgs.shift();
-                                    node.attributes.push({ name: parameter.name, value: value });
+                                    node.attributes.push({ name: parameter.name, value: argument });
                                 }
                                 else {
                                     throw new pytorch.Error('Expected named argument.');
