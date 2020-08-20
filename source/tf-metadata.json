@@ -56604,7 +56604,7 @@
           "type": "type"
         }
       ],
-      "description": "input_handle: the original map\noutput_handle: the map with value from given key removed\nkey: the key of the value to be erased\nvalue: the value that was erased",
+      "description": "input_handle: the original map\noutput_handle: the map with value from given key removed\nkey: the key of the value to be erased",
       "inputs": [
         {
           "name": "input_handle",
@@ -56619,10 +56619,6 @@
         {
           "name": "output_handle",
           "type": 21
-        },
-        {
-          "name": "value",
-          "typeAttr": "value_dtype"
         }
       ],
       "summary": "Returns a tensor map with item from given key erased."
