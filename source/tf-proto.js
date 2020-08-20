@@ -2827,6 +2827,9 @@ $root.tensorflow.SavedVariable = class SavedVariable {
                 case 6:
                     message.name = reader.string();
                     break;
+                case 7:
+                    message.device = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2859,6 +2862,9 @@ $root.tensorflow.SavedVariable = class SavedVariable {
                 case "name":
                     message.name = reader.string();
                     break;
+                case "device":
+                    message.device = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2874,6 +2880,7 @@ $root.tensorflow.SavedVariable.prototype.trainable = false;
 $root.tensorflow.SavedVariable.prototype.synchronization = 0;
 $root.tensorflow.SavedVariable.prototype.aggregation = 0;
 $root.tensorflow.SavedVariable.prototype.name = "";
+$root.tensorflow.SavedVariable.prototype.device = "";
 
 $root.tensorflow.FunctionSpec = class FunctionSpec {
 
