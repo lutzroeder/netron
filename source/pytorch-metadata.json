@@ -2314,6 +2314,30 @@
     }
   },
   {
+    "name": "torch.hardswish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.hardswish_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.pixel_shuffle",
     "schema": {
       "attributes": [
