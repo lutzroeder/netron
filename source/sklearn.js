@@ -686,6 +686,60 @@ sklearn.Container = class {
         const constructorTable = {};
         const functionTable = {};
 
+        constructorTable['argparse.Namespace'] = function (args) {
+            this.args = args;
+        };
+        constructorTable['gensim.models.doc2vec.Doctag'] = function() {};
+        constructorTable['gensim.models.doc2vec.Doc2Vec'] = function() {};
+        constructorTable['gensim.models.doc2vec.Doc2VecTrainables'] = function() {};
+        constructorTable['gensim.models.doc2vec.Doc2VecVocab'] = function() {};
+        constructorTable['gensim.models.fasttext.FastText'] = function() {};
+        constructorTable['gensim.models.fasttext.FastTextTrainables'] = function() {};
+        constructorTable['gensim.models.fasttext.FastTextVocab'] = function() {};
+        constructorTable['gensim.models.fasttext.FastTextKeyedVectors'] = function() {};
+        constructorTable['gensim.models.keyedvectors.Doc2VecKeyedVectors'] = function() {};
+        constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
+        constructorTable['gensim.models.keyedvectors.Word2VecKeyedVectors'] = function() {};
+        constructorTable['gensim.models.phrases.Phrases'] = function() {};
+        constructorTable['gensim.models.tfidfmodel.TfidfModel'] = function() {};
+        constructorTable['gensim.models.word2vec.Vocab'] = function() {};
+        constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
+        constructorTable['gensim.models.word2vec.Word2VecTrainables'] = function() {};
+        constructorTable['gensim.models.word2vec.Word2VecVocab'] = function() {};
+        constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(/* subtype, shape, dtype */) {
+            this.__setstate__ = function(state) {
+                this.subclass = state.subclass;
+                this.dtype = state.dtype;
+                this.shape = state.shape;
+                this.order = state.order;
+                this.allow_mmap = state.allow_mmap;
+            };
+            this.__read__ = function(unpickler) {
+                if (this.dtype.name == 'object') {
+                    return unpickler.load(function_call, null);
+                }
+                else {
+                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                    this.data = unpickler.read(size);
+                }
+                const obj = {
+                    dtype: this.dtype,
+                    shape: this.shape,
+                    data: this.data,
+                };
+                sklearn.Utility.applyType(obj, this.subclass);
+                return obj;
+            };
+        };
+        constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
+        constructorTable['lightgbm.sklearn.LGBMClassifier'] = function() {};
+        constructorTable['lightgbm.basic.Booster'] = function() {};
+        constructorTable['nolearn.lasagne.base.BatchIterator'] = function() {};
+        constructorTable['nolearn.lasagne.base.Layers'] = function() {};
+        constructorTable['nolearn.lasagne.base.NeuralNet'] = function() {};
+        constructorTable['nolearn.lasagne.base.TrainSplit'] = function() {};
+        constructorTable['nolearn.lasagne.handlers.PrintLayerInfo'] = function() {};
+        constructorTable['nolearn.lasagne.handlers.PrintLog'] = function() {};
         constructorTable['numpy.dtype'] = function(obj, align, copy) {
             switch (obj) {
                 case 'i1': this.name = 'int8'; this.itemsize = 1; break;
@@ -775,58 +829,9 @@ sklearn.Container = class {
                 return array;
             };
         };
-        constructorTable['joblib.numpy_pickle.NumpyArrayWrapper'] = function(/* subtype, shape, dtype */) {
-            this.__setstate__ = function(state) {
-                this.subclass = state.subclass;
-                this.dtype = state.dtype;
-                this.shape = state.shape;
-                this.order = state.order;
-                this.allow_mmap = state.allow_mmap;
-            };
-            this.__read__ = function(unpickler) {
-                if (this.dtype.name == 'object') {
-                    return unpickler.load(function_call, null);
-                }
-                else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
-                    this.data = unpickler.read(size);
-                }
-                const obj = {
-                    dtype: this.dtype,
-                    shape: this.shape,
-                    data: this.data,
-                };
-                sklearn.Utility.applyType(obj, this.subclass);
-                return obj;
-            };
+        constructorTable['pathlib.PosixPath'] = function() {
+            this.path = Array.from(arguments).join('/');
         };
-
-        constructorTable['gensim.models.doc2vec.Doctag'] = function() {};
-        constructorTable['gensim.models.doc2vec.Doc2Vec'] = function() {};
-        constructorTable['gensim.models.doc2vec.Doc2VecTrainables'] = function() {};
-        constructorTable['gensim.models.doc2vec.Doc2VecVocab'] = function() {};
-        constructorTable['gensim.models.fasttext.FastText'] = function() {};
-        constructorTable['gensim.models.fasttext.FastTextTrainables'] = function() {};
-        constructorTable['gensim.models.fasttext.FastTextVocab'] = function() {};
-        constructorTable['gensim.models.fasttext.FastTextKeyedVectors'] = function() {};
-        constructorTable['gensim.models.keyedvectors.Doc2VecKeyedVectors'] = function() {};
-        constructorTable['gensim.models.keyedvectors.Vocab'] = function() {};
-        constructorTable['gensim.models.keyedvectors.Word2VecKeyedVectors'] = function() {};
-        constructorTable['gensim.models.phrases.Phrases'] = function() {};
-        constructorTable['gensim.models.tfidfmodel.TfidfModel'] = function() {};
-        constructorTable['gensim.models.word2vec.Vocab'] = function() {};
-        constructorTable['gensim.models.word2vec.Word2Vec'] = function() {};
-        constructorTable['gensim.models.word2vec.Word2VecTrainables'] = function() {};
-        constructorTable['gensim.models.word2vec.Word2VecVocab'] = function() {};
-        constructorTable['lightgbm.sklearn.LGBMRegressor'] = function() {};
-        constructorTable['lightgbm.sklearn.LGBMClassifier'] = function() {};
-        constructorTable['lightgbm.basic.Booster'] = function() {};
-        constructorTable['nolearn.lasagne.base.BatchIterator'] = function() {};
-        constructorTable['nolearn.lasagne.base.Layers'] = function() {};
-        constructorTable['nolearn.lasagne.base.NeuralNet'] = function() {};
-        constructorTable['nolearn.lasagne.base.TrainSplit'] = function() {};
-        constructorTable['nolearn.lasagne.handlers.PrintLayerInfo'] = function() {};
-        constructorTable['nolearn.lasagne.handlers.PrintLog'] = function() {};
         constructorTable['sklearn.calibration._CalibratedClassifier'] = function() {};
         constructorTable['sklearn.calibration._SigmoidCalibration'] = function() {};
         constructorTable['sklearn.calibration.CalibratedClassifierCV​'] = function() {};
@@ -952,11 +957,174 @@ sklearn.Container = class {
         constructorTable['sklearn.tree.tree.DecisionTreeRegressor'] = function() {};
         constructorTable['sklearn.tree.tree.ExtraTreeClassifier'] = function() {};
         constructorTable['sklearn.utils.deprecation.DeprecationDict'] = function() {};
+        constructorTable['re.Pattern'] = function(pattern, flags) {
+            this.pattern = pattern;
+            this.flags = flags;
+        };
+        constructorTable['spacy._ml.PrecomputableAffine'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['spacy.syntax._parser_model.ParserModel'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.describe.Biases'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, state);
+            };
+        };
+        constructorTable['thinc.describe.Dimension'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, state);
+            };
+        };
+        constructorTable['thinc.describe.Gradient'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, state);
+            };
+        };
+        constructorTable['thinc.describe.Weights'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, state);
+            };
+        };
+        constructorTable['thinc.describe.Synapses'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, state);
+            };
+        };
+        constructorTable['thinc.neural._classes.affine.Affine'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.convolution.ExtractWindow'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.feature_extracter.FeatureExtracter'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.feed_forward.FeedForward'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.function_layer.FunctionLayer'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.hash_embed.HashEmbed'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.layernorm.LayerNorm'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.maxout.Maxout'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.resnet.Residual'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural._classes.softmax.Softmax'] = function() {
+            this.__setstate__ = function(state) {
+                Object.assign(this, new pickle.Unpickler(state).load(function_call, null));
+            };
+        };
+        constructorTable['thinc.neural.mem.Memory'] = function() {
+        };
+        constructorTable['thinc.neural.ops.NumpyOps'] = function() {
+        };
+        constructorTable['types.CodeType'] = function(args) {
+        };
+        constructorTable['types.MethodType'] = function(args) {
+        };
         constructorTable['xgboost.compat.XGBoostLabelEncoder'] = function() {};
         constructorTable['xgboost.core.Booster'] = function() {};
         constructorTable['xgboost.sklearn.XGBClassifier'] = function() {};
         constructorTable['xgboost.sklearn.XGBRegressor'] = function() {};
 
+        functionTable['__builtin__.bytearray'] = function(source, encoding /*, errors */) {
+            if (source) {
+                if (encoding === 'latin-1') {
+                    const array = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        array[i] = source.charCodeAt(i);
+                    }
+                    return array;
+                }
+                throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+            }
+            return [];
+        };
+        functionTable['__builtin__.bytes'] = function(source, encoding /*, errors */) {
+            if (source) {
+                if (encoding === 'latin-1') {
+                    const array = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        array[i] = source.charCodeAt(i);
+                    }
+                    return array;
+                }
+                throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+            }
+            return [];
+        };
+        functionTable['__builtin__.set'] = function(iterable) {
+            return iterable ? iterable : [];
+        };
+        functionTable['__builtin__.frozenset'] = function(iterable) {
+            return iterable ? iterable : [];
+        };
+        functionTable['_codecs.encode'] = function(obj /*, econding */) {
+            return obj;
+        };
+        functionTable['builtins.bytearray'] = function(data) {
+            return { data: data };
+        };
+        functionTable['builtins.set'] = function(iterable) {
+            return iterable ? iterable : [];
+        };
+        functionTable['builtins.slice'] = function(start, stop, step) {
+            return { start: start, stop: stop, step: step };
+        };
+        functionTable['cloudpickle.cloudpickle._builtin_type'] = function(name) {
+            console.log("  XXXXX");
+            return name;
+        };
+        functionTable['collections.Counter'] = function(/* iterable */) {
+            return { __module__: 'collections', __name__: 'Counter' };
+        };
+        functionTable['collections.defaultdict'] = function(/* default_factory */) {
+            return {};
+        };
+        functionTable['collections.OrderedDict'] = function(args) {
+            const obj = new Map();
+            obj.__setitem__ = function(key, value) {
+                obj.set(key, value);
+            };
+            if (args) {
+                for (const arg of args) {
+                    obj.__setitem__(arg[0], arg[1]);
+                }
+            }
+            return obj;
+        };
         functionTable['copy_reg._reconstructor'] = function(cls, base, state) {
             if (base == '__builtin__.object') {
                 const obj = {};
@@ -967,6 +1135,28 @@ sklearn.Container = class {
                 return state;
             }
             throw new sklearn.Error("Unknown base type '" + base + "'.");
+        };
+        functionTable['dill._dill._create_cell'] = function(args) {
+            return function() {
+                // TODO
+            };
+        };
+        functionTable['dill._dill._create_code'] = function(args) {
+            return function_call('types.CodeType', [ args ]);
+        };
+        functionTable['dill._dill._create_function'] = function(fcode, fglobals, fname, fdefaults, fclosure, fdict, fkwdefaults) {
+            return function() {
+                // TODO
+            };
+        };
+        functionTable['dill._dill._get_attr'] = function(self, name) {
+            if (Object.prototype.hasOwnProperty.call(self, name)) {
+                return self[name];
+            }
+            return undefined;
+        };
+        functionTable['dill._dill._load_type'] = function(name) {
+            return constructorTable['types.' + name];
         };
         functionTable['numpy.core.multiarray.scalar'] = function(dtype, rawData) {
             let data = rawData;
@@ -1009,70 +1199,16 @@ sklearn.Container = class {
         functionTable['numpy.random._pickle.__randomstate_ctor'] = function() {
             return {};
         };
-        functionTable['_codecs.encode'] = function(obj /*, econding */) {
-            return obj;
-        };
-        functionTable['collections.Counter'] = function(/* iterable */) {
-            return { __module__: 'collections', __name__: 'Counter' };
-        };
-        functionTable['collections.defaultdict'] = function(/* default_factory */) {
+        functionTable['numpy.core.numeric._frombuffer'] = function(buf, dtype, shape, order) {
             return {};
         };
-        functionTable['collections.OrderedDict'] = function(args) {
-            const obj = new Map();
-            obj.__setitem__ = function(key, value) {
-                obj.set(key, value);
+        functionTable['re._compile'] = function(pattern, flags) {
+            return function_call('re.Pattern', [ pattern, flags ]);
+        };
+        functionTable['srsly.cloudpickle.cloudpickle._builtin_type'] = function(name) {
+            return function() {
+                return function_call('types.' + name, arguments);
             };
-            if (args) {
-                for (const arg of args) {
-                    obj.__setitem__(arg[0], arg[1]);
-                }
-            }
-            return obj;
-        };
-        functionTable['__builtin__.bytearray'] = function(source, encoding /*, errors */) {
-            if (source) {
-                if (encoding === 'latin-1') {
-                    const array = new Uint8Array(source.length);
-                    for (let i = 0; i < source.length; i++) {
-                        array[i] = source.charCodeAt(i);
-                    }
-                    return array;
-                }
-                throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
-            }
-            return [];
-        };
-        functionTable['__builtin__.bytes'] = function(source, encoding /*, errors */) {
-            if (source) {
-                if (encoding === 'latin-1') {
-                    const array = new Uint8Array(source.length);
-                    for (let i = 0; i < source.length; i++) {
-                        array[i] = source.charCodeAt(i);
-                    }
-                    return array;
-                }
-                throw new sklearn.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
-            }
-            return [];
-        };
-        functionTable['__builtin__.set'] = function(iterable) {
-            return iterable ? iterable : [];
-        };
-        functionTable['__builtin__.frozenset'] = function(iterable) {
-            return iterable ? iterable : [];
-        };
-        functionTable['builtins.bytearray'] = function(data) {
-            return { data: data };
-        };
-        functionTable['builtins.set'] = function(iterable) {
-            return iterable ? iterable : [];
-        };
-        functionTable['builtins.slice'] = function(start, stop, step) {
-            return { start: start, stop: stop, step: step };
-        };
-        functionTable['cloudpickle.cloudpickle._builtin_type'] = function(name) {
-            return name;
         };
 
         const unknownNameMap = new Set();
@@ -1082,7 +1218,7 @@ sklearn.Container = class {
         ]);
 
         const function_call = (name, args) => {
-            const func = functionTable[name];
+            const func = name instanceof Function ? name : functionTable[name];
             if (func) {
                 return func.apply(null, args);
             }
