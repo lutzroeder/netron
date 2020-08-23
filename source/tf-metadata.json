@@ -21456,6 +21456,47 @@
     }
   },
   {
+    "name": "IsotonicRegression",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "Dtype of output. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
+          "name": "output_dtype",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "A (batch_size, dim)-tensor holding a batch of inputs.",
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A (batch_size, dim)-tensor holding the per-batch element solutions.",
+          "name": "output",
+          "typeAttr": "output_dtype"
+        },
+        {
+          "description": "An int32 (batch_size, dim)-tensor with the segments.",
+          "name": "segments",
+          "type": 3
+        }
+      ],
+      "summary": "Solves a batch of isotonic regression problems."
+    }
+  },
+  {
     "name": "Iterator",
     "schema": {
       "attributes": [
@@ -56563,7 +56604,7 @@
           "type": "type"
         }
       ],
-      "description": "input_handle: the original map\noutput_handle: the map with value from given key removed\nkey: the key of the value to be erased\nvalue: the value that was erased",
+      "description": "input_handle: the original map\noutput_handle: the map with value from given key removed\nkey: the key of the value to be erased",
       "inputs": [
         {
           "name": "input_handle",
@@ -56578,10 +56619,6 @@
         {
           "name": "output_handle",
           "type": 21
-        },
-        {
-          "name": "value",
-          "typeAttr": "value_dtype"
         }
       ],
       "summary": "Returns a tensor map with item from given key erased."

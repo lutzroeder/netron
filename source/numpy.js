@@ -131,7 +131,7 @@ numpy.Array = class {
 
         const size = context.itemSize * this._shape.reduce((a, b) => a * b);
         context.data = new Uint8Array(size);
-        context.dataView = new DataView(context.data.buffer, context.data.byteOffset, size);
+        context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);
         writer.bytes(context.data);
 
@@ -145,37 +145,37 @@ numpy.Array = class {
             for (let i = 0; i < size; i++) {
                 switch (context.dataType) {
                     case 'f2':
-                        context.dataView.setFloat16(context.position, data[i], littleEndian);
+                        context.view.setFloat16(context.position, data[i], littleEndian);
                         break;
                     case 'f4':
-                        context.dataView.setFloat32(context.position, data[i], littleEndian);
+                        context.view.setFloat32(context.position, data[i], littleEndian);
                         break;
                     case 'f8':
-                        context.dataView.setFloat64(context.position, data[i], littleEndian);
+                        context.view.setFloat64(context.position, data[i], littleEndian);
                         break;
                     case 'i1':
-                        context.dataView.setInt8(context.position, data[i], littleEndian);
+                        context.view.setInt8(context.position, data[i], littleEndian);
                         break;
                     case 'i2':
-                        context.dataView.setInt16(context.position, data[i], littleEndian);
+                        context.view.setInt16(context.position, data[i], littleEndian);
                         break;
                     case 'i4':
-                        context.dataView.setInt32(context.position, data[i], littleEndian);
+                        context.view.setInt32(context.position, data[i], littleEndian);
                         break;
                     case 'i8':
-                        context.data.set(data[i].toBytes(littleEndian), context.position);
+                        context.view.setInt64(context.position, data[i], littleEndian);
                         break;
                     case 'u1':
-                        context.dataView.setUint8(context.position, data[i], littleEndian);
+                        context.view.setUint8(context.position, data[i], littleEndian);
                         break;
                     case 'u2':
-                        context.dataView.setUint16(context.position, data[i], littleEndian);
+                        context.view.setUint16(context.position, data[i], littleEndian);
                         break;
                     case 'u4':
-                        context.dataView.setUint32(context.position, data[i], littleEndian);
+                        context.view.setUint32(context.position, data[i], littleEndian);
                         break;
                     case 'u8':
-                        context.data.set(data[i].toBytes(littleEndian), context.position);
+                        context.view.setUint64(context.position, data[i], littleEndian);
                         break;
                 }
                 context.position += context.itemSize;

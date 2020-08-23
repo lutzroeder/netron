@@ -371,6 +371,10 @@ uff.Tensor = class {
             context.state = 'Tensor data is empty.';
             return context;
         }
+        if (this._type.dataType === '?') {
+            context.state = 'Tensor data type is unknown.';
+            return context;
+        }
 
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
@@ -453,6 +457,7 @@ uff.TensorType = class {
             case uff.proto.DataType.DT_INT64: this._dataType = 'int64'; break;
             case uff.proto.DataType.DT_FLOAT16: this._dataType = 'float16'; break;
             case uff.proto.DataType.DT_FLOAT32: this._dataType = 'float32'; break;
+            case 7: this._dataType = '?'; break;
             default:
                 throw new uff.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
         }

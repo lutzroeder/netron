@@ -495,12 +495,12 @@ DataView.prototype.getInt64 = DataView.prototype.getInt64 || function(byteOffset
 
 DataView.prototype.setInt64 = DataView.prototype.setInt64 || function(byteOffset, value, littleEndian) {
     if (littleEndian) {
-        this.setUInt32(byteOffset, value.high, true);
-        this.setUInt32(byteOffset + 4, value.low, true);
+        this.setUint32(byteOffset, value.low, true);
+        this.setUint32(byteOffset + 4, value.high, true);
     }
     else {
-        this.setUInt32(byteOffset + 4, value.high, false);
-        this.setUInt32(byteOffset, value.low, false);
+        this.setUint32(byteOffset + 4, value.low, false);
+        this.setUint32(byteOffset, value.high, false);
     }
 };
 
@@ -512,12 +512,12 @@ DataView.prototype.getUint64 = DataView.prototype.getUint64 || function(byteOffs
 
 DataView.prototype.setUint64 = DataView.prototype.setUint64 || function(byteOffset, value, littleEndian) {
     if (littleEndian) {
-        this.setUInt32(byteOffset, value.high, true);
-        this.setUInt32(byteOffset + 4, value.low, true);
+        this.setUInt32(byteOffset, value.low, true);
+        this.setUInt32(byteOffset + 4, value.high, true);
     }
     else {
-        this.setUInt32(byteOffset + 4, value.high, false);
-        this.setUInt32(byteOffset, value.low, false);
+        this.setUInt32(byteOffset + 4, value.low, false);
+        this.setUInt32(byteOffset, value.high, false);
     }
 };
 

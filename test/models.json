@@ -4187,6 +4187,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet18.pt",
+    "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/resnet18.pt",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/559"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet50_tucker.pth",
     "source": "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker.pth",
     "format": "PyTorch v0.1.10",
