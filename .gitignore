@@ -8,3 +8,5 @@ third_party/*
 test/data/*
 package-lock.json
 *.pyc
+venv
+.venv
