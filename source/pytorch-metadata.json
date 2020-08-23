@@ -1058,6 +1058,30 @@
     }
   },
   {
+    "name": "torch.hardsigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.hardsigmoid_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.sigmoid",
     "schema": {
       "category": "Activation",
@@ -2929,10 +2953,44 @@
     }
   },
   {
+    "name": "torch.upsample_nearest1d",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]" },
+        { "name": "scales", "type": "float32", "optional": true, "default": null }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.upsample_nearest2d",
     "schema": {
       "attributes": [
         { "name": "output_size", "type": "int64[]" },
+        { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+        { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_nearest3d",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]" },
+        { "name": "scales_d", "type": "float32", "optional": true, "default": null },
         { "name": "scales_h", "type": "float32", "optional": true, "default": null },
         { "name": "scales_w", "type": "float32", "optional": true, "default": null }
       ],
