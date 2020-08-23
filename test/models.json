@@ -3719,7 +3719,6 @@
     "type":   "openvino",
     "target": "text-recognition-0012.xml,text-recognition-0012.bin",
     "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.bin",
-    "error":  "Graph contains not connected layers [\"shadow/LSTMLayers/encoder/stack_bidirectional_rnn/cell_0/concat\",\"shadow/LSTMLayers/encoder/stack_bidirectional_rnn/cell_1/concat\",\"shadow/LSTMLayers/decoder/stack_bidirectional_rnn/cell_0/concat\",\"shadow/LSTMLayers/decoder/stack_bidirectional_rnn/cell_1/concat/fq_input_0\",\"shadow/LSTMLayers/decoder/stack_bidirectional_rnn/cell_1/concat/fq_input_1\"] in 'text-recognition-0012.xml'.",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8"
   },
@@ -3727,7 +3726,6 @@
     "type":   "openvino",
     "target": "text-spotting-0002-recognizer-decoder.xml,text-spotting-0002-recognizer-decoder.bin",
     "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.bin",
-    "error":  "Graph contains not connected layers [\"hidden\",\"77/SqueezeNumDirections/0\"] in 'text-spotting-0002-recognizer-decoder.xml'.",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32"
   },
