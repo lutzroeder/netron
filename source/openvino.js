@@ -331,8 +331,7 @@ openvino.Graph = class {
                                 nestedNode._outputs.push(new openvino.Parameter('output', [
                                     new openvino.Argument(newId, null, null)
                                 ]));
-                                
-                            } 
+                            }
                             const myPort = nestedNode.outputs[0].arguments[0].name.split(':')[1];
                             argument._name = nestedNode.id + ':' + myPort;
                         }
