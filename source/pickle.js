@@ -99,6 +99,9 @@ pickle.Unpickler = class {
                 case pickle.OpCode.BINBYTES:
                     stack.push(reader.bytes(reader.int32()));
                     break;
+                case pickle.OpCode.BINBYTES8:
+                    stack.push(reader.bytes(reader.int64()));
+                    break;
                 case pickle.OpCode.SHORT_BINBYTES:
                     stack.push(reader.bytes(reader.byte()));
                     break;
@@ -233,10 +236,11 @@ pickle.Unpickler = class {
                             obj.__setstate__(state);
                         }
                     }
+                    else if (ArrayBuffer.isView(state) || Object(state) !== state) {
+                        throw new pickle.Error('Invalid state dict' + (obj && obj.__module__ && obj.__name__ ? " for '" + obj.__module__ + '.' + obj.__name__ + "'": '') + '.');
+                    }
                     else {
-                        for (const p in state) {
-                            obj[p] = state[p];
-                        }
+                        Object.assign(obj, state);
                     }
                     if (obj.__read__) {
                         obj = obj.__read__(this);
@@ -294,6 +298,10 @@ pickle.Unpickler = class {
                 case pickle.OpCode.FRAME:
                     reader.bytes(8);
                     break;
+                case pickle.OpCode.BYTEARRAY8: {
+                    stack.push(reader.bytes(reader.int64()));
+                    break;
+                }
                 case pickle.OpCode.NONE:
                     stack.push(null);
                     break;
@@ -458,7 +466,10 @@ pickle.OpCode = {
     NEWOBJ_EX: 146,        // '\x92' (Protocol 4)
     STACK_GLOBAL: 147,     // '\x93' (Protocol 4)
     MEMOIZE: 148,          // '\x94' (Protocol 4)
-    FRAME: 149             // '\x95' (Protocol 4)
+    FRAME: 149,            // '\x95' (Protocol 4)
+    BYTEARRAY8: 150,       // '\x96' (Protocol 5)
+    NEXT_BUFFER: 151,      // '\x97' (Protocol 5)
+    READONLY_BUFFER: 152   // '\x98' (Protocol 5)
 };
 
 pickle.Reader = class {
@@ -509,6 +520,15 @@ pickle.Reader = class {
         const position = this.position;
         this.skip(4);
         return this._dataView.getUint32(position, true);
+    }
+
+    int64() {
+        const low = this.uint32();
+        const high = this.uint32();
+        if (high !== 0) {
+            throw new pickle.Error('Unsupported 64-bit integer value.');
+        }
+        return low;
     }
 
     float32() {
