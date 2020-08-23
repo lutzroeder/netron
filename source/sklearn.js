@@ -1012,6 +1012,9 @@ sklearn.Container = class {
         functionTable['_codecs.encode'] = function(obj /*, econding */) {
             return obj;
         };
+        functionTable['collections.Counter'] = function(/* iterable */) {
+            return { __module__: 'collections', __name__: 'Counter' };
+        };
         functionTable['collections.defaultdict'] = function(/* default_factory */) {
             return {};
         };
