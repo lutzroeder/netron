@@ -315,15 +315,25 @@ openvino.Graph = class {
                     if (!child._inputs || (child._inputs && child._inputs.length === 0)){
                         continue;
                     }
-                    if (nestedNode._outputs && nestedNode._outputs[0]) {
-                        for (const child_input of child._inputs) {
-                            for (const argument of child_input._arguments) {
-                                if (!argument.name || (argument.name && argument.name.split(':')[0] !== singleTensorIteratorNodeId)) {
-                                    continue;
-                                }
-                                const myPort = nestedNode.outputs[0].arguments[0].name.split(':')[1];
-                                argument._name = nestedNode.id + ':' + myPort;
+                    for (const child_input of child._inputs) {
+                        for (const argument of child_input._arguments) {
+                            if (!argument.name || (argument.name && argument.name.split(':')[0] !== singleTensorIteratorNodeId)) {
+                                continue;
                             }
+                            if (nestedNode._outputs && nestedNode._outputs.length === 0) {
+                                // it turns out that IRs of version 10 with TensorIterators (TI) can omit
+                                // output section in the output layers of TI body. It seems to happen only
+                                // for cases when TI has a single output. Therefore, there is a workaround that
+                                // creates fake output section for the TI output layer in order to connect it
+                                // with a layer from the main IR.
+                                const myPort = 0;
+                                const newId = nestedNode.id + ':' + myPort;
+                                nestedNode._outputs.push(new openvino.Parameter('output', [
+                                    new openvino.Argument(newId, null, null)
+                                ]));
+                            }
+                            const myPort = nestedNode.outputs[0].arguments[0].name.split(':')[1];
+                            argument._name = nestedNode.id + ':' + myPort;
                         }
                     }
                 }
@@ -333,7 +343,7 @@ openvino.Graph = class {
         }
     }
 
-    _const(layers, edges, back_edges) {
+    _const(layers, edges, back_edges, omitConstLayers) {
         const results = [];
         back_edges = back_edges || {};
         layers = layers.slice();
@@ -389,6 +399,7 @@ openvino.Graph = class {
                 constMap.delete(pair[0]);
             }
         }
+
         for (const layer of layers) {
             if (layer.blobs.length === 0) {
                 for (let i = layer.inputs.length - 1; i > 0; i--) {
@@ -407,6 +418,31 @@ openvino.Graph = class {
                         layer.inputs.splice(i, 1);
                         constMap.get(from).layer = null;
                         constMap.get(from).delete = true;
+                    }
+                }
+            }
+        }
+
+        if (omitConstLayers) {
+            for (const layer of layers) {
+                if (layer.blobs.length === 0) {
+                    for (let i = layer.inputs.length - 1; i > 0; i--) {
+                        const input = layer.inputs[i];
+                        const to = layer.id + ':' + input.id;
+                        const from = edges[to] || back_edges[to];
+                        if (!constMap.has(from)) {
+                            break;
+                        }
+                        const constLayer = constMap.get(from).layer;
+                        const blob = constLayer.blobs[0];
+                        if (blob) {
+                            blob.id = constLayer.name || constLayer.id;
+                            blob.kind = 'Const';
+                            layer.blobs.push(blob);
+                            layer.inputs.splice(i, 1);
+                            constMap.get(from).layer = null;
+                            constMap.get(from).delete = true;
+                        }
                     }
                 }
             }
