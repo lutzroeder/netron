@@ -16,8 +16,9 @@ var grapher = grapher || require('./view-grapher');
 
 view.View = class {
 
-    constructor(host) {
+    constructor(host, id) {
         this._host = host;
+        this._id = id ? ('-' + id) : '';
         this._host.initialize(this).then(() => {
             this._model = null;
             this._selection = [];
@@ -28,37 +29,37 @@ view.View = class {
             this._showHorizontal = false;
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
-            this._host.document.getElementById('zoom-in-button').addEventListener('click', () => {
+            this._getElementById('zoom-in-button').addEventListener('click', () => {
                 this.zoomIn();
             });
-            this._host.document.getElementById('zoom-out-button').addEventListener('click', () => {
+            this._getElementById('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._host.document.getElementById('toolbar').addEventListener('mousewheel', (e) => {
+            this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
             });
-            this._host.document.getElementById('sidebar').addEventListener('mousewheel', (e) => {
+            this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
             });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
             if (this._host.environment('zoom') == 'scroll') {
-                this._host.document.getElementById('graph').addEventListener('mousewheel', (e) => {
+                this._getElementById('graph').addEventListener('mousewheel', (e) => {
                     this._mouseWheelHandler(e);
                 });
-                this._host.document.getElementById('graph').addEventListener('scroll', (e) => {
+                this._getElementById('graph').addEventListener('scroll', (e) => {
                     this._scrollHandler(e);
                 });
-                this._host.document.getElementById('graph').addEventListener('gesturestart', (e) => {
+                this._getElementById('graph').addEventListener('gesturestart', (e) => {
                     e.preventDefault();
                     this._gestureStartZoom = this._zoom;
                 }, false);
-                this._host.document.getElementById('graph').addEventListener('gesturechange', (e) => {
+                this._getElementById('graph').addEventListener('gesturechange', (e) => {
                     e.preventDefault();
                     this._updateZoom(this._gestureStartZoom * e.scale, e);
                 }, false);
-                this._host.document.getElementById('graph').addEventListener('gestureend', (e) => {
+                this._getElementById('graph').addEventListener('gestureend', (e) => {
                     e.preventDefault();
                     this._updateZoom(this._gestureStartZoom * e.scale, e);
                 }, false);
@@ -99,7 +100,7 @@ view.View = class {
     find() {
         if (this._activeGraph) {
             this.clearSelection();
-            const graphElement = document.getElementById('canvas');
+            const graphElement = this._getElementById('canvas');
             const view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
@@ -166,6 +167,10 @@ view.View = class {
         });
     }
 
+    _getElementById(id) {
+        return this._host.document.getElementById(id + this._id);
+    }
+
     zoomIn() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
@@ -173,7 +178,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('canvas')), 1.2);
+                    this._zoom.scaleBy(d3.select(this._getElementById('canvas')), 1.2);
                 }
                 break;
         }
@@ -186,7 +191,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._host.document.getElementById('canvas')), 0.8);
+                    this._zoom.scaleBy(d3.select(this._getElementById('canvas')), 0.8);
                 }
                 break;
         }
@@ -199,7 +204,7 @@ view.View = class {
                 break;
             case 'd3':
                 if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(this._host.document.getElementById('canvas')), 1);
+                    this._zoom.scaleTo(d3.select(this._getElementById('canvas')), 1);
                 }
                 break;
         }
@@ -213,7 +218,7 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        const container = this._host.document.getElementById('graph');
+        const container = this._getElementById('graph');
 
         const min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
@@ -226,7 +231,7 @@ view.View = class {
         const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
         const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
 
-        const graph = this._host.document.getElementById('canvas');
+        const graph = this._getElementById('canvas');
         graph.style.width = zoom * this._width;
         graph.style.height = zoom * this._height;
 
@@ -260,7 +265,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const graphElement = this._host.document.getElementById('canvas');
+            const graphElement = this._getElementById('canvas');
             const graphRect = graphElement.getBoundingClientRect();
             let x = 0;
             let y = 0;
@@ -390,7 +395,7 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
-            const graphElement = this._host.document.getElementById('canvas');
+            const graphElement = this._getElementById('canvas');
             while (graphElement.lastChild) {
                 graphElement.removeChild(graphElement.lastChild);
             }
@@ -868,7 +873,7 @@ view.View = class {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
         if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
-            const graphElement = this._host.document.getElementById('canvas');
+            const graphElement = this._getElementById('canvas');
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
