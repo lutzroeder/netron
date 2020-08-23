@@ -11217,7 +11217,7 @@
           "type": "string"
         }
       ],
-      "description": "one in the source data format.",
+      "description": "Input tensor must be a vector of size 4, or a 4x2 tensor.\n\nFor example, with `src_format` of `NHWC`, `dst_format` of `NCHW`, and inputs:\n```\n[1, 2, 3, 4]\n```\nand\n```\n[[1, 2, 3, 4],\n [5, 6, 7, 8]]\n```\n, the outputs will be (respectively):\n```\n[1, 4, 2, 3]\n```\nand\n```\n[[1, 4, 2, 3],\n [5, 8, 6, 7]]\n```",
       "inputs": [
         {
           "description": "Vector of size 4 or Tensor of shape (4, 2) in source data format.",
@@ -11232,7 +11232,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "Returns the permuted vector/tensor in the destination data format given the"
+      "summary": "Permute input tensor from `src_format` to `dst_format`."
     }
   },
   {
@@ -23889,7 +23889,7 @@
           "type": "type"
         }
       ],
-      "description": "one or more square matrices.\n\nThe input is a tensor of shape `[N, M, M]` whose inner-most 2 dimensions\nform square matrices. The outputs are two tensors containing the signs and\nabsolute values of the log determinants for all N input submatrices\n`[..., :, :]` such that the determinant = sign*exp(log_abs_determinant).\nThe log_abs_determinant is computed as det(P)*sum(log(diag(LU))) where LU\nis the LU decomposition of the input and P is the corresponding\npermutation matrix.",
+      "description": "one or more square matrices.\n\nThe input is a tensor of shape `[N, M, M]` whose inner-most 2 dimensions\nform square matrices. The outputs are two tensors containing the signs and\nabsolute values of the log determinants for all N input submatrices\n`[..., :, :]` such that `determinant = sign*exp(log_abs_determinant)`.\nThe `log_abs_determinant` is computed as `det(P)*sum(log(diag(LU)))` where `LU`\nis the `LU` decomposition of the input and `P` is the corresponding\npermutation matrix.",
       "inputs": [
         {
           "description": "Shape is `[N, M, M]`.",
