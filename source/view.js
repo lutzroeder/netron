@@ -1211,6 +1211,7 @@ view.ModelFactoryService = class {
         this.register('./tnn', [ '.tnnproto', '.tnnmodel' ]);
         this.register('./tengine', ['.tmfile']);
         this.register('./barracuda', [ '.nn' ]);
+        this.register('./snapml', [ '.dnn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./npz', [ '.npz', '.h5', '.hd5', '.hdf5' ]);

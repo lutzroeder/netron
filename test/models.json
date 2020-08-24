@@ -4542,6 +4542,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {
+    "type":   "snapml",
+    "target": "brows_model.dnn",
+    "source": "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
+    "error":  "File contains undocumented SnapML data in 'brows_model.dnn'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/581"
+  },
+  {
     "type":   "tengine",
     "target": "detect_tflite.tmfile",
     "source": "https://raw.githubusercontent.com/pierricklee/tmfile-sample/master/detect_tflite.tmfile",
