@@ -345,7 +345,7 @@ onnx.Graph = class {
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (const node of nodes) {
-                let inputs = [];
+                const inputs = [];
                 const schema = metadata.type(node.op_type);
                 if (node.input && node.input.length > 0) {
                     let inputIndex = 0;
@@ -369,7 +369,7 @@ onnx.Graph = class {
                         }));
                     }
                 }
-                let outputs = [];
+                const outputs = [];
                 if (node.output && node.output.length > 0) {
                     let outputIndex = 0;
                     if (schema && schema.outputs) {

@@ -123,8 +123,8 @@ torch.Graph = class {
             case 'nn.ParallelTable':
             case 'nn.JointTrain': {
                 groups.push(key);
-                let newInputs = [];
-                let newOutputs = [];
+                const newInputs = [];
+                const newOutputs = [];
                 let index = 0;
                 for (const subModule of module.modules) {
                     const subInputs = [].concat(inputs);
@@ -151,7 +151,7 @@ torch.Graph = class {
                 if (inputs.length == 0) {
                     inputs.push(new torch.Argument(groups.join('/') + ':' + key + ':in', null, null));
                 }
-                let concatInputs = [];
+                const concatInputs = [];
                 let index = 0;
                 for (const subModule of module.modules) {
                     const streamInputs = inputs.map((input) => input);

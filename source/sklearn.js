@@ -157,10 +157,10 @@ sklearn.Graph = class {
             }
             case 'sklearn.pipeline.FeatureUnion': {
                 this._groups = true;
-                let outputs = [];
                 name = name || 'union';
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
+                const outputs = [];
                 this._add(subgroup, output, obj, inputs, [ output ]);
                 for (const transformer of obj.transformer_list){
                     outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
@@ -172,7 +172,7 @@ sklearn.Graph = class {
                 name = name || 'transformer';
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
-                let outputs = [];
+                const outputs = [];
                 this._add(subgroup, output, obj, inputs, [ output ]);
                 for (const transformer of obj.transformers){
                     outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));

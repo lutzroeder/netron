@@ -1975,7 +1975,7 @@ pytorch.Execution = class {
                         statement.variable.length === 1 && statement.variable[0].type === 'id') {
                         const range = this.expression(statement.target[0], context);
                         const variable = statement.variable[0];
-                        let loop = [];
+                        const loop = [];
                         for (const value of range) {
                             loop.push({ type: '=', target: variable, expression: { type: 'number', value: value }});
                             loop.push(...statement.body.statements);
@@ -2725,7 +2725,7 @@ pytorch.Container.Zip = class {
                             }
                             delete module.submodules;
                         }
-                        let parameters = [];
+                        const parameters = [];
                         if (module.parameters) {
                             parameters.push(...module.parameters);
                             delete module.parameters;
