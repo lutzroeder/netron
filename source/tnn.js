@@ -780,6 +780,7 @@ tnn.LayerResourceReader = class {
                         resource.slope = raw(reader);
                         break;
                     }
+                    case 'InstBatchNormCxx':
                     case 'BatchNormCxx':
                         resource.scale = raw(reader);
                         resource.bias = raw(reader);
