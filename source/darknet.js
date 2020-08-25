@@ -826,7 +826,7 @@ darknet.Node = class {
             this._inputs.push(new darknet.Parameter(layer.inputs.length <= 1 ? 'input' : 'inputs', true, layer.inputs));
         }
         if (layer && layer.weights && layer.weights.length > 0) {
-            this._inputs = this._inputs.concat(layer.weights);
+            this._inputs.push(...layer.weights);
         }
         if (layer && layer.outputs && layer.outputs.length > 0) {
             this._outputs.push(new darknet.Parameter(layer.outputs.length <= 1 ? 'output' : 'outputs', true, layer.outputs));

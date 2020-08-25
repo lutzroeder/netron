@@ -241,7 +241,7 @@ uff.Node = class {
                     }
                 }
             }
-            this._inputs = this._inputs.concat(node.inputs.slice(inputIndex).map((id, index) => {
+            this._inputs.push(...node.inputs.slice(inputIndex).map((id, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new uff.Parameter(inputName, [ args.get(id) ]);
             }));

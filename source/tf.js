@@ -804,7 +804,7 @@ tf.Node = class {
                     inputIndex += inputCount;
                 }
             }
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 return new tf.Parameter((inputIndex + index).toString(), [
                     new tf.Argument(input, null, initializers[input])
                 ]);
@@ -833,7 +833,7 @@ tf.Node = class {
                     outputIndex += outputCount;
                 }
             }
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 return new tf.Parameter((outputIndex + index).toString(), [
                     new tf.Argument(output, null, null)
                 ]);
@@ -1373,7 +1373,7 @@ tf.TensorBundle = class {
                             const item = data.get(name);
                             if (item !== null) {
                                 if (tensor[item.key] && tensor[item.key].length > 0) {
-                                    item.value = item.value.concat(tensor[item.key]);
+                                    item.value.push(...tensor[item.key]);
                                 }
                                 else {
                                     data.set(name, null);

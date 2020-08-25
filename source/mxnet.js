@@ -695,7 +695,7 @@ mxnet.Node = class {
                 }
             }
             if (inputIndex < inputs.length) {
-                this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+                this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                     const inputId = '[' + input.join(',') + ']';
                     return new mxnet.Parameter((inputIndex + index).toString(), [
                         new mxnet.Argument(inputId, null, initializers[inputId])
@@ -721,7 +721,7 @@ mxnet.Node = class {
                 }
             }
             if (outputIndex < outputs.length) {
-                this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+                this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                     return new mxnet.Parameter((outputIndex + index).toString(), [
                         new mxnet.Argument('[' + output.join(',') + ']', null, null)
                     ]);

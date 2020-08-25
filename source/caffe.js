@@ -510,7 +510,7 @@ caffe.Node = class {
                 }
             }
         }
-        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input) => {
+        this._inputs.push(...inputs.slice(inputIndex).map((input) => {
             return new caffe.Parameter(inputIndex.toString(), [
                 input instanceof caffe.Tensor ? new caffe.Argument('', input.type, input) : new caffe.Argument(input, null, null)
             ]);
@@ -530,7 +530,7 @@ caffe.Node = class {
                 }
             }
         }
-        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+        this._outputs.push(outputs.slice(outputIndex).map((output, index) => {
             return new caffe.Parameter((outputIndex + index).toString(), [
                 new caffe.Argument(output, null, null)
             ]);

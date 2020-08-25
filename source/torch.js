@@ -72,10 +72,10 @@ torch.Graph = class {
         const outputs = [];
         this._loadModule(metadata, root, [], '', inputs, outputs);
 
-        this._inputs = this._inputs.concat(inputs.map((input, index) => {
+        this._inputs.push(...inputs.map((input, index) => {
             return new torch.Parameter('input' + (index != 0 ? (index + 1).toString() : ''), true, [ input ]);
         }));
-        this._outputs = this._outputs.concat(outputs.map((output, index) => {
+        this._outputs.push(...outputs.map((output, index) => {
             return new torch.Parameter('output' + (index != 0 ? (index + 1).toString() : ''), true, [ output ]);
         }));
     }
@@ -131,14 +131,14 @@ torch.Graph = class {
                     const subOutputs = [].concat(outputs);
                     this._loadModule(metadata, subModule, groups, index.toString(), subInputs, subOutputs);
                     if (inputs.length == 0) {
-                        newInputs = newInputs.concat(subInputs);
+                        newInputs.push(...subInputs);
                     }
                     if (outputs.length == 0) {
-                        newOutputs = newOutputs.concat(subOutputs);
+                        newOutputs.push(...subOutputs);
                     }
                     index++;
                 }
-                inputs = inputs.concat(newInputs);
+                inputs.push(...newInputs);
                 for (const newOutput of newOutputs) {
                     outputs.push(newOutput);
                 }
@@ -157,7 +157,7 @@ torch.Graph = class {
                     const streamInputs = inputs.map((input) => input);
                     const streamOutputs = [];
                     this._loadModule(metadata, subModule, groups, prefix + '.' + index.toString(), streamInputs, streamOutputs);
-                    concatInputs = concatInputs.concat(streamOutputs);
+                    concatInputs.push(...streamOutputs);
                     index++;
                 }
                 delete module.modules;
@@ -389,7 +389,7 @@ torch.Node = class {
             }
             return true;
         });
-        this._inputs = this._inputs.concat(initializers);
+        this._inputs.push(...initializers);
     }
 
     get name() {

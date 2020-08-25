@@ -434,7 +434,7 @@ cntk.Node = class {
                     }
                 }
                 outputs.push(new cntk.Argument(version, output + '_Output_0'));
-                inputs = inputs.concat(initializers);
+                inputs.push(...initializers);
                 break;
             }
         }
@@ -456,7 +456,7 @@ cntk.Node = class {
                 }
             }
         }
-        this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((argument, index) => {
+        this._inputs.push(...inputs.slice(inputIndex).map((argument, index) => {
             return new cntk.Parameter((inputIndex + index).toString(), [ argument ]);
         }));
 
@@ -470,7 +470,7 @@ cntk.Node = class {
                 }
             }
         }
-        this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((argument) => {
+        this._outputs.push(...outputs.slice(outputIndex).map((argument) => {
             return new cntk.Parameter(outputIndex.toString(), [ argument ]);
         }));
     }

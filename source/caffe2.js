@@ -475,7 +475,7 @@ caffe2.Node = class {
             }
         }
         else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new caffe2.Parameter(inputName, [
                     new caffe2.Argument(input, null, tensors[input])
@@ -496,7 +496,7 @@ caffe2.Node = class {
             }
         }
         else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new caffe2.Parameter(outputName, [
                     new caffe2.Argument(output, null, null)

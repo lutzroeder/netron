@@ -1316,7 +1316,7 @@ hdf5.Tree = class {
                     }
                     else {
                         const tree = new hdf5.Tree(reader.at(childPointer));
-                        this.nodes = this.nodes.concat(tree.nodes);
+                        this.nodes.push(...tree.nodes);
                     }
                 }
                 break;
@@ -1335,7 +1335,7 @@ hdf5.Tree = class {
                     }
                     else {
                         const tree = new hdf5.Tree(reader.at(childPointer), dimensionality);
-                        this.nodes = this.nodes.concat(tree.nodes);
+                        this.nodes.push(...tree.nodes);
                     }
                 }
                 break;

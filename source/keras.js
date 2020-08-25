@@ -1141,7 +1141,7 @@ keras.Group = class {
                     if (!chunk) {
                         break;
                     }
-                    value = value.concat(chunk);
+                    value.push(...chunk);
                     index++;
                 }
             }

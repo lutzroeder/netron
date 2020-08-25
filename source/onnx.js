@@ -362,7 +362,7 @@ onnx.Graph = class {
                         }
                     }
                     else {
-                        inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
+                        inputs.push(...node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
                                 arg(id, null, null, null, imageFormat)
                             ]);
@@ -385,7 +385,7 @@ onnx.Graph = class {
                         }
                     }
                     else {
-                        outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
+                        outputs.push(...node.output.slice(outputIndex).map((id, index) => {
                             return new onnx.Parameter((outputIndex + index).toString(), [
                                 arg(id, null, null, null, imageFormat)
                             ]);
