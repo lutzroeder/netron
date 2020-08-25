@@ -530,7 +530,7 @@ caffe.Node = class {
                 }
             }
         }
-        this._outputs.push(outputs.slice(outputIndex).map((output, index) => {
+        this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
             return new caffe.Parameter((outputIndex + index).toString(), [
                 new caffe.Argument(output, null, null)
             ]);
