@@ -285,6 +285,7 @@ tnn.Node = class {
                 }
                 break;
             }
+            case 'InstBatchNormCxx':
             case 'BatchNormCxx': {
                 const resource = resources.read(this._name);
                 if (resource) {
