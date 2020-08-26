@@ -116,6 +116,7 @@ setuptools.setup(
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'python.js',
             'snapml.js', 'snapml-metadata.js', 'snapml-proto.js',
+            'dnn.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tengine.js', 'tengine-metadata.json', 
             'uff.js', 'uff-metadata.json', 'uff-proto.js',

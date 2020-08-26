@@ -285,7 +285,8 @@ tnn.Node = class {
                 }
                 break;
             }
-            case 'BatchNormCxx': {
+            case 'BatchNormCxx':
+            case 'InstBatchNormCxx': {
                 const resource = resources.read(this._name);
                 if (resource) {
                     this._weight(resource, 'scale', [ resource.scale.length ]);
@@ -780,6 +781,7 @@ tnn.LayerResourceReader = class {
                         break;
                     }
                     case 'BatchNormCxx':
+                    case 'InstBatchNormCxx':
                         resource.scale = raw(reader);
                         resource.bias = raw(reader);
                         break;

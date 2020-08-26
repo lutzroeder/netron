@@ -1849,9 +1849,6 @@
     "format": "Darknet",
     "link":   "https://github.com/lutzroeder/netron/issues/531"
   },
-
-
-
   {
     "type":   "darknet",
     "target": "yolo9000.cfg",
@@ -1914,6 +1911,13 @@
     "source": "https://dl4jdata.blob.core.windows.net/models/yolo2_dl4j_inference.v3.zip",
     "format": "Deeplearning4j",
     "link":   "https://github.com/eclipse/deeplearning4j"
+  },
+  {
+    "type":   "dnn",
+    "target": "brows_model.dnn",
+    "source": "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
+    "error":  "File contains undocumented SnapML data in 'brows_model.dnn'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/581"
   },
   {
     "type":   "flux",
@@ -5413,6 +5417,13 @@
     "source": "https://raw.githubusercontent.com/kosslab-kr/Tizen-NN-Runtime/master/Xor/xorGate.lite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
+  },
+  {
+     "type":   "tnn",
+     "target": "instance_normalization.tnnproto,instance_normalization.tnnmodel",
+     "source": "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto,instance_normalization.tnnmodel]",
+     "format": "TNN",
+     "link":   "https://github.com/lutzroeder/netron/pull/583"
   },
   {
     "type":   "tnn",
