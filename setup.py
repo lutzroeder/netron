@@ -115,7 +115,7 @@ setuptools.setup(
             'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
             'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
             'pytorch.js', 'pytorch-metadata.json', 'python.js',
-            'dnn.js',
+            'dnn.js', 'dnn-metadata.js', 'dnn-proto.js',
             'sklearn.js', 'sklearn-metadata.json',
             'tengine.js', 'tengine-metadata.json', 
             'uff.js', 'uff-metadata.json', 'uff-proto.js',

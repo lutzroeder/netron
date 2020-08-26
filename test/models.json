@@ -1916,7 +1916,7 @@
     "type":   "dnn",
     "target": "brows_model.dnn",
     "source": "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
-    "error":  "File contains undocumented SnapML data in 'brows_model.dnn'.",
+    "format": "SnapML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/581"
   },
   {

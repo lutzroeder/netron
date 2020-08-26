@@ -222,10 +222,10 @@ class HTMLElement {
     }
 
     getElementsByClassName(name) {
-        let elements = [];
+        const elements = [];
         for (const node of this._childNodes) {
             if (node instanceof HTMLElement) {
-                elements = elements.concat(node.getElementsByClassName(name));
+                elements.push(...node.getElementsByClassName(name));
                 if (node.hasAttribute('class') &&
                     node.getAttribute('class').split(' ').find((text) => text === name)) {
                     elements.push(node);

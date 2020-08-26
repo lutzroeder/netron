@@ -1,0 +1,139 @@
+[
+  {
+    "name": "conv",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "biases" }
+      ]
+    }
+  },
+  {
+    "name": "depthdeconv",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "biases" }
+      ]
+    }
+  },
+  {
+    "name": "deconv",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "biases" }
+      ]
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "relu6",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "prelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" },
+        { "name": "slope" }
+      ]
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "linear",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "pool",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "batchnorm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "scale" },
+        { "name": "bias" }
+      ]
+    }
+  },
+  {
+    "name": "pad",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "concat",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "eltwise",
+    "schema": {
+      "inputs": [
+        { "name": "input", "option": "variadic" }
+      ]
+    }
+  },
+  {
+    "name": "const_v2",
+    "schema": {
+      "category": "Constant"
+    }
+  }
+]

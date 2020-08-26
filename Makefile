@@ -22,6 +22,7 @@ update: install
 	@./tools/caffe sync schema
 	@./tools/cntk sync schema
 	@./tools/coreml sync schema
+	@./tools/dnn schema
 	@./tools/mnn sync schema
 	@./tools/onnx sync install schema metadata
 	@./tools/paddle sync schema
