@@ -191,7 +191,7 @@ tengine.Node = class {
             }
         }
         else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((id, index) => {
+            this._inputs.push(...inputs.slice(inputIndex).map((id, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new tengine.Parameter(inputName, true, [ tensors[id] ]);
             }));
@@ -210,7 +210,7 @@ tengine.Node = class {
             }
         }
         else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((id, index) => {
+            this._outputs.push(...outputs.slice(outputIndex).map((id, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new tengine.Parameter(outputName, true, [ tensors[id] ]);
             }));

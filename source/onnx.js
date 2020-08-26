@@ -345,7 +345,7 @@ onnx.Graph = class {
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (const node of nodes) {
-                let inputs = [];
+                const inputs = [];
                 const schema = metadata.type(node.op_type);
                 if (node.input && node.input.length > 0) {
                     let inputIndex = 0;
@@ -362,14 +362,14 @@ onnx.Graph = class {
                         }
                     }
                     else {
-                        inputs = inputs.concat(node.input.slice(inputIndex).map((id, index) => {
+                        inputs.push(...node.input.slice(inputIndex).map((id, index) => {
                             return new onnx.Parameter((inputIndex + index).toString(), [
                                 arg(id, null, null, null, imageFormat)
                             ]);
                         }));
                     }
                 }
-                let outputs = [];
+                const outputs = [];
                 if (node.output && node.output.length > 0) {
                     let outputIndex = 0;
                     if (schema && schema.outputs) {
@@ -385,7 +385,7 @@ onnx.Graph = class {
                         }
                     }
                     else {
-                        outputs = outputs.concat(node.output.slice(outputIndex).map((id, index) => {
+                        outputs.push(...node.output.slice(outputIndex).map((id, index) => {
                             return new onnx.Parameter((outputIndex + index).toString(), [
                                 arg(id, null, null, null, imageFormat)
                             ]);

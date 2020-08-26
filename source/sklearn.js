@@ -133,7 +133,7 @@ sklearn.Graph = class {
                     value: value
                 });
             }
-            this._nodes = this._nodes.concat(groups.map((group) => {
+            this._nodes.push(...groups.map((group) => {
                 const inputs = group.arrays.map((array) => {
                     return new sklearn.Parameter(array.name, [
                         new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
@@ -157,13 +157,13 @@ sklearn.Graph = class {
             }
             case 'sklearn.pipeline.FeatureUnion': {
                 this._groups = true;
-                let outputs = [];
+                const outputs = [];
                 name = name || 'union';
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
                 this._add(subgroup, output, obj, inputs, [ output ]);
                 for (const transformer of obj.transformer_list){
-                    outputs = outputs.concat(this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                    outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                 }
                 return outputs;
             }
@@ -172,10 +172,10 @@ sklearn.Graph = class {
                 name = name || 'transformer';
                 const output = this._concat(group, name);
                 const subgroup = this._concat(group, name);
-                let outputs = [];
+                const outputs = [];
                 this._add(subgroup, output, obj, inputs, [ output ]);
                 for (const transformer of obj.transformers){
-                    outputs = outputs.concat(this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                    outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
                 }
                 return outputs;
             }
@@ -200,7 +200,7 @@ sklearn.Graph = class {
         inputs = inputs.map((input) => {
             return new sklearn.Parameter(input, [ new sklearn.Argument(input, null, null) ]);
         });
-        inputs = inputs.concat(initializers.map((initializer) => {
+        inputs.push(...initializers.map((initializer) => {
             return new sklearn.Parameter(initializer.name, [ new sklearn.Argument('', null, initializer) ]);
         }));
         outputs = outputs.map((output) => {

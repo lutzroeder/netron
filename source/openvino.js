@@ -472,7 +472,6 @@ openvino.Node = class {
         this._id = layer.id;
         this._inputs = [];
         this._outputs = [];
-        this._initializers = [];
         this._attributes = [];
         const precision = layer.precision;
         let inputIndex = 0;
@@ -557,7 +556,7 @@ openvino.Node = class {
                 }
             }
             const shape = dimensions ? new openvino.TensorShape(dimensions) : null;
-            this._initializers.push(new openvino.Parameter(name, [
+            this._inputs.push(new openvino.Parameter(name, [
                 new openvino.Argument(id, null, new openvino.Tensor(dataType, shape, data, kind))
             ]));
         }
@@ -588,7 +587,7 @@ openvino.Node = class {
     }
 
     get inputs() {
-        return this._inputs.concat(this._initializers);
+        return this._inputs;
     }
 
     get outputs() {

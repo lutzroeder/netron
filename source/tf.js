@@ -804,7 +804,7 @@ tf.Node = class {
                     inputIndex += inputCount;
                 }
             }
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 return new tf.Parameter((inputIndex + index).toString(), [
                     new tf.Argument(input, null, initializers[input])
                 ]);
@@ -833,7 +833,7 @@ tf.Node = class {
                     outputIndex += outputCount;
                 }
             }
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 return new tf.Parameter((outputIndex + index).toString(), [
                     new tf.Argument(output, null, null)
                 ]);

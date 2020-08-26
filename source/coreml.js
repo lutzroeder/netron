@@ -620,7 +620,7 @@ coreml.Node = class {
                 return new coreml.Argument(argument.name, argument.type, null, null);
             }));
         });
-        this._inputs = this._inputs.concat(initializers);
+        this._inputs.push(...initializers);
         this._outputs = outputs.map((output, index) => {
             const name = this._metadata.getOutputName(this._type, index);
             return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);

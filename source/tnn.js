@@ -203,7 +203,7 @@ tnn.Node = class {
             }
         }
         else {
-            this._inputs = this._inputs.concat(inputs.slice(inputIndex).map((input, index) => {
+            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
                 const inputName = ((inputIndex + index) == 0) ? 'input' : (inputIndex + index).toString();
                 return new tnn.Parameter(inputName, [ new tnn.Argument(input, null, null) ]);
             }));
@@ -224,7 +224,7 @@ tnn.Node = class {
             }
         }
         else {
-            this._outputs = this._outputs.concat(outputs.slice(outputIndex).map((output, index) => {
+            this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
                 return new tnn.Parameter(outputName, [ new tnn.Argument(output, null, null) ]);
             }));

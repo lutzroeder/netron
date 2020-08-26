@@ -310,14 +310,14 @@ grapher.NodeElement.Header = class {
             const yPadding = 4;
             const xPadding = 7;
             const element = this.createElement('g');
-            let classList = [ 'node-item' ];
+            const classList = [ 'node-item' ];
             parentElement.appendChild(element);
             const pathElement = this.createElement('path');
             const textElement = this.createElement('text');
             element.appendChild(pathElement);
             element.appendChild(textElement);
             if (item.classList) {
-                classList = classList.concat(item.classList);
+                classList.push(...item.classList);
             }
             element.setAttribute('class', classList.join(' '));
             if (item.id) {
