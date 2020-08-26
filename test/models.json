@@ -5412,6 +5412,13 @@
     "link":   "https://github.com/kosslab-kr/Tizen-NN-Runtime"
   },
   {
+     "type":   "tnn",
+     "target": "instance_normalization.tnnproto,instance_normalization.tnnmodel",
+     "source": "https://github.com/lutzroeder/netron/files/5124180/instance_normalization.zip[instance_normalization.tnnproto,instance_normalization.tnnmodel]",
+     "format": "TNN",
+     "link":   "https://github.com/lutzroeder/netron/pull/583"
+  },
+  {
     "type":   "tnn",
     "target": "mobilenet_v2.onnx.opt.onnx.tnnproto",
     "source": "https://gitee.com/darren3d/tnn-resource/raw/master/model/mobilenet_v2/mobilenet_v2.onnx.opt.onnx.tnnproto",
