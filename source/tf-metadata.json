@@ -200,6 +200,7 @@
           "type": "type"
         }
       ],
+      "description": "\n  Provided an input tensor, the `tf.math.acos` operation returns the inverse cosine of each element of the tensor. If `y = tf.math.cos(x)` then, `x = tf.math.acos(y)`. \n  \n  Input range is `[-1, 1]` and the output has a range of `[0, pi]`.\n",
       "inputs": [
         {
           "name": "x",
@@ -251,7 +252,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Add` supports broadcasting. `AddN` does not. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)",
+      "description": "*NOTE*: `Add` supports broadcasting. `AddN` does not. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\t\nGiven two input tensors, the `tf.add` operation computes the sum for every element in the tensor. \n\nBoth input and output have a range `(-inf, inf)`.\n",
       "inputs": [
         {
           "name": "x",
@@ -56629,7 +56630,7 @@
     "schema": {
       "attributes": [
         {
-          "name": "element_dtype",
+          "name": "key_dtype",
           "type": "type"
         }
       ],
@@ -56641,7 +56642,7 @@
         },
         {
           "name": "key",
-          "typeAttr": "element_dtype"
+          "typeAttr": "key_dtype"
         }
       ],
       "outputs": [
@@ -56740,6 +56741,31 @@
         }
       ],
       "summary": "Returns the number of tensors in the input tensor map."
+    }
+  },
+  {
+    "name": "TensorMapStackKeys",
+    "schema": {
+      "attributes": [
+        {
+          "name": "key_dtype",
+          "type": "type"
+        }
+      ],
+      "description": "input_handle: the input map\nkeys: the returned Tensor of all keys in the map",
+      "inputs": [
+        {
+          "name": "input_handle",
+          "type": 21
+        }
+      ],
+      "outputs": [
+        {
+          "name": "keys",
+          "typeAttr": "key_dtype"
+        }
+      ],
+      "summary": "Returns a Tensor stack of all keys in a tensor map."
     }
   },
   {
