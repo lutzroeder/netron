@@ -762,8 +762,8 @@ view.View = class {
                     this._zoom = d3.zoom();
                     this._zoom(svg);
                     this._zoom.scaleExtent([0.1, 2]);
-                    this._zoom.on('zoom', () => {
-                        originElement.setAttribute('transform', d3.event.transform.toString());
+                    this._zoom.on('zoom', (event) => {
+                        originElement.setAttribute('transform', event.transform.toString());
                     });
                     this._zoom.transform(svg, d3.zoomIdentity);
                 }

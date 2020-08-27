@@ -104,21 +104,24 @@ grapher.Renderer = class {
 
         const edgePathGroupDefs = this.createElement('defs');
         svgEdgePathGroup.appendChild(edgePathGroupDefs);
-        const marker = this.createElement('marker');
-        marker.setAttribute('id', 'arrowhead-vee');
-        marker.setAttribute('viewBox', '0 0 10 10');
-        marker.setAttribute('refX', 9);
-        marker.setAttribute('refY', 5);
-        marker.setAttribute('markerUnits', 'strokeWidth');
-        marker.setAttribute('markerWidth', 8);
-        marker.setAttribute('markerHeight', 6);
-        marker.setAttribute('orient', 'auto');
-        edgePathGroupDefs.appendChild(marker);
-        const markerPath = this.createElement('path');
-        markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
-        markerPath.style.setProperty('stroke-width', 1);
-        markerPath.style.setProperty('stroke-dasharray', '1,0');
-        marker.appendChild(markerPath);
+        const marker = (id) => {
+            const element = this.createElement('marker');
+            element.setAttribute('id', id);
+            element.setAttribute('viewBox', '0 0 10 10');
+            element.setAttribute('refX', 9);
+            element.setAttribute('refY', 5);
+            element.setAttribute('markerUnits', 'strokeWidth');
+            element.setAttribute('markerWidth', 8);
+            element.setAttribute('markerHeight', 6);
+            element.setAttribute('orient', 'auto');
+            const markerPath = this.createElement('path');
+            markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
+            markerPath.style.setProperty('stroke-width', 1);
+            element.appendChild(markerPath);
+            return element;
+        };
+        edgePathGroupDefs.appendChild(marker("arrowhead-vee"));
+        edgePathGroupDefs.appendChild(marker("arrowhead-vee-select"));
 
         for (const edgeId of graph.edges()) {
             const edge = graph.edge(edgeId);
@@ -126,7 +129,6 @@ grapher.Renderer = class {
             const edgeElement = this.createElement('path');
             edgeElement.setAttribute('class', Object.prototype.hasOwnProperty.call(edge, 'class') ? ('edge-path ' + edge.class) : 'edge-path');
             edgeElement.setAttribute('d', edgePath);
-            edgeElement.setAttribute('marker-end', 'url(#arrowhead-vee)');
             if (edge.id) {
                 edgeElement.setAttribute('id', edge.id);
             }
