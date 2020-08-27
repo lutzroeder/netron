@@ -25832,7 +25832,7 @@
           "type": "boolean"
         },
         {
-          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`.",
           "name": "T",
           "type": "type"
         },
@@ -25930,9 +25930,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -26158,9 +26163,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -26867,7 +26877,7 @@
           "type": "boolean"
         },
         {
-          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `complex64`, `int64`, `qint8`, `quint8`, `qint32`, `bfloat16`, `uint16`, `complex128`, `float16`, `uint32`, `uint64`.",
+          "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `qint8`, `quint8`, `qint32`, `qint16`, `quint16`.",
           "name": "T",
           "type": "type"
         },
