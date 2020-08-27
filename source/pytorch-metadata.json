@@ -567,6 +567,69 @@
     }
   },
   {
+    "name": "torch.conv_transpose1d:input",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "output_padding", "type": "int64[]", "default": 0 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "dilation", "type": "int64[]", "default": 1 }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.conv_transpose2d:input",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "output_padding", "type": "int64[]", "default": 0 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "dilation", "type": "int64[]", "default": 1 }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.conv_transpose3d:input",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "type": "int64[]", "default": 1 },
+        { "name": "padding", "type": "int64[]", "default": 0 },
+        { "name": "output_padding", "type": "int64[]", "default": 0 },
+        { "name": "groups", "type": "int64", "default": 1 },
+        { "name": "dilation", "type": "int64[]", "default": 1 }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "ops.prepacked.conv2d_clamp_run",
     "schema": {
       "category": "Layer",
@@ -2690,6 +2753,62 @@
       "attributes": [
         { "name": "min", "type": "scalar", "optional": true, "default": null },
         { "name": "max", "type": "scalar", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.clamp_min",
+    "schema": {
+      "attributes": [
+        { "name": "min", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.clamp_min_",
+    "schema": {
+      "attributes": [
+        { "name": "min", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.clamp_max",
+    "schema": {
+      "attributes": [
+        { "name": "max", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.clamp_max_",
+    "schema": {
+      "attributes": [
+        { "name": "max", "type": "scalar" }
       ],
       "inputs": [
         { "name": "self", "type": "tensor" }
