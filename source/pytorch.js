@@ -1647,7 +1647,8 @@ pytorch.Execution = class {
             return data;
         });
         this._registerFunction('torch.jit._pickle.build_tensor_from_id', function(data) {
-            return data;
+            const constants = self.context.getx('CONSTANTS');
+            return constants['c' + data.toString()];
         });
         this._registerFunction('torch.jit._pickle.restore_type_tag', function(value /*, type_str */) {
             return value;
@@ -2708,6 +2709,11 @@ pytorch.Container.Zip = class {
                         tensor.storage = this.execution.invoke('torch.' + type + 'Storage', [ tensor.size ]);
                         tensor.storage.data = entries.get(key);
                     }
+                    this._attributes = [];
+                    const attributesEntry = this._entry('attributes.pkl');
+                    if (attributesEntry && attributesEntry.data) {
+                        this._attributes.push(...new this._pickle.Unpickler(attributesEntry.data).load((name, args) => this.execution.invoke(name, args)));
+                    }
                     while (queue.length > 0) {
                         const module = queue.shift();
                         if (!module.__module__ && !module.__name__) {
@@ -2725,6 +2731,11 @@ pytorch.Container.Zip = class {
                             }
                             delete module.submodules;
                         }
+                        const attributes = [];
+                        if (module.attributes) {
+                            attributes.push(...module.attributes);
+                            delete module.attributes;
+                        }
                         const parameters = [];
                         if (module.parameters) {
                             parameters.push(...module.parameters);
@@ -2741,6 +2752,9 @@ pytorch.Container.Zip = class {
                                 parameter.__module__ = 'torch';
                                 parameter.__name__ = 'Tensor';
                             }
+                        }
+                        for (const attribute of attributes) {
+                            module[attribute.name] = this._attributes[attribute.id];
                         }
                     }
                 }
@@ -2854,22 +2868,34 @@ pytorch.Container.Zip = class {
             const args = [ this.data ]; // self
             if (this.data.forward.__code__ && this.data.forward.__code__.parameters) {
                 for (const parameter of this.data.forward.__code__.parameters) {
-                    if (parameter.name !== 'self') {
-                        const type = parameter.parameterType;
+                    const defaultValue = (type, name) => {
                         if (type.type === 'type' && type.name.type) {
-                            if (type.name.value === 'Tensor') {
-                                this._inputs.push(parameter.name);
-                                args.push({ __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tensor' });
-                            }
-                            if (type.name.value === 'Tuple' && type.arguments.every((item) => item.type === 'type' && item.name.type === 'id' && item.name.value === 'Tensor')) {
-                                this._inputs.push(parameter.name);
-                                args.push(type.arguments.map(() => { return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tuple' }; }));
-                            }
-                            if (type.name.value === 'List' && type.arguments.every((item) => item.type === 'type' && item.name.type === 'id' && item.name.value === 'Tensor')) {
-                                this._inputs.push(parameter.name);
-                                args.push([ { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, size: [ NaN, NaN ], __origin__: 'trace-input-list' } ]);
+                            switch (type.name.value) {
+                                case 'Tensor':
+                                    return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tensor' };
+                                case 'Tuple':
+                                    return type.arguments.map((type) => defaultValue(type));
+                                case 'List':
+                                    return type.arguments.map((type) => defaultValue(type));
+                                case 'Dict':
+                                    return {};
+                                case 'int':
+                                    return 0;
+                                case 'Optional':
+                                    return undefined;
                             }
                         }
+                        throw new pytorch.Error("Unknown function parameter type '" + JSON.stringify(type) + "'.");
+                    };
+                    if (parameter.name !== 'self') {
+                        const type = parameter.parameterType;
+                        const value = defaultValue(type);
+                        if (pytorch.Utility.isTensor(value)) {
+                            value.__variable__ = parameter.name;
+                            value.__origin__ = 'trace-input-tensor';
+                            this._inputs.push(parameter.name);
+                        }
+                        args.push(value);
                     }
                 }
             }
