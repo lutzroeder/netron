@@ -4085,6 +4085,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "netron_issue_547_1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
+    "error":  "Unknown torch.add expression type in 'netron_issue_547_1.pt'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/547"
+  },
+  {
+    "type":   "pytorch",
     "target": "norm_inplace.pt.zip",
     "source": "https://github.com/lutzroeder/netron/files/4516621/norm_inplace.pt.zip",
     "format": "TorchScript v1.3",
