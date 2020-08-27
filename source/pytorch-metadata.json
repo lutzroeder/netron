@@ -1754,7 +1754,29 @@
       ],
       "category": "Shape",
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.round",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.round_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
