@@ -543,17 +543,35 @@ paddle.TensorType = class {
 
     constructor(desc) {
         switch (desc.data_type) {
+            case paddle.proto.VarType.Type.BOOL:
+                this._dataType = 'boolean';
+                break;
+            case paddle.proto.VarType.Type.INT8:
+                this._dataType = 'int8';
+                break;
+            case paddle.proto.VarType.Type.INT16:
+                this._dataType = 'int16';
+                break;
             case paddle.proto.VarType.Type.INT32:
                 this._dataType = 'int32';
                 break;
             case paddle.proto.VarType.Type.INT64:
                 this._dataType = 'int64';
                 break;
+            case paddle.proto.VarType.Type.BP16:
+                this._dataType = 'bfloat16';
+                break;
+            case paddle.proto.VarType.Type.FP16:
+                this._dataType = 'float16';
+                break;
             case paddle.proto.VarType.Type.FP32:
                 this._dataType = 'float32';
                 break;
             case paddle.proto.VarType.Type.FP64:
                 this._dataType = 'float64';
+                break;
+            case paddle.proto.VarType.Type.UINT8:
+                this._dataType = 'uint8';
                 break;
             default:
                 this._dataType = '?';

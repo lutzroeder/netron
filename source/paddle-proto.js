@@ -404,6 +404,7 @@ $root.paddle.framework.proto.VarType.Type = {
     "SIZE_T": 19,
     "UINT8": 20,
     "INT8": 21,
+    "BF16": 22,
     "LOD_TENSOR": 7,
     "SELECTED_ROWS": 8,
     "FEED_MINIBATCH": 9,
