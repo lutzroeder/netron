@@ -1338,7 +1338,7 @@ keras.JsonParser = class {
                 key = this._string();
                 this._whitespace();
                 this._expect(':');
-                if (Object.hasOwnProperty.call(obj, key)) {
+                if (Object.prototype.hasOwnProperty.call(obj, key)) {
                     this._error('Duplicate key "' + key + '"');
                 }
                 obj[key] = this._value();
