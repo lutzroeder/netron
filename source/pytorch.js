@@ -71,6 +71,12 @@ pytorch.Graph = class {
             this._name = container.name;
             const traced = container.trace();
             const initializers = new Map();
+            if (container.constants) {
+                for (const constant of container.constants) {
+                    constant.initializer = new pytorch.Tensor(constant.__variable__, constant, true);
+                    initializers.set(constant.__variable__, constant);
+                }
+            }
             if (container.data) {
                 const queue = [ container.data ];
                 while (queue.length > 0) {
@@ -130,30 +136,6 @@ pytorch.Graph = class {
 
             if (container.data) {
                 this._loadScriptModule(metadata, container, container.data, initializers);
-            }
-            if (container.constants) {
-                const obj = {
-                    type: 'torch.nn.Constants',
-                    attributes: [],
-                    inputs: [],
-                    outputs: [],
-                };
-                let index = 0;
-                for (const constant of container.constants) {
-                    if (constant.__variable__ && constant.__count__ > 1 && constant.storage) {
-                        const initializer = new pytorch.Tensor(constant.name, constant, true);
-                        obj.inputs.push(new pytorch.Parameter('c' + index.toString(), false, [
-                            new pytorch.Argument(constant.__variable__, initializer.type, initializer)
-                        ]));
-                        obj.outputs.push(new pytorch.Parameter('c' + index.toString(), false, [
-                            new pytorch.Argument(constant.__variable__)
-                        ]));
-                    }
-                    index++;
-                }
-                if (obj.inputs.length > 0) {
-                    this._nodes.push(new pytorch.Node(metadata, '', obj, null));
-                }
             }
         }
         else if (container.data) {
@@ -465,6 +447,10 @@ pytorch.Node = class {
                         if (parameter) {
                             if (parameter.__parent__ && (module == null || module == parameter.__parent__)) {
                                 module = parameter.__parent__;
+                                count++;
+                            }
+                            else if (parameter.__variable__.startsWith('CONSTANTS.c')) {
+                                argument.initializer = parameter.initializer;
                                 count++;
                             }
                             else {
@@ -2633,6 +2619,9 @@ pytorch.Container.Zip = class {
             const entry = this._entry('constants.pkl');
             if (entry && entry.data) {
                 this._constants = this._unpickle(entry.data, this._storage('constants'));
+                for (let i = 0; i < this._constants.length; i++) {
+                    this._constants[i].__variable__ = 'CONSTANTS.c' + i.toString();
+                }
             }
         }
         return this._constants;
@@ -3073,7 +3062,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                             }
                             default: {
                                 const arg = copyArgs[0];
-                                if (!pytorch.Utility.isType(argument, parameter.type)) {
+                                if (!pytorch.Utility.isType(argument, parameter.type) && argument !== null) {
                                     if (parameter.optional) {
                                         continue;
                                     }
