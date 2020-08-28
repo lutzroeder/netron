@@ -22,10 +22,10 @@ $root.dnn.Model = class Model {
                     message.name = reader.string();
                     break;
                 case 2:
-                    message.version = reader.int64();
+                    message.version = reader.int32();
                     break;
                 case 4:
-                    message.input_shape = reader.array(message.input_shape, () => reader.int64(), tag);
+                    message.input_shape = reader.array(message.input_shape, () => reader.int32(), tag);
                     break;
                 case 7:
                     message.input_name.push(reader.string());
@@ -52,7 +52,7 @@ $root.dnn.Model = class Model {
 };
 
 $root.dnn.Model.prototype.name = "";
-$root.dnn.Model.prototype.version = protobuf.Int64.create(0);
+$root.dnn.Model.prototype.version = 0;
 $root.dnn.Model.prototype.a014 = 0;
 
 $root.dnn.Parameter = class Parameter {
@@ -96,16 +96,16 @@ $root.dnn.Shape = class Shape {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.dim0 = reader.int64();
+                    message.dim0 = reader.int32();
                     break;
                 case 2:
-                    message.dim1 = reader.int64();
+                    message.dim1 = reader.int32();
                     break;
                 case 3:
-                    message.dim2 = reader.int64();
+                    message.dim2 = reader.int32();
                     break;
                 case 4:
-                    message.dim3 = reader.int64();
+                    message.dim3 = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -116,10 +116,10 @@ $root.dnn.Shape = class Shape {
     }
 };
 
-$root.dnn.Shape.prototype.dim0 = protobuf.Int64.create(0);
-$root.dnn.Shape.prototype.dim1 = protobuf.Int64.create(0);
-$root.dnn.Shape.prototype.dim2 = protobuf.Int64.create(0);
-$root.dnn.Shape.prototype.dim3 = protobuf.Int64.create(0);
+$root.dnn.Shape.prototype.dim0 = 0;
+$root.dnn.Shape.prototype.dim1 = 0;
+$root.dnn.Shape.prototype.dim2 = 0;
+$root.dnn.Shape.prototype.dim3 = 0;
 
 $root.dnn.Node = class Node {
 
@@ -173,88 +173,88 @@ $root.dnn.Layer = class Layer {
                     message.type = reader.string();
                     break;
                 case 3:
-                    message.a003 = reader.uint64();
+                    message.filters = reader.int32();
                     break;
                 case 7:
-                    message.a007 = reader.uint64();
+                    message.a007 = reader.int32();
                     break;
                 case 8:
-                    message.a008 = reader.uint64();
+                    message.a008 = reader.int32();
                     break;
                 case 9:
-                    message.a009 = reader.uint64();
+                    message.groups = reader.int32();
                     break;
                 case 10:
-                    message.a010 = reader.uint64();
+                    message.a010 = reader.int32();
                     break;
                 case 11:
-                    message.a011 = reader.uint64();
+                    message.a011 = reader.int32();
                     break;
                 case 14:
-                    message.a014 = reader.float();
+                    message.slope = reader.float();
                     break;
                 case 15:
-                    message.a015 = reader.float();
+                    message.intercept = reader.float();
                     break;
                 case 50:
                     message.weight.push($root.dnn.Tensor.decode(reader, reader.uint32()));
                     break;
                 case 72:
-                    message.operation = reader.uint64();
+                    message.operation = reader.int32();
                     break;
                 case 65:
-                    message.axis = reader.uint64();
+                    message.axis = reader.int32();
                     break;
                 case 77:
-                    message.a077 = reader.uint64();
+                    message.a077 = reader.int32();
                     break;
                 case 79:
-                    message.a079 = reader.float();
+                    message.scale = reader.float();
                     break;
                 case 80:
-                    message.a080 = reader.uint64();
+                    message.pad_1 = reader.int32();
                     break;
                 case 81:
-                    message.a081 = reader.uint64();
+                    message.pad_2 = reader.int32();
                     break;
                 case 82:
-                    message.a082 = reader.uint64();
+                    message.pad_3 = reader.int32();
                     break;
                 case 83:
-                    message.a083 = reader.uint64();
+                    message.pad_4 = reader.int32();
                     break;
                 case 84:
-                    message.a084 = reader.uint64();
+                    message.pad_5 = reader.int32();
                     break;
                 case 85:
-                    message.a085 = reader.uint64();
+                    message.a085 = reader.int32();
                     break;
                 case 90:
-                    message.a090 = reader.uint64();
+                    message.a090 = reader.int32();
                     break;
                 case 101:
-                    message.a101 = reader.uint64();
+                    message.is_quantized = reader.bool();
                     break;
                 case 104:
-                    message.a104 = $root.dnn.Buffer.decode(reader, reader.uint32());
+                    message.quantization = $root.dnn.Buffer.decode(reader, reader.uint32());
                     break;
                 case 109:
-                    message.a109 = reader.uint64();
+                    message.stride_w = reader.int32();
                     break;
                 case 110:
-                    message.a110 = reader.uint64();
+                    message.stride_h = reader.int32();
                     break;
                 case 111:
-                    message.a111 = reader.uint64();
+                    message.kernel_w = reader.int32();
                     break;
                 case 112:
-                    message.a112 = reader.uint64();
+                    message.kernel_h = reader.int32();
                     break;
                 case 115:
-                    message.a115 = reader.uint64();
+                    message.a115 = reader.int32();
                     break;
                 case 116:
-                    message.a116 = reader.uint64();
+                    message.a116 = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -267,33 +267,33 @@ $root.dnn.Layer = class Layer {
 
 $root.dnn.Layer.prototype.name = "";
 $root.dnn.Layer.prototype.type = "";
-$root.dnn.Layer.prototype.a003 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a007 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a008 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a009 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a010 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a011 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a014 = 0;
-$root.dnn.Layer.prototype.a015 = 0;
-$root.dnn.Layer.prototype.operation = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.axis = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a077 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a079 = 0;
-$root.dnn.Layer.prototype.a080 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a081 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a082 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a083 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a084 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a085 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a090 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a101 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a104 = null;
-$root.dnn.Layer.prototype.a109 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a110 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a111 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a112 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a115 = protobuf.Uint64.create(0);
-$root.dnn.Layer.prototype.a116 = protobuf.Uint64.create(0);
+$root.dnn.Layer.prototype.filters = 0;
+$root.dnn.Layer.prototype.a007 = 0;
+$root.dnn.Layer.prototype.a008 = 0;
+$root.dnn.Layer.prototype.groups = 0;
+$root.dnn.Layer.prototype.a010 = 0;
+$root.dnn.Layer.prototype.a011 = 0;
+$root.dnn.Layer.prototype.slope = 0;
+$root.dnn.Layer.prototype.intercept = 0;
+$root.dnn.Layer.prototype.operation = 0;
+$root.dnn.Layer.prototype.axis = 0;
+$root.dnn.Layer.prototype.a077 = 0;
+$root.dnn.Layer.prototype.scale = 0;
+$root.dnn.Layer.prototype.pad_1 = 0;
+$root.dnn.Layer.prototype.pad_2 = 0;
+$root.dnn.Layer.prototype.pad_3 = 0;
+$root.dnn.Layer.prototype.pad_4 = 0;
+$root.dnn.Layer.prototype.pad_5 = 0;
+$root.dnn.Layer.prototype.a085 = 0;
+$root.dnn.Layer.prototype.a090 = 0;
+$root.dnn.Layer.prototype.is_quantized = false;
+$root.dnn.Layer.prototype.quantization = null;
+$root.dnn.Layer.prototype.stride_w = 0;
+$root.dnn.Layer.prototype.stride_h = 0;
+$root.dnn.Layer.prototype.kernel_w = 0;
+$root.dnn.Layer.prototype.kernel_h = 0;
+$root.dnn.Layer.prototype.a115 = 0;
+$root.dnn.Layer.prototype.a116 = 0;
 
 $root.dnn.Buffer = class Buffer {
 
@@ -332,22 +332,22 @@ $root.dnn.Tensor = class Tensor {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.dim0 = reader.int64();
+                    message.dim0 = reader.int32();
                     break;
                 case 2:
-                    message.dim1 = reader.int64();
+                    message.dim1 = reader.int32();
                     break;
                 case 3:
-                    message.dim2 = reader.int64();
+                    message.dim2 = reader.int32();
                     break;
                 case 4:
-                    message.dim3 = reader.int64();
+                    message.dim3 = reader.int32();
                     break;
                 case 5:
-                    message.data1 = reader.bytes();
+                    message.data = reader.bytes();
                     break;
                 case 6:
-                    message.data2 = reader.bytes();
+                    message.quantized_data = reader.bytes();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -358,9 +358,9 @@ $root.dnn.Tensor = class Tensor {
     }
 };
 
-$root.dnn.Tensor.prototype.dim0 = protobuf.Int64.create(0);
-$root.dnn.Tensor.prototype.dim1 = protobuf.Int64.create(0);
-$root.dnn.Tensor.prototype.dim2 = protobuf.Int64.create(0);
-$root.dnn.Tensor.prototype.dim3 = protobuf.Int64.create(0);
-$root.dnn.Tensor.prototype.data1 = new Uint8Array([]);
-$root.dnn.Tensor.prototype.data2 = new Uint8Array([]);
+$root.dnn.Tensor.prototype.dim0 = 0;
+$root.dnn.Tensor.prototype.dim1 = 0;
+$root.dnn.Tensor.prototype.dim2 = 0;
+$root.dnn.Tensor.prototype.dim3 = 0;
+$root.dnn.Tensor.prototype.data = new Uint8Array([]);
+$root.dnn.Tensor.prototype.quantized_data = new Uint8Array([]);

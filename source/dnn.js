@@ -1,5 +1,7 @@
 /* jshint esversion: 6 */
 
+// Experimental
+
 var dnn = dnn || {};
 
 dnn.ModelFactory = class {
@@ -90,19 +92,19 @@ dnn.Graph = class {
 
         for (const input of model.input) {
             const shape = input.shape;
-            const type = new dnn.TensorType('?', new dnn.TensorShape([ shape.dim0.toNumber(), shape.dim1.toNumber(), shape.dim2.toNumber(), shape.dim3.toNumber() ]));
+            const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape.dim0, shape.dim1, shape.dim2, shape.dim3 ]));
             this._inputs.push(new dnn.Parameter(input.name, [ arg(input.name, type) ]));
         }
         for (const output of model.output) {
             const shape = output.shape;
-            const type = new dnn.TensorType('?', new dnn.TensorShape([ shape.dim0.toNumber(), shape.dim1.toNumber(), shape.dim2.toNumber(), shape.dim3.toNumber() ]));
+            const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape.dim0, shape.dim1, shape.dim2, shape.dim3 ]));
             this._outputs.push(new dnn.Parameter(output.name, [ arg(output.name, type) ]));
         }
         if (this._inputs.length === 0 && model.input_name && model.input_shape && model.input_shape.length === model.input_name.length * 4) {
             for (let i = 0; i < model.input_name.length; i++) {
                 const name = model.input_name[i];
                 const shape = model.input_shape.slice(i * 4, (i * 4 + 4));
-                const type = new dnn.TensorType('?', new dnn.TensorShape([ shape[1].toNumber(), shape[3].toNumber(), shape[2].toNumber(), shape[0].toNumber() ]));
+                const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape[1], shape[3], shape[2], shape[0] ]));
                 this._inputs.push(new dnn.Parameter(name, [ arg(name, type) ]));
             }
         }
@@ -110,7 +112,7 @@ dnn.Graph = class {
             model.node.length > 0 && model.node[0].input.length > 0) {
             const name = model.node[0].input[0];
             const shape = model.input_shape;
-            const type = new dnn.TensorType('?', new dnn.TensorShape([ shape[1].toNumber(), shape[3].toNumber(), shape[2].toNumber(), shape[0].toNumber() ]));
+            const type = new dnn.TensorType('float32', new dnn.TensorShape([ shape[1], shape[3], shape[2], shape[0] ]));
             this._inputs.push(new dnn.Parameter(name, [ arg(name, type) ]));
         }
 
@@ -154,13 +156,14 @@ dnn.Parameter = class {
 
 dnn.Argument = class {
 
-    constructor(name, type, initializer) {
+    constructor(name, type, initializer, quantization) {
         if (typeof name !== 'string') {
             throw new dnn.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;
+        this._quantization = quantization || null;
     }
 
     get name() {
@@ -169,6 +172,13 @@ dnn.Argument = class {
 
     get type() {
         return this._type;
+    }
+
+    get quantization() {
+        if (this._quantization) {
+            return this._quantization.map((value, index) => index.toString() + ' = ' + value.toString()).join('; ');
+        }
+        return null;
     }
 
     get initializer() {
@@ -189,8 +199,17 @@ dnn.Node = class {
 
         const inputs = node.input.map((input) => { return arg(input); });
         for (const weight of layer.weight) {
-            const initializer = new dnn.Tensor(weight);
-            inputs.push(new dnn.Argument('', initializer.type, initializer));
+            let quantization = null;
+            if (layer.is_quantized && weight === layer.weight[0] && layer.quantization && layer.quantization.data) {
+                const data = layer.quantization.data;
+                quantization = new Array(data.length >> 2);
+                const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                for (let i = 0; i < quantization.length; i++) {
+                    quantization[i] = view.getFloat32(i << 2, true);
+                }
+            }
+            const initializer = new dnn.Tensor(weight, quantization);
+            inputs.push(new dnn.Argument('', initializer.type, initializer, quantization));
         }
         const outputs = node.output.map((output) => { return arg(output); });
 
@@ -220,8 +239,16 @@ dnn.Node = class {
         }
 
         for (const key of Object.keys(layer)) {
-            if (key !== 'name' && key !== 'type' && key !== 'weight') {
-                this._attributes.push(new dnn.Attribute(metadata.attribute(this._type, key), key, layer[key]));
+            switch (key) {
+                case 'name':
+                case 'type':
+                case 'weight':
+                case 'is_quantized':
+                case 'quantization':
+                    break;
+                default:
+                    this._attributes.push(new dnn.Attribute(metadata.attribute(this._type, key), key, layer[key]));
+                    break;
             }
         }
     }
@@ -269,9 +296,9 @@ dnn.Attribute = class {
 
 dnn.Tensor = class {
 
-    constructor(weight) {
-        const shape = new dnn.TensorShape([ weight.dim0.toNumber(), weight.dim1.toNumber(), weight.dim2.toNumber(), weight.dim3.toNumber() ]);
-        this._data = weight.data1.length > 0 ? weight.data1 : weight.data2;
+    constructor(weight, quantization) {
+        const shape = new dnn.TensorShape([ weight.dim0, weight.dim1, weight.dim2, weight.dim3 ]);
+        this._data = quantization ? weight.quantized_data : weight.data;
 
         const size = shape.dimensions.reduce((a, b) => a * b, 1);
         const itemSize = Math.floor(this._data.length / size);

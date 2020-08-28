@@ -5,8 +5,8 @@ package dnn;
 
 message Model {
     string name = 1;
-    int64 version = 2;
-    repeated int64 input_shape = 4;
+    int32 version = 2;
+    repeated int32 input_shape = 4;
     repeated string input_name = 7;
     repeated Node node = 10;
     repeated Parameter input = 12;
@@ -20,10 +20,10 @@ message Parameter {
 }
 
 message Shape {
-    int64 dim0 = 1;
-    int64 dim1 = 2;
-    int64 dim2 = 3;
-    int64 dim3 = 4;
+    int32 dim0 = 1;
+    int32 dim1 = 2;
+    int32 dim2 = 3;
+    int32 dim3 = 4;
 }
 
 message Node {
@@ -35,34 +35,34 @@ message Node {
 message Layer {
     string name = 1;
     string type = 2;
-    uint64 a003 = 3;   // conv
-    uint64 a007 = 7;   // pool
-    uint64 a008 = 8;   // pool
-    uint64 a009 = 9;   // conv
-    uint64 a010 = 10;  // conv, pool
-    uint64 a011 = 11;  // pool
-    float a014 = 14;   // linear
-    float a015 = 15;   // linear
+    int32 filters = 3;
+    int32 a007 = 7;   // pool
+    int32 a008 = 8;   // pool
+    int32 groups = 9;
+    int32 a010 = 10;  // conv, pool
+    int32 a011 = 11;  // pool
+    float slope = 14;   // linear
+    float intercept = 15;   // linear
     repeated Tensor weight = 50;
-    uint64 operation = 72;
-    uint64 axis = 65;  // concat
-    uint64 a077 = 77;  // conv
-    float a079 = 79;   // resize
-    uint64 a080 = 80;  // pad
-    uint64 a081 = 81;  // pad
-    uint64 a082 = 82;  // pad
-    uint64 a083 = 83;  // pad
-    uint64 a084 = 84;  // pad
-    uint64 a085 = 85;  // resize
-    uint64 a090 = 90;  // pool
-    uint64 a101 = 101; // [conv]
-    Buffer a104 = 104; // [conv]
-    uint64 a109 = 109; // conv
-    uint64 a110 = 110; // [conv]
-    uint64 a111 = 111; // conv
-    uint64 a112 = 112; // conv
-    uint64 a115 = 115; // conv
-    uint64 a116 = 116; // [conv]
+    int32 operation = 72;
+    int32 axis = 65;  // concat
+    int32 a077 = 77;  // conv
+    float scale = 79;  // resize
+    int32 pad_1 = 80;  // pad
+    int32 pad_2 = 81;  // pad
+    int32 pad_3 = 82;  // pad
+    int32 pad_4 = 83;  // pad
+    int32 pad_5 = 84;  // pad
+    int32 a085 = 85;  // resize
+    int32 a090 = 90;  // pool
+    bool is_quantized = 101;
+    Buffer quantization = 104;
+    int32 stride_w = 109;
+    int32 stride_h = 110;
+    int32 kernel_w = 111;
+    int32 kernel_h = 112;
+    int32 a115 = 115; // conv
+    int32 a116 = 116; // [conv]
 }
 
 message Buffer {
@@ -70,10 +70,10 @@ message Buffer {
 }
 
 message Tensor {
-    int64 dim0 = 1;
-    int64 dim1 = 2;
-    int64 dim2 = 3;
-    int64 dim3 = 4;
-    bytes data1 = 5;
-    bytes data2 = 6;
+    int32 dim0 = 1;
+    int32 dim1 = 2;
+    int32 dim2 = 3;
+    int32 dim3 = 4;
+    bytes data = 5;
+    bytes quantized_data = 6;
 }
