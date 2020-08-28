@@ -18,7 +18,7 @@
           "type": "float32"
         }
       ],
-      "description": "Binarize data (set feature values to 0 or 1) according to a threshold\n\nValues greater than the threshold map to 1, while values less than\nor equal to the threshold map to 0. With the default threshold of 0,\nonly positive values map to 1.\n\nBinarization is a common operation on text count data where the\nanalyst can decide to only consider the presence or absence of a\nfeature rather than a quantified number of occurrences for instance.\n\nIt can also be used as a pre-processing step for estimators that\nconsider boolean random variables (e.g. modelled using the Bernoulli\ndistribution in a Bayesian setting).\n\nRead more in the :ref:`User Guide <preprocessing_binarization>`.\n"
+      "description": "Binarize data (set feature values to 0 or 1) according to a threshold.\n\nValues greater than the threshold map to 1, while values less than\nor equal to the threshold map to 0. With the default threshold of 0,\nonly positive values map to 1.\n\nBinarization is a common operation on text count data where the\nanalyst can decide to only consider the presence or absence of a\nfeature rather than a quantified number of occurrences for instance.\n\nIt can also be used as a pre-processing step for estimators that\nconsider boolean random variables (e.g. modelled using the Bernoulli\ndistribution in a Bayesian setting).\n\nRead more in the :ref:`User Guide <preprocessing_binarization>`.\n"
     }
   },
   {
@@ -33,12 +33,12 @@
         },
         {
           "default": false,
-          "description": "Set to true if output binary array is desired in CSR sparse format\n",
+          "description": "Set to True if output binary array is desired in CSR sparse format.\n",
           "name": "sparse_output",
           "type": "boolean"
         }
       ],
-      "description": "Transform between iterable of iterables and a multilabel format\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n"
+      "description": "Transform between iterable of iterables and a multilabel format.\n\nAlthough a list of sets or tuples is a very intuitive format for multilabel\ndata, it is unwieldy to process. This transformer converts between this\nintuitive format and the supported multilabel format: a (samples x classes)\nbinary matrix indicating the presence of a class label.\n"
     }
   },
   {
@@ -790,7 +790,7 @@
         },
         {
           "default": "False",
-          "description": "Sets the verbosity amount\n",
+          "description": "Sets the verbosity amount.\n",
           "name": "verbose",
           "option": "optional"
         },
@@ -815,7 +815,7 @@
           "type": "int32"
         },
         {
-          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\nBy default, ``np.finfo(float).eps`` is used.\n",
+          "description": "The machine-precision regularization in the computation of the\nCholesky diagonal factors. Increase this for very ill-conditioned\nsystems. Unlike the ``tol`` parameter in some iterative\noptimization-based algorithms, this parameter does not control\nthe tolerance of the optimization.\n",
           "name": "eps",
           "option": "optional",
           "type": "float32"
@@ -860,8 +860,10 @@
     "schema": {
       "attributes": [
         {
+          "default": null,
           "description": "Number of components to keep.\nif n_components is not set all components are kept::\n\nn_components == min(n_samples, n_features)\n\nIf ``n_components == 'mle'`` and ``svd_solver == 'full'``, Minka's\nMLE is used to guess the dimension. Use of ``n_components == 'mle'``\nwill interpret ``svd_solver == 'auto'`` as ``svd_solver == 'full'``.\n\nIf ``0 < n_components < 1`` and ``svd_solver == 'full'``, select the\nnumber of components such that the amount of variance that needs to be\nexplained is greater than the percentage specified by n_components.\n\nIf ``svd_solver == 'arpack'``, the number of components must be\nstrictly less than the minimum of n_features and n_samples.\n\nHence, the None case results in::\n\nn_components == min(n_samples, n_features) - 1\n",
-          "name": "n_components"
+          "name": "n_components",
+          "type": "int32"
         },
         {
           "default": true,
@@ -877,18 +879,20 @@
           "type": "boolean"
         },
         {
+          "default": "auto",
           "description": "If auto :\nThe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nIf full :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\nIf arpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nIf randomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
           "name": "svd_solver"
         },
         {
-          "default": ".0",
-          "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\n\n.. versionadded:: 0.18.0\n",
+          "default": 0.0,
+          "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\nMust be of range [0.0, infinity).\n\n.. versionadded:: 0.18.0\n",
           "name": "tol",
-          "option": "optional"
+          "option": "optional",
+          "type": "float32"
         },
         {
           "default": "auto",
-          "description": "Number of iterations for the power method computed by\nsvd_solver == 'randomized'.\n\n.. versionadded:: 0.18.0\n",
+          "description": "Number of iterations for the power method computed by\nsvd_solver == 'randomized'.\nMust be of range [0, infinity).\n\n.. versionadded:: 0.18.0\n",
           "name": "iterated_power"
         },
         {
@@ -906,8 +910,10 @@
     "schema": {
       "attributes": [
         {
+          "default": null,
           "description": "Number of components to keep.\nif n_components is not set all components are kept::\n\nn_components == min(n_samples, n_features)\n\nIf ``n_components == 'mle'`` and ``svd_solver == 'full'``, Minka's\nMLE is used to guess the dimension. Use of ``n_components == 'mle'``\nwill interpret ``svd_solver == 'auto'`` as ``svd_solver == 'full'``.\n\nIf ``0 < n_components < 1`` and ``svd_solver == 'full'``, select the\nnumber of components such that the amount of variance that needs to be\nexplained is greater than the percentage specified by n_components.\n\nIf ``svd_solver == 'arpack'``, the number of components must be\nstrictly less than the minimum of n_features and n_samples.\n\nHence, the None case results in::\n\nn_components == min(n_samples, n_features) - 1\n",
-          "name": "n_components"
+          "name": "n_components",
+          "type": "int32"
         },
         {
           "default": true,
@@ -923,19 +929,21 @@
           "type": "boolean"
         },
         {
+          "default": "auto",
           "description": "If auto :\nThe solver is selected by a default policy based on `X.shape` and\n`n_components`: if the input data is larger than 500x500 and the\nnumber of components to extract is lower than 80% of the smallest\ndimension of the data, then the more efficient 'randomized'\nmethod is enabled. Otherwise the exact full SVD is computed and\noptionally truncated afterwards.\nIf full :\nrun exact full SVD calling the standard LAPACK solver via\n`scipy.linalg.svd` and select the components by postprocessing\nIf arpack :\nrun SVD truncated to n_components calling ARPACK solver via\n`scipy.sparse.linalg.svds`. It requires strictly\n0 < n_components < min(X.shape)\nIf randomized :\nrun randomized SVD by the method of Halko et al.\n\n.. versionadded:: 0.18.0\n",
           "name": "svd_solver",
           "type": "string"
         },
         {
-          "default": ".0",
-          "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\n\n.. versionadded:: 0.18.0\n",
+          "default": 0.0,
+          "description": "Tolerance for singular values computed by svd_solver == 'arpack'.\nMust be of range [0.0, infinity).\n\n.. versionadded:: 0.18.0\n",
           "name": "tol",
-          "option": "optional"
+          "option": "optional",
+          "type": "float32"
         },
         {
           "default": "auto",
-          "description": "Number of iterations for the power method computed by\nsvd_solver == 'randomized'.\n\n.. versionadded:: 0.18.0\n",
+          "description": "Number of iterations for the power method computed by\nsvd_solver == 'randomized'.\nMust be of range [0, infinity).\n\n.. versionadded:: 0.18.0\n",
           "name": "iterated_power"
         },
         {
@@ -1460,7 +1468,7 @@
         },
         {
           "default": null,
-          "description": "Multiplicative weights for features per transformer.\nKeys are transformer names, values the weights.\n",
+          "description": "Multiplicative weights for features per transformer.\nKeys are transformer names, values the weights.\nRaises ValueError if key not present in ``transformer_list``.\n",
           "name": "transformer_weights"
         },
         {
@@ -1698,6 +1706,7 @@
           "type": "int32"
         },
         {
+          "default": 0.0,
           "description": "Tolerance for ARPACK. 0 means machine precision. Ignored by randomized\nSVD solver.\n",
           "name": "tol",
           "option": "optional",
