@@ -654,6 +654,12 @@ python.Parser = class {
                     stack[0].value += literal.value;
                 }
                 else {
+                    if (literal.type === 'number') {
+                        switch (literal.value) {
+                            case 'inf': literal.value = Infinity; break;
+                            case '-inf': literal.value = -Infinity; break;
+                        }
+                    }
                     stack.push(literal);
                 }
                 continue;
@@ -1399,6 +1405,10 @@ python.Tokenizer = class {
                     return { type: 'number', value: floatText };
                 }
             }
+        }
+        i = this._position + sign;
+        if (this._get(i) === 'i' && this._get(i + 1) === 'n' && this._get(i + 2) === 'f' && !python.Tokenizer._isIdentifierChar(this._get(i + 3))) {
+            return { type: 'number', value: this._text.substring(this._position, i + 3) };
         }
         return null;
     }
