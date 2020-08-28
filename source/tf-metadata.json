@@ -1520,6 +1520,7 @@
           "typeAttr": "T"
         },
         {
+          "description": "Momentum Scale. Must be a scalar.",
           "name": "momentum",
           "typeAttr": "T"
         },
@@ -39979,6 +39980,7 @@
           "typeAttr": "T"
         },
         {
+          "description": "Momentum Scale. Must be a scalar.",
           "name": "momentum",
           "typeAttr": "T"
         },
