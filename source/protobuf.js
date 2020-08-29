@@ -370,7 +370,7 @@ protobuf.TextReader = class {
         const token = this.read();
         const value = Number.parseInt(token, 10);
         if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse integer '" + token + "'" + this._location());
+            throw new protobuf.Error("Couldn't parse integer '" + token + "'" + this.location());
         }
         this._semicolon();
         return value;
@@ -392,7 +392,7 @@ protobuf.TextReader = class {
         }
         const value = Number.parseFloat(token);
         if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse float '" + token + "'" + this._location());
+            throw new protobuf.Error("Couldn't parse float '" + token + "'" + this.location());
         }
         this._semicolon();
         return value;
@@ -401,14 +401,14 @@ protobuf.TextReader = class {
     string() {
         const token = this.read();
         if (token.length < 2) {
-            throw new protobuf.Error('String is too short' + this._location());
+            throw new protobuf.Error('String is too short' + this.location());
         }
         const quote = token[0];
         if (quote !== "'" && quote !== '"') {
-            throw new protobuf.Error('String is not in quotes' + this._location());
+            throw new protobuf.Error('String is not in quotes' + this.location());
         }
         if (quote !== token[token.length - 1]) {
-            throw new protobuf.Error('String quotes do not match' + this._location());
+            throw new protobuf.Error('String quotes do not match' + this.location());
         }
         const value = token.substring(1, token.length - 1);
         this._semicolon();
@@ -429,7 +429,7 @@ protobuf.TextReader = class {
                 this._semicolon();
                 return false;
         }
-        throw new protobuf.Error("Couldn't parse boolean '" + token + "'" + this._location());
+        throw new protobuf.Error("Couldn't parse boolean '" + token + "'" + this.location());
     }
 
     bytes() {
@@ -445,7 +445,7 @@ protobuf.TextReader = class {
             }
             else {
                 if (i >= length) {
-                    throw new protobuf.Error('Unexpected end of bytes string' + this._location());
+                    throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                 }
                 c = token.charCodeAt(i++);
                 switch (c) {
@@ -460,12 +460,12 @@ protobuf.TextReader = class {
                     case 0x78: // X
                         for (let xi = 0; xi < 2; xi++) {
                             if (i >= length) {
-                                throw new protobuf.Error('Unexpected end of bytes string' + this._location());
+                                throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                             }
                             let xd = token.charCodeAt(i++);
                             xd = xd >= 65 && xd <= 70 ? xd - 55 : xd >= 97 && xd <= 102 ? xd - 87 : xd >= 48 && xd <= 57 ? xd - 48 : -1;
                             if (xd === -1) {
-                                throw new protobuf.Error("Unexpected hex digit '" + xd + "' in bytes string" + this._location());
+                                throw new protobuf.Error("Unexpected hex digit '" + xd + "' in bytes string" + this.location());
                             }
                             a[o] = a[o] << 4 | xd;
                         }
@@ -473,16 +473,16 @@ protobuf.TextReader = class {
                         break;
                     default:
                         if (c < 48 || c > 57) { // 0-9
-                            throw new protobuf.Error("Unexpected character '" + c + "' in bytes string" + this._location());
+                            throw new protobuf.Error("Unexpected character '" + c + "' in bytes string" + this.location());
                         }
                         i--;
                         for (let oi = 0; oi < 3; oi++) {
                             if (i >= length) {
-                                throw new protobuf.Error('Unexpected end of bytes string' + this._location());
+                                throw new protobuf.Error('Unexpected end of bytes string' + this.location());
                             }
                             const od = token.charCodeAt(i++);
                             if (od < 48 || od > 57) {
-                                throw new protobuf.Error("Unexpected octal digit '" + od + "' in bytes string" + this._location());
+                                throw new protobuf.Error("Unexpected octal digit '" + od + "' in bytes string" + this.location());
                             }
                             a[o] = a[o] << 3 | od - 48;
                         }
@@ -502,7 +502,7 @@ protobuf.TextReader = class {
                 this._semicolon();
                 return value;
             }
-            throw new protobuf.Error("Couldn't parse enum '" + token + "'" + this._location());
+            throw new protobuf.Error("Couldn't parse enum '" + token + "'" + this.location());
         }
         this._semicolon();
         return type[token];
@@ -514,7 +514,7 @@ protobuf.TextReader = class {
             const begin = this._position;
             const end = this._buffer.indexOf(']', begin);
             if (end === -1 || end >= this.next) {
-                throw new protobuf.Error('End of Any type_url not found' + this._location());
+                throw new protobuf.Error('End of Any type_url not found' + this.location());
             }
             message.type_url = this.__substring(begin, end);
             this._position = end + 1;
@@ -620,11 +620,11 @@ protobuf.TextReader = class {
     }
 
     handle(token) {
-        throw new protobuf.Error("Unexpected token '" + token + "'" + this._location());
+        throw new protobuf.Error("Unexpected token '" + token + "'" + this.location());
     }
 
     field(token /*, module */) {
-        throw new protobuf.Error("Unknown field '" + token + "'" + this._location());
+        throw new protobuf.Error("Unknown field '" + token + "'" + this.location());
     }
 
     _get(position) {
@@ -742,7 +742,7 @@ protobuf.TextReader = class {
             this._token = this._substring(this._position, position);
             return;
         }
-        throw new protobuf.Error("Unexpected token '" + c + "'" + this._location());
+        throw new protobuf.Error("Unexpected token '" + c + "'" + this.location());
     }
 
     peek() {
@@ -767,7 +767,7 @@ protobuf.TextReader = class {
     expect(value) {
         const token = this.peek();
         if (token !== value) {
-            throw new protobuf.Error("Unexpected '" + token + "' instead of '" + value + "'" + this._location());
+            throw new protobuf.Error("Unexpected '" + token + "' instead of '" + value + "'" + this.location());
         }
         this.read();
     }
@@ -780,14 +780,14 @@ protobuf.TextReader = class {
         return false;
     }
 
+    location() {
+        return ' at ' + (this._line + 1).toString() + ':' + (this._column + 1).toString();
+    }
+
     _semicolon() {
         if (this._arrayDepth === 0) {
             this.match(';');
         }
-    }
-
-    _location() {
-        return ' at ' + (this._line + 1).toString() + ':' + (this._column + 1).toString();
     }
 };
 
