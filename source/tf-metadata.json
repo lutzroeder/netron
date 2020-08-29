@@ -200,7 +200,7 @@
           "type": "type"
         }
       ],
-      "description": "\n  Provided an input tensor, the `tf.math.acos` operation returns the inverse cosine of each element of the tensor. If `y = tf.math.cos(x)` then, `x = tf.math.acos(y)`. \n  \n  Input range is `[-1, 1]` and the output has a range of `[0, pi]`.\n",
+      "description": "\n  Provided an input tensor, the `tf.math.acos` operation returns the inverse cosine of each element of the tensor. If `y = tf.math.cos(x)` then, `x = tf.math.acos(y)`.\n\n  Input range is `[-1, 1]` and the output has a range of `[0, pi]`.\n",
       "inputs": [
         {
           "name": "x",
@@ -252,7 +252,7 @@
           "type": "type"
         }
       ],
-      "description": "*NOTE*: `Add` supports broadcasting. `AddN` does not. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\t\nGiven two input tensors, the `tf.add` operation computes the sum for every element in the tensor. \n\nBoth input and output have a range `(-inf, inf)`.\n",
+      "description": "*NOTE*: `Add` supports broadcasting. `AddN` does not. More about broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html)\n\nGiven two input tensors, the `tf.add` operation computes the sum for every element in the tensor.\n\nBoth input and output have a range `(-inf, inf)`.\n",
       "inputs": [
         {
           "name": "x",
@@ -25931,14 +25931,9 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
           "name": "padding",
           "type": "string"
-        },
-        {
-          "default": [],
-          "name": "explicit_paddings",
-          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -26164,14 +26159,9 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
           "name": "padding",
           "type": "string"
-        },
-        {
-          "default": [],
-          "name": "explicit_paddings",
-          "type": "int64[]"
         },
         {
           "default": "NHWC",
