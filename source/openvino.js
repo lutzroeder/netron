@@ -926,23 +926,24 @@ openvino.TensorType = class {
     constructor(precision, shape) {
         precision = precision ? precision.toLowerCase() : precision;
         switch (precision) {
-            case 'f16':  this._dataType = 'float16'; break;
-            case 'fp16': this._dataType = 'float16'; break;
-            case 'f32':  this._dataType = 'float32'; break;
-            case 'fp32': this._dataType = 'float32'; break;
-            case 'i8':   this._dataType = 'int8'; break;
-            case 'i16':  this._dataType = 'int16'; break;
-            case 'i32':  this._dataType = 'int32'; break;
-            case 'i64':  this._dataType = 'int64'; break;
-            case 'u1':   this._dataType = 'boolean'; break;
-            case 'u8':   this._dataType = 'uint8'; break;
-            case 'u16':  this._dataType = 'uint16'; break;
-            case 'u32':  this._dataType = 'uint32'; break;
-            case 'u64':  this._dataType = 'uint64'; break;
-            case 'bool': this._dataType = 'boolean'; break;
-            case '':     this._dataType = '?'; break;
-            case null:   this._dataType = '?'; break;
-            default: throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
+            case 'f16':     this._dataType = 'float16'; break;
+            case 'fp16':    this._dataType = 'float16'; break;
+            case 'f32':     this._dataType = 'float32'; break;
+            case 'fp32':    this._dataType = 'float32'; break;
+            case 'i8':      this._dataType = 'int8'; break;
+            case 'i16':     this._dataType = 'int16'; break;
+            case 'i32':     this._dataType = 'int32'; break;
+            case 'i64':     this._dataType = 'int64'; break;
+            case 'u1':      this._dataType = 'boolean'; break;
+            case 'u8':      this._dataType = 'uint8'; break;
+            case 'u16':     this._dataType = 'uint16'; break;
+            case 'u32':     this._dataType = 'uint32'; break;
+            case 'u64':     this._dataType = 'uint64'; break;
+            case 'bool':    this._dataType = 'boolean'; break;
+            case 'boolean': this._dataType = 'boolean'; break;
+            case '':        this._dataType = '?'; break;
+            case null:      this._dataType = '?'; break;
+            default:        throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
         }
         this._shape = shape;
     }
