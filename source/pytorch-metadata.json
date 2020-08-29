@@ -1830,14 +1830,44 @@
     }
   },
   {
-    "name": "torch.mean",
+    "name": "torch.mean:",
+    "schema": {
+      "attributes": [
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.mean:dim",
     "schema": {
       "attributes": [
         { "name": "dim", "type": "int64[]" },
-        { "name": "keepdim", "type": "boolean" }
+        { "name": "keepdim", "type": "boolean", "default": false },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
       ],
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.median:dim",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "keepdim", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
