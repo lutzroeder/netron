@@ -311,6 +311,7 @@ sidebar.NodeSidebar = class {
                 value = value.slice(0, 1000);
                 ellipsis = true;
             }
+            const itemType = (type && type.endsWith('[]')) ? type.substring(0, type.length - 2) : null;
             const array = value.map((item) => {
                 if (item && (item instanceof base.Int64 || item instanceof base.Uint64)) {
                     return item.toString();
@@ -318,7 +319,8 @@ sidebar.NodeSidebar = class {
                 if (Number.isNaN(item)) {
                     return 'NaN';
                 }
-                return sidebar.NodeSidebar.formatAttributeValue(item, null, true);
+                const quote = !itemType || itemType === 'string';
+                return sidebar.NodeSidebar.formatAttributeValue(item, itemType, quote);
             });
             if (ellipsis) {
                 array.push('\u2026');
