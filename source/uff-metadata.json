@@ -107,7 +107,10 @@
   {
     "name": "Concat",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input", "list": true }
+      ]
     }
   },
   {
@@ -123,6 +126,52 @@
       "inputs": [
         { "name": "input" },
         { "name": "indices" }
+      ]
+    }
+  },
+  {
+    "name": "Stack",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "?" },
+        { "name": "?" },
+        { "name": "?" }
+      ]
+    }
+  },
+  {
+    "name": "Shape",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ]
+    }
+  },
+  {
+    "name": "_FlattenConcat_TRT",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "list": true }
+      ]
+    }
+  },
+  {
+    "name": "_NMS_TRT",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "?" },
+        { "name": "?" }
+      ]
+    }
+  },
+  {
+    "name": "_GridAnchor_TRT",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
       ]
     }
   }
