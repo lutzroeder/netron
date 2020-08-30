@@ -5,7 +5,7 @@ var pickle = pickle || {};
 pickle.Unpickler = class {
 
     constructor(buffer) {
-        this._reader = new pickle.Reader(buffer, 0);
+        this._reader = new pickle.Reader(buffer);
     }
 
     load(function_call, persistent_load) {
@@ -13,7 +13,7 @@ pickle.Unpickler = class {
         const marker = [];
         let stack = [];
         const memo = new Map();
-        while (reader.position < reader.length) {
+        while (!reader.end()) {
             const opcode = reader.byte();
             switch (opcode) {
                 case pickle.OpCode.PROTO: {
@@ -475,21 +475,22 @@ pickle.OpCode = {
 pickle.Reader = class {
 
     constructor(buffer) {
-        if (buffer) {
-            this._buffer = buffer;
-            this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            this._position = 0;
+        this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._position = 0;
+        this._utf8Decoder = new TextDecoder('utf-8');
+        this._asciiDecoder = new TextDecoder('ascii');
+    }
+
+    end() {
+        return this._position >= this._buffer.length;
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new pickle.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
-        pickle.Reader._utf8Decoder = pickle.Reader._utf8Decoder || new TextDecoder('utf-8');
-        pickle.Reader._asciiDecoder = pickle.Reader._asciiDecoder || new TextDecoder('ascii');
-    }
-
-    get length() {
-        return this._buffer.byteLength;
-    }
-
-    get position() {
-        return this._position;
     }
 
     byte() {
@@ -505,19 +506,19 @@ pickle.Reader = class {
     }
 
     uint16() {
-        const position = this.position;
+        const position = this._position;
         this.skip(2);
         return this._dataView.getUint16(position, true);
     }
 
     int32() {
-        const position = this.position;
+        const position = this._position;
         this.skip(4);
         return this._dataView.getInt32(position, true);
     }
 
     uint32() {
-        const position = this.position;
+        const position = this._position;
         this.skip(4);
         return this._dataView.getUint32(position, true);
     }
@@ -532,29 +533,22 @@ pickle.Reader = class {
     }
 
     float32() {
-        const position = this.position;
+        const position = this._position;
         this.skip(4);
         return this._dataView.getFloat32(position, true);
     }
 
     float64() {
-        const position = this.position;
+        const position = this._position;
         this.skip(8);
         return this._dataView.getFloat64(position, true);
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new pickle.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
     }
 
     string(size, encoding) {
         const data = this.bytes(size);
         return (encoding == 'utf-8') ?
-            pickle.Reader._utf8Decoder.decode(data) :
-            pickle.Reader._asciiDecoder.decode(data);
+            this._utf8Decoder.decode(data) :
+            this._asciiDecoder.decode(data);
     }
 
     line() {
