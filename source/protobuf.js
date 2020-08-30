@@ -49,31 +49,49 @@ protobuf.Reader = class {
         return this.uint32() !== 0;
     }
 
+    byte() {
+        if (this._position < this._length) {
+            return this._buffer[this._position++];
+        }
+        throw new RangeError('Unexpected end of file.');
+    }
+
     bytes() {
         const length = this.uint32();
-        const start = this._position;
-        const end = this._position + length;
-        if (end > this._length) {
-            throw this._indexOutOfRangeError(length);
-        }
-        this._position += length;
-        return this._buffer.slice(start, end);
+        const position = this._position;
+        this.skip(length);
+        return this._buffer.slice(position, this._position);
     }
 
     uint32() {
-        let value = 4294967295;
-        value = (this._buffer[this._position] & 127) >>> 0;
-        if (this._buffer[this._position++] < 128) {
+        let c;
+        c = this.byte();
+        let value = (c & 127) >>> 0;
+        if (c < 128) {
             return value;
         }
-        value = (value | (this._buffer[this._position] & 127) <<  7) >>> 0;
-        if (this._buffer[this._position++] < 128) return value;
-        value = (value | (this._buffer[this._position] & 127) << 14) >>> 0; if (this._buffer[this._position++] < 128) return value;
-        value = (value | (this._buffer[this._position] & 127) << 21) >>> 0; if (this._buffer[this._position++] < 128) return value;
-        value = (value | (this._buffer[this._position] &  15) << 28) >>> 0; if (this._buffer[this._position++] < 128) return value;
-        if ((this._position += 5) > this._length) {
-            this._position = this._length;
-            throw this._indexOutOfRangeError(10);
+        c = this.byte();
+        value = (value | (c & 127) <<  7) >>> 0;
+        if (c < 128) {
+            return value;
+        }
+        c = this.byte();
+        value = (value | (c & 127) << 14) >>> 0;
+        if (c < 128) {
+            return value;
+        }
+        c = this.byte();
+        value = (value | (c & 127) << 21) >>> 0;
+        if (c < 128) {
+            return value;
+        }
+        c = this.byte();
+        value = (value | (c & 15) << 28) >>> 0;
+        if (c < 128) {
+            return value;
+        }
+        if (this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 1) {
+            throw new protobuf.Error('Varint is not 32-bit.');
         }
         return value;
     }
@@ -124,20 +142,14 @@ protobuf.Reader = class {
     }
 
     float() {
-        if (this._position + 4 > this._length) {
-            throw this._indexOutOfRangeError(4);
-        }
         const position = this._position;
-        this._position += 4;
+        this.skip(4);
         return this._view.getFloat32(position, true);
     }
 
     double() {
-        if (this._position + 8 > this._length) {
-            throw this._indexOutOfRangeError(4);
-        }
         const position = this._position;
-        this._position += 8;
+        this.skip(8);
         return this._view.getFloat64(position, true);
     }
 
@@ -213,14 +225,14 @@ protobuf.Reader = class {
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
-            throw this._indexOutOfRangeError(length);
+            throw new RangeError('Unexpected end of file.');
         }
     }
 
     skipVarint() {
         do {
             if (this._position >= this._length) {
-                throw this._indexOutOfRangeError();
+                throw new RangeError('Unexpected end of file.');
             }
         }
         while (this._buffer[this._position++] & 128);
@@ -282,9 +294,10 @@ protobuf.Reader = class {
             i = 0;
         }
         else {
-            for (; i < 3; ++i) {
-                if (this._position >= this._length)
-                    throw this._indexOutOfRangeError();
+            for (; i < 3; i++) {
+                if (this._position >= this._length) {
+                    throw new RangeError('Unexpected end of file.');
+                }
                 bits.lo = (bits.lo | (this._buffer[this._position] & 127) << i * 7) >>> 0;
                 if (this._buffer[this._position++] < 128) {
                     return bits;
@@ -304,7 +317,7 @@ protobuf.Reader = class {
         else {
             for (; i < 5; ++i) {
                 if (this._position >= this._length) {
-                    throw this._indexOutOfRangeError();
+                    throw new RangeError('Unexpected end of file.');
                 }
                 bits.hi = (bits.hi | (this._buffer[this._position] & 127) << i * 7 + 3) >>> 0;
                 if (this._buffer[this._position++] < 128) {
@@ -313,10 +326,6 @@ protobuf.Reader = class {
             }
         }
         throw new protobuf.Error('Invalid varint encoding.');
-    }
-
-    _indexOutOfRangeError(length) {
-        return RangeError('index out of range: ' + this._position + ' + ' + (length || 1) + ' > ' + this._length);
     }
 };
 
