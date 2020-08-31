@@ -73,7 +73,7 @@ pytorch.Graph = class {
             const initializers = new Map();
             if (container.constants) {
                 for (const constant of container.constants) {
-                    constant.initializer = new pytorch.Tensor(constant.__variable__, constant, true);
+                    constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
                     initializers.set(constant.__variable__, constant);
                 }
             }
@@ -89,7 +89,7 @@ pytorch.Graph = class {
                                     const parameter = obj;
                                     parameter.__parent__ = module;
                                     if (!parameter.initializer && parameter.storage) {
-                                        parameter.initializer = new pytorch.Tensor(parameter.name, parameter, true);
+                                        parameter.initializer = new pytorch.Tensor(parameter.name, parameter, this._littleEndian);
                                     }
                                     if (parameter.__variable__ && parameter.__count__ === 1) {
                                         initializers.set(parameter.__variable__, parameter);
@@ -2603,6 +2603,10 @@ pytorch.Container.Zip = class {
         return this._name;
     }
 
+    get littleEndian() {
+        return true;
+    }
+
     get data() {
         this._load();
         return this._data;
@@ -3305,7 +3309,7 @@ pytorch.Utility = class {
             return layers;
         }
         if (list && !Array.isArray(list) && !(list instanceof Map)) {
-            list = new Map(Object.keys(list).map((key) => [ key, list[key] ]));
+            list = new Map(Object.keys(list).filter((key) => key !== '_metadata').map((key) => [ key, list[key] ]));
         }
         if (list && list instanceof Map) {
             for (const item of list) {
@@ -3313,6 +3317,9 @@ pytorch.Utility = class {
                 const value = item[1];
                 if (!key || !value) {
                     return null;
+                }
+                if (key === '_metadata') {
+                    continue;
                 }
                 if (pytorch.Utility.isTensor(value)) {
                     continue;
@@ -3329,6 +3336,9 @@ pytorch.Utility = class {
             for (const item of list) {
                 const key = item[0];
                 const value = item[1];
+                if (key === '_metadata') {
+                    continue;
+                }
                 if (value !== null) {
                     let layerName = '';
                     let parameter = '';
@@ -3368,7 +3378,7 @@ pytorch.Utility = class {
                     }
                 }
             }
-            return layers.values();
+            return Array.from(layers.values());
         }
         return null;
     }
@@ -3380,6 +3390,9 @@ pytorch.Utility = class {
         const state_dict = [];
         const state_map = {};
         for (const key in obj) {
+            if (key === '_metadata') {
+                continue;
+            }
             const split = key.split('.');
             if (split.length < 1) {
                 return null;
@@ -3434,6 +3447,9 @@ pytorch.Utility = class {
                 for (const pair of item) {
                     const key = pair[0];
                     const value = pair[1];
+                    if (key === '_metadata') {
+                        continue;
+                    }
                     if (!key) {
                         return null;
                     }

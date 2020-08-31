@@ -239,6 +239,11 @@ pickle.Unpickler = class {
                     else if (ArrayBuffer.isView(state) || Object(state) !== state) {
                         throw new pickle.Error('Invalid state dict' + (obj && obj.__module__ && obj.__name__ ? " for '" + obj.__module__ + '.' + obj.__name__ + "'": '') + '.');
                     }
+                    else if (obj instanceof Map) {
+                        for (const key in state) {
+                            obj.set(key, state[key]);
+                        }
+                    }
                     else {
                         Object.assign(obj, state);
                     }
