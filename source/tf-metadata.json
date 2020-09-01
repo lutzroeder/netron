@@ -20527,6 +20527,60 @@
     }
   },
   {
+    "name": "ImageProjectiveTransformV3",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Input dtype. Must be one of the following: `uint8`, `int32`, `int64`, `float16`, `float32`, `float64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "Interpolation method, \"NEAREST\" or \"BILINEAR\".",
+          "name": "interpolation",
+          "type": "string"
+        },
+        {
+          "default": "CONSTANT",
+          "description": "Fill mode, \"REFLECT\", \"WRAP\", or \"CONSTANT\".",
+          "name": "fill_mode",
+          "type": "string"
+        }
+      ],
+      "description": "If one row of `transforms` is `[a0, a1, a2, b0, b1, b2, c0, c1]`, then it maps\nthe *output* point `(x, y)` to a transformed *input* point\n`(x', y') = ((a0 x + a1 y + a2) / k, (b0 x + b1 y + b2) / k)`, where\n`k = c0 x + c1 y + 1`. If the transformed point lays outside of the input\nimage, the output pixel is set to fill_value.",
+      "inputs": [
+        {
+          "description": "4-D with shape `[batch, height, width, channels]`.",
+          "name": "images",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "2-D Tensor, `[batch, 8]` or `[1, 8]` matrix, where each row corresponds to a 3 x 3\nprojective transformation matrix, with the last entry assumed to be 1. If there\nis one row, the same transformation will be applied to all images.",
+          "name": "transforms",
+          "type": 1
+        },
+        {
+          "description": "1-D Tensor [new_height, new_width].",
+          "name": "output_shape",
+          "type": 3
+        },
+        {
+          "description": "float, the value to be filled when fill_mode is constant\".",
+          "name": "fill_value",
+          "type": 1
+        }
+      ],
+      "outputs": [
+        {
+          "description": "4-D with shape\n`[batch, new_height, new_width, channels]`.",
+          "name": "transformed_images",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Applies the given transform to each of the images."
+    }
+  },
+  {
     "name": "ImageSummary",
     "schema": {
       "attributes": [
@@ -25931,9 +25985,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
@@ -26159,9 +26218,14 @@
           "type": "int64[]"
         },
         {
-          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`.",
+          "description": "The type of padding algorithm to use. Must be one of the following: `SAME`, `VALID`, `EXPLICIT`.",
           "name": "padding",
           "type": "string"
+        },
+        {
+          "default": [],
+          "name": "explicit_paddings",
+          "type": "int64[]"
         },
         {
           "default": "NHWC",
