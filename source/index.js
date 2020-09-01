@@ -538,6 +538,12 @@ if (typeof TextDecoder === "undefined") {
                             result += String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
                             break;
                         }
+                        case 15: {
+                            const c2 = buffer[i++];
+                            const c3 = buffer[i++];
+                            const c4 = buffer[i++];
+                            result += String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
+                        }
                     }
                 }
                 break;
