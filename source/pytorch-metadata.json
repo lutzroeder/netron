@@ -3253,10 +3253,92 @@
     }
   },
   {
+    "name": "torch.square",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.square_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.sqrt",
     "schema": {
       "inputs": [
-        { "name": "input", "type": "tensor" }
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.std:",
+    "schema": {
+      "attributes": [
+        { "name": "unbiased", "type": "boolean", "default": true }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.std:dim",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "unbiased", "type": "boolean", "default": true },
+        { "name": "keepdim", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.std_mean:",
+    "schema": {
+      "attributes": [
+        { "name": "unbiased", "type": "boolean", "default": true }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.std_mean:dim",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "unbiased", "type": "boolean", "default": true },
+        { "name": "keepdim", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
