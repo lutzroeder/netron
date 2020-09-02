@@ -3756,6 +3756,13 @@
   },
   {
     "type":   "paddle",
+    "target": "tranformer_base.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5160568/tranformer_base.zip",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
     "target": "resnet50_int8_model.tar.gz",
     "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
     "format": "PaddlePaddle",
