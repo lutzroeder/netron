@@ -2709,6 +2709,13 @@
   },
   {
     "type":   "ncnn",
+    "target": "faces_wider_squeezenet.param,faces_wider_squeezenet.bin",
+    "source": "https://deepdetect.com/models/init/embedded/images/detection/squeezenet_ssd_faces_ncnn.tar.gz[faces_wider_squeezenet.param,faces_wider_squeezenet.bin]",
+    "format": "ncnn",
+    "link":   "https://www.deepdetect.com/models/faces_embedded_ncnn"
+  },
+  {
+    "type":   "ncnn",
     "target": "frozen.pb.cfg.ncnn,frozen.pb.weights.ncnn",
     "source": "https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.cfg.ncnn,https://github.com/00liujj/gen-ncnn-models/raw/master/tests/frozen.pb.weights.ncnn",
     "format": "ncnn",
@@ -2793,13 +2800,6 @@
   },
   {
     "type":   "ncnn",
-    "target": "faces_wider_squeezenet.param,faces_wider_squeezenet.bin",
-    "source": "https://deepdetect.com/models/init/embedded/images/detection/squeezenet_ssd_faces_ncnn.tar.gz[faces_wider_squeezenet.param,faces_wider_squeezenet.bin]",
-    "format": "ncnn",
-    "link":   "https://www.deepdetect.com/models/faces_embedded_ncnn"
-  },
-  {
-    "type":   "ncnn",
     "target": "squeezenet_v1.1.param.bin,squeezenet_v1.1.bin",
     "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.param.bin,https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
     "format": "ncnn",
@@ -2811,6 +2811,13 @@
     "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
     "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
+  },
+  {
+    "type":   "ncnn",
+    "target": "ssdmobilenet.param",
+    "source": "https://github.com/lutzroeder/netron/files/5165601/ssdmobilenet.zip[ssdmobilenet.param]",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/296"
   },
   {
     "type":   "ncnn",

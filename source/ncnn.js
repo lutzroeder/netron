@@ -10,10 +10,15 @@ ncnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            let text = context.text;
+            const decoder = new TextDecoder();
+            let text = decoder.decode(context.buffer);
             text = text.substring(0, Math.min(text.length, 32));
             const signature = text.split('\n').shift().trim();
             if (signature === '7767517') {
+                return true;
+            }
+            const header = signature.split(' ');
+            if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
                 return true;
             }
         }
@@ -45,9 +50,22 @@ ncnn.ModelFactory = class {
     open(context, host) {
         return ncnn.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
-            const param = (param, bin) => {
+            const openBinary = (param, bin) => {
                 try {
-                    return new ncnn.Model(metadata, param, bin);
+                    const reader = new ncnn.BinaryParamReader(metadata, param);
+                    return new ncnn.Model(metadata, reader, bin);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                }
+            };
+            const openText = (param, bin) => {
+                try {
+                    const decoder = new TextDecoder('utf-8');
+                    const text = decoder.decode(param);
+                    const reader = new ncnn.TextParamReader(text);
+                    return new ncnn.Model(metadata, reader, bin);
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
@@ -63,17 +81,17 @@ ncnn.ModelFactory = class {
                     bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
                 }
                 return context.request(bin, null).then((bin) => {
-                    return param(context.text, bin);
+                    return openText(context.buffer, bin);
                 }).catch(() => {
-                    return param(context.text, null);
+                    return openText(context.buffer, null);
                 });
             }
             else if (identifier.endsWith('.param.bin')) {
                 bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
                 return context.request(bin, null).then((bin) => {
-                    return param(context.buffer, bin);
+                    return openBinary(context.buffer, bin);
                 }).catch(() => {
-                    return param(context.buffer, null);
+                    return openBinary(context.buffer, null);
                 });
             }
             else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
@@ -84,8 +102,8 @@ ncnn.ModelFactory = class {
                 else if (identifier.endsWith('.weights.ncnn')) {
                     text = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
                 }
-                return context.request(text, 'utf-8').then((text) => {
-                    return param(text, context.buffer);
+                return context.request(text, null).then((buffer) => {
+                    return openText(buffer, context.buffer);
                 }).catch((error) => {
                     const message = error && error.message ? error.message : error.toString();
                     throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
@@ -118,8 +136,7 @@ ncnn.Graph = class {
         this._outputs = [];
         this._nodes = [];
         const blobReader = new ncnn.BlobReader(bin);
-        const reader = (typeof param == 'string') ? new ncnn.TextParamReader(param) : new ncnn.BinaryParamReader(metadata, param);
-        const layers = reader.layers;
+        const layers = param.layers;
         for (const layer of layers) {
             if (layer.type == 'Input') {
                 const dimensions = layer.attributes.map((a) => !isNaN(parseInt(a.value, 10)) ? parseInt(a.value, 10) : a.value);
@@ -643,15 +660,11 @@ ncnn.TextParamReader = class {
 
     constructor(text) {
         const lines = text.split(/\r?\n/);
-        const signature = lines.shift();
-        if (signature !== '7767517') {
-            throw new ncnn.Error('Invalid signature.');
+        const signature = lines.shift().trim();
+        const header = (signature !== '7767517' ? signature : lines.shift().trim()).split(' ');
+        if (header.length !== 2 || !header.every((value) => value >>> 0 === parseFloat(value))) {
+            throw new ncnn.Error('Invalid header.');
         }
-        const header = lines.shift().split(' ');
-        if (header.length !== 2) {
-            throw new ncnn.Error('Invalid header count.');
-        }
-
         const layers = [];
         while (lines.length > 0) {
             const line = lines.shift().trim();
@@ -666,11 +679,12 @@ ncnn.TextParamReader = class {
                 layer.outputs = columns.splice(0, outputCount);
                 layer.attr = {};
                 layer.attributes = [];
+                let index = 0;
                 for (const column of columns) {
                     const parts = column.split('=');
-                    if (parts.length === 2) {
-                        let key = parts[0].trim();
-                        let value = parts[1].trim();
+                    if (parts.length <= 2) {
+                        let key = (parts.length === 2) ? parts[0].trim() : index.toString();
+                        let value = (parts.length === 2) ? parts[1].trim() : parts[0].trim();
                         const keyInt = parseInt(key, 10);
                         if (keyInt < 0) {
                             value = value.split(',').map((v) => v.trim());
@@ -680,6 +694,7 @@ ncnn.TextParamReader = class {
                         layer.attr[key] = value;
                         layer.attributes.push({ key: key, value: value });
                     }
+                    index++;
                 }
                 layers.push(layer);
             }
