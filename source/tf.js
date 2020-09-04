@@ -1051,6 +1051,40 @@ tf.Tensor = class {
         this._name = name;
         this._kind = kind || null;
         this._tensor = tensor;
+
+        if (Object.prototype.hasOwnProperty.call(tensor, 'tensor_content')) {
+            this._buffer = tensor.tensor_content;
+        }
+        else {
+            switch (tensor.dtype) {
+                case tf.proto.DataType.DT_FLOAT:
+                    this._data = tensor.float_val || null;
+                    break;
+                case tf.proto.DataType.DT_DOUBLE:
+                    this._data = tensor.double_val || null;
+                    break;
+                case tf.proto.DataType.DT_INT8:
+                case tf.proto.DataType.DT_UINT8:
+                case tf.proto.DataType.DT_INT32:
+                    this._data = tensor.int_val || null;
+                    break;
+                case tf.proto.DataType.DT_UINT32:
+                    this._data = tensor.uint32_val || null;
+                    break;
+                case tf.proto.DataType.DT_INT64:
+                    this._data = tensor.int64_val || null;
+                    break;
+                case tf.proto.DataType.DT_UINT64:
+                    this._data = tensor.uint64_val || null;
+                    break;
+                case tf.proto.DataType.DT_BOOL:
+                    this._data = tensor.bool_val || null;
+                    break;
+                case tf.proto.DataType.DT_STRING:
+                    this._data = tensor.string_val || null;
+                    break;
+            }
+        }
     }
 
     get name() {
@@ -1089,7 +1123,7 @@ tf.Tensor = class {
         }
         context.limit = 10000;
         const value = this._decode(context, 0);
-        return JSON.stringify(value, null, 4);
+        return tf.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -1113,57 +1147,28 @@ tf.Tensor = class {
             context.size = context.size * (dim.size ? dim.size : 0);
         }
 
-        switch (this._tensor.dtype) {
-            case 'DT_FLOAT':
-            case tf.proto.DataType.DT_FLOAT:
-                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
-                }
-                else if (this._tensor.float_val && this._tensor.float_val.length == context.size) {
-                    context.data = this._tensor.float_val;
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case tf.proto.DataType.DT_QINT8:
-            case tf.proto.DataType.DT_QUINT8:
-                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case tf.proto.DataType.DT_INT32:
-            case tf.proto.DataType.DT_UINT32:
-                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
-                    context.rawData = new DataView(this._tensor.tensor_content.buffer, this._tensor.tensor_content.byteOffset, this._tensor.tensor_content.byteLength);
-                }
-                else if (this._tensor.int_val && this._tensor.int_val.length == context.size) {
-                    context.data = this._tensor.int_val;
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case tf.proto.DataType.DT_STRING:
-                if (this._tensor.tensor_content && this._tensor.tensor_content.length > 0) {
-                    context.state = 'Tensor data type is not implemented.';
-                }
-                else if (this._tensor.string_val && this._tensor.string_val.length == context.size) {
-                    context.data = this._tensor.string_val;
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case tf.proto.DataType.DT_BOOL:
-                context.state = "Tensor data type 'bool' is not implemented.";
-                break;
-            default:
-                context.state = "Tensor data type '" + this._tensor.dtype + "' is not implemented.";
-                break;
+        if (this._buffer) {
+            switch (this._tensor.dtype) {
+                case tf.proto.DataType.DT_FLOAT:
+                case tf.proto.DataType.DT_DOUBLE:
+                case tf.proto.DataType.DT_QINT8:
+                case tf.proto.DataType.DT_QUINT8:
+                case tf.proto.DataType.DT_INT8:
+                case tf.proto.DataType.DT_UINT8:
+                case tf.proto.DataType.DT_INT32:
+                case tf.proto.DataType.DT_UINT32:
+                case tf.proto.DataType.DT_INT64:
+                case tf.proto.DataType.DT_UINT64:
+                    context.rawData = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+                    break;
+            }
+        }
+        else if (this._data) {
+            context.data = (this._data.length == context.size) ? this._data : ((this._data.length === 1) ? new Array(context.size).fill(this._data[0]) : null);
+        }
+
+        if (!context.data && !context.rawData) {
+            context.state = "Tensor data type '" + this.type.dataType + "' is not implemented.";
         }
 
         context.shape = shape.dim.map((dim) => dim.size);
@@ -1196,6 +1201,21 @@ tf.Tensor = class {
                                 context.index += 4;
                                 context.count++;
                                 break;
+                            case tf.proto.DataType.DT_DOUBLE:
+                                results.push(context.rawData.getFloat64(context.index, true));
+                                context.index += 8;
+                                context.count++;
+                                break;
+                            case tf.proto.DataType.DT_INT8:
+                                results.push(context.rawData.getInt8(context.index));
+                                context.index += 1;
+                                context.count++;
+                                break;
+                            case tf.proto.DataType.DT_UINT8:
+                                results.push(context.rawData.getUint8(context.index));
+                                context.index += 4;
+                                context.count++;
+                                break;
                             case tf.proto.DataType.DT_INT32:
                                 results.push(context.rawData.getInt32(context.index, true));
                                 context.index += 4;
@@ -1204,6 +1224,16 @@ tf.Tensor = class {
                             case tf.proto.DataType.DT_UINT32:
                                 results.push(context.rawData.getUint32(context.index, true));
                                 context.index += 4;
+                                context.count++;
+                                break;
+                            case tf.proto.DataType.DT_INT64:
+                                results.push(context.rawData.getInt64(context.index, true));
+                                context.index += 8;
+                                context.count++;
+                                break;
+                            case tf.proto.DataType.DT_UINT64:
+                                results.push(context.rawData.getUint64(context.index, true));
+                                context.index += 8;
                                 context.count++;
                                 break;
                             case tf.proto.DataType.DT_QINT8:
@@ -1216,6 +1246,8 @@ tf.Tensor = class {
                                 context.index += 1;
                                 context.count++;
                                 break;
+                            default:
+                                throw new tf.Error("Unsupported data type '" + this._tensor.dtype + "'.");
                         }
                     }
                 }
@@ -1250,6 +1282,32 @@ tf.Tensor = class {
             tf.Tensor.dataType['DT_FLOAT'] = 'float32';
         }
         return tf.Tensor.dataType[type] || '?';
+    }
+
+    static _stringify(value, indentation, indent) {
+        if (Array.isArray(value)) {
+            const result = [];
+            result.push(indentation + '[');
+            const items = value.map((item) => tf.Tensor._stringify(item, indentation + indent, indent));
+            if (items.length > 0) {
+                result.push(items.join(',\n'));
+            }
+            result.push(indentation + ']');
+            return result.join('\n');
+        }
+        if (typeof value == 'string') {
+            return indentation + value;
+        }
+        if (value == Infinity) {
+            return indentation + 'Infinity';
+        }
+        if (value == -Infinity) {
+            return indentation + '-Infinity';
+        }
+        if (isNaN(value)) {
+            return indentation + 'NaN';
+        }
+        return indentation + value.toString();
     }
 };
 
