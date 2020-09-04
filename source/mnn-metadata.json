@@ -748,8 +748,7 @@
   {
     "name": "ConvertTensor",
     "schema": {
-      "operator": 129,
-      "category": "Tensor"
+      "operator": 129
     }
   },
   {
@@ -832,8 +831,7 @@
   {
     "name": "Int8ToFloat",
     "schema": {
-      "operator": 514,
-      "category": "Transform"
+      "operator": 514
     }
   },
   {
@@ -853,8 +851,7 @@
   {
     "name": "FloatToInt8",
     "schema": {
-      "operator": 517,
-      "category": "Transform"
+      "operator": 517
     }
   }
 ]
