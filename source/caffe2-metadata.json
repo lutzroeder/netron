@@ -19050,5 +19050,81 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "TTSparseLengthsSumGradient",
+    "schema": {
+      "description": null,
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "TTSparseLengthsSum",
+    "schema": {
+      "attributes": [
+        {
+          "description": "vector<int>: factorization of voc size",
+          "name": "factor_i",
+          "option": "optional"
+        },
+        {
+          "description": "vector<int>: factorization of emb size",
+          "name": "factor_j",
+          "option": "optional"
+        },
+        {
+          "description": "int[] Ranks of cores",
+          "name": "ranks",
+          "option": "optional"
+        },
+        {
+          "description": "int: the size of each embedding entry",
+          "name": "emb_size",
+          "option": "optional"
+        }
+      ],
+      "description": "\nThis operator introduce a new, parameter efficient embedding layer, termed TT embedding, which\ncan be plugged in into any model and trained end-to-end. The benefits of our compressed TT layer\nare twofold. Firstly, instead of storing huge embedding matrix, it stores a sequence of much smaller\n2-dimensional and 3-dimensional tensors, necessary for reconstructing the required embeddings,\nwhich allows compressing the model significantly at the cost of a negligible performance drop.\nSecondly, the overall number of parameters can be relatively small (and constant) during the whole\ntraining stage, which allows to use larger batches or train efficiently in a case of limited resources.\n",
+      "inputs": [
+        {
+          "description": "tensor core 0",
+          "name": "core0"
+        },
+        {
+          "description": "tensor core 1",
+          "name": "core1"
+        },
+        {
+          "description": "tensor core 2",
+          "name": "core2"
+        },
+        {
+          "description": "index for embedding",
+          "name": "index"
+        },
+        {
+          "description": "segment lengths",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Aggregated tensor",
+          "name": "OUTPUT"
+        },
+        {
+          "description": "intermediate mm result from core0 for backward path",
+          "name": "core0_output"
+        },
+        {
+          "description": "intermediate mm result from core1 for backward path",
+          "name": "core1_output"
+        },
+        {
+          "description": "the index for each core",
+          "name": "indices"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
