@@ -3909,8 +3909,8 @@
   {
     "type":   "pytorch",
     "target": "densenet161-8d451a50.pth",
-    "format": "PyTorch v0.1.10",
-    "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth"
+    "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth",
+    "format": "PyTorch v0.1.10"
   },
   {
     "type":   "pytorch",
@@ -4316,6 +4316,13 @@
     "source": "https://raw.githubusercontent.com/KinglittleQ/SuperPoint_SLAM/master/superpoint.pt",
     "format": "TorchScript v1.0",
     "link":   "https://github.com/KinglittleQ/SuperPoint_SLAM"
+  },
+  {
+    "type":   "pytorch",
+    "target": "traced_fft.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5172197/traced_fft.zip[traced_fft.pt]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
   },
   {
     "type":   "pytorch",

@@ -3797,5 +3797,20 @@
         { "name": "output", "type": "tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.fft",
+    "schema": {
+      "attributes": [
+        { "name": "signal_ndim", "type": "int64" },
+        { "name": "normalized", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
   }
 ]
