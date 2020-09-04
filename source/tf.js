@@ -4,6 +4,7 @@
 
 var tf = tf || {};
 var base = base || require('./base');
+var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
 
 tf.ModelFactory = class {
@@ -63,14 +64,9 @@ tf.ModelFactory = class {
             }
         }
         if (extension === 'json') {
-            try {
-                const root = JSON.parse(context.text);
-                if (root && root.format && root.format === 'graph-model' && root.modelTopology) {
-                    return true;
-                }
-            }
-            catch (err) {
-                // continue regardless of error
+            const tags = context.tags('json');
+            if (tags.has('format') && tags.get('format') === 'graph-model' && tags.has('modelTopology')) {
+                return true;
             }
         }
         if (extension === 'index' || extension === 'ckpt') {
@@ -100,7 +96,8 @@ tf.ModelFactory = class {
                 }
                 case 'json': {
                     try {
-                        const root = JSON.parse(context.text);
+                        const reader = json.TextReader.create(context.buffer);
+                        const root = reader.read();
                         const graph_def = new tf.proto.GraphDef();
                         const meta_graph = new tf.proto.MetaGraphDef();
                         meta_graph.graph_def = graph_def;

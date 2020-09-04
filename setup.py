@@ -90,7 +90,7 @@ setuptools.setup(
     package_data={
         'netron': [ 
             'favicon.ico', 'icon.png',
-            'base.js', 'protobuf.js', 'flatbuffers.js',
+            'base.js', 'json.js', 'protobuf.js', 'flatbuffers.js',
             'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
             'zip.js', 'tar.js', 'gzip.js',
             'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',

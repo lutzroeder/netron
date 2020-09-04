@@ -6,6 +6,7 @@ var base = base || require('./base');
 var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
+var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
 
 var d3 = d3 || require('d3');
@@ -1032,13 +1033,6 @@ class ModelContext {
         return this._context.buffer;
     }
 
-    get text() {
-        if (!this._text) {
-            this._text = new TextDecoder('utf-8', { fatal: true }).decode(this.buffer);
-        }
-        return this._text;
-    }
-
     entries(extension) {
         let entries = this._entries.get(extension);
         if (!entries) {
@@ -1127,6 +1121,23 @@ class ModelContext {
                             }
                         }
                         break;
+                    }
+                    case 'json': {
+                        const reader = json.TextReader.create(this.buffer);
+                        const obj = reader.read();
+                        if (!Array.isArray(obj)) {
+                            for (const key in obj) {
+                                const value = obj[key];
+                                tags.set(key, value !== Object(value) ? value : true);
+                            }
+                        }
+                        else {
+                            for (const item of obj) {
+                                for (const key in item) {
+                                    tags.set('[].' + key, true);
+                                }
+                            }
+                        }
                     }
                 }
             }

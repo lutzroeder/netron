@@ -2,6 +2,7 @@
 /* jshint esversion: 6 */
 
 var flatbuffers = {};
+var json = json || require('./json');
 
 flatbuffers.get = (name) => {
     flatbuffers._map = flatbuffers._map || new Map();
@@ -294,8 +295,9 @@ flatbuffers.Reader = class {
 
 flatbuffers.TextReader = class {
 
-    constructor(text) {
-        this._root = JSON.parse(text);
+    constructor(buffer) {
+        const reader = json.TextReader.create(buffer);
+        this._root = reader.read();
     }
 
     get root() {

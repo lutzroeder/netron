@@ -10,6 +10,7 @@ const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
 const url = require('url');
+const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
 const sidebar = require('../source/view-sidebar.js');
@@ -22,6 +23,7 @@ const xmldom = require('xmldom');
 
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
+global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
 global.DOMParser = xmldom.DOMParser;

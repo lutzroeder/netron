@@ -52,9 +52,13 @@ openvino.ModelFactory = class {
         switch (extension) {
             case 'xml':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((bin) => {
-                    return this._openModel(identifier, host, context.text, bin);
+                    const decoder = new TextDecoder('utf-8');
+                    const xml = decoder.decode(context.buffer);
+                    return this._openModel(identifier, host, xml, bin);
                 }).catch(() => {
-                    return this._openModel(identifier, host, context.text, null);
+                    const decoder = new TextDecoder('utf-8');
+                    const xml = decoder.decode(context.buffer);
+                    return this._openModel(identifier, host, xml, null);
                 });
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {

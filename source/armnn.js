@@ -11,18 +11,8 @@ armnn.ModelFactory = class {
             return true;
         }
         if (extension === 'json') {
-            const contains = (buffer, text, length) => {
-                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
-                const match = Array.from(text).map((c) => c.charCodeAt(0));
-                for (let i = 0; i < length; i++) {
-                    if (match.every((c, index) => buffer[i + index] === c)) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-            const buffer = context.buffer;
-            if (contains(buffer, '"layers"') && contains(buffer, '"layer_type"')) {
+            const tags = context.tags('json');
+            if (tags.has('layers') && tags.has('inputIds') && tags.has('outputIds')) {
                 return true;
             }
         }
@@ -43,7 +33,7 @@ armnn.ModelFactory = class {
                         break;
                     }
                     case 'json': {
-                        const reader = new flatbuffers.TextReader(context.text);
+                        const reader = new flatbuffers.TextReader(context.buffer);
                         model = armnn.schema.SerializedGraph.createText(reader);
                         break;
                     }

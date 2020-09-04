@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var mxnet = mxnet || {};
+var json = json || require('./json');
 var zip = zip || require('./zip');
 var ndarray = ndarray || {};
 
@@ -15,26 +16,9 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'json') {
-            const contains = (buffer, text, length) => {
-                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
-                const match = Array.from(text).map((c) => c.charCodeAt(0));
-                for (let i = 0; i < length; i++) {
-                    if (match.every((c, index) => buffer[i + index] === c)) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-            if (contains(context.buffer, '"nodes":')) {
-                try {
-                    const symbol = JSON.parse(context.text);
-                    if (symbol && symbol.nodes && symbol.arg_nodes && symbol.heads) {
-                        return true;
-                    }
-                }
-                catch (err) {
-                    // continue regardless of error
-                }
+            const tags = context.tags('json');
+            if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
+                return true;
             }
         }
         else if (extension == 'params') {
@@ -57,7 +41,8 @@ mxnet.ModelFactory = class {
         switch (extension) {
             case 'json':
                 try {
-                    symbol = JSON.parse(context.text);
+                    const reader = json.TextReader.create(context.buffer);
+                    symbol = reader.read();
                     if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                         format  = 'TVM';
                     }

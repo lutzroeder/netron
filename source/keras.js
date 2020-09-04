@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var keras = keras || {};
+var json = json || require('./json');
 
 keras.ModelFactory = class {
 
@@ -13,38 +14,21 @@ keras.ModelFactory = class {
             return buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i]);
         }
         if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
-            const contains = (buffer, text, length) => {
-                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
-                const match = Array.from(text).map((c) => c.charCodeAt(0));
-                for (let i = 0; i < length; i++) {
-                    if (match.every((c, index) => buffer[i + index] === c)) {
-                        return true;
-                    }
-                }
+            const tags = context.tags('json');
+            if (tags.has('mxnet_version')) {
                 return false;
-            };
-            if (!contains(context.buffer, '"mxnet_version":')) {
-                try {
-                    let root = keras.JsonParser.parse(context.text);
-                    if (root && root.nodes && root.arg_nodes && root.heads) {
-                        return false;
-                    }
-                    if (root && root.modelTopology) {
-                        root = root.modelTopology;
-                    }
-                    if (root && root.model_config) {
-                        root = root.model_config;
-                    }
-                    if (root && root.class_name) {
-                        return true;
-                    }
-                    if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
-                        return true;
-                    }
-                }
-                catch (err) {
-                    // continue regardless of error
-                }
+            }
+            if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
+                return false;
+            }
+            if (tags.has('modelTopology')) {
+                return true;
+            }
+            if (tags.has('model_config') || (tags.has('class_name') && tags.has('config'))) {
+                return true;
+            }
+            if (tags.has('[].weights') && tags.has('[].paths')) {
+                return true;
             }
         }
         return false;
@@ -71,9 +55,10 @@ keras.ModelFactory = class {
                         const file = new hdf5.File(context.buffer);
                         rootGroup = file.rootGroup;
                         if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
-                            const json = rootGroup.attribute('model_config');
-                            if (json) {
-                                model_config = keras.JsonParser.parse(json);
+                            const model_config_json = rootGroup.attribute('model_config');
+                            if (model_config_json) {
+                                const reader = json.TextReader.create(model_config_json);
+                                model_config = reader.read();
                             }
                             backend = rootGroup.attribute('backend') || '';
                             const version = rootGroup.attribute('keras_version') || '';
@@ -191,7 +176,8 @@ keras.ModelFactory = class {
                         break;
                     }
                     case 'json': {
-                        const root = keras.JsonParser.parse(context.text);
+                        const reader = json.TextReader.create(context.buffer);
+                        const root = reader.read();
                         if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
                             format = 'TensorFlow.js Weights';
                             rootGroup = {};
@@ -1159,214 +1145,6 @@ keras.Group = class {
 
     get value() {
         return this._group.value;
-    }
-};
-
-keras.JsonParser = class {
-
-    static parse(text) {
-        if (text && (text.indexOf('NaN') !== -1 || text.indexOf('Infinity') !== -1)) {
-            try {
-                return JSON.parse(text);
-            }
-            catch (err) {
-                try {
-                    return new keras.JsonParser(text)._read();
-                }
-                catch (err) {
-                    // continue regardless of error
-                }
-            }
-        }
-        return JSON.parse(text);
-    }
-
-    constructor(text) {
-        this._text = text;
-        this._position = 0;
-        this._ch = ' ';
-        this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
-    }
-
-    _read() {
-        const result = this._value();
-        this._whitespace();
-        if (this._ch) {
-            this._error("Syntax error");
-        }
-        return result;
-    }
-
-    _next() {
-        return this._ch = this._text.charAt(this._position++);
-    }
-
-    _expect(text) {
-        for (let i = 0; i < text.length; i++) {
-            if (text[i] !== this._ch) {
-                this._error("Expected '" + text[i] + "' instead of '" + this._ch + "'");
-            }
-            this._ch = this._text.charAt(this._position++);
-        }
-    }
-
-    _whitespace() {
-        while (this._ch && this._ch <= ' ') {
-            this._next();
-        }
-    }
-
-    _number() {
-        let value = '';
-        if (this._ch === '-') {
-            value = '-';
-            this._expect('-');
-        }
-        if (this._ch === 'I') {
-            this._expect('Infinity');
-            return -Infinity;
-        }
-        while (this._ch >= '0' && this._ch <= '9') {
-            value += this._ch;
-            this._next();
-        }
-        if (this._ch === '.') {
-            value += '.';
-            while (this._next() && this._ch >= '0' && this._ch <= '9') {
-                value += this._ch;
-            }
-        }
-        if (this._ch === 'e' || this._ch === 'E') {
-            value += this._ch;
-            this._next();
-            if (this._ch === '-' || this._ch === '+') {
-                value += this._ch;
-                this._next();
-            }
-            while (this._ch >= '0' && this._ch <= '9') {
-                value += this._ch;
-                this._next();
-            }
-        }
-        return +value;
-    }
-
-    _string() {
-        let hex;
-        let i;
-        let value = '';
-        let uffff;
-        if (this._ch === '"') {
-            while (this._next()) {
-                if (this._ch === '"') {
-                    this._next();
-                    return value;
-                }
-                if (this._ch === '\\') {
-                    this._next();
-                    if (this._ch === 'u') {
-                        uffff = 0;
-                        for (i = 0; i < 4; i ++) {
-                            hex = parseInt(this._next(), 16);
-                            if (!isFinite(hex)) {
-                                break;
-                            }
-                            uffff = uffff * 16 + hex;
-                        }
-                        value += String.fromCharCode(uffff);
-                    }
-                    else if (this._escape[this._ch]) {
-                        value += this._escape[this._ch];
-                    }
-                    else {
-                        break;
-                    }
-                }
-                else {
-                    value += this._ch;
-                }
-            }
-        }
-        this._error("Invalid string");
-    }
-
-    _literal() {
-        switch (this._ch) {
-            case 't': this._expect('true'); return true;
-            case 'f': this._expect('false'); return false;
-            case 'n': this._expect('null'); return null;
-            case 'N': this._expect('NaN'); return NaN;
-            case 'I': this._expect('Infinity'); return Infinity;
-        }
-        this._error("Unexpected '" + this._ch + "'");
-    }
-
-    _array() {
-        const arr = [];
-        if (this._ch === '[') {
-            this._expect('[');
-            this._whitespace();
-            if (this._ch === ']') {
-                this._expect(']');
-                return arr;
-            }
-            while (this._ch) {
-                arr.push(this._value());
-                this._whitespace();
-                if (this._ch === ']') {
-                    this._expect(']');
-                    return arr;
-                }
-                this._expect(',');
-                this._whitespace();
-            }
-        }
-        this._error("Invalid array");
-    }
-
-    _object() {
-        let key;
-        const obj = {};
-        if (this._ch === '{') {
-            this._expect('{');
-            this._whitespace();
-            if (this._ch === '}') {
-                this._expect('}');
-                return obj;   // empty object
-            }
-            while (this._ch) {
-                key = this._string();
-                this._whitespace();
-                this._expect(':');
-                if (Object.prototype.hasOwnProperty.call(obj, key)) {
-                    this._error('Duplicate key "' + key + '"');
-                }
-                obj[key] = this._value();
-                this._whitespace();
-                if (this._ch === '}') {
-                    this._expect('}');
-                    return obj;
-                }
-                this._expect(',');
-                this._whitespace();
-            }
-        }
-        this._error("Invalid object");
-    }
-
-    _value() {
-        this._whitespace();
-        switch (this._ch) {
-            case '{': return this._object();
-            case '[': return this._array();
-            case '"': return this._string();
-            case '-': return this._number();
-            default:  return this._ch >= '0' && this._ch <= '9' ? this._number() : this._literal();
-        }
-    }
-
-    _error(message) {
-        throw new Error(message + ' at ' + this._position + '.');
     }
 };
 

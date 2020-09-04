@@ -31,9 +31,13 @@ darknet.ModelFactory = class {
             parts.pop();
             const basename = parts.join('.');
             return context.request(basename + '.weights', null).then((weights) => {
-                return this._openModel(metadata, identifier, context.text, weights);
+                const decoder = new TextDecoder();
+                const text = decoder.decode(context.buffer);
+                return this._openModel(metadata, identifier, text, weights);
             }).catch(() => {
-                return this._openModel(metadata, identifier, context.text, null);
+                const decoder = new TextDecoder();
+                const text = decoder.decode(context.buffer);
+                return this._openModel(metadata, identifier, text, null);
             });
         });
     }

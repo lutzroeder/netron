@@ -7,7 +7,8 @@ tnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
-            let text = context.text;
+            const decoder = new TextDecoder('utf-8');
+            let text = decoder.decode(context.buffer);
             text = text.substring(0, Math.min(text.length, 128));
             const line = text.split('\n').shift().trim();
             if (line.startsWith('"') && line.endsWith('"')) {
@@ -35,9 +36,9 @@ tnn.ModelFactory = class {
             if (identifier.endsWith('.tnnproto')) {
                 const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
                 return context.request(tnnmodel, null).then((tnnmodel) => {
-                    return new tnn.Model(metadata, context.text, tnnmodel);
+                    return new tnn.Model(metadata, context.buffer, tnnmodel);
                 }).catch(() => {
-                    return new tnn.Model(metadata, context.text, null);
+                    return new tnn.Model(metadata, context.buffer, null);
                 }).catch((error) => {
                     const message = error && error.message ? error.message : error.toString();
                     throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
@@ -45,8 +46,8 @@ tnn.ModelFactory = class {
             }
             else if (identifier.endsWith('.tnnmodel')) {
                 const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                return context.request(tnnproto, 'utf-8').then((text) => {
-                    return new tnn.Model(metadata, text, context.buffer);
+                return context.request(tnnproto, null).then((buffer) => {
+                    return new tnn.Model(metadata, buffer, context.buffer);
                 }).catch((error) => {
                     const message = error && error.message ? error.message : error.toString();
                     throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
@@ -626,7 +627,9 @@ tnn.Metadata = class {
 
 tnn.TextProtoReader = class {
 
-    constructor(text) {
+    constructor(buffer) {
+        const decoder = new TextDecoder();
+        const text = decoder.decode(buffer);
         const split = (line, delimiter, trim, ignore_blank) => {
             return line.split(delimiter).map((v) => trim ? v.trim() : v).filter((v) => !ignore_blank || v);
         };
