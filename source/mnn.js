@@ -159,7 +159,10 @@ mnn.Node = class {
                 const type = new mnn.TensorType(parameter.dataType, new mnn.TensorShape(parameter.dims));
                 let data = null;
                 switch (type.dataType) {
+                    case 'uint8': data = parameter.uint8s; break;
+                    case 'int8': data = parameter.int8s; break;
                     case 'int32': data = parameter.int32s; break;
+                    case 'int64': data = parameter.int64s; break;
                     case 'float32': data = parameter.float32s; break;
                     default:
                         throw new mnn.Error("Unknown blob data type '" + JSON.stringify(type.dataType) + "'.");
