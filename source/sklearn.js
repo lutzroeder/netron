@@ -1104,7 +1104,6 @@ sklearn.Container = class {
             return { start: start, stop: stop, step: step };
         };
         functionTable['cloudpickle.cloudpickle._builtin_type'] = function(name) {
-            console.log("  XXXXX");
             return name;
         };
         functionTable['collections.Counter'] = function(/* iterable */) {
