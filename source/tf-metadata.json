@@ -27171,6 +27171,11 @@
           "type": "int64"
         },
         {
+          "default": 0,
+          "name": "ram_budget",
+          "type": "int64"
+        },
+        {
           "minimum": 1,
           "name": "output_types",
           "type": "type[]"
