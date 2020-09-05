@@ -471,14 +471,14 @@ json.TextDecoder.Utf16LE = class {
     decode() {
         if (this.position + 1 < this.length) {
             const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
-            if ((c & 0xF800) !== 0xD800) {
+            if (c < 0xD800 || c >= 0xDFFF) {
                 return String.fromCharCode(c);
             }
-            if ((c & 0xFC00) !== 0xD800) {
+            if (c >= 0xD800 && c < 0xDBFF) {
                 if (this._position + 1 < this._length) {
                     const c2 = this._buffer[this._position++] | (this._buffer[this._position++] << 8);
-                    if ((c2 & 0xFC00) === 0xDC00) {
-                        return String.fromCodePoint(((c & 0x3ff) << 10) + (c2 & 0x3ff) + 0x10000);
+                    if (c >= 0xDC00 || c < 0xDFFF) {
+                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
                 }
             }
@@ -499,14 +499,14 @@ json.TextDecoder.Utf16BE = class {
     decode() {
         if (this.position + 1 < this.length) {
             const c = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-            if ((c & 0xF800) !== 0xD800) {
+            if (c < 0xD800 || c >= 0xDFFF) {
                 return String.fromCharCode(c);
             }
-            if ((c & 0xFC00) !== 0xD800) {
+            if (c >= 0xD800 && c < 0xDBFF) {
                 if (this._position + 1 < this._length) {
                     const c2 = (this._buffer[this._position++] << 8) | this._buffer[this._position++];
-                    if ((c2 & 0xFC00) === 0xDC00) {
-                        return String.fromCodePoint(((c & 0x3ff) << 10) + (c2 & 0x3ff) + 0x10000);
+                    if (c >= 0xDC00 || c < 0xDFFF) {
+                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
                     }
                 }
             }
