@@ -1102,14 +1102,13 @@ class ModelContext {
                         break;
                     }
                     case 'pb': {
-                        const types = new Set([ 0, 1, 2, 3, 5 ]);
                         const reader = protobuf.Reader.create(this.buffer);
                         const end = reader.next();
                         while (reader.pos < end) {
                             const tag = reader.uint32();
                             const number = tag >>> 3;
                             const type = tag & 7;
-                            if (!types.has(type & 7) || number === 0) {
+                            if (type > 5 || number === 0) {
                                 tags = new Map();
                                 break;
                             }
@@ -1129,8 +1128,7 @@ class ModelContext {
                         const obj = reader.read();
                         if (!Array.isArray(obj)) {
                             for (const key in obj) {
-                                const value = obj[key];
-                                tags.set(key, value !== Object(value) && value !== null ? value : true);
+                                tags.set(key, key === 'format' && obj[key] === 'graph-model' ? obj[key] : true);
                             }
                         }
                         else {
@@ -1298,7 +1296,7 @@ view.ModelFactoryService = class {
                             const tags = context.tags(format.extension);
                             if (tags.size > 0) {
                                 const content = Array.from(tags).map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                                throw new ModelError("Unsupported " + format.name + " content '" + content + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                                throw new ModelError("Unsupported " + format.name + " content '" + (content.length > 100 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
                             }
                         }
                         const buffer = context.buffer;

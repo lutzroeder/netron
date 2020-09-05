@@ -21,6 +21,9 @@ keras.ModelFactory = class {
             if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
                 return false;
             }
+            if (tags.has('format') && tags.get('format') === 'graph-model' && tags.has('modelTopology')) {
+                return false;
+            }
             if (tags.has('modelTopology')) {
                 return true;
             }
