@@ -706,6 +706,77 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
 $root.caffe2.TensorBoundShapes.prototype.max_batch_size = protobuf.Int64.create(0);
 $root.caffe2.TensorBoundShapes.prototype.max_feature_len = protobuf.Int64.create(0);
 
+$root.caffe2.AOTConfig = class AOTConfig {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.caffe2.AOTConfig();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.max_batch_size = reader.int64();
+                    break;
+                case 2:
+                    message.max_seq_size = reader.int64();
+                    break;
+                case 3:
+                    message.in_batch_broadcast = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'max_batch_size')) {
+            throw new protobuf.Error("Excepted 'max_batch_size'.");
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'max_seq_size')) {
+            throw new protobuf.Error("Excepted 'max_seq_size'.");
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, 'in_batch_broadcast')) {
+            throw new protobuf.Error("Excepted 'in_batch_broadcast'.");
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.caffe2.AOTConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "max_batch_size":
+                    message.max_batch_size = reader.integer();
+                    break;
+                case "max_seq_size":
+                    message.max_seq_size = reader.integer();
+                    break;
+                case "in_batch_broadcast":
+                    message.in_batch_broadcast = reader.boolean();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        if (!Object.prototype.hasOwnProperty.call(message, "max_batch_size"))
+            throw new protobuf.Error("Excepted 'max_batch_size'.");
+        if (!Object.prototype.hasOwnProperty.call(message, "max_seq_size"))
+            throw new protobuf.Error("Excepted 'max_seq_size'.");
+        if (!Object.prototype.hasOwnProperty.call(message, "in_batch_broadcast"))
+            throw new protobuf.Error("Excepted 'in_batch_broadcast'.");
+        return message;
+    }
+};
+
+$root.caffe2.AOTConfig.prototype.max_batch_size = protobuf.Int64.create(0);
+$root.caffe2.AOTConfig.prototype.max_seq_size = protobuf.Int64.create(0);
+$root.caffe2.AOTConfig.prototype.in_batch_broadcast = false;
+
 $root.caffe2.Argument = class Argument {
 
     constructor() {
