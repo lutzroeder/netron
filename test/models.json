@@ -2341,13 +2341,6 @@
   },
   {
     "type":   "mlnet",
-    "target": "MLSentimentModel.zip",
-    "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/end-to-end-apps/ScalableSentimentAnalysisBlazorWebApp/BlazorSentimentAnalysis.Server/ML/MLSentimentModel.zip",
-    "format": "ML.NET v1.0.0.0",
-    "link":   "https://github.com/dotnet/machinelearning-samples"
-  },
-  {
-    "type":   "mlnet",
     "target": "ngram.zip",
     "source": "https://github.com/lutzroeder/netron/files/4216079/ngram.zip?raw=true",
     "format": "ML.NET v3.10.29.504",
@@ -2406,7 +2399,7 @@
     "type":   "mlnet",
     "target": "TaxiFareModel.zip",
     "source": "https://raw.githubusercontent.com/dotnet/machinelearning-samples/master/samples/csharp/getting-started/Regression_AutoML/TaxiFarePrediction/MLModels/TaxiFareModel.zip",
-    "format": "ML.NET v1.0.27701.1",
+    "format": "ML.NET v1.5.28926.5",
     "link":   "https://github.com/dotnet/machinelearning-samples"
   },
   {
