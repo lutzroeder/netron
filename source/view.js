@@ -1102,18 +1102,20 @@ class ModelContext {
                         break;
                     }
                     case 'pb': {
-                        const tagTypes = new Set([ 0, 1, 2, 3, 5 ]);
+                        const types = new Set([ 0, 1, 2, 3, 5 ]);
                         const reader = protobuf.Reader.create(this.buffer);
                         const end = reader.next();
                         while (reader.pos < end) {
-                            const tagType = reader.uint32();
-                            tags.set(tagType >>> 3, tagType & 7);
-                            if (!tagTypes.has(tagType & 7)) {
+                            const tag = reader.uint32();
+                            const number = tag >>> 3;
+                            const type = tag & 7;
+                            if (!types.has(type & 7) || number === 0) {
                                 tags = new Map();
                                 break;
                             }
+                            tags.set(number, type);
                             try {
-                                reader.skipType(tagType & 7);
+                                reader.skipType(type);
                             }
                             catch (err) {
                                 tags = new Map();
@@ -1128,7 +1130,7 @@ class ModelContext {
                         if (!Array.isArray(obj)) {
                             for (const key in obj) {
                                 const value = obj[key];
-                                tags.set(key, value !== Object(value) ? value : true);
+                                tags.set(key, value !== Object(value) && value !== null ? value : true);
                             }
                         }
                         else {
@@ -1287,6 +1289,18 @@ view.ModelFactoryService = class {
                             'output_0.pb'
                         ]);
                         const skip = knownUnsupportedIdentifiers.has(identifier);
+                        const formats = [
+                            { extension: 'pb', name: 'Protocol Buffers' },
+                            { extension: 'pbtxt', name: 'Protocol Buffers text' },
+                            { extension: 'json', name: 'JSON' }
+                        ];
+                        for (const format of formats) {
+                            const tags = context.tags(format.extension);
+                            if (tags.size > 0) {
+                                const content = Array.from(tags).map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
+                                throw new ModelError("Unsupported " + format.name + " content '" + content + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                            }
+                        }
                         const buffer = context.buffer;
                         const bytes = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
                         const content = buffer.length > 268435456 ? '(' + bytes + ') [' + buffer.length.toString() + ']': '(' + bytes + ')';

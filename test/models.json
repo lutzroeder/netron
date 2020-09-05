@@ -788,7 +788,7 @@
     "type":   "caffe2",
     "target": "ops/ops.pbtxt",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
-    "error":  "Unsupported file content (6f70207b0a20206e616d653a20224162) for extension '.pbtxt' in 'ops.pbtxt'.",
+    "error":  "Unsupported Protocol Buffers text content 'op' for extension '.pbtxt' in 'ops.pbtxt'.",
     "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/ops/ops.pbtxt"
   },
   {

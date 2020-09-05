@@ -51,16 +51,8 @@ tf.ModelFactory = class {
                     return true;
                 }
             }
-            else {
-                // ignore input_0.pb, output_0.pb
-                if (tags.has(1) && tags.get(1) === 0 &&
-                    tags.has(2) && tags.get(2) === 0 &&
-                    tags.has(9) && tags.get(9) === 2) {
-                    return false;
-                }
-                if (!Array.from(tags.values()).some((v) => v === 5)) {
-                    return true;
-                }
+            else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
+                return true;
             }
         }
         if (extension === 'json') {
