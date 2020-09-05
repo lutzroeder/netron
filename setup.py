@@ -91,7 +91,7 @@ setuptools.setup(
         'netron': [ 
             'favicon.ico', 'icon.png',
             'base.js', 'json.js', 'protobuf.js', 'flatbuffers.js',
-            'numpy.js', 'pickle.js', 'hdf5.js', 'bson.js',
+            'numpy.js', 'pickle.js', 'hdf5.js',
             'zip.js', 'tar.js', 'gzip.js',
             'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',
             'bigdl.js', 'bigdl-metadata.json', 'bigdl-proto.js',

@@ -3,6 +3,7 @@
 // Experimental
 
 var flux = flux || {};
+var json = json || require('./json');
 
 flux.ModelFactory = class {
 
@@ -16,31 +17,29 @@ flux.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./bson').then((bson) => {
-            let model = null;
-            const identifier = context.identifier;
+        let model = null;
+        const identifier = context.identifier;
+        try {
+            const reader = json.BinaryReader.create(context.buffer);
+            const root = reader.read();
+            const obj = flux.ModelFactory._backref(root, root);
+            model = obj.model;
+            if (!model) {
+                throw new flux.Error('File does not contain Flux model.');
+            }
+        }
+        catch (error) {
+            const message = error && error.message ? error.message : error.toString();
+            throw new flux.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+        }
+        return flux.Metadata.open(host).then((metadata) => {
             try {
-                const reader = new bson.Reader(context.buffer);
-                const root = reader.read();
-                const obj = flux.ModelFactory._backref(root, root);
-                model = obj.model;
-                if (!model) {
-                    throw new flux.Error('File does not contain Flux model.');
-                }
+                return new flux.Model(metadata, model);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new flux.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
             }
-            return flux.Metadata.open(host).then((metadata) => {
-                try {
-                    return new flux.Model(metadata, model);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new flux.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
-            });
         });
     }
 

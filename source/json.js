@@ -516,15 +516,160 @@ json.TextDecoder.Utf16BE = class {
     }
 };
 
+json.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+    }
+
+    static create(buffer) {
+        return new json.BinaryReader(buffer);
+    }
+
+    read() {
+        const buffer = this._buffer;
+        const length = buffer.length;
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        const asciiDecoder = new TextDecoder('ascii');
+        const utf8Decoder = new TextDecoder('utf-8');
+        let position = 0;
+        const skip = (offset) => {
+            position += offset;
+            if (position > length) {
+                throw new json.Error('Expected ' + (position + length) + ' more bytes. The file might be corrupted. Unexpected end of file.', true);
+            }
+        };
+        const header = () => {
+            const start = position;
+            skip(4);
+            const size = view.getInt32(start, 4);
+            if (size < 5 || start + size > length || buffer[start + size - 1] != 0x00) {
+                throw new json.Error('Invalid file size.', true);
+            }
+        };
+        header();
+        const stack = [];
+        let obj = {};
+        for (;;) {
+            skip(1);
+            const type = buffer[position - 1];
+            if (type == 0x00) {
+                if (stack.length === 0) {
+                    break;
+                }
+                obj = stack.pop();
+                continue;
+            }
+
+            const start = position;
+            position = buffer.indexOf(0x00, start) + 1;
+            const key = asciiDecoder.decode(buffer.subarray(start, position - 1));
+
+            let value = null;
+            switch (type) {
+                case 0x01: { // float64
+                    const start = position;
+                    skip(8);
+                    value = view.getFloat64(start, true);
+                    break;
+                }
+                case 0x02: { // string
+                    skip(4);
+                    const size = view.getInt32(position - 4, true);
+                    const start = position;
+                    skip(size);
+                    value = utf8Decoder.decode(buffer.subarray(start, position - 1));
+                    if (buffer[position - 1] != '0x00') {
+                        throw new json.Error('String missing terminal 0.', true);
+                    }
+                    break;
+                }
+                case 0x03: { // object
+                    header();
+                    value = {};
+                    break;
+                }
+                case 0x04: { // array
+                    header();
+                    value = [];
+                    break;
+                }
+                case 0x05: { // bytes
+                    const start = position;
+                    skip(5);
+                    const size = view.getInt32(start, true);
+                    const subtype = buffer[start + 4];
+                    if (subtype !== 0x00) {
+                        throw new json.Error("Unknown binary subtype '" + subtype + "'.", true);
+                    }
+                    skip(size);
+                    value = buffer.subarray(start + 5, position);
+                    break;
+                }
+                case 0x08: { // boolean
+                    skip(1);
+                    value = buffer[position - 1];
+                    if (value > 1) {
+                        throw new json.Error("Invalid boolean value '" + value + "'.", true);
+                    }
+                    value = value === 1 ? true : false;
+                    break;
+                }
+                case 0x0A:
+                    value = null;
+                    break;
+                case 0x10: {
+                    const start = position;
+                    skip(4);
+                    value = view.getInt32(start, true);
+                    break;
+                }
+                case 0x11: { // uint64
+                    const start = position;
+                    skip(8);
+                    value = view.getUint64(start, true).toNumber();
+                    break;
+                }
+                case 0x12: { // int64
+                    const start = position;
+                    skip(8);
+                    value = view.getInt64(start, true).toNumber();
+                    break;
+                }
+                default:
+                    throw new json.Error("Unknown value type '" + type + "'.", true);
+            }
+            if (Array.isArray(obj))  {
+                if (obj.length !== parseInt(key, 10)) {
+                    throw new json.Error("Invalid array index '" + key + "'.", true);
+                }
+                obj.push(value);
+            }
+            else {
+                obj[key] = value;
+            }
+            if (type === 0x03 || type === 0x04) {
+                stack.push(obj);
+                obj = value;
+            }
+        }
+        if (position !== length) {
+            throw new json.Error("Unexpected data at '" + position.toString() + "'.", true);
+        }
+        return obj;
+    }
+};
+
 json.Error = class extends Error {
 
-    constructor(message) {
+    constructor(message, binary) {
         super(message);
-        this.name = 'JSON Error';
+        this.name = binary ? 'BSON Error' : 'JSON Error';
     }
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.TextReader = json.TextReader;
     module.exports.TextDecoder = json.TextDecoder;
+    module.exports.BinaryReader = json.BinaryReader;
 }
