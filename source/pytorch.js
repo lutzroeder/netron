@@ -2582,10 +2582,17 @@ pytorch.Container.Zip = class {
                 this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
             else if (this._entry('data.pkl')) {
-                // kProducedFileFormatVersion in https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
                 const versionEntry = this._entry('version');
                 const versionNumber = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
-                const versionTable = { '1': 'v1.3', '2': 'v1.4', '3': 'v1.6', '4': 'v1.7' };
+                // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
+                // kProducedFileFormatVersion
+                const versionTable = {
+                    '1': 'v1.3',
+                    '2': 'v1.5', // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
+                    '3': 'v1.6', // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
+                    '4': 'v1.6', // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
+                    '5': 'v1.7'  // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
+                };
                 const version = versionTable[versionNumber];
                 if (!version) {
                     this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + versionNumber + "'."));
