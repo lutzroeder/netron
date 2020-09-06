@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var json = json || {};
+var base = base || require('./base');
 
 json.TextReader = class {
 
@@ -13,7 +14,7 @@ json.TextReader = class {
     }
 
     read() {
-        const decoder = json.TextDecoder.create(this._buffer);
+        const decoder = base.TextDecoder.create(this._buffer);
         const stack = [];
         this._decoder = decoder;
         this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
@@ -346,176 +347,6 @@ json.TextReader = class {
     }
 };
 
-json.TextDecoder = class {
-
-    static create(buffer) {
-        const length = buffer.length;
-        if (typeof buffer === 'string') {
-            return new json.TextDecoder.String(buffer);
-        }
-        if (length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
-            return new json.TextDecoder.Utf8(buffer, 3);
-        }
-        if (length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
-            return new json.TextDecoder.Utf16LE(buffer, 2);
-        }
-        if (length >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
-            return new json.TextDecoder.Utf16BE(buffer, 2);
-        }
-        if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
-            throw new json.Error("Unsupported UTF-32 big-endian encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
-            throw new json.Error("Unsupported UTF-32 little-endian encoding.");
-        }
-        if (length >= 5 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && buffer[3] === 0x38 && buffer[4] === 0x2D) {
-            throw new json.Error("Unsupported UTF-7 encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && (buffer[3] === 0x38 || buffer[3] === 0x39 || buffer[3] === 0x2B || buffer[3] === 0x2F)) {
-            throw new json.Error("Unsupported UTF-7 encoding.");
-        }
-        if (length >= 4 && buffer[0] === 0x84 && buffer[1] === 0x31 && buffer[2] === 0x95 && buffer[3] === 0x33) {
-            throw new json.Error("Unsupported GB-18030 encoding.");
-        }
-        if (length > 4 && (length % 2) == 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
-            const lo = new Uint32Array(256);
-            const hi = new Uint32Array(256);
-            for (let i = 0; i < length; i += 2) {
-                lo[buffer[i]]++;
-                hi[buffer[i + 1]]++;
-            }
-            if (lo[0x00] === 0 && (hi[0x00] / (length >> 1)) > 0.5) {
-                return new json.TextDecoder.Utf16LE(buffer, 0);
-            }
-            if (hi[0x00] === 0 && (lo[0x00] / (length >> 1)) > 0.5) {
-                return new json.TextDecoder.Utf16BE(buffer, 0);
-            }
-        }
-        return new json.TextDecoder.Utf8(buffer, 0);
-    }
-};
-
-json.TextDecoder.String = class {
-
-    constructor(buffer) {
-        this.buffer = buffer;
-        this.position = 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        return this.position < this.length ? this.buffer[this.position++] : undefined;
-    }
-};
-
-json.TextDecoder.Utf8 = class {
-
-    constructor(buffer, position) {
-        this.position = position || 0;
-        this.buffer = buffer;
-    }
-
-    decode() {
-        const c = this.buffer[this.position];
-        if (c === undefined) {
-            return c;
-        }
-        this.position++;
-        if (c < 0x80) {
-            return String.fromCodePoint(c);
-        }
-        if (c >= 0xC2 && c <= 0xDF) {
-            if (this.buffer[this.position] !== undefined) {
-                const c2 = this.buffer[this.position];
-                this.position++;
-                return String.fromCharCode(((c & 0x1F) << 6) | (c2 & 0x3F));
-            }
-        }
-        if (c >= 0xE0 && c <= 0xEF) {
-            if (this.buffer[this.position + 1] !== undefined) {
-                const c2 = this.buffer[this.position];
-                if ((c !== 0xE0 || c2 >= 0xA0) && (c !== 0xED || c2 <= 0x9f)) {
-                    const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
-                        this.position += 2;
-                        return String.fromCharCode(((c & 0x0F) << 12) | ((c2 & 0x3F) << 6) | ((c3 & 0x3F) << 0));
-                    }
-                }
-            }
-        }
-        if (c >= 0xF0 && c <= 0xF4) {
-            if (this.buffer[this.position + 2] !== undefined) {
-                const c2 = this.buffer[this.position];
-                if ((c !== 0xF0 || c2 >= 0x90) && (c !== 0xF4 || c2 <= 0x8f)) {
-                    const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
-                        const c4 = this.buffer[this.position + 2];
-                        this.position += 3;
-                        return String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
-                    }
-                }
-            }
-        }
-        return String.fromCharCode(0xfffd);
-    }
-};
-
-json.TextDecoder.Utf16LE = class {
-
-    constructor(buffer, position) {
-        this.buffer = buffer;
-        this.position = position || 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        if (this.position + 1 < this.length) {
-            const c = this.buffer[this.position++] | (this.buffer[this.position++] << 8);
-            if (c < 0xD800 || c >= 0xDFFF) {
-                return String.fromCharCode(c);
-            }
-            if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = this._buffer[this._position++] | (this._buffer[this._position++] << 8);
-                    if (c >= 0xDC00 || c < 0xDFFF) {
-                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
-                    }
-                }
-            }
-            return String.fromCharCode(0xfffd);
-        }
-        return undefined;
-    }
-};
-
-json.TextDecoder.Utf16BE = class {
-
-    constructor(buffer, position) {
-        this.buffer = buffer;
-        this.position = position || 0;
-        this.length = buffer.length;
-    }
-
-    decode() {
-        if (this.position + 1 < this.length) {
-            const c = (this.buffer[this.position++] << 8) | this.buffer[this.position++];
-            if (c < 0xD800 || c >= 0xDFFF) {
-                return String.fromCharCode(c);
-            }
-            if (c >= 0xD800 && c < 0xDBFF) {
-                if (this._position + 1 < this._length) {
-                    const c2 = (this._buffer[this._position++] << 8) | this._buffer[this._position++];
-                    if (c >= 0xDC00 || c < 0xDFFF) {
-                        return String.fromCodePoint(0x10000 + ((c & 0x3ff) << 10) + (c2 & 0x3ff));
-                    }
-                }
-            }
-            return String.fromCharCode(0xfffd);
-        }
-        return undefined;
-    }
-};
-
 json.BinaryReader = class {
 
     constructor(buffer) {
@@ -670,6 +501,5 @@ json.Error = class extends Error {
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.TextReader = json.TextReader;
-    module.exports.TextDecoder = json.TextDecoder;
     module.exports.BinaryReader = json.BinaryReader;
 }

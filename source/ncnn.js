@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var ncnn = ncnn || {};
+var base = base || require('./base');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
@@ -10,16 +11,16 @@ ncnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const decoder = new TextDecoder();
-            let text = decoder.decode(context.buffer);
-            text = text.substring(0, Math.min(text.length, 32));
-            const signature = text.split('\n').shift().trim();
-            if (signature === '7767517') {
-                return true;
-            }
-            const header = signature.split(' ');
-            if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                return true;
+            const reader = base.TextReader.create(context.buffer, 2048);
+            const signature = reader.read();
+            if (signature !== undefined) {
+                if (signature.trim() === '7767517') {
+                    return true;
+                }
+                const header = signature.trim().split(' ');
+                if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
+                    return true;
+                }
             }
         }
         if (identifier.endsWith('.param.bin')) {
@@ -62,9 +63,7 @@ ncnn.ModelFactory = class {
             };
             const openText = (param, bin) => {
                 try {
-                    const decoder = new TextDecoder('utf-8');
-                    const text = decoder.decode(param);
-                    const reader = new ncnn.TextParamReader(text);
+                    const reader = new ncnn.TextParamReader(param);
                     return new ncnn.Model(metadata, reader, bin);
                 }
                 catch (error) {
@@ -658,16 +657,24 @@ ncnn.Metadata = class {
 
 ncnn.TextParamReader = class {
 
-    constructor(text) {
-        const lines = text.split(/\r?\n/);
-        const signature = lines.shift().trim();
-        const header = (signature !== '7767517' ? signature : lines.shift().trim()).split(' ');
+    constructor(buffer) {
+        const reader = base.TextReader.create(buffer);
+        const lines = [];
+        for (;;) {
+            const line = reader.read();
+            if (line === undefined) {
+                break;
+            }
+            lines.push(line.trim());
+        }
+        const signature = lines.shift();
+        const header = (signature !== '7767517' ? signature : lines.shift()).split(' ');
         if (header.length !== 2 || !header.every((value) => value >>> 0 === parseFloat(value))) {
             throw new ncnn.Error('Invalid header.');
         }
         const layers = [];
         while (lines.length > 0) {
-            const line = lines.shift().trim();
+            const line = lines.shift();
             if (line.length > 0) {
                 const columns = line.split(' ').filter((s) => s.length != 0);
                 const layer = {};

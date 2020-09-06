@@ -8,42 +8,33 @@ onnx.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'onnx') {
-            return true;
-        }
-        if (extension == 'pb') {
-            if (identifier.endsWith('saved_model.pb')) {
-                return false;
-            }
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+        if (new Set([ 'onnx', 'pb' ]).has(extension)) {
+            if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
                 return false;
             }
             const tags = context.tags('pb');
-            if (tags.size === 0) {
-                return false;
+            if (tags.size > 0 &&
+                Array.from(tags.keys()).every((tag) => tag <= 20) &&
+                Array.from(tags.values()).every((type) => type < 5)) {
+                // TensorProto: input_0.pb, output_0.pb
+                if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
+                    return true;
+                }
+                // ModelProto: check ir_version and graph present
+                if ((                 tags.get(7) == 2) &&
+                    (!tags.has(1)  || tags.get(1) == 0) &&
+                    (!tags.has(2)  || tags.get(2) == 2) &&
+                    (!tags.has(3)  || tags.get(3) == 2) &&
+                    (!tags.has(4)  || tags.get(4) == 2) &&
+                    (!tags.has(5)  || tags.get(5) == 0) &&
+                    (!tags.has(6)  || tags.get(6) == 2) &&
+                    (!tags.has(8)  || tags.get(8) == 2) &&
+                    (!tags.has(14) || tags.get(14) == 2)) {
+                    return true;
+                }
             }
-            // input_0.pb, output_0.pb
-            if (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2) {
-                return true;
-            }
-            if (Array.from(tags.values()).some((v) => v === 5)) {
-                return false;
-            }
-            // check ir_version and graph present
-            if (tags.has(1) && tags.get(1) != 0 ||
-                tags.has(2) && tags.get(2) != 2 ||
-                tags.has(3) && tags.get(3) != 2 ||
-                tags.has(4) && tags.get(4) != 2 ||
-                tags.has(5) && tags.get(5) != 0 ||
-                tags.has(6) && tags.get(6) != 2 ||
-                tags.has(8) && tags.get(8) != 2 ||
-                tags.has(14) && tags.get(14) != 2 ||
-                (!tags.has(7) || tags.get(7) != 2)) {
-                return false;
-            }
-            return true;
         }
-        if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'model') {
+        if (new Set([ 'pbtxt', 'ptototxt', 'model' ]).has(extension)) {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;

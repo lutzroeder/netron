@@ -1097,7 +1097,17 @@ class ModelContext {
                         while (!reader.end(false)) {
                             const tag = reader.tag();
                             tags.set(tag, true);
-                            reader.skip();
+                            if (reader.peek() === '{') {
+                                reader.start();
+                                while (!reader.end()) {
+                                    const subtag = reader.tag();
+                                    tags.set(tag + '.' + subtag, true);
+                                    reader.skip();
+                                }
+                            }
+                            else {
+                                reader.skip();
+                            }
                         }
                         break;
                     }
@@ -1295,8 +1305,11 @@ view.ModelFactoryService = class {
                         for (const format of formats) {
                             const tags = context.tags(format.extension);
                             if (tags.size > 0) {
-                                const content = Array.from(tags).map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                                throw new ModelError("Unsupported " + format.name + " content '" + (content.length > 100 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                                const entries = [];
+                                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
+                                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
+                                const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
+                                throw new ModelError("Unsupported " + format.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
                             }
                         }
                         const buffer = context.buffer;

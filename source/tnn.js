@@ -1,20 +1,22 @@
 /* jshint esversion: 6 */
 
 var tnn = tnn || {};
+var base = base || require('./base');
 
 tnn.ModelFactory = class {
 
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
-            const decoder = new TextDecoder('utf-8');
-            let text = decoder.decode(context.buffer);
-            text = text.substring(0, Math.min(text.length, 128));
-            const line = text.split('\n').shift().trim();
-            if (line.startsWith('"') && line.endsWith('"')) {
-                const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
-                    return true;
+            const reader = base.TextReader.create(context.buffer, 2048);
+            const text = reader.read();
+            if (text !== undefined) {
+                const line = text.trim();
+                if (line.startsWith('"') && line.endsWith('"')) {
+                    const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
+                    if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
+                        return true;
+                    }
                 }
             }
         }
@@ -628,12 +630,19 @@ tnn.Metadata = class {
 tnn.TextProtoReader = class {
 
     constructor(buffer) {
-        const decoder = new TextDecoder();
-        const text = decoder.decode(buffer);
+        const reader = base.TextReader.create(buffer);
+        let lines = [];
+        for (;;) {
+            const line = reader.read();
+            if (line === undefined) {
+                break;
+            }
+            lines.push(line.replace(/\r|"/g, ''));
+        }
         const split = (line, delimiter, trim, ignore_blank) => {
             return line.split(delimiter).map((v) => trim ? v.trim() : v).filter((v) => !ignore_blank || v);
         };
-        const lines = split(text.replace(/\r?\n|"/g, ''), ',', true, false);
+        lines = split(lines.join(''), ',', true, false);
         if (lines.length <= 5) {
             throw new tnn.Error('Invalid line count.');
         }

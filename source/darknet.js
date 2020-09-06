@@ -1,24 +1,22 @@
 /* jshint esversion: 6 */
 
 var darknet = darknet || {};
+var base = base || require('./base');
 
 darknet.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 'cfg' || extension == 'model') {
-            const contains = (buffer, length, text) => {
-                length = Math.min(buffer.length - text.length, length - text.length);
-                const match = Array.from(text).map((c) => c.charCodeAt(0));
-                for (let i = 0; i < length; i++) {
-                    if (match.every((c, index) => buffer[i + index] === c)) {
-                        return true;
-                    }
+            const reader = base.TextReader.create(context.buffer, 2048);
+            for (;;) {
+                const line = reader.read();
+                if (line === undefined) {
+                    break;
                 }
-                return false;
-            };
-            if (contains(context.buffer, 1024, '[net]')) {
-                return true;
+                if (line.trim() === '[net]') {
+                    return true;
+                }
             }
         }
         return false;
@@ -31,13 +29,9 @@ darknet.ModelFactory = class {
             parts.pop();
             const basename = parts.join('.');
             return context.request(basename + '.weights', null).then((weights) => {
-                const decoder = new TextDecoder();
-                const text = decoder.decode(context.buffer);
-                return this._openModel(metadata, identifier, text, weights);
+                return this._openModel(metadata, identifier, context.buffer, weights);
             }).catch(() => {
-                const decoder = new TextDecoder();
-                const text = decoder.decode(context.buffer);
-                return this._openModel(metadata, identifier, text, null);
+                return this._openModel(metadata, identifier, context.buffer, null);
             });
         });
     }
@@ -77,11 +71,14 @@ darknet.Graph = class {
         // read_cfg
         const sections = [];
         let section = null;
-        const lines = cfg.split('\n');
+        const reader = base.TextReader.create(cfg);
         let lineNumber = 0;
-        while (lines.length > 0) {
+        for (;;) {
             lineNumber++;
-            const text = lines.shift();
+            const text = reader.read();
+            if (text === undefined) {
+                break;
+            }
             const line = text.replace(/\s/g, '');
             if (line.length > 0) {
                 switch (line[0]) {

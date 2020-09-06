@@ -1,6 +1,7 @@
 /* jshint esversion: 6 */
 
 var openvino = openvino || {};
+var base = base || require('./base');
 
 openvino.ModelFactory = class {
 
@@ -8,18 +9,15 @@ openvino.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
-            const contains = (buffer, text, length) => {
-                length = (length ? Math.min(buffer.length, length) : buffer.length) - text.length;
-                const match = Array.from(text).map((c) => c.charCodeAt(0));
-                for (let i = 0; i < length; i++) {
-                    if (match.every((c, index) => buffer[i + index] === c)) {
-                        return true;
-                    }
+            const reader = base.TextReader.create(context.buffer);
+            for (;;) {
+                const line = reader.read();
+                if (line === undefined) {
+                    break;
                 }
-                return false;
-            };
-            if (contains(context.buffer, '<net')) {
-                return true;
+                if (line.trim().startsWith('<net ')) {
+                    return true;
+                }
             }
         }
         if (extension === 'bin') {
