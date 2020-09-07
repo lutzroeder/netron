@@ -5195,6 +5195,13 @@
   },
   {
     "type":   "tflite",
+    "target": "efficientnet-edgetpu-S_quant_edgetpu.tflite",
+    "source": "https://github.com/google-coral/edgetpu/raw/master/test_data/efficientnet-edgetpu-S_quant_edgetpu.tflite",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/499"
+  },
+  {
+    "type":   "tflite",
     "target": "face_detection_front.json",
     "source": "https://github.com/lutzroeder/netron/files/4606685/face_detection_front.zip[face_detection_front.json]",
     "format": "TensorFlow Lite v3"
@@ -5354,6 +5361,13 @@
     "source": "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.tflite",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/edvardHua/PoseEstimationForMobile"
+  },
+  {
+    "type":   "tflite",
+    "target": "quicknet.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/5184953/quicknet.zip[quicknet.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/499"
   },
   {
     "type":   "tflite",
