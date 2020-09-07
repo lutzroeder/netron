@@ -1558,7 +1558,7 @@
       "attributes": [
         {
           "default": "f_classif",
-          "description": "Function taking two arrays X and y, and returning a pair of arrays\n(scores, pvalues) or a single array with scores.\nDefault is f_classif (see below \"See also\"). The default function only\nworks with classification tasks.\n\n.. versionadded:: 0.18\n",
+          "description": "Function taking two arrays X and y, and returning a pair of arrays\n(scores, pvalues) or a single array with scores.\nDefault is f_classif (see below \"See Also\"). The default function only\nworks with classification tasks.\n\n.. versionadded:: 0.18\n",
           "name": "score_func"
         },
         {
