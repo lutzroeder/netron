@@ -147,7 +147,8 @@ tf.ModelFactory = class {
                                 format = 'TensorFlow Graph';
                             }
                             catch (error) {
-                                throw new tf.Error("File text format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new tf.Error("File text format is not tensorflow.GraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                             }
                         }
                     }
@@ -165,7 +166,8 @@ tf.ModelFactory = class {
                         catch (error) {
                             const buffer = context.buffer;
                             if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
-                                throw new tf.Error("File format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new tf.Error("File format is not tensorflow.SavedModel (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                             }
                         }
                         try {
@@ -178,7 +180,8 @@ tf.ModelFactory = class {
                             }
                         }
                         catch (error) {
-                            throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                         }
                         try {
                             if (!saved_model) {
@@ -192,7 +195,8 @@ tf.ModelFactory = class {
                             }
                         }
                         catch (error) {
-                            throw new tf.Error("File format is not tensorflow.GraphDef (" + error.message + ") in '" + identifier + "'.");
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new tf.Error("File format is not tensorflow.GraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                         }
                     }
                     if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&

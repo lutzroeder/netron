@@ -27,7 +27,8 @@ dnn.ModelFactory = class {
                 model = dnn.proto.Model.decode(reader);
             }
             catch (error) {
-                throw  new dnn.Error("File format is not dnn.Graph (" + error.message + ") in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new dnn.Error("File format is not dnn.Graph (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
             }
             return dnn.Metadata.open(host).then((metadata) => {
                 try {

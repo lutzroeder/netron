@@ -1347,10 +1347,11 @@ protoc.Generator = class {
             this._builder.add('const message = new $root' + type.fullName + '();');
             this._builder.add('reader.start();');
             if (type.fullName === ".google.protobuf.Any") {
-                this._builder.add('if (reader.any(message))');
+                this._builder.add('if (reader.any(message)) {');
                 this._builder.indent();
                     this._builder.add('return message;');
                 this._builder.outdent();
+                this._builder.add('}');
             }
             this._builder.add('while (!reader.end()) {');
             this._builder.indent();

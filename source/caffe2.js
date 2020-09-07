@@ -70,7 +70,7 @@ caffe2.ModelFactory = class {
                             const reader = protobuf.TextReader.create(predictBuffer);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe2.proto.DeviceOption) {
-                                    message[tag] = this.skip();
+                                    message[tag] = this.read();
                                     return;
                                 }
                                 throw new Error("Unknown field '" + tag + "'" + this.location());
@@ -99,15 +99,15 @@ caffe2.ModelFactory = class {
                         }
                     };
                     if (base.toLowerCase().endsWith('init_net') || base.toLowerCase().startsWith('init_net')) {
-                        return context.request(identifier.replace('init_net', 'predict_net'), 'utf-8').then((buffer) => {
-                            return openText(buffer, context.buffer, false);
+                        return context.request(identifier.replace('init_net', 'predict_net'), null).then((buffer) => {
+                            return openText(buffer, context.buffer, true);
                         }).catch(() => {
-                            return openText(context.buffer, null, false);
+                            return openText(context.buffer, null, true);
                         });
                     }
                     else if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
                         return context.request(identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb'), null).then((buffer) => {
-                            return openText(context.buffer, buffer, true);
+                            return openText(context.buffer, buffer, false);
                         }).catch(() => {
                             return context.request(identifier.replace('predict_net', 'init_net'), null).then((buffer) => {
                                 return openText(context.buffer, buffer, true);
@@ -120,7 +120,7 @@ caffe2.ModelFactory = class {
                         return context.request(base + '_init.pb', null).then((buffer) => {
                             return openText(context.buffer, buffer, false);
                         }).catch(() => {
-                            return openText(context.buffer, null);
+                            return openText(context.buffer, null, false);
                         });
                     }
                 }
@@ -134,7 +134,8 @@ caffe2.ModelFactory = class {
                             predict_net = caffe2.proto.NetDef.decode(reader);
                         }
                         catch (error) {
-                            throw new caffe2.Error("File format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new caffe2.Error("File format is not caffe2.NetDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                         }
                         try {
                             if (initBuffer) {

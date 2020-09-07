@@ -336,7 +336,7 @@ json.TextReader = class {
             c = this._decoder.decode();
             if (c === '\n') {
                 line++;
-                column = 0;
+                column = 1;
             }
             else {
                 column++;

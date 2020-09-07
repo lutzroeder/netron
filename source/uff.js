@@ -52,7 +52,8 @@ uff.ModelFactory = class {
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 }
                 catch (error) {
-                    throw  new uff.Error("File format is not uff.MetaGraph (" + error.message + ") in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw  new uff.Error("File format is not uff.MetaGraph (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                 }
             }
             return uff.Metadata.open(host).then((metadata) => {

@@ -64,7 +64,8 @@ onnx.ModelFactory = class {
                     format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                 }
                 catch (error) {
-                    throw new onnx.Error("File text format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error("File text format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                 }
             }
             else {
@@ -94,7 +95,8 @@ onnx.ModelFactory = class {
                     }
                 }
                 catch (error) {
-                    throw  new onnx.Error("File format is not onnx.ModelProto (" + error.message + ") in '" + identifier + "'.");
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new onnx.Error("File format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
                 }
             }
             return onnx.Metadata.open(host).then((metadata) => {

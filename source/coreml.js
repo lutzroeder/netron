@@ -20,7 +20,8 @@ coreml.ModelFactory = class {
                 decodedBuffer = coreml.proto.Model.decode(reader);
             }
             catch (error) {
-                throw new coreml.Error("File format is not coreml.Model (" + error.message + ") in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new coreml.Error("File format is not coreml.Model (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
             }
             return coreml.Metadata.open(host).then((metadata) => {
                 try {

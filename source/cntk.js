@@ -34,6 +34,7 @@ cntk.ModelFactory = class {
 
     open(context, host) {
         return host.require('./cntk-proto').then(() => {
+            const identifier = context.identifier;
             let version = 0;
             let obj = null;
             try {
@@ -46,7 +47,8 @@ cntk.ModelFactory = class {
                 }
             }
             catch (error) {
-                throw new cntk.Error("File format is not CNTK v1 (" + error.message + ") in '" + context.identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new cntk.Error("File format is not CNTK v1 (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
             }
             try {
                 if (!obj) {
@@ -59,7 +61,8 @@ cntk.ModelFactory = class {
                 }
             }
             catch (error) {
-                throw new cntk.Error("File format is not cntk.Dictionary (" + error.message + ") in '" + context.identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new cntk.Error("File format is not cntk.Dictionary (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
             }
             return cntk.Metadata.open(host).then((metadata) => {
                 try {

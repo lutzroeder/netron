@@ -288,41 +288,47 @@ mediapipe.Object = class {
         reader.start();
 
         let close = false;
-        const type = reader.peek();
+        const type = reader.token();
         if (type.startsWith('[') && type.endsWith(']')) {
-            this.__type__ = reader.read().substring(0, type.length - 1);
+            this.__type__ = type.substring(1, type.length - 1);
+            reader.next();
             reader.match(':');
             reader.start();
             close = true;
         }
         const arrayTags = new Set();
         while (!reader.end()) {
-            var tag = reader.tag();
-            var next = reader.peek();
-            var obj = null;
+            const tag = reader.tag();
+            const next = reader.token();
+            let obj = null;
             if (next === '{') {
                 obj = new mediapipe.Object(reader);
             }
             else if (next.startsWith('"') && next.endsWith('"')) {
-                obj = reader.read().substring(1, next.length - 1);
+                obj = next.substring(1, next.length - 1);
+                reader.next();
             }
             else if (next === 'true' || next === 'false') {
-                obj = reader.read();
+                obj = next;
+                reader.next();
             }
             else if (reader.first()) {
                 obj = [];
                 while (!reader.last()) {
-                    const data = reader.read();
+                    const data = reader.token();
+                    reader.next();
                     if (!isNaN(data)) {
                         obj.push(parseFloat(data));
                     }
                 }
             }
             else if (!isNaN(next)) {
-                obj = parseFloat(reader.read());
+                obj = parseFloat(next);
+                reader.next();
             }
             else {
-                obj = reader.read();
+                obj = next;
+                reader.next();
             }
             if (this[tag] && (!Array.isArray(this[tag]) || arrayTags.has(tag))) {
                 this[tag] = [ this[tag] ];

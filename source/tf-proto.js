@@ -4621,8 +4621,9 @@ $root.google.protobuf.Any = class Any {
     static decodeText(reader) {
         const message = new $root.google.protobuf.Any();
         reader.start();
-        if (reader.any(message))
+        if (reader.any(message)) {
             return message;
+        }
         while (!reader.end()) {
             const tag = reader.tag();
             switch (tag) {

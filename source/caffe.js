@@ -53,7 +53,7 @@ caffe.ModelFactory = class {
                             const reader = protobuf.TextReader.create(context.buffer);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe.proto.SolverParameter) {
-                                    message[tag] = this.skip();
+                                    message[tag] = this.read();
                                     return;
                                 }
                                 throw new Error("Unknown field '" + tag + "'" + this.location());
@@ -95,7 +95,8 @@ caffe.ModelFactory = class {
             return this._openNetParameter(metadata, netParameter, host, resolve, reject);
         }
         catch (error) {
-            throw new caffe.Error("File format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'.");
+            const message = error && error.message ? error.message : error.toString();
+            throw new caffe.Error("File format is not caffe.NetParameter (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
         }
     }
 
@@ -113,10 +114,10 @@ caffe.ModelFactory = class {
                         if (!Array.isArray(message[tag])) {
                             message[tag] = [ message[tag] ];
                         }
-                        message[tag].push(this.skip());
+                        message[tag].push(this.read());
                     }
                     else {
-                        message[tag] = this.skip();
+                        message[tag] = this.read();
                     }
                     return;
                 }
@@ -137,7 +138,8 @@ caffe.ModelFactory = class {
             return this._openNetParameter(metadata, netParameter, host);
         }
         catch (error) {
-            throw new caffe.Error("File text format is not caffe.NetParameter (" + error.message + ") in '" + identifier + "'.");
+            const message = error && error.message ? error.message : error.toString();
+            throw new caffe.Error("File text format is not caffe.NetParameter (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
         }
     }
 
@@ -156,7 +158,7 @@ caffe.ModelFactory = class {
         reader.start();
         while (!reader.end()) {
             const tag = reader.tag();
-            const value = reader.skip();
+            const value = reader.read();
             if (!message[tag]) {
                 message[tag] = value;
             }

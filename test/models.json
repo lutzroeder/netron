@@ -1,6 +1,13 @@
 [
   {
     "type":   "armnn",
+    "target": "simple_network.armnn",
+    "source": "https://github.com/lutzroeder/netron/files/4951689/simple_network.zip[simple_network.armnn]",
+    "format": "Arm NN",
+    "link":   "https://github.com/lutzroeder/netron/issues/515"
+  },
+  {
+    "type":   "armnn",
     "target": "ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
     "source": "https://raw.githubusercontent.com/ARM-software/armnn/master/samples/serialized/ssd_mobilenet_v3_small_coco_2019_08_14.armnn",
     "format": "Arm NN",
@@ -24,13 +31,6 @@
     "type":   "armnn",
     "target": "ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn",
     "source": "https://github.com/lutzroeder/netron/files/3839429/samples.zip[ssd_mobilenet_v3_small_coco_2019_08_14_q16.armnn]",
-    "format": "Arm NN",
-    "link":   "https://github.com/lutzroeder/netron/issues/515"
-  },
-  {
-    "type":   "armnn",
-    "target": "simple_network.armnn",
-    "source": "https://github.com/lutzroeder/netron/files/4951689/simple_network.zip[simple_network.armnn]",
     "format": "Arm NN",
     "link":   "https://github.com/lutzroeder/netron/issues/515"
   },
@@ -178,7 +178,7 @@
     "type":   "caffe",
     "target": "caffe_invalid_file.caffemodel",
     "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_invalid_file.caffemodel]",
-    "error":  "File format is not caffe.NetParameter (invalid wire type 4 at offset 11) in 'caffe_invalid_file.caffemodel'.",
+    "error":  "File format is not caffe.NetParameter (Invalid type 4 at offset 11) in 'caffe_invalid_file.caffemodel'.",
     "link":   "https://github.com/lutzroeder/netron/issues/276"
   },
   {
@@ -241,7 +241,7 @@
     "type":   "caffe",
     "target": "deploy_iResNet_ROB.tpl.prototxt",
     "source": "https://raw.githubusercontent.com/leonzfa/iResNet/master/models/model/deploy_iResNet_ROB.tpl.prototxt",
-    "error":  "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:59) in 'deploy_iResNet_ROB.tpl.prototxt'.",
+    "error":  "File text format is not caffe.NetParameter (Couldn't parse float '$SCALE_WIDTH' at 727:47) in 'deploy_iResNet_ROB.tpl.prototxt'.",
     "link":   "https://github.com/leonzfa/iResNet"
   },
   {
@@ -527,7 +527,7 @@
     "type":   "caffe",
     "target": "s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
     "source": "https://www.dropbox.com/s/raw/wn6k2oqurxzt6e2/s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
-    "error":  "File format is not caffe.NetParameter (invalid wire type 6 at offset 124546861) in 's2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel'.",
+    "error":  "File format is not caffe.NetParameter (Invalid type 6 at offset 124546861) in 's2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel'.",
     "format": "Caffe v1",
     "link":   "https://github.com/truongthanhdat/Video2Text"
   },
@@ -1083,7 +1083,7 @@
     "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "File format is not coreml.Model (invalid wire type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
+    "error":  "File format is not coreml.Model (Invalid type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
     "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
