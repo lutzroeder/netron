@@ -192,7 +192,8 @@ def zoo():
             folder = os.path.dirname(file)
             if not os.path.exists(folder):
                 os.makedirs(folder)
-            model = pydoc.locate(type)()
+            model_type = pydoc.locate(type)
+            model = model_type(weights=None)
             model.save(file)
     if not os.environ.get('test'):
         os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
