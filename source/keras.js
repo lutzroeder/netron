@@ -356,7 +356,8 @@ keras.Graph = class {
             }
             for (const layer of config.layers) {
                 if (layer.inbound_nodes) {
-                    for (const inbound_node of layer.inbound_nodes) {
+                    for (let inbound_node of layer.inbound_nodes) {
+                        inbound_node = inbound_node.every((inbound_connection) => Array.isArray(inbound_connection[0])) ? inbound_node.flat() : inbound_node;
                         for (const inbound_connection of inbound_node) {
                             let inputName = inbound_connection[0];
                             const inputNode = nodeMap.get(inputName);
@@ -492,6 +493,7 @@ keras.Graph = class {
                 this._loadSequential(layer.config, weights, (group ? group + '/' : '') + name, inputs, outputs);
                 break;
             }
+            case 'Functional':
             case 'Model': {
                 const name = layer.name || (layer.config ? layer.config.name : '');
                 this._loadModel(layer.config, weights, (group ? group + '/' : '') + name, inputs, outputs);

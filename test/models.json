@@ -2209,6 +2209,13 @@
   },
   {
     "type":   "keras",
+    "target": "yolov3-tiny.h5",
+    "source": "https://github.com/lutzroeder/netron/files/5192003/yolov3-tiny.zip[yolov3-tiny.h5]",
+    "format": "Keras v2.4.0", "runtime": "tensorflow",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
     "target": "VGG19.h5",
     "script": "./tools/tf sync install zoo",
     "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
