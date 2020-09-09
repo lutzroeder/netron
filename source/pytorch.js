@@ -2973,7 +2973,12 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const referencedParameters = [];
                     let next = false;
                     const parameters = Array.prototype.slice.call(schema.inputs || []).concat(Array.prototype.slice.call(schema.attributes || []));
-                    while (parameters.length > 0 && copyEvalArgs.length > 0) {
+                    while (copyEvalArgs.length > 0) {
+
+                        if (parameters.length <= 0) {
+                            next = true;
+                            break;
+                        }
 
                         if (copyArgs.every((arg) => arg.type === '=' && arg.target && arg.target.type === 'id') &&
                             parameters.every((parameter) => parameter.type !== 'tensor' && parameter.type !== 'tensor[]')) {
@@ -3242,7 +3247,7 @@ pytorch.Utility = class {
             case 'Layout':
             case 'ScalarType':
             case 'MemoryFormat':
-                return Number.isInteger(obj);
+                return Number.isInteger(obj) || obj === null;
             case 'Device':
                 return obj === null || obj === Object(obj);
             case 'scalar':
