@@ -56,47 +56,60 @@ onnx.ModelFactory = class {
             let format = null;
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
-            if (extension == 'pbtxt' || extension == 'prototxt') {
-                try {
-                    onnx.proto = protobuf.get('onnx').onnx;
-                    const reader = protobuf.TextReader.create(context.buffer);
-                    model = onnx.proto.ModelProto.decodeText(reader);
-                    format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new onnx.Error("File text format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
-                }
-            }
-            else {
-                try {
-                    onnx.proto = protobuf.get('onnx').onnx;
-                    const reader = protobuf.Reader.create(context.buffer);
-                    const tags = context.tags('pb');
-                    if (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2) {
-                        // input_0.pb, output_0.pb
-                        const tensor = onnx.proto.TensorProto.decode(reader);
-                        tensor.name = tensor.name || context.identifier;
-                        model = new onnx.proto.ModelProto();
-                        model.graph = new onnx.proto.GraphProto();
-                        model.graph.initializer = [ tensor ];
-                        model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
-                        model.graph.value_info[0].name = tensor.name;
-                        model.graph.node = [ new onnx.proto.NodeProto() ];
-                        model.graph.node[0].op_type = 'Constant';
-                        model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
-                        model.graph.node[0].attribute[0].name = 'value';
-                        model.graph.node[0].attribute[0].t = tensor;
-                        format = 'ONNX Tensor';
-                    }
-                    else {
-                        model = onnx.proto.ModelProto.decode(reader);
+            switch (extension) {
+                case 'pbtxt':
+                case 'prototxt': {
+                    try {
+                        onnx.proto = protobuf.get('onnx').onnx;
+                        const reader = protobuf.TextReader.create(context.buffer);
+                        model = onnx.proto.ModelProto.decodeText(reader);
                         format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                     }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new onnx.Error("File text format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                    }
+                    break;
                 }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new onnx.Error("File format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                default: {
+                    const tags = context.tags('pb');
+                    const tensor = (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2);
+                    if (!tensor) {
+                        // input_0.pb, output_0.pb
+                        try {
+                            onnx.proto = protobuf.get('onnx').onnx;
+                            const reader = protobuf.Reader.create(context.buffer);
+                            model = onnx.proto.ModelProto.decode(reader);
+                            format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new onnx.Error("File format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                        }
+                    }
+                    else {
+                        try {
+                            onnx.proto = protobuf.get('onnx').onnx;
+                            const reader = protobuf.Reader.create(context.buffer);
+                            const tensor = onnx.proto.TensorProto.decode(reader);
+                            tensor.name = tensor.name || context.identifier;
+                            model = new onnx.proto.ModelProto();
+                            model.graph = new onnx.proto.GraphProto();
+                            model.graph.initializer = [ tensor ];
+                            model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
+                            model.graph.value_info[0].name = tensor.name;
+                            model.graph.node = [ new onnx.proto.NodeProto() ];
+                            model.graph.node[0].op_type = 'Constant';
+                            model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
+                            model.graph.node[0].attribute[0].name = 'value';
+                            model.graph.node[0].attribute[0].t = tensor;
+                            format = 'ONNX Tensor';
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new onnx.Error("File format is not onnx.TensorProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                        }
+                    }
                 }
             }
             return onnx.Metadata.open(host).then((metadata) => {
