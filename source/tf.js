@@ -70,6 +70,9 @@ tf.ModelFactory = class {
                 }
             }
         }
+        if (extension === 'data-00000-of-00001') {
+            return true;
+        }
         return false;
     }
 
@@ -82,10 +85,6 @@ tf.ModelFactory = class {
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
-                case 'ckpt':
-                case 'index': {
-                    return tf.ModelFactory._openBundle(context, host);
-                }
                 case 'json': {
                     try {
                         const reader = json.TextReader.create(context.buffer);
@@ -106,6 +105,11 @@ tf.ModelFactory = class {
                         throw new tf.Error("File text format is not TensorFlow.js graph-model (" + error.message + ") in '" + identifier + "'.");
                     }
                     break;
+                }
+                case 'data-00000-of-00001':
+                case 'ckpt':
+                case 'index': {
+                    return tf.ModelFactory._openBundle(context, host);
                 }
                 default: {
                     const tags = context.tags('pbtxt');
@@ -240,15 +244,30 @@ tf.ModelFactory = class {
 
     static _openBundle(context, host) {
         return tf.Metadata.open(host).then((metadata) => {
+            const open = (buffer, identifier, context, host) => {
+                return tf.TensorBundle.open(buffer, identifier, context, host).then((bundle) => {
+                    return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
+                }).catch((error) => {
+                    host.exception(error, false);
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                });
+            };
             const identifier = context.identifier;
-
-            return tf.TensorBundle.open(context.buffer, identifier, context, host).then((bundle) => {
-                return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
-            }).catch((error) => {
-                host.exception(error, false);
-                const message = error && error.message ? error.message : error.toString();
-                throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            });
+            const base = identifier.split('.');
+            const extension = base.pop().toLowerCase();
+            if (extension === 'data-00000-of-00001') {
+                const identifier = base.join('.') + '.index';
+                return context.request(identifier, null).then((buffer) => {
+                    return open(buffer, identifier, context, host);
+                }).catch((error) => {
+                    const identifier = base.join('.') + '.ckpt';
+                    return context.request(identifier, null).then((buffer) => {
+                        open(buffer, identifier, context, host);
+                    });
+                });
+            }
+            return open(context.buffer, identifier, context, host);
         });
     }
 };
