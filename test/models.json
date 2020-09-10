@@ -3136,6 +3136,13 @@
   },
   {
     "type":   "onnx",
+    "target": "sparse_const.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/5198627/sparse_const.zip[sparse_const.onnx]",
+    "format": "ONNX v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "squeezenet.onnx",
     "source": "https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx",
     "format": "ONNX v1", "producer": "pytorch 0.2"

@@ -307,9 +307,17 @@ onnx.Graph = class {
                         outputCountMap.has(name) && outputCountMap.get(name) == 1 &&
                         node.attribute.length == 1) {
                         const attribute = node.attribute[0];
-                        if (attribute && attribute.name == 'value' && attribute.t) {
-                            initializers.set(name, new onnx.Tensor(attribute.t, 'Constant'));
-                            initializerNode = true;
+                        if (attribute) {
+                            switch (attribute.name) {
+                                case 'value':
+                                    initializers.set(name, new onnx.Tensor(attribute.t, 'Constant'));
+                                    initializerNode = true;
+                                    break;
+                                case 'sparse_value':
+                                    initializers.set(name, new onnx.Tensor(attribute.sparse_tensor, 'Constant'));
+                                    initializerNode = true;
+                                    break;
+                            }
                         }
                     }
                 }
@@ -610,6 +618,10 @@ onnx.Attribute = class {
             this._type = 'graph';
             this._value = new onnx.Graph(metadata, imageFormat, attribute.g);
         }
+        else if (Object.prototype.hasOwnProperty.call(attribute, 'sparse_tensor')) {
+            this._type = 'tensor';
+            this._value = new onnx.Tensor(attribute.sparse_tensor);
+        }
 
         if (attributeSchema && Object.prototype.hasOwnProperty.call(attributeSchema, 'default') && attributeSchema.default) {
             if (this._value == attributeSchema.default) {
@@ -643,19 +655,24 @@ onnx.Tensor = class {
 
     constructor(tensor, kind) {
         this._tensor = tensor;
-        this._name = tensor.name || '';
         this._kind = kind || null;
-        this._type = new onnx.TensorType(this._tensor.data_type, new onnx.TensorShape(this._tensor.dims.map((dim) => dim)), null);
-
-        if (this._tensor.data_type == onnx.proto.TensorProto.DataType.FLOAT16 && this._tensor.int32_data && this._tensor.int32_data.length > 0) {
-            const array = new Uint8Array(this._tensor.int32_data.length << 1);
-            const dataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
-            const data = this._tensor.int32_data;
-            for (let i = 0; i < data.length; i++) {
-                dataView.setUint16(i << 1, data[i], true);
+        if (tensor instanceof onnx.proto.SparseTensorProto) {
+            this._type = new onnx.TensorType(this._tensor.values.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
+            this._sparse = true;
+        }
+        else {
+            this._name = tensor.name || '';
+            this._type = new onnx.TensorType(this._tensor.data_type, new onnx.TensorShape(this._tensor.dims.map((dim) => dim)), null);
+            if (this._tensor.data_type == onnx.proto.TensorProto.DataType.FLOAT16 && this._tensor.int32_data && this._tensor.int32_data.length > 0) {
+                const array = new Uint8Array(this._tensor.int32_data.length << 1);
+                const dataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
+                const data = this._tensor.int32_data;
+                for (let i = 0; i < data.length; i++) {
+                    dataView.setUint16(i << 1, data[i], true);
+                }
+                this._tensor.raw_data = array;
+                delete this._tensor.int32_data;
             }
-            this._tensor.raw_data = array;
-            delete this._tensor.int32_data;
         }
     }
 
@@ -700,6 +717,10 @@ onnx.Tensor = class {
         context.count = 0;
         context.state = null;
 
+        if (this._sparse) {
+            context.state = 'Tensor has sparse data.';
+            return context;
+        }
         if (!this._tensor.data_type) {
             context.state = 'Tensor has no data type.';
             return context;
