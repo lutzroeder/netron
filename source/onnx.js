@@ -8,11 +8,15 @@ onnx.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (new Set([ 'onnx', 'pb' ]).has(extension)) {
-            if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                return false;
-            }
-            const tags = context.tags('pb');
+        if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+            return false;
+        }
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+            return false;
+        }
+        if (new Set([ 'onnx', 'pb', 'model', 'pbtxt', 'prototxt']).has(extension)) {
+            let tags = context.tags('pb');
             if (tags.size > 0 &&
                 Array.from(tags.keys()).every((tag) => tag <= 20) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
@@ -20,7 +24,7 @@ onnx.ModelFactory = class {
                 if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
                     return true;
                 }
-                // ModelProto: check ir_version and graph present
+                // ModelProto: check graph present
                 if ((                 tags.get(7) == 2) &&
                     (!tags.has(1)  || tags.get(1) == 0) &&
                     (!tags.has(2)  || tags.get(2) == 2) &&
@@ -33,13 +37,7 @@ onnx.ModelFactory = class {
                     return true;
                 }
             }
-        }
-        if (new Set([ 'pbtxt', 'ptototxt', 'model' ]).has(extension)) {
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-                return false;
-            }
-            const tags = context.tags('pbtxt');
+            tags = context.tags('pbtxt');
             if (tags.has('ir_version')) {
                 return true;
             }
@@ -67,7 +65,7 @@ onnx.ModelFactory = class {
                     }
                     catch (error) {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error("File text format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                        throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
                     }
                     break;
                 }
@@ -84,7 +82,7 @@ onnx.ModelFactory = class {
                         }
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error("File format is not onnx.ModelProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
                         }
                     }
                     else {
@@ -107,20 +105,13 @@ onnx.ModelFactory = class {
                         }
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error("File format is not onnx.TensorProto (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                            throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
                         }
                     }
                 }
             }
             return onnx.Metadata.open(host).then((metadata) => {
-                try {
-                    return new onnx.Model(metadata, model, format);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new onnx.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new onnx.Model(metadata, model, format);
             });
         });
     }

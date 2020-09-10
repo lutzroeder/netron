@@ -18,26 +18,20 @@ dl4j.ModelFactory = class {
     }
 
     open(context, host) {
-        const identifier = context.identifier;
-        try {
+        return Promise.resolve().then(() => {
             const container = dl4j.ModelFactory._openContainer(context);
-            const configuration = JSON.parse(container.configuration);
+            let configuration = null;
+            try {
+                configuration = JSON.parse(container.configuration);
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new dl4j.Error('File format is not Deeplearning4j (' + message.replace(/\.$/, '') + ').');
+            }
             return dl4j.Metadata.open(host).then((metadata) => {
-                try {
-                    return new dl4j.Model(metadata, configuration, container.coefficients);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dl4j.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new dl4j.Model(metadata, configuration, container.coefficients);
             });
-        }
-        catch (error) {
-            host.exception(error, false);
-            const message = error && error.message ? error.message : error.toString();
-            return Promise.reject(new dl4j.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."));
-        }
+        });
     }
 
     static _openContainer(context) {

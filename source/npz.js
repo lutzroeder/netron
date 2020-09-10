@@ -19,168 +19,161 @@ npz.ModelFactory = class {
     open(context, host) {
         return host.require('./numpy').then((numpy) => {
             return host.require('./pickle').then((pickle) => {
-                const identifier = context.identifier;
-                try {
-                    const modules = [];
-                    const modulesMap = new Map();
-                    const functionTable = new Map();
-                    const constructorTable = new Map();
-                    functionTable.set('_codecs.encode', function(obj /*, econding */) {
-                        return obj;
-                    });
-                    constructorTable.set('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-                        this.subtype = subtype;
-                        this.shape = shape;
-                        this.dtype = dtype;
-                        this.__setstate__ = function(state) {
-                            this.version = state[0];
-                            this.shape = state[1];
-                            this.typecode = state[2];
-                            this.is_f_order = state[3];
-                            this.rawdata = state[4];
-                        };
-                        this.__read__ = function(unpickler) {
-                            const array = {};
-                            array.__type__ = this.subtype;
-                            array.dtype = this.typecode;
-                            array.shape = this.shape;
-                            let size = array.dtype.itemsize;
-                            for (let i = 0; i < array.shape.length; i++) {
-                                size = size * array.shape[i];
-                            }
-                            if (typeof this.rawdata == 'string') {
-                                array.data = unpickler.unescape(this.rawdata, size);
-                                if (array.data.length != size) {
-                                    throw new npz.Error('Invalid string array data size.');
-                                }
-                            }
-                            else {
-                                array.data = this.rawdata;
-                                if (array.data.length != size) {
-                                    // TODO
-                                    // throw new npz.Error('Invalid array data size.');
-                                }
-                            }
-                            return array;
-                        };
-                    });
-                    constructorTable.set('numpy.dtype', function(obj, align, copy) {
-                        switch (obj) {
-                            case 'i1': this.name = 'int8'; this.itemsize = 1; break;
-                            case 'i2': this.name = 'int16'; this.itemsize = 2; break;
-                            case 'i4': this.name = 'int32'; this.itemsize = 4; break;
-                            case 'i8': this.name = 'int64'; this.itemsize = 8; break;
-                            case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
-                            case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
-                            case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
-                            case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
-                            case 'f4': this.name = 'float32'; this.itemsize = 4; break;
-                            case 'f8': this.name = 'float64'; this.itemsize = 8; break;
-                            default:
-                                if (obj.startsWith('V')) {
-                                    this.itemsize = Number(obj.substring(1));
-                                    this.name = 'void' + (this.itemsize * 8).toString();
-                                }
-                                else if (obj.startsWith('O')) {
-                                    this.itemsize = Number(obj.substring(1));
-                                    this.name = 'object';
-                                }
-                                else if (obj.startsWith('S')) {
-                                    this.itemsize = Number(obj.substring(1));
-                                    this.name = 'string';
-                                }
-                                else if (obj.startsWith('U')) {
-                                    this.itemsize = Number(obj.substring(1));
-                                    this.name = 'string';
-                                }
-                                else if (obj.startsWith('M')) {
-                                    this.itemsize = Number(obj.substring(1));
-                                    this.name = 'datetime';
-                                }
-                                else {
-                                    throw new npz.Error("Unknown dtype '" + obj.toString() + "'.");
-                                }
-                                break;
+                const modules = [];
+                const modulesMap = new Map();
+                const functionTable = new Map();
+                const constructorTable = new Map();
+                functionTable.set('_codecs.encode', function(obj /*, econding */) {
+                    return obj;
+                });
+                constructorTable.set('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
+                    this.subtype = subtype;
+                    this.shape = shape;
+                    this.dtype = dtype;
+                    this.__setstate__ = function(state) {
+                        this.version = state[0];
+                        this.shape = state[1];
+                        this.typecode = state[2];
+                        this.is_f_order = state[3];
+                        this.rawdata = state[4];
+                    };
+                    this.__read__ = function(unpickler) {
+                        const array = {};
+                        array.__type__ = this.subtype;
+                        array.dtype = this.typecode;
+                        array.shape = this.shape;
+                        let size = array.dtype.itemsize;
+                        for (let i = 0; i < array.shape.length; i++) {
+                            size = size * array.shape[i];
                         }
-                        this.align = align;
-                        this.copy = copy;
-                        this.__setstate__ = function(state) {
-                            switch (state.length) {
-                                case 8:
-                                    this.version = state[0];
-                                    this.byteorder = state[1];
-                                    this.subarray = state[2];
-                                    this.names = state[3];
-                                    this.fields = state[4];
-                                    this.elsize = state[5];
-                                    this.alignment = state[6];
-                                    this.int_dtypeflags = state[7];
-                                    break;
-                                default:
-                                    throw new npz.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                        if (typeof this.rawdata == 'string') {
+                            array.data = unpickler.unescape(this.rawdata, size);
+                            if (array.data.length != size) {
+                                throw new npz.Error('Invalid string array data size.');
                             }
-                        };
-                    });
-                    const function_call = (name, args) => {
-                        if (functionTable.has(name)) {
-                            const func = functionTable.get(name);
-                            return func.apply(null, args);
-                        }
-                        const obj = { __type__: name };
-                        if (constructorTable.has(name)) {
-                            const constructor = constructorTable.get(name);
-                            constructor.apply(obj, args);
                         }
                         else {
-                            throw new npz.Error("Unknown function '" + name + "'.");
-                        }
-                        return obj;
-                    };
-
-                    const dataTypeMap = new Map([
-                        [ 'i1', 'int8'], [ 'i2', 'int16' ], [ 'i4', 'int32'], [ 'i8', 'int64' ],
-                        [ 'u1', 'uint8'], [ 'u2', 'uint16' ], [ 'u4', 'uint32'], [ 'u8', 'uint64' ],
-                        [ 'f2', 'float16'], [ 'f4', 'float32' ], [ 'f8', 'float64']
-                    ]);
-
-                    for (const entry of context.entries('zip')) {
-                        if (!entry.name.endsWith('.npy')) {
-                            throw new npz.Error("Invalid file name '" + entry.name + "'.");
-                        }
-                        const id = entry.name.replace(/\.npy$/, '');
-                        const parts = id.split('/');
-                        const parameterName = parts.pop();
-                        const moduleName = (parts.length >= 2) ? parts.join('/') : '';
-                        if (!modulesMap.has(moduleName)) {
-                            const newModule = { name: moduleName, parameters: [] };
-                            modules.push(newModule);
-                            modulesMap.set(moduleName, newModule);
-                        }
-                        const module = modulesMap.get(moduleName);
-                        let array = new numpy.Array(entry.data);
-                        if (array.byteOrder === '|') {
-                            if (array.dataType !== 'O') {
-                                throw new npz.Error("Invalid data type '" + array.dataType + "'.");
+                            array.data = this.rawdata;
+                            if (array.data.length != size) {
+                                // TODO
+                                // throw new npz.Error('Invalid array data size.');
                             }
-                            const unpickler = new pickle.Unpickler(array.data);
-                            const root = unpickler.load(function_call);
-                            array = { dataType: root.dtype.name, shape: null, data: null, byteOrder: '|' };
                         }
-
-                        module.parameters.push({
-                            name: parameterName,
-                            dataType: dataTypeMap.has(array.dataType) ? dataTypeMap.get(array.dataType) : array.dataType,
-                            shape: array.shape,
-                            data: array.data,
-                            byteOrder: array.byteOrder
-                        });
+                        return array;
+                    };
+                });
+                constructorTable.set('numpy.dtype', function(obj, align, copy) {
+                    switch (obj) {
+                        case 'i1': this.name = 'int8'; this.itemsize = 1; break;
+                        case 'i2': this.name = 'int16'; this.itemsize = 2; break;
+                        case 'i4': this.name = 'int32'; this.itemsize = 4; break;
+                        case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                        case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
+                        case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
+                        case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
+                        case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
+                        case 'f4': this.name = 'float32'; this.itemsize = 4; break;
+                        case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                        default:
+                            if (obj.startsWith('V')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'void' + (this.itemsize * 8).toString();
+                            }
+                            else if (obj.startsWith('O')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'object';
+                            }
+                            else if (obj.startsWith('S')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'string';
+                            }
+                            else if (obj.startsWith('U')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'string';
+                            }
+                            else if (obj.startsWith('M')) {
+                                this.itemsize = Number(obj.substring(1));
+                                this.name = 'datetime';
+                            }
+                            else {
+                                throw new npz.Error("Unknown dtype '" + obj.toString() + "'.");
+                            }
+                            break;
                     }
-                    return new npz.Model(modules, 'NumPy Zip');
+                    this.align = align;
+                    this.copy = copy;
+                    this.__setstate__ = function(state) {
+                        switch (state.length) {
+                            case 8:
+                                this.version = state[0];
+                                this.byteorder = state[1];
+                                this.subarray = state[2];
+                                this.names = state[3];
+                                this.fields = state[4];
+                                this.elsize = state[5];
+                                this.alignment = state[6];
+                                this.int_dtypeflags = state[7];
+                                break;
+                            default:
+                                throw new npz.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
+                        }
+                    };
+                });
+                const function_call = (name, args) => {
+                    if (functionTable.has(name)) {
+                        const func = functionTable.get(name);
+                        return func.apply(null, args);
+                    }
+                    const obj = { __type__: name };
+                    if (constructorTable.has(name)) {
+                        const constructor = constructorTable.get(name);
+                        constructor.apply(obj, args);
+                    }
+                    else {
+                        throw new npz.Error("Unknown function '" + name + "'.");
+                    }
+                    return obj;
+                };
+
+                const dataTypeMap = new Map([
+                    [ 'i1', 'int8'], [ 'i2', 'int16' ], [ 'i4', 'int32'], [ 'i8', 'int64' ],
+                    [ 'u1', 'uint8'], [ 'u2', 'uint16' ], [ 'u4', 'uint32'], [ 'u8', 'uint64' ],
+                    [ 'f2', 'float16'], [ 'f4', 'float32' ], [ 'f8', 'float64']
+                ]);
+
+                for (const entry of context.entries('zip')) {
+                    if (!entry.name.endsWith('.npy')) {
+                        throw new npz.Error("Invalid file name '" + entry.name + "'.");
+                    }
+                    const id = entry.name.replace(/\.npy$/, '');
+                    const parts = id.split('/');
+                    const parameterName = parts.pop();
+                    const moduleName = (parts.length >= 2) ? parts.join('/') : '';
+                    if (!modulesMap.has(moduleName)) {
+                        const newModule = { name: moduleName, parameters: [] };
+                        modules.push(newModule);
+                        modulesMap.set(moduleName, newModule);
+                    }
+                    const module = modulesMap.get(moduleName);
+                    let array = new numpy.Array(entry.data);
+                    if (array.byteOrder === '|') {
+                        if (array.dataType !== 'O') {
+                            throw new npz.Error("Invalid data type '" + array.dataType + "'.");
+                        }
+                        const unpickler = new pickle.Unpickler(array.data);
+                        const root = unpickler.load(function_call);
+                        array = { dataType: root.dtype.name, shape: null, data: null, byteOrder: '|' };
+                    }
+
+                    module.parameters.push({
+                        name: parameterName,
+                        dataType: dataTypeMap.has(array.dataType) ? dataTypeMap.get(array.dataType) : array.dataType,
+                        shape: array.shape,
+                        data: array.data,
+                        byteOrder: array.byteOrder
+                    });
                 }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new npz.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new npz.Model(modules, 'NumPy Zip');
             });
         });
     }

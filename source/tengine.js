@@ -22,20 +22,13 @@ tengine.ModelFactory = class {
 
     open(context, host) {
         return tengine.Metadata.open(host).then((metadata) => {
-            const identifier = context.identifier.toLowerCase();
-            try {
-                const buffer = context.buffer;
-                const majorVersion = buffer[0] | buffer[1] << 8;
-                const minorVersion = buffer[2] | buffer[3] << 8;
-                if (majorVersion !== 2) {
-                    throw new tengine.Error("Unsupported format version 'v" + majorVersion.toString() + "." + minorVersion.toString() + "'.");
-                }
-                return new tengine.Model(metadata, buffer);
+            const buffer = context.buffer;
+            const majorVersion = buffer[0] | buffer[1] << 8;
+            const minorVersion = buffer[2] | buffer[3] << 8;
+            if (majorVersion !== 2) {
+                throw new tengine.Error("Unsupported format version 'v" + majorVersion.toString() + "." + minorVersion.toString() + "'.");
             }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new tengine.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
+            return new tengine.Model(metadata, buffer);
         });
     }
 };

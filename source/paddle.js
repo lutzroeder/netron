@@ -17,53 +17,47 @@ paddle.ModelFactory = class {
     open(context, host) {
         return host.require('./paddle-proto').then(() => {
             let desc = null;
-            const identifier = context.identifier;
             try {
                 paddle.proto = protobuf.get('paddle').paddle.framework.proto;
                 const reader = protobuf.Reader.create(context.buffer);
                 desc = paddle.proto.ProgramDesc.decode(reader);
             }
             catch (error) {
-                throw new paddle.Error("File format is not paddle.ProgramDesc (" + error.message + ") in '" + identifier + "'.");
+                const message = error && error.message ? error.message : error.toString();
+                throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
             }
             return paddle.Metadata.open(host).then((metadata) => {
-                try {
-                    const vars = new Set();
-                    for (const block of desc.blocks) {
-                        const blockVars = new Set();
-                        for (const variable of block.vars) {
-                            if (variable.persistable && variable.type &&
-                                variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
-                                variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
-                                blockVars.add(variable.name);
-                            }
+                const vars = new Set();
+                for (const block of desc.blocks) {
+                    const blockVars = new Set();
+                    for (const variable of block.vars) {
+                        if (variable.persistable && variable.type &&
+                            variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
+                            variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
+                            blockVars.add(variable.name);
                         }
-                        for (const op of block.ops) {
-                            for (const input of op.inputs) {
-                                for (const argument of input.arguments) {
-                                    if (blockVars.has(argument)) {
-                                        vars.add(argument);
-                                    }
+                    }
+                    for (const op of block.ops) {
+                        for (const input of op.inputs) {
+                            for (const argument of input.arguments) {
+                                if (blockVars.has(argument)) {
+                                    vars.add(argument);
                                 }
                             }
                         }
                     }
-                    const promises = Array.from(vars).map((name) => context.request(name, null));
-                    return Promise.all(promises).then((buffers) => {
-                        const map = new Map();
-                        const keys = Array.from(vars);
-                        for (let i = 0; i < keys.length; i++) {
-                            map.set(keys[i], buffers[i]);
-                        }
-                        return new paddle.Model(metadata, desc, map);
-                    }).catch((err) => {
-                        return new paddle.Model(metadata, desc, new Map());
-                    });
                 }
-                catch (error) {
-                    host.exception(error, false);
-                    throw new paddle.Error(error.message);
-                }
+                const promises = Array.from(vars).map((name) => context.request(name, null));
+                return Promise.all(promises).then((buffers) => {
+                    const map = new Map();
+                    const keys = Array.from(vars);
+                    for (let i = 0; i < keys.length; i++) {
+                        map.set(keys[i], buffers[i]);
+                    }
+                    return new paddle.Model(metadata, desc, map);
+                }).catch((err) => {
+                    return new paddle.Model(metadata, desc, new Map());
+                });
             });
         });
     }

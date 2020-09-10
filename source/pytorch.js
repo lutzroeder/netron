@@ -23,18 +23,18 @@ pytorch.ModelFactory = class {
         return host.require('./pickle').then((pickle) => {
             return host.require('./python').then((python) => {
                 return pytorch.Metadata.open(host).then((metadata) => {
+                    let container = null;
                     try {
-                        const container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
+                        container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
                             const message = error && error.message ? error.message : error.toString();
                             host.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                         });
-                        return new pytorch.Model(metadata, container);
                     }
                     catch (error) {
-                        host.exception(error, false);
                         const message = error && error.message ? error.message : error.toString();
-                        throw new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                        throw new pytorch.Error('File format is not PyTorch (' + message.replace(/\.$/, '') + ').');
                     }
+                    return new pytorch.Model(metadata, container);
                 });
             });
         });

@@ -42,7 +42,7 @@ uff.ModelFactory = class {
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 }
                 catch (error) {
-                    throw new uff.Error("File text format is not uff.MetaGraph (" + error.message + ") in '" + identifier + "'.");
+                    throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
                 }
             }
             else {
@@ -53,18 +53,11 @@ uff.ModelFactory = class {
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error("File format is not uff.MetaGraph (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                    throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
                 }
             }
             return uff.Metadata.open(host).then((metadata) => {
-                try {
-                    return new uff.Model(metadata, meta_graph);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new uff.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new uff.Model(metadata, meta_graph);
             });
         });
     }

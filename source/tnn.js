@@ -41,18 +41,12 @@ tnn.ModelFactory = class {
                     return new tnn.Model(metadata, context.buffer, tnnmodel);
                 }).catch(() => {
                     return new tnn.Model(metadata, context.buffer, null);
-                }).catch((error) => {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             }
             else if (identifier.endsWith('.tnnmodel')) {
                 const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
                 return context.request(tnnproto, null).then((buffer) => {
                     return new tnn.Model(metadata, buffer, context.buffer);
-                }).catch((error) => {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new tnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             }
         });

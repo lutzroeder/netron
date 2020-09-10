@@ -61,38 +61,34 @@ openvino.ModelFactory = class {
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
                     return this._openModel(identifier, host, xml, context.buffer);
-                }).catch((error) => {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new openvino.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
         }
     }
 
     _openModel(identifier, host, xml, bin) {
         return openvino.Metadata.open(host).then((metadata) => {
+            let errors = false;
+            let xmlDoc = null;
             try {
-                let errors = false;
                 const parser = new DOMParser({ errorHandler: () => { errors = true; } });
-                const xmlDoc = parser.parseFromString(xml, 'text/xml');
-                if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
-                    throw new openvino.Error("File format is not OpenVINO.");
-                }
-                if (!xmlDoc.documentElement || xmlDoc.documentElement.nodeName != 'net') {
-                    throw new openvino.Error("File format is not OpenVINO IR.");
-                }
-                const net = openvino.XmlReader.read(xmlDoc.documentElement);
-                const model = new openvino.Model(metadata, net, bin);
-                if (net.disconnectedLayers) {
-                    host.exception(new openvino.Error("Graph contains not connected layers " + JSON.stringify(net.disconnectedLayers) + " in '" + identifier + "'."));
-                }
-                return model;
+                xmlDoc = parser.parseFromString(xml, 'text/xml');
             }
             catch (error) {
-                host.exception(error, false);
                 const message = error && error.message ? error.message : error.toString();
-                throw new openvino.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                throw new openvino.Error('File format is not OpenVINO XAML (' + message.replace(/\.$/, '') + ').');
             }
+            if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                throw new openvino.Error('File format is not OpenVINO.');
+            }
+            if (!xmlDoc.documentElement || xmlDoc.documentElement.nodeName != 'net') {
+                throw new openvino.Error('File format is not OpenVINO IR.');
+            }
+            const net = openvino.XmlReader.read(xmlDoc.documentElement);
+            const model = new openvino.Model(metadata, net, bin);
+            if (net.disconnectedLayers) {
+                host.exception(new openvino.Error('Graph contains not connected layers ' + JSON.stringify(net.disconnectedLayers) + '.'));
+            }
+            return model;
         });
     }
 };

@@ -1265,6 +1265,10 @@ view.ModelFactoryService = class {
                             return modelFactory.open(context, this._host).then((model) => {
                                 return model;
                             }).catch((error) => {
+                                const text = " in '" + context.identifier + "'.";
+                                if (error && !error.message.endsWith(text)) {
+                                    error.message = error.message.replace(/\.$/, '') + text;
+                                }
                                 errors.push(error);
                                 return nextModule();
                             });
@@ -1493,7 +1497,7 @@ view.ModelFactoryService = class {
     _openSignature(context) {
         const buffer = context.buffer;
         if (context.buffer.length === 0) {
-            return Promise.reject(new ModelError("File has no content.", true));
+            return Promise.reject(new ModelError('File has no content.', true));
         }
         const list = [
             { name: 'ELF executable', value: /^\x7FELF/ },

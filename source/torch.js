@@ -19,23 +19,17 @@ torch.ModelFactory = class {
     open(context, host) {
         return torch.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
-            try {
-                const reader = new torch.T7Reader(context.buffer, (name) => {
-                    if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                        host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
-                    }
-                    return null;
-                });
-                let root = reader.read();
-                if (root && Array.isArray(root) && root.length == 2 && root[0].__type__ && !root[1].__type__) {
-                    root = root[0];
+            const reader = new torch.T7Reader(context.buffer, (name) => {
+                if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
+                    host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                 }
-                return new torch.Model(metadata, root);
+                return null;
+            });
+            let root = reader.read();
+            if (root && Array.isArray(root) && root.length == 2 && root[0].__type__ && !root[1].__type__) {
+                root = root[0];
             }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new torch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
+            return new torch.Model(metadata, root);
         });
     }
 };

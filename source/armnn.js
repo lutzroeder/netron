@@ -22,9 +22,9 @@ armnn.ModelFactory = class {
     open(context, host) {
         return host.require('./armnn-schema').then((schema) => {
             armnn.schema = flatbuffers.get('armnn').armnnSerializer;
-            const identifier = context.identifier;
             let model = null;
             try {
+                const identifier = context.identifier;
                 const extension = identifier.split('.').pop().toLowerCase();
                 switch (extension) {
                     case 'armnn': {
@@ -40,19 +40,12 @@ armnn.ModelFactory = class {
                 }
             }
             catch (error) {
-                host.exception(error, false);
                 const message = error && error.message ? error.message : error.toString();
-                throw new armnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
             }
 
             return armnn.Metadata.open(host).then((metadata) => {
-                try {
-                    return new armnn.Model(metadata, model);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new new armnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new armnn.Model(metadata, model);
             });
         });
     }

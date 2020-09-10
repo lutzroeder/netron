@@ -36,13 +36,7 @@ darknet.ModelFactory = class {
         });
     }
     _openModel( metadata, identifier, cfg, weights) {
-        try {
-            return new darknet.Model(metadata, cfg, weights ? new darknet.Weights(weights) : null);
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new darknet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-        }
+        return new darknet.Model(metadata, cfg, weights ? new darknet.Weights(weights) : null);
     }
 };
 

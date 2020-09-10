@@ -15,19 +15,19 @@ mnn.ModelFactory = class {
 
     open(context, host) {
         return host.require('./mnn-schema').then((schema) => {
+            let net = null;
+            try {
+                mnn.schema = flatbuffers.get('mnn').MNN;
+                const reader = new flatbuffers.Reader(context.buffer);
+                net = mnn.schema.Net.create(reader);
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
+
+            }
             return mnn.Metadata.open(host).then((metadata) => {
-                const identifier = context.identifier;
-                try {
-                    mnn.schema = flatbuffers.get('mnn').MNN;
-                    const reader = new flatbuffers.Reader(context.buffer);
-                    const net = mnn.schema.Net.create(reader);
-                    return new mnn.Model(metadata, net);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new mnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new mnn.Model(metadata, net);
             });
         });
     }

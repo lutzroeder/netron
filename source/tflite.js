@@ -27,30 +27,36 @@ tflite.ModelFactory = class {
     open(context, host) {
         return host.require('./tflite-schema').then(() => {
             tflite.schema = flatbuffers.get('tflite').tflite;
-            return tflite.Metadata.open(host).then((metadata) => {
-                const identifier = context.identifier;
-                try {
-                    const extension = identifier.split('.').pop().toLowerCase();
-                    switch (extension) {
-                        default: {
-                            const reader = new flatbuffers.Reader(context.buffer);
-                            if (!tflite.schema.Model.identifier(reader)) {
-                                throw new tflite.Error("File format is not tflite.Model.");
-                            }
-                            const model = tflite.schema.Model.create(reader);
-                            return new tflite.Model(metadata, model);
-                        }
-                        case 'json': {
-                            const reader = new flatbuffers.TextReader(context.buffer);
-                            const model = tflite.schema.Model.createText(reader);
-                            return new tflite.Model(metadata, model);
-                        }
+            let model = null;
+            const identifier = context.identifier;
+            const extension = identifier.split('.').pop().toLowerCase();
+            switch (extension) {
+                case 'json':
+                    try {
+                        const reader = new flatbuffers.TextReader(context.buffer);
+                        model = tflite.schema.Model.createText(reader);
                     }
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new tflite.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new tflite.Error('File text format is not tflite.Model (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
+                default:
+                    try {
+                        const reader = new flatbuffers.Reader(context.buffer);
+                        if (!tflite.schema.Model.identifier(reader)) {
+                            throw new tflite.Error('Invalid identifier.');
+                        }
+                        model = tflite.schema.Model.create(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new tflite.Error('File format is not tflite.Model (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
+            }
+            return tflite.Metadata.open(host).then((metadata) => {
+                return new tflite.Model(metadata, model);
             });
         });
     }

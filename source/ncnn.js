@@ -52,24 +52,12 @@ ncnn.ModelFactory = class {
         return ncnn.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
             const openBinary = (param, bin) => {
-                try {
-                    const reader = new ncnn.BinaryParamReader(metadata, param);
-                    return new ncnn.Model(metadata, reader, bin);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                const reader = new ncnn.BinaryParamReader(metadata, param);
+                return new ncnn.Model(metadata, reader, bin);
             };
             const openText = (param, bin) => {
-                try {
-                    const reader = new ncnn.TextParamReader(param);
-                    return new ncnn.Model(metadata, reader, bin);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                const reader = new ncnn.TextParamReader(param);
+                return new ncnn.Model(metadata, reader, bin);
             };
             let bin = null;
             if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
@@ -103,9 +91,6 @@ ncnn.ModelFactory = class {
                 }
                 return context.request(text, null).then((buffer) => {
                     return openText(buffer, context.buffer);
-                }).catch((error) => {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new ncnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             }
         });

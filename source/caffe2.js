@@ -8,47 +8,35 @@ caffe2.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension == 'pb') {
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb') ||
-                identifier.startsWith('predict_net') || identifier.startsWith('init_net')) {
-                return true;
-            }
-            const tags = context.tags('pb');
-            // ignore input_0.pb, output_0.pb
-            if (tags.size > 0 &&
-                tags.has(1) && tags.get(1) == 0 &&
-                tags.has(2) && tags.get(2) == 0 &&
-                tags.has(9) && tags.get(9) == 2) {
-                return false;
-            }
-            if (tags.size > 0 &&
-                Array.from(tags.values()).some((v) => v === 5)) {
-                return false;
-            }
-            if (tags.size > 0 &&
-                (!tags.has(1) || tags.get(1) === 2) &&
-                (!tags.has(2) || tags.get(2) === 2) &&
-                (!tags.has(7) || tags.get(7) === 2) &&
-                (!tags.has(8) || tags.get(8) === 2)) {
-                const buffer = context.buffer;
-                if (buffer.length > 3 && buffer[0] == 0x0A) {
-                    const size = buffer[1];
-                    if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) && buffer[2 + size] == 0x12) {
-                        return true;
+        switch (extension) {
+            case 'pb': {
+                const tags = context.tags('pb');
+                if (tags.size > 0 &&
+                    Array.from(tags.keys()).every((tag) => tag <= 9) &&
+                    Array.from(tags.values()).every((type) => type <= 4)) {
+                    const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                        const buffer = context.buffer;
+                        if (buffer.length > 3 && buffer[0] == 0x0A) {
+                            const size = buffer[1];
+                            if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) && buffer[2 + size] == 0x12) {
+                                return true;
+                            }
+                        }
+                        if (buffer.length > 3 && buffer[0] == 0x12) {
+                            return true;
+                        }
                     }
                 }
-                if (buffer.length > 3 && buffer[0] == 0x12) {
+                break;
+            }
+            case 'pbtxt':
+            case 'prototxt': {
+                const tags = context.tags('pbtxt');
+                if (tags.has('op') && !tags.has('op.attr') && !tags.has('op.graph_op_name') && !tags.has('op.endpoint')) {
                     return true;
                 }
-            }
-        }
-        if (extension == 'pbtxt' || extension == 'prototxt') {
-            if (identifier.endsWith('predict_net')) {
-                return true;
-            }
-            const tags = context.tags('pbtxt');
-            if (tags.has('op') && !tags.has('op.attr')) {
-                return true;
+                break;
             }
         }
         return false;
@@ -78,7 +66,8 @@ caffe2.ModelFactory = class {
                             predict_net = caffe2.proto.NetDef.decodeText(reader);
                         }
                         catch (error) {
-                            throw new caffe2.Error("File text format is not caffe2.NetDef (" + error.message + ") in '" + identifier + "'.");
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new caffe2.Error('File text format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
                         }
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
@@ -89,14 +78,7 @@ caffe2.ModelFactory = class {
                         catch (error) {
                             // continue regardless of error
                         }
-                        try {
-                            return new caffe2.Model(metadata, predict_net, init_net);
-                        }
-                        catch (error) {
-                            host.exception(error, false);
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new caffe2.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                        }
+                        return new caffe2.Model(metadata, predict_net, init_net);
                     };
                     if (base.toLowerCase().endsWith('init_net') || base.toLowerCase().startsWith('init_net')) {
                         return context.request(identifier.replace('init_net', 'predict_net'), null).then((buffer) => {
@@ -135,7 +117,7 @@ caffe2.ModelFactory = class {
                         }
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new caffe2.Error("File format is not caffe2.NetDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                            throw new caffe2.Error('File format is not caffe2.NetDef (' + message.replace(/\.$/, '') + ').');
                         }
                         try {
                             if (initBuffer) {
@@ -147,14 +129,7 @@ caffe2.ModelFactory = class {
                         catch (error) {
                             // continue regardless of error
                         }
-                        try {
-                            return new caffe2.Model(metadata, predict_net, init_net);
-                        }
-                        catch (error) {
-                            host.exception(error, false);
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new caffe2.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                        }
+                        return new caffe2.Model(metadata, predict_net, init_net);
                     };
                     if (base.toLowerCase().endsWith('init_net')) {
                         return context.request(base.replace(/init_net$/, '') + 'predict_net.' + extension, null).then((buffer) => {

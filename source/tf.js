@@ -102,7 +102,7 @@ tf.ModelFactory = class {
                         producer = root.convertedBy || root.generatedBy || '';
                     }
                     catch (error) {
-                        throw new tf.Error("File text format is not TensorFlow.js graph-model (" + error.message + ") in '" + identifier + "'.");
+                        throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
                     }
                     break;
                 }
@@ -125,7 +125,7 @@ tf.ModelFactory = class {
                                 }
                             }
                             catch (error) {
-                                throw new tf.Error("File text format is not tensorflow.SavedModel (" + error.message + ") in '" + identifier + "'.");
+                                throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
                             }
                         }
                         else if (tags.has('graph_def')) {
@@ -138,7 +138,7 @@ tf.ModelFactory = class {
                                 }
                             }
                             catch (error) {
-                                throw new tf.Error("File text format is not tensorflow.MetaGraphDef (" + error.message + ") in '" + identifier + "'.");
+                                throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
                             }
                         }
                         else if (tags.has('node')) {
@@ -152,7 +152,7 @@ tf.ModelFactory = class {
                             }
                             catch (error) {
                                 const message = error && error.message ? error.message : error.toString();
-                                throw new tf.Error("File text format is not tensorflow.GraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                                throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
                             }
                         }
                     }
@@ -171,7 +171,7 @@ tf.ModelFactory = class {
                             const buffer = context.buffer;
                             if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
                                 const message = error && error.message ? error.message : error.toString();
-                                throw new tf.Error("File format is not tensorflow.SavedModel (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                                throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
                             }
                         }
                         try {
@@ -185,7 +185,7 @@ tf.ModelFactory = class {
                         }
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error("File format is not tensorflow.MetaGraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                            throw new tf.Error('File format is not tensorflow.MetaGraphDef (' + message.replace(/\.$/, '') + ').');
                         }
                         try {
                             if (!saved_model) {
@@ -200,7 +200,7 @@ tf.ModelFactory = class {
                         }
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error("File format is not tensorflow.GraphDef (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                            throw new tf.Error('File format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
                         }
                     }
                     if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
@@ -232,14 +232,7 @@ tf.ModelFactory = class {
     }
 
     static _openModel(identifier, host, metadata, saved_model, format, producer, bundle) {
-        try {
-            return new tf.Model(metadata, saved_model, format, producer, bundle);
-        }
-        catch (error) {
-            host.exception(error, false);
-            const message = error && error.message ? error.message : error.toString();
-            throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-        }
+        return new tf.Model(metadata, saved_model, format, producer, bundle);
     }
 
     static _openBundle(context, host) {

@@ -19,15 +19,8 @@ barracuda.ModelFactory = class {
 
     open(context /*, host */) {
         return barracuda.Metadata.open().then((metadata) => {
-            try {
-                const nn = new barracuda.NNModel(context.buffer);
-                return new barracuda.Model(metadata, nn);
-            }
-            catch (error) {
-                const identifier = context.identifier.toLowerCase();
-                const message = error && error.message ? error.message : error.toString();
-                throw new barracuda.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
+            const nn = new barracuda.NNModel(context.buffer);
+            return new barracuda.Model(metadata, nn);
         });
     }
 };

@@ -25,14 +25,8 @@ mlnet.ModelFactory = class {
     open(context, host) {
         const identifier = context.identifier;
         return mlnet.Metadata.open(host).then((metadata) => {
-            try {
-                const reader = new mlnet.ModelReader(context.entries('zip'));
-                return new mlnet.Model(metadata, reader);
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new mlnet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
+            const reader = new mlnet.ModelReader(context.entries('zip'));
+            return new mlnet.Model(metadata, reader);
         });
     }
 };

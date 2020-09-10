@@ -21,17 +21,10 @@ coreml.ModelFactory = class {
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new coreml.Error("File format is not coreml.Model (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
             }
             return coreml.Metadata.open(host).then((metadata) => {
-                try {
-                    return new coreml.Model(metadata, decodedBuffer);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new coreml.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new coreml.Model(metadata, decodedBuffer);
             });
         });
     }

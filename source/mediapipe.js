@@ -18,17 +18,18 @@ mediapipe.ModelFactory = class {
     }
 
     open(context, host) {
-        const identifier = context.identifier;
-        try {
-            const reader = protobuf.TextReader.create(context.buffer);
-            const root = new mediapipe.Object(reader);
-            return Promise.resolve(new mediapipe.Model(root));
-        }
-        catch (error) {
-            host.exception(error, false);
-            const message = error && error.message ? error.message : error.toString();
-            return Promise.reject(new mediapipe.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."));
-        }
+        return Promise.resolve().then(() => {
+            let root;
+            try {
+                const reader = protobuf.TextReader.create(context.buffer);
+                root = new mediapipe.Object(reader);
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
+            }
+            return new mediapipe.Model(root);
+        });
     }
 };
 

@@ -28,17 +28,10 @@ dnn.ModelFactory = class {
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new dnn.Error("File format is not dnn.Graph (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
             }
             return dnn.Metadata.open(host).then((metadata) => {
-                try {
-                    return new dnn.Model(metadata, model);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new dnn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new dnn.Model(metadata, model);
             });
         });
     }

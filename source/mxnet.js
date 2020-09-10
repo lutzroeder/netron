@@ -32,19 +32,25 @@ mxnet.ModelFactory = class {
     }
 
     open(context, host) {
-        const identifier = context.identifier;
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        let symbol = null;
-        let params = null;
-        let format = null;
-        let basename = null;
-        switch (extension) {
-            case 'json':
-                try {
-                    const reader = json.TextReader.create(context.buffer);
-                    symbol = reader.read();
-                    if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
-                        format  = 'TVM';
+        return Promise.resolve().then(() => {
+            const identifier = context.identifier;
+            const extension = context.identifier.split('.').pop().toLowerCase();
+            let symbol = null;
+            let params = null;
+            let format = null;
+            let basename = null;
+            switch (extension) {
+                case 'json':
+                    try {
+                        const reader = json.TextReader.create(context.buffer);
+                        symbol = reader.read();
+                        if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
+                            format  = 'TVM';
+                        }
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new mxnet.Error("Failed to load symbol entry (" + message.replace(/\.$/, '') + ').');
                     }
                     basename = mxnet.ModelFactory._basename(identifier, 'json', 'symbol');
                     if (basename) {
@@ -55,151 +61,139 @@ mxnet.ModelFactory = class {
                         });
                     }
                     return this._openModel(identifier, format, null, symbol, null, null, host);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    throw new mxnet.Error(error.message), null;
-                }
-            case 'params':
-                params = context.buffer;
-                basename = mxnet.ModelFactory._basename(context.identifier, 'params');
-                if (basename) {
-                    return context.request(basename + '-symbol.json', 'utf-8').then((text) => {
-                        symbol = JSON.parse(text);
-                        if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
-                            format  = 'TVM';
-                        }
-                        return this._openModel(identifier, format, null, symbol, null, params, host);
-                    }).catch(() => {
-                        return this._openModel(identifier, format, null, null, null, params, host);
-                    });
-                }
-                else {
-                    return this._openModel(identifier, format, null, null, null, params, host);
-                }
-            case 'mar':
-            case 'model': {
-                const entries = new Map();
-                try {
-                    for (const entry of context.entries('zip')) {
-                        entries.set(entry.name, entry);
-                    }
-                }
-                catch (err) {
-                    throw new mxnet.Error('Failed to decompress Zip archive. ' + err.message);
-                }
-
-                let manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');
-                let rootFolder = '';
-                if (!manifestEntry) {
-                    const folders = Array.from(entries.keys()).filter((name) => name.endsWith('/')).filter((name) => entries.get(name + 'MANIFEST.json'));
-                    if (folders.length != 1) {
-                        throw new mxnet.Error("Manifest not found in '" + context.identifier + "'.");
-                    }
-                    rootFolder = folders[0];
-                    manifestEntry = entries.get(rootFolder + 'MANIFEST.json');
-                }
-
-                const decoder = new TextDecoder('utf-8');
-                let manifest = null;
-                try {
-                    manifest = JSON.parse(decoder.decode(manifestEntry.data));
-                }
-                catch (err) {
-                    throw new mxnet.Error('Failed to read manifest. ' + err.message);
-                }
-
-                let modelFormat = null;
-                let symbolEntry = null;
-                let signatureEntry = null;
-                let paramsEntry = null;
-                if (manifest.Model) {
-                    modelFormat = manifest.Model['Model-Format'];
-                    if (modelFormat && modelFormat != 'MXNet-Symbolic') {
-                        throw new mxnet.Error('Model format \'' + modelFormat + '\' not supported.');
-                    }
-                    format = 'MXNet Model Server';
-                    if (manifest['Model-Archive-Version']) {
-                        format += ' v' + manifest['Model-Archive-Version'].toString();
-                    }
-                    if (!manifest.Model.Symbol) {
-                        throw new mxnet.Error('Manifest does not contain symbol entry.');
-                    }
-                    symbolEntry = entries.get(rootFolder + manifest.Model.Symbol);
-                    if (manifest.Model.Signature) {
-                        signatureEntry = entries.get(rootFolder + manifest.Model.Signature);
-                    }
-                    if (manifest.Model.Parameters) {
-                        paramsEntry = entries.get(rootFolder + manifest.Model.Parameters);
-                    }
-                }
-                else if (manifest.model) {
-                    format = 'MXNet Model Archive';
-                    if (manifest.specificationVersion) {
-                        format += ' v' + manifest.specificationVersion.toString();
-                    }
-                    if (manifest.model.modelName) {
-                        symbolEntry = entries.get(rootFolder + manifest.model.modelName + '-symbol.json');
-                        let key = null;
-                        for (key of Array.from(entries.keys())) {
-                            key = key.substring(rootFolder.length);
-                            if (key.endsWith('.params') && key.startsWith(manifest.model.modelName)) {
-                                paramsEntry = entries.get(key);
-                                break;
+                case 'params':
+                    params = context.buffer;
+                    basename = mxnet.ModelFactory._basename(context.identifier, 'params');
+                    if (basename) {
+                        return context.request(basename + '-symbol.json', 'utf-8').then((text) => {
+                            symbol = JSON.parse(text);
+                            if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
+                                format  = 'TVM';
                             }
+                            return this._openModel(identifier, format, null, symbol, null, params, host);
+                        }).catch(() => {
+                            return this._openModel(identifier, format, null, null, null, params, host);
+                        });
+                    }
+                    return this._openModel(identifier, format, null, null, null, params, host);
+                case 'mar':
+                case 'model': {
+                    const entries = new Map();
+                    try {
+                        for (const entry of context.entries('zip')) {
+                            entries.set(entry.name, entry);
                         }
-                        if (!symbolEntry && !paramsEntry) {
-                            for (key of Object.keys(entries)) {
+                    }
+                    catch (err) {
+                        throw new mxnet.Error('Failed to decompress Zip archive. ' + err.message);
+                    }
+
+                    let manifestEntry = entries.get(entries.has('MANIFEST.json') ? 'MANIFEST.json' : 'MAR-INF/MANIFEST.json');
+                    let rootFolder = '';
+                    if (!manifestEntry) {
+                        const folders = Array.from(entries.keys()).filter((name) => name.endsWith('/')).filter((name) => entries.get(name + 'MANIFEST.json'));
+                        if (folders.length != 1) {
+                            throw new mxnet.Error("Manifest not found.");
+                        }
+                        rootFolder = folders[0];
+                        manifestEntry = entries.get(rootFolder + 'MANIFEST.json');
+                    }
+
+                    const decoder = new TextDecoder('utf-8');
+                    let manifest = null;
+                    try {
+                        manifest = JSON.parse(decoder.decode(manifestEntry.data));
+                    }
+                    catch (err) {
+                        throw new mxnet.Error('Failed to read manifest. ' + err.message);
+                    }
+
+                    let modelFormat = null;
+                    let symbolEntry = null;
+                    let signatureEntry = null;
+                    let paramsEntry = null;
+                    if (manifest.Model) {
+                        modelFormat = manifest.Model['Model-Format'];
+                        if (modelFormat && modelFormat != 'MXNet-Symbolic') {
+                            throw new mxnet.Error('Model format \'' + modelFormat + '\' not supported.');
+                        }
+                        format = 'MXNet Model Server';
+                        if (manifest['Model-Archive-Version']) {
+                            format += ' v' + manifest['Model-Archive-Version'].toString();
+                        }
+                        if (!manifest.Model.Symbol) {
+                            throw new mxnet.Error('Manifest does not contain symbol entry.');
+                        }
+                        symbolEntry = entries.get(rootFolder + manifest.Model.Symbol);
+                        if (manifest.Model.Signature) {
+                            signatureEntry = entries.get(rootFolder + manifest.Model.Signature);
+                        }
+                        if (manifest.Model.Parameters) {
+                            paramsEntry = entries.get(rootFolder + manifest.Model.Parameters);
+                        }
+                    }
+                    else if (manifest.model) {
+                        format = 'MXNet Model Archive';
+                        if (manifest.specificationVersion) {
+                            format += ' v' + manifest.specificationVersion.toString();
+                        }
+                        if (manifest.model.modelName) {
+                            symbolEntry = entries.get(rootFolder + manifest.model.modelName + '-symbol.json');
+                            let key = null;
+                            for (key of Array.from(entries.keys())) {
                                 key = key.substring(rootFolder.length);
-                                if (key.endsWith('.params')) {
+                                if (key.endsWith('.params') && key.startsWith(manifest.model.modelName)) {
                                     paramsEntry = entries.get(key);
                                     break;
                                 }
                             }
+                            if (!symbolEntry && !paramsEntry) {
+                                for (key of Object.keys(entries)) {
+                                    key = key.substring(rootFolder.length);
+                                    if (key.endsWith('.params')) {
+                                        paramsEntry = entries.get(key);
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-                else {
-                    throw new mxnet.Error('Manifest does not contain model.');
-                }
-
-                if (!symbolEntry && !paramsEntry) {
-                    throw new mxnet.Error("Model does not contain symbol entry.");
-                }
-
-                try {
-                    if (symbolEntry) {
-                        symbol = JSON.parse(decoder.decode(symbolEntry.data));
+                    else {
+                        throw new mxnet.Error('Manifest does not contain model.');
                     }
-                }
-                catch (err) {
-                    throw new mxnet.Error('Failed to load symbol entry.' + err.message);
-                }
 
-                if (paramsEntry) {
-                    params = paramsEntry.data;
-                }
-                let signature = null;
-                try {
-                    if (signatureEntry) {
-                        signature = JSON.parse(decoder.decode(signatureEntry.data));
+                    if (!symbolEntry && !paramsEntry) {
+                        throw new mxnet.Error("Model does not contain symbol entry.");
                     }
-                }
-                catch (err) {
-                    // continue regardless of error
-                }
 
-                try {
+                    try {
+                        if (symbolEntry) {
+                            symbol = JSON.parse(decoder.decode(symbolEntry.data));
+                        }
+                    }
+                    catch (err) {
+                        throw new mxnet.Error('Failed to load symbol entry.' + err.message);
+                    }
+
+                    if (paramsEntry) {
+                        params = paramsEntry.data;
+                    }
+                    let signature = null;
+                    try {
+                        if (signatureEntry) {
+                            signature = JSON.parse(decoder.decode(signatureEntry.data));
+                        }
+                    }
+                    catch (err) {
+                        // continue regardless of error
+                    }
+
                     return this._openModel(identifier, format, manifest, symbol, signature, params, host);
                 }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new mxnet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                default:
+                    throw new mxnet.Error('Unsupported file extension.');
             }
-            default:
-                throw new mxnet.Error('Unsupported file extension.');
-        }
+        });
     }
 
     _openModel(identifier, format, manifest, symbol, signature, params, host) {
@@ -217,14 +211,7 @@ mxnet.ModelFactory = class {
                     // continue regardless of error
                 }
             }
-            try {
-                return new mxnet.Model(metadata, format, manifest, symbol, signature, parameters);
-            }
-            catch (error) {
-                host.exception(error, false);
-                const message = error && error.message ? error.message : error.toString();
-                throw new mxnet.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-            }
+            return new mxnet.Model(metadata, format, manifest, symbol, signature, parameters);
         });
     }
 

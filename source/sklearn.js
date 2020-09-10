@@ -38,23 +38,21 @@ sklearn.ModelFactory = class {
         return host.require('./pickle').then((pickle) => {
             const identifier = context.identifier;
             return sklearn.Metadata.open(host).then((metadata) => {
+                let container;
                 try {
-                    const container = new sklearn.Container(context.buffer, pickle, (error, fatal) => {
+                    container = new sklearn.Container(context.buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
-                    if (!container.weights) {
-                        if (!container.data) {
-                            throw new sklearn.Error('No root object.');
-                        }
+                    if (!container.weights && !container.data) {
+                        throw new sklearn.Error('No root object.');
                     }
-                    return new sklearn.Model(metadata, container.data, container.weights);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     const message = error && error.message ? error.message : error.toString();
-                    throw new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                    throw new sklearn.Error('File is not scikit-learn (' + message.replace(/\.$/, '') + ').');
                 }
+                return new sklearn.Model(metadata, container.data, container.weights);
             });
         });
     }

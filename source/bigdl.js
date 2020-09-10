@@ -20,20 +20,19 @@ bigdl.ModelFactory = class {
 
     open(context, host) {
         return host.require('./bigdl-proto').then(() => {
+            let module = null;
+            try {
+                // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
+                bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
+                const reader = protobuf.Reader.create(context.buffer);
+                module = bigdl.proto.BigDLModule.decode(reader);
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
+            }
             return bigdl.Metadata.open(host).then((metadata) => {
-                const identifier = context.identifier;
-                try {
-                    // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
-                    bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
-                    const reader = protobuf.Reader.create(context.buffer);
-                    const module = bigdl.proto.BigDLModule.decode(reader);
-                    return new bigdl.Model(metadata, module);
-                }
-                catch (error) {
-                    host.exception(error, false);
-                    const message = error && error.message ? error.message : error.toString();
-                    throw new bigdl.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-                }
+                return new bigdl.Model(metadata, module);
             });
         });
     }
@@ -477,6 +476,7 @@ bigdl.Metadata = class {
 };
 
 bigdl.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading BigDL model.';

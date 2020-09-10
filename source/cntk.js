@@ -48,7 +48,7 @@ cntk.ModelFactory = class {
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new cntk.Error("File format is not CNTK v1 (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
             }
             try {
                 if (!obj) {
@@ -62,15 +62,10 @@ cntk.ModelFactory = class {
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new cntk.Error("File format is not cntk.Dictionary (" + message.replace(/\.$/, '') + ") in '" + identifier + "'.");
+                throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
             }
             return cntk.Metadata.open(host).then((metadata) => {
-                try {
-                    return new cntk.Model(metadata, version, obj);
-                }
-                catch (error) {
-                    throw new cntk.Error(error.message);
-                }
+                return new cntk.Model(metadata, version, obj);
             });
         });
     }

@@ -17,29 +17,24 @@ flux.ModelFactory = class {
     }
 
     open(context, host) {
-        let model = null;
-        const identifier = context.identifier;
-        try {
-            const reader = json.BinaryReader.create(context.buffer);
-            const root = reader.read();
-            const obj = flux.ModelFactory._backref(root, root);
-            model = obj.model;
-            if (!model) {
-                throw new flux.Error('File does not contain Flux model.');
-            }
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new flux.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-        }
-        return flux.Metadata.open(host).then((metadata) => {
+        return Promise.resolve().then(() => {
+            let root = null;
             try {
-                return new flux.Model(metadata, model);
+                const reader = json.BinaryReader.create(context.buffer);
+                root = reader.read();
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
-                throw new flux.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                throw new flux.Error('File format is not Flux BSON (' + message.replace(/\.$/, '') + ').');
             }
+            return flux.Metadata.open(host).then((metadata) => {
+                const obj = flux.ModelFactory._backref(root, root);
+                const model = obj.model;
+                if (!model) {
+                    throw new flux.Error('File does not contain Flux model.');
+                }
+                return new flux.Model(metadata, model);
+            });
         });
     }
 
