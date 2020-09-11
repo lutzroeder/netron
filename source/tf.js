@@ -18,7 +18,7 @@ tf.ModelFactory = class {
                 return true;
             }
         }
-        if (extension === 'pbtxt' || extension === 'prototxt') {
+        if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return false;
