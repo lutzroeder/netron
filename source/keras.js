@@ -8,12 +8,12 @@ keras.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'h5' || extension === 'hd5' || extension === 'hdf5' || extension === 'keras' || extension === 'model' || extension == 'pb' || extension == 'pth') {
+        if (new Set([ 'h5', 'json', 'hd5', 'hdf5', 'hdf', 'keras', 'model', 'pb', 'pth' ]).has(extension)) {
             const buffer = context.buffer;
             const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-            return buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i]);
-        }
-        if (extension == 'json' && !identifier.endsWith('-symbol.json')) {
+            if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
+                return true;
+            }
             const tags = context.tags('json');
             if (tags.has('mxnet_version')) {
                 return false;
@@ -21,10 +21,7 @@ keras.ModelFactory = class {
             if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
                 return false;
             }
-            if (tags.has('format') && tags.get('format') === 'graph-model' && tags.has('modelTopology')) {
-                return false;
-            }
-            if (tags.has('modelTopology')) {
+            if (tags.has('modelTopology') && tags.get('format') !== 'graph-model') {
                 return true;
             }
             if (tags.has('model_config') || (tags.has('class_name') && tags.has('config'))) {
