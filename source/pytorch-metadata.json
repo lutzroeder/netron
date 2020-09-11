@@ -721,7 +721,8 @@
       "category": "Layer",
       "inputs": [
         { "name": "input", "type": "tensor" },
-        { "name": "packed_params", "type": "tensor" }
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -753,7 +754,8 @@
       "category": "Layer",
       "inputs": [
         { "name": "input", "type": "tensor" },
-        { "name": "packed_params", "type": "tensor" }
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
@@ -774,10 +776,41 @@
       "category": "Layer",
       "inputs": [
         { "name": "input", "type": "tensor" },
-        { "name": "packed_weight", "type": "tensor" }
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.add_relu:Tensor",
+    "schema": {
+      "attributes": [
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "float32" }
+      ],
+      "inputs": [
+        { "name": "qa", "type": "tensor" },
+        { "name": "qb", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "qc", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.add_relu:Scalar",
+    "schema": {
+      "attributes": [
+        { "name": "b", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "qa", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "qc", "type": "tensor" }
       ]
     }
   },

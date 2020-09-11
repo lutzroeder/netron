@@ -4208,6 +4208,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet50_pertensor.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5205363/resnet50_pertensor.zip[resnet50_pertensor.pt]",
+    "format": "TorchScript v1.5",
+    "link":   "https://github.com/lutzroeder/netron/issues/546#issuecomment-690055177"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet101.pkl.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
