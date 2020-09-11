@@ -178,6 +178,13 @@
     }
   },
   {
+    "name": "torch.nn.modules.activation.Hardsigmoid",
+    "schema": {
+      "attributes": [],
+      "category": "Activation"
+    }
+  },
+  {
     "name": "torch.nn.modules.activation.LeakyReLU",
     "schema": {
       "attributes": [],

@@ -1027,6 +1027,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.activation.GLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.Hardtanh', function() {});
         this._registerConstructor('torch.nn.modules.activation.Hardswish', function() {});
+        this._registerConstructor('torch.nn.modules.activation.Hardsigmoid', function() {});
         this._registerConstructor('torch.nn.modules.activation.LeakyReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.LogSigmoid', function() {});
         this._registerConstructor('torch.nn.modules.activation.LogSoftmax', function() {});
