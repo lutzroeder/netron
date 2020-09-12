@@ -6,14 +6,14 @@ var json = json || require('./json');
 keras.ModelFactory = class {
 
     match(context) {
+        const buffer = context.buffer;
+        const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
+        if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
+            return true;
+        }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (new Set([ 'h5', 'json', 'hd5', 'hdf5', 'hdf', 'keras', 'model', 'pb', 'pth' ]).has(extension)) {
-            const buffer = context.buffer;
-            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-            if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
-                return true;
-            }
+        if (extension === 'json') {
             const tags = context.tags('json');
             if (tags.has('mxnet_version')) {
                 return false;
