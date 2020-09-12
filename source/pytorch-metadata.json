@@ -792,11 +792,11 @@
     }
   },
   {
-    "name": "ops.quantized.add_relu:Tensor",
+    "name": "ops.quantized.add_relu:",
     "schema": {
       "attributes": [
         { "name": "scale", "type": "float32" },
-        { "name": "zero_point", "type": "float32" }
+        { "name": "zero_point", "type": "int64" }
       ],
       "inputs": [
         { "name": "qa", "type": "tensor" },
@@ -818,6 +818,199 @@
       ],
       "outputs": [
         { "name": "qc", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.cat",
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "scale", "type": "float32", "optional": true },
+        { "name": "zero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.cat_relu",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "scale", "type": "float32", "optional": true },
+        { "name": "zero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm_relu",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm1d",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm1d_relu",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm2d",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm2d_relu",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm3d",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.batch_norm3d_relu",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "type": "float32" },
+        { "name": "output_scale", "type": "float32", "optional": true },
+        { "name": "outputzero_point", "type": "int64", "optional": true }
+      ],
+      "inputs": [
+        { "name": "qx", "type": "tensor" },
+        { "name": "weight", "type": "tensor", "optional": true },
+        { "name": "bias", "type": "tensor", "optional": true },
+        { "name": "mean", "type": "tensor" },
+        { "name": "var", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
       ]
     }
   },

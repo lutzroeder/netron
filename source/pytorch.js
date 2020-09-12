@@ -3164,6 +3164,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     case 'torch.flatten':
                                     case 'torch.max_pool2d':
                                     case 'torch.adaptive_avg_pool2d':
+                                    case 'torch.avg_pool2d':
                                     case 'torch.quantize_per_tensor':
                                     case 'torch.relu_':
                                     case 'torch.hardtanh_':
@@ -3185,6 +3186,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         parameter.size = this.expression(args[0], context);
                                         break;
                                     }
+                                    case 'ops.quantized.cat':
+                                    case 'ops.quantized.cat_relu':
                                     case 'ops.quantized.linear':
                                     case 'ops.quantized.conv2d':
                                     case 'ops.quantized.conv2d_relu':
