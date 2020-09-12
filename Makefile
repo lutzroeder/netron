@@ -42,7 +42,7 @@ build_electron: install
 	npx electron-builder --linux snap --publish never
 
 lint: install
-	npx eslint source/*.js test/*.js setup/*.js tools/*.js
+	npx eslint source/*.js test/*.js publish/*.js tools/*.js
 
 test: install
 	node ./test/models.js
@@ -75,7 +75,7 @@ publish_cask:
 	rm -rf ./dist/homebrew-cask
 	sleep 4
 	git clone --depth=2 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
-	node ./setup/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
+	node ./publish/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
 	git -C ./dist/homebrew-cask add --all
 	git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/homebrew-cask push
@@ -89,7 +89,7 @@ publish_winget:
 	rm -rf ./dist/winget-pkgs
 	sleep 4
 	git clone --depth=2 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
-	node ./setup/winget.js ./package.json ./dist/winget-pkgs/manifests
+	node ./publish/winget.js ./package.json ./dist/winget-pkgs/manifests
 	git -C ./dist/winget-pkgs add --all
 	git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/winget-pkgs push
@@ -99,7 +99,7 @@ publish_winget:
 	curl -s -H "Authorization: token $(GITHUB_TOKEN)" -X "DELETE" https://api.github.com/repos/$(GITHUB_USER)/winget-pkgs # 2>&1 > /dev/null
 
 version:
-	node ./setup/version.js ./package.json
+	node ./publish/version.js ./package.json
 	git add ./package.json
 	git commit -m "Update to $$(node -pe "require('./package.json').version")"
 	git tag v$$(node -pe "require('./package.json').version")

@@ -3,7 +3,7 @@ productName: Netron
 files:
   - 'source/**/*'
 directories:
-  buildResources: ./setup
+  buildResources: ./publish
 fileAssociations:
   - name: "Arm NN Model"
     ext: armnn
@@ -63,7 +63,7 @@ fileAssociations:
     ext: paddle
   - name: "PaddlePaddle"
     ext: pdmodel
-afterSign: "./setup/notarize.js"
+afterSign: "./publish/notarize.js"
 publish:
   - provider: github
     releaseType: release
