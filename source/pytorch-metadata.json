@@ -722,17 +722,70 @@
     "name": "ops.quantized.linear",
     "schema": {
       "attributes": [
-        { "name": "scale", "type": "float32" },
-        { "name": "zero_point", "type": "int64" }
+        { "name": "Y_scale_i", "type": "float32" },
+        { "name": "Y_zero_point_i", "type": "int64" }
       ],
       "category": "Layer",
       "inputs": [
-        { "name": "input", "type": "tensor" },
+        { "name": "X", "type": "tensor" },
         { "name": "weight", "type": "tensor" },
         { "name": "bias", "type": "tensor" }
       ],
       "outputs": [
-        { "name": "output", "type": "tensor" }
+        { "name": "Y", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.linear_relu",
+    "schema": {
+      "attributes": [
+        { "name": "Y_scale_i", "type": "float32" },
+        { "name": "Y_zero_point_i", "type": "int64" }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "X", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "Y", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.linear_dynamic",
+    "schema": {
+      "attributes": [
+        { "name": "reduce_range", "type": "boolean", "default": false }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "X", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "Y", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.linear_relu_dynamic",
+    "schema": {
+      "attributes": [
+        { "name": "Y_scale_i", "type": "float32" },
+        { "name": "Y_zero_point_i", "type": "int64" }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "X", "type": "tensor" },
+        { "name": "weight", "type": "tensor" },
+        { "name": "bias", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "Y", "type": "tensor" }
       ]
     }
   },
@@ -841,6 +894,7 @@
   {
     "name": "ops.quantized.cat_relu",
     "schema": {
+      "category": "Tensor",
       "attributes": [
         { "name": "dim", "type": "int64" },
         { "name": "scale", "type": "float32", "optional": true },
@@ -877,6 +931,7 @@
   {
     "name": "ops.quantized.batch_norm_relu",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -897,6 +952,7 @@
   {
     "name": "ops.quantized.batch_norm1d",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -917,6 +973,7 @@
   {
     "name": "ops.quantized.batch_norm1d_relu",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -937,6 +994,7 @@
   {
     "name": "ops.quantized.batch_norm2d",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -957,6 +1015,7 @@
   {
     "name": "ops.quantized.batch_norm2d_relu",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -977,6 +1036,7 @@
   {
     "name": "ops.quantized.batch_norm3d",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -997,6 +1057,7 @@
   {
     "name": "ops.quantized.batch_norm3d_relu",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "eps", "type": "float32" },
         { "name": "output_scale", "type": "float32", "optional": true },
@@ -1269,13 +1330,13 @@
   {
     "name": "torch.batch_norm",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "training", "type": "boolean", "visible": false },
         { "name": "momentum", "type": "float32", "default": 0.1 },
         { "name": "eps", "type": "float32", "default": 1e-05 },
         { "name": "cudnn_enabled", "type": "boolean", "visible": false }
       ],
-      "category": "Normalization",
       "inputs": [
         { "name": "input", "type": "tensor" },
         { "name": "weight", "type": "tensor", "optional": true },
@@ -2691,6 +2752,7 @@
   {
     "name": "torch.frobenius_norm:",
     "schema": {
+      "category": "Normalization",
       "inputs": [
         { "name": "self", "type": "tensor" }
       ],
@@ -2702,6 +2764,7 @@
   {
     "name": "torch.frobenius_norm:dim",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "dim", "type": "int64" },
         { "name": "keepdim", "type": "boolean", "default": false }
@@ -3380,13 +3443,13 @@
   {
     "name": "torch.instance_norm",
     "schema": {
+      "category": "Normalization",
       "attributes": [
         { "name": "use_input_stats", "type": "boolean" },
         { "name": "momentum", "type": "float32" },
         { "name": "eps", "type": "float32" },
         { "name": "cudnn_enabled", "type": "boolean" }
       ],
-      "category": "Activation",
       "inputs": [
         { "name": "input" },
         { "name": "weight", "optional": true },
@@ -3983,7 +4046,7 @@
   {
     "name": "torch.layer_norm",
     "schema": {
-      "category": "Pool",
+      "category": "Normalization",
       "inputs": [
         { "name": "input", "type": "tensor" },
         { "name": "normalized_shape", "type": "int64[]" },
