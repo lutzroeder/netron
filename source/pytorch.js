@@ -1140,6 +1140,9 @@ pytorch.Execution = class {
         this._registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
         this._registerConstructor('torch.optim.rmsprop.RMSprop', function() {});
         this._registerConstructor('torch.optim.sgd.SGD', function() {});
+        this._registerConstructor('torch.quantization.observer._PartialWrapper', function() {});
+        this._registerConstructor('torch.quantization.observer.MinMaxObserver', function() {});
+        this._registerConstructor('torch.quantization.QConfig.QConfig', function() {});
         this._registerConstructor('torch.quantization.stubs.DeQuantStub', function() {});
         this._registerConstructor('torch.quantization.stubs.QuantStub', function() {});
         this._registerConstructor('torchvision.datasets.folder.ImageFolder', function() {});
