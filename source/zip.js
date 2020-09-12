@@ -13,7 +13,7 @@ zip.Archive = class {
         let reader = null;
         for (let i = buffer.length - 4; i >= 0; i--) {
             if (buffer[i] === 0x50 && buffer[i + 1] === 0x4B && buffer[i + 2] === 0x05 && buffer[i + 3] === 0x06) {
-                reader = new zip.Reader(buffer, i + 4, buffer.length);
+                reader = new zip.BinaryReader(buffer, i + 4, buffer.length);
                 break;
             }
         }
@@ -435,7 +435,7 @@ zip.BitReader = class {
 
 };
 
-zip.Reader = class {
+zip.BinaryReader = class {
 
     constructor(buffer, start, end) {
         this._buffer = buffer;
