@@ -3928,6 +3928,12 @@
   },
   {
     "type":   "pytorch",
+    "target": "inception_v3_traced.pt",
+    "script": "./tools/pytorch zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
     "target": "inception_v3.pkl.pth",
     "script": "./tools/pytorch zoo",
     "format": "PyTorch v0.1.10",
@@ -3941,7 +3947,7 @@
   },
   {
     "type":   "pytorch",
-    "target": "inception_v3_traced.pt",
+    "target": "inception_v3.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
@@ -3950,6 +3956,13 @@
     "target": "inception_v3_google-1a9a5a14.pth",
     "format": "PyTorch v0.1.10",
     "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
+  },
+  {
+    "type":   "pytorch",
+    "target": "iv3_pertensor.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5212009/iv3_pertensor.zip[iv3_pertensor.pt]",
+    "format": "TorchScript v1.5",
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
   },
   {
     "type":   "pytorch",
@@ -4014,7 +4027,6 @@
     "format": "TorchScript v1.3",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
-
   {
     "type":   "pytorch",
     "target": "mobilefacenet_scripted.pt",
@@ -4209,9 +4221,9 @@
   {
     "type":   "pytorch",
     "target": "resnet50_pertensor.pt",
-    "source": "https://github.com/lutzroeder/netron/files/5205363/resnet50_pertensor.zip[resnet50_pertensor.pt]",
+    "source": "https://github.com/lutzroeder/netron/files/5212006/resnet50_pertensor.zip[resnet50_pertensor.pt]",
     "format": "TorchScript v1.5",
-    "link":   "https://github.com/lutzroeder/netron/issues/546#issuecomment-690055177"
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
   },
   {
     "type":   "pytorch",
@@ -4234,7 +4246,7 @@
   {
     "type":   "pytorch",
     "target": "resnet18.pt",
-    "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/resnet18.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5212015/resnet18.zip[resnet18.pt]",
     "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/559"
   },
