@@ -60,6 +60,7 @@ const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8')
 const name = packageManifest.name;
 const version = packageManifest.version;
 const productName = packageManifest.productName;
+const description = packageManifest.description;
 const repository = 'https://github.com/' + packageManifest.repository;
 const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
 
@@ -73,6 +74,7 @@ request(url.replace(/#{version}/g, version)).then((data) => {
         '  url "' + url + '"',
         '  appcast "' + repository + '/releases.atom"',
         '  name "' + productName + '"',
+        '  desc "' + description + '"',
         '  homepage "' + repository + '"',
         '',
         '  auto_updates true',
