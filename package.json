@@ -7,7 +7,7 @@
         "url": "https://www.lutzroeder.com"
     },
     "version": "4.5.1",
-    "description": "Visualizer for neural network, deep learning and machine learning models",
+    "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
     "main": "source/app.js",
