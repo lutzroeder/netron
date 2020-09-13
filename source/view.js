@@ -319,7 +319,10 @@ view.View = class {
             { name: 'Error loading MNN model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'Error loading ONNX model.', message: /^File format is not onnx.ModelProto (Offset is outside the bounds of the DataView)/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
-            { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' }
+            { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' },
+            { name: 'Error loading model', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
+            { name: 'Error loading model', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
+            { name: 'Error loading model', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' }
         ];
         const known = knowns.find((known) => err.name === known.name && err.message.match(known.message));
         const message = (name ? err.toString() : err.message) + (known ? '\n\nPlease provide information about this issue at ' + known.url + '.' : '');
@@ -1077,28 +1080,40 @@ class ModelContext {
         return entries;
     }
 
-    tags(extension) {
-        let tags = this._tags.get(extension);
+    tags(type) {
+        let tags = this._tags.get(type);
         if (!tags) {
             tags = new Map();
             try {
-                switch (extension) {
+                switch (type) {
                     case 'pbtxt': {
-                        const reader = protobuf.TextReader.create(this.buffer);
-                        reader.start(false);
-                        while (!reader.end(false)) {
-                            const tag = reader.tag();
-                            tags.set(tag, true);
-                            if (reader.token() === '{') {
-                                reader.start();
-                                while (!reader.end()) {
-                                    const subtag = reader.tag();
-                                    tags.set(tag + '.' + subtag, true);
+                        const decoder = base.TextDecoder.create(this.buffer);
+                        let count = 0;
+                        for (let i = 0; i < 0x100; i++) {
+                            const c = decoder.decode();
+                            switch (c) {
+                                case '\n': case '\r': case '\t': case '\0': break;
+                                case undefined: i = 0x100; break;
+                                default: count += c < ' ' ? 1 : 0; break;
+                            }
+                        }
+                        if (count < 4) {
+                            const reader = protobuf.TextReader.create(this.buffer);
+                            reader.start(false);
+                            while (!reader.end(false)) {
+                                const tag = reader.tag();
+                                tags.set(tag, true);
+                                if (reader.token() === '{') {
+                                    reader.start();
+                                    while (!reader.end()) {
+                                        const subtag = reader.tag();
+                                        tags.set(tag + '.' + subtag, true);
+                                        reader.skip();
+                                    }
+                                }
+                                else {
                                     reader.skip();
                                 }
-                            }
-                            else {
-                                reader.skip();
                             }
                         }
                         break;
@@ -1146,7 +1161,7 @@ class ModelContext {
             catch (error) {
                 tags = new Map();
             }
-            this._tags.set(extension, tags);
+            this._tags.set(type, tags);
         }
         return tags;
     }
@@ -1294,12 +1309,12 @@ view.ModelFactoryService = class {
                         ]);
                         const skip = knownUnsupportedIdentifiers.has(identifier);
                         const formats = [
-                            { extension: 'pb', name: 'Protocol Buffers' },
-                            { extension: 'pbtxt', name: 'Protocol Buffers text' },
-                            { extension: 'json', name: 'JSON' }
+                            { type: 'pb', name: 'Protocol Buffers' },
+                            { type: 'pbtxt', name: 'Protocol Buffers text' },
+                            { type: 'json', name: 'JSON' }
                         ];
                         for (const format of formats) {
-                            const tags = context.tags(format.extension);
+                            const tags = context.tags(format.type);
                             if (tags.size > 0) {
                                 const entries = [];
                                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
@@ -1499,7 +1514,8 @@ view.ModelFactoryService = class {
         if (context.buffer.length === 0) {
             return Promise.reject(new ModelError('File has no content.', true));
         }
-        const list = [
+        /* eslint-disable no-control-regex */
+        const entries = [
             { name: 'ELF executable', value: /^\x7FELF/ },
             { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com\/spec\/v1\n/ },
             { name: 'Git LFS header', value: /^oid sha256:/ },
@@ -1516,12 +1532,14 @@ view.ModelFactoryService = class {
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: 'Darkflow metadata', value: /^{"net":\s*{"type":/ },
             { name: 'keras-yolo2 configuation', value: /^{\s*"model"\s*:\s*{\s*"architecture"/ },
-            { name: 'Triton Inference Server configuration', value: /^[\s\S]*name:\s*[\s\S]*platform:\s*[\s\S]*input\s*\[[\s\S]*\][\s\S]*output\s*\[[\s\S]*\]/ }
+            { name: 'Triton Inference Server configuration', value: /^[\s\S]*name:\s*[\s\S]*platform:\s*[\s\S]*input\s*\[[\s\S]*\][\s\S]*output\s*\[[\s\S]*\]/ },
+            { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
         ];
+        /* eslint-enable no-control-regex */
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(4096, buffer.length)));
-        for (const item of list) {
-            if (text.match(item.value)) {
-                return Promise.reject(new ModelError("Invalid file content. File contains " + item.name + ".", true));
+        for (const entry of entries) {
+            if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
+                return Promise.reject(new ModelError("Invalid file content. File contains " + entry.name + ".", true));
             }
         }
         return Promise.resolve(context);
