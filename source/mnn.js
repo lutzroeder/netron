@@ -589,7 +589,7 @@ mnn.Utility = class {
                 return map.get(value);
             }
         }
-        return value;
+        return value.toString();
     }
 };
 
