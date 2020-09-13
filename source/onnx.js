@@ -285,6 +285,9 @@ onnx.Graph = class {
             for (const tensor of graph.initializer) {
                 initializers.set(tensor.name, new onnx.Tensor(tensor, 'Initializer'));
             }
+            for (const tensor of graph.sparse_initializer) {
+                initializers.set(tensor.name, new onnx.Tensor(tensor, 'Sparse Initializer'));
+            }
             const nodes = [];
             const inputCountMap = new Map();
             const outputCountMap = new Map();
@@ -317,7 +320,7 @@ onnx.Graph = class {
                                     initializerNode = true;
                                     break;
                                 case 'sparse_value':
-                                    initializers.set(name, new onnx.Tensor(attribute.sparse_tensor, 'Constant'));
+                                    initializers.set(name, new onnx.Tensor(attribute.sparse_tensor, 'Sparse Constant'));
                                     initializerNode = true;
                                     break;
                             }
@@ -660,21 +663,21 @@ onnx.Tensor = class {
         this._tensor = tensor;
         this._kind = kind || null;
         if (tensor instanceof onnx.proto.SparseTensorProto) {
-            this._type = new onnx.TensorType(this._tensor.values.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
+            this._type = new onnx.TensorType(tensor.values.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
             this._sparse = true;
         }
         else {
             this._name = tensor.name || '';
-            this._type = new onnx.TensorType(this._tensor.data_type, new onnx.TensorShape(this._tensor.dims.map((dim) => dim)), null);
-            if (this._tensor.data_type == onnx.proto.TensorProto.DataType.FLOAT16 && this._tensor.int32_data && this._tensor.int32_data.length > 0) {
-                const array = new Uint8Array(this._tensor.int32_data.length << 1);
+            this._type = new onnx.TensorType(tensor.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
+            if (this._tensor.data_type == onnx.proto.TensorProto.DataType.FLOAT16 && tensor.int32_data && tensor.int32_data.length > 0) {
+                const array = new Uint8Array(tensor.int32_data.length << 1);
                 const dataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
-                const data = this._tensor.int32_data;
+                const data = tensor.int32_data;
                 for (let i = 0; i < data.length; i++) {
                     dataView.setUint16(i << 1, data[i], true);
                 }
-                this._tensor.raw_data = array;
-                delete this._tensor.int32_data;
+                tensor.raw_data = array;
+                delete tensor.int32_data;
             }
         }
     }
