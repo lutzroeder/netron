@@ -24,7 +24,7 @@ tf.ModelFactory = class {
                 return false;
             }
             const tags = context.tags('pbtxt');
-            if (tags.has('input_stream') || tags.has('output_stream')) {
+            if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                 return false;
             }
             if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
@@ -44,7 +44,7 @@ tf.ModelFactory = class {
             const tags = context.tags('pb');
             if (tags.size === 0) {
                 const tags = context.tags('pbtxt');
-                if (tags.has('input_stream') || tags.has('output_stream')) {
+                if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                     return false;
                 }
                 if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
