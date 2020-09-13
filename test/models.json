@@ -3805,10 +3805,10 @@
   },
   {
     "type":   "pytorch",
-    "target": "alexnet.pkl.pth",
-    "script": "./tools/pytorch zoo",
+    "target": "alexnet.pkl.pth.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5213453/alexnet.pkl.pth.zip",
     "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":   "pytorch",
@@ -3934,10 +3934,10 @@
   },
   {
     "type":   "pytorch",
-    "target": "inception_v3.pkl.pth",
-    "script": "./tools/pytorch zoo",
+    "target": "inception_v3.pkl.pth.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5213454/inception_v3.pkl.pth.zip",
     "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":   "pytorch",
@@ -4227,9 +4227,10 @@
   },
   {
     "type":   "pytorch",
-    "target": "resnet101.pkl.pth",
-    "script": "./tools/pytorch zoo",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+    "target": "resnet101.pkl.pth.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5213455/resnet101.pkl.pth.zip",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":   "pytorch",
@@ -4306,10 +4307,10 @@
   },
   {
     "type":   "pytorch",
-    "target": "squeezenet1_1.pkl.pth",
-    "script": "./tools/pytorch zoo",
+    "target": "squeezenet1_1.pkl.pth.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5213456/squeezenet1_1.pkl.pth.zip",
     "format": "PyTorch v0.1.10",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
     "type":   "pytorch",

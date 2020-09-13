@@ -65,7 +65,7 @@ def rezip(zip_file_path):
                 zip_file.write(path, os.path.relpath(path, zip_dir))
     shutil.rmtree(zip_dir)
 
-def download_torchvision_model(pkl_format, zip_format, jit_format, traced_format, pretrained, name, input):
+def download_torchvision_model(zip_format, jit_format, traced_format, pretrained, name, input):
     folder = os.path.expandvars('${test}/data/pytorch')
     if not os.path.exists(folder):
         os.makedirs(folder)
@@ -73,8 +73,6 @@ def download_torchvision_model(pkl_format, zip_format, jit_format, traced_format
     model_type = pydoc.locate(name)
     model = model_type(pretrained=pretrained)
     import torch
-    if pkl_format:
-        torch.save(model, base + '.pkl.pth', _use_new_zipfile_serialization=False)
     for param in model.parameters():
         param.data.fill_(0)
     if zip_format:
@@ -95,14 +93,14 @@ def download_torchvision_model(pkl_format, zip_format, jit_format, traced_format
 def zoo():
     if not os.environ.get('test'):
         os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
-    download_torchvision_model(True , True , True , True , False, 'torchvision.models.alexnet', [ 1, 3, 299, 299 ])
-    download_torchvision_model(False, True , True , True , False, 'torchvision.models.densenet161', [ 1, 3, 224, 224 ])
-    download_torchvision_model(True , True , True , True , True,  'torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
-    download_torchvision_model(False, True , True , True , False, 'torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
-    download_torchvision_model(True , False, True , True , False, 'torchvision.models.resnet101', [ 1, 3, 224, 224 ])
-    download_torchvision_model(False, True , True , True , False, 'torchvision.models.shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
-    download_torchvision_model(True , False, True , True , False, 'torchvision.models.squeezenet1_1', [ 1, 3, 224, 224 ])
-    download_torchvision_model(False, True , True , True , False, 'torchvision.models.video.r3d_18', [ 1, 3, 4, 112, 112 ])
+    download_torchvision_model(True , True , True , False, 'torchvision.models.alexnet', [ 1, 3, 299, 299 ])
+    download_torchvision_model(True , True , True , False, 'torchvision.models.densenet161', [ 1, 3, 224, 224 ])
+    download_torchvision_model(True , True , True , True,  'torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
+    download_torchvision_model(True , True , True , False, 'torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
+    download_torchvision_model(False, True , True , False, 'torchvision.models.resnet101', [ 1, 3, 224, 224 ])
+    download_torchvision_model(True , True , True , False, 'torchvision.models.shufflenet_v2_x1_0', [ 1, 3, 224, 224 ])
+    download_torchvision_model(False, True , True , False, 'torchvision.models.squeezenet1_1', [ 1, 3, 224, 224 ])
+    download_torchvision_model(True , True , True , False, 'torchvision.models.video.r3d_18', [ 1, 3, 4, 112, 112 ])
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }
