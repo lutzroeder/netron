@@ -375,8 +375,7 @@ protobuf.TextReader = class {
     tag() {
         const name = this._token;
         this.next();
-        const separator = this._token;
-        if (separator !== '[' && separator !== '{') {
+        if (this._token !== '[' && this._token !== '{') {
             this.expect(':');
         }
         return name;
@@ -470,7 +469,7 @@ protobuf.TextReader = class {
             value = type[token];
         }
         else {
-            const value = Number.parseInt(token, 10);
+            value = Number.parseInt(token, 10);
             if (Number.isNaN(token - value)) {
                 throw new protobuf.Error("Couldn't parse enum '" + token + "'" + this.location());
             }
@@ -562,31 +561,36 @@ protobuf.TextReader = class {
     }
 
     skip() {
-        if (this._token === '{') {
-            const depth = this._depth;
-            this.start();
-            while (!this.end() || depth < this._depth) {
-                if (this._token === '{') {
-                    this.start();
+        switch (this._token) {
+            case '{': {
+                const depth = this._depth;
+                this.start();
+                while (!this.end() || depth < this._depth) {
+                    if (this._token === '{') {
+                        this.start();
+                    }
+                    else if (this._token !== '}') {
+                        this.next();
+                        this.match(';');
+                    }
                 }
-                else if (this._token !== '}') {
-                    this.next();
-                    this.match(';');
-                }
+                break;
             }
-        }
-        else if (this._token === '[') {
-            this.next();
-            while (!this.last()) {
+            case '[': {
                 this.next();
-                if (this._token === undefined) {
-                    this.handle(this._token);
+                while (!this.last()) {
+                    this.next();
+                    if (this._token === undefined) {
+                        this.handle(this._token);
+                    }
                 }
+                break;
             }
-        }
-        else {
-            this.next();
-            this._semicolon();
+            default: {
+                this.next();
+                this._semicolon();
+                break;
+            }
         }
     }
 
