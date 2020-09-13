@@ -14,6 +14,9 @@ caffe2.ModelFactory = class {
                 if (tags.size > 0 &&
                     Array.from(tags.keys()).every((tag) => tag <= 9) &&
                     Array.from(tags.values()).every((type) => type <= 4)) {
+                    if (tags.size === 1 && tags.get(2) === 2 && identifier.endsWith('saved_model.pb')) {
+                        return false;
+                    }
                     const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         const buffer = context.buffer;
