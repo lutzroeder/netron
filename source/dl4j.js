@@ -3,62 +3,45 @@
 // Experimental
 
 var dl4j = dl4j || {};
+var json = json || require('./json');
 
 dl4j.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier.toLowerCase();
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'zip' && context.entries('zip').length > 0) {
-            if (dl4j.ModelFactory._openContainer(context)) {
-                return true;
-            }
+        const entries = context.entries('zip');
+        if (dl4j.ModelFactory._openContainer(entries)) {
+            return true;
         }
         return false;
     }
 
     open(context, host) {
         return Promise.resolve().then(() => {
-            const container = dl4j.ModelFactory._openContainer(context);
-            let configuration = null;
-            try {
-                configuration = JSON.parse(container.configuration);
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new dl4j.Error('File format is not Deeplearning4j (' + message.replace(/\.$/, '') + ').');
-            }
             return dl4j.Metadata.open(host).then((metadata) => {
-                return new dl4j.Model(metadata, configuration, container.coefficients);
+                const entries = context.entries('zip');
+                const container = dl4j.ModelFactory._openContainer(entries);
+                return new dl4j.Model(metadata, container.configuration, container.coefficients);
             });
         });
     }
 
-    static _openContainer(context) {
-        const entries = context.entries('zip');
+    static _openContainer(entries) {
         const configurationEntries = entries.filter((entry) => entry.name === 'configuration.json');
-        if (configurationEntries.length != 1) {
-            return null;
-        }
-        let configuration = null;
-        try {
-            configuration = new TextDecoder('utf-8').decode(configurationEntries[0].data);
-        }
-        catch (error) {
-            return null;
-        }
-        if (configuration.indexOf('"vertices"') === -1 && configuration.indexOf('"confs"') === -1) {
-            return null;
-        }
         const coefficientsEntries = entries.filter((entry) => entry.name === 'coefficients.bin');
-        if (coefficientsEntries.length > 1) {
-            return null;
+        if (configurationEntries.length === 1 && coefficientsEntries.length <= 1) {
+            try {
+                const reader = json.TextReader.create(configurationEntries[0].data);
+                const configuration = reader.read();
+                if (configuration && (configuration.confs || configuration.vertices)) {
+                    const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : [];
+                    return { configuration: configuration, coefficients: coefficients };
+                }
+            }
+            catch (error) {
+                // continue regardless of error
+            }
         }
-        const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : [];
-        return {
-            configuration: configuration,
-            coefficients: coefficients
-        };
+        return null;
     }
 };
 
