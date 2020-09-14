@@ -7,14 +7,12 @@ var flexbuffers = {};
 tflite.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (['tflite', 'lite', 'tfl', 'bin', 'pb', 'model', 'tmfile', 'h5' ].indexOf(extension) !== -1) {
-            const buffer = context.buffer;
-            const signature = 'TFL3';
-            if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
-                return true;
-            }
+        const buffer = context.buffer;
+        const signature = 'TFL3';
+        if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
+            return true;
         }
+        const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
             const tags = context.tags('json');
             if (tags.has('subgraphs') && tags.has('operator_codes')) {
