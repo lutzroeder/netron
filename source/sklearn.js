@@ -9,27 +9,19 @@ sklearn.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if ([ 'pkl', 'pickle', 'joblib', 'model', 'meta', 'pb', 'pt', 'h5' ].indexOf(extension) !== -1) {
-            const buffer = context.buffer;
-            if (buffer) {
-                // Reject PyTorch models with .pkl file extension.
-                const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-                if (buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
-                    return false;
-                }
-                if (buffer.length > 1 && buffer[buffer.length - 1] === 0x2E) {
-                    return true;
-                }
-                if (buffer.length > 2 && buffer[0] === 0x80 && buffer[1] < 5) {
-                    return true;
-                }
-            }
+        const buffer = context.buffer;
+        if (buffer.length > 14 && [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ].every((v, i) => v === undefined || v == buffer[i])) {
+            // Reject PyTorch models with .pkl file extension.
+            return false;
         }
-        if ([ 'pkl', 'joblib' ].indexOf(extension) !== -1) {
-            const buffer = context.buffer;
-            if (buffer && buffer.length > 0 && buffer[0] == 0x78) {
-                return true;
-            }
+        if (buffer.length > 1 && buffer[buffer.length - 1] === 0x2E) {
+            return true;
+        }
+        if (buffer.length > 2 && buffer[0] === 0x80 && buffer[1] < 5) {
+            return true;
+        }
+        if (buffer.length > 2 && buffer[0] === 0x78) {
+            return true;
         }
         return false;
     }
