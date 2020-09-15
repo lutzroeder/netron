@@ -4310,5 +4310,128 @@
         { "name": "indices", "type": "tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.random_:",
+    "schema": {
+      "attributes": [
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.random_:to",
+    "schema": {
+      "attributes": [
+        { "name": "to", "type": "int64" },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.random_:from",
+    "schema": {
+      "attributes": [
+        { "name": "from", "type": "int64" },
+        { "name": "to", "type": "int64", "optional": true },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.uniform_",
+    "schema": {
+      "attributes": [
+        { "name": "from", "type": "float32", "default": 0 },
+        { "name": "to", "type": "float32", "default": 1 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.cauchy_",
+    "schema": {
+      "attributes": [
+        { "name": "median", "type": "float32", "default": 0 },
+        { "name": "sigma", "type": "float32", "default": 1 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.log_normal_",
+    "schema": {
+      "attributes": [
+        { "name": "mean", "type": "float32", "default": 1 },
+        { "name": "std", "type": "float32", "default": 2 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.exponential_",
+    "schema": {
+      "attributes": [
+        { "name": "lambd", "type": "float32", "default": 1 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.geometric_",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float32" },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
   }
 ]
