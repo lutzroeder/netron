@@ -1073,6 +1073,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.MSELoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.NLLLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.SmoothL1Loss', function() {});
+        this._registerConstructor('torch.nn.modules.module._IncompatibleKeys', function() {});
         this._registerConstructor('torch.nn.modules.normalization.CrossMapLRN2d', function() {});
         this._registerConstructor('torch.nn.modules.normalization.GroupNorm', function() {});
         this._registerConstructor('torch.nn.modules.normalization.LayerNorm', function() {});
@@ -1141,6 +1142,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.quantization.QConfig.QConfig', function() {});
         this._registerConstructor('torch.quantization.stubs.DeQuantStub', function() {});
         this._registerConstructor('torch.quantization.stubs.QuantStub', function() {});
+        this._registerConstructor('torch.utils.data.dataset.ConcatDataset', function() {});
         this._registerConstructor('torchvision.datasets.folder.ImageFolder', function() {});
         this._registerConstructor('torchvision.models.alexnet.AlexNet', function() {});
         this._registerConstructor('torchvision.models.densenet.DenseNet', function() {});
