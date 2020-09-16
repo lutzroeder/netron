@@ -13799,7 +13799,7 @@
           "summary": "loop_11"
         },
         {
-          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end'],\n    outputs=['slice_end'],\n    axes=[0]\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
+          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
           "summary": "loop_13"
         }
       ],
@@ -13897,7 +13897,7 @@
           "summary": "loop_11"
         },
         {
-          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end'],\n    outputs=['slice_end'],\n    axes=[0]\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
+          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
           "summary": "loop_13"
         }
       ],
@@ -13995,7 +13995,7 @@
           "summary": "loop_11"
         },
         {
-          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end'],\n    outputs=['slice_end'],\n    axes=[0]\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
+          "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])",
           "summary": "loop_13"
         }
       ],
@@ -22175,19 +22175,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
           "summary": "default_axes_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
           "summary": "do_not_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
+          "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims,\n    noop_with_empty_axes=True)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n#print(reduced)\n#[[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_empty_axes_input_noop_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "summary": "empty_axes_input_noop"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
           "summary": "keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [-2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(\n    axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_random')",
           "summary": "negative_axes_keepdims"
         }
       ],
@@ -22250,19 +22254,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
           "summary": "default_axes_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
           "summary": "do_not_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
+          "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims,\n    noop_with_empty_axes=True)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n#print(reduced)\n#[[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_empty_axes_input_noop_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "summary": "empty_axes_input_noop"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
           "summary": "keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [-2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(\n    axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_random')",
           "summary": "negative_axes_keepdims"
         }
       ],
@@ -22308,15 +22316,15 @@
     "schema": {
       "attributes": [
         {
-          "description": "A list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor. Accepted range is [-r, r-1] where r = rank(data).",
-          "name": "axes",
-          "required": false,
-          "type": "int64[]"
-        },
-        {
           "default": 1,
           "description": "Keep the reduced dimension or not, default 1 mean keep reduced dimension.",
           "name": "keepdims",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Defines behaviour if 'axes' is empty. Default behaviour with 'false' is to reduce all axes. When axes is empty and this attribute is set to true, input tensor will not be reduced,and the output tensor would be equivalent to input tensor.",
+          "name": "noop_with_empty_axes",
           "required": false,
           "type": "int64"
         }
@@ -22325,19 +22333,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "shape = [3, 2, 2]\naxes = None\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=axes, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n#print(reduced)\n#[[[78.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=None, keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_default_axes_keepdims_random')",
           "summary": "default_axes_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 0\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[4., 6.]\n# [12., 14.]\n# [20., 22.]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_do_not_keepdims_random')",
           "summary": "do_not_keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [1]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
+          "code": "shape = [3, 2, 2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims,\n    noop_with_empty_axes=True)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\naxes = np.array([], dtype=np.int64)\nreduced = np.array(data)\n#print(reduced)\n#[[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_empty_axes_input_noop_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.array(data)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "summary": "empty_axes_input_noop"
+        },
+        {
+          "code": "shape = [3, 2, 2]\naxes = np.array([1], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n#print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced], name='test_reduce_sum_keepdims_random')",
           "summary": "keepdims"
         },
         {
-          "code": "shape = [3, 2, 2]\naxes = [-2]\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data'],\n    outputs=['reduced'],\n    axes=axes,\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(axes), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data], outputs=[reduced], name='test_reduce_sum_negative_axes_keepdims_random')",
+          "code": "shape = [3, 2, 2]\naxes = np.array([-2], dtype=np.int64)\nkeepdims = 1\n\nnode = onnx.helper.make_node(\n    'ReduceSum',\n    inputs=['data', 'axes'],\n    outputs=['reduced'],\n    keepdims=keepdims)\n\ndata = np.array([[[1, 2], [3, 4]], [[5, 6], [7, 8]], [[9, 10], [11, 12]]], dtype=np.float32)\nreduced = np.sum(data, axis=tuple(axes.tolist()), keepdims=keepdims == 1)\n# print(reduced)\n#[[[4., 6.]]\n# [[12., 14.]]\n# [[20., 22.]]]\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_example')\n\nnp.random.seed(0)\ndata = np.random.uniform(-10, 10, shape).astype(np.float32)\nreduced = np.sum(data, axis=tuple(\n    axes.tolist()), keepdims=keepdims == 1)\n\nexpect(node, inputs=[data, axes], outputs=[reduced],\n       name='test_reduce_sum_negative_axes_keepdims_random')",
           "summary": "negative_axes_keepdims"
         }
       ],
@@ -22346,9 +22358,16 @@
           "description": "An input tensor.",
           "name": "data",
           "type": "T"
+        },
+        {
+          "description": "Optional input list of integers, along which to reduce. The default is to reduce over all the dimensions of the input tensor if 'noop_with_empty_axes' is false, else act as an Identity op when 'noop_with_empty_axes' is true. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axes",
+          "option": "optional",
+          "type": "tensor(int64)"
         }
       ],
-      "max_input": 1,
+      "inputs_range": "1 - 2",
+      "max_input": 2,
       "max_output": 1,
       "min_input": 1,
       "min_output": 1,
@@ -27423,19 +27442,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
           "summary": "1d"
         },
         {
-          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
           "summary": "2d"
         },
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
         },
         {
-          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
           "summary": "zero_size_splits"
         }
       ],
@@ -27503,19 +27522,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
           "summary": "1d"
         },
         {
-          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
           "summary": "2d"
         },
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
         },
         {
-          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
           "summary": "zero_size_splits"
         }
       ],
@@ -27588,19 +27607,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
           "summary": "1d"
         },
         {
-          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
           "summary": "2d"
         },
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
         },
         {
-          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
           "summary": "zero_size_splits"
         }
       ],
@@ -27660,32 +27679,26 @@
           "name": "axis",
           "required": false,
           "type": "int64"
-        },
-        {
-          "description": "length of each output. Values should be >= 0.",
-          "name": "split",
-          "required": false,
-          "type": "int64[]"
         }
       ],
       "category": "Tensor",
-      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using argument 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
+      "description": "Split a tensor into a list of tensors, along the specified\n'axis'. Lengths of the parts can be specified using input 'split'.\nOtherwise, the tensor is split to equal sized parts.\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    axis=0\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_1d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=0,\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_1d')",
           "summary": "1d"
         },
         {
-          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
+          "code": "input = np.array([[1., 2., 3., 4., 5., 6.],\n                  [7., 8., 9., 10., 11., 12.]]).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    axis=1\n)\n\nexpected_outputs = [np.array([[1., 2., 3.], [7., 8., 9.]]).astype(np.float32),\n                    np.array([[4., 5., 6.], [10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_2d')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2'],\n    axis=1,\n)\n\nexpected_outputs = [np.array([[1., 2.], [7., 8.]]).astype(np.float32),\n                    np.array([[3., 4., 5., 6.], [9., 10., 11., 12.]]).astype(np.float32)]\n\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_2d')",
           "summary": "2d"
         },
         {
-          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2'],\n    split=[2, 4]\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
+          "code": "input = np.array([1., 2., 3., 4., 5., 6.]).astype(np.float32)\n\n# If axis is not specified, split is applied on default axis 0\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4.]).astype(np.float32), np.array([5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_equal_parts_default_axis')\n\nsplit = np.array([2, 4]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2']\n)\n\nexpected_outputs = [np.array([1., 2.]).astype(np.float32), np.array([3., 4., 5., 6.]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_variable_parts_default_axis')",
           "summary": "default_values"
         },
         {
-          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input'],\n    outputs=['output_1', 'output_2', 'output_3'],\n    split=[0, 0, 0]\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
+          "code": "input = np.array([]).astype(np.float32)\n\n# Split emtpy tensor to tensors of size zero\nsplit = np.array([0, 0, 0]).astype(np.int64)\nnode = onnx.helper.make_node(\n    'Split',\n    inputs=['input', 'split'],\n    outputs=['output_1', 'output_2', 'output_3']\n)\n\nexpected_outputs = [np.array([]).astype(np.float32), np.array([]).astype(np.float32), np.array([]).astype(np.float32)]\nexpect(node, inputs=[input, split], outputs=[y for y in expected_outputs], name='test_split_zero_size_splits')",
           "summary": "zero_size_splits"
         }
       ],
@@ -27694,9 +27707,16 @@
           "description": "The tensor to split",
           "name": "input",
           "type": "T"
+        },
+        {
+          "description": "Optional length of each output. Values should be >= 0.Sum of the values must be equal to the dim value at 'axis' specified.",
+          "name": "split",
+          "option": "optional",
+          "type": "tensor(int64)"
         }
       ],
-      "max_input": 1,
+      "inputs_range": "1 - 2",
+      "max_input": 2,
       "max_output": 2147483647,
       "min_input": 1,
       "min_output": 1,
@@ -27995,11 +28015,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\naxes = np.array([0], dtype=np.int64)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze')",
           "summary": "squeeze"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2], dtype=np.int64)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze_negative_axes')",
           "summary": "squeeze_negative_axes"
         }
       ],
@@ -28064,11 +28084,11 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\naxes = np.array([0], dtype=np.int64)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze')",
           "summary": "squeeze"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2], dtype=np.int64)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze_negative_axes')",
           "summary": "squeeze_negative_axes"
         }
       ],
@@ -28120,24 +28140,16 @@
   {
     "name": "Squeeze",
     "schema": {
-      "attributes": [
-        {
-          "description": "List of integers indicating the dimensions to squeeze. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
-          "name": "axes",
-          "required": false,
-          "type": "int64[]"
-        }
-      ],
       "category": "Transform",
-      "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes a  parameter `axes` with a list of axes to squeeze.\nIf `axes` is not provided, all the single dimensions will be removed from\nthe shape. If an axis is selected with shape entry not equal to one, an error is raised.\n",
+      "description": "Remove single-dimensional entries from the shape of a tensor.\nTakes an input `axes` with a list of axes to squeeze.\nIf `axes` is not provided, all the single dimensions will be removed from\nthe shape. If an axis is selected with shape entry not equal to one, an error is raised.\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[0],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 4, 5).astype(np.float32)\naxes = np.array([0], dtype=np.int64)\ny = np.squeeze(x, axis=0)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze')",
           "summary": "squeeze"
         },
         {
-          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_squeeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Squeeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2], dtype=np.int64)\ny = np.squeeze(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_squeeze_negative_axes')",
           "summary": "squeeze_negative_axes"
         }
       ],
@@ -28146,9 +28158,16 @@
           "description": "Tensors with at least max(dims) dimensions.",
           "name": "data",
           "type": "T"
+        },
+        {
+          "description": "List of integers indicating the dimensions to squeeze. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
+          "name": "axes",
+          "option": "optional",
+          "type": "tensor(int64)"
         }
       ],
-      "max_input": 1,
+      "inputs_range": "1 - 2",
+      "max_input": 2,
       "max_output": 1,
       "min_input": 1,
       "min_output": 1,
@@ -30129,23 +30148,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2]).astype(np.int64)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
           "summary": "unsqueeze_negative_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x'],\n        outputs=['y'],\n        axes=[i],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    axes = np.array([i]).astype(np.int64)\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x', 'axes'],\n        outputs=['y'],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x, axes], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
           "summary": "unsqueeze_one_axis"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[2, 4, 5],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_three_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([2, 4, 5]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_three_axes')",
           "summary": "unsqueeze_three_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1, 4],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_two_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([1, 4]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_two_axes')",
           "summary": "unsqueeze_two_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[5, 4, 2],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_unsorted_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([5, 4, 2]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_unsorted_axes')",
           "summary": "unsqueeze_unsorted_axes"
         }
       ],
@@ -30210,23 +30229,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2]).astype(np.int64)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
           "summary": "unsqueeze_negative_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x'],\n        outputs=['y'],\n        axes=[i],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    axes = np.array([i]).astype(np.int64)\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x', 'axes'],\n        outputs=['y'],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x, axes], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
           "summary": "unsqueeze_one_axis"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[2, 4, 5],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_three_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([2, 4, 5]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_three_axes')",
           "summary": "unsqueeze_three_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1, 4],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_two_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([1, 4]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_two_axes')",
           "summary": "unsqueeze_two_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[5, 4, 2],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_unsorted_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([5, 4, 2]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_unsorted_axes')",
           "summary": "unsqueeze_unsorted_axes"
         }
       ],
@@ -30278,36 +30297,28 @@
   {
     "name": "Unsqueeze",
     "schema": {
-      "attributes": [
-        {
-          "description": "List of integers indicating the dimensions to be inserted. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(expanded).",
-          "name": "axes",
-          "required": true,
-          "type": "int64[]"
-        }
-      ],
       "category": "Transform",
-      "description": "Insert single-dimensional entries to the shape of an input tensor (`data`).\nTakes one required argument `axes` - which contains a list of dimension indices and this operator will insert a dimension of value `1` into the corresponding index of the output tensor (`expanded`).\n\nFor example:\n  Given an input tensor (`data`) of shape [3, 4, 5], then\n  Unsqueeze(data, axes=[0, 4]) outputs a tensor (`expanded`) containing same data as `data` but with shape [1, 3, 4, 5, 1].\n\nThe attribute `axes` should not contain any duplicate entries. It is an error if it contains duplicates.\nThe rank of the output tensor (`output_rank`) is the rank of the input tensor (`data`) plus the number of values in `axes`.\nEach value in `axes` should be within the (inclusive) range [-output_rank , output_rank - 1]. \nThe order of values in `axes` does not matter and can come in any order. \n\n",
+      "description": "Insert single-dimensional entries to the shape of an input tensor (`data`).\nTakes one required input `axes` - which contains a list of dimension indices and this operator will insert a dimension of value `1` into the corresponding index of the output tensor (`expanded`).\n\nFor example:\n  Given an input tensor (`data`) of shape [3, 4, 5], then\n  Unsqueeze(data, axes=[0, 4]) outputs a tensor (`expanded`) containing same data as `data` but with shape [1, 3, 4, 5, 1].\n\nThe input `axes` should not contain any duplicate entries. It is an error if it contains duplicates.\nThe rank of the output tensor (`output_rank`) is the rank of the input tensor (`data`) plus the number of values in `axes`.\nEach value in `axes` should be within the (inclusive) range [-output_rank , output_rank - 1]. \nThe order of values in `axes` does not matter and can come in any order. \n\n",
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[-2],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
+          "code": "node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 1, 5).astype(np.float32)\naxes = np.array([-2]).astype(np.int64)\ny = np.expand_dims(x, axis=-2)\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_negative_axes')",
           "summary": "unsqueeze_negative_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x'],\n        outputs=['y'],\n        axes=[i],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nfor i in range(x.ndim):\n    axes = np.array([i]).astype(np.int64)\n    node = onnx.helper.make_node(\n        'Unsqueeze',\n        inputs=['x', 'axes'],\n        outputs=['y'],\n    )\n    y = np.expand_dims(x, axis=i)\n\n    expect(node, inputs=[x, axes], outputs=[y],\n           name='test_unsqueeze_axis_' + str(i))",
           "summary": "unsqueeze_one_axis"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[2, 4, 5],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_three_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([2, 4, 5]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_three_axes')",
           "summary": "unsqueeze_three_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[1, 4],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_two_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([1, 4]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=1)\ny = np.expand_dims(y, axis=4)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_two_axes')",
           "summary": "unsqueeze_two_axes"
         },
         {
-          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x'],\n    outputs=['y'],\n    axes=[5, 4, 2],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x], outputs=[y],\n        name='test_unsqueeze_unsorted_axes')",
+          "code": "x = np.random.randn(3, 4, 5).astype(np.float32)\naxes = np.array([5, 4, 2]).astype(np.int64)\n\nnode = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['x', 'axes'],\n    outputs=['y'],\n)\ny = np.expand_dims(x, axis=2)\ny = np.expand_dims(y, axis=4)\ny = np.expand_dims(y, axis=5)\n\nexpect(node, inputs=[x, axes], outputs=[y],\n       name='test_unsqueeze_unsorted_axes')",
           "summary": "unsqueeze_unsorted_axes"
         }
       ],
@@ -30316,11 +30327,16 @@
           "description": "Original tensor",
           "name": "data",
           "type": "T"
+        },
+        {
+          "description": "List of integers indicating the dimensions to be inserted. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(expanded).",
+          "name": "axes",
+          "type": "tensor(int64)"
         }
       ],
-      "max_input": 1,
+      "max_input": 2,
       "max_output": 1,
-      "min_input": 1,
+      "min_input": 2,
       "min_output": 1,
       "outputs": [
         {
