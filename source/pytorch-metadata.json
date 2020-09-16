@@ -4149,6 +4149,22 @@
     }
   },
   {
+    "name": "torch.narrow_copy",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64" },
+        { "name": "start", "type": "int64" },
+        { "name": "length", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.index_put_",
     "schema": {
       "category": [
@@ -4425,6 +4441,46 @@
       "attributes": [
         { "name": "p", "type": "float32" },
         { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.mv",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "vec", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.mvlgamma",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "int64" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.mvlgamma_",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "int64" }
       ],
       "inputs": [
         { "name": "self", "type": "tensor" }
