@@ -15,47 +15,41 @@ onnx.ModelFactory = class {
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
             return false;
         }
-        if (new Set([ 'onnx', 'pb', 'model', 'pbtxt', 'prototxt']).has(extension)) {
-            let tags = context.tags('pb');
-            if (tags.size > 0) {
-                if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
-                    Array.from(tags.values()).every((type) => type < 5)) {
-                    // TensorProto: input_0.pb, output_0.pb
-                    if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
+        let tags = context.tags('pb');
+        if (tags.size > 0) {
+            if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
+                Array.from(tags.values()).every((type) => type < 5)) {
+                // TensorProto
+                if ((tags.get(1) === 0 || tags.get(1) === 2) && tags.get(2) === 0 && tags.get(9) === 2) {
+                    const schema = [[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return true;
                     }
-                    // ModelProto: check graph present
-                    if ((                 tags.get(7) == 2) &&
-                        (!tags.has(1)  || tags.get(1) == 0) &&
-                        (!tags.has(2)  || tags.get(2) == 2) &&
-                        (!tags.has(3)  || tags.get(3) == 2) &&
-                        (!tags.has(4)  || tags.get(4) == 2) &&
-                        (!tags.has(5)  || tags.get(5) == 0) &&
-                        (!tags.has(6)  || tags.get(6) == 2) &&
-                        (!tags.has(8)  || tags.get(8) == 2) &&
-                        (!tags.has(14) || tags.get(14) == 2)) {
+                }
+                // ModelProto
+                if (tags.get(7) === 2) {
+                    const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return true;
                     }
                 }
             }
-            else {
-                const buffer = context.buffer;
-                if (buffer && buffer.length > 12 && buffer[0] === 0x08 && buffer[1] < 0x08) {
-                    if ([ 0x08, undefined, 0x12, undefined, 0x74, 0x66, 0x32, 0x6F, 0x6E, 0x6E, 0x78 ].every((v, i) => v === undefined || v === buffer[i])) { // tf2onnx
-                        return true;
-                    }
-                    if ([ 0x08, undefined, 0x12, undefined, 0x70, 0x79, 0x74, 0x6f, 0x72, 0x63, 0x68 ].every((v, i) => v === undefined || v === buffer[i])) { // pytorch
-                        return true;
-                    }
-                }
-            }
-            tags = context.tags('pbtxt');
-            if (tags.has('ir_version')) {
+        }
+        const buffer = context.buffer;
+        if (buffer && buffer.length > 12 && buffer[0] === 0x08 && buffer[1] < 0x08) {
+            if ([ 0x08, undefined, 0x12, undefined, 0x74, 0x66, 0x32, 0x6F, 0x6E, 0x6E, 0x78 ].every((v, i) => v === undefined || v === buffer[i])) { // tf2onnx
                 return true;
             }
-            if (tags.has('graph') && extension !== 'model') {
+            if ([ 0x08, undefined, 0x12, undefined, 0x70, 0x79, 0x74, 0x6f, 0x72, 0x63, 0x68 ].every((v, i) => v === undefined || v === buffer[i])) { // pytorch
                 return true;
             }
+        }
+        tags = context.tags('pbtxt');
+        if (tags.has('ir_version')) {
+            return true;
+        }
+        if (tags.has('graph') && extension !== 'model') {
+            return true;
         }
         return false;
     }
