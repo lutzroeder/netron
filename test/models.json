@@ -4374,6 +4374,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "test.8bit.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5238524/test.8bit.pth.zip[test.8bit.pth]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
+  },
+  {
+    "type":   "pytorch",
     "target": "tutorial_bidirectional_recurrent_neural_network.pth",
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_bidirectional_recurrent_neural_network.pth]",
     "format": "PyTorch v0.1.10",

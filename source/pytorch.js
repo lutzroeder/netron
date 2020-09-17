@@ -1483,6 +1483,18 @@ pytorch.Execution = class {
                 groups: groups
             };
         });
+        this._registerFunction('ops.quantized.conv1d_prepack', function(weight, bias, stride, padding, dilation, groups) {
+            return {
+                __module__: '__torch__.torch.classes.quantized',
+                __name__: 'Conv2dPackedParamsBase',
+                weight: weight,
+                bias: bias,
+                stride: stride,
+                padding: padding,
+                dilation: dilation,
+                groups: groups
+            };
+        });
         this._registerFunction('ops.quantized.conv2d_prepack', function(weight, bias, stride, padding, dilation, groups) {
             return {
                 __module__: '__torch__.torch.classes.quantized',
