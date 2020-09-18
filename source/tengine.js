@@ -79,7 +79,7 @@ tengine.Graph = class {
         }
 
         for (const node of graph.nodes) {
-            if (node.type !== 'INPUT') {
+            if (node.type !== 'INPUT' && node.type !== 'Const') {
                 this._nodes.push(new tengine.Node(metadata, node, tensors));
             }
         }
@@ -653,8 +653,10 @@ tengine.ModelFileReader = class {
             }
             */
             subgraph.originalLayout = reader.int32();
-            subgraph.inputs = reader.uint32s();
-            subgraph.outputs = reader.uint32s();
+            const inputNodes = reader.uint32s(); 
+            const outputNodes = reader.uint32s();
+            subgraph.inputs = [];
+            subgraph.outputs = [];
             const nodeOffsets = reader.uint32s();
             const tensorOffsets = reader.uint32s();
             const bufferOffsets = reader.uint32s();
@@ -731,9 +733,20 @@ tengine.ModelFileReader = class {
                     return { name: name, value: value, type: type };
                 });
 
-                if (node.type !== 'Const') {
+                // if (node.type !== 'Const') {
                     subgraph.nodes.push(node);
-                }
+                // }
+
+            }
+
+            // inputs
+            for (const inputNode of inputNodes) {
+                subgraph.inputs.push(subgraph.nodes[inputNode].outputs);
+            }
+
+            // outputs
+            for (const outputNode of outputNodes) {
+                subgraph.outputs.push(subgraph.nodes[outputNode].outputs);
             }
 
             // buffers
