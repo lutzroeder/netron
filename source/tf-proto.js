@@ -2882,6 +2882,12 @@ $root.tensorflow.SavedVariable.prototype.aggregation = 0;
 $root.tensorflow.SavedVariable.prototype.name = "";
 $root.tensorflow.SavedVariable.prototype.device = "";
 
+$root.tensorflow.ExperimentalCompile = {
+    "NONE": 0,
+    "TRUE": 1,
+    "FALSE": 2
+};
+
 $root.tensorflow.FunctionSpec = class FunctionSpec {
 
     constructor() {
@@ -2901,6 +2907,9 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                     break;
                 case 5:
                     message.input_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
+                    break;
+                case 6:
+                    message.experimental_compile = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2925,6 +2934,9 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                 case "input_signature":
                     message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
                     break;
+                case "experimental_compile":
+                    message.experimental_compile = reader.enum($root.tensorflow.ExperimentalCompile);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2937,6 +2949,7 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
 $root.tensorflow.FunctionSpec.prototype.fullargspec = null;
 $root.tensorflow.FunctionSpec.prototype.is_method = false;
 $root.tensorflow.FunctionSpec.prototype.input_signature = null;
+$root.tensorflow.FunctionSpec.prototype.experimental_compile = 0;
 
 $root.tensorflow.SavedResource = class SavedResource {
 
