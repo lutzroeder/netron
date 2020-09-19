@@ -8149,6 +8149,53 @@
     }
   },
   {
+    "name": "CollectiveGatherV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `float32`, `float16`, `float64`, `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "group_size",
+          "type": 3
+        },
+        {
+          "name": "group_key",
+          "type": 3
+        },
+        {
+          "name": "instance_key",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Mutually accumulates multiple tensors of identical type and shape."
+    }
+  },
+  {
     "name": "CollectivePermute",
     "schema": {
       "attributes": [
@@ -43308,6 +43355,37 @@
     }
   },
   {
+    "name": "RngReadAndSkip",
+    "schema": {
+      "description": "The state of the RNG after\n`rng_read_and_skip(n)` will be the same as that after `uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation choice.",
+      "inputs": [
+        {
+          "description": "The handle of the resource variable that stores the state of the RNG.",
+          "name": "resource",
+          "type": 20
+        },
+        {
+          "description": "The RNG algorithm.",
+          "name": "alg",
+          "type": 3
+        },
+        {
+          "description": "The amount of advancement.",
+          "name": "delta",
+          "type": 23
+        }
+      ],
+      "outputs": [
+        {
+          "description": "The old value of the resource variable, before incrementing. Since state size is algorithm-dependent, this output will be right-padded with zeros to reach shape int64[3] (the current maximal state size among algorithms).",
+          "name": "value",
+          "type": 9
+        }
+      ],
+      "summary": "Advance the counter of a counter-based RNG."
+    }
+  },
+  {
     "name": "RngSkip",
     "schema": {
       "description": "The state of the RNG after\n`rng_skip(n)` will be the same as that after `stateful_uniform([n])`\n(or any other distribution). The actual increment added to the\ncounter is an unspecified implementation detail.",
@@ -52281,6 +52359,48 @@
     }
   },
   {
+    "name": "StatelessRandomGetKeyCounterAlg",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "This op picks the best counter-based RNG algorithm based on device, and scrambles a shape-[2] seed into a key and a counter, both needed by the counter-based algorithm. The scrambling is opaque but approximately satisfies the property that different seed results in different key/counter pair (which will in turn result in different random numbers).",
+      "inputs": [
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Counter for the counter-based RNG algorithm. Since counter size is algorithm-dependent, this output will be right-padded with zeros to reach shape uint64[2] (the current maximal counter size among algorithms).",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
+        }
+      ],
+      "summary": "Picks the best algorithm based on device, and scrambles seed into key and counter."
+    }
+  },
+  {
     "name": "StatelessRandomNormal",
     "schema": {
       "attributes": [
@@ -52323,6 +52443,62 @@
           "description": "2 seeds (shape [2]).",
           "name": "seed",
           "typeAttr": "Tseed"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom values from a normal distribution."
+    }
+  },
+  {
+    "name": "StatelessRandomNormalV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values will have mean 0 and standard deviation 1.\n\nThe outputs are a deterministic function of `shape`, `key`, `counter` and `alg`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
         }
       ],
       "outputs": [
@@ -52503,6 +52679,62 @@
     }
   },
   {
+    "name": "StatelessRandomUniformFullIntV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 23
+          },
+          "description": "The type of the output. Must be one of the following: `int32`, `int64`, `uint32`, `uint64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values are uniform integers covering the whole range of `dtype`.\n\nThe outputs are a deterministic function of `shape`, `key`, `counter` and `alg`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
+    }
+  },
+  {
     "name": "StatelessRandomUniformInt",
     "schema": {
       "attributes": [
@@ -52557,6 +52789,124 @@
         }
       ],
       "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatelessRandomUniformIntV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of the output. Must be one of the following: `int32`, `int64`, `uint32`, `uint64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[minval, maxval)`.\n\nThe outputs are a deterministic function of `shape`, `key`, `counter`, `alg`, `minval` and `maxval`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
+        },
+        {
+          "description": "Minimum value (inclusive, scalar).",
+          "name": "minval",
+          "typeAttr": "dtype"
+        },
+        {
+          "description": "Maximum value (exclusive, scalar).",
+          "name": "maxval",
+          "typeAttr": "dtype"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random integers from a uniform distribution."
+    }
+  },
+  {
+    "name": "StatelessRandomUniformV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a uniform distribution in the range `[0, 1)`. The\nlower bound 0 is included in the range, while the upper bound 1 is excluded.\n\nThe outputs are a deterministic function of `shape`, `key`, `counter` and `alg`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom random values from a uniform distribution."
     }
   },
   {
@@ -52690,6 +53040,62 @@
           "description": "2 seeds (shape [2]).",
           "name": "seed",
           "typeAttr": "Tseed"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Random values with specified shape.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Outputs deterministic pseudorandom values from a truncated normal distribution."
+    }
+  },
+  {
+    "name": "StatelessTruncatedNormalV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "The type of the output. Must be one of the following: `float16`, `bfloat16`, `float32`, `float64`.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "description": "The generated values follow a normal distribution with mean 0 and standard\ndeviation 1, except that values whose magnitude is more than 2 standard\ndeviations from the mean are dropped and re-picked.\n\nThe outputs are a deterministic function of `shape`, `key`, `counter` and `alg`.",
+      "inputs": [
+        {
+          "description": "The shape of the output tensor.",
+          "name": "shape",
+          "typeAttr": "Tshape"
+        },
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Initial counter for the counter-based RNG algorithm (shape uint64[2] or uint64[1] depending on the algorithm). If a larger vector is given, only the needed portion on the left (i.e. [:N]) will be used.",
+          "name": "counter",
+          "type": 23
+        },
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
         }
       ],
       "outputs": [
@@ -54626,7 +55032,7 @@
           "type": "type"
         }
       ],
-      "description": "  Given an input tensor, this function computes hyperbolic tangent of every\n  element in the tensor. Input range is `[-inf, inf]` and\n  output range is `[-1,1]`.\n\n  ```python\n  x = tf.constant([-float(\"inf\"), -5, -0.5, 1, 1.2, 2, 3, float(\"inf\")])\n  tf.math.tanh(x) ==> [-1. -0.99990916 -0.46211717 0.7615942 0.8336547 0.9640276 0.9950547 1.]\n  ```",
+      "description": "  Given an input tensor, this function computes hyperbolic tangent of every\n  element in the tensor. Input range is `[-inf, inf]` and\n  output range is `[-1,1]`.\n\n  >>> x = tf.constant([-float(\"inf\"), -5, -0.5, 1, 1.2, 2, 3, float(\"inf\")])\n  >>> tf.math.tanh(x)\n  <tf.Tensor: shape=(8,), dtype=float32, numpy=\n  array([-1.        , -0.99990916, -0.46211717,  0.7615942 ,  0.8336547 ,\n          0.9640276 ,  0.9950547 ,  1.        ], dtype=float32)>\n",
       "inputs": [
         {
           "name": "x",
