@@ -900,4 +900,6 @@ host.BrowserHost.BrowserContext = class {
     }
 };
 
-window.__view__ = new view.View(new host.BrowserHost());
+window.addEventListener('load', () => {
+    window.__view__ = new view.View(new host.BrowserHost());
+});
