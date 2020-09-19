@@ -34,6 +34,7 @@ sklearn.ModelFactory = class {
                 try {
                     container = new sklearn.Container(context.buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
+                        console.log(message);
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
                     if (!container.weights && !container.data) {
@@ -53,8 +54,13 @@ sklearn.ModelFactory = class {
 sklearn.Model = class {
 
     constructor(metadata, root, weights) {
-        const list = Array.isArray(root) ? root : [ root ];
-        const format = Array.from(new Set(list.map((obj) => {
+        if (Array.isArray(root)) {
+            if (root.length > 16 || Object(root[0]) !== root[0]) {
+                throw new sklearn.Error('Unsupported pickle array format');
+            }
+        }
+        root = Array.isArray(root) ? root : [ root ];
+        const formats = new Set(root.map((obj) => {
             if (obj && obj.__module__) {
                 if (obj.__module__.startsWith('sklearn.')) {
                     return 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
@@ -70,12 +76,13 @@ sklearn.Model = class {
                 }
             }
             return 'Pickle';
-        })).values());
+        }));
+        const format = Array.from(formats.values());
         if (format.length > 1) {
             throw new sklearn.Error("Invalid array format '" + JSON.stringify(format) + "'.");
         }
         this._format = format[0];
-        this._graphs = list.map((obj, index) => new sklearn.Graph(metadata, index, obj, weights));
+        this._graphs = root.map((obj, index) => new sklearn.Graph(metadata, index, obj, weights));
     }
 
     get format() {
