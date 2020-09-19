@@ -19,7 +19,7 @@
     "dependencies": {
         "d3": "6.1.1",
         "dagre": "0.8.5",
-        "electron-updater": "4.3.4",
+        "electron-updater": "4.3.5",
         "marked": "1.1.1",
         "pako": "1.0.11",
         "universal-analytics": "0.4.23"
