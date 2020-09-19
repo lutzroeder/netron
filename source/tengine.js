@@ -66,20 +66,20 @@ tengine.Graph = class {
         const tensors = graph.tensors.map((tensor) => new tengine.Argument(tensor));
 
         for (const input of graph.inputs) {
-            const argument = tensors[input];
-            this._inputs.push(new tengine.Parameter(argument.name, true, [ argument ]));
+            const node = graph.nodes[input];
+            this._inputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
         }
 
         for (const output of graph.outputs) {
-            const argument = tensors[output];
-            if (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.length == 0 && argument.initializer !== null) {
-                continue;
-            }
-            this._outputs.push(new tengine.Parameter(argument.name, true, [ argument ]));
+            const node = graph.nodes[output];
+            // if (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.length == 0 && argument.initializer !== null) {
+            //    continue;
+            // }
+            this._outputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
         }
 
         for (const node of graph.nodes) {
-            if (node.type !== 'INPUT') {
+            if (node.type !== 'INPUT' && node.type !== 'Const') {
                 this._nodes.push(new tengine.Node(metadata, node, tensors));
             }
         }
@@ -731,9 +731,7 @@ tengine.ModelFileReader = class {
                     return { name: name, value: value, type: type };
                 });
 
-                if (node.type !== 'Const') {
-                    subgraph.nodes.push(node);
-                }
+                subgraph.nodes.push(node);
             }
 
             // buffers
