@@ -1204,6 +1204,7 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.video.resnet.Conv3DSimple', function() {});
         this._registerConstructor('torchvision.models.video.resnet.VideoResNet', function() {});
         this._registerConstructor('torchvision.models._utils.IntermediateLayerGetter', function() {});
+        this._registerConstructor('torchvision.ops.deform_conv.DeformConv2d', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork', function() {});
         this._registerConstructor('torchvision.ops.feature_pyramid_network.LastLevelMaxPool', function() {});
         this._registerConstructor('torchvision.ops.misc.ConvTranspose2d', function() {});
