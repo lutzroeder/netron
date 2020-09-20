@@ -854,13 +854,6 @@
   },
   {
     "type":   "cntk",
-    "target": "Fast-RCNN.model",
-    "source": "https://www.cntk.ai/Models/FRCN_Pascal/Fast-RCNN.model",
-    "format": "CNTK v1.15",
-    "link":   "https://github.com/Microsoft/CNTK/blob/7c838d3b6c448004e5a06aa00c984a629f880416/PretrainedModels/download_model.py"
-  },
-  {
-    "type":   "cntk",
     "target": "ResNet20_CIFAR10_DataAug.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/ResNet20_CIFAR10_DataAug.dnn",
     "format": "CNTK v1.18",
@@ -893,13 +886,6 @@
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/SLUHandsOn/slu.forward.lookahead.cmf",
     "format": "CNTK v1.14",
     "link":   "https://github.com/Microsoft/CNTK"
-  },
-  {
-    "type":   "cntk",
-    "target": "AlexNet_ImageNet_Caffe.model",
-    "source": "https://www.cntk.ai/Models/Caffe_Converted/AlexNet_ImageNet_Caffe.model",
-    "format": "CNTK v2",
-    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/download_model.py"
   },
   {
     "type":   "cntk",
@@ -980,13 +966,6 @@
     "type":   "cntk",
     "target": "ResNet110_CIFAR10_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
-    "format": "CNTK v2",
-    "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
-  },
-  {
-    "type":   "cntk",
-    "target": "ResNet101_ImageNet_Caffe.model",
-    "source": "https://www.cntk.ai/Models/Caffe_Converted/ResNet101_ImageNet_Caffe.model",
     "format": "CNTK v2",
     "link":   "https://github.com/Microsoft/CNTK/blob/master/PretrainedModels/Image.md"
   },
@@ -2856,8 +2835,8 @@
   },
   {
     "type":   "onnx",
-    "target": "bertsquad-10.onnx",
-    "source": "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/model/bertsquad-10.onnx?raw=true",
+    "target": "bertsquad-10.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5251086/bertsquad-10.zip",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
     "action": "skip-render",
     "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
@@ -3231,8 +3210,8 @@
   },
   {
     "type":   "onnx",
-    "target": "yolov3.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/yolov3/yolov3.onnx",
+    "target": "yolov3.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5251087/yolov3.zip",
     "format": "ONNX v5", "producer": "keras2onnx 1.5.1",
     "link":   "https://github.com/onnx/models/tree/master/yolov3"
   },
@@ -4788,14 +4767,6 @@
   },
   {
     "type":   "tf",
-    "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28_frozen_inference.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/frozen_inference_graph.pb]",
-    "format": "TensorFlow Graph",
-    "action": "skip-render",
-    "link":   "https://github.com/GoogleCloudPlatform/tensorflow-object-detection-example"
-  },
-  {
-    "type":   "tf",
     "target": "faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28.tar.gz[faster_rcnn_inception_resnet_v2_atrous_oid_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
@@ -4979,13 +4950,6 @@
     "type":   "tf",
     "target": "mnasnet_1.3_224.pb",
     "source": "http://download.tensorflow.org/models/tflite/mnasnet_1.3_224_09_07_2018.tgz[mnasnet_1.3_224/mnasnet_1.3_224.pb]",
-    "format": "TensorFlow Graph",
-    "link":   "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":   "tf",
-    "target": "nasnet_large.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/nasnet_large_2018_04_27.tgz[./nasnet_large.pb]",
     "format": "TensorFlow Graph",
     "link":   "https://www.tensorflow.org/lite/models"
   },
