@@ -47,29 +47,28 @@ class build_py(setuptools.command.build_py.build_py):
                 for filename in filenames:
                     if filename == 'index.html':
                         filepath = os.path.join(build_dir, filename)
-                        with open(filepath, 'r') as file :
-                            content = file.read()
+                        with open(filepath, 'r') as reader:
+                            content = reader.read()
                         content = re.sub(r'(<meta name="version" content=")\d+.\d+.\d+(">)', r'\g<1>' + package_version() + r'\g<2>', content)
-                        with open(filepath, 'w') as file:
-                            file.write(content)
+                        with open(filepath, 'w') as writer:
+                            writer.write(content)
     def build_module(self, module, module_file, package):
         setuptools.command.build_py.build_py.build_module(self, module, module_file, package)
         if build_py.version and module == '__version__':
             outfile = self.get_module_outfile(self.build_lib, package.split('.'), module)
-            with open(outfile, 'w+') as file:
-                file.write("__version__ = '" + package_version() + "'\n")
+            with open(outfile, 'w+') as writer:
+                writer.write("__version__ = '" + package_version() + "'\n")
 
 def package_version():
-    folder = os.path.realpath(os.path.dirname(__file__))
-    with open(os.path.join(folder, 'package.json')) as package_file:
-        package_manifest = json.load(package_file)
-        return package_manifest['version']
+    with open('./package.json') as reader:
+        manifest = json.load(reader)
+        return manifest['version']
 
 setuptools.setup(
     name="netron",
     version=package_version(),
-    description="Viewer for neural network, deep learning and machine learning models",
-    long_description='Netron is a viewer for neural network, deep learning and machine learning models.\n\n' +
+    description="Viewer for neural network, deep learning, and machine learning models",
+    long_description='Netron is a viewer for neural network, deep learning, and machine learning models.\n\n' +
                      'Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), **Barracuda** (`.nn`), **ncnn** (`.param`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **UFF** (`.uff`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **MNN** (`.mnn`), **PaddlePaddle** (`.zip`, `__model__`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',
@@ -87,48 +86,8 @@ setuptools.setup(
     packages=[
         'netron'
     ],
-    package_data={
-        'netron': [ 
-            'favicon.ico', 'icon.png',
-            'base.js', 'json.js', 'protobuf.js', 'flatbuffers.js',
-            'numpy.js', 'pickle.js', 'hdf5.js',
-            'zip.js', 'tar.js', 'gzip.js',
-            'armnn.js', 'armnn-metadata.json', 'armnn-schema.js',
-            'bigdl.js', 'bigdl-metadata.json', 'bigdl-proto.js',
-            'barracuda.js',
-            'caffe.js', 'caffe-metadata.json', 'caffe-proto.js',
-            'caffe2.js', 'caffe2-metadata.json', 'caffe2-proto.js',
-            'cntk.js', 'cntk-metadata.json', 'cntk-proto.js',
-            'coreml.js', 'coreml-metadata.json', 'coreml-proto.js',
-            'darknet.js', 'darknet-metadata.json',
-            'dl4j.js', 'dl4j-metadata.json',
-            'flux.js', 'flux-metadata.json',
-            'keras.js', 'keras-metadata.json',
-            'mediapipe.js',
-            'mlnet.js', 'mlnet-metadata.json',
-            'mnn.js', 'mnn-metadata.json', 'mnn-schema.js',
-            'mxnet.js', 'mxnet-metadata.json',
-            'ncnn.js', 'ncnn-metadata.json',
-            'npz.js',
-            'tnn.js', 'tnn-metadata.json',
-            'onnx.js', 'onnx-metadata.json', 'onnx-proto.js',
-            'openvino.js', 'openvino-metadata.json', 'openvino-parser.js',
-            'paddle.js', 'paddle-metadata.json', 'paddle-proto.js',
-            'pytorch.js', 'pytorch-metadata.json', 'python.js',
-            'dnn.js', 'dnn-metadata.js', 'dnn-proto.js',
-            'sklearn.js', 'sklearn-metadata.json',
-            'tengine.js', 'tengine-metadata.json', 
-            'uff.js', 'uff-metadata.json', 'uff-proto.js',
-            'tf.js', 'tf-metadata.json', 'tf-proto.js', 
-            'tflite.js', 'tflite-metadata.json', 'tflite-schema.js',
-            'torch.js', 'torch-metadata.json',
-            'index.html', 'index.js',
-            'view-grapher.css', 'view-grapher.js',
-            'view-sidebar.css', 'view-sidebar.js',
-            'view.js',
-            'server.py'
-        ]
-    },
+    package_data={ 'netron': [ '*.*' ] },
+    exclude_package_data={ 'netron': [ 'app.js', 'electron.*' ] },
     install_requires=[],
     author='Lutz Roeder',
     author_email='lutzroeder@users.noreply.github.com',
@@ -151,5 +110,18 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Mathematics',
         'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Scientific/Engineering :: Visualization'
-    ]
+    ],
+    options={
+        'build': { 
+            'build_base': './dist',
+            'build_lib': './dist/lib'
+        },
+        'bdist_wheel': { 
+            'universal': 1,
+            'dist_dir': './dist/dist'
+        },
+        'egg_info': {
+            'egg_base': './dist'
+        }
+    }
 )
