@@ -654,7 +654,6 @@ onnx.Attribute = class {
 onnx.Tensor = class {
 
     constructor(tensor, kind) {
-        this._tensor = tensor;
         this._kind = kind || null;
         if (tensor instanceof onnx.proto.SparseTensorProto) {
             this._type = new onnx.TensorType(tensor.values.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
@@ -663,15 +662,51 @@ onnx.Tensor = class {
         else {
             this._name = tensor.name || '';
             this._type = new onnx.TensorType(tensor.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
-            if (this._tensor.data_type == onnx.proto.TensorProto.DataType.FLOAT16 && tensor.int32_data && tensor.int32_data.length > 0) {
-                const array = new Uint8Array(tensor.int32_data.length << 1);
-                const dataView = new DataView(array.buffer, array.byteOffset, array.byteLength);
-                const data = tensor.int32_data;
-                for (let i = 0; i < data.length; i++) {
-                    dataView.setUint16(i << 1, data[i], true);
-                }
-                tensor.raw_data = array;
-                delete tensor.int32_data;
+            this._external = tensor.data_location === onnx.proto.TensorProto.DataLocation.EXTERNAL;
+            switch (tensor.data_type) {
+                case onnx.proto.TensorProto.DataType.FLOAT16:
+                    this._dataType = tensor.data_type;
+                    if (tensor.int32_data && tensor.int32_data.length > 0) {
+                        this._rawData = new Uint8Array(tensor.int32_data.length << 1);
+                        const view = new DataView(this._rawData.buffer, this._rawData.byteOffset, this._rawData.byteLength);
+                        const data = tensor.int32_data;
+                        for (let i = 0; i < data.length; i++) {
+                            view.setUint16(i << 1, data[i], true);
+                        }
+                    }
+                    break;
+                case onnx.proto.TensorProto.DataType.FLOAT:
+                    this._dataType = tensor.data_type;
+                    this._data = tensor.float_data;
+                    break;
+                case onnx.proto.TensorProto.DataType.DOUBLE:
+                    this._dataType = tensor.data_type;
+                    this._data = tensor.double_data;
+                    break;
+                case onnx.proto.TensorProto.DataType.BOOL:
+                case onnx.proto.TensorProto.DataType.INT8:
+                case onnx.proto.TensorProto.DataType.UINT8:
+                case onnx.proto.TensorProto.DataType.INT16:
+                case onnx.proto.TensorProto.DataType.UINT16:
+                case onnx.proto.TensorProto.DataType.INT32:
+                    this._dataType = tensor.data_type;
+                    this._data = tensor.int32_data;
+                    break;
+                case onnx.proto.TensorProto.DataType.UINT32:
+                case onnx.proto.TensorProto.DataType.UINT64:
+                    this._dataType = tensor.data_type;
+                    this._data = tensor.uint64_data;
+                    break;
+                case onnx.proto.TensorProto.DataType.INT64:
+                    this._dataType = tensor.data_type;
+                    this._data = tensor.int64_data;
+                    break;
+            }
+            if (this._data && this._data.length === 0) {
+                delete this._data;
+            }
+            if (!this._data && tensor.raw_data && tensor.raw_data.length > 0) {
+                this._rawData = this._rawData || tensor.raw_data;
             }
         }
     }
@@ -713,115 +748,29 @@ onnx.Tensor = class {
 
     _context() {
         const context = {};
+        context.state = null;
+        if (this._sparse) {
+            context.state = 'Sparse data not implemented.';
+            return context;
+        }
+        if (this._external) {
+            context.state = 'External data not implemented.';
+            return context;
+        }
+        if (this._dataType === undefined) {
+            context.state = 'Tensor data type is not implemented.';
+            return context;
+        }
+        if (!this._data && !this._rawData) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
         context.index = 0;
         context.count = 0;
-        context.state = null;
-
-        if (this._sparse) {
-            context.state = 'Tensor has sparse data.';
-            return context;
-        }
-        if (!this._tensor.data_type) {
-            context.state = 'Tensor has no data type.';
-            return context;
-        }
-        if (!this._tensor.dims) {
-            context.state =  'Tensor has no dimensions.';
-            return context;
-        }
-
-        if (this._tensor.data_location === onnx.proto.TensorProto.DataLocation.EXTERNAL) {
-            context.state =  'External data not implemented.';
-            return context;
-        }
-
-        context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
-
-        switch (this._tensor.data_type) {
-            case onnx.proto.TensorProto.DataType.FLOAT:
-                if (this._tensor.float_data && this._tensor.float_data.length > 0) {
-                    context.data = this._tensor.float_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.DOUBLE:
-                if (this._tensor.double_data && this._tensor.double_data.length > 0) {
-                    context.data = this._tensor.double_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.FLOAT16:
-                if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.BOOL:
-            case onnx.proto.TensorProto.DataType.INT8:
-            case onnx.proto.TensorProto.DataType.UINT8:
-            case onnx.proto.TensorProto.DataType.INT16:
-            case onnx.proto.TensorProto.DataType.UINT16:
-            case onnx.proto.TensorProto.DataType.INT32:
-                if (this._tensor.int32_data && this._tensor.int32_data.length > 0) {
-                    context.data = this._tensor.int32_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.UINT32:
-                if (this._tensor.uint64_data && this._tensor.uint64_data.length > 0) {
-                    context.data = this._tensor.uint64_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.INT64:
-                if (this._tensor.int64_data && this._tensor.int64_data.length > 0) {
-                    context.data = this._tensor.int64_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            case onnx.proto.TensorProto.DataType.UINT64:
-                if (this._tensor.uint64_data && this._tensor.uint64_data.length > 0) {
-                    context.data = this._tensor.uint64_data;
-                }
-                else if (this._tensor.raw_data && this._tensor.raw_data.length > 0) {
-                    context.rawData = new DataView(this._tensor.raw_data.buffer, this._tensor.raw_data.byteOffset, this._tensor.raw_data.byteLength);
-                }
-                else {
-                    context.state = 'Tensor data is empty.';
-                }
-                break;
-            default:
-                context.state = 'Tensor data type is not implemented.';
-                break;
-        }
+        context.dataType = this._dataType;
+        context.data = this._data;
+        context.view = this._rawData ? new DataView(this._rawData.buffer, this._rawData.byteOffset, this._rawData.byteLength) : null;
         return context;
     }
 
@@ -837,7 +786,7 @@ onnx.Tensor = class {
                 }
                 if (context.data) {
                     let value = context.data[context.index++];
-                    switch (this._tensor.data_type) {
+                    switch (context.dataType) {
                         case onnx.proto.TensorProto.DataType.BOOL:
                             value = value === 0 ? false : true;
                             break;
@@ -845,65 +794,65 @@ onnx.Tensor = class {
                     results.push(value);
                     context.count++;
                 }
-                else if (context.rawData) {
-                    switch (this._tensor.data_type) {
+                else if (context.view) {
+                    switch (context.dataType) {
                         case onnx.proto.TensorProto.DataType.FLOAT16:
-                            results.push(context.rawData.getFloat16(context.index, true));
+                            results.push(context.view.getFloat16(context.index, true));
                             context.index += 2;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.FLOAT:
-                            results.push(context.rawData.getFloat32(context.index, true));
+                            results.push(context.view.getFloat32(context.index, true));
                             context.index += 4;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.DOUBLE:
-                            results.push(context.rawData.getFloat64(context.index, true));
+                            results.push(context.view.getFloat64(context.index, true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT8:
-                            results.push(context.rawData.getInt8(context.index, true));
+                            results.push(context.view.getInt8(context.index, true));
                             context.index++;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT8:
-                            results.push(context.rawData.getUint8(context.index, true));
+                            results.push(context.view.getUint8(context.index, true));
                             context.index++;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT16:
-                            results.push(context.rawData.getInt16(context.index, true));
+                            results.push(context.view.getInt16(context.index, true));
                             context.index += 2;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT16:
-                            results.push(context.rawData.getUint16(context.index, true));
+                            results.push(context.view.getUint16(context.index, true));
                             context.index += 2;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT32:
-                            results.push(context.rawData.getInt32(context.index, true));
+                            results.push(context.view.getInt32(context.index, true));
                             context.index += 4;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT32:
-                            results.push(context.rawData.getUint32(context.index, true));
+                            results.push(context.view.getUint32(context.index, true));
                             context.index += 4;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.INT64:
-                            results.push(context.rawData.getInt64(context.index, true));
+                            results.push(context.view.getInt64(context.index, true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.UINT64:
-                            results.push(context.rawData.getUint64(context.index, true));
+                            results.push(context.view.getUint64(context.index, true));
                             context.index += 8;
                             context.count++;
                             break;
                         case onnx.proto.TensorProto.DataType.BOOL:
-                            results.push(context.rawData.getInt8(context.index, true) === 0 ? false : true);
+                            results.push(context.view.getInt8(context.index, true) === 0 ? false : true);
                             context.index += 1;
                             context.count++;
                             break;
