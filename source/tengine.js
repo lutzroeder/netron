@@ -62,25 +62,23 @@ tengine.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-
         const tensors = graph.tensors.map((tensor) => new tengine.Argument(tensor));
-
         for (const input of graph.inputs) {
             const node = graph.nodes[input];
             this._inputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
         }
-
         for (const output of graph.outputs) {
             const node = graph.nodes[output];
-            // if (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.length == 0 && argument.initializer !== null) {
-            //    continue;
-            // }
             this._outputs.push(new tengine.Parameter(node.name, true, node.outputs.map((output) => tensors[output])));
         }
-
         for (const node of graph.nodes) {
-            if (node.type !== 'INPUT' && node.type !== 'Const') {
-                this._nodes.push(new tengine.Node(metadata, node, tensors));
+            switch (node.type) {
+                case 'INPUT':
+                case 'Const':
+                    break;
+                default:
+                    this._nodes.push(new tengine.Node(metadata, node, tensors));
+                    break;
             }
         }
     }
@@ -623,10 +621,17 @@ tengine.ModelFileReader = class {
         register(85, 0, 'Round', []);
         register(86, 0, 'ZerosLike', []);
         register(87, 0, 'Clip', [ 'f','f' ]);
-        register(88, 0, 'MatMul', []);
+        register(88, 0, 'Unsqueeze', [ 'i[]' ]);
         register(89, 0, 'ReduceL2', [ 'i','i' ]);
-        register(90, 0, 'Unsqueeze', [ 'i[]' ]); /* need fix*/
-        register(91, 0, 'Num', []);
+        register(90, 0, 'Mean', []);
+        register(91, 0, 'MatMul', []);
+        register(92, 0, 'Expand', ['i[]']);
+        register(93, 0, 'Scatter', ['i','boolean']);
+        register(94, 0, 'Shape', []);
+        register(95, 0, 'Where', []);
+        register(96, 0, 'Tile', ['i','i']);
+        register(97, 0, 'Mish', []);
+        register(98, 0, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();

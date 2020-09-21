@@ -1011,9 +1011,12 @@
     }
   },
   {
-    "name": "MatMul",
+    "name": "Unsqueeze",
     "schema": {
-      "category": "Layer"
+      "category": "Transform",
+      "attributes": [
+        { "name": "axises[]", "type": "int32[]", "default": [] }
+      ]
     }
   },
   {
@@ -1027,12 +1030,59 @@
     }
   },
   {
-    "name": "Unsqueeze",
+    "name": "Mean",
     "schema": {
-      "category": "Transform",
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "MatMul",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Expand",
+    "schema": {
+      "category": "Layer",
       "attributes": [
-        { "name": "axises[]", "type": "int32[]", "default": [] }
+        { "name": "v_shape[]", "type": "int32[]", "default": [] }
       ]
+    }
+  },
+  {
+    "name": "Scatter",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "is_onnx", "type": "boolean", "default": false }
+
+      ]
+    }
+  },
+  {
+    "name": "Scatter",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Shape",
+    "schema": {
+      "category": "Shape"
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Mish",
+    "schema": {
+      "category": "Activation"
     }
   },
   {
