@@ -4362,6 +4362,26 @@
     }
   },
   {
+    "name": "torch.new_full",
+    "schema": {
+      "category": [
+        { "name": "size", "type": "int64[]" },
+        { "name": "fill_value", "type": "scalar" },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.softplus",
     "schema": {
       "category": [
@@ -4663,6 +4683,17 @@
         { "name": "self", "type": "tensor" },
         { "name": "scales", "type": "tensor" },
         { "name": "zero_points", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch._shape_as_tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "tensor" }
