@@ -623,10 +623,17 @@ tengine.ModelFileReader = class {
         register(85, 0, 'Round', []);
         register(86, 0, 'ZerosLike', []);
         register(87, 0, 'Clip', [ 'f','f' ]);
-        register(88, 0, 'MatMul', []);
+        register(88, 0, 'Unsqueeze', [ 'i[]' ]);
         register(89, 0, 'ReduceL2', [ 'i','i' ]);
-        register(90, 0, 'Unsqueeze', [ 'i[]' ]); /* need fix*/
-        register(91, 0, 'Num', []);
+        register(90, 0, 'Mean', []);
+        register(91, 0, 'MatMul', []);
+        register(92, 0, 'Expand', ['i[]']);
+        register(93, 0, 'Scatter', ['i','boolean']);
+        register(94, 0, 'Shape', []);
+        register(95, 0, 'Where', []);
+        register(96, 0, 'Tile', ['i','i']);
+        register(97, 0, 'Mish', []);
+        register(98, 0, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
