@@ -19,7 +19,7 @@ Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch**
 
 **Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
 
-**Python Server**: Run `pip install netron` and `netron [FILE]` or `import netron; netron.start('[FILE]')`.
+**Python Server**: Run `pip install netron` and `netron [FILE]` or `netron.start('[FILE]')`.
 
 ## Models
 
