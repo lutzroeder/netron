@@ -14,10 +14,8 @@ clean() {
 
 sync() {
     bold "armnn sync"
-    [ -d "./third_party/source/armnn" ] || git clone --quiet --depth=1 --branch master https://github.com/ARM-software/armnn.git "./third_party/source/armnn"
-    pushd "./third_party/source/armnn" > /dev/null
-    git pull --quiet --prune
-    popd > /dev/null
+    mkdir -p "./third_party/source/armnn/src/armnnSerializer"
+    curl --silent --location --output "./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs" "https://github.com/ARM-software/armnn/raw/branches/armnn_20_08/src/armnnSerializer/ArmnnSchema.fbs?raw=true"
 }
 
 schema() {
