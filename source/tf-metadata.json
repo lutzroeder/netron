@@ -58747,7 +58747,7 @@
   {
     "name": "UnicodeScript",
     "schema": {
-      "description": "This operation converts Unicode code points to script codes corresponding to\neach code point. Script codes correspond to International Components for\nUnicode (ICU) UScriptCode values. See http://icu-project.org/apiref/icu4c/uscript_8h.html.\nReturns -1 (USCRIPT_INVALID_CODE) for invalid codepoints. Output shape will\nmatch input shape.\n\nExamples:\n\n>>> tf.strings.unicode_script([1, 31, 38])\n<tf.Tensor: shape=(3,), dtype=int32, numpy=array([0, 0, 0], dtype=int32)>",
+      "description": "This operation converts Unicode code points to script codes corresponding to\neach code point. Script codes correspond to International Components for\nUnicode (ICU) UScriptCode values.\n\nSee\n[ICU project docs](http://icu-project.org/apiref/icu4c/uscript_8h.html)\nfor more details on script codes.\n\nFor an example, see the unicode strings guide on [unicode scripts]\n(https://www.tensorflow.org/tutorials/load_data/unicode#representing_unicode).\n\nReturns -1 (USCRIPT_INVALID_CODE) for invalid codepoints. Output shape will\nmatch input shape.\n\nExamples:\n\n>>> tf.strings.unicode_script([1, 31, 38])\n<tf.Tensor: shape=(3,), dtype=int32, numpy=array([0, 0, 0], dtype=int32)>",
       "inputs": [
         {
           "description": "A Tensor of int32 Unicode code points.",
