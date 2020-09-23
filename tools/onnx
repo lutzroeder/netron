@@ -24,26 +24,14 @@ venv() {
     ${python} -m pip install --quiet --upgrade pip
 }
 
-git_sync() {
-    [ -d "./third_party/source/${1}" ] || git clone --quiet --recursive ${2} "./third_party/source/${1}"
-    pushd "./third_party/source/${1}" > /dev/null
+sync() {
+    bold "onnx sync"
+    [ -d "./third_party/source/onnx" ] || git clone --quiet --recursive https://github.com/onnx/onnx.git "./third_party/source/onnx"
+    pushd "./third_party/source/onnx" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
-}
-
-clean() {
-    bold "onnx clean"
-    rm -rf "./third_party/env/onnx"
-    rm -rf "./third_party/source/onnx"
-    rm -rf "./third_party/source/onnxmltools"
-}
-
-sync() {
-    bold "onnx sync"
-    git_sync onnx https://github.com/onnx/onnx.git
-    git_sync onnxmltools https://github.com/onnx/onnxmltools.git
 }
 
 install() {
@@ -109,15 +97,6 @@ metadata() {
     fi
 }
 
-convert() {
-    bold "onnx convert"
-    venv
-    ${python} -m pip install --quiet ./third_party/source/onnxmltools
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/onnx-script.py convert ${1}
-    deactivate
-}
-
 infer() {
     bold "onnx infer"
     venv
@@ -142,7 +121,6 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
-        "convert") convert ${1} && shift;;
         "infer") infer ${1} && shift;;
         "optimize") optimize ${1} && shift;;
     esac

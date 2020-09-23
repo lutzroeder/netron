@@ -231,46 +231,6 @@ def metadata():
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     generate_json(schemas, json_file)
 
-def convert():
-    def pip_import(package):
-        import importlib
-        try:
-            importlib.import_module(package)
-        except:
-            import subprocess
-            subprocess.call([ 'pip', 'install', '--quiet', package ])
-        finally:
-            globals()[package] = importlib.import_module(package)
-    file = sys.argv[2]
-    base, extension = os.path.splitext(file)
-    if extension == '.mlmodel':
-        pip_import('coremltools')
-        import onnxmltools
-        coreml_model = coremltools.utils.load_spec(file)
-        onnx_model = onnxmltools.convert.convert_coreml(coreml_model)
-        onnxmltools.utils.save_model(onnx_model, base + '.onnx')
-    elif extension == '.h5':
-        pip_import('tensorflow')
-        pip_import('keras')
-        import onnxmltools
-        keras_model = keras.models.load_model(file)
-        onnx_model = onnxmltools.convert.convert_keras(keras_model)
-        onnxmltools.utils.save_model(onnx_model, base + '.onnx')
-    elif extension == '.pkl':
-        pip_import('sklearn')
-        import onnxmltools
-        sklearn_model = sklearn.externals.joblib.load(file)
-        onnx_model = onnxmltools.convert.convert_sklearn(sklearn_model)
-        onnxmltools.utils.save_model(onnx_model, base + '.onnx')
-    base, extension = os.path.splitext(file)
-    if extension == '.onnx':
-        import onnx
-        from google.protobuf import text_format
-        onnx_model = onnx.load(file)
-        text = text_format.MessageToString(onnx_model)
-        with open(base + '.pbtxt', 'w') as text_file:
-            text_file.write(text)
-
 def optimize():
     import onnx
     from onnx import optimizer
@@ -292,6 +252,6 @@ def infer():
     onnx.save(onnx_model, base + '.shape.onnx')
 
 if __name__ == '__main__':
-    command_table = { 'metadata': metadata, 'convert': convert, 'optimize': optimize, 'infer': infer }
+    command_table = { 'metadata': metadata, 'optimize': optimize, 'infer': infer }
     command = sys.argv[1]
     command_table[command]()
