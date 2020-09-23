@@ -18860,7 +18860,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor (same size as X)",
+          "description": "Output tensor.",
           "name": "Z",
           "type": "T"
         }
@@ -18917,7 +18917,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor (same size as X)",
+          "description": "Output tensor.",
           "name": "Z",
           "type": "T"
         }
@@ -18993,7 +18993,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor (same size as X)",
+          "description": "Output tensor.",
           "name": "Z",
           "type": "T"
         }
