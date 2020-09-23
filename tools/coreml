@@ -45,17 +45,6 @@ schema() {
     fi
 }
 
-convert() {
-    bold "coreml convert"
-    venv
-    ${python} -m pip install --quiet --upgrade six numpy protobuf
-    ${python} -m pip install --quiet ./third_party/source/coremltools
-    ${python} -m pip install --quiet onnx
-    ${python} -m pip install --quiet sklearn
-    ${python} ./tools/coreml-script.py convert ${1}
-    deactivate
-}
-
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -63,6 +52,5 @@ while [ "$#" != 0 ]; do
         "sync") sync;;
         "install") install;;
         "schema") schema;;
-        "convert") convert ${1} && shift;;
     esac
 done
