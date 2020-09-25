@@ -1245,6 +1245,7 @@ view.ModelFactoryService = class {
         this.register('./npz', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
+        this.register('./weka', [ '.model' ]);
     }
 
     register(id, extensions) {

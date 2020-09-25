@@ -5680,5 +5680,11 @@
     "target": "sample_unpruned_mobilenet_v2.tar.gz",
     "source": "https://nvidia.box.com/shared/static/8oqvmd79llr6lq1fr43s4fu1ph37v8nt.gz",
     "format": "UFF v1"
+  },
+  {
+    "type":   "weka",
+    "target": "j48model.model",
+    "source": "https://raw.githubusercontent.com/PTaati/wekaTree2python/master/j48model.model",
+    "error":  "Unsupported type 'weka.classifiers.trees.J48' in 'j48model.model'."
   }
 ]
