@@ -1159,6 +1159,7 @@ darknet.Metadata = class {
 };
 
 darknet.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading Darknet model.';
