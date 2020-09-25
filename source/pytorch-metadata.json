@@ -1767,6 +1767,22 @@
     }
   },
   {
+    "name": "torch.dropout_",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float64", "default": 0.5 },
+        { "name": "train", "type": "boolean", "visible": false }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.feature_dropout",
     "schema": {
       "attributes": [
@@ -1783,11 +1799,75 @@
     }
   },
   {
-    "name": "torch.dropout_",
+    "name": "torch.feature_dropout_",
     "schema": {
       "attributes": [
-        { "name": "p", "type": "float64", "default": 0.5 },
-        { "name": "train", "type": "boolean", "visible": false }
+        { "name": "p", "type": "float64" },
+        { "name": "train", "type": "boolean" }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.alpha_dropout",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float64" },
+        { "name": "train", "type": "boolean" }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.alpha_dropout_",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float64" },
+        { "name": "train", "type": "boolean" }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.feature_alpha_dropout",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float64" },
+        { "name": "train", "type": "boolean" }
+      ],
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.feature_alpha_dropout_",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "float64" },
+        { "name": "train", "type": "boolean" }
       ],
       "category": "Dropout",
       "inputs": [
