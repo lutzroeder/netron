@@ -1070,6 +1070,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.BCEWithLogitsLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.CrossEntropyLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.L1Loss', function() {});
+        this._registerConstructor('torch.nn.modules.loss.MarginRankingLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.MSELoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.NLLLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.SmoothL1Loss', function() {});
@@ -1276,17 +1277,19 @@ pytorch.Execution = class {
         });
         this._registerConstructor('numpy.dtype', function(obj, align, copy) {
             switch (obj) {
-                case 'i1': this.name = 'int8'; this.itemsize = 1; break;
-                case 'i2': this.name = 'int16'; this.itemsize = 2; break;
-                case 'i4': this.name = 'int32'; this.itemsize = 4; break;
-                case 'i8': this.name = 'int64'; this.itemsize = 8; break;
-                case 'b1': this.name = 'uint8'; this.itemsize = 1; break;
-                case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
-                case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
-                case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
-                case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
-                case 'f4': this.name = 'float32'; this.itemsize = 4; break;
-                case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                case 'i1':  this.name = 'int8'; this.itemsize = 1; break;
+                case 'i2':  this.name = 'int16'; this.itemsize = 2; break;
+                case 'i4':  this.name = 'int32'; this.itemsize = 4; break;
+                case 'i8':  this.name = 'int64'; this.itemsize = 8; break;
+                case 'b1':  this.name = 'uint8'; this.itemsize = 1; break;
+                case 'u1':  this.name = 'uint8'; this.itemsize = 1; break;
+                case 'u2':  this.name = 'uint16'; this.itemsize = 2; break;
+                case 'u4':  this.name = 'uint32'; this.itemsize = 4; break;
+                case 'u8':  this.name = 'uint64'; this.itemsize = 8; break;
+                case 'f4':  this.name = 'float32'; this.itemsize = 4; break;
+                case 'f8':  this.name = 'float64'; this.itemsize = 8; break;
+                case 'c8':  this.name = 'complex64'; this.itemsize = 8; break;
+                case 'c16': this.name = 'complex128'; this.itemsize = 16; break;
                 default:
                     if (obj.startsWith('V')) {
                         this.itemsize = Number(obj.substring(1));
