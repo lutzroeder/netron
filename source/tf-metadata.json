@@ -29411,6 +29411,73 @@
     }
   },
   {
+    "name": "OutfeedDequeueTupleV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The element types of each element in `outputs`.",
+          "minimum": 1,
+          "name": "dtypes",
+          "type": "type[]"
+        },
+        {
+          "description": "The shapes of each tensor in `outputs`.",
+          "name": "shapes",
+          "type": "shape[]"
+        }
+      ],
+      "description": "This operation will block indefinitely until data is available. Output `i`\ncorresponds to XLA tuple element `i`.",
+      "inputs": [
+        {
+          "description": "An int scalar tensor, representing the TPU device to use. This should be -1 when\nthe Op is running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A list of tensors that will be read from the outfeed.",
+          "name": "outputs",
+          "typeListAttr": "dtypes"
+        }
+      ],
+      "summary": "Retrieve multiple values from the computation outfeed. Device ordinal is a\ntensor allowing dynamic outfeed."
+    }
+  },
+  {
+    "name": "OutfeedDequeueV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The type of elements in the tensor.",
+          "name": "dtype",
+          "type": "type"
+        },
+        {
+          "description": "The shape of the tensor.",
+          "name": "shape",
+          "type": "shape"
+        }
+      ],
+      "description": "This operation will block indefinitely until data is available.",
+      "inputs": [
+        {
+          "description": "An int scalar tensor, representing the TPU device to use. This should be -1 when\nthe Op is running on a TPU device, and >= 0 when the Op is running on the CPU\ndevice.",
+          "name": "device_ordinal",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "A tensor that will be read from the device outfeed.",
+          "name": "output",
+          "typeAttr": "dtype"
+        }
+      ],
+      "summary": "Retrieves a single tensor from the computation outfeed. Device ordinal is a\ntensor allowing dynamic outfeed."
+    }
+  },
+  {
     "name": "OutfeedEnqueue",
     "schema": {
       "attributes": [
@@ -31601,6 +31668,11 @@
           "default": true,
           "name": "legacy_autotune",
           "type": "boolean"
+        },
+        {
+          "default": 0,
+          "name": "buffer_size_min",
+          "type": "int64"
         }
       ],
       "inputs": [
