@@ -2801,6 +2801,7 @@ $root.tensorflow.SavedConstant.prototype.operation = "";
 $root.tensorflow.SavedVariable = class SavedVariable {
 
     constructor() {
+        this.experimental_distributed_variable_components = [];
     }
 
     static decode(reader, length) {
@@ -2829,6 +2830,9 @@ $root.tensorflow.SavedVariable = class SavedVariable {
                     break;
                 case 7:
                     message.device = reader.string();
+                    break;
+                case 8:
+                    message.experimental_distributed_variable_components.push($root.tensorflow.SavedVariable.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2865,6 +2869,9 @@ $root.tensorflow.SavedVariable = class SavedVariable {
                 case "device":
                     message.device = reader.string();
                     break;
+                case "experimental_distributed_variable_components":
+                    message.experimental_distributed_variable_components.push($root.tensorflow.SavedVariable.decodeText(reader, true));
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2881,12 +2888,6 @@ $root.tensorflow.SavedVariable.prototype.synchronization = 0;
 $root.tensorflow.SavedVariable.prototype.aggregation = 0;
 $root.tensorflow.SavedVariable.prototype.name = "";
 $root.tensorflow.SavedVariable.prototype.device = "";
-
-$root.tensorflow.ExperimentalCompile = {
-    "NONE": 0,
-    "TRUE": 1,
-    "FALSE": 2
-};
 
 $root.tensorflow.FunctionSpec = class FunctionSpec {
 
@@ -2935,7 +2936,7 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                     message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
                     break;
                 case "experimental_compile":
-                    message.experimental_compile = reader.enum($root.tensorflow.ExperimentalCompile);
+                    message.experimental_compile = reader.enum($root.tensorflow.FunctionSpec.ExperimentalCompile);
                     break;
                 default:
                     reader.field(tag, message);
@@ -2950,6 +2951,12 @@ $root.tensorflow.FunctionSpec.prototype.fullargspec = null;
 $root.tensorflow.FunctionSpec.prototype.is_method = false;
 $root.tensorflow.FunctionSpec.prototype.input_signature = null;
 $root.tensorflow.FunctionSpec.prototype.experimental_compile = 0;
+
+$root.tensorflow.FunctionSpec.ExperimentalCompile = {
+    "DEFAULT": 0,
+    "ON": 1,
+    "OFF": 2
+};
 
 $root.tensorflow.SavedResource = class SavedResource {
 
