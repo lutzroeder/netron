@@ -80,6 +80,7 @@ gzip.Reader = class {
         this._buffer = buffer;
         this._position = start;
         this._end = end;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
     match(signature) {
@@ -102,43 +103,36 @@ gzip.Reader = class {
         this._position = value >= 0 ? value : this._end + value;
     }
 
-    skip(size) {
-        if (this._position + size > this._end) {
-            throw new gzip.Error('Data not available.');
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._end) {
+            throw new gzip.Error('Expected ' + (this._position - this._end) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
-        this._position += size;
     }
 
     bytes(size) {
-        if (this._position + size > this._end) {
-            throw new gzip.Error('Data not available.');
-        }
-        size = size === undefined ? this._end : size;
-        const data = this._buffer.subarray(this._position, this._position + size);
-        this._position += size;
-        return data;
+        const position = this._position;
+        size = size === undefined ? (this._end - position) : size;
+        this.skip(size);
+        return this._buffer.subarray(position, this._position);
     }
 
     byte() {
-        if (this._position + 1 > this._end) {
-            throw new gzip.Error('Data not available.');
-        }
-        const value = this._buffer[this._position];
-        this._position++;
-        return value;
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
     }
 
     uint16() {
-        if (this._position + 2 > this._end) {
-            throw new gzip.Error('Data not available.');
-        }
-        const value = this._buffer[this._position] | (this._buffer[this._position + 1] << 8);
-        this._position += 2;
-        return value;
+        const position = this._position;
+        this.skip(2);
+        return this._view.getUint16(position, true);
     }
 
     uint32() {
-        return this.uint16() | (this.uint16() << 16);
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
     }
 
     string() {
