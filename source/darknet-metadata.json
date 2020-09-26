@@ -296,6 +296,12 @@
     }
   },
   {
+    "name": "relu6",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "relie",
     "schema": {
       "category": "Activation"
@@ -369,6 +375,12 @@
   },
   {
     "name": "swish",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "h_swish",
     "schema": {
       "category": "Activation"
     }
