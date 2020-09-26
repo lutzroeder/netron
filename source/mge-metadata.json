@@ -1,0 +1,350 @@
+[  
+  {
+    "name": "megengine.module.activation.LeakyReLU",
+    "schema": {
+      "attributes": [
+        {"name": "negative_slope", "default": 0.01}
+      ],
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "megengine.module.activation.PReLU",
+    "schema": {
+      "attributes": [
+        { "name": "num_parameters", "default": 1 },
+        { "name": "init", "default": 0.25 }
+      ],
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "megengine.module.activation.ReLU",
+    "schema": {
+      "attributes": [],
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "megengine.module.activation.Sigmoid",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "megengine.module.activation.Softmax",
+    "schema": {
+      "category": "Activation"
+    }
+  }, 
+  {
+    "name": "megengine.module.batchnorm.BatchNorm1d",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "default": 1e-05 },
+        { "name": "momentum", "default": 0.9 },
+        { "name": "affine", "default": true },
+        { "name": "track_running_stats", "default": true }
+      ],
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "megengine.module.batchnorm.BatchNorm2d",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "default": 1e-05 },
+        { "name": "momentum", "default": 0.9 },
+        { "name": "affine", "default": true },
+        { "name": "track_running_stats", "default": true }
+      ],
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "megengine.module.batchnorm.SyncBatchNorm",
+    "schema": {
+      "attributes": [
+        { "name": "eps", "default": 1e-05 },
+        { "name": "momentum", "default": 0.9 },
+        { "name": "affine", "default": true },
+        { "name": "track_running_stats", "default": true }
+      ],
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "megengine.module.concat.Concat",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.conv.Conv2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "compute_mode", "default": "DEFAULT" },
+        { "name": "groups", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.conv.ConvRelu2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "compute_mode", "default": "DEFAULT" },
+        { "name": "groups", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.conv.ConvTranspose2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "compute_mode", "default": "DEFAULT" },
+        { "name": "groups", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.conv.LocalConv2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "groups", "default": 1 },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.conv_bn.ConvBn2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "compute_mode", "default": "DEFAULT" },
+        { "name": "groups", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "eps", "default": 1e-05 },
+        { "name": "momentum", "default": 0.9 },
+        { "name": "affine", "default": true },
+        { "name": "track_running_stats", "default": true }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.conv_bn.ConvBnRelu2d",
+    "schema": {
+      "attributes": [
+        { "name": "conv_mode", "default": "CROSS_CORRELATION" },
+        { "name": "compute_mode", "default": "DEFAULT" },
+        { "name": "groups", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "padding", "default": 0 },
+        { "name": "dilation", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "eps", "default": 1e-05 },
+        { "name": "momentum", "default": 0.9 },
+        { "name": "affine", "default": true },
+        { "name": "track_running_stats", "default": true }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.dropout.Dropout",
+    "schema": {
+      "attributes": [
+        { "name": "drop_prob", "default": 0.0 }
+      ],
+      "category": "Dropout"
+    }
+  },
+  {
+    "name": "megengine.module.elemwise.Elemwise",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.embedding.Embedding",
+    "schema": {
+      "attributes": [
+        { "name": "norm_type", "default": null },
+        { "name": "initial_weight", "default": null },
+        { "name": "max_norm", "default": null },
+        { "name": "padding_idx", "default": null }
+      ],
+      "category": "Transform"
+    }
+  },
+  {
+    "name": "megengine.module.external.CambriconSubgraph",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.external.ExternOprSubgraph",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.identity.Identity",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.init.calculate_correct_fan",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.init.calculate_fan_in_and_fan_out",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.init.calculate_gain",
+    "schema": {
+      "attributes": [
+        { "name": "param", "default": null }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.fill_",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.init.msra_normal_",
+    "schema": {
+      "attributes": [
+        { "name": "a", "default": 0 },
+        { "name": "mode", "default": "fan_in" },
+        { "name": "nonlinearity", "default": "leaky_relu" }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.msra_uniform_",
+    "schema": {
+      "attributes": [
+        { "name": "a", "default": 0 },
+        { "name": "mode", "default": "fan_in" },
+        { "name": "nonlinearity", "default": "leaky_relu" }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.normal_",
+    "schema": {
+      "attributes": [
+        { "name": "mean", "default": 0.0 },
+        { "name": "std", "default": 1.0 }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.ones_",
+    "schema": {
+      "attributes": []
+    }
+  },
+  {
+    "name": "megengine.module.init.uniform_",
+    "schema": {
+      "attributes": [
+        { "name": "a", "default": 0.0 },
+        { "name": "b", "default": 1.0 }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.xavier_normal_",
+    "schema": {
+      "attributes": [
+        { "name": "gain", "default": 1.0 }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.xavier_uniform_",
+    "schema": {
+      "attributes": [
+        { "name": "gain", "default": 1.0 }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.init.zeros_",
+    "schema": {
+      "attributes": []
+    }
+  },
+  {
+    "name": "megengine.module.linear.Linear",
+    "schema": {
+      "attributes": [
+        { "name": "bias", "default": true }
+      ],
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "megengine.module.parampack.ParamPack",
+    "schema": {
+      "attributes": [
+        { "name": "nr_ignore_first", "default": 8 },
+        { "name": "max_size_per_group", "default": 10 },
+        { "name": "max_nr_params_per_group", "default": 100 }
+      ]
+    }
+  },
+  {
+    "name": "megengine.module.pooling.AvgPool2d",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "default": null },
+        { "name": "padding", "default": 0 }
+      ],
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "megengine.module.pooling.MaxPool2d",
+    "schema": {
+      "attributes": [
+        { "name": "stride", "default": null },
+        { "name": "padding", "default": 0 }
+      ],
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "megengine.module.quant_dequant.DequantStub",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.quant_dequant.QuantStub",
+    "schema": {}
+  },
+  {
+    "name": "megengine.module.sequential.Sequential",
+    "schema": {}
+  }
+]
