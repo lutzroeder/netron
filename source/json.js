@@ -108,6 +108,9 @@ json.TextReader = class {
                     this._next();
                     this._whitespace();
                     c = this._char;
+                    if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                      throw new json.Error('Attempted prototype pollution ' + key + this._location());
+                    }
                     switch (c) {
                         case '{': {
                             this._next();
@@ -477,6 +480,9 @@ json.BinaryReader = class {
                 obj.push(value);
             }
             else {
+                if (key === '__proto__' || key === 'constructor' || key === 'prototype') {
+                  throw new json.Error('Attempted prototype pollution ' + key + ' at ' + position.toString());
+                }
                 obj[key] = value;
             }
             if (type === 0x03 || type === 0x04) {
