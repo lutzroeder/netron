@@ -1760,6 +1760,13 @@
   },
   {
     "type":   "darknet",
+    "target": "vgg_bn_ssd300.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/5287397/vgg_bn_ssd300.cfg.zip[vgg_bn_ssd300.cfg]",
+    "error":  "First section must be [net] or [network] in 'vgg_bn_ssd300.cfg'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
+  },
+  {
+    "type":   "darknet",
     "target": "yolo-coco.cfg",
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov1/yolo-coco.cfg",
     "format": "Darknet",

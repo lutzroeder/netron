@@ -14,7 +14,11 @@ darknet.ModelFactory = class {
                 if (line === undefined) {
                     break;
                 }
-                if (line.trim() === '[net]') {
+                const text = line.trim();
+                if (text.length === 0 || text.startsWith('#')) {
+                    continue;
+                }
+                if (text.startsWith('[') && text.endsWith(']')) {
                     return true;
                 }
             }
@@ -174,6 +178,10 @@ darknet.Graph = class {
             layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ outputs ], 'make_connected_layer'));
         };
 
+        if (sections.length === 0) {
+            throw new darknet.Error('Config file has no sections.');
+        }
+
         const params = {};
         const globals = new Map();
         const net = sections.shift();
@@ -189,6 +197,9 @@ darknet.Graph = class {
                 }
                 break;
             }
+            default: {
+                throw new darknet.Error("First section must be [net] or [network].");
+            }
         }
 
         const inputType = params.w && params.h && params.c ?
@@ -197,10 +208,6 @@ darknet.Graph = class {
         const inputName = 'input';
         params.arguments = [ new darknet.Argument(inputName, inputType, null) ];
         this._inputs.push(new darknet.Parameter(inputName, true, params.arguments));
-
-        if (sections.length === 0) {
-            throw new darknet.Error('Config file has no sections.');
-        }
 
         let infer = true;
         for (let i = 0; i < sections.length; i++) {
@@ -278,7 +285,7 @@ darknet.Graph = class {
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
                         const activation = option_find_str(options, 'activation', 'logistic');
                         make_convolutional_layer(layer, '', params.w, params.h, params.c, n, groups, size, stride_x, stride_y, padding, batch_normalize);
-                        if (activation !== 'logistic') {
+                        if (activation !== 'logistic' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
                         break;
@@ -288,7 +295,7 @@ darknet.Graph = class {
                         const batch_normalize = option_find_int(options, 'batch_normalize', 0);
                         const activation = option_find_str(options, 'activation', 'logistic');
                         make_connected_layer(layer, '', params.inputs, outputs, batch_normalize);
-                        if (activation !== 'logistic') {
+                        if (activation !== 'logistic' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
                         break;
@@ -310,7 +317,7 @@ darknet.Graph = class {
                         layer.weights.push(load_weights('weights', [ params.c, n, size, size, layer.out_h * layer.out_w ]));
                         layer.weights.push(load_weights('biases',[ layer.out_w * layer.out_h * layer.out_c ]));
                         layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'local'));
-                        if (activation !== 'logistic') {
+                        if (activation !== 'logistic' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
                         break;
@@ -689,7 +696,7 @@ darknet.Graph = class {
                         layer.out_c = layer.from.out_c;
                         layer.out = layer.out_w * layer.out_h * layer.out_c;
                         layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'shortcut|scale_channels|sam'));
-                        if (activation !== 'linear') {
+                        if (activation !== 'linear' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
                         break;
@@ -701,7 +708,7 @@ darknet.Graph = class {
                         layer.out_c = params.c;
                         layer.out = params.w * params.h * params.c;
                         layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ params.w, params.h, params.c ], 'shortcut|scale_channels|sam'));
-                        if (activation !== 'linear') {
+                        if (activation !== 'linear' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
                         break;
