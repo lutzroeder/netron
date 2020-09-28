@@ -178,7 +178,7 @@ sklearn.Graph = class {
             }
             default: {
                 const output = this._concat(group, name);
-                this._add(group, output, obj, inputs, [ output ]);
+                this._add(group, output, obj, inputs, output === '' ? [] : [ output ]);
                 return [ output ];
             }
         }
@@ -880,6 +880,7 @@ sklearn.Container = class {
         constructorTable['sklearn.linear_model.sgd_fast.Hinge'] = function() {};
         constructorTable['sklearn.linear_model.LogisticRegression'] = function() {};
         constructorTable['sklearn.linear_model.logistic.LogisticRegression'] = function() {};
+        constructorTable['sklearn.linear_model.logistic.LogisticRegressionCV'] = function() {};
         constructorTable['sklearn.linear_model._logistic.LogisticRegression'] = function() {};
         constructorTable['sklearn.linear_model.LassoLars​'] = function() {};
         constructorTable['sklearn.linear_model.ridge.Ridge'] = function() {};
@@ -1094,6 +1095,12 @@ sklearn.Container = class {
         functionTable['builtins.bytearray'] = function(data) {
             return { data: data };
         };
+        functionTable['builtins.getattr'] = function(obj, name, defaultValue) {
+            if (Object.prototype.hasOwnProperty.call(obj, name)) {
+                return obj[name];
+            }
+            return defaultValue;
+        };
         functionTable['builtins.set'] = function(iterable) {
             return iterable ? iterable : [];
         };
@@ -1233,7 +1240,7 @@ sklearn.Container = class {
             return obj;
         };
 
-        this._data = unpickler.load(function_call, null);
+        this._data = unpickler.load(function_call, () => {});
 
         const find_weights = function(objs) {
 

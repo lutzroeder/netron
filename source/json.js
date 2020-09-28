@@ -7,6 +7,7 @@ json.TextReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
+        this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
     }
 
     static create(buffer) {
@@ -17,7 +18,6 @@ json.TextReader = class {
         const decoder = base.TextDecoder.create(this._buffer);
         const stack = [];
         this._decoder = decoder;
-        this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
         this._position = 0;
         this._char = decoder.decode();
         this._whitespace();
@@ -101,6 +101,12 @@ json.TextReader = class {
                 first = false;
                 if (c === '"') {
                     const key = this._string();
+                    switch (key) {
+                        case '__proto__':
+                        case 'constructor':
+                        case 'prototype':
+                            throw new json.Error("Invalid key '" + key + "'" + this._location());
+                    }
                     this._whitespace();
                     if (this._char !== ':') {
                         this._unexpected();
@@ -391,11 +397,9 @@ json.BinaryReader = class {
                 obj = stack.pop();
                 continue;
             }
-
             const start = position;
             position = buffer.indexOf(0x00, start) + 1;
             const key = asciiDecoder.decode(buffer.subarray(start, position - 1));
-
             let value = null;
             switch (type) {
                 case 0x01: { // float64
@@ -477,6 +481,12 @@ json.BinaryReader = class {
                 obj.push(value);
             }
             else {
+                switch (key) {
+                    case '__proto__':
+                    case 'constructor':
+                    case 'prototype':
+                        throw new json.Error("Invalid key '" + key + "' at " + position.toString() + "'.", true);
+                }
                 obj[key] = value;
             }
             if (type === 0x03 || type === 0x04) {
