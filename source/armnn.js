@@ -513,7 +513,10 @@ armnn.TensorType = class {
             case 5: this._dataType = 'qint16'; break; // QuantisedSymm16
             case 6: this._dataType = 'quint8'; break; // QAsymmU8
             case 7: this._dataType = 'qint16'; break; // QSymmS16
-            default: throw new armnn.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
+            case 8: this._dataType = 'qint8'; break; // QAsymmS8
+            case 9: this._dataType = 'qint8'; break; // QSymmS8
+            default:
+                throw new armnn.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
         }
         this._shape = new armnn.TensorShape(tensorInfo.dimensions);
     }
