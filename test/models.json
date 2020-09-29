@@ -2850,9 +2850,10 @@
   },
   {
     "type":   "onnx",
-    "target": "bvlc_alexnet_opset_3.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+    "target": "bvlc_alexnet_opset_3.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296267/bvlc_alexnet_opset_3.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3093,8 +3094,10 @@
   },
   {
     "type":   "onnx",
-    "target": "resnet50_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/resnet50.tar.gz[resnet50/model.onnx]"
+    "target": "resnet50_opset_9.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296268/resnet50_opset_9.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3171,10 +3174,10 @@
   },
   {
     "type":   "onnx",
-    "target": "ssd.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/ssd/ssd.onnx",
+    "target": "ssd.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296269/ssd.onnx.zip",
     "format": "ONNX v4",
-    "link":   "https://github.com/onnx/models/tree/master/ssd"
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
