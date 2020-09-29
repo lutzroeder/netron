@@ -906,6 +906,7 @@ keras.Tensor = class {
             case 'float32':
             case 'float64':
             case 'uint8':
+            case 'int32':
             case 'int64':
                 context.dataType = this._type.dataType;
                 context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
@@ -954,6 +955,10 @@ keras.Tensor = class {
                     case 'uint8':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
+                        break;
+                    case 'int32':
+                        results.push(context.data.getInt32(context.index, littleEndian));
+                        context.index += 4;
                         break;
                     case 'int64':
                         results.push(context.data.getInt64(context.index, littleEndian));
