@@ -2916,6 +2916,14 @@
   },
   {
     "type":   "onnx",
+    "target": "EfficientDet-d0.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296050/EfficientDet-d0.onnx.zip",
+    "format": "ONNX v6",
+    "error":  "Maximum call stack size exceeded",
+    "link":   "https://github.com/lutzroeder/netron/issues/589"
+  },
+  {
+    "type":   "onnx",
     "target": "eisber_model3.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/4209090/eisber_model3.pbtxt.zip[eisber_model3.pbtxt]",
     "format": "ONNX v3",
