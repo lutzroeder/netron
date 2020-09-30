@@ -4793,5 +4793,40 @@
         { "name": "output", "type": "tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.im2col",
+    "schema": {
+      "attributes": [
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "dilation", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.col2im",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]" },
+        { "name": "kernel_size", "type": "int64[]" },
+        { "name": "dilation", "type": "int64[]" },
+        { "name": "padding", "type": "int64[]" },
+        { "name": "stride", "type": "int64[]" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
   }
 ]
