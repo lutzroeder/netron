@@ -1789,6 +1789,11 @@ $root.tensorflow.DataType = {
     "DT_UINT64_REF": 123
 };
 
+$root.tensorflow.SpecializedType = {
+    "ST_INVALID": 0,
+    "ST_TENSOR_LIST": 1
+};
+
 $root.tensorflow.NodeDef = class NodeDef {
 
     constructor() {
