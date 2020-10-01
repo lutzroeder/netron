@@ -1661,6 +1661,17 @@ pytorch.Execution = class {
             }
             throw new pytorch.Error("Unknown 'torch.gt' expression type.");
         });
+        this._registerFunction('torch.ge', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                if (!isNaN(left) && !isNaN(right)) {
+                    return left > right;
+                }
+            }
+            if (isNaN(left) && !isNaN(right)) {
+                return true;
+            }
+            throw new pytorch.Error("Unknown 'torch.ge' expression type.");
+        });
         this._registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
         });
@@ -3316,6 +3327,8 @@ pytorch.Utility = class {
                 return Number.isInteger(obj) || isNaN(obj);
             case 'int64[]':
                 return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || Number.isNaN(item) || item === undefined);
+            case 'int64[1]':
+                return pytorch.Utility.isType(obj, 'int64') || pytorch.Utility.isType(obj, 'int64[]');
             case 'float32':
             case 'float64':
                 return obj !== null && obj !== Object(obj);

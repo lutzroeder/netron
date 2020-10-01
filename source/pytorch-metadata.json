@@ -2993,7 +2993,7 @@
     "schema": {
       "attributes": [
         { "name": "p", "type": "scalar", "optional": true },
-        { "name": "dim", "type": "int64" },
+        { "name": "dim", "type": "int64[1]" },
         { "name": "keepdim", "type": "boolean" },
         { "name": "dtype", "type": "ScalarType" }
       ],
@@ -3010,8 +3010,8 @@
     "schema": {
       "attributes": [
         { "name": "p", "type": "scalar", "optional": true },
-        { "name": "dim", "type": "int64" },
-        { "name": "keepdim", "type": "boolean" }
+        { "name": "dim", "type": "int64[1]" },
+        { "name": "keepdim", "type": "boolean", "default": false }
       ],
       "inputs": [
         { "name": "self", "type": "tensor" }
@@ -3021,45 +3021,29 @@
       ]
     }
   },
+  {
+    "name": "torch.norm:dtype_out",
+    "schema": {
+      "attributes": [
+        { "name": "p", "type": "scalar", "optional": true },
+        { "name": "dim", "type": "int64[1]" },
+        { "name": "keepdim", "type": "boolean", "default": false },
+        { "name": "dtype", "type": "ScalarType" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+
   {
     "name": "torch.norm:Scalar",
     "schema": {
       "attributes": [
         { "name": "p", "type": "scalar", "default": 2 }
-      ],
-      "inputs": [
-        { "name": "self", "type": "tensor" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "tensor" }
-      ]
-    }
-  },
-  {
-    "name": "torch.norm:ScalarOpt_dim_dtype",
-    "schema": {
-      "attributes": [
-        { "name": "p", "type": "scalar", "optional": true },
-        { "name": "dim", "type": "int64" },
-        { "name": "keepdim", "type": "boolean" },
-        { "name": "p", "type": "ScalarType" }
-
-      ],
-      "inputs": [
-        { "name": "self", "type": "tensor" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "tensor" }
-      ]
-    }
-  },
-  {
-    "name": "torch.norm:ScalarOpt_dim",
-    "schema": {
-      "attributes": [
-        { "name": "p", "type": "scalar", "optional": true },
-        { "name": "dim", "type": "int64" },
-        { "name": "keepdim", "type": "boolean", "default": false }
       ],
       "inputs": [
         { "name": "self", "type": "tensor" }
@@ -4828,5 +4812,121 @@
         { "name": "output", "type": "tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.eq:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.where:self",
+    "schema": {
+      "inputs": [
+        { "name": "condition", "type": "tensor" },
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.__and__:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.__or__:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.ge:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.ge:Scalar",
+    "schema": {
+      "attributes": [
+        { "name": "other", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.lt:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "tensor" },
+        { "name": "other", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.lt:Scalar",
+    "schema": {
+      "attributes": [
+        { "name": "other", "type": "scalar" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.flip",
+    "schema": {
+      "attributes": [
+        { "name": "dims", "type": "int64[]" }
+      ],
+      "inputs": [
+        { "name": "self", "type": "tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "tensor" }
+      ]
+    }
   }
+
 ]
