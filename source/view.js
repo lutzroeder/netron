@@ -1521,6 +1521,7 @@ view.ModelFactoryService = class {
             { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com\/spec\/v1\n/ },
             { name: 'Git LFS header', value: /^oid sha256:/ },
             { name: 'HTML markup', value: /^\s*<html>/ },
+            { name: 'HTML markup', value: /^\s*<!doctype html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
