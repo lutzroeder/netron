@@ -18581,7 +18581,7 @@
         },
         {
           "default": "NHWC",
-          "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`.",
+          "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`, `NDHWC`, `NCDHW`.",
           "name": "data_format",
           "type": "string"
         },
@@ -18779,7 +18779,7 @@
         },
         {
           "default": "NHWC",
-          "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`.",
+          "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`, `NDHWC`, `NCDHW`.",
           "name": "data_format",
           "type": "string"
         },
@@ -32160,7 +32160,7 @@
           "type": "type"
         }
       ],
-      "description": "Computes the QR decomposition of each inner matrix in `tensor` such that\n`tensor[..., :, :] = q[..., :, :] * r[..., :,:])`\n\n```python\n# a is a tensor.\n# q is a tensor of orthonormal matrices.\n# r is a tensor of upper triangular matrices.\nq, r = qr(a)\nq_full, r_full = qr(a, full_matrices=True)\n```",
+      "description": "Computes the QR decomposition of each inner matrix in `tensor` such that\n`tensor[..., :, :] = q[..., :, :] * r[..., :,:])`\n\nCurrently, the gradient for the QR decomposition is well-defined only when\nthe first `P` columns of the inner matrix are linearly independent, where\n`P` is the minimum of `M` and `N`, the 2 inner-most dimmensions of `tensor`.\n\n```python\n# a is a tensor.\n# q is a tensor of orthonormal matrices.\n# r is a tensor of upper triangular matrices.\nq, r = qr(a)\nq_full, r_full = qr(a, full_matrices=True)\n```",
       "inputs": [
         {
           "description": "A tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform matrices of size `[M, N]`. Let `P` be the minimum of `M` and `N`.",
@@ -46898,6 +46898,16 @@
           "default": "",
           "description": "The type of compression to be applied to the saved snapshot files.",
           "name": "compression",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "reader_prefix",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "writer_prefix",
           "type": "string"
         },
         {
