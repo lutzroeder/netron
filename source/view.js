@@ -1017,6 +1017,7 @@ class ModelError extends Error {
         super(message);
         this.name = 'Error loading model.';
         this.telemetry = telemetry;
+        this.stack = undefined;
     }
 }
 
