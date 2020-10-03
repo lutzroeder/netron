@@ -150,7 +150,7 @@ pytorch.Graph = class {
                 const inputs = state_group.states.map((parameter) => {
                     return new pytorch.Parameter(parameter.name, true,
                         parameter.arguments.map((state) => {
-                            const tensor = new pytorch.Tensor(state.id, state.value, this._littleEndian);
+                            const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
                             return new pytorch.Argument(state.id, null, tensor);
                         }));
                 });
@@ -237,7 +237,7 @@ pytorch.Graph = class {
         const parameters = obj._parameters || obj._buffers || [];
         for (const parameter of parameters) {
             const key = parameter[0];
-            const value = parameter[1];
+            const value = pytorch.Utility.toTensor(parameter[1]);
             let visible = true;
             let inputName = '';
             if (inputSchema.length > 0) {
@@ -245,14 +245,8 @@ pytorch.Graph = class {
                 inputName = input.name;
                 visible = input.visible === false ? false : true;
             }
-            if (parameter && value && (value.data || value.storage)) {
-                let initializer = null;
-                if (value.data) {
-                    initializer = new pytorch.Tensor('', value.data, this._littleEndian);
-                }
-                else if (value.storage) {
-                    initializer = new pytorch.Tensor('', value, this._littleEndian);
-                }
+            if (value) {
+                const initializer = new pytorch.Tensor('', value, this._littleEndian);
                 inputs.push(new pytorch.Parameter(inputName || key, visible, [ new pytorch.Argument('', null, initializer) ]));
             }
         }
@@ -1547,7 +1541,7 @@ pytorch.Execution = class {
                 size: size,
                 stride: stride,
                 requires_grad: requires_grad,
-                backward_hooks:  backward_hooks
+                backward_hooks: backward_hooks
             };
         });
         this._registerFunction('torch._utils._rebuild_parameter', function(data, requires_grad, backward_hooks) {
@@ -3312,7 +3306,29 @@ pytorch.Utility = class {
     }
 
     static isTensor(obj) {
-        return obj && (obj.__module__ === 'torch' || obj.__module__ === 'torch.cuda') && obj.__name__ && obj.__name__.endsWith('Tensor');
+        if (obj && obj.__module__ && obj.__name__) {
+            switch (obj.__module__) {
+                case 'torch':
+                case 'torch.cuda':
+                    return obj.__name__.endsWith('Tensor');
+                case 'torch.nn.parameter':
+                    return obj.__name__ === 'Parameter';
+            }
+        }
+        return false;
+    }
+
+    static toTensor(obj) {
+        if (obj && obj.__module__ && obj.__name__) {
+            switch (obj.__module__) {
+                case 'torch':
+                case 'torch.cuda':
+                    return obj.__name__.endsWith('Tensor') ? obj : null;
+                case 'torch.nn.parameter':
+                    return obj.__name__ === 'Parameter' ? obj.data : null;
+            }
+        }
+        return null;
     }
 
     static isType(obj, type) {
@@ -3501,12 +3517,7 @@ pytorch.Utility = class {
             const state = {};
             state.id = key;
             state.name = split.pop();
-            state.value = obj[key];
-            if (state.value && state.value.__module__ === 'torch.nn.parameter' && state.value.__name__ === 'Parameter') {
-                if (pytorch.Utility.isTensor(state.value.data)) {
-                    state.value = state.value.data;
-                }
-            }
+            state.value = pytorch.Utility.toTensor(obj[key]);
             if (!pytorch.Utility.isTensor(state.value)) {
                 return null;
             }
@@ -3567,7 +3578,7 @@ pytorch.Utility = class {
             else if (Object(item) === item) {
                 let hasTensors = false;
                 for (const key in item) {
-                    const value = item[key];
+                    const value = pytorch.Utility.toTensor(item[key]);
                     if (pytorch.Utility.isTensor(value)) {
                         const argument = { id: state_group_name + '.' + key, value: value };
                         state_group.states.push({ name: key, arguments: [ argument ] });
@@ -3575,11 +3586,6 @@ pytorch.Utility = class {
                     }
                     else if (value !== Object(value)) {
                         state_group.attributes.push({ name: key, value: value });
-                    }
-                    else if (value && value.data && value.__module__ === 'torch.nn.parameter' && value.__name__ === 'Parameter') {
-                        const argument = { id: state_group_name + '.' + key, value: value.data };
-                        state_group.states.push({ name: key, arguments: [ argument ] });
-                        hasTensors = true;
                     }
                     else {
                         return null;
