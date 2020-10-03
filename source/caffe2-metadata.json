@@ -13360,9 +13360,14 @@
           "description": "bool whether to return presence mask, false by default",
           "name": "return_presence_mask",
           "option": "optional"
+        },
+        {
+          "description": "int argument representing the maximum number of invalid row ids that can be skipped before returning an error. 50 by default",
+          "name": "max_skipped_indices",
+          "option": "optional"
         }
       ],
-      "description": "\nConvert sparse representations to dense with given indices.\n\nTransforms a sparse representation of map<id, value> represented as `indices`\nvector and `values` tensor into a compacted tensor where the first dimension\ncorresponds to each id provided in mask argument. Missing values are filled with\nthe value of `default_value`. After running this op:\n\n  output[j, :] = values[i] // where mask[j] == indices[i]\n  output[j, ...] = default_value // when mask[j] doesn't appear in indices\n\nIf `lengths` is provided and not empty, and extra \"batch\" dimension is prepended\nto the output.\n\n`values` and `default_value` can have additional matching dimensions, operation\nis performed on the entire subtensor in thise case.\n\nFor example, if `lengths` is supplied and `values` is 1-D vector of floats and\n`default_value` is a float scalar, the output is going to be a float matrix\nof size `len(lengths) X len(mask)`\n",
+      "description": "\nConvert sparse representations to dense with given indices.\n\nTransforms a sparse representation of map<id, value> represented as `indices`\nvector and `values` tensor into a compacted tensor where the first dimension\ncorresponds to each id provided in the mask argument. Missing values are filled\nwith the value of `default_value`. After running this op:\n\n  output[j, :] = values[i] // where mask[j] == indices[i]\n  output[j, ...] = default_value // when mask[j] doesn't appear in indices\n\nIf `lengths` is provided and not empty, an extra \"batch\" dimension is prepended\nto the output.\n\n`values` and `default_value` can have additional matching dimensions\n(the operation is performed on the entire subtensor in this case).\n\nFor example, if `lengths` is supplied and `values` is a 1-D vector of floats\nand `default_value` is a float scalar, the output is going to be a float\nmatrix of size `len(lengths) X len(mask)`.\n",
       "inputs": [
         {
           "description": "1-D int32/int64 tensor of concatenated ids of data",
