@@ -3040,6 +3040,14 @@
   },
   {
     "type":   "onnx",
+    "target": "maskrcnn.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5322320/maskrcnn.onnx.zip",
+    "format": "ONNX v6",
+    "action": "skip-render",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "mnist.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format": "ONNX v3",
