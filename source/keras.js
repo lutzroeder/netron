@@ -11,25 +11,21 @@ keras.ModelFactory = class {
         if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
             return true;
         }
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('mxnet_version')) {
-                return false;
-            }
-            if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
-                return false;
-            }
-            if (tags.has('modelTopology') && tags.get('format') !== 'graph-model') {
-                return true;
-            }
-            if (tags.has('model_config') || (tags.has('class_name') && tags.has('config'))) {
-                return true;
-            }
-            if (tags.has('[].weights') && tags.has('[].paths')) {
-                return true;
-            }
+        const tags = context.tags('json');
+        if (tags.has('mxnet_version')) {
+            return false;
+        }
+        if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
+            return false;
+        }
+        if (tags.has('modelTopology') && tags.get('format') !== 'graph-model') {
+            return true;
+        }
+        if (tags.has('model_config') || (tags.has('class_name') && tags.has('config'))) {
+            return true;
+        }
+        if (tags.has('[].weights') && tags.has('[].paths')) {
+            return true;
         }
         return false;
     }
