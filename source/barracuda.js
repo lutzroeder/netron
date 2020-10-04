@@ -6,13 +6,9 @@ var barracuda = barracuda || {};
 barracuda.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'nn') {
-            const buffer = context.buffer;
-            if (buffer.length > 12 && buffer[0] <= 0x10 && buffer.subarray(1, 8).every((v) => v == 0x00)) {
-                return true;
-            }
+        const buffer = context.buffer;
+        if (buffer.length > 12 && buffer[0] <= 0x10 && buffer.subarray(1, 8).every((v) => v == 0x00)) {
+            return true;
         }
         return false;
     }
