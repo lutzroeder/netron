@@ -6,14 +6,15 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 armnn.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'armnn') {
-            return true;
-        }
-        if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('layers') && tags.has('inputIds') && tags.has('outputIds')) {
+        switch (context.identifier.split('.').pop().toLowerCase()) {
+            case 'armnn': {
                 return true;
+            }
+            case 'json': {
+                const tags = context.tags('json');
+                if (tags.has('layers') && tags.has('inputIds') && tags.has('outputIds')) {
+                    return true;
+                }
             }
         }
         return false;
