@@ -6,8 +6,11 @@ var protobuf = protobuf || require('./protobuf');
 coreml.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        return extension == 'mlmodel';
+        const tags = context.tags('pb');
+        if (tags.get(1) === 0 && tags.get(2) === 2) {
+            return true;
+        }
+        return false;
     }
 
     open(context, host) {

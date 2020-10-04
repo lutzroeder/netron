@@ -1062,7 +1062,7 @@
     "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "File format is not coreml.Model (Invalid type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
+    "error":  "Unsupported file content (504b030414000000080054787f4e6f92) for extension '.mlmodel' in 'coreml_invalid_file.mlmodel'.",
     "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
