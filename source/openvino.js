@@ -9,15 +9,20 @@ openvino.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
-            const reader = base.TextReader.create(context.buffer);
-            for (;;) {
-                const line = reader.read();
-                if (line === undefined) {
-                    break;
+            try {
+                const reader = base.TextReader.create(context.buffer);
+                for (;;) {
+                    const line = reader.read();
+                    if (line === undefined) {
+                        break;
+                    }
+                    if (line.trim().startsWith('<net ')) {
+                        return true;
+                    }
                 }
-                if (line.trim().startsWith('<net ')) {
-                    return true;
-                }
+            }
+            catch (err) {
+                // continue regardless of error
             }
         }
         if (extension === 'bin') {
