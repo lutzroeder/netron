@@ -3066,7 +3066,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         }
 
                         if (copyArgs.every((arg) => arg.type === '=' && arg.target && arg.target.type === 'id') &&
-                            parameters.every((parameter) => parameter.type !== 'tensor' && parameter.type !== 'tensor[]')) {
+                            parameters.every((parameter) => parameter.type !== 'Tensor' && parameter.type !== 'Tensor[]')) {
                             const map = new Map();
                             for (const parameter of parameters) {
                                 map.set(parameter.name, parameter);
@@ -3098,7 +3098,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         const argument = copyEvalArgs[0];
 
                         switch (parameter.type) {
-                            case 'tensor': {
+                            case 'Tensor': {
                                 if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                                     if (parameter.optional) {
                                         if (argument === undefined) {
@@ -3122,7 +3122,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 node.inputs.push(inputs);
                                 break;
                             }
-                            case 'tensor[]': {
+                            case 'Tensor[]': {
                                 const argument = copyEvalArgs[0];
                                 if (!Array.isArray(argument) || !argument.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
                                     if (parameter.optional) {
@@ -3177,7 +3177,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const result = [];
                     for (const paramter of schema.outputs) {
                         switch (paramter.type) {
-                            case 'tensor': {
+                            case 'Tensor': {
                                 const parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
                                 switch (type) {
                                     case 'torch.cat':
@@ -3222,7 +3222,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 node.outputs.push([ { id: parameter.__variable__ } ]);
                                 break;
                             }
-                            case 'tensor[]': {
+                            case 'Tensor[]': {
                                 let count = 1;
                                 switch (type) {
                                     case 'torch.chunk':
@@ -3333,10 +3333,12 @@ pytorch.Utility = class {
 
     static isType(obj, type) {
         switch (type) {
-            case 'tensor':
+            case 'Tensor':
                 return !Array.isArray(obj) && (pytorch.Utility.isTensor(obj) || obj === null);
-            case 'tensor[]':
+            case 'Tensor[]':
                 return Array.isArray(obj) && obj.length > 0 && obj.every((tensor) => pytorch.Utility.isTensor(tensor) || tensor === null);
+            case 'Scalar':
+                return obj !== null || obj !== Object(obj);
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':
@@ -3354,8 +3356,6 @@ pytorch.Utility = class {
                 return Number.isInteger(obj) || obj === null;
             case 'Device':
                 return obj === null || obj === Object(obj);
-            case 'scalar':
-                return obj !== null || obj !== Object(obj);
         }
         return true;
     }
