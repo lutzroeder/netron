@@ -6,9 +6,8 @@ var base = base || require('./base');
 darknet.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'cfg' || extension == 'model') {
-            const reader = base.TextReader.create(context.buffer, 2048);
+        try {
+            const reader = base.TextReader.create(context.buffer);
             for (;;) {
                 const line = reader.read();
                 if (line === undefined) {
@@ -22,6 +21,9 @@ darknet.ModelFactory = class {
                     return true;
                 }
             }
+        }
+        catch (err) {
+            // continue regardless of error
         }
         return false;
     }
