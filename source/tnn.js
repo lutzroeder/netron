@@ -8,16 +8,21 @@ tnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
-            const reader = base.TextReader.create(context.buffer, 2048);
-            const text = reader.read();
-            if (text !== undefined) {
-                const line = text.trim();
-                if (line.startsWith('"') && line.endsWith('"')) {
-                    const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                    if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
-                        return true;
+            try {
+                const reader = base.TextReader.create(context.buffer, 2048);
+                const text = reader.read();
+                if (text !== undefined) {
+                    const line = text.trim();
+                    if (line.startsWith('"') && line.endsWith('"')) {
+                        const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
+                        if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
+                            return true;
+                        }
                     }
                 }
+            }
+            catch (err) {
+                // continue regardless of error
             }
         }
         if (identifier.endsWith('.tnnmodel')) {
