@@ -6,13 +6,9 @@ var protobuf = protobuf || require('./protobuf');
 mediapipe.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'pbtxt') {
-            const tags = context.tags('pbtxt');
-            if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                return true;
-            }
+        const tags = context.tags('pbtxt');
+        if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
+            return true;
         }
         return false;
     }
