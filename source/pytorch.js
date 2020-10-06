@@ -1117,8 +1117,20 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.parallel.data_parallel.DataParallel', function() {});
         this._registerConstructor('torch.nn.parallel.distributed.DistributedDataParallel', function() {});
         this._registerConstructor('torch.nn.parameter.Parameter', function(data, requires_grad) {
-            this.data = data;
-            this.requires_grad = requires_grad;
+            if (data !== undefined) {
+                this.data = data;
+            }
+            this.requires_grad = requires_grad !== undefined ? requires_grad : true;
+            this.__setstate__ = function(state) {
+                switch (state.length) {
+                    case 4:
+                        this.data = state[0];
+                        break;
+                    case 5:
+                        this.data = state[0];
+                        break;
+                }
+            };
         });
         this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNorm', function() {});
@@ -2451,13 +2463,7 @@ pytorch.Container.Tar = class {
                         }
                         const state = {};
                         state.id = key;
-                        state.value = null;
-                        if (value && value.__module__ === 'torch.nn.parameter' && value.__name__ === 'Parameter') {
-                            state.value = value[0];
-                        }
-                        else if (pytorch.Utility.isTensor(value)) {
-                            state.value = value;
-                        }
+                        state.value = pytorch.Utility.toTensor(value);
                         if (!state.value) {
                             this._state = null;
                             break;
