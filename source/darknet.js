@@ -95,17 +95,15 @@ darknet.Graph = class {
                     }
                     default: {
                         if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
-                        if (section) {
-                            const index = line.indexOf('=');
-                            if (index < 0) {
-                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
-                            }
-                            const key = line.substring(0, index);
-                            const value = line.substring(index + 1);
-                            section.options[key] = value;
+                        const index = line.indexOf('=');
+                        if (index < 0) {
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
+                        const key = line.substring(0, index);
+                        const value = line.substring(index + 1);
+                        section.options[key] = value;
                         break;
                     }
                 }
