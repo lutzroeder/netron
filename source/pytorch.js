@@ -1069,6 +1069,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.NLLLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.SmoothL1Loss', function() {});
         this._registerConstructor('torch.nn.modules.module._IncompatibleKeys', function() {});
+        this._registerConstructor('torch.nn.modules.module.Module', function() {});
         this._registerConstructor('torch.nn.modules.normalization.CrossMapLRN2d', function() {});
         this._registerConstructor('torch.nn.modules.normalization.GroupNorm', function() {});
         this._registerConstructor('torch.nn.modules.normalization.LayerNorm', function() {});
