@@ -484,8 +484,8 @@ view.View = class {
                         if (typeof type !== 'string' || !type.split) { // #416
                             throw new ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
-                        const content = self.showNames && node.name ? node.name : type.split('.').pop();
-                        const tooltip = self.showNames && node.name ? type : node.name;
+                        const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
+                        const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
                         header.add(null, styles, content, tooltip, () => {
                             self.showNodeProperties(node, null);
                         });

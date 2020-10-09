@@ -341,7 +341,8 @@ $root.tflite.BuiltinOperator = {
     SELECT_V2: 123,
     DENSIFY: 124,
     SEGMENT_SUM: 125,
-    BATCH_MATMUL: 126
+    BATCH_MATMUL: 126,
+    PLACEHOLDER_FOR_GREATER_OP_CODES: 127
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -2163,17 +2164,19 @@ $root.tflite.OperatorCode = class OperatorCode {
 
     static decode(reader, position) {
         const $ = new $root.tflite.OperatorCode();
-        $.builtin_code = reader.int8_(position, 4, 0);
+        $.deprecated_builtin_code = reader.int8_(position, 4, 0);
         $.custom_code = reader.string_(position, 6, null);
         $.version = reader.int32_(position, 8, 1);
+        $.builtin_code = reader.int32_(position, 10, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.tflite.OperatorCode();
-        $.builtin_code = $root.tflite.BuiltinOperator[json.builtin_code];
+        $.deprecated_builtin_code = reader.value(json.deprecated_builtin_code, 0);
         $.custom_code = reader.value(json.custom_code, null);
         $.version = reader.value(json.version, 1);
+        $.builtin_code = $root.tflite.BuiltinOperator[json.builtin_code];
         return $;
     }
 };
