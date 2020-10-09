@@ -2726,6 +2726,9 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
                 case 3:
                     message.allowed_positional_arguments = reader.int64();
                     break;
+                case 4:
+                    message.function_spec = $root.tensorflow.FunctionSpec.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2749,6 +2752,9 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
                 case "allowed_positional_arguments":
                     message.allowed_positional_arguments = reader.integer();
                     break;
+                case "function_spec":
+                    message.function_spec = $root.tensorflow.FunctionSpec.decodeText(reader, true);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2760,6 +2766,7 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
 
 $root.tensorflow.SavedBareConcreteFunction.prototype.concrete_function_name = "";
 $root.tensorflow.SavedBareConcreteFunction.prototype.allowed_positional_arguments = protobuf.Int64.create(0);
+$root.tensorflow.SavedBareConcreteFunction.prototype.function_spec = null;
 
 $root.tensorflow.SavedConstant = class SavedConstant {
 
