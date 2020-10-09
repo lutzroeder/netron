@@ -1011,6 +1011,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.distributions.transforms.LowerCholeskyTransform', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
+        this._registerConstructor('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GELU', function() {});
@@ -1133,13 +1134,21 @@ pytorch.Execution = class {
                 }
             };
         });
+        this._registerConstructor('torch.nn.quantized.modules.activation.ReLU', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.conv.Conv2d', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.DeQuantize', function() {});
         this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.functional_modules.QFunctional', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.linear.Linear', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.linear.LinearPackedParams', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.Quantize', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNorm', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', function() {});
         this._registerConstructor('torch.nn.utils.weight_norm.WeightNorm', function() {});
         this._registerConstructor('torch.optim.adam.Adam', function() {});
         this._registerConstructor('torch.optim.adagrad.Adagrad', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.CyclicLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.LambdaLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.MultiStepLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
