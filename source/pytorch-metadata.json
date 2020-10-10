@@ -3980,6 +3980,41 @@
     }
   },
   {
+    "name": "torch.upsample_trilinear3d:",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]" },
+        { "name": "align_corners", "type": "boolean" },
+        { "name": "scales_d", "type": "float32", "optional": true, "default": null },
+        { "name": "scales_h", "type": "float32", "optional": true, "default": null },
+        { "name": "scales_w", "type": "float32", "optional": true, "default": null }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "int64" }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_trilinear3d:vec",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]", "optional": true },
+        { "name": "input_size", "type": "int64[]" },
+        { "name": "align_corners", "type": "boolean" },
+        { "name": "scale_factors", "type": "float32[]", "optional": true }
+      ],
+      "inputs": [
+        { "name": "grad_output", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "int64" }
+      ]
+    }
+  },
+  {
     "name": "torch.size",
     "schema": {
       "attributes": [
@@ -4448,6 +4483,22 @@
     }
   },
   {
+    "name": "torch.index_put",
+    "schema": {
+      "category": [
+        { "name": "accumulate", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "indices", "type": "Tensor[]", "optional": true },
+        { "name": "values", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.index_put_",
     "schema": {
       "category": [
@@ -4455,7 +4506,7 @@
       ],
       "inputs": [
         { "name": "self", "type": "Tensor" },
-        { "name": "indices", "type": "Tensor[]" },
+        { "name": "indices", "type": "Tensor[]", "optional": true },
         { "name": "values", "type": "Tensor" }
       ],
       "outputs": [
