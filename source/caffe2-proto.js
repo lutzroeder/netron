@@ -605,6 +605,9 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
                 case 3:
                     message.name = reader.string();
                     break;
+                case 4:
+                    message.shape_is_final = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -628,6 +631,9 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
                 case "name":
                     message.name = reader.string();
                     break;
+                case "shape_is_final":
+                    message.shape_is_final = reader.boolean();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -639,6 +645,7 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
 
 $root.caffe2.TensorBoundShape.prototype.shape = null;
 $root.caffe2.TensorBoundShape.prototype.name = "";
+$root.caffe2.TensorBoundShape.prototype.shape_is_final = false;
 
 $root.caffe2.TensorBoundShape.DimType = {
     "UNKNOWN": 0,
