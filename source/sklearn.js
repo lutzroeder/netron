@@ -912,6 +912,7 @@ sklearn.Container = class {
         constructorTable['sklearn.preprocessing._data.PolynomialFeatures'] = function() {};
         constructorTable['sklearn.preprocessing._data.RobustScaler'] = function() {};
         constructorTable['sklearn.preprocessing._data.StandardScaler'] = function() {};
+        constructorTable['sklearn.preprocessing._data.MinMaxScaler'] = function() {};
         constructorTable['sklearn.preprocessing._discretization.KBinsDiscretizer'] = function() {};
         constructorTable['sklearn.preprocessing._encoders.OneHotEncoder'] = function() {};
         constructorTable['sklearn.preprocessing._function_transformer.FunctionTransformer'] = function() {};
