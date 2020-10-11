@@ -1879,6 +1879,18 @@
     }
   },
   {
+    "name": "torch.mm",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "mat2", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.addmm",
     "schema": {
       "attributes": [
