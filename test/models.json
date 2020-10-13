@@ -3926,6 +3926,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "ENet.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5368544/ENet.pth.zip[ENet.pth]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":   "pytorch",
     "target": "gcn2_tiny_320x240.pb",
     "source": "https://raw.githubusercontent.com/jiexiong2016/GCNv2_SLAM/master/GCN2/gcn2_tiny_320x240.pt",
     "format": "TorchScript v1.0",

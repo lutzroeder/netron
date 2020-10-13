@@ -1291,6 +1291,70 @@ pytorch.Execution = class {
                 this.stride = state[3];
             };
         });
+        this._registerConstructor('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
+            let data = rawData;
+            if (typeof rawData === 'string') {
+                data = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; i++) {
+                    data[i] = rawData.charCodeAt(i);
+                }
+            }
+            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+            switch (dtype.name) {
+                case 'uint8':
+                    return dataView.getUint8(0);
+                case 'float32':
+                    return dataView.getFloat32(0, true);
+                case 'float64':
+                    return dataView.getFloat64(0, true);
+                case 'int8':
+                    return dataView.getInt8(0, true);
+                case 'int16':
+                    return dataView.getInt16(0, true);
+                case 'int32':
+                    return dataView.getInt32(0, true);
+                case 'int64':
+                    return dataView.getInt64(0, true);
+            }
+            throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
+        });
+        this._registerConstructor('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
+            this.subtype = subtype;
+            this.shape = shape;
+            this.dtype = dtype;
+            this.__setstate__ = function(state) {
+                this.version = state[0];
+                this.shape = state[1];
+                this.typecode = state[2];
+                this.is_f_order = state[3];
+                this.rawdata = state[4];
+            };
+            this.__read__ = function(unpickler) {
+                const array = {};
+                const subtype = this.subtype.split('.');
+                array.__name__ = subtype.pop();
+                array.__module__ = subtype.join('.');
+                array.dtype = this.typecode;
+                array.shape = this.shape;
+                let size = array.dtype.itemsize;
+                for (let i = 0; i < array.shape.length; i++) {
+                    size = size * array.shape[i];
+                }
+                if (typeof this.rawdata == 'string') {
+                    array.data = unpickler.unescape(this.rawdata, size);
+                    if (array.data.length != size) {
+                        throw new pytorch.Error('Invalid string array data size.');
+                    }
+                }
+                else {
+                    array.data = this.rawdata;
+                    if (array.data.length != size) {
+                        // throw new pytorch.Error('Invalid array data size.');
+                    }
+                }
+                return array;
+            };
+        });
         this._registerConstructor('numpy.dtype', function(obj, align, copy) {
             switch (obj) {
                 case 'i1':  this.name = 'int8'; this.itemsize = 1; break;
@@ -1349,43 +1413,6 @@ pytorch.Execution = class {
                     default:
                         throw new pytorch.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                 }
-            };
-        });
-        this._registerConstructor('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-            this.subtype = subtype;
-            this.shape = shape;
-            this.dtype = dtype;
-            this.__setstate__ = function(state) {
-                this.version = state[0];
-                this.shape = state[1];
-                this.typecode = state[2];
-                this.is_f_order = state[3];
-                this.rawdata = state[4];
-            };
-            this.__read__ = function(unpickler) {
-                const array = {};
-                const subtype = this.subtype.split('.');
-                array.__name__ = subtype.pop();
-                array.__module__ = subtype.join('.');
-                array.dtype = this.typecode;
-                array.shape = this.shape;
-                let size = array.dtype.itemsize;
-                for (let i = 0; i < array.shape.length; i++) {
-                    size = size * array.shape[i];
-                }
-                if (typeof this.rawdata == 'string') {
-                    array.data = unpickler.unescape(this.rawdata, size);
-                    if (array.data.length != size) {
-                        throw new pytorch.Error('Invalid string array data size.');
-                    }
-                }
-                else {
-                    array.data = this.rawdata;
-                    if (array.data.length != size) {
-                        // throw new pytorch.Error('Invalid array data size.');
-                    }
-                }
-                return array;
             };
         });
         this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
