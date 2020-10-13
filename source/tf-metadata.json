@@ -32365,6 +32365,122 @@
     }
   },
   {
+    "name": "QuantizeAndDequantizeV4",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "signed_input",
+          "type": "boolean"
+        },
+        {
+          "default": 8,
+          "name": "num_bits",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "range_given",
+          "type": "boolean"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "HALF_TO_EVEN",
+          "description": "Must be one of the following: `HALF_TO_EVEN`, `HALF_UP`.",
+          "name": "round_mode",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "name": "narrow_range",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
+        }
+      ],
+      "description": "This is almost identical to QuantizeAndDequantizeV2, except that it returns a\ngradient of 1 for inputs that are within the quantization range, or 0 otherwise.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the gradient of `QuantizeAndDequantizeV4`."
+    }
+  },
+  {
+    "name": "QuantizeAndDequantizeV4Grad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
+        }
+      ],
+      "description": "Returns a gradient of 1 for inputs that are within the quantization range,\nor 0 otherwise.",
+      "inputs": [
+        {
+          "name": "gradients",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "input_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max_backprop",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the gradient of `QuantizeAndDequantizeV4`."
+    }
+  },
+  {
     "name": "QuantizeDownAndShrinkRange",
     "schema": {
       "attributes": [
