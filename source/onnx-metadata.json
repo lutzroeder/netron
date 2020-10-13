@@ -7189,7 +7189,7 @@
           "type": "string"
         }
       ],
-      "description": "An einsum of the form ```term1, term2 -> output-term``` produces an output tensor using the following equation\n\n```output[output-term] = reduce-sum( input1[term1] * input2[term] )```\n\nwhere the reduce-sum performs a summation over all the indices occurring in in the input terms (term1, term2)\nthat do not occur in the output-term.\n\nThe Einsum operator evaluates algebraic tensor operations on a sequence of tensors, using the Einstein summation\nconvention. The equation string contains a comma-separated sequence of lower case letters. Each term corresponds to\nan operand tensor, and the characters within the terms correspond to operands dimensions.\n\nThis sequence may be followed by \"->\" to separate the left and right hand side of the equation.\nIf the equation contains \"->\" followed by the right-hand side, the explicit (not classical) form of the Einstein\nsummation is performed, and the right-hand side indices indicate output tensor dimensions. In other cases,\noutput indices are (implicitly) set to the alphabetically sorted sequence of indices appearing exactly once in the\nequation.\n\nWhen a dimension character is repeated in the left-hand side, it represents summation along the dimension.\n\nThe equation may contain ellipsis (\"...\") to enable broadcasting. Ellipsis must indicate a fixed number of dimensions.\nSpecifically, every occurrence of ellipsis in the equation must represent the same number of dimensions.\nThe right-hand side may contain exactly one ellipsis. In implicit mode, the ellipsis dimensions are set to the\nbeginning of the output. The equation string may contain space (U+0020) character.\n",
+      "description": "An einsum of the form ```term1, term2 -> output-term``` produces an output tensor using the following equation\n\n```output[output-term] = reduce-sum( input1[term1] * input2[term] )```\n\nwhere the reduce-sum performs a summation over all the indices occurring in the input terms (term1, term2)\nthat do not occur in the output-term.\n\nThe Einsum operator evaluates algebraic tensor operations on a sequence of tensors, using the Einstein summation\nconvention. The equation string contains a comma-separated sequence of lower case letters. Each term corresponds to\nan operand tensor, and the characters within the terms correspond to operands dimensions.\n\nThis sequence may be followed by \"->\" to separate the left and right hand side of the equation.\nIf the equation contains \"->\" followed by the right-hand side, the explicit (not classical) form of the Einstein\nsummation is performed, and the right-hand side indices indicate output tensor dimensions. In other cases,\noutput indices are (implicitly) set to the alphabetically sorted sequence of indices appearing exactly once in the\nequation.\n\nWhen a dimension character is repeated in the left-hand side, it represents summation along the dimension.\n\nThe equation may contain ellipsis (\"...\") to enable broadcasting. Ellipsis must indicate a fixed number of dimensions.\nSpecifically, every occurrence of ellipsis in the equation must represent the same number of dimensions.\nThe right-hand side may contain exactly one ellipsis. In implicit mode, the ellipsis dimensions are set to the\nbeginning of the output. The equation string may contain space (U+0020) character.\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -7358,7 +7358,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "1D input tensor",
+          "description": "1D output tensor",
           "name": "Y",
           "type": "T"
         }
@@ -18993,7 +18993,7 @@
       "min_output": 1,
       "outputs": [
         {
-          "description": "Output tensor.",
+          "description": "Output tensor",
           "name": "Z",
           "type": "T"
         }
@@ -24499,93 +24499,6 @@
             "tensor(int16)",
             "tensor(int32)",
             "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(string)",
-            "tensor(bool)",
-            "tensor(complex64)",
-            "tensor(complex128)"
-          ],
-          "description": "Input and output types can be of any tensor type.",
-          "type_param_str": "T"
-        },
-        {
-          "allowed_type_strs": [
-            "tensor(int32)",
-            "tensor(int64)"
-          ],
-          "description": "Constrain indices to integer types",
-          "type_param_str": "Tind"
-        }
-      ]
-    }
-  },
-  {
-    "name": "Scatter",
-    "schema": {
-      "attributes": [
-        {
-          "description": "Which axis to scatter on. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(data).",
-          "name": "axis",
-          "required": false,
-          "type": "int64"
-        }
-      ],
-      "description": "This operator is deprecated. Please use ScatterElements, which provides the same functionality.\n\nScatter takes three inputs `data`, `updates`, and `indices` of the same\nrank r >= 1 and an optional attribute axis that identifies an axis of `data`\n(by default, the outer-most axis, that is axis 0). The output of the operation\nis produced by creating a copy of the input `data`, and then updating its value\nto values specified by `updates` at specific index positions specified by\n`indices`. Its output shape is the same as the shape of `data`.\n\nFor each entry in `updates`, the target index in `data` is obtained by combining\nthe corresponding entry in `indices` with the index of the entry itself: the\nindex-value for dimension = axis is obtained from the value of the corresponding\nentry in `indices` and the index-value for dimension != axis is obtained from the\nindex of the entry itself.\n\nFor instance, in a 2-D tensor case, the update corresponding to the [i][j] entry\nis performed as below:\n```\n  output[indices[i][j]][j] = updates[i][j] if axis = 0, \n  output[i][indices[i][j]] = updates[i][j] if axis = 1,\n```\n\nThis operator is the inverse of GatherElements. It is similar to Torch's Scatter operation.\n\nExample 1:\n```\n  data = [\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n      [0.0, 0.0, 0.0],\n  ]\n  indices = [\n      [1, 0, 2],\n      [0, 2, 1],\n  ]\n  updates = [\n      [1.0, 1.1, 1.2],\n      [2.0, 2.1, 2.2],\n  ]\n  output = [\n      [2.0, 1.1, 0.0]\n      [1.0, 0.0, 2.2]\n      [0.0, 2.1, 1.2]\n  ]\n```\nExample 2:\n```\n  data = [[1.0, 2.0, 3.0, 4.0, 5.0]]\n  indices = [[1, 3]]\n  updates = [[1.1, 2.1]]\n  axis = 1\n  output = [[1.0, 1.1, 3.0, 2.1, 5.0]]\n```\n",
-      "domain": "ai.onnx",
-      "examples": [
-        {
-          "code": "axis = 1\nnode = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n    axis=axis,\n)\ndata = np.array([[1.0, 2.0, 3.0, 4.0, 5.0]], dtype=np.float32)\nindices = np.array([[1, 3]], dtype=np.int64)\nupdates = np.array([[1.1, 2.1]], dtype=np.float32)\n\ny = scatter(data, indices, updates, axis=axis)\n# print(y) produces\n# [[1.0, 1.1, 3.0, 2.1, 5.0]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_with_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
-          "summary": "scatter_with_axis"
-        },
-        {
-          "code": "node = onnx.helper.make_node(\n    'Scatter',\n    inputs=['data', 'indices', 'updates'],\n    outputs=['y'],\n)\ndata = np.zeros((3, 3), dtype=np.float32)\nindices = np.array([[1, 0, 2], [0, 2, 1]], dtype=np.int64)\nupdates = np.array([[1.0, 1.1, 1.2], [2.0, 2.1, 2.2]], dtype=np.float32)\n\ny = scatter(data, indices, updates)\n# print(y) produces\n# [[2.0, 1.1, 0.0],\n#  [1.0, 0.0, 2.2],\n#  [0.0, 2.1, 1.2]]\n\nexpect(node, inputs=[data, indices, updates], outputs=[y],\n       name='test_scatter_without_axis', opset_imports=[helper.make_opsetid(\"\", 10)])",
-          "summary": "scatter_without_axis"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "Tensor of rank r >= 1.",
-          "name": "data",
-          "type": "T"
-        },
-        {
-          "description": "Tensor of int32/int64 indices, of r >= 1 (same rank as input). All index values are expected to be within bounds [-s, s-1] along axis of size s. It is an error if any of the index values are out of bounds.",
-          "name": "indices",
-          "type": "Tind"
-        },
-        {
-          "description": "Tensor of rank r >=1 (same rank and shape as indices)",
-          "name": "updates",
-          "type": "T"
-        }
-      ],
-      "max_input": 3,
-      "max_output": 1,
-      "min_input": 3,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "Tensor of rank r >= 1 (same rank as input).",
-          "name": "output",
-          "type": "T"
-        }
-      ],
-      "since_version": 13,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(bfloat16)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)",
@@ -30642,78 +30555,6 @@
             "tensor(int16)",
             "tensor(int32)",
             "tensor(int64)",
-            "tensor(float16)",
-            "tensor(float)",
-            "tensor(double)",
-            "tensor(string)",
-            "tensor(bool)",
-            "tensor(complex64)",
-            "tensor(complex128)"
-          ],
-          "description": "Constrain input 'X' and output 'Y' to all tensor types.",
-          "type_param_str": "T"
-        }
-      ]
-    }
-  },
-  {
-    "name": "Upsample",
-    "schema": {
-      "attributes": [
-        {
-          "default": "nearest",
-          "description": "Two interpolation modes: nearest (default), and linear (including bilinear, trilinear, etc)",
-          "name": "mode",
-          "required": false,
-          "type": "string"
-        }
-      ],
-      "category": "Data",
-      "description": "Upsample the input tensor.\nEach dimension value of the output tensor is:\n  output_dimension = floor(input_dimension * scale).\n",
-      "domain": "ai.onnx",
-      "examples": [
-        {
-          "code": "node = onnx.helper.make_node(\n    'Upsample',\n    inputs=['X', 'scales'],\n    outputs=['Y'],\n    mode='nearest',\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nscales = np.array([1.0, 1.0, 2.0, 3.0], dtype=np.float32)\n\noutput = np.array([[[\n    [1, 1, 1, 2, 2, 2],\n    [1, 1, 1, 2, 2, 2],\n    [3, 3, 3, 4, 4, 4],\n    [3, 3, 3, 4, 4, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data, scales], outputs=[output],\n       name='test_upsample_nearest', opset_imports=[helper.make_opsetid(\"\", 9)])",
-          "summary": "nearest"
-        }
-      ],
-      "inputs": [
-        {
-          "description": "N-D tensor",
-          "name": "X",
-          "type": "T"
-        },
-        {
-          "description": "The scale array along each dimension. It takes value greater than or equal to 1. The number of elements of 'scales' should be the same as the rank of input 'X'.",
-          "name": "scales",
-          "type": "tensor(float)"
-        }
-      ],
-      "max_input": 2,
-      "max_output": 1,
-      "min_input": 2,
-      "min_output": 1,
-      "outputs": [
-        {
-          "description": "N-D tensor after resizing",
-          "name": "Y",
-          "type": "T"
-        }
-      ],
-      "since_version": 13,
-      "support_level": "common",
-      "type_constraints": [
-        {
-          "allowed_type_strs": [
-            "tensor(uint8)",
-            "tensor(uint16)",
-            "tensor(uint32)",
-            "tensor(uint64)",
-            "tensor(int8)",
-            "tensor(int16)",
-            "tensor(int32)",
-            "tensor(int64)",
-            "tensor(bfloat16)",
             "tensor(float16)",
             "tensor(float)",
             "tensor(double)",
