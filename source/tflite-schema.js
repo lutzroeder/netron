@@ -2269,6 +2269,44 @@ $root.tflite.Metadata = class Metadata {
     }
 };
 
+$root.tflite.TensorMap = class TensorMap {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.TensorMap();
+        $.name = reader.string_(position, 4, null);
+        $.tensor_index = reader.uint32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.TensorMap();
+        $.name = reader.value(json.name, null);
+        $.tensor_index = reader.value(json.tensor_index, 0);
+        return $;
+    }
+};
+
+$root.tflite.SignatureDef = class SignatureDef {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.SignatureDef();
+        $.inputs = reader.tableArray(position, 4, $root.tflite.TensorMap.decode);
+        $.outputs = reader.tableArray(position, 6, $root.tflite.TensorMap.decode);
+        $.method_name = reader.string_(position, 8, null);
+        $.key = reader.string_(position, 10, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.SignatureDef();
+        $.inputs = reader.objectArray(json.inputs, $root.tflite.TensorMap.decodeText);
+        $.outputs = reader.objectArray(json.outputs, $root.tflite.TensorMap.decodeText);
+        $.method_name = reader.value(json.method_name, null);
+        $.key = reader.value(json.key, null);
+        return $;
+    }
+};
+
 $root.tflite.Model = class Model {
 
     static identifier(reader) {
@@ -2292,6 +2330,7 @@ $root.tflite.Model = class Model {
         $.buffers = reader.tableArray(position, 12, $root.tflite.Buffer.decode);
         $.metadata_buffer = reader.typedArray(position, 14, Int32Array);
         $.metadata = reader.tableArray(position, 16, $root.tflite.Metadata.decode);
+        $.signature_defs = reader.tableArray(position, 18, $root.tflite.SignatureDef.decode);
         return $;
     }
 
@@ -2304,6 +2343,7 @@ $root.tflite.Model = class Model {
         $.buffers = reader.objectArray(json.buffers, $root.tflite.Buffer.decodeText);
         $.metadata_buffer = reader.typedArray(json.metadata_buffer, Int32Array);
         $.metadata = reader.objectArray(json.metadata, $root.tflite.Metadata.decodeText);
+        $.signature_defs = reader.objectArray(json.signature_defs, $root.tflite.SignatureDef.decodeText);
         return $;
     }
 };
