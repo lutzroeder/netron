@@ -8,7 +8,6 @@ import sys
 import threading
 import webbrowser
 import time
-import urllib.parse
 
 from .__version__ import __version__
 
