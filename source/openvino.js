@@ -50,6 +50,28 @@ openvino.ModelFactory = class {
     }
 
     open(context, host) {
+        const open = (host, xml, bin) => {
+            return openvino.Metadata.open(host).then((metadata) => {
+                let errors = false;
+                let xmlDoc = null;
+                try {
+                    const parser = new DOMParser({ errorHandler: () => { errors = true; } });
+                    xmlDoc = parser.parseFromString(xml, 'text/xml');
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new openvino.Error('File format is not OpenVINO XAML (' + message.replace(/\.$/, '') + ').');
+                }
+                if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
+                    throw new openvino.Error('File format is not OpenVINO.');
+                }
+                if (!xmlDoc.documentElement || xmlDoc.documentElement.nodeName != 'net') {
+                    throw new openvino.Error('File format is not OpenVINO IR.');
+                }
+                const net = openvino.XmlReader.read(xmlDoc.documentElement);
+                return new openvino.Model(metadata, net, bin);
+            });
+        };
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
@@ -57,44 +79,17 @@ openvino.ModelFactory = class {
                 return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((bin) => {
                     const decoder = new TextDecoder('utf-8');
                     const xml = decoder.decode(context.buffer);
-                    return this._openModel(identifier, host, xml, bin);
+                    return open(host, xml, bin);
                 }).catch(() => {
                     const decoder = new TextDecoder('utf-8');
                     const xml = decoder.decode(context.buffer);
-                    return this._openModel(identifier, host, xml, null);
+                    return open(host, xml, null);
                 });
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
-                    return this._openModel(identifier, host, xml, context.buffer);
+                    return open(host, xml, context.buffer);
                 });
         }
-    }
-
-    _openModel(identifier, host, xml, bin) {
-        return openvino.Metadata.open(host).then((metadata) => {
-            let errors = false;
-            let xmlDoc = null;
-            try {
-                const parser = new DOMParser({ errorHandler: () => { errors = true; } });
-                xmlDoc = parser.parseFromString(xml, 'text/xml');
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new openvino.Error('File format is not OpenVINO XAML (' + message.replace(/\.$/, '') + ').');
-            }
-            if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
-                throw new openvino.Error('File format is not OpenVINO.');
-            }
-            if (!xmlDoc.documentElement || xmlDoc.documentElement.nodeName != 'net') {
-                throw new openvino.Error('File format is not OpenVINO IR.');
-            }
-            const net = openvino.XmlReader.read(xmlDoc.documentElement);
-            const model = new openvino.Model(metadata, net, bin);
-            if (net.disconnectedLayers) {
-                host.exception(new openvino.Error('Graph contains not connected layers ' + JSON.stringify(net.disconnectedLayers) + '.'));
-            }
-            return model;
-        });
     }
 };
 
