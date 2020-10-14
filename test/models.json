@@ -522,7 +522,7 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
-  },  
+  },
   {
     "type":   "caffe",
     "target": "s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
@@ -3245,8 +3245,8 @@
     "type":   "onnx",
     "target": "vgg19.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg",
-    "link":   "ONNX v3"
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
   },
   {
     "type":   "onnx",
