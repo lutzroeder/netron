@@ -36992,6 +36992,52 @@
     }
   },
   {
+    "name": "RaggedTensorToVariantGradient",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tvalues",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsplits",
+          "type": "type"
+        }
+      ],
+      "description": "Computes the gradient for the dense_values input to the RaggedTensorToVariant\nop, given the variant-encoded ragged gradients of the outputs, along with\nthe outer row-splits and the shape of the dense-values that were provided as\ninputs to the RaggedTensorToVariant op.",
+      "inputs": [
+        {
+          "description": "A `variant` Tensor containing encoded `RaggedTensor` gradients.",
+          "name": "encoded_ragged_grad",
+          "type": 21
+        },
+        {
+          "description": "Outermost row-splits that were used as input to the RaggedTensorToVariant op.",
+          "name": "row_splits",
+          "typeAttr": "Tsplits"
+        },
+        {
+          "description": "Shape of the dense_values that was used as an input to the\nRaggedTensorToVariant op.",
+          "name": "dense_values_shape",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Gradient for the dense_values of the RaggedTensorToVariant op.",
+          "name": "dense_values_grad",
+          "typeAttr": "Tvalues"
+        }
+      ],
+      "summary": "Helper used to compute the gradient for `RaggedTensorToVariant`."
+    }
+  },
+  {
     "name": "RandomCrop",
     "schema": {
       "attributes": [
