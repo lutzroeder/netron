@@ -19207,5 +19207,44 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "Float16SparseNormalize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A bool variable to control whether to use max norm     or constant norm. When use_max_norm = false, constant norm is used so that     all the embedding vectors are scaled to have a L2 norm equals to A     (see blow argument norm=A). If use_max_norm = true,     max norm is used so that embedding is scaled so that its l2 norm is no larger     than A. If an embedding's norm is less than A originally,     the embedding is left unchanged.    The default is True.",
+          "name": "use_max_norm",
+          "option": "optional"
+        },
+        {
+          "description": "L2 norm of the embedding. The default is 1.0.",
+          "name": "norm",
+          "option": "optional"
+        }
+      ],
+      "description": "\nGiven a sparse matrix, apply max_norm or constant_norm sparse regularization.\n",
+      "inputs": [
+        {
+          "description": "Parameters to be normalized",
+          "name": "param"
+        },
+        {
+          "description": "Sparse indices",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed (optional - not used, this argument is for backwards compatibility)",
+          "name": "grad"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Normalized parameters",
+          "name": "output_param"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
