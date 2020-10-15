@@ -103,6 +103,11 @@ flatbuffers.Reader = class {
         return this._dataView.getInt64(offset, true);
     }
 
+    int64_(position, offset, defaultValue) {
+        offset = this._offset(position, offset);
+        return offset ? this.int64(position + offset) : defaultValue;
+    }
+
     uint64(offset) {
         return this._dataView.getUint64(offset, true);
     }
