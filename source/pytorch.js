@@ -1150,6 +1150,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.optim.adagrad.Adagrad', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.CosineAnnealingLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.CyclicLR', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.ExponentialLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.LambdaLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.MultiStepLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
