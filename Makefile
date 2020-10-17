@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_electron publish_python publish_github_pages publish_cask publish_winget
+publish: clean lint publish_electron publish_python publish_web publish_cask publish_winget
 
 install:
 	@[ -d node_modules ] || npm install
@@ -60,12 +60,26 @@ publish_electron: install
 	npx electron-builder --linux appimage --publish always
 	npx electron-builder --linux snap --publish always
 
-publish_github_pages: build_python
+build_web:
+	mkdir -p ./dist/web
+	rm -rf ./dist/web/*
+	cp -R ./source/*.html ./dist/web
+	cp -R ./source/*.css ./dist/web
+	cp -R ./source/*.js ./dist/web
+	cp -R ./source/*.json ./dist/web
+	cp -R ./source/*.ico ./dist/web
+	cp -R ./source/*.png ./dist/web
+	cp -R ./node_modules/d3/dist/d3.min.js ./dist/web
+	cp -R ./node_modules/dagre/dist/dagre.min.js ./dist/web
+	cp -R ./node_modules/marked/marked.min.js ./dist/web
+	cp -R ./node_modules/pako/dist/pako.min.js ./dist/web
+	rm -rf ./dist/web/electron.* ./dist/web/app.js
+	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
+
+publish_web: build_web
 	rm -rf ./dist/gh-pages
 	git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null
-	rm -rf ./dist/gh-pages/*
-	cp -R ./dist/lib/netron/* ./dist/gh-pages/
-	rm -rf ./dist/gh-pages/*.py*
+	cp -R ./dist/web/* ./dist/gh-pages
 	git -C ./dist/gh-pages add --all
 	git -C ./dist/gh-pages commit --amend --no-edit
 	git -C ./dist/gh-pages push --force origin gh-pages

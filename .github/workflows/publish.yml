@@ -71,18 +71,18 @@ jobs:
           esac
 
       - if: startsWith(matrix.os, 'ubuntu')
-        name: Publish Python Server
+        name: Publish Python
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.pypi_api_token }}
         run: make publish_python
 
       - if: startsWith(matrix.os, 'ubuntu')
-        name: Publish GitHub Pages
+        name: Publish Web
         env:
           GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-        run: make publish_github_pages
+        run: make publish_web
 
       - if: startsWith(matrix.os, 'macos')
         name: Publish cask
