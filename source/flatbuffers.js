@@ -201,7 +201,7 @@ flatbuffers.Reader = class {
             offset = this._vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = this.int64(offset + (i >> 3));
+                array[i] = this.int64(offset + (i << 3));
             }
             return array;
         }
@@ -215,7 +215,7 @@ flatbuffers.Reader = class {
             offset = this._vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = this.uint64(offset + (i >> 3));
+                array[i] = this.uint64(offset + (i << 3));
             }
             return array;
         }
