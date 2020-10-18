@@ -5082,5 +5082,53 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.sign",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.sign_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.signbit",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.dist",
+    "schema": {
+      "attributes": [
+        { "name": "start", "type": "Scalar", "default": 2 }
+      ],
+       "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
