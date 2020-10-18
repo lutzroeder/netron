@@ -6,15 +6,11 @@ var tengine = tengine || {};
 tengine.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'tmfile') {
-            const buffer = context.buffer;
-            if (buffer.length > 4) {
-                const majorVersion = buffer[0] | buffer[1] << 8 ;
-                if (majorVersion < 4) {
-                    return true;
-                }
+        const buffer = context.buffer;
+        if (buffer.length > 4) {
+            const version = buffer[0] | buffer[1] << 8 ;
+            if (version < 4) {
+                return true;
             }
         }
         return false;

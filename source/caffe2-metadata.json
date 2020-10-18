@@ -9351,18 +9351,18 @@
         }
       ],
       "category": "Tensor",
-      "description": "\nProduces a slice of the input tensor.\n\n- Currently, only slicing in a single dimension is supported.\n\n- Start and end indices are either passed as two 1D input tensors or using the `starts` and `ends` arguments.\n\n- If a negative value is passed for any of the start or end indices, it represents the number of elements before the end of that dimension. End indices are non-inclusive unless negative (end index -1 means up to and including the last element).\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/slice_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Slice\",\n    [\"X\"],\n    [\"Y\"],\n    starts=(0,1),\n    ends=(-1,3)\n)\n\nworkspace.FeedBlob(\"X\", np.array([[1,2,3,4],[5,6,7,8]]))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nX:\n[[1 2 3 4]\n [5 6 7 8]]\nY:\n[[2 3]\n [6 7]]\n\n```\n\n</details>\n\n",
+      "description": "\nProduces a slice of the input tensor.\n\n- Currently, only slicing in a single dimension is supported.\n\n- Start and end indices are either passed as two 1D input tensors or using the `starts` and `ends` arguments.\n\n- If a negative value is passed for any of the start or end indices, it represents |value| - 1 elements before the end of that dimension. End indices are non-inclusive unless negative (end index -1 means up to and including the last element).\n\nGithub Links:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/slice_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Slice\",\n    [\"X\"],\n    [\"Y\"],\n    starts=(0,1),\n    ends=(-1,3)\n)\n\nworkspace.FeedBlob(\"X\", np.array([[1,2,3,4],[5,6,7,8]]))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\n\n```\n\n**Result**\n\n```\n\nX:\n[[1 2 3 4]\n [5 6 7 8]]\nY:\n[[2 3]\n [6 7]]\n\n```\n\n</details>\n\n",
       "inputs": [
         {
           "description": "(*Tensor*): tensor to extract slices from",
           "name": "X"
         },
         {
-          "description": "(*Tensor`<int>`*): 1D tensor of start-indices for each dimension of data",
+          "description": "(*Tensor`<int>`*): 1D tensor of start-indices for each dimension of data (dimensions following the sliced one might be omitted)",
           "name": "starts"
         },
         {
-          "description": "(*Tensor`<int>`*): 1D tensor of end-indices for each dimension of data",
+          "description": "(*Tensor`<int>`*): 1D tensor of end-indices for each dimension of data (dimensions following the sliced one might be omitted)",
           "name": "ends"
         }
       ],
@@ -13360,9 +13360,14 @@
           "description": "bool whether to return presence mask, false by default",
           "name": "return_presence_mask",
           "option": "optional"
+        },
+        {
+          "description": "int argument representing the maximum number of invalid row ids that can be skipped before returning an error. 50 by default",
+          "name": "max_skipped_indices",
+          "option": "optional"
         }
       ],
-      "description": "\nConvert sparse representations to dense with given indices.\n\nTransforms a sparse representation of map<id, value> represented as `indices`\nvector and `values` tensor into a compacted tensor where the first dimension\ncorresponds to each id provided in mask argument. Missing values are filled with\nthe value of `default_value`. After running this op:\n\n  output[j, :] = values[i] // where mask[j] == indices[i]\n  output[j, ...] = default_value // when mask[j] doesn't appear in indices\n\nIf `lengths` is provided and not empty, and extra \"batch\" dimension is prepended\nto the output.\n\n`values` and `default_value` can have additional matching dimensions, operation\nis performed on the entire subtensor in thise case.\n\nFor example, if `lengths` is supplied and `values` is 1-D vector of floats and\n`default_value` is a float scalar, the output is going to be a float matrix\nof size `len(lengths) X len(mask)`\n",
+      "description": "\nConvert sparse representations to dense with given indices.\n\nTransforms a sparse representation of map<id, value> represented as `indices`\nvector and `values` tensor into a compacted tensor where the first dimension\ncorresponds to each id provided in the mask argument. Missing values are filled\nwith the value of `default_value`. After running this op:\n\n  output[j, :] = values[i] // where mask[j] == indices[i]\n  output[j, ...] = default_value // when mask[j] doesn't appear in indices\n\nIf `lengths` is provided and not empty, an extra \"batch\" dimension is prepended\nto the output.\n\n`values` and `default_value` can have additional matching dimensions\n(the operation is performed on the entire subtensor in this case).\n\nFor example, if `lengths` is supplied and `values` is a 1-D vector of floats\nand `default_value` is a float scalar, the output is going to be a float\nmatrix of size `len(lengths) X len(mask)`.\n",
       "inputs": [
         {
           "description": "1-D int32/int64 tensor of concatenated ids of data",
@@ -19172,6 +19177,71 @@
         {
           "description": "Reciprocal of root mean square for each feature vector",
           "name": "rrms"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "StringEquals",
+    "schema": {
+      "attributes": [
+        {
+          "description": "The text to check input strings equality against.",
+          "name": "text",
+          "option": "optional"
+        }
+      ],
+      "description": "\nPerforms equality check on each string in the input tensor.\nReturns tensor of booleans of the same dimension as input.\n",
+      "inputs": [
+        {
+          "description": "Tensor of std::string.",
+          "name": "strings"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Tensor of bools of same shape as input.",
+          "name": "bools"
+        }
+      ],
+      "support_level": "default"
+    }
+  },
+  {
+    "name": "Float16SparseNormalize",
+    "schema": {
+      "attributes": [
+        {
+          "description": "A bool variable to control whether to use max norm     or constant norm. When use_max_norm = false, constant norm is used so that     all the embedding vectors are scaled to have a L2 norm equals to A     (see blow argument norm=A). If use_max_norm = true,     max norm is used so that embedding is scaled so that its l2 norm is no larger     than A. If an embedding's norm is less than A originally,     the embedding is left unchanged.    The default is True.",
+          "name": "use_max_norm",
+          "option": "optional"
+        },
+        {
+          "description": "L2 norm of the embedding. The default is 1.0.",
+          "name": "norm",
+          "option": "optional"
+        }
+      ],
+      "description": "\nGiven a sparse matrix, apply max_norm or constant_norm sparse regularization.\n",
+      "inputs": [
+        {
+          "description": "Parameters to be normalized",
+          "name": "param"
+        },
+        {
+          "description": "Sparse indices",
+          "name": "indices"
+        },
+        {
+          "description": "Gradient computed (optional - not used, this argument is for backwards compatibility)",
+          "name": "grad"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Normalized parameters",
+          "name": "output_param"
         }
       ],
       "support_level": "default"

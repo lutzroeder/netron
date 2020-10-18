@@ -484,8 +484,8 @@ view.View = class {
                         if (typeof type !== 'string' || !type.split) { // #416
                             throw new ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
-                        const content = self.showNames && node.name ? node.name : type.split('.').pop();
-                        const tooltip = self.showNames && node.name ? type : node.name;
+                        const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
+                        const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
                         header.add(null, styles, content, tooltip, () => {
                             self.showNodeProperties(node, null);
                         });
@@ -1017,6 +1017,7 @@ class ModelError extends Error {
         super(message);
         this.name = 'Error loading model.';
         this.telemetry = telemetry;
+        this.stack = undefined;
     }
 }
 
@@ -1218,11 +1219,11 @@ view.ModelFactoryService = class {
         this._extensions = [];
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt', '.model' ]);
         this.register('./mxnet', [ '.mar', '.model', '.json', '.params' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.model', '.pb', '.pth' ]);
+        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.bin', '.pb', '.zip' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.bin', '.pb', '.zip' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json' ]);
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.data-00000-of-00001' ]);
@@ -1522,6 +1523,7 @@ view.ModelFactoryService = class {
             { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com\/spec\/v1\n/ },
             { name: 'Git LFS header', value: /^oid sha256:/ },
             { name: 'HTML markup', value: /^\s*<html>/ },
+            { name: 'HTML markup', value: /^\s*<!doctype html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },

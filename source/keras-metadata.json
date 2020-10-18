@@ -869,7 +869,7 @@
       "attributes": [
         {
           "default": -1,
-          "description": "Integer, the axis that should be normalized (typically the features\n    axis). For instance, after a `Conv2D` layer with\n    `data_format=\"channels_first\"`, set `axis=1` in `BatchNormalization`.",
+          "description": "Integer or a list of integers, the axis that should be normalized\n  (typically the features axis). For instance, after a `Conv2D` layer with\n    `data_format=\"channels_first\"`, set `axis=1` in `BatchNormalization`.",
           "name": "axis"
         },
         {
@@ -3986,7 +3986,7 @@
           "name": "mask"
         }
       ],
-      "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary TensorFlow functions\ncan be used when constructing `Sequential` and Functional API\nmodels. `Lambda` layers are best suited for simple operations or\nquick experimentation. For more advanced use cases, follow\n[this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, whereas subclassed\nLayers can be saved via overriding their `get_config` method. Overriding\n`get_config` improves the portability of Models. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
+      "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary TensorFlow functions\ncan be used when constructing `Sequential` and Functional API\nmodels. `Lambda` layers are best suited for simple operations or\nquick experimentation. For more advanced use cases, follow\n[this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
       "examples": [
         {
           "code": "# add a x -> x^2 layer\nmodel.add(Lambda(lambda x: x ** 2))"

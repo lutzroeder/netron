@@ -103,6 +103,11 @@ flatbuffers.Reader = class {
         return this._dataView.getInt64(offset, true);
     }
 
+    int64_(position, offset, defaultValue) {
+        offset = this._offset(position, offset);
+        return offset ? this.int64(position + offset) : defaultValue;
+    }
+
     uint64(offset) {
         return this._dataView.getUint64(offset, true);
     }
@@ -196,7 +201,7 @@ flatbuffers.Reader = class {
             offset = this._vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = this.int64(offset + (i >> 3));
+                array[i] = this.int64(offset + (i << 3));
             }
             return array;
         }
@@ -210,7 +215,7 @@ flatbuffers.Reader = class {
             offset = this._vector(position + offset);
             const array = new Array(length);
             for (let i = 0; i < length; i++) {
-                array[i] = this.uint64(offset + (i >> 3));
+                array[i] = this.uint64(offset + (i << 3));
             }
             return array;
         }

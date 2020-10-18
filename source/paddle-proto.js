@@ -652,22 +652,19 @@ $root.paddle.framework.proto.BlockDesc.prototype.idx = 0;
 $root.paddle.framework.proto.BlockDesc.prototype.parent_idx = 0;
 $root.paddle.framework.proto.BlockDesc.prototype.forward_block_idx = -1;
 
-$root.paddle.framework.proto.CompatibleInfo = class CompatibleInfo {
+$root.paddle.framework.proto.OpVersion = class OpVersion {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.paddle.framework.proto.CompatibleInfo();
+        const message = new $root.paddle.framework.proto.OpVersion();
         const end = reader.next(length);
         while (reader.end(end)) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.version = reader.string();
-                    break;
-                case 2:
-                    message.type = reader.int32();
+                    message.version = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -677,41 +674,26 @@ $root.paddle.framework.proto.CompatibleInfo = class CompatibleInfo {
         if (!Object.prototype.hasOwnProperty.call(message, 'version')) {
             throw new protobuf.Error("Excepted 'version'.");
         }
-        if (!Object.prototype.hasOwnProperty.call(message, 'type')) {
-            throw new protobuf.Error("Excepted 'type'.");
-        }
         return message;
     }
 };
 
-$root.paddle.framework.proto.CompatibleInfo.prototype.version = "";
-$root.paddle.framework.proto.CompatibleInfo.prototype.type = 0;
+$root.paddle.framework.proto.OpVersion.prototype.version = 0;
 
-$root.paddle.framework.proto.CompatibleInfo.Type = {
-    "COMPATIBLE": 0,
-    "DEFINITELY_NOT": 1,
-    "POSSIBLE": 2,
-    "BUG_FIX": 3,
-    "PRECISION_CHANGE": 4
-};
-
-$root.paddle.framework.proto.OpCompatibleMap = class OpCompatibleMap {
+$root.paddle.framework.proto.OpVersionMap = class OpVersionMap {
 
     constructor() {
         this.pair = [];
     }
 
     static decode(reader, length) {
-        const message = new $root.paddle.framework.proto.OpCompatibleMap();
+        const message = new $root.paddle.framework.proto.OpVersionMap();
         const end = reader.next(length);
         while (reader.end(end)) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
-                    message.pair.push($root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair.decode(reader, reader.uint32()));
-                    break;
-                case 2:
-                    message.default_required_version = reader.string();
+                    message.pair.push($root.paddle.framework.proto.OpVersionMap.OpVersionPair.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -722,15 +704,13 @@ $root.paddle.framework.proto.OpCompatibleMap = class OpCompatibleMap {
     }
 };
 
-$root.paddle.framework.proto.OpCompatibleMap.prototype.default_required_version = "";
-
-$root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair = class OpCompatiblePair {
+$root.paddle.framework.proto.OpVersionMap.OpVersionPair = class OpVersionPair {
 
     constructor() {
     }
 
     static decode(reader, length) {
-        const message = new $root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair();
+        const message = new $root.paddle.framework.proto.OpVersionMap.OpVersionPair();
         const end = reader.next(length);
         while (reader.end(end)) {
             const tag = reader.uint32();
@@ -739,7 +719,7 @@ $root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair = class OpCompatib
                     message.op_name = reader.string();
                     break;
                 case 2:
-                    message.compatible_info = $root.paddle.framework.proto.CompatibleInfo.decode(reader, reader.uint32());
+                    message.op_version = $root.paddle.framework.proto.OpVersion.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -749,15 +729,15 @@ $root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair = class OpCompatib
         if (!Object.prototype.hasOwnProperty.call(message, 'op_name')) {
             throw new protobuf.Error("Excepted 'op_name'.");
         }
-        if (!Object.prototype.hasOwnProperty.call(message, 'compatible_info')) {
-            throw new protobuf.Error("Excepted 'compatible_info'.");
+        if (!Object.prototype.hasOwnProperty.call(message, 'op_version')) {
+            throw new protobuf.Error("Excepted 'op_version'.");
         }
         return message;
     }
 };
 
-$root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair.prototype.op_name = "";
-$root.paddle.framework.proto.OpCompatibleMap.OpCompatiblePair.prototype.compatible_info = null;
+$root.paddle.framework.proto.OpVersionMap.OpVersionPair.prototype.op_name = "";
+$root.paddle.framework.proto.OpVersionMap.OpVersionPair.prototype.op_version = null;
 
 $root.paddle.framework.proto.ProgramDesc = class ProgramDesc {
 
@@ -777,8 +757,8 @@ $root.paddle.framework.proto.ProgramDesc = class ProgramDesc {
                 case 4:
                     message.version = $root.paddle.framework.proto.Version.decode(reader, reader.uint32());
                     break;
-                case 3:
-                    message.op_compatible_map = $root.paddle.framework.proto.OpCompatibleMap.decode(reader, reader.uint32());
+                case 5:
+                    message.op_version_map = $root.paddle.framework.proto.OpVersionMap.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -790,4 +770,4 @@ $root.paddle.framework.proto.ProgramDesc = class ProgramDesc {
 };
 
 $root.paddle.framework.proto.ProgramDesc.prototype.version = null;
-$root.paddle.framework.proto.ProgramDesc.prototype.op_compatible_map = null;
+$root.paddle.framework.proto.ProgramDesc.prototype.op_version_map = null;

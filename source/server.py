@@ -8,17 +8,18 @@ import sys
 import threading
 import webbrowser
 import time
-import urllib.parse
 
 from .__version__ import __version__
 
 if sys.version_info[0] > 2:
     from urllib.parse import urlparse
+    from urllib.parse import unquote
     from http.server import HTTPServer
     from http.server import BaseHTTPRequestHandler
     from socketserver import ThreadingMixIn
 else:
     from urlparse import urlparse
+    from urlparse import unquote
     from BaseHTTPServer import HTTPServer
     from BaseHTTPServer import BaseHTTPRequestHandler
     from SocketServer import ThreadingMixIn
@@ -69,7 +70,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                 if file == self.file and self.data:
                     buffer = self.data
                 else:
-                    file = self.folder + '/' + urllib.parse.unquote(file)
+                    file = self.folder + '/' + unquote(file)
                     status_code = 404
                     if os.path.exists(file):
                         with open(file, 'rb') as binary:

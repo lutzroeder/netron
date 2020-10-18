@@ -8,15 +8,11 @@ var zip = zip || require('./zip');
 mlnet.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'zip') {
-            const entries = context.entries('zip');
-            if (entries.length > 0) {
-                const root = new Set([ 'TransformerChain', 'Predictor']);
-                if (entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
-                    return true;
-                }
+        const entries = context.entries('zip');
+        if (entries.length > 0) {
+            const root = new Set([ 'TransformerChain', 'Predictor']);
+            if (entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
+                return true;
             }
         }
         return false;

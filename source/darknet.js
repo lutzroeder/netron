@@ -6,9 +6,8 @@ var base = base || require('./base');
 darknet.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'cfg' || extension == 'model') {
-            const reader = base.TextReader.create(context.buffer, 2048);
+        try {
+            const reader = base.TextReader.create(context.buffer);
             for (;;) {
                 const line = reader.read();
                 if (line === undefined) {
@@ -22,6 +21,9 @@ darknet.ModelFactory = class {
                     return true;
                 }
             }
+        }
+        catch (err) {
+            // continue regardless of error
         }
         return false;
     }
@@ -93,17 +95,15 @@ darknet.Graph = class {
                     }
                     default: {
                         if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
-                        if (section) {
-                            const index = line.indexOf('=');
-                            if (index < 0) {
-                                throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '').trim() + "' at line " + lineNumber.toString() + ".");
-                            }
-                            const key = line.substring(0, index);
-                            const value = line.substring(index + 1);
-                            section.options[key] = value;
+                        const index = line.indexOf('=');
+                        if (index < 0) {
+                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
+                        const key = line.substring(0, index);
+                        const value = line.substring(index + 1);
+                        section.options[key] = value;
                         break;
                     }
                 }

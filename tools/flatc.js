@@ -229,10 +229,12 @@ flatc.Field = class extends flatc.Object {
                 }
                 else if (this.type instanceof flatc.Enum) {
                     this.type.resolve();
-                    if (!this.type.values.has(this.defaultValue)) {
+                    if (this.type.values.has(this.defaultValue)) {
+                        this.defaultValue = this.type.values.get(this.defaultValue);
+                    }
+                    else if (!new Set(this.type.values.values()).has(this.defaultValue)) {
                         throw new flatc.Error("Unknown enum value '" + this.defaultValue + "'.");
                     }
-                    this.defaultValue = this.type.values.get(this.defaultValue);
                 }
             }
             super.resolve();
@@ -623,7 +625,7 @@ flatc.Parser.Tokenizer = class {
 
         const hex_float_constant = text.match(/^[-+]?0[xX](([.][0-9a-fA-F]+)|([0-9a-fA-F]+[.][0-9a-fA-F]*)|([0-9a-fA-F]+))([pP][-+]?[0-9]+)/);
         if (hex_float_constant) {
-            throw new flatc.Error('XXXX');
+            throw new flatc.Error('Unsupported hexadecimal constant.');
         }
 
         const dec_integer_constant = text.match(/^[-+]?[0-9]+/);
@@ -633,8 +635,7 @@ flatc.Parser.Tokenizer = class {
         }
         const hex_integer_constant = text.match(/^[-+]?0[xX][0-9a-fA-F]+/);
         if (hex_integer_constant) {
-            throw new flatc.Error('XXXX');
-            // return { type: 'integer', value: hex_integer_constant[0] };
+            throw new flatc.Error('Unsupported hexadecimal constant.');
         }
 
         const c = this._get(this._position);
@@ -689,7 +690,15 @@ flatc.Parser.Tokenizer = class {
                     continue;
                 }
                 if (c1 === '*') {
-                    throw new flatc.Error('XXXX');
+                    this._position += 2;
+                    while (this._get(this._position) !== '*' || this._get(this._position + 1) !== '/') {
+                        this._position++;
+                        if ((this._position + 2) > this._text.length) {
+                            throw new flatc.Error('Unexpected end of file in comment.');
+                        }
+                    }
+                    this._position += 2;
+                    continue;
                 }
             }
             break;
@@ -833,9 +842,12 @@ flatc.Generator = class {
 
     _buildNamespace(namespace) {
         if (namespace.name !== '') {
-            const name = '$root.' + namespace.name;
-            this._builder.add('');
-            this._builder.add(name + ' = ' + name + ' || {};');
+            const parts = namespace.name.split('.');
+            for (let i = 1; i <= parts.length; i++) {
+                const name = '$root.' + parts.slice(0, i).join('.');
+                this._builder.add('');
+                this._builder.add(name + ' = ' + name + ' || {};');
+            }
         }
         for (const child of namespace.children.values()) {
             if (child instanceof flatc.Table) {

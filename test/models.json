@@ -522,7 +522,7 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
-  },  
+  },
   {
     "type":   "caffe",
     "target": "s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
@@ -1062,7 +1062,7 @@
     "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "File format is not coreml.Model (Invalid type 7 at offset 13) in 'coreml_invalid_file.mlmodel'.",
+    "error":  "Unsupported file content (504b030414000000080054787f4e6f92) for extension '.mlmodel' in 'coreml_invalid_file.mlmodel'.",
     "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
@@ -2850,9 +2850,10 @@
   },
   {
     "type":   "onnx",
-    "target": "bvlc_alexnet_opset_3.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_3/bvlc_alexnet.tar.gz[bvlc_alexnet/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/bvlc_alexnet"
+    "target": "bvlc_alexnet_opset_3.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296267/bvlc_alexnet_opset_3.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -2913,6 +2914,14 @@
     "source": "https://github.com/lutzroeder/netron/files/2592479/DocumentClassification.onnx.zip[DocumentClassification.onnx]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
+    "target": "EfficientDet-d0.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296050/EfficientDet-d0.onnx.zip",
+    "format": "ONNX v6",
+    "error":  "Maximum call stack size exceeded",
+    "link":   "https://github.com/lutzroeder/netron/issues/589"
   },
   {
     "type":   "onnx",
@@ -3031,6 +3040,14 @@
   },
   {
     "type":   "onnx",
+    "target": "maskrcnn.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5322320/maskrcnn.onnx.zip",
+    "format": "ONNX v6",
+    "action": "skip-render",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "mnist.onnx",
     "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format": "ONNX v3",
@@ -3085,8 +3102,10 @@
   },
   {
     "type":   "onnx",
-    "target": "resnet50_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/resnet50.tar.gz[resnet50/model.onnx]"
+    "target": "resnet50_opset_9.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296268/resnet50_opset_9.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3163,10 +3182,10 @@
   },
   {
     "type":   "onnx",
-    "target": "ssd.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_10/ssd/ssd.onnx",
+    "target": "ssd.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5296269/ssd.onnx.zip",
     "format": "ONNX v4",
-    "link":   "https://github.com/onnx/models/tree/master/ssd"
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3226,8 +3245,8 @@
     "type":   "onnx",
     "target": "vgg19.onnx",
     "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg",
-    "link":   "ONNX v3"
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
   },
   {
     "type":   "onnx",
@@ -3907,6 +3926,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "ENet.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5368544/ENet.pth.zip[ENet.pth]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":   "pytorch",
     "target": "gcn2_tiny_320x240.pb",
     "source": "https://raw.githubusercontent.com/jiexiong2016/GCNv2_SLAM/master/GCN2/gcn2_tiny_320x240.pt",
     "format": "TorchScript v1.0",
@@ -4029,9 +4055,16 @@
   },
   {
     "type":   "pytorch",
-    "target": "mobilenet_quantization_scripted_quantized.pth",
-    "source": "https://github.com/lutzroeder/netron/files/4111581/mobilenet_quantization_scripted_quantized.pth.zip[mobilenet_quantization_scripted_quantized.pth]",
+    "target": "mobilenet_quantization_scripted_quantized_1.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5394885/mobilenet_quantization_scripted_quantized.zip[mobilenet_quantization_scripted_quantized_1.pth]",
     "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/421"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mobilenet_quantization_scripted_quantized_2.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5394885/mobilenet_quantization_scripted_quantized.zip[mobilenet_quantization_scripted_quantized_2.pth]",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/421"
   },
   {
@@ -4108,6 +4141,13 @@
     "source": "https://github.com/lutzroeder/netron/files/5137393/netron_issue_547_1.zip[netron_issue_547_1.pt]",
     "error":  "Unknown torch.add expression type in 'netron_issue_547_1.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/547"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_609.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5309279/netron_issue_609.pt.zip[netron_issue_609.pt]",
+    "format":  "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/609"
   },
   {
     "type":   "pytorch",

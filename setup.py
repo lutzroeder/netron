@@ -8,7 +8,7 @@ import setuptools
 import setuptools.command.build_py
 import distutils.command.build
 
-node_dependencies = [ 
+node_dependencies = [
     ( 'netron', [
         'node_modules/d3/dist/d3.min.js',
         'node_modules/dagre/dist/dagre.min.js',
@@ -112,11 +112,11 @@ setuptools.setup(
         'Topic :: Scientific/Engineering :: Visualization'
     ],
     options={
-        'build': { 
+        'build': {
             'build_base': './dist',
             'build_lib': './dist/lib'
         },
-        'bdist_wheel': { 
+        'bdist_wheel': {
             'universal': 1,
             'dist_dir': './dist/dist'
         },

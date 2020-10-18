@@ -9,27 +9,24 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'model' || extension == 'cmf' || extension == 'dnn' || extension == 'cntk') {
-            const buffer = context.buffer;
-            // Reject PyTorch models with .model file extension.
-            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
-                return false;
-            }
-            // CNTK v1
-            if (buffer && buffer.length >= 8 &&
-                buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
-                buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
-                return true;
-            }
-            // CNTK v2
-            const tags = context.tags('pb');
-            if (tags.get(1) === 0 && tags.get(2) === 2) {
-                return true;
-            }
+        const buffer = context.buffer;
+        // Reject PyTorch models with .model file extension.
+        const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
             return false;
         }
+        // CNTK v1
+        if (buffer && buffer.length >= 8 &&
+            buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
+            buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
+            return true;
+        }
+        // CNTK v2
+        const tags = context.tags('pb');
+        if (tags.get(1) === 0 && tags.get(2) === 2) {
+            return true;
+        }
+        return false;
     }
 
     open(context, host) {

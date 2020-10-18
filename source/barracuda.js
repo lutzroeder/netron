@@ -6,13 +6,9 @@ var barracuda = barracuda || {};
 barracuda.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'nn') {
-            const buffer = context.buffer;
-            if (buffer.length > 12 && buffer[0] <= 0x10 && buffer.subarray(1, 8).every((v) => v == 0x00)) {
-                return true;
-            }
+        const buffer = context.buffer;
+        if (buffer.length > 12 && buffer[0] <= 0x10 && buffer.subarray(1, 8).every((v) => v == 0x00)) {
+            return true;
         }
         return false;
     }
@@ -497,9 +493,11 @@ barracuda.NNModel = class {
 };
 
 barracuda.Activation = {
-    0: "Linear", 1: "Relu", 2: "Softmax", 3: "Tanh", 4: "Sigmoid", 5: "Elu", 6: "Relu6", 7: "LeakyRelu",
-    8: "Selu", 9: "Swish", 10: "LogSoftmax", 11: "Softplus", 12: "Softsign",
-    100: "Abs", 101: "Neg", 102: "Ceil", 104: "Floor", 111: "Sqrt", 113: "Exp", 114: "Log",
+    0: "Linear", 1: "Relu", 2: "Softmax", 3: "Tanh", 4: "Sigmoid", 5: "Elu", 6: "Relu6", 7: "LeakyRelu", 8: "Selu", 9: "Swish",
+    10: "LogSoftmax", 11: "Softplus", 12: "Softsign", 13: "PRelu",
+    20: "Hardmax", 21: "HardSigmoid",
+    100: "Abs", 101: "Neg", 102: "Ceil", 103: "Clip", 104: "Floor", 105: "Round",
+    110: "Reciprocal", 111: "Sqrt", 113: "Exp", 114: "Log",
     200: "Acos", 201: "Acosh", 202: "Asin", 203: "Asinh", 204: "Atan", 205: "Atanh", 206: "Cos", 207: "Cosh", 208: "Sin", 209: "Sinh", 210: "Tan"
 };
 
@@ -594,20 +592,33 @@ barracuda.Metadata = class {
         this._register(1, 'Dense', 'Layer', [ 'input', 'kernel', 'bias' ]);
         this._register(2, 'MatMul', '', [ 'input', 'kernel', 'bias' ]);
         this._register(20, 'Conv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        this._register(21, 'DepthwiseConv2dNative', 'Layer', [ 'input', 'kernel', 'bias' ]);
-        this._register(22, 'Conv2DBackpropInput', '');
+        this._register(21, 'DepthwiseConv2D', 'Layer', [ 'input', 'kernel', 'bias' ]);
+        this._register(22, 'Conv2DTrans', '');
         this._register(23, 'Upsample2D', '');
-        this._register(25, 'MaxPool', 'Pool');
-        this._register(26, 'AvgPool', 'Pool');
-        this._register(28, 'GlobalAvgPool', 'Pool');
-        this._register(29, 'Pad', '');
+        this._register(25, 'MaxPool2D', 'Pool');
+        this._register(26, 'AvgPool2D', 'Pool');
+        this._register(27, 'GlobalMaxPool2D', 'Pool');
+        this._register(28, 'GlobalAvgPool2D', 'Pool');
+        this._register(29, 'Border2D', '');
+        this._register(30, 'Conv3D', 'Layer');
+        this._register(32, 'Conv3DTrans', 'Layer');
+        this._register(33, 'Upsample3D', '');
+        this._register(35, 'MaxPool3D', 'Pool');
+        this._register(36, 'AvgPool3D', 'Pool');
+        this._register(37, 'GlobalMaxPool3D', 'Pool');
+        this._register(38, 'GlobalAvgPool3D', 'Pool');
+        this._register(39, 'Border3D', '');
         this._register(50, 'Activation', 'Activation');
         this._register(51, 'ScaleBias', 'Normalization', [ 'input', 'scale', 'bias' ]);
-        this._register(52, 'InstanceNormalization', 'Normalization');
+        this._register(52, 'Normalization', 'Normalization');
         this._register(53, 'LRN', 'Normalization');
-        this._register(64, 'RandomStandardNormal', '');
+        this._register(60, 'Dropout', 'Dropout');
+        this._register(64, 'RandomNormal', '');
         this._register(65, 'RandomUniform', '');
+        this._register(66, 'Multinomial', '');
         this._register(67, 'OneHot', '');
+        this._register(68, 'TopKIndices', '');
+        this._register(69, 'TopKValues', '');
         this._register(100, 'Add', '', [ 'inputs' ]);
         this._register(101, 'Sub', '', [ 'inputs' ]);
         this._register(102, 'Mul', '', [ 'inputs' ]);
@@ -615,15 +626,42 @@ barracuda.Metadata = class {
         this._register(104, 'Pow', '', [ 'inputs' ]);
         this._register(110, 'Minimum', '', [ 'inputs' ]);
         this._register(111, 'Maximum', '', [ 'inputs' ]);
-        this._register(124, 'Max', '', [ 'inputs' ]);
-        this._register(125, 'Mean', '', [ 'inputs' ]);
-        this._register(126, 'Min', '', [ 'inputs' ]);
-        this._register(127, 'Prod', '', [ 'inputs' ]);
-        this._register(128, 'Sum', '', [ 'inputs' ]);
+        this._register(112, 'Mean', '', [ 'inputs' ]);
+        this._register(120, 'ReduceL1', '', [ 'inputs' ]);
+        this._register(121, 'ReduceL2', '', [ 'inputs' ]);
+        this._register(122, 'ReduceLogSum', '', [ 'inputs' ]);
+        this._register(123, 'ReduceLogSumExp', '', [ 'inputs' ]);
+        this._register(124, 'ReduceMax', '', [ 'inputs' ]);
+        this._register(125, 'ReduceMean', '', [ 'inputs' ]);
+        this._register(126, 'ReduceMin', '', [ 'inputs' ]);
+        this._register(127, 'ReduceProd', '', [ 'inputs' ]);
+        this._register(128, 'ReduceSum', '', [ 'inputs' ]);
+        this._register(129, 'ReduceSumSquare', '', [ 'inputs' ]);
+        this._register(140, 'Greater', '');
+        this._register(141, 'GreaterEqual', '');
+        this._register(142, 'Less', '');
+        this._register(143, 'LessEqual', '');
+        this._register(144, 'Equal', '');
+        this._register(145, 'LogicalOr', '');
+        this._register(146, 'LogicalAnd', '');
+        this._register(147, 'LogicalNot', '');
+        this._register(148, 'LogicalXor', '');
+        this._register(160, 'Pad2DReflect', '');
+        this._register(161, 'Pad2DSymmetric', '');
+        this._register(162, 'Pad2DEdge', '');
         this._register(200, 'Flatten', 'Shape');
         this._register(201, 'Reshape', 'Shape');
+        this._register(202, 'Transpose', '');
+        this._register(203, 'Squeeze', '');
+        this._register(204, 'Unsqueeze', '');
+        this._register(205, 'Gather', '');
+        this._register(206, 'DepthToSpace', '');
+        this._register(207, 'SpaceToDepth', '');
+        this._register(208, 'Expand', '');
+        this._register(209, 'Resample2D', '');
         this._register(210, 'Concat', 'Tensor', [ 'inputs' ]);
         this._register(211, 'StridedSlice', 'Shape');
+        this._register(212, 'Tile', '');
     }
 
     _register(id, name, category, inputs) {

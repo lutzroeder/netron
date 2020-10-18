@@ -616,11 +616,11 @@ caffe.Tensor = class {
             if (blob.channels != 1) {
                 shape.push(blob.channels);
             }
-            if (blob.width != 1) {
-                shape.push(blob.width);
-            }
             if (blob.height != 1) {
                 shape.push(blob.height);
+            }
+            if (blob.width != 1) {
+                shape.push(blob.width);
             }
         }
         else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {

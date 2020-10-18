@@ -7,12 +7,9 @@ var dnn = dnn || {};
 dnn.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'dnn') {
-            const tags = context.tags('pb');
-            if (tags.get(4) == 0 && tags.get(10) == 2) {
-                return true;
-            }
+        const tags = context.tags('pb');
+        if (tags.get(4) == 0 && tags.get(10) == 2) {
+            return true;
         }
         return false;
     }

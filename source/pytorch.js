@@ -150,7 +150,7 @@ pytorch.Graph = class {
                 const inputs = state_group.states.map((parameter) => {
                     return new pytorch.Parameter(parameter.name, true,
                         parameter.arguments.map((state) => {
-                            const tensor = new pytorch.Tensor(state.id, state.value, this._littleEndian);
+                            const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
                             return new pytorch.Argument(state.id, null, tensor);
                         }));
                 });
@@ -237,7 +237,7 @@ pytorch.Graph = class {
         const parameters = obj._parameters || obj._buffers || [];
         for (const parameter of parameters) {
             const key = parameter[0];
-            const value = parameter[1];
+            const value = pytorch.Utility.toTensor(parameter[1]);
             let visible = true;
             let inputName = '';
             if (inputSchema.length > 0) {
@@ -245,14 +245,8 @@ pytorch.Graph = class {
                 inputName = input.name;
                 visible = input.visible === false ? false : true;
             }
-            if (parameter && value && (value.data || value.storage)) {
-                let initializer = null;
-                if (value.data) {
-                    initializer = new pytorch.Tensor('', value.data, this._littleEndian);
-                }
-                else if (value.storage) {
-                    initializer = new pytorch.Tensor('', value, this._littleEndian);
-                }
+            if (value) {
+                const initializer = new pytorch.Tensor('', value, this._littleEndian);
                 inputs.push(new pytorch.Parameter(inputName || key, visible, [ new pytorch.Argument('', null, initializer) ]));
             }
         }
@@ -1017,6 +1011,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.distributions.transforms.LowerCholeskyTransform', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
+        this._registerConstructor('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GELU', function() {});
@@ -1075,6 +1070,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.NLLLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.SmoothL1Loss', function() {});
         this._registerConstructor('torch.nn.modules.module._IncompatibleKeys', function() {});
+        this._registerConstructor('torch.nn.modules.module.Module', function() {});
         this._registerConstructor('torch.nn.modules.normalization.CrossMapLRN2d', function() {});
         this._registerConstructor('torch.nn.modules.normalization.GroupNorm', function() {});
         this._registerConstructor('torch.nn.modules.normalization.LayerNorm', function() {});
@@ -1123,16 +1119,38 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.parallel.data_parallel.DataParallel', function() {});
         this._registerConstructor('torch.nn.parallel.distributed.DistributedDataParallel', function() {});
         this._registerConstructor('torch.nn.parameter.Parameter', function(data, requires_grad) {
-            this.data = data;
-            this.requires_grad = requires_grad;
+            if (data !== undefined) {
+                this.data = data;
+            }
+            this.requires_grad = requires_grad !== undefined ? requires_grad : true;
+            this.__setstate__ = function(state) {
+                switch (state.length) {
+                    case 4:
+                        this.data = state[0];
+                        break;
+                    case 5:
+                        this.data = state[0];
+                        break;
+                }
+            };
         });
+        this._registerConstructor('torch.nn.quantized.modules.activation.ReLU', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.conv.Conv2d', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.DeQuantize', function() {});
         this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.functional_modules.QFunctional', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.linear.Linear', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.linear.LinearPackedParams', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.Quantize', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNorm', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', function() {});
         this._registerConstructor('torch.nn.utils.weight_norm.WeightNorm', function() {});
         this._registerConstructor('torch.optim.adam.Adam', function() {});
         this._registerConstructor('torch.optim.adagrad.Adagrad', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.CosineAnnealingLR', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.CyclicLR', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.ExponentialLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.LambdaLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.MultiStepLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
@@ -1275,6 +1293,70 @@ pytorch.Execution = class {
                 this.stride = state[3];
             };
         });
+        this._registerConstructor('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
+            let data = rawData;
+            if (typeof rawData === 'string') {
+                data = new Uint8Array(rawData.length);
+                for (let i = 0; i < rawData.length; i++) {
+                    data[i] = rawData.charCodeAt(i);
+                }
+            }
+            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+            switch (dtype.name) {
+                case 'uint8':
+                    return dataView.getUint8(0);
+                case 'float32':
+                    return dataView.getFloat32(0, true);
+                case 'float64':
+                    return dataView.getFloat64(0, true);
+                case 'int8':
+                    return dataView.getInt8(0, true);
+                case 'int16':
+                    return dataView.getInt16(0, true);
+                case 'int32':
+                    return dataView.getInt32(0, true);
+                case 'int64':
+                    return dataView.getInt64(0, true);
+            }
+            throw new pytorch.Error("Unknown scalar type '" + dtype.name + "'.");
+        });
+        this._registerConstructor('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
+            this.subtype = subtype;
+            this.shape = shape;
+            this.dtype = dtype;
+            this.__setstate__ = function(state) {
+                this.version = state[0];
+                this.shape = state[1];
+                this.typecode = state[2];
+                this.is_f_order = state[3];
+                this.rawdata = state[4];
+            };
+            this.__read__ = function(unpickler) {
+                const array = {};
+                const subtype = this.subtype.split('.');
+                array.__name__ = subtype.pop();
+                array.__module__ = subtype.join('.');
+                array.dtype = this.typecode;
+                array.shape = this.shape;
+                let size = array.dtype.itemsize;
+                for (let i = 0; i < array.shape.length; i++) {
+                    size = size * array.shape[i];
+                }
+                if (typeof this.rawdata == 'string') {
+                    array.data = unpickler.unescape(this.rawdata, size);
+                    if (array.data.length != size) {
+                        throw new pytorch.Error('Invalid string array data size.');
+                    }
+                }
+                else {
+                    array.data = this.rawdata;
+                    if (array.data.length != size) {
+                        // throw new pytorch.Error('Invalid array data size.');
+                    }
+                }
+                return array;
+            };
+        });
         this._registerConstructor('numpy.dtype', function(obj, align, copy) {
             switch (obj) {
                 case 'i1':  this.name = 'int8'; this.itemsize = 1; break;
@@ -1333,43 +1415,6 @@ pytorch.Execution = class {
                     default:
                         throw new pytorch.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                 }
-            };
-        });
-        this._registerConstructor('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-            this.subtype = subtype;
-            this.shape = shape;
-            this.dtype = dtype;
-            this.__setstate__ = function(state) {
-                this.version = state[0];
-                this.shape = state[1];
-                this.typecode = state[2];
-                this.is_f_order = state[3];
-                this.rawdata = state[4];
-            };
-            this.__read__ = function(unpickler) {
-                const array = {};
-                const subtype = this.subtype.split('.');
-                array.__name__ = subtype.pop();
-                array.__module__ = subtype.join('.');
-                array.dtype = this.typecode;
-                array.shape = this.shape;
-                let size = array.dtype.itemsize;
-                for (let i = 0; i < array.shape.length; i++) {
-                    size = size * array.shape[i];
-                }
-                if (typeof this.rawdata == 'string') {
-                    array.data = unpickler.unescape(this.rawdata, size);
-                    if (array.data.length != size) {
-                        throw new pytorch.Error('Invalid string array data size.');
-                    }
-                }
-                else {
-                    array.data = this.rawdata;
-                    if (array.data.length != size) {
-                        // throw new pytorch.Error('Invalid array data size.');
-                    }
-                }
-                return array;
             };
         });
         this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
@@ -1547,7 +1592,7 @@ pytorch.Execution = class {
                 size: size,
                 stride: stride,
                 requires_grad: requires_grad,
-                backward_hooks:  backward_hooks
+                backward_hooks: backward_hooks
             };
         });
         this._registerFunction('torch._utils._rebuild_parameter', function(data, requires_grad, backward_hooks) {
@@ -1660,6 +1705,17 @@ pytorch.Execution = class {
                 return true;
             }
             throw new pytorch.Error("Unknown 'torch.gt' expression type.");
+        });
+        this._registerFunction('torch.ge', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                if (!isNaN(left) && !isNaN(right)) {
+                    return left > right;
+                }
+            }
+            if (isNaN(left) && !isNaN(right)) {
+                return true;
+            }
+            throw new pytorch.Error("Unknown 'torch.ge' expression type.");
         });
         this._registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
@@ -2446,13 +2502,7 @@ pytorch.Container.Tar = class {
                         }
                         const state = {};
                         state.id = key;
-                        state.value = null;
-                        if (value && value.__module__ === 'torch.nn.parameter' && value.__name__ === 'Parameter') {
-                            state.value = value[0];
-                        }
-                        else if (pytorch.Utility.isTensor(value)) {
-                            state.value = value;
-                        }
+                        state.value = pytorch.Utility.toTensor(value);
                         if (!state.value) {
                             this._state = null;
                             break;
@@ -3061,7 +3111,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         }
 
                         if (copyArgs.every((arg) => arg.type === '=' && arg.target && arg.target.type === 'id') &&
-                            parameters.every((parameter) => parameter.type !== 'tensor' && parameter.type !== 'tensor[]')) {
+                            parameters.every((parameter) => parameter.type !== 'Tensor' && parameter.type !== 'Tensor[]')) {
                             const map = new Map();
                             for (const parameter of parameters) {
                                 map.set(parameter.name, parameter);
@@ -3093,7 +3143,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         const argument = copyEvalArgs[0];
 
                         switch (parameter.type) {
-                            case 'tensor': {
+                            case 'Tensor': {
                                 if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
                                     if (parameter.optional) {
                                         if (argument === undefined) {
@@ -3117,7 +3167,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 node.inputs.push(inputs);
                                 break;
                             }
-                            case 'tensor[]': {
+                            case 'Tensor[]': {
                                 const argument = copyEvalArgs[0];
                                 if (!Array.isArray(argument) || !argument.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
                                     if (parameter.optional) {
@@ -3172,7 +3222,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const result = [];
                     for (const paramter of schema.outputs) {
                         switch (paramter.type) {
-                            case 'tensor': {
+                            case 'Tensor': {
                                 const parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
                                 switch (type) {
                                     case 'torch.cat':
@@ -3217,7 +3267,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 node.outputs.push([ { id: parameter.__variable__ } ]);
                                 break;
                             }
-                            case 'tensor[]': {
+                            case 'Tensor[]': {
                                 let count = 1;
                                 switch (type) {
                                     case 'torch.chunk':
@@ -3301,21 +3351,47 @@ pytorch.Utility = class {
     }
 
     static isTensor(obj) {
-        return obj && (obj.__module__ === 'torch' || obj.__module__ === 'torch.cuda') && obj.__name__ && obj.__name__.endsWith('Tensor');
+        if (obj && obj.__module__ && obj.__name__) {
+            switch (obj.__module__) {
+                case 'torch':
+                case 'torch.cuda':
+                    return obj.__name__.endsWith('Tensor');
+                case 'torch.nn.parameter':
+                    return obj.__name__ === 'Parameter';
+            }
+        }
+        return false;
+    }
+
+    static toTensor(obj) {
+        if (obj && obj.__module__ && obj.__name__) {
+            switch (obj.__module__) {
+                case 'torch':
+                case 'torch.cuda':
+                    return obj.__name__.endsWith('Tensor') ? obj : null;
+                case 'torch.nn.parameter':
+                    return obj.__name__ === 'Parameter' ? obj.data : null;
+            }
+        }
+        return null;
     }
 
     static isType(obj, type) {
         switch (type) {
-            case 'tensor':
+            case 'Tensor':
                 return !Array.isArray(obj) && (pytorch.Utility.isTensor(obj) || obj === null);
-            case 'tensor[]':
+            case 'Tensor[]':
                 return Array.isArray(obj) && obj.length > 0 && obj.every((tensor) => pytorch.Utility.isTensor(tensor) || tensor === null);
+            case 'Scalar':
+                return obj !== null || obj !== Object(obj);
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':
                 return Number.isInteger(obj) || isNaN(obj);
             case 'int64[]':
                 return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || Number.isNaN(item) || item === undefined);
+            case 'int64[1]':
+                return pytorch.Utility.isType(obj, 'int64') || pytorch.Utility.isType(obj, 'int64[]');
             case 'float32':
             case 'float64':
                 return obj !== null && obj !== Object(obj);
@@ -3325,8 +3401,6 @@ pytorch.Utility = class {
                 return Number.isInteger(obj) || obj === null;
             case 'Device':
                 return obj === null || obj === Object(obj);
-            case 'scalar':
-                return obj !== null || obj !== Object(obj);
         }
         return true;
     }
@@ -3488,12 +3562,7 @@ pytorch.Utility = class {
             const state = {};
             state.id = key;
             state.name = split.pop();
-            state.value = obj[key];
-            if (state.value && state.value.__module__ === 'torch.nn.parameter' && state.value.__name__ === 'Parameter') {
-                if (pytorch.Utility.isTensor(state.value.data)) {
-                    state.value = state.value.data;
-                }
-            }
+            state.value = pytorch.Utility.toTensor(obj[key]);
             if (!pytorch.Utility.isTensor(state.value)) {
                 return null;
             }
@@ -3554,7 +3623,7 @@ pytorch.Utility = class {
             else if (Object(item) === item) {
                 let hasTensors = false;
                 for (const key in item) {
-                    const value = item[key];
+                    const value = pytorch.Utility.toTensor(item[key]);
                     if (pytorch.Utility.isTensor(value)) {
                         const argument = { id: state_group_name + '.' + key, value: value };
                         state_group.states.push({ name: key, arguments: [ argument ] });
@@ -3562,11 +3631,6 @@ pytorch.Utility = class {
                     }
                     else if (value !== Object(value)) {
                         state_group.attributes.push({ name: key, value: value });
-                    }
-                    else if (value && value.data && value.__module__ === 'torch.nn.parameter' && value.__name__ === 'Parameter') {
-                        const argument = { id: state_group_name + '.' + key, value: value.data };
-                        state_group.states.push({ name: key, arguments: [ argument ] });
-                        hasTensors = true;
                     }
                     else {
                         return null;

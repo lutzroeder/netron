@@ -8317,6 +8317,11 @@
           "default": "auto",
           "name": "communication_hint",
           "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
         }
       ],
       "inputs": [
@@ -18576,7 +18581,7 @@
         },
         {
           "default": "NHWC",
-          "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`.",
+          "description": "The data format for y_backprop, x, x_backprop.\nEither \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`, `NDHWC`, `NCDHW`.",
           "name": "data_format",
           "type": "string"
         },
@@ -18774,7 +18779,7 @@
         },
         {
           "default": "NHWC",
-          "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`.",
+          "description": "The data format for x and y. Either \"NHWC\" (default) or \"NCHW\". Must be one of the following: `NHWC`, `NCHW`, `NDHWC`, `NCDHW`.",
           "name": "data_format",
           "type": "string"
         },
@@ -32155,7 +32160,7 @@
           "type": "type"
         }
       ],
-      "description": "Computes the QR decomposition of each inner matrix in `tensor` such that\n`tensor[..., :, :] = q[..., :, :] * r[..., :,:])`\n\n```python\n# a is a tensor.\n# q is a tensor of orthonormal matrices.\n# r is a tensor of upper triangular matrices.\nq, r = qr(a)\nq_full, r_full = qr(a, full_matrices=True)\n```",
+      "description": "Computes the QR decomposition of each inner matrix in `tensor` such that\n`tensor[..., :, :] = q[..., :, :] * r[..., :,:])`\n\nCurrently, the gradient for the QR decomposition is well-defined only when\nthe first `P` columns of the inner matrix are linearly independent, where\n`P` is the minimum of `M` and `N`, the 2 inner-most dimmensions of `tensor`.\n\n```python\n# a is a tensor.\n# q is a tensor of orthonormal matrices.\n# r is a tensor of upper triangular matrices.\nq, r = qr(a)\nq_full, r_full = qr(a, full_matrices=True)\n```",
       "inputs": [
         {
           "description": "A tensor of shape `[..., M, N]` whose inner-most 2 dimensions\nform matrices of size `[M, N]`. Let `P` be the minimum of `M` and `N`.",
@@ -32357,6 +32362,122 @@
         }
       ],
       "summary": "Quantizes then dequantizes a tensor."
+    }
+  },
+  {
+    "name": "QuantizeAndDequantizeV4",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "signed_input",
+          "type": "boolean"
+        },
+        {
+          "default": 8,
+          "name": "num_bits",
+          "type": "int64"
+        },
+        {
+          "default": false,
+          "name": "range_given",
+          "type": "boolean"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "HALF_TO_EVEN",
+          "description": "Must be one of the following: `HALF_TO_EVEN`, `HALF_UP`.",
+          "name": "round_mode",
+          "type": "string"
+        },
+        {
+          "default": false,
+          "name": "narrow_range",
+          "type": "boolean"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
+        }
+      ],
+      "description": "This is almost identical to QuantizeAndDequantizeV2, except that it returns a\ngradient of 1 for inputs that are within the quantization range, or 0 otherwise.",
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the gradient of `QuantizeAndDequantizeV4`."
+    }
+  },
+  {
+    "name": "QuantizeAndDequantizeV4Grad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": -1,
+          "name": "axis",
+          "type": "int64"
+        }
+      ],
+      "description": "Returns a gradient of 1 for inputs that are within the quantization range,\nor 0 otherwise.",
+      "inputs": [
+        {
+          "name": "gradients",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "input_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_min_backprop",
+          "typeAttr": "T"
+        },
+        {
+          "name": "input_max_backprop",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns the gradient of `QuantizeAndDequantizeV4`."
     }
   },
   {
@@ -36868,6 +36989,52 @@
         }
       ],
       "summary": "Encodes a `RaggedTensor` into a `variant` Tensor."
+    }
+  },
+  {
+    "name": "RaggedTensorToVariantGradient",
+    "schema": {
+      "attributes": [
+        {
+          "name": "Tvalues",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tsplits",
+          "type": "type"
+        }
+      ],
+      "description": "Computes the gradient for the dense_values input to the RaggedTensorToVariant\nop, given the variant-encoded ragged gradients of the outputs, along with\nthe outer row-splits and the shape of the dense-values that were provided as\ninputs to the RaggedTensorToVariant op.",
+      "inputs": [
+        {
+          "description": "A `variant` Tensor containing encoded `RaggedTensor` gradients.",
+          "name": "encoded_ragged_grad",
+          "type": 21
+        },
+        {
+          "description": "Outermost row-splits that were used as input to the RaggedTensorToVariant op.",
+          "name": "row_splits",
+          "typeAttr": "Tsplits"
+        },
+        {
+          "description": "Shape of the dense_values that was used as an input to the\nRaggedTensorToVariant op.",
+          "name": "dense_values_shape",
+          "type": 3
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Gradient for the dense_values of the RaggedTensorToVariant op.",
+          "name": "dense_values_grad",
+          "typeAttr": "Tvalues"
+        }
+      ],
+      "summary": "Helper used to compute the gradient for `RaggedTensorToVariant`."
     }
   },
   {
@@ -46893,6 +47060,16 @@
           "default": "",
           "description": "The type of compression to be applied to the saved snapshot files.",
           "name": "compression",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "reader_prefix",
+          "type": "string"
+        },
+        {
+          "default": "",
+          "name": "writer_prefix",
           "type": "string"
         },
         {
@@ -57493,7 +57670,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation creates a new tensor by applying sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd`, except that the updates are\nscattered onto an existing tensor (as opposed to a zero-tensor). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\nIf `indices` contains duplicates, then we pick the last update for the index.\n\nIf an out of bound index is found, an error is returned.\n\n**WARNING**: There are some GPU specific semantics for this operation.\n- If an out of bound index is found, the index is ignored.\n- The order in which updates are applied is nondeterministic, so the output\nwill be nondeterministic if `indices` contains duplicates.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.  The last dimension of `indices` can be at most the rank of `shape`:\n\n    indices.shape[-1] <= shape.rank\n\nThe last dimension of `indices` corresponds to indices into elements\n(if `indices.shape[-1] = shape.rank`) or slices\n(if `indices.shape[-1] < shape.rank`) along dimension `indices.shape[-1]` of\n`shape`.  `updates` is a tensor with shape\n\n    indices.shape[:-1] + shape[indices.shape[-1]:]\n\nThe simplest form of scatter is to insert individual elements in a tensor by\nindex. For example, say we want to insert 4 scattered elements in a rank-1\ntensor with 8 elements.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/ScatterNd1.png\" alt>\n</div>\n\nIn Python, this scatter operation would look like this:\n\n    >>> indices = tf.constant([[4], [3], [1], [7]])\n    >>> updates = tf.constant([9, 10, 11, 12])\n    >>> tensor = tf.ones([8], dtype=tf.int32)\n    >>> print(tf.tensor_scatter_nd_update(tensor, indices, updates))\n    tf.Tensor([ 1 11  1 10  9  1  1 12], shape=(8,), dtype=int32)\n\nWe can also, insert entire slices of a higher rank tensor all at once. For\nexample, if we wanted to insert two slices in the first dimension of a\nrank-3 tensor with two matrices of new values.\n\nIn Python, this scatter operation would look like this:\n\n    >>> indices = tf.constant([[0], [2]])\n    >>> updates = tf.constant([[[5, 5, 5, 5], [6, 6, 6, 6],\n    ...                         [7, 7, 7, 7], [8, 8, 8, 8]],\n    ...                        [[5, 5, 5, 5], [6, 6, 6, 6],\n    ...                         [7, 7, 7, 7], [8, 8, 8, 8]]])\n    >>> tensor = tf.ones([4, 4, 4], dtype=tf.int32)\n    >>> print(tf.tensor_scatter_nd_update(tensor, indices, updates).numpy())\n    [[[5 5 5 5]\n      [6 6 6 6]\n      [7 7 7 7]\n      [8 8 8 8]]\n     [[1 1 1 1]\n      [1 1 1 1]\n      [1 1 1 1]\n      [1 1 1 1]]\n     [[5 5 5 5]\n      [6 6 6 6]\n      [7 7 7 7]\n      [8 8 8 8]]\n     [[1 1 1 1]\n      [1 1 1 1]\n      [1 1 1 1]\n      [1 1 1 1]]]\n",
+      "description": "This operation creates a new tensor by applying sparse `updates` to the passed\nin `tensor`.\nThis operation is very similar to `tf.scatter_nd`, except that the updates are\nscattered onto an existing tensor (as opposed to a zero-tensor). If the memory\nfor the existing tensor cannot be re-used, a copy is made and updated.\n\nIf `indices` contains duplicates, then we pick the last update for the index.\n\nIf an out of bound index is found on CPU, an error is returned.\n\n**WARNING**: There are some GPU specific semantics for this operation.\n- If an out of bound index is found, the index is ignored.\n- The order in which updates are applied is nondeterministic, so the output\nwill be nondeterministic if `indices` contains duplicates.\n\n`indices` is an integer tensor containing indices into a new tensor of shape\n`shape`.\n\n* `indices` must have at least 2 axes: `(num_updates, index_depth)`.\n* The last axis of `indices` is how deep to index into `tensor` so  this index\n  depth must be less than the rank of `tensor`: `indices.shape[-1] <= tensor.ndim`\n\nif `indices.shape[-1] = tensor.rank` this Op indexes and updates scalar elements.\nif `indices.shape[-1] < tensor.rank` it indexes and updates slices of the input\n`tensor`.\n\nEach `update` has a rank of `tensor.rank - indices.shape[-1]`.\nThe overall shape of `updates` is:\n\n```\nindices.shape[:-1] + tensor.shape[indices.shape[-1]:]\n```\n\nFor usage examples see the python [tf.tensor_scatter_nd_update](\nhttps://www.tensorflow.org/api_docs/python/tf/tensor_scatter_nd_update) function\n",
       "inputs": [
         {
           "description": "Tensor to copy/update.",
