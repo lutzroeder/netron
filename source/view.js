@@ -1310,19 +1310,44 @@ view.ModelFactoryService = class {
                             'output_0.pb'
                         ]);
                         const skip = knownUnsupportedIdentifiers.has(identifier);
-                        const formats = [
-                            { type: 'pb', name: 'Protocol Buffers' },
-                            { type: 'pbtxt', name: 'Protocol Buffers text' },
-                            { type: 'json', name: 'JSON' }
+                        const encodings = [
+                            {
+                                type: 'pb',
+                                name: 'Protocol Buffers',
+                                formats: []
+                            },
+                            {
+                                type: 'pbtxt',
+                                name: 'Protocol Buffers text',
+                                formats: [
+                                    { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
+                                    { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
+                                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] }
+                                ]
+                            },
+                            {
+                                type: 'json',
+                                name: 'JSON',
+                                formats: [
+                                    { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
+                                    { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
+                                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
+                                ]
+                            }
                         ];
-                        for (const format of formats) {
-                            const tags = context.tags(format.type);
+                        for (const encoding of encodings) {
+                            const tags = context.tags(encoding.type);
                             if (tags.size > 0) {
+                                for (const format of encoding.formats) {
+                                    if (format.tags.every((tag) => tags.has(tag))) {
+                                        throw new ModelError("Invalid file content. File contains " + format.name + ".", true);
+                                    }
+                                }
                                 const entries = [];
                                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                                throw new ModelError("Unsupported " + format.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                                throw new ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
                             }
                         }
                         const buffer = context.buffer;
@@ -1526,16 +1551,9 @@ view.ModelFactoryService = class {
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
-            { name: 'Vulkan SwiftShader ICD manifest', value: /^{\s*"file_format_version":\s*"1.0.0"\s*,\s*"ICD":/ },
-            { name: 'StringIntLabelMapProto data', value: /^(#.*\n)*item\s*{\r?\n\s*id:/ },
-            { name: 'StringIntLabelMapProto data', value: /^(#.*\n)*item\s*{\r?\n\s*name:/ },
-            { name: 'ImageNet LabelMap data', value: /^(#.*\n)*entry\s*{\r?\n\s*target_class/ },
             { name: 'Python source code', value: /^\s*import sys, types, os;/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
-            { name: 'Darkflow metadata', value: /^{"net":\s*{"type":/ },
-            { name: 'keras-yolo2 configuation', value: /^{\s*"model"\s*:\s*{\s*"architecture"/ },
-            { name: 'Triton Inference Server configuration', value: /^[\s\S]*name:\s*[\s\S]*platform:\s*[\s\S]*input\s*\[[\s\S]*\][\s\S]*output\s*\[[\s\S]*\]/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
         ];
         /* eslint-enable no-control-regex */

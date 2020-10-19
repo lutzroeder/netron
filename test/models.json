@@ -1,5 +1,67 @@
 [
   {
+    "type":   "any",
+    "target": "config.json",
+    "source": "https://github.com/lutzroeder/netron/files/5398758/config.json.zip[config.json]",
+    "error":  "Invalid file content. File contains keras-yolo2 configuation.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "config.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/5398767/config.pbtxt.zip[config.pbtxt]",
+    "error":  "Invalid file content. File contains Triton Inference Server configuration.",
+    "link":   "https://github.com/NVIDIA/triton-inference-server"
+  },
+  {
+    "type":   "any",
+    "target": "imagenet_2012_challenge_label_map_proto.pbtxt",
+    "source": "https://raw.githubusercontent.com/dmlc/web-data/master/tensorflow/models/InceptionV1/imagenet_2012_challenge_label_map_proto.pbtxt",
+    "error":  "Invalid file content. File contains ImageNet LabelMap data."
+  },
+  {
+    "type":   "any",
+    "target": "labelmap.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/5398649/labelmap.zip[labelmap.pbtxt]",
+    "error":  "Invalid file content. File contains StringIntLabelMapProto data.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "invalid_git_lfs.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/4432767/invalid_git_lfs.mlmodel.zip[invalid_git_lfs.mlmodel]",
+    "error":  "Invalid file content. File contains Git LFS header.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "invalid_html.mlmodel.zip",
+    "source": "https://github.com/lutzroeder/netron/files/4432768/invalid_html.mlmodel.zip",
+    "error":  "Invalid file content. File contains HTML markup.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "invalid_html.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/4432789/invalid_html.tflite.zip[invalid_html.tflite]",
+    "error":  "Invalid file content. File contains HTML markup.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "vk_swiftshader_icd.json",
+    "source": "https://github.com/lutzroeder/netron/files/5398770/vk_swiftshader_icd.json.zip[vk_swiftshader_icd.json]",
+    "error":  "Invalid file content. File contains Vulkan SwiftShader ICD manifest.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
+    "target": "yolo-1c.meta",
+    "source": "https://github.com/lutzroeder/netron/files/5398632/yolo-1c.meta.zip[yolo-1c.meta]",
+    "error":  "Invalid file content. File contains Darkflow metadata.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
     "type":   "armnn",
     "target": "simple_network.armnn",
     "source": "https://github.com/lutzroeder/netron/files/4951689/simple_network.zip[simple_network.armnn]",
@@ -938,13 +1000,6 @@
   },
   {
     "type":   "cntk",
-    "target": "mobilenetv2-1.0.dnn",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model",
-    "error":  "Unsupported file content (504b030414000000000092a2c64c1c0a) for extension '.dnn' in 'mobilenetv2-1.0.dnn'.",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "cntk",
     "target": "ResNet18_ImageNet_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet18_ImageNet_CNTK.model",
     "format": "CNTK v2",
@@ -1336,20 +1391,6 @@
     "type":   "coreml",
     "target": "Inceptionv3.mlmodel",
     "source": "https://docs-assets.developer.apple.com/coreml/models/Inceptionv3.mlmodel"
-  },
-  {
-    "type":   "coreml",
-    "target": "invalid_git_lfs.mlmodel",
-    "source": "https://github.com/lutzroeder/netron/files/4432767/invalid_git_lfs.mlmodel.zip[invalid_git_lfs.mlmodel]",
-    "error":  "Invalid file content. File contains Git LFS header.",
-    "link":   "https://github.com/lutzroeder/netron/issues/458"
-  },
-  {
-    "type":   "coreml",
-    "target": "invalid_html.mlmodel.zip",
-    "source": "https://github.com/lutzroeder/netron/files/4432768/invalid_html.mlmodel.zip",
-    "error":  "Invalid file content. File contains HTML markup.",
-    "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":   "coreml",
@@ -2626,26 +2667,6 @@
     "target": "resnet50_ssd_model.model",
     "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model",
     "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "mobilenetv2-1.0.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-mobilenet/mobilenetv2-1.0.model",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet101v2.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet101v2.model",
-    "format": "MXNet Model Server v0.2", "runtime": "MXNet v1.2.0",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "resnet18v2.model",
-    "source": "https://s3.amazonaws.com/mxnet-model-server/onnx-resnetv2/resnet18v2.model",
-    "format": "MXNet Model Server v0.2", "runtime": "MXNet v1.2.0",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -4785,13 +4806,6 @@
   },
   {
     "type":   "tf",
-    "target": "config.pbtxt",
-    "source": "https://raw.githubusercontent.com/NVIDIA/triton-inference-server/master/docs/examples/ensemble_model_repository/preprocess_resnet50_ensemble/config.pbtxt",
-    "error":  "Invalid file content. File contains Triton Inference Server configuration.",
-    "link":   "https://github.com/NVIDIA/triton-inference-server"
-  },
-  {
-    "type":   "tf",
     "target": "conv-layers.pb.zip",
     "source": "https://github.com/lutzroeder/netron/files/2592468/conv-layers.pb.zip",
     "format": "TensorFlow Graph",
@@ -4861,12 +4875,6 @@
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/cc/saved_model/testdata/half_plus_two_pbtxt/00000123/saved_model.pbtxt",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/tensorflow/tensorflow/tree/master/tensorflow/cc/saved_model/testdata"
-  },
-  {
-    "type":   "tf",
-    "target": "imagenet_2012_challenge_label_map_proto.pbtxt",
-    "source": "https://raw.githubusercontent.com/dmlc/web-data/master/tensorflow/models/InceptionV1/imagenet_2012_challenge_label_map_proto.pbtxt",
-    "error":  "Invalid file content. File contains ImageNet LabelMap data."
   },
   {
     "type":   "tf",
@@ -5317,13 +5325,6 @@
     "source": "http://download.tensorflow.org/models/inception_v4_299_quant_20181026.tgz[inception_v4_299_quant.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":   "tflite",
-    "target": "invalid_html.tflite",
-    "source": "https://github.com/lutzroeder/netron/files/4432789/invalid_html.tflite.zip[invalid_html.tflite]",
-    "error":  "Invalid file content. File contains HTML markup.",
-    "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":   "tflite",
