@@ -577,10 +577,14 @@ protobuf.TextReader = class {
                 break;
             }
             case '[': {
-                this.next();
-                while (!this.last()) {
+                const depth = this._arrayDepth;
+                this.first();
+                while (!this.last() || depth < this._arrayDepth) {
                     this.next();
-                    if (this._token === undefined) {
+                    if (this._token === '[') {
+                        this.first();
+                    }
+                    else if (this._token === undefined) {
                         this.handle(this._token);
                     }
                 }
