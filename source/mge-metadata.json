@@ -21,7 +21,6 @@
   {
     "name": "megengine.module.activation.ReLU",
     "schema": {
-      "attributes": [],
       "category": "Activation"
     }
   },
@@ -199,26 +198,6 @@
     }
   },
   {
-    "name": "megengine.module.external.CambriconSubgraph",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.external.ExternOprSubgraph",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.identity.Identity",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.init.calculate_correct_fan",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.init.calculate_fan_in_and_fan_out",
-    "schema": {}
-  },
-  {
     "name": "megengine.module.init.calculate_gain",
     "schema": {
       "attributes": [
@@ -260,12 +239,6 @@
     }
   },
   {
-    "name": "megengine.module.init.ones_",
-    "schema": {
-      "attributes": []
-    }
-  },
-  {
     "name": "megengine.module.init.uniform_",
     "schema": {
       "attributes": [
@@ -288,12 +261,6 @@
       "attributes": [
         { "name": "gain", "default": 1.0 }
       ]
-    }
-  },
-  {
-    "name": "megengine.module.init.zeros_",
-    "schema": {
-      "attributes": []
     }
   },
   {
@@ -334,17 +301,5 @@
       ],
       "category": "Pool"
     }
-  },
-  {
-    "name": "megengine.module.quant_dequant.DequantStub",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.quant_dequant.QuantStub",
-    "schema": {}
-  },
-  {
-    "name": "megengine.module.sequential.Sequential",
-    "schema": {}
   }
 ]

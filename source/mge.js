@@ -9,13 +9,8 @@ mge.ModelFactory = class {
 
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
-        if ([ 'mge' ].indexOf(extension) !== -1) {
-            const buffer = context.buffer;
-            if (buffer) {
-                if (buffer.length > 2 && buffer[0] === 0x80 && buffer[1] < 5) {
-                    return true;
-                }
-            }
+        if (extension === 'mge') {
+            return true;
         }
         return false;
     }
@@ -25,7 +20,7 @@ mge.ModelFactory = class {
             const identifier = context.identifier;
             return mge.Metadata.open(host).then((metadata) => {
                 try {
-                    const container = mge.Container.open(context, pickle, (error, fatal) => {
+                    const container = new mge.Container(context.buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
                         host.exception(new mge.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     }); 
@@ -100,15 +95,11 @@ mge.Graph = class {
     }
 
     _loadModule(metadata, parent, groups, inputs) {
-       
-        for (const module of Object.keys(parent)){
-            const descriptor = Object.getOwnPropertyDescriptor(parent, module);
-            if(descriptor.value.__module__===undefined){
+        for(const [key, value] of Object.entries(parent)){
+            if(value.__module__===undefined){
                 continue;
             }
-            const key = module;
-            const value = descriptor.value;
-            if (module && value) {
+            if (key && value) {
                 const type = value.__module__ + '.' + value.__name__;
                 switch (type) {
                     case 'megengine.module.sequential.Sequential': 
@@ -151,15 +142,11 @@ mge.Graph = class {
         ];
 
         const attributes = [];
-        for (const name of Object.keys(obj)){
-            if(name.startsWith('_')){
+        for (const [key, value] of Object.entries(obj)){           
+            if(key.startsWith('_')){
                 continue;
             }
-            const descriptor = Object.getOwnPropertyDescriptor(obj, name);
-            if(descriptor.value && descriptor.value.dtype){
-                const parameter =descriptor;
-                const key_ = name;
-                const value_ = parameter.value;
+            if(value && value.dtype){
                 let visible = true;
                 let inputName = '';
                 if (inputSchema.length > 0) {
@@ -167,16 +154,16 @@ mge.Graph = class {
                     inputName = input.name;
                     visible = input.visible === false ? false : true;
                 }
-                if (parameter && value_) {
+                if (value) {
                     let initializer = null;
-                    if (value_) {
-                        initializer = new mge.Tensor('', value_.data, this._littleEndian);
+                    if (value) {
+                        initializer = new mge.Tensor('', value.data, this._littleEndian);
                     }
-                    inputs.push(new mge.Parameter(inputName || key_, visible, [ new mge.Argument('', null, initializer) ]));
+                    inputs.push(new mge.Parameter(inputName || key, visible, [ new mge.Argument('', null, initializer) ]));
                  }
              } 
              else{
-                attributes.push({ name: name, value: obj});   
+                attributes.push({ name: key, value: obj});   
              }
         }         
 
@@ -338,8 +325,7 @@ mge.Attribute = class {
 
     constructor(schema, name, value) {
         this._name = name;
-        const descriptor = Object.getOwnPropertyDescriptor(value, name);
-        this._value = descriptor.value;
+        this._value = Object.getOwnPropertyDescriptor(value, name).value;
         
         if(this._name === 'training'){
             this._visible = false;
@@ -768,28 +754,6 @@ mge.Execution = class {
                 return array;
             };
         });
-        this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
-            if (encoding === 'latin-1') {
-                const array = new Uint8Array(source.length);
-                for (let i = 0; i < source.length; i++) {
-                    array[i] = source.charCodeAt(i);
-                }
-                return array;
-            }
-            throw new mge.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
-        });
-        this._registerFunction('__builtin__.getattr', function(obj, name, defaultValue) {
-            if (Object.prototype.hasOwnProperty.call(obj, name)) {
-                return obj[name];
-            }
-            return defaultValue;
-        });
-        this._registerFunction('__builtin__.set', function(iterable) {
-            return iterable ? iterable : [];
-        });
-        this._registerFunction('__builtin__.slice', function(start, stop , step) {
-            return [ start, stop, step ];
-        });
         this._registerFunction('collections.Counter', function(/* iterable */) {
             return {};
         });
@@ -805,7 +769,7 @@ mge.Execution = class {
             }
             return obj;
         });
-        this._registerFunction('numpy.core.multiarray.scalar', function(dtype, rawData) {
+       this._registerFunction('numpy.core.multiarray.scalar', function(dtype, rawData) {
             let data = rawData;
             if (rawData.constructor !== Uint8Array) {
                 data = new Uint8Array(rawData.length);
@@ -831,80 +795,7 @@ mge.Execution = class {
                     return new long.Long(dataView.getInt32(0, true), dataView.getInt32(4, true), false);
             }
             throw new mge.Error("Unknown scalar type '" + dtype.name + "'.");
-        });
-        this._registerFunction('_codecs.encode', function(obj /*, econding */) {
-            return obj;
-        });
-        this._registerFunction('collections.defaultdict', function(/* default_factory */) {
-            return {};
-        });
-        this._registerFunction('annotate', function(type, value) {
-            return value;
-        });
-        this._registerFunction('int', function(/* tensor */) {
-            return NaN; // TODO
-        });
-        this._registerFunction('float', function(/* tensor */) {
-            return NaN; // TODO
-        });
-        this._registerFunction('getattr', function(obj, name, defaultValue) {
-            if (Object.prototype.hasOwnProperty.call(obj, name)) {
-                return obj[name];
-            }
-            return defaultValue;
-        });
-        this._registerFunction('unchecked_cast', function(type, value) {
-            return value;
-        });
-        this._registerFunction('ops.prim.data', function(tensor) {
-            return tensor;
-        });
-        this._registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
-            return value;
-        });
-        this._registerFunction('ops.prim.NumToTensor', function(value) {
-            return { __module__: 'mge', __name__: 'Tensor', value: value }; // TODO
-        });
-        this._registerFunction('ops.prim.min', function(value) {
-            return Math.min.apply(null, value);
-        });
-        this._registerFunction('ops.prim.shape', function(value) {
-            return value.size;
-        });
-        this._registerFunction('ops.quantized.conv_prepack', function(/* weight, bias, stride, padding, dilation, groups */) {
-            return { __module__: 'mge', __name__: 'Tensor', __origin__: 'ops.quantized.conv_prepack' }; // TODO
-        });
-        this._registerFunction('ops.quantized.conv2d_prepack', function(/* weight, bias, stride, padding, dilation, groups */) {
-            return { __module__: 'mge', __name__: 'Tensor', __origin__: 'ops.quantized.conv2d_prepack' }; // TODO
-        });
-        this._registerFunction('ops.quantized.linear_prepack', function(/* weight, bias */) {
-            return { __module__: 'mge', __name__: 'Tensor', __origin__: 'ops.quantized.linear_prepack' }; // TODO
-        });
-
-        this._registerFunction('ops.prim.RaiseException', function(message) {
-            throw new mge.Error(message);
-        });
-        this._registerFunction('range', function(start, stop, step) {
-            if (start !== undefined && Number.isInteger(start) && stop === undefined && step === undefined) {
-                return Array(start).keys();
-            }
-            throw new mge.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });        
-        this._registerFunction('uninitialized', function(type) {
-            if (type && type.__module__ === 'typing' && type.__name__ === 'Tuple') {
-                return [];
-            }
-            if (type && type.__module__ === 'typing' && type.__name__ === 'List') {
-                return [];
-            }
-            if (type && type.__module__ === 'typing' && type.__name__ === 'Dict') {
-                return {};
-            }
-            if (type && type.__module__ === 'mge' && type.__name__ === 'Tensor') {
-                return { __module__: type.__module__, __name__: type.__name__ };
-            }
-            throw new mge.Error("Unsupported uninitialized argument '" + JSON.stringify(type) + "'.");
-        });
     }
 
     get context() {
@@ -1403,17 +1294,6 @@ mge.Execution.Context = class {
 
 mge.Container = class {
 
-    static open(context, pickle, exception) {
-        const buffer = context.buffer;
-        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && buffer[1] < 0x10 ) {
-            return new mge.Container.Pickle(buffer, pickle, exception);
-        }
-        return null;
-    }
-};
-
-mge.Container.Pickle = class {
-
     constructor(buffer, pickle, exception) {
         this._buffer = buffer;
         this._pickle = pickle;
@@ -1421,7 +1301,7 @@ mge.Container.Pickle = class {
     }
 
     get format() {
-        return 'mge v';
+        return 'mge v1.0rc';
     }
 
     get data() {
@@ -1448,43 +1328,8 @@ mge.Container.Pickle = class {
 
         const module_source_map = new Map();
         const deserialized_objects = new Map();
-        const persistent_load = (saved_id) => {
-            const typename = saved_id.shift();
-            const data = saved_id;
-            switch (typename) {
-                case 'module': {
-                    const module = data[0];
-                    const source = data[2];
-                    module_source_map.set(module, source);
-                    return data[0];
-                }
-                case 'storage': {
-                    const data_type = data.shift();
-                    const root_key = data.shift();
-                    data.shift(); // location
-                    const size = data.shift();
-                    const view_metadata = data.shift();
-                    if (!deserialized_objects.has(root_key)) {
-                        const storage = execution.invoke(data_type, [ size ]);
-                        deserialized_objects.set(root_key, storage);
-                    }
-                    if (view_metadata) {
-                        const view_key = view_metadata.shift();
-                        view_metadata.shift(); // view_offset
-                        view_metadata.shift(); // view_size
-                        if (!deserialized_objects.has(view_key)) {
-                            const view = null; // storage.slice(view_offset, view_offset + view_size);
-                            deserialized_objects.set(view_key, view);
-                        }
-                        return deserialized_objects.get(view_key);
-                    }
-                    return deserialized_objects.get(root_key);
-                }
-            }
-            throw new mge.Error("Unknown persistent load type '" + typename + "'.");
-        };
-
-        const data = unpickler.load((name, args) => execution.invoke(name, args), persistent_load);
+        
+        const data = unpickler.load((name, args) => execution.invoke(name, args), null);
         if (!data) {
             throw new mge.Error('File format is not mge.');
         }
