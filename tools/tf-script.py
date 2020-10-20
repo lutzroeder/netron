@@ -32,6 +32,7 @@ def metadata():
         'LSTMBlockCell': 'Layer',
         'MaxPool': 'Pool',
         'MaxPoolV2': 'Pool',
+        'MaxPoolWithArgmax': 'Pool',
         'Pad': 'Tensor',
         'Relu': 'Activation',
         'Relu6': 'Activation',

@@ -12118,7 +12118,7 @@
           "type": "boolean"
         }
       ],
-      "description": "Detects whether an image is a BMP, GIF, JPEG, or PNG, and performs the\nappropriate operation to convert the input bytes string into a Tensor of type\ndtype.\n\n*NOTE*: decode_gif returns a 4-D array [num_frames, height, width, 3], as\nopposed to decode_bmp, decode_jpeg and decode_png, which return 3-D arrays\n[height, width, num_channels]. Make sure to take this into account when\nconstructing your graph if you are intermixing GIF files with BMP, JPEG, and/or\nPNG files. Alternately, set the expand_animations argument of this function to\nFalse, in which case the op will return 3-dimensional tensors and will truncate\nanimated GIF files to the first frame.",
+      "description": "Detects whether an image is a BMP, GIF, JPEG, or PNG, and performs the\nappropriate operation to convert the input bytes string into a Tensor of type\ndtype.\n\n*NOTE*: decode_gif returns a 4-D array [num_frames, height, width, 3], as\nopposed to decode_bmp, decode_jpeg and decode_png, which return 3-D arrays\n[height, width, num_channels]. Make sure to take this into account when\nconstructing your graph if you are intermixing GIF files with BMP, JPEG, and/or\nPNG files. Alternately, set the expand_animations argument of this function to\nFalse, in which case the op will return 3-dimensional tensors and will truncate\nanimated GIF files to the first frame.\n\n*NOTE*: If the first frame of an animated GIF does not occupy the entire\ncanvas (maximum frame width x maximum frame height), then it fills the\nunoccupied areas (in the first frame) with zeros (black). For frames after the\nfirst frame that does not occupy the entire canvas, it uses the previous\nframe to fill the unoccupied areas.",
       "inputs": [
         {
           "description": "0-D. The encoded image bytes.",
@@ -26726,6 +26726,7 @@
           "type": "type"
         }
       ],
+      "category": "Pool",
       "description": "The indices in `argmax` are flattened, so that a maximum value at position\n`[b, y, x, c]` becomes flattened index:\n`(y * width + x) * channels + c` if `include_batch_in_index` is False;\n`((b * height + y) * width + x) * channels + c` if `include_batch_in_index` is True.\n\nThe indices returned are always in `[0, height) x [0, width)` before flattening,\neven if padding is involved and the mathematically correct answer is outside\n(either negative or too large).  This is a bug, but fixing it is difficult to do\nin a safe backwards compatible way, especially due to flattening.",
       "inputs": [
         {
