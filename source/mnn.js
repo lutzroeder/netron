@@ -152,9 +152,10 @@ mnn.Node = class {
         }
         this._outputs.push(new mnn.Parameter('output', true, outputs));
 
+        const ignoreAttributes = new Set();
         const parameter = op.main;
         if (parameter) {
-            const ignoreAttributes = new Set();
+            const parameters = [ parameter ];
             if (parameter instanceof mnn.schema.Blob) {
                 const type = new mnn.TensorType(parameter.dataType, new mnn.TensorShape(parameter.dims));
                 let data = null;
@@ -163,6 +164,7 @@ mnn.Node = class {
                     case 'int8': data = parameter.int8s; break;
                     case 'int32': data = parameter.int32s; break;
                     case 'int64': data = parameter.int64s; break;
+                    case 'float16': data = parameter.uint8s; break;
                     case 'float32': data = parameter.float32s; break;
                     default:
                         throw new mnn.Error("Unknown blob data type '" + JSON.stringify(type.dataType) + "'.");
@@ -170,6 +172,7 @@ mnn.Node = class {
                 this._inputs.push(new mnn.Parameter('value', true, [
                     new mnn.Argument('', null, new mnn.Tensor('Blob', type, data))
                 ]));
+                parameters.splice(0, parameters.length);
             }
             else if (parameter instanceof mnn.schema.Convolution2D) {
                 const common = parameter.common;
@@ -181,6 +184,8 @@ mnn.Node = class {
                 this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ outputCount ], parameter.bias);
                 ignoreAttributes.add('weight');
                 ignoreAttributes.add('bias');
+                ignoreAttributes.add('quanParameter');
+                ignoreAttributes.add('symmetricQuan');
             }
             else if (parameter instanceof mnn.schema.InnerProduct) {
                 const outputCount = parameter.outputCount;
@@ -189,6 +194,7 @@ mnn.Node = class {
                 this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'bias', [ outputCount ], parameter.bias);
                 ignoreAttributes.add('weight');
                 ignoreAttributes.add('bias');
+                ignoreAttributes.add('quanParameter');
             }
             else if (parameter instanceof mnn.schema.Scale) {
                 const scaleDataCount = parameter.channels;
@@ -216,8 +222,22 @@ mnn.Node = class {
                 this._buildTensor(mnn.schema.DataType.DT_FLOAT, 'scale', [ parameter.scale.length ], parameter.scale);
                 ignoreAttributes.add('scale');
             }
-            if (ignoreAttributes.size > 0) {
-                this._buildAttributes(metadata, parameter, ignoreAttributes, this._attributes);
+            while (parameters.length > 0) {
+                const parameter = parameters.shift();
+                for (const key of Object.keys(parameter)) {
+                    if (ignoreAttributes && ignoreAttributes.has(key)) {
+                        continue;
+                    }
+                    if (Object.prototype.hasOwnProperty.call(parameter, key)) {
+                        const value = parameter[key];
+                        if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
+                            parameters.push(value);
+                            continue;
+                        }
+                        const schema = metadata.attribute(this.type, key);
+                        this._attributes.push(new mnn.Attribute(schema, key, value));
+                    }
+                }
             }
         }
     }
@@ -226,25 +246,6 @@ mnn.Node = class {
         this._inputs.push(new mnn.Parameter(name, true, [
             new mnn.Argument('', null, new mnn.Tensor('Weight', new mnn.TensorType(dataType, new mnn.TensorShape(dimensions)), value))
         ]));
-    }
-
-    _buildAttributes(metadata, parameter, ignoreAttributes, attributes) {
-        if (parameter) {
-            for (const key of Object.keys(parameter)) {
-                if (ignoreAttributes && ignoreAttributes.has(key)) {
-                    continue;
-                }
-                const value = parameter[key];
-                if (Object.keys(mnn.schema).find((key) => mnn.schema[key].prototype && value instanceof mnn.schema[key])) {
-                    this._buildAttributes(metadata, value, null, attributes);
-                    continue;
-                }
-                if (value) {
-                    const schema = metadata.attribute(this.type, key);
-                    attributes.push(new mnn.Attribute(schema, key, value));
-                }
-            }
-        }
     }
 
     get type() {
@@ -294,9 +295,13 @@ mnn.Attribute = class {
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
-                const type = mnn.schema[this._type + 'Name'];
-                if (type) {
-                    this._value = type[this._value];
+                switch (this._type) {
+                    case 'DataType':
+                        this._value = mnn.Utility.dataType(this._value);
+                        break;
+                    default:
+                        this._value = mnn.Utility.enum(this._type, this._value);
+                        break;
                 }
             }
         }
@@ -414,7 +419,14 @@ mnn.Tensor = class {
         context.count = 0;
         context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
-        context.data = this._data;
+        switch (context.dataType) {
+            case 'float16':
+                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            default:
+                context.data = this._data;
+                break;
+        }
         return context;
     }
 
@@ -431,8 +443,16 @@ mnn.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                results.push(context.data[context.index]);
-                context.index++;
+                switch (context.dataType) {
+                    case 'float16':
+                        results.push(context.view.getFloat16(context.index, true));
+                        context.index += 2;
+                        break;
+                    default:
+                        results.push(context.data[context.index]);
+                        context.index++;
+                        break;
+                }
                 context.count++;
             }
         }
@@ -455,32 +475,7 @@ mnn.Tensor = class {
 mnn.TensorType = class {
 
     constructor(dataType, shape) {
-
-        switch (dataType) {
-            case mnn.schema.DataType.DT_INVALID: this._dataType = '?'; break;
-            case mnn.schema.DataType.DT_FLOAT: this._dataType = 'float32'; break;
-            case mnn.schema.DataType.DT_DOUBLE: this._dataType = 'float64'; break;
-            case mnn.schema.DataType.DT_INT32: this._dataType = 'int32'; break;
-            case mnn.schema.DataType.DT_UINT8: this._dataType = 'uint8'; break;
-            case mnn.schema.DataType.DT_INT16: this._dataType = 'int16'; break;
-            case mnn.schema.DataType.DT_INT8: this._dataType = 'int8'; break;
-            case mnn.schema.DataType.DT_STRING: this._dataType = 'string'; break;
-            case mnn.schema.DataType.DT_COMPLEX64: this._dataType = 'complex64'; break;
-            case mnn.schema.DataType.DT_INT64: this._dataType = 'int64'; break;
-            case mnn.schema.DataType.DT_BOOL: this._dataType = 'boolean'; break;
-            case mnn.schema.DataType.DT_QINT8: this._dataType = 'qint8'; break;
-            case mnn.schema.DataType.DT_QUINT8: this._dataType = 'quint8'; break;
-            case mnn.schema.DataType.DT_QINT32: this._dataType = 'qint32'; break;
-            case mnn.schema.DataType.DT_BFLOAT16: this._dataType = 'bfloat16'; break;
-            case mnn.schema.DataType.DT_QINT16: this._dataType = 'qint16'; break;
-            case mnn.schema.DataType.DT_QUINT16: this._dataType = 'quint16'; break;
-            case mnn.schema.DataType.DT_UINT16: this._dataType = 'uint16'; break;
-            case mnn.schema.DataType.DT_COMPLEX128: this._dataType = 'complex128'; break;
-            case mnn.schema.DataType.DT_HALF: this._dataType = 'float16'; break;
-            case mnn.schema.DataType.DT_RESOURCE: this._dataType = 'resource'; break;
-            case mnn.schema.DataType.DT_VARIANT: this._dataType = 'variant'; break;
-            default: throw new mnn.Error("Unknown data type '" + JSON.stringify(dataType) + "'.");
-        }
+        this._dataType = mnn.Utility.dataType(dataType);
         this._shape = shape;
     }
 
@@ -572,6 +567,34 @@ mnn.Metadata = class {
 };
 
 mnn.Utility = class {
+
+    static dataType(type) {
+        switch (type) {
+            case mnn.schema.DataType.DT_INVALID: return '?';
+            case mnn.schema.DataType.DT_FLOAT: return 'float32';
+            case mnn.schema.DataType.DT_DOUBLE: return 'float64';
+            case mnn.schema.DataType.DT_INT32: return 'int32';
+            case mnn.schema.DataType.DT_UINT8: return 'uint8';
+            case mnn.schema.DataType.DT_INT16: return 'int16';
+            case mnn.schema.DataType.DT_INT8: return 'int8';
+            case mnn.schema.DataType.DT_STRING: return 'string';
+            case mnn.schema.DataType.DT_COMPLEX64: return 'complex64';
+            case mnn.schema.DataType.DT_INT64: return 'int64';
+            case mnn.schema.DataType.DT_BOOL: return 'boolean';
+            case mnn.schema.DataType.DT_QINT8: return 'qint8';
+            case mnn.schema.DataType.DT_QUINT8: return 'quint8';
+            case mnn.schema.DataType.DT_QINT32: return 'qint32';
+            case mnn.schema.DataType.DT_BFLOAT16: return 'bfloat16';
+            case mnn.schema.DataType.DT_QINT16: return 'qint16';
+            case mnn.schema.DataType.DT_QUINT16: return 'quint16';
+            case mnn.schema.DataType.DT_UINT16: return 'uint16';
+            case mnn.schema.DataType.DT_COMPLEX128: return 'complex128';
+            case mnn.schema.DataType.DT_HALF: return 'float16';
+            case mnn.schema.DataType.DT_RESOURCE: return 'resource';
+            case mnn.schema.DataType.DT_VARIANT: return 'variant';
+        }
+        throw new mnn.Error("Unknown data type '" + JSON.stringify(type) + "'.");
+    }
 
     static enum(name, value) {
         const type = name && mnn.schema ? mnn.schema[name] : undefined;

@@ -2472,10 +2472,17 @@
   },
   {
     "type":   "mnn",
-    "target": "face_det.mnn",
-    "source": "https://raw.githubusercontent.com/xindongzhang/MNN-APPLICATIONS/master/applications/mssd/tflite/jni/face_det_quant.mnn",
+    "target": "Kmeans.mnn",
+    "source": "https://github.com/lutzroeder/netron/files/5405963/Kmeans.mnn.zip[Kmeans.mnn]",
     "format": "MNN v2",
-    "link":   "https://github.com/xindongzhang/MNN-APPLICATIONS"
+    "link":   "https://github.com/lutzroeder/netron/issues/341"
+  },
+  {
+    "type":   "mnn",
+    "target": "inception-v3.mnn",
+    "source": "https://raw.githubusercontent.com/alibaba/MNN/master/benchmark/models/inception-v3.mnn",
+    "format": "MNN v2",
+    "link":   "https://github.com/alibaba/MNN"
   },
   {
     "type":   "mnn",

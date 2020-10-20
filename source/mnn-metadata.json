@@ -53,6 +53,7 @@
     "schema": {
       "operator": 7,
       "attributes": [
+        { "name": "opType", "type": "BinaryOpOperation" },
         { "name": "T", "type": "DataType" }
       ]
     }
@@ -166,7 +167,11 @@
   {
     "name": "ELU",
     "schema": {
-      "operator": 23
+      "operator": 23,
+      "category": "Activation",
+      "attributes": [
+        { "name": "alpha", "type": "float32" }
+      ]
     }
   },
   {
@@ -273,7 +278,10 @@
   {
     "name": "MatMul",
     "schema": {
-      "operator": 39
+      "operator": 39,
+      "attributes": [
+        { "name": "T", "type": "DataType" }
+      ]
     }
   },
   {
@@ -503,7 +511,11 @@
     "name": "Reshape",
     "schema": {
       "operator": 73,
-      "category": "Shape"
+      "category": "Shape",
+      "attributes": [
+        { "name": "dims", "type": "int32[]" },
+        { "name": "dimType", "type": "MNN_DATA_FORMAT" }
+      ]
     }
   },
   {
@@ -748,7 +760,11 @@
   {
     "name": "ConvertTensor",
     "schema": {
-      "operator": 129
+      "operator": 129,
+      "attributes": [
+        { "name": "source", "type": "MNN_DATA_FORMAT" },
+        { "name": "dest", "type": "MNN_DATA_FORMAT" }
+      ]
     }
   },
   {
