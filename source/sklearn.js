@@ -34,7 +34,6 @@ sklearn.ModelFactory = class {
                 try {
                     container = new sklearn.Container(context.buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
-                        console.log(message);
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
                     if (!container.weights && !container.data) {
