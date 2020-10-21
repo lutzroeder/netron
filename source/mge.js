@@ -27,9 +27,8 @@ mge.ModelFactory = class {
                     return new mge.Model(metadata, container);
                 }
                 catch (error) {
-                    host.exception(error, false);
                     const message = error && error.message ? error.message : error.toString();
-                    throw new mge.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                        throw new mge.Error('File format is not MegEngine (' + message.replace(/\.$/, '') + ').');
                 }
             });
         });

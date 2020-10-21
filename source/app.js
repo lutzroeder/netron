@@ -133,7 +133,8 @@ class Application {
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg',
-                    'xml' ] }
+                    'xml',
+                    'mge' ] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
