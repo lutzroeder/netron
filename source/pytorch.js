@@ -984,16 +984,19 @@ pytorch.Execution = class {
         this._context.scope.builtins.method = { __module__: 'builtins', __name__: 'method', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.dict = { __module__: 'builtins', __name__: 'dict', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.list = { __module__: 'builtins', __name__: 'list', __class__: this._context.scope.builtins.type };
+        this._context.scope.builtins.bool = { __module__: 'builtins', __name__: 'bool', __class__: this._context.scope.builtins.type };
+        this._context.scope.builtins.int = { __module__: 'builtins', __name__: 'int', __class__: this._context.scope.builtins.type };
+        this._context.scope.builtins.float = { __module__: 'builtins', __name__: 'float', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.str = { __module__: 'builtins', __name__: 'str', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.tuple = { __module__: 'builtins', __name__: 'tuple', __class__: this._context.scope.builtins.type };
         this._context.scope.typing = { __name__: 'typing', __class__: this._context.scope.builtins.module };
         this._context.scope.typing._GenericAlias = { __module__: 'typing', __name__: '_GenericAlias', __class__: this._context.scope.builtins.type };
         this._context.scope.typing._SpecialForm = { __module__: 'typing', __name__: '_SpecialForm', __class__: this._context.scope.builtins.type };
         this._context.scope.typing._VariadicGenericAlias = { __module__: 'typing', __name__: '_VariadicGenericAlias', __class__: this._context.scope.builtins.type };
-        this._context.scope.typing.Dict = { __module__: 'typing', __name__: 'Dict', __class__: this._context.scope.typing._VariadicGenericAlias, __origin__: this._context.scope.builtins.dict };
-        this._context.scope.typing.List = { __module__: 'typing', __name__: 'List', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.list };
-        this._context.scope.typing.Optional = { __module__: 'typing', __class__: this._context.scope.typing._SpecialForm };
-        this._context.scope.typing.Tuple = { __module__: 'typing', __name__: 'Tuple', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.tuple };
+        this._context.scope.typing.Dict = { __module__: 'typing', _name: 'Dict', __class__: this._context.scope.typing._VariadicGenericAlias, __origin__: this._context.scope.builtins.dict };
+        this._context.scope.typing.List = { __module__: 'typing', _name: 'List', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.list };
+        this._context.scope.typing.Optional = { __module__: 'typing', _name: 'Optional', __class__: this._context.scope.typing._SpecialForm };
+        this._context.scope.typing.Tuple = { __module__: 'typing', _name: 'Tuple', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.tuple };
         this._context.scope.torch = { __name__: 'torch', __class__: this._context.scope.builtins.module };
         this._context.scope.torch.Tensor = { __module__: 'torch', __name__: 'Tensor', __class__: this._context.scope.builtins.type };
         this._registerConstructor('argparse.Namespace', function (args) {
@@ -1836,19 +1839,7 @@ pytorch.Execution = class {
         this._registerFunction('torch.warn', function() {
         });
         this._registerFunction('uninitialized', function(type) {
-            if (type && type.__module__ === 'typing' && type.__name__ === 'Tuple') {
-                return [];
-            }
-            if (type && type.__module__ === 'typing' && type.__name__ === 'List') {
-                return [];
-            }
-            if (type && type.__module__ === 'typing' && type.__name__ === 'Dict') {
-                return {};
-            }
-            if (type && type.__module__ === 'torch' && type.__name__ === 'Tensor') {
-                return { __module__: type.__module__, __name__: type.__name__ };
-            }
-            throw new pytorch.Error("Unsupported uninitialized argument '" + JSON.stringify(type) + "'.");
+            return undefined;
         });
     }
 
@@ -2068,6 +2059,13 @@ pytorch.Execution = class {
                         break;
                     }
                     throw new pytorch.Error("Unsupported 'for' statement.");
+                }
+                case 'while': {
+                    const condition = this.expression(statement.condition, context);
+                    if (condition) {
+                        throw new pytorch.Error("Unsupported 'while' statement.");
+                    }
+                    break;
                 }
                 case 'call': {
                     this.expression(statement, context);
