@@ -8,6 +8,7 @@ const http = require('http');
 const https = require('https');
 const process = require('process');
 const path = require('path');
+const querystring = require('querystring');
 
 host.ElectronHost = class {
 
@@ -42,8 +43,7 @@ host.ElectronHost = class {
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (electron.remote.app.isPackaged) {
-                    this._telemetry = require('universal-analytics')('UA-54146-13', this._getConfiguration('userId'));
-                    this._telemetry.set('anonymizeIp', 1);
+                    this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
                 }
                 resolve();
             };
@@ -285,13 +285,7 @@ host.ElectronHost = class {
                         description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
                     }
                 }
-
-                const params = {
-                    applicationName: this.type,
-                    applicationVersion: this.version,
-                    userAgentOverride: navigator.userAgent
-                };
-                this._telemetry.exception(description.join(' @ '), fatal, params, () => { });
+                this._telemetry.exception(description.join(' @ '), fatal);
             }
             catch (e) {
                 // continue regardless of error
@@ -302,10 +296,7 @@ host.ElectronHost = class {
     screen(name) {
         if (this._telemetry) {
             try {
-                const params = {
-                    userAgentOverride: navigator.userAgent
-                };
-                this._telemetry.screenview(name, this.type, this.version, null, null, params, () => { });
+                this._telemetry.screenview(name);
             }
             catch (e) {
                 // continue regardless of error
@@ -316,12 +307,7 @@ host.ElectronHost = class {
     event(category, action, label, value) {
         if (this._telemetry) {
             try {
-                const params = {
-                    applicationName: this.type,
-                    applicationVersion: this.version,
-                    userAgentOverride: navigator.userAgent
-                };
-                this._telemetry.event(category, action, label, value, params, () => { });
+                this._telemetry.event(category, action, label, value);
             }
             catch (e) {
                 // continue regardless of error
@@ -433,6 +419,67 @@ host.ElectronHost = class {
 
     _update(name, value) {
         electron.ipcRenderer.send('update', { name: name, value: value });
+    }
+};
+
+host.Telemetry = class {
+
+    constructor(trackingId, clientId, userAgent, applicationName, applicationVersion) {
+        this._params = {
+            aip: '1', // anonymizeIp
+            tid: trackingId,
+            cid: clientId,
+            ua: userAgent,
+            an: applicationName,
+            av: applicationVersion
+        };
+    }
+
+    screenview(screenName) {
+        const params = Object.assign({}, this._params);
+        params.cd = screenName;
+        this._send('screenview', params);
+    }
+
+    event(category, action, label, value) {
+        const params = Object.assign({}, this._params);
+        params.ec = category;
+        params.ea = action;
+        params.el = label;
+        params.ev = value;
+        this._send('event', params);
+    }
+
+    exception(description, fatal) {
+        const params = Object.assign({}, this._params);
+        params.exd = description;
+        if (fatal) {
+            params.exf = '1';
+        }
+        this._send('exception', params);
+    }
+
+    _send(type, params) {
+        params.t = type;
+        params.v = '1';
+        for (const param in params) {
+            if (params[param] === null || params[param] === undefined) {
+                delete params[param];
+            }
+        }
+        const body = querystring.stringify(params);
+        const options = {
+            method: 'POST',
+            host: 'www.google-analytics.com',
+            path: '/collect',
+            headers: { 'Content-Length': Buffer.byteLength(body) }
+        };
+        const request = https.request(options, () => {});
+        request.setTimeout(5000, () => {
+            request.abort();
+        });
+        request.write(body);
+        request.end();
     }
 };
 
