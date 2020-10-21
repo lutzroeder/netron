@@ -20,7 +20,7 @@ onnx.ModelFactory = class {
             if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
                 // TensorProto
-                if ((tags.get(1) === 0 || tags.get(1) === 2) && tags.get(2) === 0 && tags.get(9) === 2) {
+                if (tags.get(2) === 0 && tags.get(9) === 2) {
                     const schema = [[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return true;
