@@ -342,7 +342,8 @@ $root.tflite.BuiltinOperator = {
     DENSIFY: 124,
     SEGMENT_SUM: 125,
     BATCH_MATMUL: 126,
-    PLACEHOLDER_FOR_GREATER_OP_CODES: 127
+    PLACEHOLDER_FOR_GREATER_OP_CODES: 127,
+    CUMSUM: 128
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -450,6 +451,7 @@ $root.tflite.BuiltinOptions = class {
             case 99: return $root.tflite.DensifyOptions.decode(reader, position);
             case 100: return $root.tflite.SegmentSumOptions.decode(reader, position);
             case 101: return $root.tflite.BatchMatMulOptions.decode(reader, position);
+            case 102: return $root.tflite.CumsumOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -557,6 +559,7 @@ $root.tflite.BuiltinOptions = class {
             case 'DensifyOptions': return $root.tflite.DensifyOptions.decodeText(reader, json);
             case 'SegmentSumOptions': return $root.tflite.SegmentSumOptions.decodeText(reader, json);
             case 'BatchMatMulOptions': return $root.tflite.BatchMatMulOptions.decodeText(reader, json);
+            case 'CumsumOptions': return $root.tflite.CumsumOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2156,6 +2159,23 @@ $root.tflite.BatchMatMulOptions = class BatchMatMulOptions {
         const $ = new $root.tflite.BatchMatMulOptions();
         $.adj_x = reader.value(json.adj_x, false);
         $.adj_y = reader.value(json.adj_y, false);
+        return $;
+    }
+};
+
+$root.tflite.CumsumOptions = class CumsumOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.CumsumOptions();
+        $.exclusive = reader.bool_(position, 4, false);
+        $.reverse = reader.bool_(position, 6, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.CumsumOptions();
+        $.exclusive = reader.value(json.exclusive, false);
+        $.reverse = reader.value(json.reverse, false);
         return $;
     }
 };
