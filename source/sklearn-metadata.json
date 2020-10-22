@@ -841,13 +841,13 @@
         },
         {
           "default": null,
-          "description": "Upper bound on a uniform noise parameter to be added to the\n`y` values, to satisfy the model's assumption of\none-at-a-time computations. Might help with stability.\n",
+          "description": "Upper bound on a uniform noise parameter to be added to the\n`y` values, to satisfy the model's assumption of\none-at-a-time computations. Might help with stability.\n\n.. versionadded:: 0.23\n",
           "name": "jitter",
           "type": "float32"
         },
         {
           "default": null,
-          "description": "Determines random number generation for jittering. Pass an int\nfor reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`. Ignored if `jitter` is None.\n",
+          "description": "Determines random number generation for jittering. Pass an int\nfor reproducible output across multiple function calls.\nSee :term:`Glossary <random_state>`. Ignored if `jitter` is None.\n\n.. versionadded:: 0.23\n",
           "name": "random_state",
           "type": "int32"
         }
@@ -1530,7 +1530,7 @@
           "name": "categories"
         },
         {
-          "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto a neural network or an unregularized regression.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n",
+          "description": "Specifies a methodology to use to drop one of the categories per\nfeature. This is useful in situations where perfectly collinear\nfeatures cause problems, such as when feeding the resulting data\ninto a neural network or an unregularized regression.\n\nHowever, dropping one category breaks the symmetry of the original\nrepresentation and can therefore induce a bias in downstream models,\nfor instance for penalized linear classification or regression models.\n\n- None : retain all features (the default).\n- 'first' : drop the first category in each feature. If only one\ncategory is present, the feature will be dropped entirely.\n- 'if_binary' : drop the first category in each feature with two\ncategories. Features with 1 or more than 2 categories are\nleft intact.\n- array : ``drop[i]`` is the category in feature ``X[:, i]`` that\nshould be dropped.\n\n.. versionchanged:: 0.23\nAdded option 'if_binary'.\n",
           "name": "drop"
         },
         {
