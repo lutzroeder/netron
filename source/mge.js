@@ -139,7 +139,6 @@ mge.Graph = class {
                 return new mge.Argument(argument, null, null);
             }))
         ];
-
         const attributes = [];
         for (const [key, value] of Object.entries(obj)){           
             if(key.startsWith('_')){
@@ -153,24 +152,22 @@ mge.Graph = class {
                     inputName = input.name;
                     visible = input.visible === false ? false : true;
                 }
-                if (value) {
-                    let initializer = null;
-                    if (value) {
-                        initializer = new mge.Tensor('', value.data, this._littleEndian);
-                    }
+                if (value.data.data) {
+                    let initializer =  new mge.Tensor('', value.data, this._littleEndian); 
+                    inputs.push(new mge.Parameter(inputName || key, visible, [ new mge.Argument('', null, initializer) ]));
+                 }
+                 else if(value.data){
+                    let initializer =  new mge.Tensor('', value, this._littleEndian); 
                     inputs.push(new mge.Parameter(inputName || key, visible, [ new mge.Argument('', null, initializer) ]));
                  }
              } 
              else{
                 attributes.push({ name: key, value: obj});   
              }
-        }         
-
+        } 
         const group = groups.join('/');
         const name = group ? (group + '/' + key) : key;
-
         const outputs = [ new mge.Parameter('output', true, [ new mge.Argument(name, null, null) ]) ];
-
         const item = {
             name: name,
             type: type,

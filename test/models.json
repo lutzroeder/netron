@@ -3809,6 +3809,20 @@
     "link":   "https://github.com/lutzroeder/netron/issues/246"
   },
   {
+    "type":   "mge",
+    "target": "shufflenet_v2_x1_0.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5424141/shufflenet_v2_x1_0.zip",
+    "format": "MegEngine",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
+    "type":   "mge",
+    "target": "shufflenet_v2_x1_0_state_dict.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5424143/shufflenet_v2_x1_0_state_dict.zip",
+    "format": "MegEngine",
+    "link":   "https://github.com/lutzroeder/netron/issues/246"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pkl.pth.zip",
     "source": "https://github.com/lutzroeder/netron/files/5213453/alexnet.pkl.pth.zip",
