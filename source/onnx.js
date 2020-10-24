@@ -43,6 +43,9 @@ onnx.ModelFactory = class {
             if ([ 0x08, undefined, 0x12, undefined, 0x70, 0x79, 0x74, 0x6f, 0x72, 0x63, 0x68 ].every((v, i) => v === undefined || v === buffer[i])) { // pytorch
                 return true;
             }
+            if ([ 0x08, undefined, 0x12, undefined, 0x08, 0x73, 0x6B, 0x6C, 0x32, 0x6F, 0x6E, 0x6E, 0x78 ].every((v, i) => v === undefined || v === buffer[i])) { // skl2onnx
+                return true;
+            }
         }
         tags = context.tags('pbtxt');
         if (tags.has('ir_version')) {
