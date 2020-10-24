@@ -109,7 +109,7 @@
     "schema": {
       "category": "Tensor",
       "inputs": [
-        { "name": "input", "list": true }
+        { "name": "inputs", "list": true }
       ]
     }
   },
