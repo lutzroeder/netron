@@ -152,26 +152,29 @@ armnn.Node = class {
         this._outputs = [];
         this._inputs = [];
         this._attributes = [];
-
+        const schema = this._metadata.type(this._type);
+        const inputSchemas = (schema && schema.inputs) ? [...schema.inputs] : [ { name: 'input' } ];
+        const outputSchemas = (schema && schema.outputs) ? [...schema.outputs] : [ { name: 'output' } ];
         const base = armnn.Node.getBase(layer);
         if (base) {
             this._name = base.layerName;
-
-            for (let i = 0; i < base.inputSlots.length; i++) {
-                const connection = base.inputSlots[i].connection;
-                const sourceLayerIndex = connection.sourceLayerIndex;
-                const sourceOutputIndex = connection.outputSlotIndex;
-                const argument = args[sourceLayerIndex.toString() + ':' + sourceOutputIndex.toString()];
-                this._inputs.push(new armnn.Parameter('input', [ argument ]));
+            const inputSlots = [...base.inputSlots];
+            while (inputSlots.length > 0) {
+                const inputSchema = inputSchemas.length > 0 ? inputSchemas.shift() : { name: '?' };
+                const inputCount = inputSchema.list ? inputSlots.length : 1;
+                this._inputs.push(new armnn.Parameter(inputSchema.name, inputSlots.splice(0, inputCount).map((inputSlot) => {
+                    return args[inputSlot.connection.sourceLayerIndex.toString() + ':' + inputSlot.connection.outputSlotIndex.toString()];
+                })));
             }
-
-            for (let i = 0; i < base.outputSlots.length; i++) {
-                const argument = args[base.index.toString() + ':' + i.toString()];
-                this._outputs.push(new armnn.Parameter('output', [ argument ]));
+            const outputSlots = [...base.outputSlots];
+            while (outputSlots.length > 0) {
+                const outputSchema = outputSchemas.length > 0 ? outputSchemas.shift() : { name: '?' };
+                const outputCount = outputSchema.list ? outputSlots.length : 1;
+                this._outputs.push(new armnn.Parameter(outputSchema.name, outputSlots.splice(0, outputCount).map((outputSlot) => {
+                    return args[base.index + ':' + outputSlot.index];
+                })));
             }
         }
-
-        const schema = this._metadata.type(this._type);
         if (schema) {
             const _layer = armnn.Node.castLayer(layer);
 
@@ -290,14 +293,9 @@ armnn.Attribute = class {
 
     constructor(name, type, value) {
         this._name = name;
-        this._value = value;
+        this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
         this._visible = true;
-        switch (type) {
-            case 'int': this._type = 'int32'; break;
-            case 'uint': this._type = 'uint32'; break;
-            case 'float': this._type = 'float32'; break;
-            case 'string': this._type = 'string'; break;
-        }
+        this._type = type;
     }
 
     get name() {

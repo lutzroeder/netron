@@ -3,7 +3,7 @@
     "name": "InputLayer",
     "schema": {
       "bindings": [
-        { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+        { "name": "layerBindingId", "type": "int32", "src": "layerBindingId" }
       ]
     }
   },
@@ -12,7 +12,7 @@
     "schema": {
       "category": "Tensor",
       "bindings": [
-        { "name": "layerBindingId", "type": "int", "src": "layerBindingId" }
+        { "name": "layerBindingId", "type": "int32", "src": "layerBindingId" }
       ]
     }
   },
@@ -37,7 +37,7 @@
     "schema": {
       "category": "Shape",
       "attributes": [
-        { "name": "targetShape", "type": "string", "src": "targetShape" }
+        { "name": "targetShape", "type": "uint32[]", "src": "targetShape" }
       ]
     }
   },
@@ -46,7 +46,7 @@
     "schema": {
       "category": "Activation",
       "attributes": [
-        { "name": "beta", "type": "float", "src": "beta" }
+        { "name": "beta", "type": "float32", "src": "beta" }
       ]
     }
   },
@@ -55,7 +55,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
-        
+        { "name": "input" },
         { "name": "weight", "src": "weights" },
         { "name": "bias", "src": "biases" }
       ],
@@ -72,6 +72,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        { "name": "input" },
         { "name": "weight", "src": "weights" },
         { "name": "bias", "src": "biases" }
       ],
@@ -89,8 +90,8 @@
       "category": "Activation",
       "attributes": [
         { "name": "function", "type": "string", "src": "activationFunction", "src_type": "ActivationFunction" },
-        { "name": "a", "type": "float", "src": "a" },
-        { "name": "b", "type": "float", "src": "b" }
+        { "name": "a", "type": "float32", "src": "a" },
+        { "name": "b", "type": "float32", "src": "b" }
       ]
     }
   },
@@ -108,11 +109,12 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        { "name": "input" },
         { "name": "weights", "src": "weights" },
         { "name": "biases", "src": "biases" }
       ],
       "attributes": [
-        { "name": "transposeWeightsMatrix", "type": "bool", "src": "transposeWeightsMatrix" }
+        { "name": "transposeWeightsMatrix", "type": "boolean", "src": "transposeWeightsMatrix" }
       ]
     }
   },
@@ -178,10 +180,10 @@
       "attributes": [
         { "name": "normChannelType", "type": "string", "src": "normChannelType", "src_type": "NormalizationAlgorithmChannel" },
         { "name": "normMethodType", "type": "string", "src": "normMethodType", "src_type": "NormalizationAlgorithmMethod" },
-        { "name": "normSize", "type": "uint", "src": "normSize" },
-        { "name": "alpha", "type": "float", "src": "alpha" },
-        { "name": "beta", "type": "float", "src": "beta" },
-        { "name": "k", "type": "float", "src": "k" },
+        { "name": "normSize", "type": "uint32", "src": "normSize" },
+        { "name": "alpha", "type": "float32", "src": "alpha" },
+        { "name": "beta", "type": "float32", "src": "beta" },
+        { "name": "k", "type": "float32", "src": "k" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -191,8 +193,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "padList", "type": "uint", "src": "padList" },
-        { "name": "padValue", "type": "float", "src": "padValue" }
+        { "name": "padList", "type": "uint32", "src": "padList" },
+        { "name": "padValue", "type": "float32", "src": "padValue" }
       ]
     }
   },
@@ -213,13 +215,14 @@
     "schema": {
       "category": "Normalization",
       "inputs": [
+        { "name": "input" },
         { "name": "mean", "src": "mean" },
         { "name": "variance", "src": "variance" },
         { "name": "beta", "src": "beta" },
         { "name": "gamma", "src": "gamma" }
       ],
       "attributes": [
-        { "name": "eps", "type": "float", "src": "eps" },
+        { "name": "eps", "type": "float32", "src": "eps" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -237,8 +240,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "targetWidth", "type": "uint", "src": "targetWidth" },
-        { "name": "targetHeight", "type": "uint", "src": "targetHeight" },
+        { "name": "targetWidth", "type": "uint32", "src": "targetWidth" },
+        { "name": "targetHeight", "type": "uint32", "src": "targetHeight" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -253,14 +256,14 @@
     "schema": {
       "category": "Tensor",
       "attributes": [
-        { "name": "begin", "type": "int", "src": "begin" },
-        { "name": "end", "type": "int", "src": "end" },
-        { "name": "stride", "type": "int", "src": "stride" },
-        { "name": "beginMask", "type": "int", "src": "beginMask" },
-        { "name": "endMask", "type": "int", "src": "endMask" },
-        { "name": "shrinkAxisMask", "type": "int", "src": "shrinkAxisMask" },
-        { "name": "ellipsisMask", "type": "int", "src": "ellipsisMask" },
-        { "name": "newAxisMask", "type": "int", "src": "newAxisMask" },
+        { "name": "begin", "type": "int32", "src": "begin" },
+        { "name": "end", "type": "int32", "src": "end" },
+        { "name": "stride", "type": "int32", "src": "stride" },
+        { "name": "beginMask", "type": "int32", "src": "beginMask" },
+        { "name": "endMask", "type": "int32", "src": "endMask" },
+        { "name": "shrinkAxisMask", "type": "int32", "src": "shrinkAxisMask" },
+        { "name": "ellipsisMask", "type": "int32", "src": "ellipsisMask" },
+        { "name": "newAxisMask", "type": "int32", "src": "newAxisMask" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -275,8 +278,8 @@
     "name": "MeanLayer",
     "schema": {
       "attributes": [
-        { "name": "axis", "type": "uint", "src": "axis" },
-        { "name": "keepDims", "type": "bool", "src": "keepDims" }
+        { "name": "axis", "type": "uint32", "src": "axis" },
+        { "name": "keepDims", "type": "boolean", "src": "keepDims" }
       ]
     }
   },
@@ -291,7 +294,7 @@
     "schema": {
       "category": "Normalization",
       "attributes": [
-        { "name": "eps", "type": "float", "src": "eps" },
+        { "name": "eps", "type": "float32", "src": "eps" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -301,9 +304,9 @@
     "schema": {
       "category": "Tensor",
       "attributes": [
-        { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
-        { "name": "numViews", "type": "uint", "src": "numViewes" },
-        { "name": "numDimensions", "type": "uint", "src": "numDimensions" }
+        { "name": "concatAxis", "type": "uint32", "src": "concatAxis" },
+        { "name": "numViews", "type": "uint32", "src": "numViewes" },
+        { "name": "numDimensions", "type": "uint32", "src": "numDimensions" }
       ]
     }
   },
@@ -312,17 +315,17 @@
     "schema": {
       "category": "Custom",
       "attributes": [
-        { "name": "maxDetections", "type": "uint", "src": "maxDetections" },
-        { "name": "maxClassesPerDetection", "type": "uint", "src": "maxClassesPerDetection" },
-        { "name": "detectionsPerClass", "type": "uint", "src": "detectionsPerClass" },
-        { "name": "nmsScoreThreshold", "type": "float", "src": "nmsScoreThreshold" },
-        { "name": "numIouThreshold", "type": "float", "src": "nmsIouThreshold" },
-        { "name": "numClasses", "type": "uint", "src": "numClasses" },
-        { "name": "useRegularNms", "type": "bool", "src": "useRegularNms" },
-        { "name": "scaleX", "type": "float", "src": "scaleX" },
-        { "name": "scaleY", "type": "float", "src": "scaleY" },
-        { "name": "scaleW", "type": "float", "src": "scaleW" },
-        { "name": "scaleH", "type": "float", "src": "scaleH" }
+        { "name": "maxDetections", "type": "uint32", "src": "maxDetections" },
+        { "name": "maxClassesPerDetection", "type": "uint32", "src": "maxClassesPerDetection" },
+        { "name": "detectionsPerClass", "type": "uint32", "src": "detectionsPerClass" },
+        { "name": "nmsScoreThreshold", "type": "float32", "src": "nmsScoreThreshold" },
+        { "name": "numIouThreshold", "type": "float32", "src": "nmsIouThreshold" },
+        { "name": "numClasses", "type": "uint32", "src": "numClasses" },
+        { "name": "useRegularNms", "type": "boolean", "src": "useRegularNms" },
+        { "name": "scaleX", "type": "float32", "src": "scaleX" },
+        { "name": "scaleY", "type": "float32", "src": "scaleY" },
+        { "name": "scaleW", "type": "float32", "src": "scaleW" },
+        { "name": "scaleH", "type": "float32", "src": "scaleH" }
       ]
     }
   },
@@ -331,6 +334,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        { "name": "input" },
         { "name": "inputToForgetWeights1", "src": "inputToForgetWeights1" },
         { "name": "inputToCellWeights1", "src": "inputToCellWeights1" },
         { "name": "inputToOutputWeights1", "src": "inputToOutputWeights1" },
@@ -354,13 +358,13 @@
         { "name": "outputLayerNormWeights1", "src": "outputLayerNormWeights1" }
       ],
       "attributes": [
-        { "name": "activationFunc", "type": "uint", "src": "activationFunc" },
-        { "name": "clippingThresCell", "type": "float", "src": "clippingThresCell" },
-        { "name": "clippingThresProj", "type": "float", "src": "clippingThresProj" },
-        { "name": "cifgEnabled", "type": "bool", "src": "cifgEnabled" },
-        { "name": "peepholeEnabled", "type": "bool", "src": "peepholeEnabled" },
-        { "name": "projectionEnabled", "type": "bool", "src": "projectionEnabled" },
-        { "name": "layerNormEnabled", "type": "bool", "src": "layerNormEnabled" }
+        { "name": "activationFunc", "type": "uint32", "src": "activationFunc" },
+        { "name": "clippingThresCell", "type": "float32", "src": "clippingThresCell" },
+        { "name": "clippingThresProj", "type": "float32", "src": "clippingThresProj" },
+        { "name": "cifgEnabled", "type": "boolean", "src": "cifgEnabled" },
+        { "name": "peepholeEnabled", "type": "boolean", "src": "peepholeEnabled" },
+        { "name": "projectionEnabled", "type": "boolean", "src": "projectionEnabled" },
+        { "name": "layerNormEnabled", "type": "boolean", "src": "layerNormEnabled" }
       ]
     }
   },
@@ -387,9 +391,9 @@
     "schema": {
       "category": "Tensor",
       "attributes": [
-        { "name": "concatAxis", "type": "uint", "src": "concatAxis" },
-        { "name": "numViews", "type": "uint", "src": "numViewes" },
-        { "name": "numDimensions", "type": "uint", "src": "numDimensions" }
+        { "name": "concatAxis", "type": "uint32", "src": "concatAxis" },
+        { "name": "numViews", "type": "uint32", "src": "numViewes" },
+        { "name": "numDimensions", "type": "uint32", "src": "numDimensions" }
       ]
     }
   },
@@ -398,7 +402,7 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "blockSize", "type": "uint", "src": "blockSize" },
+        { "name": "blockSize", "type": "uint32", "src": "blockSize" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
     }
@@ -414,6 +418,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        { "name": "input" },
         { "name": "weight", "src": "weights" },
         { "name": "bias", "src": "biases" }
       ],
@@ -429,8 +434,8 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "targetWidth", "type": "uint", "src": "targetWidth" },
-        { "name": "targetHeight", "type": "uint", "src": "targetHeight" },
+        { "name": "targetWidth", "type": "uint32", "src": "targetWidth" },
+        { "name": "targetHeight", "type": "uint32", "src": "targetHeight" },
         { "name": "method", "type": "string", "src": "method", "src_type": "ResizeMethod" },
         { "name": "dataLayout", "type": "string", "src": "dataLayout", "src_type": "DataLayout" }
       ]
@@ -441,9 +446,9 @@
     "schema": {
       "category": "Layer",
       "attributes": [
-        { "name": "axis", "type": "uint", "src": "axis" },
-        { "name": "numInputs", "type": "uint", "src": "numInputs" },
-        { "name": "inputShape", "type": "uint", "src": "inputShape" }
+        { "name": "axis", "type": "uint32", "src": "axis" },
+        { "name": "numInputs", "type": "uint32", "src": "numInputs" },
+        { "name": "inputShape", "type": "uint32", "src": "inputShape" }
       ]
     }
   },
@@ -452,6 +457,7 @@
     "schema": {
       "category": "Layer",
       "inputs": [
+        { "name": "input" },
         { "name": "inputToInputWeights1", "src": "inputToInputWeights1" },
         { "name": "inputToForgetWeights1", "src": "inputToForgetWeights1" },
         { "name": "inputToCellWeights1", "src": "inputToCellWeights1" },
@@ -464,6 +470,30 @@
         { "name": "forgetGateBias1", "src": "forgetGateBias1" },
         { "name": "cellBias1", "src": "cellBias1" },
         { "name": "outputGateBias1", "src": "outputGateBias1" }
+      ]
+    }
+  },
+  {
+    "name": "AdditionLayer",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
+      ]
+    }
+  },
+  {
+    "name": "MultiplicationLayer",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "outputs": [
+        { "name": "C" }
       ]
     }
   }
