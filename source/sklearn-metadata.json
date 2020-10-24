@@ -1038,7 +1038,7 @@
         },
         {
           "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b\"",
-          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp select tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
+          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp select tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n\nIf there is a capturing group in token_pattern then the\ncaptured group content, not the entire match, becomes the token.\nAt most one capturing group is permitted.\n",
           "name": "token_pattern",
           "type": "string"
         },
@@ -1144,7 +1144,7 @@
         },
         {
           "default": "r\"(?u)\\\\b\\\\w\\\\w+\\\\b\"",
-          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp selects tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n",
+          "description": "Regular expression denoting what constitutes a \"token\", only used\nif ``analyzer == 'word'``. The default regexp selects tokens of 2\nor more alphanumeric characters (punctuation is completely ignored\nand always treated as a token separator).\n\nIf there is a capturing group in token_pattern then the\ncaptured group content, not the entire match, becomes the token.\nAt most one capturing group is permitted.\n",
           "name": "token_pattern",
           "type": "string"
         },
