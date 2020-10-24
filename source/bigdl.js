@@ -219,7 +219,7 @@ bigdl.Node = class {
                 this._inputs.push(new bigdl.Parameter(key, value.arrayValue.tensor.map((tensor) => new bigdl.Argument('', null, new bigdl.Tensor(tensor)))));
                 continue;
             }
-            this._attributes.push(new bigdl.Attribute(metadata.attribute(this._type, key), key, value));
+            this._attributes.push(new bigdl.Attribute(key, value));
         }
         const output = this._name || this._type + module.namePostfix;
         this._outputs.push(new bigdl.Parameter('output', [
@@ -258,7 +258,7 @@ bigdl.Node = class {
 
 bigdl.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(name, value) {
         this._name = name;
         switch (value.dataType) {
             case bigdl.proto.DataType.INT32: {
@@ -336,7 +336,7 @@ bigdl.Attribute = class {
     }
 
     get type() {
-        return '';
+        return this._type;
     }
 
     get name() {
@@ -454,21 +454,6 @@ bigdl.Metadata = class {
 
     type(name) {
         return this._map[name] || null;
-    }
-
-    attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
-                }
-            }
-            this._attributeCache[type] = map;
-        }
-        return map[name] || null;
     }
 };
 

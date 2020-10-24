@@ -106,5 +106,22 @@
     "schema": {
       "category": "Shape"
     }
+  },
+  {
+    "name": "View",
+    "schema": {
+    }
+  },
+  {
+    "name": "JoinTable",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "list": true }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
   }
 ]
