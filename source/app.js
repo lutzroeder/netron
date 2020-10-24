@@ -91,7 +91,7 @@ class Application {
     _ready() {
         this._configuration.load();
         if (!this._configuration.has('userId')) {
-            this._configuration.set('userId', require('uuid').v4());
+            this._configuration.set('userId', this._uuid());
         }
         if (this._openFileQueue) {
             const openFileQueue = this._openFileQueue;
@@ -111,6 +111,15 @@ class Application {
         this._views.on('active-view-updated', () => {
             this._updateMenu();
         });
+    }
+
+    _uuid() {
+        const buffer = new Uint8Array(16);
+        require("crypto").randomFillSync(buffer);
+        buffer[6] = buffer[6] & 0x0f | 0x40;
+        buffer[8] = buffer[8] & 0x3f | 0x80;
+        const text = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
+        return text.slice(0, 8) + '-' + text.slice(8, 12) + '-' + text.slice(12, 16) + '-' + text.slice(16, 20) + '-' + text.slice(20, 32);
     }
 
     _openFileDialog() {
