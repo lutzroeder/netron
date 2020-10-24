@@ -2702,6 +2702,17 @@
     }
   },
   {
+    "name": "torch.broadcast_tensors",
+    "schema": {
+       "inputs": [
+        { "name": "tensors", "type": "Tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor[]" }
+      ]
+    }
+  },
+  {
     "name": "torch.meshgrid",
     "schema": {
       "category": "Tensor",
