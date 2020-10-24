@@ -366,7 +366,7 @@ onnx.Graph = class {
                     if (schema && schema.inputs) {
                         for (const inputSchema of schema.inputs) {
                             if (inputIndex < node.input.length || inputSchema.option != 'optional') {
-                                const inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
+                                const inputCount = inputSchema.list ? (node.input.length - inputIndex) : 1;
                                 const inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
                                     return arg(id, null, null, initializers.get(id), imageFormat);
                                 });
@@ -389,7 +389,7 @@ onnx.Graph = class {
                     if (schema && schema.outputs) {
                         for (const outputSchema of schema.outputs) {
                             if (outputIndex < node.output.length || outputSchema.option != 'optional') {
-                                const outputCount = (outputSchema.option == 'variadic') ? (node.output.length - outputIndex) : 1;
+                                const outputCount = outputSchema.list ? (node.output.length - outputIndex) : 1;
                                 const outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
                                     return arg(id, null, null, null, imageFormat);
                                 });

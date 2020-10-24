@@ -293,8 +293,8 @@
         },
         {
           "description": "The current values of optimized tensors, followed by their respective gradients, followed by their respective accumulated squared gradients.For example, if two tensor \"X_1\" and \"X_2\" are optimized, The input list would be [\"X_1\", \"X_2\", gradient of \"X_1\", gradient of \"X_2\", accumulated squared gradient of \"X_1\", accumulated squared gradient of \"X_2\"].",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -306,8 +306,8 @@
       "outputs": [
         {
           "description": "Updated values of optimized tensors, followed by their updated values of accumulated squared gradients. For example, if two tensor \"X_1\" and \"X_2\" are optimized, the output list would be [new value of \"X_1,\" new value of \"X_2\" new accumulated squared gradient of \"X_1\", new accumulated squared gradient of \"X_2\"].",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -404,8 +404,8 @@
         },
         {
           "description": "The tensors to be optimized, followed by their respective gradients, followed by their respective accumulated gradients (aka momentum), followed by their respective accumulated squared gradients. For example, to optimize tensors \"X_1\" and \"X_2,\", the input list would be [\"X_1\", \"X_2\", gradient of \"X_1\", gradient of \"X_2\", accumulated gradient of \"X_1\", accumulated gradient of \"X_2\", accumulated squared gradient of \"X_1\", accumulated squared gradient of \"X_2\"].",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -417,8 +417,8 @@
       "outputs": [
         {
           "description": "New values of optimized tensors, followed by their respective new accumulated gradients, followed by their respective new accumulated squared gradients. For example, if two tensors \"X_1\" and \"X_2\" are optimized, the outputs list would be [new value of \"X_1\", new value of \"X_2\", new accumulated gradient of \"X_1\", new accumulated gradient of \"X_2\", new accumulated squared gradient of \"X_1\", new accumulated squared gradient of \"X_2\"].",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -4163,8 +4163,8 @@
       "inputs": [
         {
           "description": "List of tensors for concatenation",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -4218,8 +4218,8 @@
       "inputs": [
         {
           "description": "List of tensors for concatenation",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -4285,8 +4285,8 @@
       "inputs": [
         {
           "description": "List of tensors for concatenation",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -4352,8 +4352,8 @@
       "inputs": [
         {
           "description": "List of tensors for concatenation",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -7216,8 +7216,8 @@
       "inputs": [
         {
           "description": "Operands",
+          "list": true,
           "name": "Inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -8141,8 +8141,8 @@
       "inputs": [
         {
           "description": "An ordered collection of tensors, all with the same element type.",
+          "list": true,
           "name": "X",
-          "option": "variadic",
           "type": "T1"
         }
       ],
@@ -10695,8 +10695,8 @@
       "inputs": [
         {
           "description": "The values fed into graph identified by the attributes. The i-th input is the value of the i-th tensor specified in the concatenated list of the attribute \"xs\" and the attribute  \"zs\". For example, if xs=[\"A\", \"B\"] and zs=[\"C\"], the first input is used as the value of symbol \"A\" and the 3rd input is substituted for all the occurrences of \"C\".",
+          "list": true,
           "name": "Inputs",
-          "option": "variadic",
           "type": "T1"
         }
       ],
@@ -10708,8 +10708,8 @@
       "outputs": [
         {
           "description": "The gradient of the tensor specified by the attribute \"y\" with respect to each of tensors specified in the attribute \"xs\". The i-th output is the gradient of \"y\" with respect to the i-th tensor specified in the attribute \"xs\".",
+          "list": true,
           "name": "Outputs",
-          "option": "variadic",
           "type": "T2"
         }
       ],
@@ -11579,8 +11579,8 @@
       "outputs": [
         {
           "description": "Values that are live-out to the enclosing scope. The return values in the `then_branch` and `else_branch` must be of the same shape and same data type.",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -11662,8 +11662,8 @@
       "outputs": [
         {
           "description": "Values that are live-out to the enclosing scope. The return values in the `then_branch` and `else_branch` must be of the same data type. The `then_branch` and `else_branch` may produce tensors with the same element type and different shapes. If corresponding outputs from the then-branch and the else-branch have static shapes S1 and S2, then the shape of the corresponding output variable of the if-node (if present) must be compatible with both S1 and S2 as it represents the union of both possible shapes.For example, if in a model file, the the first output of `then_branch` is typed float tensor with shape [2] and the first output of `else_branch` is another float tensor with shape [3], If's first output should have (a) no shape set, or (b) a shape of rank 1 with neither `dim_value` nor `dim_param` set, or (c) a shape of rank 1 with a unique `dim_param`. In contrast, the first output cannot have the shape [2] since [2] and [3] are not compatible.",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -11745,8 +11745,8 @@
       "outputs": [
         {
           "description": "Values that are live-out to the enclosing scope. The return values in the `then_branch` and `else_branch` must be of the same data type. The `then_branch` and `else_branch` may produce tensors with the same element type and different shapes. If corresponding outputs from the then-branch and the else-branch have static shapes S1 and S2, then the shape of the corresponding output variable of the if-node (if present) must be compatible with both S1 and S2 as it represents the union of both possible shapes.For example, if in a model file, the the first output of `then_branch` is typed float tensor with shape [2] and the first output of `else_branch` is another float tensor with shape [3], If's first output should have (a) no shape set, or (b) a shape of rank 1 with neither `dim_value` nor `dim_param` set, or (c) a shape of rank 1 with a unique `dim_param`. In contrast, the first output cannot have the shape [2] since [2] and [3] are not compatible.",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -13830,8 +13830,8 @@
         },
         {
           "description": "The initial values of any loop-carried dependencies (values that change across loop iterations)",
+          "list": true,
           "name": "v_initial",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -13843,8 +13843,8 @@
       "outputs": [
         {
           "description": "Final N loop carried dependency values then K scan_outputs",
+          "list": true,
           "name": "v_final_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -13928,8 +13928,8 @@
         },
         {
           "description": "The initial values of any loop-carried dependencies (values that change across loop iterations)",
+          "list": true,
           "name": "v_initial",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -13941,8 +13941,8 @@
       "outputs": [
         {
           "description": "Final N loop carried dependency values then K scan_outputs",
+          "list": true,
           "name": "v_final_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -14026,8 +14026,8 @@
         },
         {
           "description": "The initial values of any loop-carried dependencies (values that change across loop iterations)",
+          "list": true,
           "name": "v_initial",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -14039,8 +14039,8 @@
       "outputs": [
         {
           "description": "Final N loop carried dependency values then K scan_outputs. Scan outputs must be Tensors.",
+          "list": true,
           "name": "v_final_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -14633,8 +14633,8 @@
       "inputs": [
         {
           "description": "List of tensors for Max.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -14683,8 +14683,8 @@
       "inputs": [
         {
           "description": "List of tensors for Max.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -14733,8 +14733,8 @@
       "inputs": [
         {
           "description": "List of tensors for max.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -14783,8 +14783,8 @@
       "inputs": [
         {
           "description": "List of tensors for max.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -14841,8 +14841,8 @@
       "inputs": [
         {
           "description": "List of tensors for max.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -15895,8 +15895,8 @@
       "inputs": [
         {
           "description": "List of tensors for Mean.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -15941,8 +15941,8 @@
       "inputs": [
         {
           "description": "List of tensors for Mean.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -15987,8 +15987,8 @@
       "inputs": [
         {
           "description": "List of tensors for mean.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16033,8 +16033,8 @@
       "inputs": [
         {
           "description": "List of tensors for mean.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16197,8 +16197,8 @@
       "inputs": [
         {
           "description": "List of tensors for Min",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16247,8 +16247,8 @@
       "inputs": [
         {
           "description": "List of tensors for Min",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16297,8 +16297,8 @@
       "inputs": [
         {
           "description": "List of tensors for min.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16347,8 +16347,8 @@
       "inputs": [
         {
           "description": "List of tensors for min.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16405,8 +16405,8 @@
       "inputs": [
         {
           "description": "List of tensors for min.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -16731,8 +16731,8 @@
         },
         {
           "description": "It sequentially contains the current values of optimized tensors, then their gradient tensors, and finally their momentum tensors. For example, if two tensors \"X_1\" and \"X_2\" are optimized, The expected input list would be [\"X_1\", \"X_2\", gradient of \"X_1\", gradient of \"X_2\", momentum of \"X_1\", momentum of \"X_2\"].",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -16744,8 +16744,8 @@
       "outputs": [
         {
           "description": "It sequentially contains the new values of optimized tensors and then the new values of their momentum tensors. For example, if two tensors \"X_1\" and \"X_2\" are optimized, the output list would be [new value of \"X_1,\" new value of \"X_2\" new momentum of \"X_1\", new momentum of \"X_2\"].",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T3"
         }
       ],
@@ -24227,8 +24227,8 @@
         },
         {
           "description": "Initial values of the loop's N state variables followed by M scan_inputs",
+          "list": true,
           "name": "initial_state_and_scan_inputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -24240,8 +24240,8 @@
       "outputs": [
         {
           "description": "Final values of the loop's N state variables followed by K scan_outputs",
+          "list": true,
           "name": "final_state_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -24336,8 +24336,8 @@
       "inputs": [
         {
           "description": "Initial values of the loop's N state variables followed by M scan_inputs",
+          "list": true,
           "name": "initial_state_and_scan_inputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -24349,8 +24349,8 @@
       "outputs": [
         {
           "description": "Final values of the loop's N state variables followed by K scan_outputs",
+          "list": true,
           "name": "final_state_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -24445,8 +24445,8 @@
       "inputs": [
         {
           "description": "Initial values of the loop's N state variables followed by M scan_inputs",
+          "list": true,
           "name": "initial_state_and_scan_inputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -24458,8 +24458,8 @@
       "outputs": [
         {
           "description": "Final values of the loop's N state variables followed by K scan_outputs",
+          "list": true,
           "name": "final_state_and_scan_outputs",
-          "option": "variadic",
           "type": "V"
         }
       ],
@@ -25212,8 +25212,8 @@
       "inputs": [
         {
           "description": "Tensors.",
+          "list": true,
           "name": "inputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -27541,8 +27541,8 @@
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
+          "list": true,
           "name": "outputs...",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -27614,8 +27614,8 @@
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -27699,8 +27699,8 @@
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -27785,8 +27785,8 @@
       "outputs": [
         {
           "description": "One or more outputs forming list of tensors after splitting",
+          "list": true,
           "name": "outputs",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -28629,8 +28629,8 @@
       "inputs": [
         {
           "description": "List of tensors for Sum.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -28675,8 +28675,8 @@
       "inputs": [
         {
           "description": "List of tensors for Sum.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -28721,8 +28721,8 @@
       "inputs": [
         {
           "description": "List of tensors for sum.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],
@@ -28767,8 +28767,8 @@
       "inputs": [
         {
           "description": "List of tensors for sum.",
+          "list": true,
           "name": "data_0",
-          "option": "variadic",
           "type": "T"
         }
       ],

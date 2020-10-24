@@ -157,7 +157,7 @@ def generate_json(schemas, json_file):
                 if input.option == OpSchema.FormalParameterOption.Optional:
                     json_input['option'] = 'optional'
                 elif input.option == OpSchema.FormalParameterOption.Variadic:
-                    json_input['option'] = 'variadic'
+                    json_input['list'] = True
                 json_schema['inputs'].append(json_input)
         json_schema['min_input'] = schema.min_input
         json_schema['max_input'] = schema.max_input
@@ -171,7 +171,7 @@ def generate_json(schemas, json_file):
                 if output.option == OpSchema.FormalParameterOption.Optional:
                     json_output['option'] = 'optional'
                 elif output.option == OpSchema.FormalParameterOption.Variadic:
-                    json_output['option'] = 'variadic'
+                    json_output['list'] = True
                 json_schema['outputs'].append(json_output)
         json_schema['min_output'] = schema.min_output
         json_schema['max_output'] = schema.max_output
