@@ -718,6 +718,7 @@ pytorch.Tensor = class {
             return context;
         }
         switch (this._type.dataType) {
+            case 'boolean':
             case 'uint8':
             case 'qint8':
             case 'int8':
@@ -759,14 +760,19 @@ pytorch.Tensor = class {
                     return results;
                 }
                 switch (context.dataType) {
+                    case 'boolean':
+                        results.push(context.dataView.getUint8(context.index) === 0 ?  false : true);
+                        context.index++;
+                        context.count++;
+                        break;
                     case 'uint8':
-                        results.push(context.dataView.getUint8(context.index, this._littleEndian));
+                        results.push(context.dataView.getUint8(context.index));
                         context.index++;
                         context.count++;
                         break;
                     case 'qint8':
                     case 'int8':
-                        results.push(context.dataView.getInt8(context.index, this._littleEndian));
+                        results.push(context.dataView.getInt8(context.index));
                         context.index++;
                         context.count++;
                         break;
@@ -1239,6 +1245,9 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.transforms.transforms.ToTensor', function() {});
         this._registerConstructor('torch.ByteStorage', function (size) {
             this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8';
+        });
+        this._registerConstructor('torch.BoolStorage', function (size) {
+            this.size = size; this.dataTypeSize = 1; this.dataType = 'boolean';
         });
         this._registerConstructor('torch.CharStorage', function (size) {
             this.size = size; this.dataTypeSize = 1; this.dataType = 'int8';
@@ -3440,12 +3449,22 @@ pytorch.Utility = class {
         ];
         for (const dict of candidates) {
             let state_dict = null;
+            state_dict = state_dict || pytorch.Utility._convertTensor(dict);
             state_dict = state_dict || pytorch.Utility._convertStateDictList(dict);
             state_dict = state_dict || pytorch.Utility._convertStateDictMap(dict);
             state_dict = state_dict || pytorch.Utility._convertStateDictGroupMap(dict);
             if (state_dict) {
                 return state_dict;
             }
+        }
+        return null;
+    }
+
+    static _convertTensor(tensor) {
+        if (tensor && pytorch.Utility.isTensor(tensor)) {
+            const argument = { id: '', value: tensor };
+            const parameter = { name: 'value', arguments: [ argument ] };
+            return [ { states: [ parameter ] } ];
         }
         return null;
     }

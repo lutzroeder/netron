@@ -3894,6 +3894,20 @@
   },
   {
     "type":   "pytorch",
+    "target": "boolean.pkl.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5435851/boolean.zip[boolean.pkl.pth]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/472"
+  },
+  {
+    "type":   "pytorch",
+    "target": "boolean.zip.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5435851/boolean.zip[boolean.pkl.pth]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/472"
+  },
+  {
+    "type":   "pytorch",
     "target": "bn_inception-9f5701afb96c8044.pth",
     "source": "https://yjxiong.blob.core.windows.net/models/bn_inception-9f5701afb96c8044.pth",
     "format": "PyTorch v0.1.1"
