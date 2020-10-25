@@ -474,10 +474,13 @@ host.Telemetry = class {
             path: '/collect',
             headers: { 'Content-Length': Buffer.byteLength(body) }
         };
-        const request = https.request(options, () => {});
+        const request = https.request(options, (response) => {
+            response.on('error', (error) => {});
+        });
         request.setTimeout(5000, () => {
             request.abort();
         });
+        request.on('error', (error) => {});
         request.write(body);
         request.end();
     }
