@@ -30,24 +30,23 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
 .welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; transition: 0.1s; }
 .welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; display: none; }
-.welcome .logo-stroke { stroke: #999999; }
-.welcome .logo-fill { fill: #999999; }
-.welcome .logo-border { stroke: #888888; }
-.welcome .logo-glyph { fill: #999999; }
+.welcome .logo-stroke { stroke: #444444; }
+.welcome .logo-fill { fill: #444444; }
+.welcome .logo-border { stroke: #555555; }
+.welcome .logo-glyph { fill: #444444; }
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
-.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #888888; background-color: #ececec; border: 1px solid #aaaaaa; }
-.welcome .logo button:hover { color: #ececec; background-color: #aaa; cursor: hand; transition: 0.2s; }
+.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.welcome .logo button:hover { color: #ececec; background-color: #444444; cursor: hand; transition: 0.2s; }
 .welcome .logo button:focus { outline: 0; }
 .welcome .logo .open-file-button { top: 200px; width: 125px; opacity: 1; display: block; }
 .welcome .logo .consent-accept-button { top: 280px; left: 0px; width: 125px; display: none; opacity: 0; }
-.welcome .logo .consent-message { top: 160px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #888; display: none; opacity: 0; }
+.welcome .logo .consent-message { top: 160px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #444444; display: none; opacity: 0; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
 .welcome.spinner .open-file-button { opacity: 0; display: none; }
 .welcome.consent .open-file-button { opacity: 0; display: none; }
-.welcome.consent .download-button { opacity: 0; display: none; }
 .welcome.consent .consent-accept-button { opacity: 1; display: block; }
 .welcome.consent .consent-message { opacity: 1; display: block; }
 .welcome.spinner .graph { display: block; opacity: 0; }
@@ -61,14 +60,15 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 @media (prefers-color-scheme: dark) {
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
-.welcome { background-color: #1e1e1e; color: #666666; }
-.welcome .logo-stroke { stroke: #666666; }
-.welcome .logo-fill { fill: #666666; }
+.welcome { background-color: #1e1e1e; color: #888888; }
+.welcome .logo-stroke { stroke: #888888; }
+.welcome .logo-fill { fill: #888888; }
 .welcome .logo-border { stroke: #000000; }
-.welcome .logo-glyph { fill: #555555; }
-.welcome .logo-spinner-stroke { stroke: #aaaaaa; }
-.welcome .logo button { color: #666666; background-color: #1e1e1e; border-color: #666666; }
-.welcome .logo button:hover { color: #1e1e1e; background-color: #666666; }
+.welcome .logo-glyph { fill: #888888; }
+.welcome .logo-spinner-stroke { stroke: #ffffff; }
+.welcome .logo button { color: #888888; background-color: #1e1e1e; border-color: #888888; }
+.welcome .logo button:hover { color: #1e1e1e; background-color: #888888; }
+.welcome .consent-message { color: #888888; display: none; opacity: 0; }
 .icon .border { stroke: #1d1d1d; }
 .icon .stroke { stroke: #aaaaaa; }
 .icon:hover .stroke { stroke: #dfdfdf; }

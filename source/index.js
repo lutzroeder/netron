@@ -223,12 +223,12 @@ host.BrowserHost = class {
                 }
             });
         }
-        const downloadButton = this.document.getElementById('download-button');
-        const downloadLink = this.document.getElementById('logo-github');
-        if (downloadButton && downloadLink) {
-            downloadButton.style.opacity = 1;
-            downloadButton.addEventListener('click', () => {
-                this.openURL(downloadLink.href);
+        const githubButton = this.document.getElementById('github-button');
+        const githubLink = this.document.getElementById('logo-github');
+        if (githubButton && githubLink) {
+            githubButton.style.opacity = 1;
+            githubButton.addEventListener('click', () => {
+                this.openURL(githubLink.href);
             });
         }
         this.document.addEventListener('dragover', (e) => {
