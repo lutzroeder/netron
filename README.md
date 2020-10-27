@@ -17,7 +17,7 @@ Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch**
 
 **Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install netron`
 
-**Browser**: [**Start**](https://www.lutzroeder.com/ai/netron) the browser version.
+**Browser**: [**Start**](https://netron.app) the browser version.
 
 **Python Server**: Run `pip install netron` and `netron [FILE]` or `netron.start('[FILE]')`.
 
