@@ -1228,8 +1228,10 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.vgg.VGG', function() {});
         this._registerConstructor('torchvision.models.video.resnet.BasicBlock', function() {});
         this._registerConstructor('torchvision.models.video.resnet.BasicStem', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.Conv2Plus1D', function() {});
         this._registerConstructor('torchvision.models.video.resnet.Conv3DNoTemporal', function() {});
         this._registerConstructor('torchvision.models.video.resnet.Conv3DSimple', function() {});
+        this._registerConstructor('torchvision.models.video.resnet.R2Plus1dStem', function() {});
         this._registerConstructor('torchvision.models.video.resnet.VideoResNet', function() {});
         this._registerConstructor('torchvision.models._utils.IntermediateLayerGetter', function() {});
         this._registerConstructor('torchvision.ops.deform_conv.DeformConv2d', function() {});
@@ -1242,6 +1244,7 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.transforms.transforms.Compose', function() {});
         this._registerConstructor('torchvision.transforms.transforms.Normalize', function() {});
         this._registerConstructor('torchvision.transforms.transforms.Resize', function() {});
+        this._registerConstructor('torchvision.transforms.transforms.ToPILImage', function() {});
         this._registerConstructor('torchvision.transforms.transforms.ToTensor', function() {});
         this._registerConstructor('torch.ByteStorage', function (size) {
             this.size = size; this.dataTypeSize = 1; this.dataType = 'uint8';
