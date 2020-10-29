@@ -137,12 +137,7 @@ pytorch.Graph = class {
         else if (container.data) {
             const data = container.data;
             this._type = (data.__module__ && data.__name__) ? (data.__module__ + '.' + data.__name__) : '';
-            const input = 'data';
-            this._inputs.push(new pytorch.Parameter(input, true, [ new pytorch.Argument(input, null, null) ]));
-            const outputs = this._loadModule(metadata, container.data, [], [ input ]);
-            for (const output of outputs) {
-                this._outputs.push(new pytorch.Parameter(output, true, [ new pytorch.Argument(output, null, null) ]));
-            }
+            this._loadModule(metadata, container.data, [], []);
         }
         else if (container.state) {
             for (const state_group of container.state) {
@@ -166,50 +161,32 @@ pytorch.Graph = class {
         }
     }
 
-    _loadModule(metadata, parent, groups, inputs) {
+    _loadModule(metadata, current, groups, inputs) {
 
-        if (parent.__module__ &&
-            !parent.__module__ === 'torch.nn.modules.container' &&
-            (!parent._modules || parent._modules.length == 0)) {
-            this._createNode(groups, '', parent, inputs);
+        if (current.__module__ && current.__module__ !== 'torch.nn.modules.container' && (!current._modules || current._modules.size == 0)) {
+            this._createNode(metadata, groups, '', current, inputs, false);
             return [];
         }
 
-        if (!parent._modules) {
+        if (!current._modules) {
             throw new pytorch.Error('Module does not contain modules.');
         }
 
-        for (const module of parent._modules) {
-            const key = module[0];
-            const value = module[1];
-            if (module && value) {
+        const sequential = current.__module__ === 'torch.nn.modules.container' && current.__name__ === 'Sequential';
+
+        for (const pair of current._modules) {
+            const key = pair[0];
+            const value = pair[1];
+            if (value) {
                 const type = value.__module__ + '.' + value.__name__;
                 switch (type) {
                     case 'torch.nn.modules.container.Sequential':
                         groups.push(key);
-                        inputs = this._loadModule(metadata, value, groups, inputs);
+                        inputs = this._loadModule(metadata, value, groups, sequential ? inputs : []);
                         groups.pop(key);
                         break;
-                    case 'torchvision.models.densenet._Transition':
-                    case 'torchvision.models.resnet.Bottleneck':
-                    case 'torchvision.models.densenet._DenseBlock':
-                    case 'torchvision.models.densenet._DenseLayer':
-                    case 'torchvision.models.inception.BasicConv2d':
-                    case 'torchvision.models.inception.InceptionAux':
-                    case 'torchvision.models.inception.InceptionA':
-                    case 'torchvision.models.inception.InceptionB':
-                    case 'torchvision.models.inception.InceptionC':
-                    case 'torchvision.models.inception.InceptionD':
-                    case 'torchvision.models.inception.InceptionE': {
-                        groups.push(key);
-                        const node = this._createNode(metadata, groups, key, value, inputs, this._littleEndian);
-                        inputs = [ node.name ];
-                        groups.pop(key);
-                        break;
-                    }
                     default: {
-                        const node = this._createNode(metadata, groups, key, value, inputs);
-                        inputs = [ node.name ];
+                        inputs = this._createNode(metadata, groups, key, value, sequential ? inputs : [], sequential);
                         break;
                     }
                 }
@@ -218,7 +195,7 @@ pytorch.Graph = class {
         return inputs;
     }
 
-    _createNode(metadata, groups, key, obj, args) {
+    _createNode(metadata, groups, key, obj, args, output) {
 
         const type = obj.__module__ + '.' + obj.__name__;
         const schema = metadata.type(type);
@@ -228,11 +205,13 @@ pytorch.Graph = class {
             inputSchema = schema.inputs.slice();
         }
 
-        const inputs = [
-            new pytorch.Parameter(inputSchema.shift().name, true, args.map((argument) => {
+        const inputName = inputSchema.shift().name;
+        const inputs = [];
+        if (args.length > 0) {
+            inputs.push(new pytorch.Parameter(inputName, true, args.map((argument) => {
                 return new pytorch.Argument(argument, null, null);
-            }))
-        ];
+            })));
+        }
 
         const parameters = obj._parameters || obj._buffers || [];
         for (const parameter of parameters) {
@@ -254,7 +233,7 @@ pytorch.Graph = class {
         const group = groups.join('/');
         const name = group ? (group + '/' + key) : key;
 
-        const outputs = [ new pytorch.Parameter('output', true, [ new pytorch.Argument(name, null, null) ]) ];
+        const outputs = output ? [ new pytorch.Parameter('output', true, [ new pytorch.Argument(name, null, null) ]) ] : [];
 
         const attributes = [];
         for (const name of Object.keys(obj)) {
@@ -271,7 +250,7 @@ pytorch.Graph = class {
         };
         const node = new pytorch.Node(metadata, group, item, {});
         this._nodes.push(node);
-        return node;
+        return [ node.name ];
     }
 
     _loadScriptModule(metadata, container, module, initializers) {
