@@ -3970,7 +3970,7 @@
     }
   },
   {
-    "name": "torch.upsample_nearest1d",
+    "name": "torch.upsample_nearest1d:",
     "schema": {
       "attributes": [
         { "name": "output_size", "type": "int64[]" },
@@ -3986,7 +3986,23 @@
     }
   },
   {
-    "name": "torch.upsample_nearest2d",
+    "name": "torch.upsample_nearest1d:vec",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]", "optional": true },
+        { "name": "scales_factors", "type": "float32[]", "optional": true }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_nearest2d:",
     "schema": {
       "attributes": [
         { "name": "output_size", "type": "int64[]" },
@@ -4003,7 +4019,23 @@
     }
   },
   {
-    "name": "torch.upsample_nearest3d",
+    "name": "torch.upsample_nearest2d:vec",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]", "optional": true },
+        { "name": "scales_factors", "type": "float32[]", "optional": true }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_nearest3d:",
     "schema": {
       "attributes": [
         { "name": "output_size", "type": "int64[]" },
@@ -4014,6 +4046,22 @@
       "category": "Layer",
       "inputs": [
         { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.upsample_nearest3d:vec",
+    "schema": {
+      "attributes": [
+        { "name": "output_size", "type": "int64[]", "optional": true },
+        { "name": "scales_factors", "type": "float32[]", "optional": true }
+      ],
+      "category": "Layer",
+      "inputs": [
+        { "name": "input", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
