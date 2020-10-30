@@ -237,9 +237,10 @@ pytorch.Graph = class {
 
         const attributes = [];
         for (const name of Object.keys(obj)) {
-            if (!name.startsWith('_')) {
-                attributes.push({ name: name, value: obj[name] });
+            if (name.startsWith('_')) {
+                continue;
             }
+            attributes.push({ name: name, value: obj[name] });
         }
         const item = {
             name: name,
@@ -1083,6 +1084,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.pooling.AvgPool2d', function() {});
         this._registerConstructor('torch.nn.modules.pooling.AvgPool3d', function() {});
         this._registerConstructor('torch.nn.modules.pooling.FractionalMaxPool2d', function() {});
+        this._registerConstructor('torch.nn.modules.pooling.LPPool2d', function() {});
         this._registerConstructor('torch.nn.modules.pooling.MaxPool1d', function() {});
         this._registerConstructor('torch.nn.modules.pooling.MaxPool2d', function() {});
         this._registerConstructor('torch.nn.modules.pooling.MaxPool3d', function() {});
