@@ -346,6 +346,12 @@
     }
   },
   {
+    "name": "torch.nn.modules.upsampling.Upsample",
+    "schema": {
+      "category": "Data"
+    }
+  },
+  {
     "name": "torch.nn.modules.rnn.GRU",
     "schema": {
       "category": "Layer"
@@ -2687,7 +2693,7 @@
     }
   },
   {
-    "name": "torch.cat",
+    "name": "torch.cat:",
     "schema": {
       "attributes": [
         { "name": "dim", "type": "int64", "default": 0 }
@@ -4540,7 +4546,7 @@
     }
   },
   {
-    "name": "torch.narrow",
+    "name": "torch.narrow:",
     "schema": {
       "category": [
         { "name": "dim", "type": "int64" },
@@ -4549,6 +4555,20 @@
       ],
       "inputs": [
         { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.narrow:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "dim", "type": "int64" },
+        { "name": "start", "type": "Tensor" },
+        { "name": "length", "type": "int64" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -4645,7 +4665,8 @@
   {
     "name": "torch.softplus",
     "schema": {
-      "category": [
+      "category": "Activation",
+      "attributes": [
         { "name": "beta", "type": "Scalar", "default": 1 },
         { "name": "threshold", "type": "Scalar", "default": 20 }
       ],
@@ -5184,6 +5205,28 @@
        "inputs": [
         { "name": "self", "type": "Tensor" },
         { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.ceil",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.ceil_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
