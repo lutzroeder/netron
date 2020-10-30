@@ -276,11 +276,16 @@ host.BrowserHost = class {
             script.setAttribute('id', id);
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
-            script.onload = () => {
-                const exports = window.module.exports;
-                delete window.module;
-                window.__modules__[id] = exports;
-                resolve(exports);
+            script.onload = (e) => {
+                if (window.module && window.module.exports) {
+                    const exports = window.module.exports;
+                    delete window.module;
+                    window.__modules__[id] = exports;
+                    resolve(exports);
+                }
+                else {
+                    reject(new Error('The script \'' + e.target.src + '\' has no exports.'));
+                }
             };
             script.onerror = (e) => {
                 delete window.module;
