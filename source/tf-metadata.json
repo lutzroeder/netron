@@ -8166,6 +8166,12 @@
           "default": 0.0,
           "name": "timeout_seconds",
           "type": "float32"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nordering_token",
+          "type": "int64"
         }
       ],
       "inputs": [
@@ -8184,6 +8190,11 @@
         {
           "name": "instance_key",
           "type": 3
+        },
+        {
+          "name": "ordering_token",
+          "numberAttr": "Nordering_token",
+          "type": 20
         }
       ],
       "outputs": [
@@ -8322,6 +8333,12 @@
           "default": 0.0,
           "name": "timeout_seconds",
           "type": "float32"
+        },
+        {
+          "default": 0,
+          "minimum": 0,
+          "name": "Nordering_token",
+          "type": "int64"
         }
       ],
       "inputs": [
@@ -8340,6 +8357,11 @@
         {
           "name": "instance_key",
           "type": 3
+        },
+        {
+          "name": "ordering_token",
+          "numberAttr": "Nordering_token",
+          "type": 20
         }
       ],
       "outputs": [
@@ -43590,6 +43612,36 @@
         }
       ],
       "summary": "Returns element-wise integer closest to x."
+    }
+  },
+  {
+    "name": "RiscAdd",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "description": "*NOTE*: `RiscAdd` does not supports broadcasting.\n\nGiven two input tensors, the `tf.risc_add` operation computes the sum for every element in the tensor.\n\nBoth input and output have a range `(-inf, inf)`.\n",
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Returns x + y element-wise."
     }
   },
   {
