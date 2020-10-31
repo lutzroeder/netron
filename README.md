@@ -25,7 +25,7 @@ Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch**
 
 Sample model files to download or open using the browser version:
 
- * **ONNX**: [squeezenet](https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx) [[open](https://netron.app?url=https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx)]
+ * **ONNX**: [squeezenet](https://media.githubusercontent.com/media/onnx/models/master/vision/classification/squeezenet/model/squeezenet1.0-3.onnx) [[open](https://netron.app?url=https://media.githubusercontent.com/media/onnx/models/master/vision/classification/squeezenet/model/squeezenet1.0-3.onnx)]
  * **CoreML**: [exermote](https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel) [[open](https://netron.app?url=https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel)]
  * **Darknet**: [yolo](https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg) [[open](https://netron.app?url=https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolo.cfg)]
  * **Keras**: [mobilenet](https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5) [[open](https://netron.app?url=https://raw.githubusercontent.com/aio-libs/aiohttp-demos/master/demos/imagetagger/tests/data/mobilenet.h5)]
