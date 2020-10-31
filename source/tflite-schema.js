@@ -343,7 +343,8 @@ $root.tflite.BuiltinOperator = {
     SEGMENT_SUM: 125,
     BATCH_MATMUL: 126,
     PLACEHOLDER_FOR_GREATER_OP_CODES: 127,
-    CUMSUM: 128
+    CUMSUM: 128,
+    CALL_ONCE: 129
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -452,6 +453,7 @@ $root.tflite.BuiltinOptions = class {
             case 100: return $root.tflite.SegmentSumOptions.decode(reader, position);
             case 101: return $root.tflite.BatchMatMulOptions.decode(reader, position);
             case 102: return $root.tflite.CumsumOptions.decode(reader, position);
+            case 103: return $root.tflite.CallOnceOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -560,6 +562,7 @@ $root.tflite.BuiltinOptions = class {
             case 'SegmentSumOptions': return $root.tflite.SegmentSumOptions.decodeText(reader, json);
             case 'BatchMatMulOptions': return $root.tflite.BatchMatMulOptions.decodeText(reader, json);
             case 'CumsumOptions': return $root.tflite.CumsumOptions.decodeText(reader, json);
+            case 'CallOnceOptions': return $root.tflite.CallOnceOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2047,6 +2050,21 @@ $root.tflite.IfOptions = class IfOptions {
         const $ = new $root.tflite.IfOptions();
         $.then_subgraph_index = reader.value(json.then_subgraph_index, 0);
         $.else_subgraph_index = reader.value(json.else_subgraph_index, 0);
+        return $;
+    }
+};
+
+$root.tflite.CallOnceOptions = class CallOnceOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.CallOnceOptions();
+        $.init_subgraph_index = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.CallOnceOptions();
+        $.init_subgraph_index = reader.value(json.init_subgraph_index, 0);
         return $;
     }
 };
