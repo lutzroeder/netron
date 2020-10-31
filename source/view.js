@@ -1539,7 +1539,7 @@ view.ModelFactoryService = class {
 
     _openSignature(context) {
         const buffer = context.buffer;
-        if (context.buffer.length === 0) {
+        if (buffer.length === 0 || buffer.every((value) => value === 0x00)) {
             return Promise.reject(new ModelError('File has no content.', true));
         }
         /* eslint-disable no-control-regex */
