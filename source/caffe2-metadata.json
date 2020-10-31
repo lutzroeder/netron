@@ -19246,5 +19246,24 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "LengthsToOffsets",
+    "schema": {
+      "description": "\nGiven a vector of segment lengths, returns a vector of offsets from these lengths,\nwhich will have the same size as the input vector. Output is going to have\nthe same type as input. For long tensors explicit casting from int32 to int64\nmight be necessary prior to this op.\n\nFor example, `[1, 3, 0, 2]` transforms into `[0, 1, 4, 4]`.\n",
+      "inputs": [
+        {
+          "description": "1D tensor of int32 or int64 segment lengths.",
+          "name": "lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "1D tensor of the same shape and type as `lengths`",
+          "name": "offsets"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
