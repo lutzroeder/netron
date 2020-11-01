@@ -980,12 +980,18 @@
         },
         {
           "default": null,
-          "description": "Number of jobs to run in parallel.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors.\n\nBase estimator clones are fitted in parallel across cross-validation\niterations. Therefore parallelism happens only when cv != \"prefit\".\n\nSee :term:`Glossary <n_jobs>` for more details.\n\n.. versionadded:: 0.24\n",
+          "description": "Number of jobs to run in parallel.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors.\n\nBase estimator clones are fitted in parallel across cross-validation\niterations. Therefore parallelism happens only when `cv != \"prefit\"`.\n\nSee :term:`Glossary <n_jobs>` for more details.\n\n.. versionadded:: 0.24\n",
           "name": "n_jobs",
           "type": "int32"
+        },
+        {
+          "default": true,
+          "description": "Determines how the calibrator is fitted when `cv` is not `'prefit'`.\nIgnored if `cv='prefit'`.\n\nIf `True`, the `base_estimator` is fitted using training data and\ncalibrated using testing data, for each `cv` fold. The final estimator\nis an ensemble of `n_cv` fitted classifer and calibrator pairs, where\n`n_cv` is the number of cross-validation folds. The output is the\naverage predicted probabilities of all pairs.\n\nIf `False`, `cv` is used to compute unbiased predictions, via\n:func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. At prediction time, the classifier used is the\n`base_estimator` trained on all the data.\nNote that this method is also internally implemented  in\n:mod:`sklearn.svm` estimators with the `probabilities=True` parameter.\n\n.. versionadded:: 0.24\n",
+          "name": "ensemble",
+          "type": "boolean"
         }
       ],
-      "description": "Probability calibration with isotonic regression or logistic regression.\n\nThis class uses cross-validation to both estimate the parameters of a\nclassifier and subsequently calibrate a classifier. For each cv split it\nfits a copy of the base estimator to the training folds, and calibrates it\nusing the testing fold. For prediction, predicted probabilities are\naveraged across these individual calibrated classifiers.\n\nAlready fitted classifiers can be calibrated via the parameter cv=\"prefit\".\nIn this case, no cross-validation is used and all provided data is used\nfor calibration. The user has to take care manually that data for model\nfitting and calibration are disjoint.\n\nThe calibration is based on the :term:`decision_function` method of the\n`base_estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n"
+      "description": "Probability calibration with isotonic regression or logistic regression.\n\nThis class uses cross-validation to both estimate the parameters of a\nclassifier and subsequently calibrate a classifier. With default\n`ensemble=True`, for each cv split it\nfits a copy of the base estimator to the training subset, and calibrates it\nusing the testing subset. For prediction, predicted probabilities are\naveraged across these individual calibrated classifiers. When\n`ensemble=False`, cross-validation is used to obtain unbiased predictions,\nvia :func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. For prediction, the base estimator, trained using all\nthe data, is used. This is the method implemented when `probabilities=True`\nfor :mod:`sklearn.svm` estimators.\n\nAlready fitted classifiers can be calibrated via the parameter\n`cv=\"prefit\"`. In this case, no cross-validation is used and all provided\ndata is used for calibration. The user has to take care manually that data\nfor model fitting and calibration are disjoint.\n\nThe calibration is based on the :term:`decision_function` method of the\n`base_estimator` if it exists, else on :term:`predict_proba`.\n\nRead more in the :ref:`User Guide <calibration>`.\n"
     }
   },
   {
