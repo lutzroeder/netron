@@ -28,31 +28,37 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 .welcome { background-color: #ececec; color: #242424; }
 .welcome .logo { width: 582px; height: 128px; }
 .welcome .logo-text { top: -57px; width: 582px; transition: 0.1s; }
-.welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; transition: 0.1s; }
-.welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; display: none; }
+.welcome .logo-name { top: -170px; width: 582px; transition: 0.1s; }
+.welcome .logo-icon { left: 248px; top: -18px; width: 106px; height: 106px; transition: 0.1s; }
+.welcome .logo-spinner { left: 248px; top: -18px; width: 106px; height: 106px; display: none; }
 .welcome .logo-stroke { stroke: #444444; }
 .welcome .logo-fill { fill: #444444; }
 .welcome .logo-border { stroke: #555555; }
 .welcome .logo-glyph { fill: #444444; }
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
-.welcome .logo button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome .logo button:hover { color: #ececec; background-color: #444444; cursor: hand; transition: 0.2s; }
-.welcome .logo button:focus { outline: 0; }
-.welcome .logo .open-file-button { top: 200px; width: 125px; opacity: 1; display: block; }
-.welcome .logo .consent-accept-button { top: 280px; left: 0px; width: 125px; display: none; opacity: 0; }
-.welcome .logo .consent-message { top: 160px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #444444; display: none; opacity: 0; }
+.welcome button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
+.welcome button:hover { color: #ececec; background-color: #444444; cursor: hand; transition: 0.2s; }
+.welcome button:focus { outline: 0; }
+.welcome .open-file-button { top: 170px; left: -150px; width: 125px; opacity: 1; }
+.welcome .github-button { top: 170px; left: 150px; width: 125px; opacity: 1; }
+.welcome .consent-accept-button { top: 220px; left: 0px; width: 125px; display: none; opacity: 0; }
+.welcome .consent-message { top: 120px; left: 0px; font-size: 13px; text-align: center; line-height: 20px; color: #444444; display: none; opacity: 0; }
 .welcome .graph { display: none; opacity: 0; }
 .welcome.spinner .logo-spinner { display: block; -webkit-animation: orbit 0.5s infinite linear; animation: orbit 0.5s infinite linear; cursor: wait; }
+@-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
+@keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .welcome.spinner .logo-spinner-stroke { stroke: #ececec; }
+.welcome.spinner .logo-name { display: none; }
 .welcome.spinner .open-file-button { opacity: 0; display: none; }
+.welcome.spinner .github-button { opacity: 0; display: none; }
+.welcome.consent .logo-name { display: none; }
 .welcome.consent .open-file-button { opacity: 0; display: none; }
+.welcome.consent .github-button { opacity: 0; display: none; }
 .welcome.consent .consent-accept-button { opacity: 1; display: block; }
 .welcome.consent .consent-message { opacity: 1; display: block; }
 .welcome.spinner .graph { display: block; opacity: 0; }
 .welcome .toolbar { display: none; }
-@-webkit-keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); } 100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
-@keyframes orbit { 0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }  100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); } }
 .default { background-color: #ffffff; }
 .default .logo { display: none; }
 .default .graph { display: block; opacity: 1; }
@@ -77,68 +83,25 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
 .dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
 .dropdown .separator { border-color: #5a5a5a; }
 }
+@media all and (max-width: 640px) {
+.welcome .logo { width: 240px; }
+.welcome .logo-text { opacity: 0; }
+.welcome .logo-name { opacity: 0; }
+.welcome .logo-icon { left: 0; top: 0; width: 128px; height: 128px; }
+.welcome .logo-spinner { left: 0; top: 0; width: 128px; height: 128px; }
+.welcome .logo .open-file-button { top: 180px; left: 0; }
+.welcome .logo .github-button { top: 270px; left: 0; }
+.welcome .logo .consent-message { top: 140px; }
+.welcome .logo .consent-accept-button { top: 310px; }
+.about .logo { border-radius: 0; border-left: 0px; border-right: 0px; width: 100%; padding-left: 0; padding-right: 0; }
+.about.desktop .logo { width: 320px; padding: 40px; }
+}
+@media only screen and (max-device-width: 1024px) {
+.toolbar-button { width: 32px; height: 32px; }
+}
 </style>
 </head>
 <body class="welcome spinner">
-<div class="center logo">
-    <svg class="center logo-icon" viewbox="0 0 1024 1024">
-        <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
-        <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
-        <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
-        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
-        <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
-        <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
-        <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
-        <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
-        <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
-        <g transform="translate(296, 392)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(296, 632)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(540, 280)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(540, 435)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(540, 590)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(540, 744)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-        <g transform="translate(785, 512)">
-            <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
-            <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
-        </g>
-    </svg>
-    <svg id="logo-spinner" class="center logo-spinner" viewbox="0 0 1024 1024">
-        <g transform="translate(512, 512)" style="opacity: 1">
-            <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
-        </g>
-    </svg>
-    <span class="center consent-message">This app uses cookies to report errors and anonymous usage information.</span>
-    <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
-    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
-    <!-- Preload fonts to workaround Chrome SVG layout issue -->
-    <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
-</div>
 <div id="graph" class="graph">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
@@ -179,5 +142,157 @@ body { margin: 0; width: 100vw; height: 100vh; font-family: -apple-system, Blink
     </button>
 </div>
 <div id="sidebar" class="sidebar"></div>
+<div class="center logo">
+    <a href="https://github.com/lutzroeder/netron" target="blank_">
+        <svg class="center logo-text" viewbox="0 0 5120 1024">
+            <g transform="scale(9) translate(-44,-15)">
+                <g transform="matrix(100,0,0,100,60.9965,126)">
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,164.341,126)">
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,244.491,126)">
+                    <path class="logo-glyph" d="M0.216,0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,0L0.216,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,323.031,126)">
+                    <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,0L0.444,0L0.193,-0.341L0.154,-0.341L0.154,0L0.089,0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(100,0,0,100,520.979,126)">
+                    <path class="logo-glyph" d="M0.089,0L0.089,-0.745L0.595,-0.147L0.595,-0.715L0.656,-0.715L0.656,0.021L0.15,-0.578L0.15,0L0.089,0Z" style="fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </svg>
+        <svg class="center logo-icon" viewbox="0 0 1024 1024">
+            <circle class="logo-stroke" cx="512" cy="512" r="431" fill="none" stroke-width="32"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="450" fill="none" stroke-width="6"></circle>
+            <circle class="logo-border" cx="512" cy="512" r="412" fill="none" stroke-width="6"></circle>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="280" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="435" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="590" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="392" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="296" y1="632" x2="540" y2="744" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="280" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="590" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="435" x2="785" y2="512" stroke-width="12"></line>
+            <line class="logo-stroke" x1="540" y1="744" x2="785" y2="512" stroke-width="12"></line>
+            <g transform="translate(296, 392)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(296, 632)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(540, 280)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(540, 435)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(540, 590)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(540, 744)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+            <g transform="translate(785, 512)">
+                <circle class="logo-fill" cx="0" cy="0" r="51"></circle>
+                <circle class="logo-border" cx="0" cy="0" r="51" fill="none" stroke-width="6"></circle>
+            </g>
+        </svg>
+        <svg id="logo-spinner" class="center logo-spinner" viewbox="0 0 1024 1024">
+            <g transform="translate(512, 512)" style="opacity: 1">
+                <path class="logo-spinner-stroke" d="M-431,0 A-431,-431 0 0,1 0,-431" stroke-width="24" fill="None"></path>
+            </g>
+        </svg>
+    </a>
+    <a href="https://www.lutzroeder.com" target="blank_">
+        <svg class="center logo-name" viewbox="0 0 5120 300">
+            <g transform="scale(5.8) translate(20, 0)">
+                <g transform="matrix(30,0,0,30,18.9123,38)">
+                    <path class="logo-glyph" d="M0.089,-0L0.089,-0.715L0.154,-0.715L0.154,-0.061L0.399,-0.061L0.399,-0L0.089,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,46.7613,38)">
+                    <path class="logo-glyph" d="M0.086,-0.715L0.15,-0.715L0.15,-0.248C0.15,-0.177 0.166,-0.125 0.198,-0.091C0.23,-0.056 0.28,-0.039 0.346,-0.039C0.412,-0.039 0.46,-0.056 0.493,-0.091C0.525,-0.125 0.541,-0.177 0.541,-0.248L0.541,-0.715L0.606,-0.715L0.606,-0.269C0.606,-0.172 0.584,-0.1 0.542,-0.052C0.499,-0.005 0.433,0.019 0.346,0.019C0.259,0.019 0.193,-0.005 0.15,-0.052C0.107,-0.1 0.086,-0.172 0.086,-0.269L0.086,-0.715Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,83.5133,38)">
+                    <path class="logo-glyph" d="M0.216,-0L0.216,-0.654L0.019,-0.654L0.019,-0.715L0.478,-0.715L0.478,-0.654L0.281,-0.654L0.281,-0L0.216,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,114.421,38)">
+                    <path class="logo-glyph" d="M0.012,-0L0.437,-0.656L0.074,-0.656L0.074,-0.715L0.548,-0.715L0.125,-0.06L0.505,-0.06L0.505,-0L0.012,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,171.777,38)">
+                    <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,-0L0.444,-0L0.193,-0.341L0.154,-0.341L0.154,-0L0.089,-0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,203.607,38)">
+                    <path class="logo-glyph" d="M0.437,-0.039C0.479,-0.039 0.519,-0.047 0.557,-0.063C0.595,-0.078 0.629,-0.101 0.659,-0.131C0.689,-0.161 0.712,-0.196 0.727,-0.234C0.743,-0.273 0.751,-0.313 0.751,-0.356C0.751,-0.399 0.743,-0.44 0.728,-0.478C0.712,-0.516 0.689,-0.55 0.659,-0.581C0.63,-0.611 0.596,-0.634 0.558,-0.649C0.52,-0.665 0.48,-0.673 0.437,-0.673C0.395,-0.673 0.355,-0.665 0.317,-0.649C0.28,-0.634 0.246,-0.611 0.216,-0.581C0.186,-0.55 0.163,-0.516 0.147,-0.478C0.132,-0.44 0.124,-0.399 0.124,-0.356C0.124,-0.313 0.132,-0.272 0.147,-0.234C0.163,-0.196 0.186,-0.161 0.216,-0.131C0.246,-0.101 0.279,-0.078 0.316,-0.062C0.354,-0.047 0.394,-0.039 0.437,-0.039ZM0.82,-0.356C0.82,-0.306 0.81,-0.258 0.791,-0.212C0.772,-0.167 0.744,-0.126 0.708,-0.091C0.671,-0.055 0.63,-0.028 0.583,-0.009C0.537,0.01 0.488,0.019 0.437,0.019C0.386,0.019 0.337,0.01 0.291,-0.009C0.245,-0.028 0.203,-0.055 0.167,-0.091C0.131,-0.127 0.103,-0.168 0.084,-0.213C0.065,-0.258 0.055,-0.306 0.055,-0.356C0.055,-0.407 0.065,-0.455 0.084,-0.501C0.103,-0.546 0.131,-0.587 0.167,-0.623C0.203,-0.659 0.244,-0.685 0.29,-0.704C0.335,-0.722 0.385,-0.731 0.437,-0.731C0.49,-0.731 0.539,-0.722 0.585,-0.703C0.631,-0.685 0.672,-0.658 0.708,-0.623C0.744,-0.587 0.772,-0.546 0.791,-0.501C0.81,-0.455 0.82,-0.407 0.82,-0.356Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,245.853,38)">
+                    <path class="logo-glyph" d="M0.089,-0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,-0L0.089,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,277.243,38)">
+                    <path class="logo-glyph" d="M0.154,-0.056L0.245,-0.056C0.319,-0.056 0.371,-0.06 0.402,-0.069C0.433,-0.077 0.459,-0.091 0.481,-0.111C0.511,-0.139 0.534,-0.174 0.549,-0.215C0.564,-0.257 0.572,-0.305 0.572,-0.358C0.572,-0.413 0.564,-0.461 0.549,-0.502C0.533,-0.544 0.51,-0.578 0.48,-0.605C0.457,-0.625 0.429,-0.64 0.396,-0.648C0.364,-0.657 0.306,-0.661 0.224,-0.661L0.154,-0.661L0.154,-0.056ZM0.089,-0L0.089,-0.715L0.2,-0.715C0.299,-0.715 0.37,-0.71 0.412,-0.7C0.453,-0.69 0.489,-0.674 0.519,-0.65C0.559,-0.618 0.589,-0.578 0.61,-0.528C0.631,-0.478 0.641,-0.421 0.641,-0.357C0.641,-0.293 0.631,-0.236 0.61,-0.186C0.589,-0.136 0.559,-0.096 0.52,-0.066C0.489,-0.042 0.454,-0.025 0.414,-0.015C0.374,-0.005 0.31,-0 0.222,-0L0.089,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,314.142,38)">
+                    <path class="logo-glyph" d="M0.089,-0L0.089,-0.715L0.443,-0.715L0.443,-0.654L0.154,-0.654L0.154,-0.43L0.443,-0.43L0.443,-0.369L0.154,-0.369L0.154,-0.061L0.443,-0.061L0.443,-0L0.089,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,345.532,38)">
+                    <path class="logo-glyph" d="M0.154,-0.658L0.154,-0.394L0.219,-0.394C0.28,-0.394 0.322,-0.404 0.346,-0.423C0.37,-0.442 0.382,-0.475 0.382,-0.522C0.382,-0.571 0.369,-0.606 0.345,-0.627C0.32,-0.648 0.278,-0.658 0.219,-0.658L0.154,-0.658ZM0.523,-0L0.444,-0L0.193,-0.341L0.154,-0.341L0.154,-0L0.089,-0L0.089,-0.715L0.22,-0.715C0.298,-0.715 0.356,-0.699 0.394,-0.667C0.433,-0.634 0.452,-0.585 0.452,-0.52C0.452,-0.464 0.436,-0.421 0.403,-0.389C0.37,-0.357 0.324,-0.341 0.266,-0.341L0.523,-0Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,376.911,38)">
+                    <path class="logo-glyph" d="M0.06,-0.468L0.155,-0.731L0.228,-0.699L0.1,-0.452L0.06,-0.468Z" style="fill-rule:nonzero;"/>
+                </g>
+                <g transform="matrix(30,0,0,30,401.549,38)">
+                    <path class="logo-glyph" d="M0.034,-0.12L0.09,-0.15C0.1,-0.115 0.118,-0.087 0.144,-0.068C0.169,-0.049 0.2,-0.039 0.236,-0.039C0.281,-0.039 0.316,-0.052 0.342,-0.079C0.367,-0.106 0.38,-0.143 0.38,-0.19C0.38,-0.224 0.371,-0.253 0.354,-0.276C0.337,-0.299 0.3,-0.325 0.244,-0.355C0.172,-0.393 0.124,-0.427 0.101,-0.456C0.077,-0.485 0.065,-0.519 0.065,-0.56C0.065,-0.611 0.082,-0.652 0.116,-0.684C0.151,-0.716 0.195,-0.732 0.25,-0.732C0.286,-0.732 0.317,-0.724 0.344,-0.709C0.37,-0.694 0.392,-0.671 0.408,-0.641L0.358,-0.611C0.347,-0.631 0.333,-0.647 0.314,-0.658C0.295,-0.668 0.272,-0.674 0.246,-0.674C0.211,-0.674 0.183,-0.663 0.162,-0.643C0.141,-0.622 0.131,-0.594 0.131,-0.559C0.131,-0.509 0.172,-0.462 0.255,-0.419C0.27,-0.411 0.281,-0.405 0.289,-0.401C0.35,-0.367 0.391,-0.336 0.411,-0.306C0.432,-0.276 0.442,-0.237 0.442,-0.19C0.442,-0.126 0.423,-0.075 0.386,-0.037C0.348,0 0.297,0.019 0.233,0.019C0.186,0.019 0.146,0.007 0.113,-0.016C0.079,-0.039 0.053,-0.074 0.034,-0.12Z" style="fill-rule:nonzero;"/>
+                </g>
+            </g>
+        </svg>
+    </a>
+    <div class="center logo-message">
+        <div style="height: 30px; text-align: center;">Version <span id="version" class="select">{version}</span></div>
+        <div style="height: 30px; text-align: center;">Copyright &copy; <a href="https://www.lutzroeder.com" target="blank_">Lutz Roeder</a></div>
+    </div>
+    <a id="logo-github" class="center logo-github" href="https://github.com/lutzroeder/netron" target="blank_">
+        <svg viewbox="0 0 438.549 438.549">
+            <path class="logo-fill" d="M409.132,114.573c-19.608-33.596-46.205-60.194-79.798-79.8C295.736,15.166,259.057,5.365,219.271,5.365
+                c-39.781,0-76.472,9.804-110.063,29.408c-33.596,19.605-60.192,46.204-79.8,79.8C9.803,148.168,0,184.854,0,224.63
+                c0,47.78,13.94,90.745,41.827,128.906c27.884,38.164,63.906,64.572,108.063,79.227c5.14,0.954,8.945,0.283,11.419-1.996
+                c2.475-2.282,3.711-5.14,3.711-8.562c0-0.571-0.049-5.708-0.144-15.417c-0.098-9.709-0.144-18.179-0.144-25.406l-6.567,1.136
+                c-4.187,0.767-9.469,1.092-15.846,1c-6.374-0.089-12.991-0.757-19.842-1.999c-6.854-1.231-13.229-4.086-19.13-8.559
+                c-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.899-9.233-8.992-14.559
+                c-4.093-5.331-8.232-8.945-12.419-10.848l-1.999-1.431c-1.332-0.951-2.568-2.098-3.711-3.429c-1.142-1.331-1.997-2.663-2.568-3.997
+                c-0.572-1.335-0.098-2.43,1.427-3.289c1.525-0.859,4.281-1.276,8.28-1.276l5.708,0.853c3.807,0.763,8.516,3.042,14.133,6.851
+                c5.614,3.806,10.229,8.754,13.846,14.842c4.38,7.806,9.657,13.754,15.846,17.847c6.184,4.093,12.419,6.136,18.699,6.136
+                c6.28,0,11.704-0.476,16.274-1.423c4.565-0.952,8.848-2.383,12.847-4.285c1.713-12.758,6.377-22.559,13.988-29.41
+                c-10.848-1.14-20.601-2.857-29.264-5.14c-8.658-2.286-17.605-5.996-26.835-11.14c-9.235-5.137-16.896-11.516-22.985-19.126
+                c-6.09-7.614-11.088-17.61-14.987-29.979c-3.901-12.374-5.852-26.648-5.852-42.826c0-23.035,7.52-42.637,22.557-58.817
+                c-7.044-17.318-6.379-36.732,1.997-58.24c5.52-1.715,13.706-0.428,24.554,3.853c10.85,4.283,18.794,7.952,23.84,10.994
+                c5.046,3.041,9.089,5.618,12.135,7.708c17.705-4.947,35.976-7.421,54.818-7.421s37.117,2.474,54.823,7.421l10.849-6.849
+                c7.419-4.57,16.18-8.758,26.262-12.565c10.088-3.805,17.802-4.853,23.134-3.138c8.562,21.509,9.325,40.922,2.279,58.24
+                c15.036,16.18,22.559,35.787,22.559,58.817c0,16.178-1.958,30.497-5.853,42.966c-3.9,12.471-8.941,22.457-15.125,29.979
+                c-6.191,7.521-13.901,13.85-23.131,18.986c-9.232,5.14-18.182,8.85-26.84,11.136c-8.662,2.286-18.415,4.004-29.263,5.146
+                c9.894,8.562,14.842,22.077,14.842,40.539v60.237c0,3.422,1.19,6.279,3.572,8.562c2.379,2.279,6.136,2.95,11.276,1.995
+                c44.163-14.653,80.185-41.062,108.068-79.226c27.88-38.161,41.825-81.126,41.825-128.906
+                C438.536,184.851,428.728,148.168,409.132,114.573z"/>
+        </svg>
+    </a>
+    <span class="center consent-message">This app uses cookies to report errors and anonymous usage information.</span>
+    <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
+    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
+    <button id="github-button" class="center github-button">GitHub</button>
+    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .tnnproto, .nn, .uff, .paddle, .pdmodel, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
+    <!-- Preload fonts to workaround Chrome SVG layout issue -->
+    <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+    <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
+</div>
 </body>
 </html>
