@@ -1415,14 +1415,30 @@ pytorch.Execution = class {
             };
         });
         this._registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
-            if (encoding === 'latin-1') {
-                const array = new Uint8Array(source.length);
-                for (let i = 0; i < source.length; i++) {
-                    array[i] = source.charCodeAt(i);
+            if (source) {
+                if (encoding === 'latin-1') {
+                    const array = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        array[i] = source.charCodeAt(i);
+                    }
+                    return array;
                 }
-                return array;
+                throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
             }
-            throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+            return [];
+        });
+        this._registerFunction('__builtin__.bytes', function(source, encoding /*, errors */) {
+            if (source) {
+                if (encoding === 'latin-1') {
+                    const array = new Uint8Array(source.length);
+                    for (let i = 0; i < source.length; i++) {
+                        array[i] = source.charCodeAt(i);
+                    }
+                    return array;
+                }
+                throw new pytorch.Error("Unsupported bytearray encoding '" + JSON.stringify(encoding) + "'.");
+            }
+            return [];
         });
         this._registerFunction('__builtin__.getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {

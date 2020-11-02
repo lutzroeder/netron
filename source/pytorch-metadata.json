@@ -4548,7 +4548,7 @@
   {
     "name": "torch.narrow:",
     "schema": {
-      "category": [
+      "attributes": [
         { "name": "dim", "type": "int64" },
         { "name": "start", "type": "int64" },
         { "name": "length", "type": "int64" }
@@ -4594,7 +4594,7 @@
   {
     "name": "torch.index_put",
     "schema": {
-      "category": [
+      "attributes": [
         { "name": "accumulate", "type": "boolean", "default": false }
       ],
       "inputs": [
@@ -4610,7 +4610,7 @@
   {
     "name": "torch.index_put_",
     "schema": {
-      "category": [
+      "attributes": [
         { "name": "accumulate", "type": "boolean", "default": false }
       ],
       "inputs": [
@@ -4626,7 +4626,7 @@
   {
     "name": "torch.new_zeros",
     "schema": {
-      "category": [
+      "attributes": [
         { "name": "size", "type": "int64[]" },
         { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
         { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -4645,7 +4645,7 @@
   {
     "name": "torch.new_full",
     "schema": {
-      "category": [
+      "attributes": [
         { "name": "size", "type": "int64[]" },
         { "name": "fill_value", "type": "Scalar" },
         { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
