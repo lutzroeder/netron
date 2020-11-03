@@ -5232,5 +5232,17 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.einsum",
+    "schema": {
+      "inputs": [
+        { "name": "equation", "type": "string" },
+        { "name": "tensors", "type": "Tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
