@@ -2922,7 +2922,7 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                     message.input_signature = $root.tensorflow.StructuredValue.decode(reader, reader.uint32());
                     break;
                 case 6:
-                    message.experimental_compile = reader.int32();
+                    message.jit_compile = reader.int32();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2947,8 +2947,8 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                 case "input_signature":
                     message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader, true);
                     break;
-                case "experimental_compile":
-                    message.experimental_compile = reader.enum($root.tensorflow.FunctionSpec.ExperimentalCompile);
+                case "jit_compile":
+                    message.jit_compile = reader.enum($root.tensorflow.FunctionSpec.JitCompile);
                     break;
                 default:
                     reader.field(tag, message);
@@ -2962,9 +2962,9 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
 $root.tensorflow.FunctionSpec.prototype.fullargspec = null;
 $root.tensorflow.FunctionSpec.prototype.is_method = false;
 $root.tensorflow.FunctionSpec.prototype.input_signature = null;
-$root.tensorflow.FunctionSpec.prototype.experimental_compile = 0;
+$root.tensorflow.FunctionSpec.prototype.jit_compile = 0;
 
-$root.tensorflow.FunctionSpec.ExperimentalCompile = {
+$root.tensorflow.FunctionSpec.JitCompile = {
     "DEFAULT": 0,
     "ON": 1,
     "OFF": 2
