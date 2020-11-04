@@ -344,7 +344,8 @@ $root.tflite.BuiltinOperator = {
     BATCH_MATMUL: 126,
     PLACEHOLDER_FOR_GREATER_OP_CODES: 127,
     CUMSUM: 128,
-    CALL_ONCE: 129
+    CALL_ONCE: 129,
+    BROADCAST_TO: 130
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -454,6 +455,7 @@ $root.tflite.BuiltinOptions = class {
             case 101: return $root.tflite.BatchMatMulOptions.decode(reader, position);
             case 102: return $root.tflite.CumsumOptions.decode(reader, position);
             case 103: return $root.tflite.CallOnceOptions.decode(reader, position);
+            case 104: return $root.tflite.BroadcastToOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -563,6 +565,7 @@ $root.tflite.BuiltinOptions = class {
             case 'BatchMatMulOptions': return $root.tflite.BatchMatMulOptions.decodeText(reader, json);
             case 'CumsumOptions': return $root.tflite.CumsumOptions.decodeText(reader, json);
             case 'CallOnceOptions': return $root.tflite.CallOnceOptions.decodeText(reader, json);
+            case 'BroadcastToOptions': return $root.tflite.BroadcastToOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2194,6 +2197,19 @@ $root.tflite.CumsumOptions = class CumsumOptions {
         const $ = new $root.tflite.CumsumOptions();
         $.exclusive = reader.value(json.exclusive, false);
         $.reverse = reader.value(json.reverse, false);
+        return $;
+    }
+};
+
+$root.tflite.BroadcastToOptions = class BroadcastToOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.BroadcastToOptions();
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.BroadcastToOptions();
         return $;
     }
 };
