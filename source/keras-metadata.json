@@ -2802,7 +2802,7 @@
         }
       ],
       "category": "Layer",
-      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
       "examples": [
         {
           "code": ">>> # The inputs are 28x28 RGB images with `channels_last` and the batch\n>>> # size is 4.\n>>> input_shape = (4, 28, 28, 3)\n>>> x = tf.random.normal(input_shape)\n>>> y = tf.keras.layers.Conv2D(\n... 2, 3, activation='relu', input_shape=input_shape[1:])(x)\n>>> print(y.shape)\n(4, 26, 26, 2)"
@@ -2915,7 +2915,7 @@
         }
       ],
       "category": "Layer",
-      "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.",
+      "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.",
       "examples": [
         {
           "code": ">>> # The inputs are 28x28x28 volumes with a single channel, and the\n>>> # batch size is 4\n>>> input_shape =(4, 28, 28, 28, 1)\n>>> x = tf.random.normal(input_shape)\n>>> y = tf.keras.layers.Conv3D(\n... 2, 3, activation='relu', input_shape=input_shape[1:])(x)\n>>> print(y.shape)\n(4, 26, 26, 26, 2)"
@@ -3030,7 +3030,7 @@
         }
       ],
       "category": "Layer",
-      "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
+      "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
       "inputs": [
         {
           "description": "4D tensor with shape:\n`(batch_size, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(batch_size, rows, cols, channels)` if data_format='channels_last'.",
@@ -3422,7 +3422,7 @@
         }
       ],
       "category": "Layer",
-      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
+      "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
       "examples": [
         {
           "code": ">>> # The inputs are 28x28 RGB images with `channels_last` and the batch\n>>> # size is 4.\n>>> input_shape = (4, 28, 28, 3)\n>>> x = tf.random.normal(input_shape)\n>>> y = tf.keras.layers.Conv2D(\n... 2, 3, activation='relu', input_shape=input_shape[1:])(x)\n>>> print(y.shape)\n(4, 26, 26, 2)"
