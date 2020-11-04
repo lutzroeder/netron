@@ -11,24 +11,50 @@ paddle.ModelFactory = class {
         if (identifier === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
             return true;
         }
+        if (extension === 'pbtxt' || extension === 'txt') {
+            const tags = context.tags('pbtxt');
+            if (tags.has('blocks')) {
+                return true;
+            }
+        }
         return false;
     }
 
     open(context, host) {
         return host.require('./paddle-proto').then(() => {
-            let desc = null;
-            try {
-                paddle.proto = protobuf.get('paddle').paddle.framework.proto;
-                const reader = protobuf.Reader.create(context.buffer);
-                desc = paddle.proto.ProgramDesc.decode(reader);
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+            let programDesc = null;
+            const identifier = context.identifier;
+            const extension = identifier.split('.').pop().toLowerCase();
+            switch (extension) {
+                case 'pbtxt':
+                case 'txt': {
+                    try {
+                        paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                        const reader = protobuf.TextReader.create(context.buffer);
+                        programDesc = paddle.proto.ProgramDesc.decodeText(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
+                }
+                default: {
+                    try {
+                        paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                        const reader = protobuf.Reader.create(context.buffer);
+                        programDesc = paddle.proto.ProgramDesc.decode(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
+                }
             }
             return paddle.Metadata.open(host).then((metadata) => {
                 const vars = new Set();
-                for (const block of desc.blocks) {
+                for (const block of programDesc.blocks) {
                     const blockVars = new Set();
                     for (const variable of block.vars) {
                         if (variable.persistable && variable.type &&
@@ -54,9 +80,9 @@ paddle.ModelFactory = class {
                     for (let i = 0; i < keys.length; i++) {
                         map.set(keys[i], buffers[i]);
                     }
-                    return new paddle.Model(metadata, desc, map);
+                    return new paddle.Model(metadata, programDesc, map);
                 }).catch((err) => {
-                    return new paddle.Model(metadata, desc, new Map());
+                    return new paddle.Model(metadata, programDesc, new Map());
                 });
             });
         });

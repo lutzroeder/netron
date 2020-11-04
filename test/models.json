@@ -3789,6 +3789,13 @@
   },
   {
     "type":   "paddle",
+    "target": "assign.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/5485296/assign.pbtxt.zip[assign.pbtxt]",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
     "target": "PyramidBox_WiderFace.tar.gz",
     "source": "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
     "format": "PaddlePaddle",
