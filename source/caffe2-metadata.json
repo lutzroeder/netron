@@ -18772,6 +18772,11 @@
           "description": "A float that's used as the starting point for logarithmic spacing. Since logarithmic spacing cannot contain <=0 values this value will be used to represent all such values.",
           "name": "logspace_start",
           "option": "optional"
+        },
+        {
+          "description": "Apply abs() on every input value.",
+          "name": "abs",
+          "option": "optional"
         }
       ],
       "description": "\n            Computes a histogram for values in the given list of tensors.\n            For logging activation histograms for post-hoc analyses, consider using the\n            HistogramObserver observer.\n            For iteratively computing a histogram for all input tensors encountered through\n            history, consider using the AccumulateHistogram operator.\n            ",
