@@ -1125,6 +1125,7 @@ pytorch.Execution = class {
             };
         });
         this._registerConstructor('torch.nn.quantized.modules.activation.ReLU', function() {});
+        this._registerConstructor('torch.nn.quantized.modules.batchnorm.BatchNorm2d', function() {});
         this._registerConstructor('torch.nn.quantized.modules.conv.Conv2d', function() {});
         this._registerConstructor('torch.nn.quantized.modules.DeQuantize', function() {});
         this._registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
@@ -1152,8 +1153,13 @@ pytorch.Execution = class {
         this._registerConstructor('torch.quantization.QConfig.QConfig', function() {});
         this._registerConstructor('torch.quantization.stubs.DeQuantStub', function() {});
         this._registerConstructor('torch.quantization.stubs.QuantStub', function() {});
+        this._registerConstructor('torch.utils.data.dataloader.DataLoader', function() {});
         this._registerConstructor('torch.utils.data.dataset.ConcatDataset', function() {});
+        this._registerConstructor('torch.utils.data.sampler.BatchSampler', function() {});
+        this._registerConstructor('torch.utils.data.sampler.SequentialSampler', function() {});
         this._registerConstructor('torchvision.datasets.folder.ImageFolder', function() {});
+        this._registerConstructor('torchvision.datasets.mnist.MNIST', function() {});
+        this._registerConstructor('torchvision.datasets.vision.StandardTransform', function() {});
         this._registerConstructor('torchvision.models.alexnet.AlexNet', function() {});
         this._registerConstructor('torchvision.models.densenet.DenseNet', function() {});
         this._registerConstructor('torchvision.models.densenet._DenseBlock', function() {});
