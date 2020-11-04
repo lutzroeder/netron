@@ -47126,6 +47126,16 @@
           "type": "string"
         },
         {
+          "default": false,
+          "name": "hash_valid",
+          "type": "boolean"
+        },
+        {
+          "default": 0,
+          "name": "hash",
+          "type": "int64"
+        },
+        {
           "description": "Optional. A function to control how to read data from snapshot shards.",
           "name": "reader_func",
           "type": "function"
