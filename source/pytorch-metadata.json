@@ -2441,14 +2441,15 @@
     "name": "torch.median:dim",
     "schema": {
       "attributes": [
-        { "name": "dim", "type": "int64[]" },
+        { "name": "dim", "type": "int64" },
         { "name": "keepdim", "type": "boolean", "default": false }
       ],
       "inputs": [
         { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
-        { "name": "output", "type": "Tensor" }
+        { "name": "values", "type": "Tensor" },
+        { "name": "indices", "type": "Tensor" }
       ]
     }
   },
