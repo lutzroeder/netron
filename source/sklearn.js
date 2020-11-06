@@ -889,6 +889,7 @@ sklearn.Container = class {
         constructorTable['sklearn.linear_model.stochastic_gradient.SGDClassifier'] = function() {};
         constructorTable['sklearn.metrics.scorer._PredictScorer'] = function() {};
         constructorTable['sklearn.model_selection._search.GridSearchCV'] = function() {};
+        constructorTable['sklearn.multioutput.MultiOutputRegressor'] = function() {};
         constructorTable['sklearn.naive_bayes.BernoulliNB'] = function() {};
         constructorTable['sklearn.naive_bayes.ComplementNB'] = function() {};
         constructorTable['sklearn.naive_bayes.GaussianNB'] = function() {};
