@@ -539,88 +539,22 @@ pytorch.Attribute = class {
             this._type = 'boolean';
             return;
         }
-
-        if (value && value.type) {
-            switch (value.type) {
-                case 'number':
-                    this._value = value.value;
-                    break;
-                case 'string':
-                    this._value = value.value;
-                    break;
-                case 'boolean':
-                    this._value = value.value;
-                    break;
-                case 'id':
-                    this._value = value.value;
-                    break;
-            }
-        }
-
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'type')) {
                 this._type = schema.type;
             }
-
-            switch (this._type) {
-                case 'boolean':
-                    if (this._value == 'False') {
-                        this._value = false;
-                    }
-                    else if (this._value == 'True') {
-                        this._value = true;
-                    }
-                    break;
-                case 'int32':
-                case 'int64':
-                    if (typeof this._value !== 'number') {
-                        if (typeof this._value === 'string') {
-                            this._value = parseInt(this._value, 10);
-                        }
-                    }
-                    break;
-                case 'float32':
-                case 'float64':
-                    if (typeof this._value !== 'number') {
-                        if (typeof this._value === 'string') {
-                            this._value = parseFloat(this._value);
-                        }
-                    }
-                    break;
-                case 'int32[]':
-                case 'int64[]': {
-                    switch (this._value.type) {
-                        case 'list':
-                            this._value = this._value.value.map((item) => {
-                                if (item.type === 'number') {
-                                    const number = parseInt(item.value, 10);
-                                    if (!Number.isNaN(item.value - number)) {
-                                        return number;
-                                    }
-                                }
-                                return item;
-                            });
-                            break;
-                    }
-                    break;
-                }
-            }
-
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (schema.visible === false) {
                 this._visible = false;
             }
             else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
                 if (JSON.stringify(schema.default) == JSON.stringify(this._value)) {
                     this._visible = false;
                 }
-                else if (Array.isArray(this._value) &&
-                    !Array.isArray(schema.default) &&
-                    this.value.every((item) => item == schema.default)) {
+                else if (Array.isArray(this._value) && !Array.isArray(schema.default) && this.value.every((item) => item == schema.default)) {
                     this._visible = false;
                 }
             }
         }
-
         if (Array.isArray(value) && value.length > 0 && value.every((obj) => obj && obj.__module__ && obj.__module__.startsWith('torch.nn'))) {
             this._value = '?';
         }
@@ -2745,7 +2679,6 @@ pytorch.Container.Zip = class {
 
     get execution() {
         if (this._execution === undefined) {
-            this._types = new Map(); // TODO
             const sources = {};
             for (const entry of this._entries) {
                 if (entry.name.startsWith(this._prefix + 'code')) {
@@ -2927,24 +2860,6 @@ pytorch.Container.Zip = class {
             }
         }
         return map;
-    }
-
-    _type(name) {
-        if (!this._types.has(name)) {
-            const parts = name.split('.');
-            const className = parts.pop();
-            const file = 'code/' + parts.join('/') + '.py';
-            const program = this.execution.parse(file);
-            if (program) {
-                for (const statement of program.body) {
-                    if (statement.type === 'class' && statement.name == className) {
-                        this._types.set(name, statement);
-                        break;
-                    }
-                }
-            }
-        }
-        return this._types.get(name);
     }
 
     trace() {
