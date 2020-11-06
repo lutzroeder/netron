@@ -125,10 +125,11 @@ $root.MNN.OpType = {
     OneHot: 119,
     BroadcastTo: 120,
     Dilation2D: 121,
-    MaxLayerCount: 128,
+    Raster: 128,
     ConvertTensor: 129,
     ArgMin: 130,
     LinSpace: 131,
+    RandomUniform: 132,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -148,7 +149,10 @@ $root.MNN.OpType = {
     DepthwiseConvInt8: 515,
     PoolInt8: 516,
     FloatToInt8: 517,
-    EltwiseInt8: 518
+    EltwiseInt8: 518,
+    While: 600,
+    If: 601,
+    LayerNorm: 603
 };
 
 $root.MNN.Plugin = class Plugin {
@@ -169,6 +173,40 @@ $root.MNN.Extra = class Extra {
         $.engine = reader.string_(position, 6, null);
         $.info = reader.typedArray(position, 8, Int8Array);
         $.attr = reader.tableArray(position, 10, $root.MNN.Attribute.decode);
+        return $;
+    }
+};
+
+$root.MNN.StringVec = class StringVec {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.StringVec();
+        $.data = reader.strings_(position, 4);
+        return $;
+    }
+};
+
+$root.MNN.WhileParam = class WhileParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.WhileParam();
+        $.cond_graph = reader.string_(position, 4, null);
+        $.body_graph = reader.string_(position, 6, null);
+        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
+        $.aliases_outputs = reader.strings_(position, 10);
+        $.aliases_updates = reader.tableArray(position, 12, $root.MNN.StringVec.decode);
+        return $;
+    }
+};
+
+$root.MNN.IfParam = class IfParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.IfParam();
+        $.then_graph = reader.string_(position, 4, null);
+        $.else_graph = reader.string_(position, 6, null);
+        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
+        $.aliases_outputs = reader.tableArray(position, 10, $root.MNN.StringVec.decode);
         return $;
     }
 };
@@ -261,6 +299,10 @@ $root.MNN.OpParameter = class {
             case 82: return $root.MNN.DetectionPostProcessParam.decode(reader, position);
             case 83: return $root.MNN.OneHotParam.decode(reader, position);
             case 84: return $root.MNN.PadParam.decode(reader, position);
+            case 85: return $root.MNN.WhileParam.decode(reader, position);
+            case 86: return $root.MNN.IfParam.decode(reader, position);
+            case 87: return $root.MNN.RandomUniform.decode(reader, position);
+            case 88: return $root.MNN.LayerNorm.decode(reader, position);
         }
         return undefined;
     }
@@ -351,6 +393,10 @@ $root.MNN.OpParameter = class {
             case 'DetectionPostProcessParam': return $root.MNN.DetectionPostProcessParam.decodeText(reader, json);
             case 'OneHotParam': return $root.MNN.OneHotParam.decodeText(reader, json);
             case 'PadParam': return $root.MNN.PadParam.decodeText(reader, json);
+            case 'WhileParam': return $root.MNN.WhileParam.decodeText(reader, json);
+            case 'IfParam': return $root.MNN.IfParam.decodeText(reader, json);
+            case 'RandomUniform': return $root.MNN.RandomUniform.decodeText(reader, json);
+            case 'LayerNorm': return $root.MNN.LayerNorm.decodeText(reader, json);
         }
         return undefined;
     }
@@ -370,6 +416,28 @@ $root.MNN.Op = class Op {
     }
 };
 
+$root.MNN.View = class View {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.View();
+        $.offset = reader.int32_(position, 4, 0);
+        $.stride = reader.typedArray(position, 6, Int32Array);
+        return $;
+    }
+};
+
+$root.MNN.Region = class Region {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Region();
+        $.src = reader.table(position, 4, $root.MNN.View.decode);
+        $.dst = reader.table(position, 6, $root.MNN.View.decode);
+        $.size = reader.typedArray(position, 8, Int32Array);
+        $.origin = reader.int32_(position, 10, 0);
+        return $;
+    }
+};
+
 $root.MNN.TensorDescribe = class TensorDescribe {
 
     static decode(reader, position) {
@@ -377,6 +445,7 @@ $root.MNN.TensorDescribe = class TensorDescribe {
         $.blob = reader.table(position, 4, $root.MNN.Blob.decode);
         $.index = reader.int32_(position, 6, 0);
         $.name = reader.string_(position, 8, null);
+        $.regions = reader.tableArray(position, 10, $root.MNN.Region.decode);
         return $;
     }
 };
@@ -391,7 +460,21 @@ $root.MNN.ForwardType = {
 
 $root.MNN.Usage = {
     INFERENCE: 0,
-    TRAIN: 1
+    TRAIN: 1,
+    INFERENCE_STATIC: 2
+};
+
+$root.MNN.SubGraphProto = class SubGraphProto {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.SubGraphProto();
+        $.name = reader.string_(position, 4, null);
+        $.inputs = reader.typedArray(position, 6, Int32Array);
+        $.outputs = reader.typedArray(position, 8, Int32Array);
+        $.tensors = reader.strings_(position, 10);
+        $.nodes = reader.tableArray(position, 12, $root.MNN.Op.decode);
+        return $;
+    }
 };
 
 $root.MNN.Net = class Net {
@@ -412,6 +495,7 @@ $root.MNN.Net = class Net {
         $.tensorName = reader.strings_(position, 18);
         $.tensorNumber = reader.int32_(position, 20, 0);
         $.usage = reader.int8_(position, 22, 0);
+        $.subgraphs = reader.tableArray(position, 24, $root.MNN.SubGraphProto.decode);
         return $;
     }
 };
@@ -441,6 +525,7 @@ $root.MNN.Convolution2DCommon = class Convolution2DCommon {
         $.relu = reader.bool_(position, 28, false);
         $.relu6 = reader.bool_(position, 30, false);
         $.pads = reader.typedArray(position, 32, Int32Array);
+        $.outPads = reader.typedArray(position, 34, Int32Array);
         return $;
     }
 };
@@ -495,6 +580,7 @@ $root.MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.scale = reader.typedArray(position, 8, Float32Array);
         $.tensorScale = reader.typedArray(position, 10, Float32Array);
         $.method = reader.int8_(position, 12, 0);
+        $.nbits = reader.int32_(position, 14, 8);
         return $;
     }
 };
@@ -550,6 +636,12 @@ $root.MNN.PoolPadType = {
     SAME: 2
 };
 
+$root.MNN.AvgPoolCountType = {
+    DEFAULT: 0,
+    INCLUDE_PADDING: 1,
+    EXCLUDE_PADDING: 2
+};
+
 $root.MNN.Pool = class Pool {
 
     static decode(reader, position) {
@@ -566,6 +658,7 @@ $root.MNN.Pool = class Pool {
         $.dataType = reader.int32_(position, 22, 1);
         $.ceilModel = reader.bool_(position, 24, true);
         $.pads = reader.typedArray(position, 26, Int32Array);
+        $.countType = reader.int8_(position, 28, 0);
         return $;
     }
 };
@@ -812,6 +905,16 @@ $root.MNN.Proposal = class Proposal {
     }
 };
 
+$root.MNN.CoordinateTransformationMode = {
+    NotSet: 0,
+    AlignCorners: 1,
+    HalfPixels: 2,
+    PytorchHalfPixels: 3,
+    Asymmetric: 4,
+    TensorflowHalfPixels: 5,
+    TensorflowCropAndResize: 6
+};
+
 $root.MNN.Interp = class Interp {
 
     static decode(reader, position) {
@@ -823,6 +926,10 @@ $root.MNN.Interp = class Interp {
         $.resizeType = reader.int32_(position, 12, 0);
         $.alignCorners = reader.bool_(position, 14, false);
         $.halfPixelCenters = reader.bool_(position, 16, false);
+        $.widthOffset = reader.float32_(position, 18, 0);
+        $.heightOffset = reader.float32_(position, 20, 0);
+        $.cubicCoeffA = reader.float32_(position, 22, -0.75);
+        $.ctm = reader.int8_(position, 24, 0);
         return $;
     }
 };
@@ -930,6 +1037,17 @@ $root.MNN.Attribute = class Attribute {
         $.f = reader.float32_(position, 14, 0);
         $.tensor = reader.table(position, 16, $root.MNN.Blob.decode);
         $.list = reader.table(position, 18, $root.MNN.ListValue.decode);
+        $.func = reader.table(position, 20, $root.MNN.NamedAttrList.decode);
+        return $;
+    }
+};
+
+$root.MNN.NamedAttrList = class NamedAttrList {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.NamedAttrList();
+        $.name = reader.string_(position, 4, null);
+        $.attr = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
         return $;
     }
 };
@@ -1156,7 +1274,9 @@ $root.MNN.UnaryOpOperation = {
     ERF: 25,
     ERFC: 26,
     ERFINV: 27,
-    EXPM1: 28
+    EXPM1: 28,
+    SIGMOID: 29,
+    TANH: 30
 };
 
 $root.MNN.UnaryOp = class UnaryOp {
@@ -1347,11 +1467,17 @@ $root.MNN.BatchMatMulParam = class BatchMatMulParam {
     }
 };
 
+$root.MNN.DepthToSpaceMode = {
+    DCR: 0,
+    CRD: 1
+};
+
 $root.MNN.DepthSpaceParam = class DepthSpaceParam {
 
     static decode(reader, position) {
         const $ = new $root.MNN.DepthSpaceParam();
         $.blockSize = reader.int32_(position, 4, 0);
+        $.mode = reader.int8_(position, 6, 0);
         return $;
     }
 };
@@ -1403,6 +1529,30 @@ $root.MNN.PadParam = class PadParam {
     static decode(reader, position) {
         const $ = new $root.MNN.PadParam();
         $.mode = reader.int8_(position, 4, 0);
+        return $;
+    }
+};
+
+$root.MNN.LayerNorm = class LayerNorm {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.LayerNorm();
+        $.axis = reader.typedArray(position, 4, Int32Array);
+        $.epsilon = reader.float32_(position, 6, 0);
+        $.gamma = reader.typedArray(position, 8, Float32Array);
+        $.beta = reader.typedArray(position, 10, Float32Array);
+        return $;
+    }
+};
+
+$root.MNN.RandomUniform = class RandomUniform {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.RandomUniform();
+        $.seed = reader.int32_(position, 4, 0);
+        $.seed2 = reader.int32_(position, 6, 0);
+        $.type = reader.int32_(position, 8, 1);
+        $.T = reader.int32_(position, 10, 3);
         return $;
     }
 };
