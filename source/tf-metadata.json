@@ -16646,7 +16646,7 @@
         },
         {
           "default": "uniform",
-          "description": "indicates if the noise should `uniform`, `gaussian`, or\n`zero`. The default is `uniform` which means the the noise type\nwill be decided by `uniform_noise`.",
+          "description": "indicates if the noise should `uniform`, `gaussian`, or\n`zero`. The default is `uniform` which means the noise type\nwill be decided by `uniform_noise`.",
           "name": "noise",
           "type": "string"
         }
@@ -16703,7 +16703,7 @@
         },
         {
           "default": "uniform",
-          "description": "indicates if the noise should `uniform`, `gaussian`, or\n`zero`. The default is `uniform` which means the the noise type\nwill be decided by `uniform_noise`.",
+          "description": "indicates if the noise should `uniform`, `gaussian`, or\n`zero`. The default is `uniform` which means the noise type\nwill be decided by `uniform_noise`.",
           "name": "noise",
           "type": "string"
         }
@@ -36932,7 +36932,7 @@
       "description": "The `ragged_to_dense` op creates a dense tensor from a list of row partition\ntensors, a value vector, and default values. If the shape is unspecified, the\nminimal shape required to contain all the elements in the ragged tensor (the\nnatural shape) will be used. If some dimensions are left unspecified, then the\nsize of the natural shape is used in that dimension.\n\nThe default_value will be broadcast to the output shape. After that, the values\nfrom the ragged tensor overwrite the default values. Note that the default_value\nmust have less dimensions than the value.\n\nThe row partition tensors are in the order of the dimensions.\nAt present, the types can be:\n* \"ROW_SPLITS\": the row_splits tensor from the ragged tensor.\n* \"VALUE_ROWIDS\": the value_rowids tensor from the ragged tensor.\n* \"FIRST_DIM_SIZE\": if value_rowids is used for the first dimension, then it\n  is preceded by \"FIRST_DIM_SIZE\".",
       "inputs": [
         {
-          "description": "The desired shape of the the output tensor. If left unspecified (empty),\nthe minimal shape required to contain all the elements in the ragged tensor\n(the natural shape) will be used. If some dimensions are left unspecified, then\nthe size of the natural shape is used in that dimension.\n\nNote that dense dimensions cannot be modified by the shape argument. Trying to\nchange the size of a dense dimension will cause the op to fail.\nExamples:\nnatural shape: [4, 5, 6]\nshape: -1\noutput shape: [4, 5, 6]\n\nnatural shape: [4, 5, 6]\nshape: [3, -1, 2]\noutput shape: [3, 5, 2]\n\nnatural shape: [4, 5, 6]\nshape: [3, 7, 2]\noutput shape: [3, 7, 2]\n",
+          "description": "The desired shape of the output tensor. If left unspecified (empty),\nthe minimal shape required to contain all the elements in the ragged tensor\n(the natural shape) will be used. If some dimensions are left unspecified, then\nthe size of the natural shape is used in that dimension.\n\nNote that dense dimensions cannot be modified by the shape argument. Trying to\nchange the size of a dense dimension will cause the op to fail.\nExamples:\nnatural shape: [4, 5, 6]\nshape: -1\noutput shape: [4, 5, 6]\n\nnatural shape: [4, 5, 6]\nshape: [3, -1, 2]\noutput shape: [3, 5, 2]\n\nnatural shape: [4, 5, 6]\nshape: [3, 7, 2]\noutput shape: [3, 7, 2]\n",
           "name": "shape",
           "typeAttr": "Tshape"
         },
@@ -56437,7 +56437,7 @@
         },
         {
           "default": false,
-          "description": "If true (default is false), then all\nelements in the TensorArray will be expected to have have identical shapes.\nThis allows certain behaviors, like dynamically checking for\nconsistent shapes on write, and being able to fill in properly\nshaped zero tensors on stack -- even if the element_shape attribute\nis not fully defined.",
+          "description": "If true (default is false), then all\nelements in the TensorArray will be expected to have identical shapes.\nThis allows certain behaviors, like dynamically checking for\nconsistent shapes on write, and being able to fill in properly\nshaped zero tensors on stack -- even if the element_shape attribute\nis not fully defined.",
           "name": "identical_element_shapes",
           "type": "boolean"
         },
