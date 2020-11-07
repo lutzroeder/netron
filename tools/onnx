@@ -43,8 +43,8 @@ install() {
             protobuf=protobuf
             ;;
         darwin*)
-            brew list cmake > /dev/null 2>&1 || brew install cmake > /dev/null
-            brew list protobuf > /dev/null 2>&1 || brew install protobuf > /dev/null
+            [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
+            [ -x "$(command -v protoc)" ] || brew install protobuf > /dev/null
             protobuf=protobuf
             ;;
         msys*)
