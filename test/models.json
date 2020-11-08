@@ -3975,6 +3975,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "DRNL4x_dual_model.pth",
+    "source": "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/543"
+  },
+  {
+    "type":   "pytorch",
     "target": "ENet.pth",
     "source": "https://github.com/lutzroeder/netron/files/5368544/ENet.pth.zip[ENet.pth]",
     "format": "PyTorch v0.1.10",
