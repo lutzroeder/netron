@@ -4593,6 +4593,19 @@
     }
   },
   {
+    "name": "torch.index_select:",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "dim", "type": "int64" },
+        { "name": "index", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.index_put",
     "schema": {
       "attributes": [
