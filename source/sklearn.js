@@ -36,15 +36,12 @@ sklearn.ModelFactory = class {
                         const message = error && error.message ? error.message : error.toString();
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
-                    if (!container.weights && !container.data) {
-                        throw new sklearn.Error('No root object.');
-                    }
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new sklearn.Error('File is not scikit-learn (' + message.replace(/\.$/, '') + ').');
                 }
-                return new sklearn.Model(metadata, container.data, container.weights);
+                return new sklearn.Model(metadata, container);
             });
         });
     }
@@ -52,36 +49,19 @@ sklearn.ModelFactory = class {
 
 sklearn.Model = class {
 
-    constructor(metadata, root, weights) {
-        if (Array.isArray(root)) {
-            if (root.length > 16 || Object(root[0]) !== root[0]) {
-                throw new sklearn.Error('Unsupported pickle array format');
+    constructor(metadata, container) {
+        this._format = container.format;
+        this._graphs = [];
+        switch (container.type) {
+            case 'object': {
+                this._graphs = container.data.map((obj, index) => new sklearn.Graph(metadata, index.toString(), container.type, obj));
+                break;
+            }
+            case 'weights': {
+                this._graphs.push(new sklearn.Graph(metadata, '', container.type, container.data));
+                break;
             }
         }
-        root = Array.isArray(root) ? root : [ root ];
-        const formats = new Set(root.map((obj) => {
-            if (obj && obj.__module__) {
-                if (obj.__module__.startsWith('sklearn.')) {
-                    return 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-                }
-                else if (obj.__module__.startsWith('xgboost.')) {
-                    return 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-                }
-                else if (obj.__module__.startsWith('nolearn.lasagne.')) {
-                    return 'Lasagne';
-                }
-                else if (obj.__module__.startsWith('gensim.')) {
-                    return 'gensim';
-                }
-            }
-            return 'Pickle';
-        }));
-        const format = Array.from(formats.values());
-        if (format.length > 1) {
-            throw new sklearn.Error("Invalid array format '" + JSON.stringify(format) + "'.");
-        }
-        this._format = format[0];
-        this._graphs = root.map((obj, index) => new sklearn.Graph(metadata, index, obj, weights));
     }
 
     get format() {
@@ -95,48 +75,52 @@ sklearn.Model = class {
 
 sklearn.Graph = class {
 
-    constructor(metadata, index, obj, weights) {
+    constructor(metadata, index, type, obj) {
         this._name = index.toString();
         this._metadata = metadata;
         this._nodes = [];
         this._groups = false;
 
-        if (obj) {
-            this._process('', '', obj, ['data']);
-        }
-        else if (weights instanceof Map) {
-            const group_map = new Map();
-            const groups = [];
-            let separator = '_';
-            if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) && !Array.from(weights.keys()).every((key) => key.indexOf('_') !== -1)) {
-                separator = '.';
+        switch (type) {
+            case 'object': {
+                this._process('', '', obj, ['data']);
+                break;
             }
-            for (const pair of weights) {
-                const key = pair[0];
-                const parts = key.split(separator);
-                const value = pair[1];
-                const name = parts.length > 1 ? parts.pop() : '?';
-                const id = parts.join(separator);
-                let group = group_map.get(id);
-                if (!group) {
-                    group = { id: id, arrays: [] };
-                    groups.push(group);
-                    group_map.set(id, group);
+            case 'weights': {
+                const group_map = new Map();
+                const groups = [];
+                let separator = '_';
+                if (Array.from(obj.keys()).every((key) => key.indexOf('.') !== -1) && !Array.from(obj.keys()).every((key) => key.indexOf('_') !== -1)) {
+                    separator = '.';
                 }
-                group.arrays.push({
-                    key: key,
-                    name: name,
-                    value: value
-                });
+                for (const pair of obj) {
+                    const key = pair[0];
+                    const parts = key.split(separator);
+                    const value = pair[1];
+                    const name = parts.length > 1 ? parts.pop() : '?';
+                    const id = parts.join(separator);
+                    let group = group_map.get(id);
+                    if (!group) {
+                        group = { id: id, arrays: [] };
+                        groups.push(group);
+                        group_map.set(id, group);
+                    }
+                    group.arrays.push({
+                        key: key,
+                        name: name,
+                        value: value
+                    });
+                }
+                this._nodes.push(...groups.map((group) => {
+                    const inputs = group.arrays.map((array) => {
+                        return new sklearn.Parameter(array.name, [
+                            new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
+                        ]);
+                    });
+                    return new sklearn.Node(this._metadata, '', group.id, { __module__: '', __name__: 'Weights' }, inputs, []);
+                }));
+                break;
             }
-            this._nodes.push(...groups.map((group) => {
-                const inputs = group.arrays.map((array) => {
-                    return new sklearn.Parameter(array.name, [
-                        new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
-                    ]);
-                });
-                return new sklearn.Node(this._metadata, '', group.id, { __module__: 'sklearn._', __name__: 'Weights' }, inputs, []);
-            }));
         }
     }
 
@@ -428,7 +412,7 @@ sklearn.Tensor = class {
     constructor(name, value) {
         this._name = name;
         if (sklearn.Utility.isTensor(value)) {
-            this._kind = 'Array';
+            this._kind = 'NumPy Array';
             this._type = new sklearn.TensorType(value.dtype.name, new sklearn.TensorShape(value.shape));
             this._data = value.data;
         }
@@ -1247,67 +1231,61 @@ sklearn.Container = class {
             return obj;
         };
 
-        this._data = unpickler.load(function_call, () => {});
-
-        const find_weights = function(objs) {
-
-            for (const dict of objs) {
-                if (dict) {
-                    const weights = new Map();
-                    if (dict instanceof Map) {
-                        for (const pair of dict) {
-                            if (!sklearn.Utility.isTensor(pair[1])) {
-                                return null;
-                            }
-                            weights.set(pair[0], pair[1]);
-                        }
-                        return weights;
-                    }
-                    else if (!Array.isArray(dict)) {
-                        for (const key in dict) {
-                            const value = dict[key];
-                            if (key != 'weight_order' && key != 'lr') {
-                                if (!key || !sklearn.Utility.isTensor(value)) {
-                                    return null;
-                                }
-                                weights.set(key, value);
-                            }
-                        }
-                        return weights;
+        const obj = unpickler.load(function_call, () => {});
+        const weights = sklearn.Utility.findWeights(obj);
+        if (weights) {
+            this._format = 'NumPy Weights';
+            this._type = 'weights';
+            this._data = weights;
+        }
+        else {
+            if (obj) {
+                this._type = 'object';
+                if (Array.isArray(obj)) {
+                    if (obj.length > 16 || Object(obj[0]) !== obj[0]) {
+                        throw new sklearn.Error('Unsupported pickle array format');
                     }
                 }
-            }
-
-            for (const list of objs) {
-                if (list && Array.isArray(list)) {
-                    const weights = new Map();
-                    for (let i = 0; i < list.length; i++) {
-                        const value = list[i];
-                        if (!sklearn.Utility.isTensor(value, 'numpy.ndarray')) {
-                            return null;
+                this._data = Array.isArray(obj) ? obj : [ obj ];
+                const set = new Set(this._data.map((obj) => {
+                    if (obj && obj.__module__) {
+                        if (obj.__module__.startsWith('sklearn.')) {
+                            return 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
                         }
-                        weights.set(i.toString(), value);
+                        else if (obj.__module__.startsWith('xgboost.')) {
+                            return 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                        }
+                        else if (obj.__module__.startsWith('nolearn.lasagne.')) {
+                            return 'Lasagne';
+                        }
+                        else if (obj.__module__.startsWith('gensim.')) {
+                            return 'gensim';
+                        }
                     }
-                    return weights;
+                    return 'Pickle';
+                }));
+                const formats = Array.from(set.values());
+                if (formats.length > 1) {
+                    throw new sklearn.Error("Invalid array format '" + JSON.stringify(formats) + "'.");
                 }
+                this._format = formats[0];
             }
-            return null;
-        };
-
-        if (this._data) {
-            this._weights = find_weights([ this._data, this._data.blobs ]);
-            if (this._weights) {
-                this._data = null;
+            else {
+                throw new sklearn.Error('File does not contain root module or state dictionary.');
             }
         }
     }
 
-    get data() {
-        return this._data;
+    get format() {
+        return this._format;
     }
 
-    get weights() {
-        return this._weights;
+    get type() {
+        return this._type;
+    }
+
+    get data() {
+        return this._data;
     }
 };
 
@@ -1323,6 +1301,52 @@ sklearn.Utility = class {
             obj.__name__ = parts.pop();
             obj.__module__ = parts.join('.');
         }
+    }
+
+    static findWeights(obj) {
+        const keys = [ '', 'blobs' ];
+        for (const key of keys) {
+            const dict = key === '' ? obj : obj[key];
+            if (dict) {
+                const weights = new Map();
+                if (dict instanceof Map) {
+                    for (const pair of dict) {
+                        if (!sklearn.Utility.isTensor(pair[1])) {
+                            return null;
+                        }
+                        weights.set(pair[0], pair[1]);
+                    }
+                    return weights;
+                }
+                else if (!Array.isArray(dict)) {
+                    for (const key in dict) {
+                        const value = dict[key];
+                        if (key != 'weight_order' && key != 'lr') {
+                            if (!key || !sklearn.Utility.isTensor(value)) {
+                                return null;
+                            }
+                            weights.set(key, value);
+                        }
+                    }
+                    return weights;
+                }
+            }
+        }
+        for (const key of keys) {
+            const list = key === '' ? obj : obj[key];
+            if (list && Array.isArray(list)) {
+                const weights = new Map();
+                for (let i = 0; i < list.length; i++) {
+                    const value = list[i];
+                    if (!sklearn.Utility.isTensor(value, 'numpy.ndarray')) {
+                        return null;
+                    }
+                    weights.set(i.toString(), value);
+                }
+                return weights;
+            }
+        }
+        return null;
     }
 };
 

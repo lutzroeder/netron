@@ -4569,7 +4569,7 @@
     "type":   "sklearn",
     "target": "curvrank.localization.dorsal.weights.pkl",
     "source": "https://lev.cs.rpi.edu/public/models/curvrank.localization.dorsal.weights.pkl",
-    "format": "Pickle"
+    "format": "NumPy Weights"
   },
   {
     "type":   "sklearn",
@@ -4595,7 +4595,7 @@
     "type":   "sklearn",
     "target": "mobilenet_v2_normal_72820.pkl",
     "source": "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
-    "format": "Pickle",
+    "format": "NumPy Weights",
     "link":   "https://github.com/MegEngine/Models/tree/master/official/quantization"
   },
   {
@@ -4658,7 +4658,7 @@
     "type":   "sklearn",
     "target": "R-50.pkl",
     "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
-    "format": "Pickle",
+    "format": "NumPy Weights",
     "link":   "https://github.com/facebookresearch/Detectron"
   },
   {
