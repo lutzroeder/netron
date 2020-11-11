@@ -36,17 +36,9 @@ onnx.ModelFactory = class {
             }
         }
         const buffer = context.buffer;
-        if (buffer && buffer.length > 11 && buffer[0] === 0x08 && buffer[1] < 0x08) {
-            if ([ 0x08, undefined, 0x12, undefined, 0x74, 0x66, 0x32, 0x6F, 0x6E, 0x6E, 0x78 ].every((v, i) => v === undefined || v === buffer[i])) { // tf2onnx
-                return true;
-            }
-            if ([ 0x08, undefined, 0x12, undefined, 0x70, 0x79, 0x74, 0x6f, 0x72, 0x63, 0x68 ].every((v, i) => v === undefined || v === buffer[i])) { // pytorch
-                return true;
-            }
-            if ([ 0x08, undefined, 0x12, undefined, 0x08, 0x73, 0x6B, 0x6C, 0x32, 0x6F, 0x6E, 0x6E, 0x78 ].every((v, i) => v === undefined || v === buffer[i])) { // skl2onnx
-                return true;
-            }
-            if ([ 0x08, undefined, 0x12, undefined, 0x6f, 0x6e, 0x6e, 0x78, 0x2d, 0x63, 0x61, 0x66, 0x66, 0x65, 0x32, 0x3a ].every((v, i) => v === undefined || v === buffer[i])) { // onnx-caffe2
+        if (buffer && buffer.length > 11 && buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
+            const producers = [ 'keras2onnx', 'tf2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2' ];
+            if (producers.some((producer) => Array.from(producer).every((ch, index) => index < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
                 return true;
             }
         }
