@@ -1963,6 +1963,36 @@
     }
   },
   {
+    "name": "torch._add_relu:Tensor",
+    "schema": {
+      "attributes": [
+        { "name": "alpha", "type": "Scalar", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch._add_relu_:Tensor",
+    "schema": {
+      "attributes": [
+        { "name": "alpha", "type": "Scalar", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.sub_:Tensor",
     "schema": {
       "attributes": [
@@ -5280,6 +5310,38 @@
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.var_mean:",
+    "schema": {
+      "attributes": [
+        { "name": "unbiased", "type": "boolean", "default": true }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" },
+        { "name": "?", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.var_mean:dim",
+    "schema": {
+      "attributes": [
+        { "name": "dim", "type": "int64[]" },
+        { "name": "unbiased", "type": "boolean", "default": true },
+        { "name": "keepdim", "type": "boolean", "default": false }
+      ],
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" },
+        { "name": "?", "type": "Tensor" }
       ]
     }
   }
