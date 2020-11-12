@@ -254,6 +254,16 @@
     }
   },
   {
+    "name": "nn.SpatialMaxUnpooling",
+    "schema": {
+      "category": "Pool",
+      "attributes": [ 
+        { "name": "oheight", "visible": false },
+        { "name": "owidth", "visible": false }
+      ]
+    }
+  },
+  {
     "name": "cudnn.SpatialMaxPooling",
     "schema": {
       "category": "Pool",
