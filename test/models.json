@@ -378,6 +378,13 @@
   },
   {
     "type":   "caffe",
+    "target": "feat_ext_C3D_examples_imagenet_alexnet_train.prototxt",
+    "source": "https://github.com/lutzroeder/netron/files/5534696/feat_ext_C3D_examples_imagenet_alexnet_train.prototxt.zip[feat_ext_C3D_examples_imagenet_alexnet_train.prototxt]",
+    "format": "Caffe v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
     "target": "finetune_flickr_style.caffemodel",
     "source": "http://dl.caffe.berkeleyvision.org/finetune_flickr_style.caffemodel",
     "format": "Caffe v1",

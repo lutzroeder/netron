@@ -126,7 +126,9 @@ caffe.ModelFactory = class {
                 throw new Error("Unknown field '" + tag + "'" + this.location());
             };
             reader.enum = function(type) {
-                const token = this.read();
+                const token = this.token();
+                this.next();
+                this.semicolon();
                 if (!Object.prototype.hasOwnProperty.call(type, token)) {
                     const value = Number.parseInt(token, 10);
                     if (!Number.isNaN(token - value)) {
@@ -419,23 +421,7 @@ caffe.Node = class {
             }
             case 1: {
                 this._name = layer.name;
-                const typeIndex = layer.type;
-                if (typeIndex === undefined) {
-                    this._type = '?';
-                }
-                else {
-                    if (!caffe.Node._typeMap) {
-                        caffe.Node._typeMap = {};
-                        const known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
-                        for (const key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
-                            const index = caffe.proto.V1LayerParameter.LayerType[key];
-                            caffe.Node._typeMap[index] = key.split('_').map((item) => {
-                                return known[item] || item.substring(0, 1) + item.substring(1).toLowerCase();
-                            }).join('');
-                        }
-                    }
-                    this._type = caffe.Node._typeMap[typeIndex] || typeIndex.toString();
-                }
+                this._type = caffe.Utility.layerType(layer.type);
                 break;
             }
             case 2: {
@@ -743,6 +729,22 @@ caffe.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
+};
+
+caffe.Utility = class {
+
+    static layerType(type) {
+        type = type || 0;
+        if (!caffe.Utility._layerTypeMap) {
+            caffe.Utility._layerTypeMap = new Map();
+            const known = { 'BNLL': 'BNLL', 'HDF5': 'HDF5', 'LRN': 'LRN', 'RELU': 'ReLU', 'TANH': 'TanH', 'ARGMAX': 'ArgMax', 'MVN': 'MVN', 'ABSVAL': 'AbsVal' };
+            for (const key of Object.keys(caffe.proto.V1LayerParameter.LayerType)) {
+                const value = caffe.proto.V1LayerParameter.LayerType[key];
+                caffe.Utility._layerTypeMap.set(value, key.split('_').map((item) => known[item] || item.substring(0, 1) + item.substring(1).toLowerCase()).join(''));
+            }
+        }
+        return caffe.Utility._layerTypeMap.has(type) ? caffe.Utility._layerTypeMap.get(type) : type.toString();
     }
 };
 

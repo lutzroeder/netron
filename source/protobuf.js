@@ -388,7 +388,7 @@ protobuf.TextReader = class {
             throw new protobuf.Error("Couldn't parse integer '" + token + "'" + this.location());
         }
         this.next();
-        this._semicolon();
+        this.semicolon();
         return value;
     }
 
@@ -411,7 +411,7 @@ protobuf.TextReader = class {
             throw new protobuf.Error("Couldn't parse float '" + token + "'" + this.location());
         }
         this.next();
-        this._semicolon();
+        this.semicolon();
         return value;
     }
 
@@ -429,7 +429,7 @@ protobuf.TextReader = class {
         }
         const value = token.substring(1, token.length - 1);
         this.next();
-        this._semicolon();
+        this.semicolon();
         return value;
     }
 
@@ -440,13 +440,13 @@ protobuf.TextReader = class {
             case 'True':
             case '1':
                 this.next();
-                this._semicolon();
+                this.semicolon();
                 return true;
             case 'false':
             case 'False':
             case '0':
                 this.next();
-                this._semicolon();
+                this.semicolon();
                 return false;
         }
         throw new protobuf.Error("Couldn't parse boolean '" + token + "'" + this.location());
@@ -475,7 +475,7 @@ protobuf.TextReader = class {
             }
         }
         this.next();
-        this._semicolon();
+        this.semicolon();
         return value;
     }
 
@@ -592,7 +592,7 @@ protobuf.TextReader = class {
             }
             default: {
                 this.next();
-                this._semicolon();
+                this.semicolon();
                 break;
             }
         }
@@ -845,7 +845,7 @@ protobuf.TextReader = class {
         return ' at ' + line.toString() + ':' + column.toString() + '.';
     }
 
-    _semicolon() {
+    semicolon() {
         if (this._arrayDepth === 0) {
             this.match(';');
         }
