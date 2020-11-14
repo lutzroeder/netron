@@ -904,7 +904,7 @@ pytorch.Execution = class {
     constructor(python, sources, exceptionCallback) {
         const self = this;
         this._python = python;
-        this._sources = sources;
+        this._sources = sources || new Map();
         this._exceptionCallback = exceptionCallback;
         this._utf8Decoder = new TextDecoder('utf-8');
         this._unknownNameMap = new Set();
@@ -1812,9 +1812,9 @@ pytorch.Execution = class {
     }
 
     parse(file) {
-        const data = this._sources[file];
-        if (data) {
-            const code = this._utf8Decoder.decode(data);
+        if (this._sources.has(file)) {
+            const buffer = this._sources.get(file);
+            const code = this._utf8Decoder.decode(buffer);
             const reader = new this._python.Parser(code, file);
             const program = reader.parse();
             if (!program) {
@@ -2361,7 +2361,7 @@ pytorch.Container.Tar = class {
         this._data = null;
         this._littleEndian = true;
 
-        const execution = new pytorch.Execution(null, [], this._exceptionCallback);
+        const execution = new pytorch.Execution(null, null, this._exceptionCallback);
 
         const entries = {};
         for (const entry of this._entries) {
@@ -2488,7 +2488,7 @@ pytorch.Container.Pickle = class {
             return;
         }
 
-        const execution = new pytorch.Execution(null, [], this._exceptionCallback);
+        const execution = new pytorch.Execution(null, null, this._exceptionCallback);
         const unpickler = new this._pickle.Unpickler(this._buffer);
 
         this._buffer = null;
@@ -2625,7 +2625,8 @@ pytorch.Container.Zip = class {
                 if (!version) {
                     this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + versionNumber + "'."));
                 }
-                this._format = (this._entry('constants.pkl') ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v-' + versionNumber.toString() );
+                const constants = this._entry('constants.pkl');
+                this._format = (constants ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v-' + versionNumber.toString() );
             }
         }
         return this._format;
@@ -2669,14 +2670,14 @@ pytorch.Container.Zip = class {
 
     get execution() {
         if (this._execution === undefined) {
-            const sources = {};
+            const sources = new Map();
             for (const entry of this._entries) {
                 if (entry.name.startsWith(this._prefix + 'code')) {
                     const file = entry.name.substring(this._prefix.length);
-                    if (sources[file]) {
+                    if (sources.has(file)) {
                         throw new pytorch.Error("Duplicate source file '" + file + "'.");
                     }
-                    sources[file] = entry.data;
+                    sources.set(file, entry.data);
                 }
             }
             this._execution = new pytorch.Container.Zip.Execution(this._python, sources, this._exceptionCallback, this._metadata);
@@ -2790,7 +2791,7 @@ pytorch.Container.Zip = class {
             if (this.format.startsWith('TorchScript ')) {
                 this._type = 'script';
             }
-            if (this.format.startsWith('PyTorch ')) {
+            else {
                 const obj = this._data;
                 const root = pytorch.Utility.findModule(obj);
                 if (root) {
