@@ -3817,6 +3817,13 @@
   },
   {
     "type":   "paddle",
+    "target": "recognize_digits_multilayer_perceptron_weights.tar",
+    "source": "https://github.com/lutzroeder/netron/files/5551009/recognize_digits_multilayer_perceptron_weights.tar.zip[recognize_digits_multilayer_perceptron_weights.tar]",
+    "format": "PaddlePaddle Weights",
+    "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
     "target": "tranformer_base.zip",
     "source": "https://github.com/lutzroeder/netron/files/5160568/tranformer_base.zip",
     "format": "PaddlePaddle",

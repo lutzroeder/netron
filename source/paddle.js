@@ -17,73 +17,82 @@ paddle.ModelFactory = class {
                 return true;
             }
         }
+        if (paddle.Container.open(context)) {
+            return true;
+        }
         return false;
     }
 
     open(context, host) {
-        return host.require('./paddle-proto').then(() => {
-            let programDesc = null;
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'pbtxt':
-                case 'txt': {
-                    try {
-                        paddle.proto = protobuf.get('paddle').paddle.framework.proto;
-                        const reader = protobuf.TextReader.create(context.buffer);
-                        programDesc = paddle.proto.ProgramDesc.decodeText(reader);
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
+        return paddle.Metadata.open(host).then((metadata) => {
+            return host.require('./paddle-proto').then(() => {
+                paddle.proto = protobuf.get('paddle').paddle.framework.proto;
+                const container = paddle.Container.open(context);
+                if (container) {
+                    return new paddle.Model(metadata, 'PaddlePaddle Weights', null, container.weights);
                 }
-                default: {
-                    try {
-                        paddle.proto = protobuf.get('paddle').paddle.framework.proto;
-                        const reader = protobuf.Reader.create(context.buffer);
-                        programDesc = paddle.proto.ProgramDesc.decode(reader);
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
-                }
-            }
-            return paddle.Metadata.open(host).then((metadata) => {
-                const vars = new Set();
-                for (const block of programDesc.blocks) {
-                    const blockVars = new Set();
-                    for (const variable of block.vars) {
-                        if (variable.persistable && variable.type &&
-                            variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
-                            variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
-                            blockVars.add(variable.name);
+                else {
+                    let programDesc = null;
+                    const format = 'PaddlePaddle';
+                    const identifier = context.identifier;
+                    const extension = identifier.split('.').pop().toLowerCase();
+                    switch (extension) {
+                        case 'pbtxt':
+                        case 'txt': {
+                            try {
+                                const reader = protobuf.TextReader.create(context.buffer);
+                                programDesc = paddle.proto.ProgramDesc.decodeText(reader);
+                            }
+                            catch (error) {
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new paddle.Error('File text format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+                            }
+                            break;
+                        }
+                        default: {
+                            try {
+                                const reader = protobuf.Reader.create(context.buffer);
+                                programDesc = paddle.proto.ProgramDesc.decode(reader);
+                            }
+                            catch (error) {
+                                const message = error && error.message ? error.message : error.toString();
+                                throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
+                            }
+                            break;
                         }
                     }
-                    for (const op of block.ops) {
-                        for (const input of op.inputs) {
-                            for (const argument of input.arguments) {
-                                if (blockVars.has(argument)) {
-                                    vars.add(argument);
+                    const vars = new Set();
+                    for (const block of programDesc.blocks) {
+                        const blockVars = new Set();
+                        for (const variable of block.vars) {
+                            if (variable.persistable && variable.type &&
+                                variable.type.type != paddle.proto.VarType.Type.FETCH_LIST &&
+                                variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH) {
+                                blockVars.add(variable.name);
+                            }
+                        }
+                        for (const op of block.ops) {
+                            for (const input of op.inputs) {
+                                for (const argument of input.arguments) {
+                                    if (blockVars.has(argument)) {
+                                        vars.add(argument);
+                                    }
                                 }
                             }
                         }
                     }
+                    const promises = Array.from(vars).map((name) => context.request(name, null));
+                    return Promise.all(promises).then((buffers) => {
+                        const map = new Map();
+                        const keys = Array.from(vars);
+                        for (let i = 0; i < keys.length; i++) {
+                            map.set(keys[i], buffers[i]);
+                        }
+                        return new paddle.Model(metadata, format, programDesc, map);
+                    }).catch((err) => {
+                        return new paddle.Model(metadata, format, programDesc, new Map());
+                    });
                 }
-                const promises = Array.from(vars).map((name) => context.request(name, null));
-                return Promise.all(promises).then((buffers) => {
-                    const map = new Map();
-                    const keys = Array.from(vars);
-                    for (let i = 0; i < keys.length; i++) {
-                        map.set(keys[i], buffers[i]);
-                    }
-                    return new paddle.Model(metadata, programDesc, map);
-                }).catch((err) => {
-                    return new paddle.Model(metadata, programDesc, new Map());
-                });
             });
         });
     }
@@ -91,8 +100,11 @@ paddle.ModelFactory = class {
 
 paddle.Model = class {
 
-    constructor(metadata, desc, buffers) {
-        this._graphs = desc.blocks.map((block) => new paddle.Graph(metadata, block, buffers));
+    constructor(metadata, format, programDesc, buffers) {
+        this._format = format;
+        this._graphs = programDesc ?
+            programDesc.blocks.map((block) => new paddle.Graph(metadata, block, buffers)) :
+            [ new paddle.Graph(metadata, null, buffers) ];
     }
 
     get graphs() {
@@ -100,7 +112,7 @@ paddle.Model = class {
     }
 
     get format() {
-        return 'PaddlePaddle';
+        return this._format;
     }
 };
 
@@ -110,81 +122,106 @@ paddle.Graph = class {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
-        this._name = block.idx.toString();
+        if (block) {
+            this._name = block.idx.toString();
 
-        const args = new Map();
-        for (const variable of block.vars) {
-            const type = variable.type && variable.type.type && variable.type.lod_tensor && variable.type.lod_tensor.tensor ? new paddle.TensorType(variable.type.lod_tensor.tensor) : null;
-            const tensor = variable.persistable && variable.type && variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH ? new paddle.Tensor(type, buffers.get(variable.name)) : null;
-            args.set(variable.name, new paddle.Argument(variable.name, type, tensor));
-        }
-
-        const scope = {};
-        for (let i = 0; i < block.ops.length; i++) {
-            for (const input of block.ops[i].inputs) {
-                input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
+            const args = new Map();
+            for (const variable of block.vars) {
+                const type = variable.type && variable.type.type && variable.type.lod_tensor && variable.type.lod_tensor.tensor ? new paddle.TensorType(variable.type.lod_tensor.tensor) : null;
+                const tensor = variable.persistable && variable.type && variable.type.type != paddle.proto.VarType.Type.FETCH_LIST && variable.type.type != paddle.proto.VarType.Type.FEED_MINIBATCH ? new paddle.Tensor(type, buffers.get(variable.name)) : null;
+                args.set(variable.name, new paddle.Argument(variable.name, type, tensor));
             }
-            for (const output of block.ops[i].outputs) {
-                output.arguments = output.arguments.map((argument) => {
-                    if (scope[argument]) {
-                        const next = argument + '\n' + i.toString(); // custom argument id
-                        scope[argument] = next;
-                        return next;
+
+            const scope = {};
+            for (let i = 0; i < block.ops.length; i++) {
+                for (const input of block.ops[i].inputs) {
+                    input.arguments = input.arguments.map((argument) => scope[argument] ? scope[argument] : argument);
+                }
+                for (const output of block.ops[i].outputs) {
+                    output.arguments = output.arguments.map((argument) => {
+                        if (scope[argument]) {
+                            const next = argument + '\n' + i.toString(); // custom argument id
+                            scope[argument] = next;
+                            return next;
+                        }
+                        scope[argument] = argument;
+                        return argument;
+                    });
+                }
+            }
+
+            for (const op of block.ops) {
+                for (const input of op.inputs) {
+                    for (const argument of input.arguments) {
+                        const name = argument;
+                        if (!args.has(name)) {
+                            args.set(name, new paddle.Argument(name, null, null));
+                        }
                     }
-                    scope[argument] = argument;
-                    return argument;
-                });
-            }
-        }
-
-        for (const op of block.ops) {
-            for (const input of op.inputs) {
-                for (const argument of input.arguments) {
-                    const name = argument;
-                    if (!args.has(name)) {
-                        args.set(name, new paddle.Argument(name, null, null));
+                }
+                for (const output of op.outputs) {
+                    for (const argument of output.arguments) {
+                        const name = argument;
+                        if (!args.has(name)) {
+                            args.set(name, new paddle.Argument(name, null, null));
+                        }
                     }
                 }
             }
-            for (const output of op.outputs) {
-                for (const argument of output.arguments) {
-                    const name = argument;
-                    if (!args.has(name)) {
-                        args.set(name, new paddle.Argument(name, null, null));
-                    }
-                }
-            }
-        }
 
-        let lastNode = null;
-        let lastOutput = null;
-        for (const op of block.ops) {
-            if (op.type == 'feed') {
-                const inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
-                this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => args.get(id))));
-            }
-            else if (op.type == 'fetch') {
-                const outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
-                this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => args.get(id))));
-            }
-            else {
-                const node = new paddle.Node(metadata, op, args);
-                if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
-                    op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
-                    op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() &&
-                    lastNode &&
-                    lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
-                    lastNode.chain.push(node);
+            let lastNode = null;
+            let lastOutput = null;
+            for (const op of block.ops) {
+                if (op.type == 'feed') {
+                    const inputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                    this._inputs.push(new paddle.Parameter(inputName, op.outputs[0].arguments.map((id) => args.get(id))));
+                }
+                else if (op.type == 'fetch') {
+                    const outputName = op.attrs.filter((attr) => attr.name == 'col')[0].i.toString();
+                    this._outputs.push(new paddle.Parameter(outputName, op.inputs[0].arguments.map((id) => args.get(id))));
                 }
                 else {
-                    this._nodes.push(node);
-                    lastNode = null;
-                    lastOutput = null;
-                    if (op.outputs.length == 1 && op.outputs[0].arguments.length == 1) {
-                        lastNode = node;
-                        lastOutput = op.outputs[0].arguments[0].split('\n').shift();
+                    const node = new paddle.Node(metadata, op, args);
+                    if (op.inputs.length == 1 && op.inputs[0].arguments.length == 1 &&
+                        op.outputs.length >= 1 && op.outputs[0].arguments.length == 1 &&
+                        op.inputs[0].arguments[0].split('\n').shift() == op.outputs[0].arguments[0].split('\n').shift() &&
+                        lastNode &&
+                        lastOutput == op.inputs[0].arguments[0].split('\n').shift()) {
+                        lastNode.chain.push(node);
+                    }
+                    else {
+                        this._nodes.push(node);
+                        lastNode = null;
+                        lastOutput = null;
+                        if (op.outputs.length == 1 && op.outputs[0].arguments.length == 1) {
+                            lastNode = node;
+                            lastOutput = op.outputs[0].arguments[0].split('\n').shift();
+                        }
                     }
                 }
+            }
+        }
+        else {
+            const args = new Map();
+            const ops = new Map();
+            for (const pair of buffers) {
+                const name = pair[0];
+                const buffer = pair[1];
+                const tensor = new paddle.Tensor(null, buffer);
+                args.set(name, new paddle.Argument(name, tensor.type, tensor));
+                const separator = [ '.', '_' ].find((separator) => name.split(separator).length > 1);
+                const parts = name.split(separator);
+                const parameter_name = parts.pop();
+                const op_name = parts.join(separator);
+                if (!ops.has(op_name)) {
+                    ops.set(op_name, { name: op_name, type: 'Weights', inputs: [] });
+                }
+                const op = ops.get(op_name);
+                op.inputs.push({ parameter: parameter_name, arguments: [ name ] });
+            }
+            for (const pair of ops) {
+                const op = pair[1];
+                this._nodes.push(new paddle.Node(metadata, op, args));
             }
         }
     }
@@ -206,8 +243,8 @@ paddle.Graph = class {
     }
 };
 
-
 paddle.Parameter = class {
+
     constructor(name, args) {
         this._name = name;
         this._arguments = args;
@@ -265,18 +302,24 @@ paddle.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
-        for (const attr of op.attrs) {
-            const schema = metadata.attribute(this._type, this._name);
-            this._attributes.push(new paddle.Attribute(schema, attr));
-        }
-        for (const input of op.inputs) {
-            if (input.arguments.length > 0) {
-                this._inputs.push(new paddle.Parameter(input.parameter, input.arguments.map((name) => args.get(name))));
+        if (op.attrs) {
+            for (const attr of op.attrs) {
+                const schema = metadata.attribute(this._type, this._name);
+                this._attributes.push(new paddle.Attribute(schema, attr));
             }
         }
-        for (const output of op.outputs) {
-            if (output.arguments.length > 0) {
-                this._outputs.push(new paddle.Parameter(output.parameter, output.arguments.map((name) => args.get(name))));
+        if (op.inputs) {
+            for (const input of op.inputs) {
+                if (input.arguments.length > 0) {
+                    this._inputs.push(new paddle.Parameter(input.parameter, input.arguments.map((name) => args.get(name))));
+                }
+            }
+        }
+        if (op.outputs) {
+            for (const output of op.outputs) {
+                if (output.arguments.length > 0) {
+                    this._outputs.push(new paddle.Parameter(output.parameter, output.arguments.map((name) => args.get(name))));
+                }
             }
         }
         this._update(this._inputs, 'X');
@@ -425,11 +468,10 @@ paddle.Tensor = class {
     constructor(type, buffer) {
         this._type = type;
         if (buffer && buffer.length > 20 && buffer.slice(0, 16).every((value) => value === 0x00)) {
-            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-            const length = view.getUint32(16, true);
-            // const header = buffer.slice(20, 20 + length);
-            // const reader = protobuf.Reader.create(header);
-            // const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
+            const length = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength).getUint32(16, true);
+            const reader = protobuf.Reader.create(buffer.slice(20, 20 + length));
+            const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
+            this._type = new paddle.TensorType(tensorDesc);
             this._data = buffer.slice(20 + length);
         }
     }
@@ -637,6 +679,45 @@ paddle.TensorShape = class {
 
     toString() {
         return (this._dimensions && this._dimensions.length) ? ('[' + this._dimensions.join(',') + ']') : '';
+    }
+};
+
+paddle.Container = class {
+
+    static open(context) {
+
+        const extension = [ 'zip', 'tar' ].find((extension) => context.entries(extension).length > 0);
+        if (extension) {
+            const entries = context.entries(extension).filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
+            if (entries.length > 2 && entries.every((entry) => entry.name.split('_').length > 0 && entry.data.slice(0, 16).every((value) => value === 0x00))) {
+                let rootFolder = null;
+                for (const entry of entries) {
+                    const name = entry.name;
+                    if (name.startsWith('PaxHeader/') || (name.startsWith('.') && !name.startsWith('./'))) {
+                        continue;
+                    }
+                    const parts = name.split('/');
+                    const folder = ((parts.length > 2 && parts[0] === '.') ? ('./' + parts[1] + '/') : (parts.length > 1 ? parts[0] + '/' : ''));
+                    rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
+                }
+                const weights = new Map();
+                for (const entry of entries) {
+                    if (entry.name.startsWith(rootFolder)) {
+                        const name = entry.name.substring(rootFolder.length);
+                        weights.set(name, entry.data);
+                    }
+                }
+                return new paddle.Container(weights);
+            }
+        }
+    }
+
+    constructor(weights) {
+        this._weights = weights;
+    }
+
+    get weights() {
+        return this._weights;
     }
 };
 

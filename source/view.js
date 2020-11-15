@@ -1234,7 +1234,7 @@ view.ModelFactoryService = class {
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt' ]);
+        this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model' ]);
         this.register('./weka', [ '.model' ]);
@@ -1443,16 +1443,17 @@ view.ModelFactoryService = class {
         }
 
         try {
-            const folders = new Set();
             const entries = archive.entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
+            let rootFolder = null;
             for (const entry of entries) {
-                folders.add(entry.name.indexOf('/') !== -1 ? entry.name.split('/').shift() + '/' : '/');
+                const name = entry.name;
+                if (name.startsWith('PaxHeader/') || (name.startsWith('.') && !name.startsWith('./'))) {
+                    continue;
+                }
+                const parts = name.split('/');
+                const folder = ((parts.length > 2 && parts[0] === '.') ? ('./' + parts[1] + '/') : (parts.length > 1 ? parts[0] + '/' : ''));
+                rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
             }
-            if (extension === 'tar') {
-                folders.delete('PaxHeader/');
-            }
-            let rootFolder = folders.size === 1 ? folders.values().next().value : '';
-            rootFolder = rootFolder === '/' ? '' : rootFolder;
             let matches = [];
             const queue = entries.slice(0);
             const nextEntry = () => {
