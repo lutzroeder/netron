@@ -7,7 +7,7 @@ gzip.Archive = class {
 
     constructor(buffer) {
         this._entries = [];
-        if (buffer.length < 18 || buffer[0] != 0x1f || buffer[1] != 0x8b) {
+        if (buffer.length < 18 || buffer[0] !== 0x1f || buffer[1] !== 0x8b) {
             throw new gzip.Error('Invalid gzip archive.');
         }
         const reader = new gzip.Reader(buffer, 0, buffer.length);

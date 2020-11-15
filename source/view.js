@@ -45,7 +45,7 @@ view.View = class {
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
-            if (this._host.environment('zoom') == 'scroll') {
+            if (this._host.environment('zoom') === 'scroll') {
                 this._getElementById('graph').addEventListener('mousewheel', (e) => {
                     this._mouseWheelHandler(e);
                 });
@@ -359,7 +359,7 @@ view.View = class {
         this._sidebar.close();
         if (this._model) {
             const model = this._model;
-            const graph = model.graphs.filter(graph => name == graph.name).shift();
+            const graph = model.graphs.filter(graph => name === graph.name).shift();
             if (graph) {
                 this.show('welcome spinner');
                 this._timeout(200).then(() => {
@@ -500,7 +500,7 @@ view.View = class {
                         let hiddenInitializers = false;
                         if (self._showInitializers) {
                             for (const input of node.inputs) {
-                                if (input.visible && input.arguments.length == 1 && input.arguments[0].initializer != null) {
+                                if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
                                     initializers.push(input);
                                 }
                                 if ((!input.visible || input.arguments.length > 1) &&
@@ -534,7 +534,7 @@ view.View = class {
                                     type.shape.dimensions &&
                                     Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
                                     shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
-                                    if (type.shape.dimensions.length == 0 && argument.initializer && !argument.initializer.state) {
+                                    if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
                                         shape = argument.initializer.toString();
                                         if (shape && shape.length > 10) {
                                             shape = shape.substring(0, 10) + '\u2026';
@@ -752,7 +752,7 @@ view.View = class {
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
                 const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
-                if (this._host.environment('zoom') == 'd3') {
+                if (this._host.environment('zoom') === 'd3') {
                     backgroundElement.setAttribute('width', '100%');
                     backgroundElement.setAttribute('height', '100%');
                 }
@@ -765,7 +765,7 @@ view.View = class {
                 graphElement.appendChild(originElement);
 
                 let svg = null;
-                if (this._host.environment('zoom') == 'd3') {
+                if (this._host.environment('zoom') === 'd3') {
                     svg = d3.select(graphElement);
                     this._zoom = d3.zoom();
                     this._zoom(svg);
@@ -831,7 +831,7 @@ view.View = class {
                                 }
                                 let x = xs[0];
                                 const y = ys[0];
-                                if (ys.every(y => y == ys[0])) {
+                                if (ys.every(y => y === ys[0])) {
                                     x = xs.reduce((a,b) => { return a + b; }) / xs.length;
                                 }
                                 const sx = (svgSize.width / (this._showHorizontal ? 4 : 2)) - x;
@@ -880,7 +880,7 @@ view.View = class {
     export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
-        if (this._activeGraph && (extension == 'png' || extension == 'svg')) {
+        if (this._activeGraph && (extension === 'png' || extension === 'svg')) {
             const graphElement = this._getElementById('canvas');
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
@@ -914,12 +914,12 @@ view.View = class {
 
             const data = new XMLSerializer().serializeToString(exportElement);
 
-            if (extension == 'svg') {
+            if (extension === 'svg') {
                 const blob = new Blob([ data ], { type: 'image/svg' });
                 this._host.export(file, blob);
             }
 
-            if (extension == 'png') {
+            if (extension === 'png') {
                 const imageElement = new Image();
                 imageElement.onload = () => {
                     const max = Math.max(width, height);
@@ -1046,15 +1046,19 @@ class ModelContext {
         if (!entries) {
             entries = [];
             try {
-                const buffer = this.buffer;
+                let buffer = this.buffer;
                 switch (extension) {
                     case 'zip': {
-                        if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+                        if (buffer && buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
                             entries = new zip.Archive(buffer).entries;
                         }
                         break;
                     }
                     case 'tar': {
+                        if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
+                            const archive = new gzip.Archive(buffer);
+                            buffer = archive.entries.length === 1 ? archive.entries[0].data : new Uint8Array(0);
+                        }
                         if (buffer.length >= 512) {
                             let sum = 0;
                             for (let i = 0; i < 512; i++) {
@@ -1065,7 +1069,7 @@ class ModelContext {
                                 checksum += String.fromCharCode(buffer[i]);
                             }
                             checksum = parseInt(checksum, 8);
-                            if (!isNaN(checksum) && sum == checksum) {
+                            if (!isNaN(checksum) && sum === checksum) {
                                 entries = new tar.Archive(buffer).entries;
                             }
                         }
@@ -1262,7 +1266,7 @@ view.ModelFactoryService = class {
                 const identifier = context.identifier;
                 const extension = identifier.split('.').pop().toLowerCase();
                 const modules = this._filter(context).filter((module) => module && module.length > 0);
-                if (modules.length == 0) {
+                if (modules.length === 0) {
                     throw new ModelError("Unsupported file extension '." + extension + "'.");
                 }
                 const errors = [];
@@ -1293,7 +1297,7 @@ view.ModelFactoryService = class {
                     }
                     else {
                         if (match) {
-                            if (errors.length == 1) {
+                            if (errors.length === 1) {
                                 throw errors[0];
                             }
                             throw new ModelError(errors.map((err) => err.message).join('\n'));
@@ -1370,17 +1374,23 @@ view.ModelFactoryService = class {
 
         try {
             extension = identifier.split('.').pop().toLowerCase();
-            if (extension == 'gz' || extension == 'tgz') {
+            if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
                 archive = new gzip.Archive(buffer);
-                if (archive.entries.length == 1) {
+                if (archive.entries.length === 1) {
                     const entry = archive.entries[0];
                     if (entry.name) {
                         identifier = entry.name;
                     }
                     else {
                         identifier = identifier.substring(0, identifier.lastIndexOf('.'));
-                        if (extension == 'tgz') {
-                            identifier += '.tar';
+                        switch (extension) {
+                            case 'tgz':
+                            case 'tar': {
+                                if (identifier.split('.').pop().toLowerCase() !== 'tar') {
+                                    identifier += '.tar';
+                                }
+                                break;
+                            }
                         }
                     }
                     buffer = entry.data;
@@ -1433,21 +1443,16 @@ view.ModelFactoryService = class {
         }
 
         try {
-            const folders = {};
+            const folders = new Set();
             const entries = archive.entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
             for (const entry of entries) {
-                if (entry.name.indexOf('/') != -1) {
-                    folders[entry.name.split('/').shift() + '/'] = true;
-                }
-                else {
-                    folders['/'] = true;
-                }
+                folders.add(entry.name.indexOf('/') !== -1 ? entry.name.split('/').shift() + '/' : '/');
             }
-            if (extension == 'tar') {
-                delete folders['PaxHeader/'];
+            if (extension === 'tar') {
+                folders.delete('PaxHeader/');
             }
-            let rootFolder = Object.keys(folders).length == 1 ? Object.keys(folders)[0] : '';
-            rootFolder = rootFolder == '/' ? '' : rootFolder;
+            let rootFolder = folders.size === 1 ? folders.values().next().value : '';
+            rootFolder = rootFolder === '/' ? '' : rootFolder;
             let matches = [];
             const queue = entries.slice(0);
             const nextEntry = () => {
@@ -1483,11 +1488,11 @@ view.ModelFactoryService = class {
                     return nextEntry();
                 }
                 else {
-                    if (matches.length == 0) {
+                    if (matches.length === 0) {
                         return Promise.resolve(context);
                     }
                     // MXNet
-                    if (matches.length == 2 &&
+                    if (matches.length === 2 &&
                         matches.some((e) => e.name.toLowerCase().endsWith('.params')) &&
                         matches.some((e) => e.name.toLowerCase().endsWith('-symbol.json'))) {
                         matches = matches.filter((e) => e.name.toLowerCase().endsWith('.params'));
