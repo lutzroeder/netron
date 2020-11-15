@@ -45,9 +45,8 @@ sync() {
 install() {
     bold "tf install"
     venv
-    ${python} -m pip install --quiet --upgrade wheel
-    ${python} -m pip install --quiet --upgrade protobuf
-    ${python} -m pip install --quiet --upgrade tf-nightly
+    ${python} -m pip install --quiet --upgrade --use-feature=2020-resolver wheel
+    ${python} -m pip install --quiet --upgrade --use-feature=2020-resolver tf-nightly
     deactivate
 }
 
