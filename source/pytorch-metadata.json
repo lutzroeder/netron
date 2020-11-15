@@ -3765,6 +3765,42 @@
     }
   },
   {
+    "name": "torch.floor_divide",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.floor_divide_:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.floor_divide_:Scalar",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Scalar" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.abs",
     "schema": {
       "inputs": [
@@ -5410,6 +5446,37 @@
       ],
       "inputs": [
         { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.fake_quantize_per_channel_affine",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "scale", "type": "Tensor" },
+        { "name": "zero_point", "type": "Tensor" },
+        { "name": "axis", "type": "int64" },
+        { "name": "quant_min", "type": "int64" },
+        { "name": "quant_max", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.fake_quantize_per_tensor_affine",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "int64" },
+        { "name": "quant_min", "type": "int64" },
+        { "name": "quant_max", "type": "int64" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
