@@ -1087,6 +1087,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.utils.weight_norm.WeightNorm', function() {});
         this._registerConstructor('torch.optim.adam.Adam', function() {});
         this._registerConstructor('torch.optim.adagrad.Adagrad', function() {});
+        this._registerConstructor('torch.optim.adadelta.Adadelta', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.CosineAnnealingLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.CyclicLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.ExponentialLR', function() {});
