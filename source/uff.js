@@ -282,7 +282,7 @@ uff.Attribute = class {
         switch(value.type) {
             case 's': this._value = value.s; this._type = 'string'; break;
             case 's_list': this._value = value.s_list; this._type = 'string[]'; break;
-            case 'd': this._value = value.d; this._type = 'float64'; break;
+            // case 'd': this._value = value.d; this._type = 'float64'; break;
             case 'd_list': this._value = value.d_list.val; this._type = 'float64[]'; break;
             case 'b': this._value = value.b; this._type = 'boolean'; break;
             case 'b_list': this._value = value.b_list; this._type = 'boolean[]'; break;
@@ -294,7 +294,7 @@ uff.Attribute = class {
             case 'dtype_list': this._value = value.dtype_list.map((type) => new uff.TensorType(type, null).dataType); this._type = 'uff.DataType[]'; break;
             case 'dim_orders': this._value = value.dim_orders; break;
             case 'dim_orders_list': this._value = value.dim_orders_list.val; break;
-            default: throw new uff.Error("Unknown attribute value '" + JSON.stringify(value) + "'.");
+            default: throw new uff.Error("Unknown attribute '" + name + "' value '" + JSON.stringify(value) + "'.");
         }
     }
 
