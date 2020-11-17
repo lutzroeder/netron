@@ -8408,7 +8408,7 @@
           "type": 3
         },
         {
-          "description": "A scalar representing maximum number of boxes retained over all classes.",
+          "description": "A scalar representing maximum number of boxes retained over all classes. Note\nthat setting this value to a large number may result in OOM error depending on\nthe system workload.",
           "name": "max_total_size",
           "type": 3
         },
@@ -12161,7 +12161,7 @@
   {
     "name": "DecodeJSONExample",
     "schema": {
-      "description": "This op translates a tensor containing Example records, encoded using\nthe [standard JSON\nmapping](https://developers.google.com/protocol-buffers/docs/proto3#json),\ninto a tensor containing the same records encoded as binary protocol\nbuffers. The resulting tensor can then be fed to any of the other\nExample-parsing ops.",
+      "description": "\nNote: This is **not** a general purpose JSON parsing op.\n\nThis op converts JSON-serialized\n`tf.train.Example` (created with `json_format.MessageToJson`, following the\n[standard JSON mapping](https://developers.google.com/protocol-buffers/docs/proto3#json))\nto a binary-serialized `tf.train.Example` (equivalent to\n`Example.SerializeToString()`) suitable for conversion to tensors with\n`tf.io.parse_example`.",
       "inputs": [
         {
           "description": "Each string is a JSON object serialized according to the JSON\nmapping of the Example proto.",
@@ -43645,11 +43645,47 @@
     }
   },
   {
+    "name": "RiscBroadcast",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "shape",
+          "typeAttr": "Tidx"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscConv",
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `float32`, `float64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
           "name": "T",
           "type": "type"
         },
@@ -43699,6 +43735,44 @@
     }
   },
   {
+    "name": "RiscDot",
+    "schema": {
+      "attributes": [
+        {
+          "default": false,
+          "name": "transpose_a",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "transpose_b",
+          "type": "boolean"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "a",
+          "typeAttr": "T"
+        },
+        {
+          "name": "b",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "product",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscMax",
     "schema": {
       "attributes": [
@@ -43726,6 +43800,199 @@
         }
       ],
       "summary": "Returns max(x, y) element-wise."
+    }
+  },
+  {
+    "name": "RiscPad",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tpaddings",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "paddings",
+          "typeAttr": "Tpaddings"
+        },
+        {
+          "name": "constant_values",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscPool",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 4,
+          "name": "ksize",
+          "type": "int64[]"
+        },
+        {
+          "minimum": 4,
+          "name": "strides",
+          "type": "int64[]"
+        },
+        {
+          "description": "Must be one of the following: `AVG`, `MAX`.",
+          "name": "pooling_type",
+          "type": "string"
+        },
+        {
+          "default": "NHWC",
+          "description": "Must be one of the following: `NHWC`, `NCHW`.",
+          "name": "data_format",
+          "type": "string"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "value",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscReshape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "name": "shape",
+          "typeAttr": "Tshape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscShape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "out_type",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "out_type"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscSlice",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Index",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "begin",
+          "typeAttr": "Index"
+        },
+        {
+          "name": "size",
+          "typeAttr": "Index"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -52750,6 +53017,57 @@
         }
       ],
       "summary": "Outputs deterministic pseudorandom random numbers from a gamma distribution."
+    }
+  },
+  {
+    "name": "StatelessRandomGetAlg",
+    "schema": {
+      "description": "This op picks the best counter-based RNG algorithm based on device.",
+      "outputs": [
+        {
+          "description": "The RNG algorithm (shape int32[]).",
+          "name": "alg",
+          "type": 3
+        }
+      ],
+      "summary": "Picks the best counter-based RNG algorithm based on device."
+    }
+  },
+  {
+    "name": "StatelessRandomGetKeyCounter",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 9
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tseed",
+          "type": "type"
+        }
+      ],
+      "description": "This op scrambles a shape-[2] seed into a key and a counter, both needed by counter-based RNG algorithms. The scrambing uses the best algorithm based on device. The scrambling is opaque but approximately satisfies the property that different seed results in different key/counter pair (which will in turn result in different random numbers).",
+      "inputs": [
+        {
+          "description": "2 seeds (shape [2]).",
+          "name": "seed",
+          "typeAttr": "Tseed"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Key for the counter-based RNG algorithm (shape uint64[1]).",
+          "name": "key",
+          "type": 23
+        },
+        {
+          "description": "Counter for the counter-based RNG algorithm. Since counter size is algorithm-dependent, this output will be right-padded with zeros to reach shape uint64[2] (the current maximal counter size among algorithms).",
+          "name": "counter",
+          "type": 23
+        }
+      ],
+      "summary": "Scrambles seed into key and counter, using the best algorithm based on device."
     }
   },
   {
