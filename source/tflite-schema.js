@@ -14,7 +14,8 @@ $root.tflite.TensorType = {
     COMPLEX64: 8,
     INT8: 9,
     FLOAT64: 10,
-    COMPLEX128: 11
+    COMPLEX128: 11,
+    UINT64: 12
 };
 
 $root.tflite.CustomQuantization = class CustomQuantization {
