@@ -914,8 +914,7 @@ $root.caffe2.DeviceTypeProto = {
     "PROTO_FPGA": 7,
     "PROTO_MSNPU": 8,
     "PROTO_XLA": 9,
-    "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES": 10,
-    "PROTO_ONLY_FOR_TEST": 20901
+    "PROTO_COMPILE_TIME_MAX_DEVICE_TYPES": 10
 };
 
 $root.caffe2.DeviceOption = class DeviceOption {
