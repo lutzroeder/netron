@@ -2312,8 +2312,8 @@
   },
   {
     "type":   "mediapipe",
-    "target": "shoe_classic_occlusion_tracking.pbtxt",
-    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/object_detection_3d/shoe_classic_occlusion_tracking.pbtxt",
+    "target": "object_occlusion_tracking.pbtxt",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/object_detection_3d/object_occlusion_tracking.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/lutzroeder/netron/issues/444"
   },
