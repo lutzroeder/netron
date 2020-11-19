@@ -282,7 +282,7 @@ uff.Attribute = class {
         switch(value.type) {
             case 's': this._value = value.s; this._type = 'string'; break;
             case 's_list': this._value = value.s_list; this._type = 'string[]'; break;
-            // case 'd': this._value = value.d; this._type = 'float64'; break;
+            case 'd': this._value = value.d; this._type = 'float64'; break;
             case 'd_list': this._value = value.d_list.val; this._type = 'float64[]'; break;
             case 'b': this._value = value.b; this._type = 'boolean'; break;
             case 'b_list': this._value = value.b_list; this._type = 'boolean[]'; break;
