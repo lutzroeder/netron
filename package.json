@@ -20,7 +20,7 @@
         "d3": "6.2.0",
         "dagre": "0.8.5",
         "electron-updater": "4.3.5",
-        "pako": "2.0.1"
+        "pako": "2.0.2"
     },
     "devDependencies": {
         "electron": "11.0.1",
