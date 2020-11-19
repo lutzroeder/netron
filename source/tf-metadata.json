@@ -43681,6 +43681,48 @@
     }
   },
   {
+    "name": "RiscConcat",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 2,
+          "name": "N",
+          "type": "int64"
+        },
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "values",
+          "numberAttr": "N",
+          "typeAttr": "T"
+        },
+        {
+          "name": "axis",
+          "typeAttr": "Tidx"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscConv",
     "schema": {
       "attributes": [
