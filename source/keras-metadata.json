@@ -891,7 +891,8 @@
         {
           "default": true,
           "description": "If True, add offset of `beta` to normalized tensor. If False, `beta`\n    is ignored.",
-          "name": "center"
+          "name": "center",
+          "type": "boolean"
         },
         {
           "default": {
@@ -2717,6 +2718,7 @@
           "default": true,
           "description": "Boolean, whether the layer uses a bias vector.",
           "name": "use_bias",
+          "type": "boolean",
           "visible": false
         },
         {
@@ -3473,6 +3475,7 @@
         {
           "default": true,
           "name": "use_bias",
+          "type": "boolean",
           "visible": false
         },
         {
