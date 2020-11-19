@@ -94,7 +94,7 @@ def zoo():
     if not os.environ.get('test'):
         os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
     download_torchvision_model(True , True , True , False, 'torchvision.models.alexnet', [ 1, 3, 299, 299 ])
-    download_torchvision_model(True , True , True , False, 'torchvision.models.densenet161', [ 1, 3, 224, 224 ])
+    # download_torchvision_model(True , True , True , False, 'torchvision.models.densenet161', [ 1, 3, 224, 224 ])
     download_torchvision_model(True , True , True , True,  'torchvision.models.inception_v3', [ 1, 3, 299, 299 ])
     download_torchvision_model(True , True , True , False, 'torchvision.models.mobilenet_v2', [ 1, 3, 224, 224 ])
     download_torchvision_model(False, True , True , False, 'torchvision.models.resnet101', [ 1, 3, 224, 224 ])
