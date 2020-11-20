@@ -1791,7 +1791,8 @@ $root.tensorflow.DataType = {
 
 $root.tensorflow.SpecializedType = {
     "ST_INVALID": 0,
-    "ST_TENSOR_LIST": 1
+    "ST_TENSOR_LIST": 1,
+    "ST_OPTIONAL": 2
 };
 
 $root.tensorflow.NodeDef = class NodeDef {
