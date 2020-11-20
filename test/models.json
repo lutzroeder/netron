@@ -878,7 +878,7 @@
     "type":   "caffe2",
     "target": "ops/ops.pbtxt",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
-    "error":  "Unsupported Protocol Buffers text content 'op,op.name,op.attr,op.input_arg,op.output_arg,op.is_aggregate,op.is_commutative,op.is_stateful,op.de...' for extension '.pbtxt' in 'ops.pbtxt'.",
+    "error":  "Invalid file content. File contains TensorFlow OpList data.",
     "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/ops/ops.pbtxt"
   },
   {

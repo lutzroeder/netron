@@ -1327,7 +1327,8 @@ view.ModelFactoryService = class {
                                     { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
                                     { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
                                     { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
-                                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] }
+                                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
+                                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] }
                                 ]
                             },
                             {
