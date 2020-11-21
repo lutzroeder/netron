@@ -1,0 +1,175 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1024' height='1024' viewBox='0 0 1024 1024'>
+
+    <style>
+        .background-shadow {
+            filter: url(#background-dropshadow);
+        }
+        .node-border {
+            fill: #eeeeee;
+            opacity: 1.0;
+        }
+        .node {
+            fill: #307295;
+            opacity: 1;
+        }
+        .node-shadow {
+            filter: url(#node-dropshadow);
+            opacity: 0.3;
+        }
+        .line-border {
+            stroke: #000000;
+            opacity: 0.2;
+        }
+        .line {
+            stroke: #eeeeee;
+            opacity: 1.0;
+        }
+        .line-shadow {
+            stroke: #000000;
+            filter: url(#node-dropshadow);
+            opacity: 0.2;
+        }
+    </style>
+
+    <filter id='background-dropshadow'>
+        <feGaussianBlur in='SourceAlpha' stdDeviation='20' />
+    </filter>
+
+    <linearGradient id='background-fill' gradientTransform='rotate(90)'>
+        <stop offset='0' stop-color='#ffffff'/>
+        <stop offset='1' stop-color='#d2d2d2'/>
+    </linearGradient>
+
+    <linearGradient id='circle-stroke' gradientUnits='userSpaceOnUse' x1='0' y1='62' x2='0' y2='962'>
+        <stop offset='0' stop-color='#aaaaaa'/>
+        <stop offset='1' stop-color='#ffffff'/>
+    </linearGradient>
+
+    <linearGradient id='circle-fill' gradientUnits='userSpaceOnUse' x1='0' y1='100' x2='0' y2='924'>
+        <stop offset='0' stop-color='#4baac5' stop-opacity="1" />
+        <stop offset='1' stop-color='#307295' stop-opacity="1" />
+    </linearGradient>
+
+    <filter id='node-dropshadow' x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur in='SourceGraphic' stdDeviation='15' />
+    </filter>
+
+    <rect x='117' y='124' width='790' height='790' rx='160' class='background-shadow' />
+    <rect x='100' y='100' width='824' height='824' rx='160' fill='url(#background-fill)' />
+    <circle cx='512' cy='512' r='356' stroke-width='4' stroke='url(#circle-stroke)' fill='url(#circle-fill)' /> 
+
+    <g transform='translate(512,512) scale(1.1)'>
+
+        <g transform='translate(6,12)' opacity='1.0'>
+
+            <line x1='-168' y1='-92' x2='20' y2='-180' stroke-width='24' class='line-shadow' />
+            <line x1='-168' y1='+92' x2='20' y2='-180' stroke-width='24' class='line-shadow' />
+
+            <line x1='-168' y1='-92' x2='20' y2='-60' stroke-width='24' class='line-shadow' />
+            <line x1='-168' y1='+92' x2='20' y2='-60' stroke-width='24' class='line-shadow' />
+
+            <line x1='-168' y1='-92' x2='20' y2='60' stroke-width='24' class='line-shadow' />
+            <line x1='-168' y1='+92' x2='20' y2='60' stroke-width='24' class='line-shadow' />
+
+            <line x1='-168' y1='-92' x2='20' y2='180' stroke-width='24' class='line-shadow' />
+            <line x1='-168' y1='+92' x2='20' y2='180' stroke-width='24'  class='line-shadow' />
+
+            <line x1='20' y1='-180' x2='208' y2='0' stroke-width='24' class='line-shadow' />
+            <line x1='20' y1='-60' x2='208' y2='0' stroke-width='24' class='line-shadow' />
+            <line x1='20' y1='60' x2='208' y2='0' stroke-width='24' class='line-shadow' />
+            <line x1='20' y1='180' x2='208' y2='0' stroke-width='24' class='line-shadow' />
+
+            <g transform='translate(-168,-92)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+            <g transform='translate(-168,92)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+
+            <g transform='translate(20,-180)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+            <g transform='translate(20,-60)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+            <g transform='translate(20,60)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+            <g transform='translate(20,180)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+
+            <g transform='translate(208,0)'>
+                <circle cx='0' cy='0' r='40' class='node-shadow' />
+            </g>
+
+        </g>
+
+        <line x1='-168' y1='-92' x2='20' y2='-180' stroke-width='24' class='line-border' />
+        <line x1='-168' y1='+92' x2='20' y2='-180' stroke-width='24' class='line-border' />
+
+        <line x1='-168' y1='-92' x2='20' y2='-60' stroke-width='24' class='line-border' />
+        <line x1='-168' y1='+92' x2='20' y2='-60' stroke-width='24' class='line-border' />
+
+        <line x1='-168' y1='-92' x2='20' y2='60' stroke-width='24' class='line-border' />
+        <line x1='-168' y1='+92' x2='20' y2='60' stroke-width='24' class='line-border' />
+
+        <line x1='-168' y1='-92' x2='20' y2='180' stroke-width='24' class='line-border' />
+        <line x1='-168' y1='+92' x2='20' y2='180' stroke-width='24' class='line-border' />
+
+        <line x1='20' y1='-180' x2='208' y2='0' stroke-width='24' class='line-border' />
+        <line x1='20' y1='-60' x2='208' y2='0' stroke-width='24' class='line-border' />
+        <line x1='20' y1='+60' x2='208' y2='0' stroke-width='24' class='line-border' />
+        <line x1='20' y1='+180' x2='208' y2='0' stroke-width='24' class='line-border' />
+
+        <line x1='-168' y1='-92' x2='20' y2='-180' stroke-width='10' class='line' />
+        <line x1='-168' y1='+92' x2='20' y2='-180' stroke-width='10' class='line' />
+
+        <line x1='-168' y1='-92' x2='20' y2='-60' stroke-width='10' class='line' />
+        <line x1='-168' y1='+92' x2='20' y2='-60' stroke-width='10' class='line' />
+
+        <line x1='-168' y1='-92' x2='20' y2='60' stroke-width='10' class='line' />
+        <line x1='-168' y1='+92' x2='20' y2='60' stroke-width='10' class='line' />
+
+        <line x1='-168' y1='-92' x2='20' y2='180' stroke-width='10' class='line' />
+        <line x1='-168' y1='+92' x2='20' y2='180' stroke-width='10' class='line' />
+
+        <line x1='20' y1='-180' x2='208' y2='  0' stroke-width='10' class='line' />
+        <line x1='20' y1='-60' x2='208' y2='  0' stroke-width='10' class='line' />
+        <line x1='20' y1='60' x2='208' y2='  0' stroke-width='10' class='line' />
+        <line x1='20' y1='180' x2='208' y2='  0' stroke-width='10' class='line' />
+
+        <g transform='translate(-168,-92)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+        <g transform='translate(-168,92)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+
+        <g transform='translate(20,-180)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+        <g transform='translate(20,-60)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+        <g transform='translate(20,60)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+        <g transform='translate(20,180)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+
+        <g transform='translate(208,0)'>
+            <circle cx='0' cy='0' r='50' class='node-border' />
+            <circle cx='0' cy='0' r='38' class='node' />
+        </g>
+
+    </g>
+
+</svg>
