@@ -3963,6 +3963,26 @@
   },
   {
     "type":   "pytorch",
+    "target": "densenet161.zip.pth",
+    "script": "./tools/pytorch zoo",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "densenet161.pt",
+    "script": "./tools/pytorch zoo",
+    "action": "skip-render",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "densenet161_traced.pt",
+    "script": "./tools/pytorch zoo",
+    "action": "skip-render",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
     "target": "densenet161-8d451a50.pth",
     "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth",
     "format": "PyTorch v0.1.10"
