@@ -70,6 +70,7 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade --use-feature=2020-resolver ${protobuf}
+    export MACOSX_DEPLOYMENT_TARGET=10.9
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${python} -m pip install --quiet "./third_party/source/onnx"
