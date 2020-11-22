@@ -1023,10 +1023,10 @@ class ModelError extends Error {
 
 class ModelContext {
 
-    constructor(context) {
+    constructor(context, entries) {
         this._context = context;
         this._tags = new Map();
-        this._entries = new Map();
+        this._entries = entries || new Map();
     }
 
     request(file, encoding) {
@@ -1041,48 +1041,8 @@ class ModelContext {
         return this._context.buffer;
     }
 
-    entries(extension) {
-        let entries = this._entries.get(extension);
-        if (!entries) {
-            entries = [];
-            try {
-                let buffer = this.buffer;
-                switch (extension) {
-                    case 'zip': {
-                        if (buffer && buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
-                            entries = new zip.Archive(buffer).entries;
-                        }
-                        break;
-                    }
-                    case 'tar': {
-                        if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
-                            const archive = new gzip.Archive(buffer);
-                            buffer = archive.entries.length === 1 ? archive.entries[0].data : new Uint8Array(0);
-                        }
-                        if (buffer.length >= 512) {
-                            let sum = 0;
-                            for (let i = 0; i < 512; i++) {
-                                sum += (i >= 148 && i < 156) ? 32 : buffer[i];
-                            }
-                            let checksum = '';
-                            for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
-                                checksum += String.fromCharCode(buffer[i]);
-                            }
-                            checksum = parseInt(checksum, 8);
-                            if (!isNaN(checksum) && sum === checksum) {
-                                entries = new tar.Archive(buffer).entries;
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            catch (error) {
-                entries = [];
-            }
-            this._entries.set(extension, entries);
-        }
-        return entries;
+    entries(format) {
+        return this._entries.get(format) || [];
     }
 
     tags(type) {
@@ -1261,124 +1221,105 @@ view.ModelFactoryService = class {
 
     open(context) {
         return this._openSignature(context).then((context) => {
-            return this._openArchive(context).then((context) => {
-                context = new ModelContext(context);
-                const identifier = context.identifier;
-                const extension = identifier.split('.').pop().toLowerCase();
-                const modules = this._filter(context).filter((module) => module && module.length > 0);
-                if (modules.length === 0) {
-                    throw new ModelError("Unsupported file extension '." + extension + "'.");
+            const exception = (context) => {
+            };
+            const entries = this._openArchive(context);
+            const modelContext = new ModelContext(context, entries);
+            return this._openContext(modelContext).then((model) => {
+                if (model) {
+                    return model;
                 }
-                const errors = [];
-                let match = false;
-                const nextModule = () => {
-                    if (modules.length > 0) {
-                        const id = modules.shift();
-                        return this._host.require(id).then((module) => {
-                            if (!module.ModelFactory) {
-                                throw new ModelError("Failed to load module '" + id + "'.");
-                            }
-                            const modelFactory = new module.ModelFactory();
-                            if (!modelFactory.match(context)) {
-                                return nextModule();
-                            }
-                            match++;
-                            return modelFactory.open(context, this._host).then((model) => {
-                                return model;
-                            }).catch((error) => {
-                                const text = " in '" + context.identifier + "'.";
-                                if (error && !error.message.endsWith(text)) {
-                                    error.message = error.message.replace(/\.$/, '') + text;
-                                }
-                                errors.push(error);
-                                return nextModule();
-                            });
-                        });
-                    }
-                    else {
-                        if (match) {
-                            if (errors.length === 1) {
-                                throw errors[0];
-                            }
-                            throw new ModelError(errors.map((err) => err.message).join('\n'));
+                if (entries.size > 0) {
+                    return this._openEntries(entries.values().next().value).then((context) => {
+                        if (context) {
+                            return this._openContext(context);
                         }
-                        const knownUnsupportedIdentifiers = new Set([
-                            'natives_blob.bin',
-                            'v8_context_snapshot.bin',
-                            'snapshot_blob.bin',
-                            'image_net_labels.json',
-                            'package.json',
-                            'models.json',
-                            'LICENSE.meta',
-                            'input_0.pb',
-                            'output_0.pb'
-                        ]);
-                        const skip = knownUnsupportedIdentifiers.has(identifier);
-                        const encodings = [
-                            {
-                                type: 'pb',
-                                name: 'Protocol Buffers',
-                                formats: []
-                            },
-                            {
-                                type: 'pbtxt',
-                                name: 'Protocol Buffers text',
-                                formats: [
-                                    { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
-                                    { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
-                                    { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
-                                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
-                                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] }
-                                ]
-                            },
-                            {
-                                type: 'json',
-                                name: 'JSON',
-                                formats: [
-                                    { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
-                                    { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
-                                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
-                                ]
-                            }
-                        ];
-                        for (const encoding of encodings) {
-                            const tags = context.tags(encoding.type);
-                            if (tags.size > 0) {
-                                for (const format of encoding.formats) {
-                                    if (format.tags.every((tag) => tags.has(tag))) {
-                                        throw new ModelError("Invalid file content. File contains " + format.name + ".", true);
-                                    }
-                                }
-                                const entries = [];
-                                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
-                                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
-                                const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                                throw new ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
-                            }
-                        }
-                        const buffer = context.buffer;
-                        const bytes = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-                        const content = buffer.length > 268435456 ? '(' + bytes + ') [' + buffer.length.toString() + ']': '(' + bytes + ')';
-                        throw new ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
-                    }
-                };
-                return nextModule();
+                        this._unsupported(modelContext);
+                    });
+                }
+                this._unsupported(modelContext);
             });
         });
     }
 
+    _unsupported(context) {
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        const format = [ 'Zip', 'tar' ].find((extension) => context.entries(extension.toLowerCase()).length > 0);
+        if (format) {
+            throw new ModelError("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
+        }
+        const knownUnsupportedIdentifiers = new Set([
+            'natives_blob.bin',
+            'v8_context_snapshot.bin',
+            'snapshot_blob.bin',
+            'image_net_labels.json',
+            'package.json',
+            'models.json',
+            'LICENSE.meta',
+            'input_0.pb',
+            'output_0.pb'
+        ]);
+        const skip = knownUnsupportedIdentifiers.has(identifier);
+        const encodings = [
+            {
+                type: 'pb',
+                name: 'Protocol Buffers',
+                formats: []
+            },
+            {
+                type: 'pbtxt',
+                name: 'Protocol Buffers text',
+                formats: [
+                    { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
+                    { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
+                    { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
+                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
+                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] }
+                ]
+            },
+            {
+                type: 'json',
+                name: 'JSON',
+                formats: [
+                    { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
+                    { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
+                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
+                ]
+            }
+        ];
+        for (const encoding of encodings) {
+            const tags = context.tags(encoding.type);
+            if (tags.size > 0) {
+                for (const format of encoding.formats) {
+                    if (format.tags.every((tag) => tags.has(tag))) {
+                        throw new ModelError('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                const entries = [];
+                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
+                entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
+                const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
+                throw new ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+            }
+        }
+        const buffer = context.buffer;
+        const bytes = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+        const content = buffer.length > 268435456 ? '(' + bytes + ') [' + buffer.length.toString() + ']': '(' + bytes + ')';
+        throw new ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
+    }
+
     _openArchive(context) {
-        let archive = null;
+        const entries = new Map();
         let extension;
         let identifier = context.identifier;
         let buffer = context.buffer;
-
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
-                archive = new gzip.Archive(buffer);
-                if (archive.entries.length === 1) {
-                    const entry = archive.entries[0];
+                const entries = new gzip.Archive(buffer).entries;
+                if (entries.length === 1) {
+                    const entry = entries[0];
                     if (entry.name) {
                         identifier = entry.name;
                     }
@@ -1400,51 +1341,80 @@ view.ModelFactoryService = class {
         }
         catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            return Promise.reject(new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'."));
+            throw new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
 
         try {
             extension = identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'tar': {
-                    // handle .pth.tar
-                    const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-                    if (buffer && buffer.length >= 14 && buffer[0] === 0x80 && torch.every((v, i) => v === buffer[i + 2])) {
-                        break;
-                    }
-                    if (buffer && buffer.length >= 4 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
-                        break;
-                    }
-                    archive = new tar.Archive(buffer);
-                    break;
+            if (extension === 'zip' || (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B)) {
+                entries.set('zip', new zip.Archive(buffer).entries);
+            }
+            if (extension === 'tar' || (buffer.length >= 512)) {
+                let sum = 0;
+                for (let i = 0; i < 512; i++) {
+                    sum += (i >= 148 && i < 156) ? 32 : buffer[i];
                 }
-                case 'zip': {
-                    archive = new zip.Archive(buffer);
-                    // PyTorch Zip archive
-                    if (archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'version') &&
-                        archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'data.pkl')) {
-                        return Promise.resolve(context);
-                    }
-                    // dl4j
-                    if (archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'coefficients.bin') &&
-                        archive.entries.some((e) => e.name.split('/').pop().split('\\').pop() === 'configuration.json')) {
-                        return Promise.resolve(context);
-                    }
-                    break;
+                let checksum = '';
+                for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
+                    checksum += String.fromCharCode(buffer[i]);
+                }
+                checksum = parseInt(checksum, 8);
+                if (!isNaN(checksum) && sum === checksum) {
+                    entries.set('tar', new tar.Archive(buffer).entries);
                 }
             }
         }
         catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            return Promise.reject(new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'."));
+            throw new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
+        return entries;
+    }
 
-        if (!archive) {
-            return Promise.resolve(context);
-        }
+    _openContext(context) {
+        const modules = this._filter(context).filter((module) => module && module.length > 0);
+        const errors = [];
+        let match = false;
+        const nextModule = () => {
+            if (modules.length > 0) {
+                const id = modules.shift();
+                return this._host.require(id).then((module) => {
+                    if (!module.ModelFactory) {
+                        throw new ModelError("Failed to load module '" + id + "'.");
+                    }
+                    const modelFactory = new module.ModelFactory();
+                    if (!modelFactory.match(context)) {
+                        return nextModule();
+                    }
+                    match = true;
+                    return modelFactory.open(context, this._host).then((model) => {
+                        return model;
+                    }).catch((error) => {
+                        const text = " in '" + context.identifier + "'.";
+                        if (error && !error.message.endsWith(text)) {
+                            error.message = error.message.replace(/\.$/, '') + text;
+                        }
+                        errors.push(error);
+                        return nextModule();
+                    });
+                });
+            }
+            else {
+                if (match) {
+                    if (errors.length === 1) {
+                        return Promise.reject(errors[0]);
+                    }
+                    return Promise.reject(new ModelError(errors.map((err) => err.message).join('\n')));
+                }
+                return Promise.resolve(null);
+            }
+        };
+        return nextModule();
+    }
 
+    _openEntries(entries) {
         try {
-            const entries = archive.entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
+            entries = entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
             let rootFolder = null;
             for (const entry of entries) {
                 const name = entry.name;
@@ -1491,7 +1461,7 @@ view.ModelFactoryService = class {
                 }
                 else {
                     if (matches.length === 0) {
-                        return Promise.resolve(context);
+                        return Promise.resolve(null);
                     }
                     // MXNet
                     if (matches.length === 2 &&
@@ -1507,7 +1477,7 @@ view.ModelFactoryService = class {
                     if (matches.length > 1) {
                         return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
                     }
-                    const match = matches[0];
+                    const match = matches.shift();
                     return Promise.resolve(new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
                 }
             };

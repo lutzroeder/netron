@@ -15,6 +15,13 @@
   },
   {
     "type":   "any",
+    "target": "empty.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5581087/empty.zip",
+    "error":  "Invalid file content. File contains Zip archive in 'empty.zip'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "any",
     "target": "imagenet_2012_challenge_label_map_proto.pbtxt",
     "source": "https://raw.githubusercontent.com/dmlc/web-data/master/tensorflow/models/InceptionV1/imagenet_2012_challenge_label_map_proto.pbtxt",
     "error":  "Invalid file content. File contains ImageNet LabelMap data."
@@ -1145,7 +1152,7 @@
     "type":   "coreml",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "Unsupported file content (504b030414000000080054787f4e6f92) for extension '.mlmodel' in 'coreml_invalid_file.mlmodel'.",
+    "error":  "Invalid file content. File contains Zip archive in 'coreml_invalid_file.mlmodel'.",
     "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
@@ -3278,10 +3285,10 @@
   },
   {
     "type":   "onnx",
-    "target": "yolov3.zip",
-    "source": "https://github.com/lutzroeder/netron/files/5251087/yolov3.zip",
+    "target": "yolov3.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/5581031/yolov3.onnx.zip[yolov3.onnx]",
     "format": "ONNX v5", "producer": "keras2onnx 1.5.1",
-    "link":   "https://github.com/onnx/models/tree/master/yolov3"
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",

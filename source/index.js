@@ -318,7 +318,7 @@ host.BrowserHost = class {
     }
 
     exception(error, fatal) {
-        if (this._telemetry && window.ga) {
+        if (this._telemetry && window.ga && error.telemetry !== false) {
             const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
