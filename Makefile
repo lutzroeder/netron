@@ -119,3 +119,7 @@ version:
 	git push --force
 	git push --tags
 	git tag -d v$$(node -pe "require('./package.json').version")
+
+pull:
+	git tag -d $$(git tag -l)
+	git pull --prune --rebase
