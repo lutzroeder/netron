@@ -668,7 +668,7 @@ function next() {
         });
     }).catch((error) => {
         if (!item.error || item.error != error.message) {
-            console.error(error);
+            console.error(error.message);
         }
         else {
             return next();
