@@ -4,12 +4,12 @@ import json
 import os
 import sys
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
 from tensorflow.core.framework import api_def_pb2
 from tensorflow.core.framework import op_def_pb2
 from tensorflow.core.framework import types_pb2
 from google.protobuf import text_format
-
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def metadata():
     categories = {
@@ -117,14 +117,15 @@ def metadata():
         file_list = os.listdir(folder)
         file_list = sorted(file_list)
         for filename in file_list:
-            api_defs = api_def_pb2.ApiDefs()
-            filename = folder + '/' + filename
-            with open(filename) as handle:
-                multiline_pbtxt = handle.read()
-                pbtxt = pbtxt_from_multiline(multiline_pbtxt)
-                text_format.Merge(pbtxt, api_defs)
-            for api_def in api_defs.op:
-                api_def_map[api_def.graph_op_name] = api_def
+            if filename.endswith('.pbtxt'):
+                api_defs = api_def_pb2.ApiDefs()
+                filename = folder + '/' + filename
+                with open(filename) as handle:
+                    multiline_pbtxt = handle.read()
+                    pbtxt = pbtxt_from_multiline(multiline_pbtxt)
+                    text_format.Merge(pbtxt, api_defs)
+                for api_def in api_defs.op:
+                    api_def_map[api_def.graph_op_name] = api_def
         return api_def_map
 
     def convert_type(type):
@@ -376,5 +377,5 @@ def metadata():
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata }
-    command = sys.argv[1]
+    command = sys.argv[1] # if len(sys.argv) > 1 else 'metadata'
     command_table[command]()
