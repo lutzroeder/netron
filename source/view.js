@@ -1204,6 +1204,7 @@ view.ModelFactoryService = class {
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
         this.register('./tnn', [ '.tnnproto', '.tnnmodel' ]);
         this.register('./tengine', ['.tmfile']);
+        this.register('./mslite', [ '.ms']);
         this.register('./barracuda', [ '.nn' ]);
         this.register('./dnn', [ '.dnn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);

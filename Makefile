@@ -24,6 +24,7 @@ update: install
 	@./tools/coreml sync schema
 	@./tools/dnn schema
 	@./tools/mnn sync schema
+	@./tools/mslite sync schema
 	@./tools/onnx sync install schema metadata
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata

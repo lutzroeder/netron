@@ -135,14 +135,11 @@ class Application {
                     'meta',
                     'tflite', 'lite', 'tfl',
                     'armnn', 'mnn', 'nn', 'uff', 'uff.txt',
-                    'ncnn', 'param', 'tnnproto',
-                    'xml',
-                    'tmfile',
+                    'ncnn', 'param', 'tnnproto', 'tmfile', 'ms',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
-                    'cfg',
-                    'xml' ] }
+                    'cfg', 'xml' ] }
             ]
         };
         const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
