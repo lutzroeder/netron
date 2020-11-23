@@ -1062,12 +1062,6 @@
     }
   },
   {
-    "name": "Scatter",
-    "schema": {
-      "category": "Layer"
-    }
-  },
-  {
     "name": "Shape",
     "schema": {
       "category": "Shape"
