@@ -122,5 +122,5 @@ version:
 	git tag -d v$$(node -pe "require('./package.json').version")
 
 pull:
-	git tag -d $$(git tag -l)
+	git fetch --prune origin "refs/tags/*:refs/tags/*"
 	git pull --prune --rebase
