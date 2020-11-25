@@ -2174,6 +2174,7 @@ $root.tflite.BatchMatMulOptions = class BatchMatMulOptions {
         const $ = new $root.tflite.BatchMatMulOptions();
         $.adj_x = reader.bool_(position, 4, false);
         $.adj_y = reader.bool_(position, 6, false);
+        $.asymmetric_quantize_inputs = reader.bool_(position, 8, false);
         return $;
     }
 
@@ -2181,6 +2182,7 @@ $root.tflite.BatchMatMulOptions = class BatchMatMulOptions {
         const $ = new $root.tflite.BatchMatMulOptions();
         $.adj_x = reader.value(json.adj_x, false);
         $.adj_y = reader.value(json.adj_y, false);
+        $.asymmetric_quantize_inputs = reader.value(json.asymmetric_quantize_inputs, false);
         return $;
     }
 };
