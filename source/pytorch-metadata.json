@@ -4635,11 +4635,33 @@
   {
     "name": "torch.remainder:Scalar",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
         { "name": "other", "type": "Scalar" }
       ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.remainder_:Tensor",
+    "schema": {
       "inputs": [
-        { "name": "self", "type": "Tensor" }
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.remainder_:Scalar",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Scalar" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
