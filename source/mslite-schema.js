@@ -272,6 +272,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 192: return $root.mindspore.schema.TensorListReserve.decode(reader, position);
             case 193: return $root.mindspore.schema.All.decode(reader, position);
             case 194: return $root.mindspore.schema.Assert.decode(reader, position);
+            case 195: return $root.mindspore.schema.Adder.decode(reader, position);
         }
         return undefined;
     }
@@ -472,6 +473,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'TensorListReserve': return $root.mindspore.schema.TensorListReserve.decodeText(reader, json);
             case 'All': return $root.mindspore.schema.All.decodeText(reader, json);
             case 'Assert': return $root.mindspore.schema.Assert.decodeText(reader, json);
+            case 'Adder': return $root.mindspore.schema.Adder.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2347,7 +2349,7 @@ $root.mindspore.schema.Range = class Range {
         $.dType = reader.int32_(position, 4, 0);
         $.start = reader.int32_(position, 6, 0);
         $.limit = reader.int32_(position, 8, 0);
-        $.delta = reader.int32_(position, 10, 0);
+        $.delta = reader.int32_(position, 10, 1);
         return $;
     }
 
@@ -2356,7 +2358,7 @@ $root.mindspore.schema.Range = class Range {
         $.dType = reader.value(json.dType, 0);
         $.start = reader.value(json.start, 0);
         $.limit = reader.value(json.limit, 0);
-        $.delta = reader.value(json.delta, 0);
+        $.delta = reader.value(json.delta, 1);
         return $;
     }
 };
@@ -4124,6 +4126,19 @@ $root.mindspore.schema.Assert = class Assert {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Assert();
         $.summarize = reader.value(json.summarize, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Adder = class Adder {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Adder();
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Adder();
         return $;
     }
 };
