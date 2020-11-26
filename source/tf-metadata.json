@@ -8408,7 +8408,7 @@
           "type": 3
         },
         {
-          "description": "A scalar representing maximum number of boxes retained over all classes. Note\nthat setting this value to a large number may result in OOM error depending on\nthe system workload.",
+          "description": "An int32 scalar representing the maximum number of boxes retained over all\nclasses. Note that setting this value to a large number may result in OOM error\ndepending on the system workload.",
           "name": "max_total_size",
           "type": 3
         },
