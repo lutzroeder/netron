@@ -916,6 +916,53 @@ $root.mindspore.schema.Conv2D = class Conv2D {
     }
 };
 
+$root.mindspore.schema.Adder = class Adder {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Adder();
+        $.format = reader.int32_(position, 4, 0);
+        $.group = reader.int32_(position, 6, 0);
+        $.channelIn = reader.int32_(position, 8, 0);
+        $.channelOut = reader.int32_(position, 10, 0);
+        $.kernelW = reader.int32_(position, 12, 0);
+        $.kernelH = reader.int32_(position, 14, 0);
+        $.strideW = reader.int32_(position, 16, 0);
+        $.strideH = reader.int32_(position, 18, 0);
+        $.padMode = reader.int8_(position, 20, 0);
+        $.padUp = reader.int32_(position, 22, 0);
+        $.padDown = reader.int32_(position, 24, 0);
+        $.padLeft = reader.int32_(position, 26, 0);
+        $.padRight = reader.int32_(position, 28, 0);
+        $.dilateW = reader.int32_(position, 30, 0);
+        $.dilateH = reader.int32_(position, 32, 0);
+        $.hasBias = reader.bool_(position, 34, false);
+        $.activationType = reader.int8_(position, 36, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Adder();
+        $.format = $root.mindspore.schema.Format[json.format];
+        $.group = reader.value(json.group, 0);
+        $.channelIn = reader.value(json.channelIn, 0);
+        $.channelOut = reader.value(json.channelOut, 0);
+        $.kernelW = reader.value(json.kernelW, 0);
+        $.kernelH = reader.value(json.kernelH, 0);
+        $.strideW = reader.value(json.strideW, 0);
+        $.strideH = reader.value(json.strideH, 0);
+        $.padMode = $root.mindspore.schema.PadMode[json.padMode];
+        $.padUp = reader.value(json.padUp, 0);
+        $.padDown = reader.value(json.padDown, 0);
+        $.padLeft = reader.value(json.padLeft, 0);
+        $.padRight = reader.value(json.padRight, 0);
+        $.dilateW = reader.value(json.dilateW, 0);
+        $.dilateH = reader.value(json.dilateH, 0);
+        $.hasBias = reader.value(json.hasBias, false);
+        $.activationType = $root.mindspore.schema.ActivationType[json.activationType];
+        return $;
+    }
+};
+
 $root.mindspore.schema.Conv2DGradFilter = class Conv2DGradFilter {
 
     static decode(reader, position) {
@@ -4126,19 +4173,6 @@ $root.mindspore.schema.Assert = class Assert {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Assert();
         $.summarize = reader.value(json.summarize, 0);
-        return $;
-    }
-};
-
-$root.mindspore.schema.Adder = class Adder {
-
-    static decode(reader, position) {
-        const $ = new $root.mindspore.schema.Adder();
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new $root.mindspore.schema.Adder();
         return $;
     }
 };
