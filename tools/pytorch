@@ -40,6 +40,10 @@ sync() {
 
 install() {
     bold "pytorch install"
+    if [ "$(uname -ms)" = "Darwin arm64" ]; then
+        echo "- arm64 [skip]"
+        return
+    fi
     venv
     ${python} -m pip install --quiet --upgrade future protobuf scipy
     ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
@@ -57,6 +61,10 @@ schema() {
 
 metadata() {
     bold "pytorch metadata"
+    if [ "$(uname -ms)" = "Darwin arm64" ]; then
+        echo "- arm64 [skip]"
+        return
+    fi
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
