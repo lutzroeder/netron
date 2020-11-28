@@ -1057,9 +1057,9 @@ sidebar.DocumentationSidebar = class {
 
 sidebar.FindSidebar = class {
 
-    constructor(host, graphElement, graph) {
+    constructor(host, element, graph) {
         this._host = host;
-        this._graphElement = graphElement;
+        this._graphElement = element;
         this._graph = graph;
         this._contentElement = this._host.document.createElement('div');
         this._contentElement.setAttribute('class', 'sidebar-view-find');
@@ -1155,7 +1155,12 @@ sidebar.FindSidebar = class {
 
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
-                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
+                    const match =
+                        (argument.name && argument.name.toLowerCase().indexOf(text) != -1) ||
+                        (argument.type && argument.type.dataType && argument.type.dataType.toLowerCase() === text) ||
+                        (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.some((dimension) => dimension.toString() === text)) ||
+                        (argument.type && argument.type.shape && argument.type.shape.dimensions && (argument.type.shape.toString() === text || argument.type.shape.toString() === '[' + text + ']'));
+                    if (match && !edgeMatches.has(argument.name)) {
                         if (!argument.initializer) {
                             const inputItem = this._host.document.createElement('li');
                             inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
