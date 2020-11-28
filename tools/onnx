@@ -36,10 +36,6 @@ sync() {
 
 install() {
     bold "onnx install"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
-        return
-    fi
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
