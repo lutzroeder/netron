@@ -56,6 +56,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.data = reader.typedArray(position, 16, Uint8Array);
         $.quantParams = reader.tableArray(position, 18, $root.mindspore.schema.QuantParam.decode);
         $.quantClusters = reader.typedArray(position, 20, Float32Array);
+        $.name = reader.string_(position, 22, null);
         return $;
     }
 
@@ -70,6 +71,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.data = reader.typedArray(json.data, Uint8Array);
         $.quantParams = reader.objectArray(json.quantParams, $root.mindspore.schema.QuantParam.decodeText);
         $.quantClusters = reader.typedArray(json.quantClusters, Float32Array);
+        $.name = reader.value(json.name, null);
         return $;
     }
 };
@@ -4078,11 +4080,15 @@ $root.mindspore.schema.TensorListFromTensor = class TensorListFromTensor {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.TensorListFromTensor();
+        $.elementDType = reader.int32_(position, 4, 0);
+        $.shapeType = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.TensorListFromTensor();
+        $.elementDType = reader.value(json.elementDType, 0);
+        $.shapeType = reader.value(json.shapeType, 0);
         return $;
     }
 };
@@ -4123,11 +4129,13 @@ $root.mindspore.schema.TensorListSetItem = class TensorListSetItem {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.TensorListSetItem();
+        $.elementDType = reader.int32_(position, 4, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.TensorListSetItem();
+        $.elementDType = reader.value(json.elementDType, 0);
         return $;
     }
 };
