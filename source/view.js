@@ -482,7 +482,7 @@ view.View = class {
                         }
                         const type = node.type;
                         if (typeof type !== 'string' || !type.split) { // #416
-                            throw new ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
+                            throw new view.ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
                         const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
                         const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
@@ -1011,7 +1011,7 @@ view.View = class {
     }
 };
 
-class ModelError extends Error {
+view.ModelError = class extends Error {
 
     constructor(message, telemetry) {
         super(message);
@@ -1019,9 +1019,9 @@ class ModelError extends Error {
         this.telemetry = telemetry;
         this.stack = undefined;
     }
-}
+};
 
-class ModelContext {
+view.ModelContext = class {
 
     constructor(context, entries) {
         this._context = context;
@@ -1130,9 +1130,9 @@ class ModelContext {
         }
         return tags;
     }
-}
+};
 
-class ArchiveContext {
+view.ArchiveContext = class {
 
     constructor(entries, rootFolder, identifier, buffer) {
         this._entries = {};
@@ -1166,15 +1166,15 @@ class ArchiveContext {
     get buffer() {
         return this._buffer;
     }
-}
+};
 
-class ArchiveError extends Error {
+view.ArchiveError = class extends Error {
 
     constructor(message) {
         super(message);
         this.name = 'Error loading archive.';
     }
-}
+};
 
 view.ModelFactoryService = class {
 
@@ -1225,7 +1225,7 @@ view.ModelFactoryService = class {
             const exception = (context) => {
             };
             const entries = this._openArchive(context);
-            const modelContext = new ModelContext(context, entries);
+            const modelContext = new view.ModelContext(context, entries);
             return this._openContext(modelContext).then((model) => {
                 if (model) {
                     return model;
@@ -1248,7 +1248,7 @@ view.ModelFactoryService = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const format = [ 'Zip', 'tar' ].find((extension) => context.entries(extension.toLowerCase()).length > 0);
         if (format) {
-            throw new ModelError("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
+            throw new view.ModelError("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
         }
         const knownUnsupportedIdentifiers = new Set([
             'natives_blob.bin',
@@ -1294,20 +1294,20 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of encoding.formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new ModelError('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.ModelError('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                throw new view.ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
             }
         }
         const buffer = context.buffer;
         const bytes = Array.from(buffer.subarray(0, Math.min(16, buffer.length))).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         const content = buffer.length > 268435456 ? '(' + bytes + ') [' + buffer.length.toString() + ']': '(' + bytes + ')';
-        throw new ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
+        throw new view.ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
     }
 
     _openArchive(context) {
@@ -1342,7 +1342,7 @@ view.ModelFactoryService = class {
         }
         catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+            throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
 
         try {
@@ -1367,7 +1367,7 @@ view.ModelFactoryService = class {
         }
         catch (error) {
             const message = error && error.message ? error.message : error.toString();
-            throw new ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+            throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
         }
         return entries;
     }
@@ -1381,7 +1381,7 @@ view.ModelFactoryService = class {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
                     if (!module.ModelFactory) {
-                        throw new ModelError("Failed to load module '" + id + "'.");
+                        throw new view.ModelError("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
                     if (!modelFactory.match(context)) {
@@ -1405,7 +1405,7 @@ view.ModelFactoryService = class {
                     if (errors.length === 1) {
                         return Promise.reject(errors[0]);
                     }
-                    return Promise.reject(new ModelError(errors.map((err) => err.message).join('\n')));
+                    return Promise.reject(new view.ModelError(errors.map((err) => err.message).join('\n')));
                 }
                 return Promise.resolve(null);
             }
@@ -1434,14 +1434,14 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            const context = new ModelContext(new ArchiveContext(null, rootFolder, entry.name, entry.data));
+                            const context = new view.ModelContext(new view.ArchiveContext(null, rootFolder, entry.name, entry.data));
                             let modules = this._filter(context);
                             const nextModule = () => {
                                 if (modules.length > 0) {
                                     const id = modules.shift();
                                     return this._host.require(id).then((module) => {
                                         if (!module.ModelFactory) {
-                                            throw new ArchiveError("Failed to load module '" + id + "'.", null);
+                                            throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
                                         }
                                         const factory = new module.ModelFactory();
                                         if (factory.match(context)) {
@@ -1476,16 +1476,16 @@ view.ModelFactoryService = class {
                         matches = matches.filter((e) => !e.name.toLowerCase().endsWith('.data-00000-of-00001'));
                     }
                     if (matches.length > 1) {
-                        return Promise.reject(new ArchiveError('Archive contains multiple model files.'));
+                        return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new ModelContext(new ArchiveContext(entries, rootFolder, match.name, match.data)));
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(entries, rootFolder, match.name, match.data)));
                 }
             };
             return nextEntry();
         }
         catch (error) {
-            return Promise.reject(new ArchiveError(error.message));
+            return Promise.reject(new view.ArchiveError(error.message));
         }
     }
 
@@ -1518,7 +1518,7 @@ view.ModelFactoryService = class {
     _openSignature(context) {
         const buffer = context.buffer;
         if (buffer.length === 0 || buffer.every((value) => value === 0x00)) {
-            return Promise.reject(new ModelError('File has no content.', true));
+            return Promise.reject(new view.ModelError('File has no content.', true));
         }
         /* eslint-disable no-control-regex */
         const entries = [
@@ -1539,7 +1539,7 @@ view.ModelFactoryService = class {
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(4096, buffer.length)));
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                return Promise.reject(new ModelError("Invalid file content. File contains " + entry.name + ".", true));
+                return Promise.reject(new view.ModelError("Invalid file content. File contains " + entry.name + ".", true));
             }
         }
         return Promise.resolve(context);

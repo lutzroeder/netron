@@ -18,21 +18,15 @@ sidebar.Sidebar = class {
                 this._pop();
             }
         };
-        this._resizeSidebarHandler = () => {
-            const contentElement = this._getElementById('sidebar-content');
-            if (contentElement) {
-                contentElement.style.height = window.innerHeight - 60;
-            }
-        };
     }
 
     _getElementById(id) {
         return this._host.document.getElementById(id + this._id);
     }
 
-    open(content, title, width) {
+    open(content, title) {
         this.close();
-        this.push(content, title, width);
+        this.push(content, title);
     }
 
     close() {
@@ -41,8 +35,8 @@ sidebar.Sidebar = class {
         this._hide();
     }
 
-    push(content, title, width) {
-        const item = { title: title, content: content, width: width };
+    push(content, title) {
+        const item = { title: title, content: content };
         this._stack.push(item);
         this._activate(item);
     }
@@ -77,7 +71,6 @@ sidebar.Sidebar = class {
             }
 
             this._host.document.removeEventListener('keydown', this._closeSidebarKeyDownHandler);
-            sidebarElement.removeEventListener('resize', this._resizeSidebarHandler);
         }
     }
 
@@ -104,8 +97,6 @@ sidebar.Sidebar = class {
             contentElement.setAttribute('id', 'sidebar-content');
             sidebarElement.appendChild(contentElement);
 
-            contentElement.style.height = window.innerHeight - 60;
-
             if (typeof content == 'string') {
                 contentElement.innerHTML = item.content;
             }
@@ -118,15 +109,7 @@ sidebar.Sidebar = class {
                 contentElement.appendChild(item.content);
             }
 
-            sidebarElement.style.width = item.width ? item.width : '500px';
-            if (item.width && item.width.endsWith('%')) {
-                contentElement.style.width = '100%';
-            }
-            else {
-                contentElement.style.width = 'calc(' + sidebarElement.style.width + ' - 40px)';
-            }
-
-            window.addEventListener('resize', this._resizeSidebarHandler);
+            sidebarElement.style.width = 'calc(100vw * 0.6)';
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
     }
@@ -204,9 +187,9 @@ sidebar.NodeSidebar = class {
             }
         }
 
-        const divider = this._host.document.createElement('div');
-        divider.setAttribute('style', 'margin-bottom: 20px');
-        this._elements.push(divider);
+        const separator = this._host.document.createElement('div');
+        separator.className = 'sidebar-view-separator';
+        this._elements.push(separator);
     }
 
     render() {
@@ -856,6 +839,10 @@ sidebar.ModelSidebar = class {
                 }
             }
         }
+
+        const separator = this._host.document.createElement('div');
+        separator.className = 'sidebar-view-separator';
+        this._elements.push(separator);
     }
 
     render() {
@@ -991,7 +978,12 @@ sidebar.DocumentationSidebar = class {
                     }
                 });
             }
+
             this._elements = [ element ];
+
+            const separator = this._host.document.createElement('div');
+            separator.className = 'sidebar-view-separator';
+            this._elements.push(separator);
         }
         return this._elements;
     }
