@@ -20,7 +20,7 @@ sync() {
 }
 
 schema() {
-    echo "mslite schema"
+    bold "mslite schema"
     [[ $(grep -U $'\x0D' ./source/mslite-schema.js) ]] && crlf=1
     node ./tools/flatc.js --text --root mslite --out ./source/mslite-schema.js ./third_party/source/mindspore/mindspore/lite/schema/model.fbs
     if [[ -n ${crlf} ]]; then
