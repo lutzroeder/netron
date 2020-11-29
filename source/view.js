@@ -1524,7 +1524,7 @@ view.ModelFactoryService = class {
         const entries = [
             { name: 'ELF executable', value: /^\x7FELF/ },
             { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
-            { name: 'Git LFS header', value: /^oid sha256:/ },
+            { name: 'Git LFS header', value: /^\s*oid sha256:/ },
             { name: 'HTML markup', value: /^\s*<html>/ },
             { name: 'HTML markup', value: /^\s*<!doctype html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
