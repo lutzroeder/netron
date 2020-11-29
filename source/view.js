@@ -1189,7 +1189,7 @@ view.ModelFactoryService = class {
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json' ]);
-        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', '.data-00000-of-00001' ]);
+        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
@@ -1493,7 +1493,8 @@ view.ModelFactoryService = class {
         const extension = identifier.split('.').pop().toLowerCase();
         identifier = identifier.toLowerCase();
         for (const entry of this._extensions) {
-            if (identifier.endsWith(entry.extension)) {
+            if ((typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
+                (entry.extension instanceof RegExp && entry.extension.exec(identifier))) {
                 this._host.event('File', 'Accept', extension, 1);
                 return true;
             }
@@ -1511,8 +1512,10 @@ view.ModelFactoryService = class {
 
     _filter(context) {
         const identifier = context.identifier.toLowerCase();
-        const list = this._extensions.filter((entry) => identifier.endsWith(entry.extension)).map((extry) => extry.id);
-        return Array.from(new Set(list));
+        const list = this._extensions.filter((entry) =>
+            (typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
+            (entry.extension instanceof RegExp && entry.extension.exec(identifier)));
+        return Array.from(new Set(list.map((entry) => entry.id)));
     }
 
     _openSignature(context) {
