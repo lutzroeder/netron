@@ -1801,6 +1801,13 @@
   },
   {
     "type":   "darknet",
+    "target": "netron_issue_539_3.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/5612917/netron_issue_539_3.zip[netron_issue_539_3.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/539"
+  },
+  {
+    "type":   "darknet",
     "target": "netron_issue_541.cfg",
     "source": "https://github.com/lutzroeder/netron/files/4968181/netron_issue_541.zip[netron_issue_541.cfg]",
     "format": "Darknet",

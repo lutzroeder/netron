@@ -86,10 +86,12 @@ darknet.Graph = class {
                     case ';':
                         break;
                     case '[': {
-                        section = {};
-                        section.line = lineNumber;
-                        section.type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
-                        section.options = {};
+                        const type = line[line.length - 1] === ']' ? line.substring(1, line.length - 1) : line.substring(1);
+                        section = {
+                            line: lineNumber,
+                            type: type,
+                            options: {}
+                        };
                         sections.push(section);
                         break;
                     }
@@ -209,55 +211,71 @@ darknet.Graph = class {
         params.arguments = [ new darknet.Argument(inputName, inputType, null) ];
         this._inputs.push(new darknet.Parameter(inputName, true, params.arguments));
 
-        let infer = true;
         for (let i = 0; i < sections.length; i++) {
             const section = sections[i];
             section.name = i.toString();
             section.chain = [];
-            section.layer = {};
+            section.layer = {
+                inputs: [],
+                weights: [],
+                outputs: [ new darknet.Argument(section.name, null, null) ]
+            };
+        }
+
+        let infer = true;
+        for (let i = 0; i < sections.length; i++) {
+            const section = sections[i];
             const options = section.options;
             const layer = section.layer;
-            layer.inputs = [].concat(params.arguments);
-            layer.outputs = [ new darknet.Argument(i.toString(), null, null) ];
-            layer.weights = [];
+            layer.inputs.push(...params.arguments);
             switch (section.type) {
                 case 'shortcut': {
+                    let remove = true;
                     const from = options.from ? options.from.split(',').map((item) => Number.parseInt(item.trim(), 10)) : [];
-                    for (let index of from) {
-                        index = (index < 0) ? i + index : index;
-                        const item = sections[index] ? sections[index].layer : null;
-                        if (item) {
-                            layer.inputs.push(item.outputs[0]);
+                    for (const route of from) {
+                        const index = route < 0 ? i + route : route;
+                        const exists = index >= 0 && index < sections.length;
+                        remove = exists && remove;
+                        if (exists) {
+                            const source = sections[index].layer;
+                            layer.inputs.push(source.outputs[0]);
                         }
                     }
-                    delete options.from;
+                    if (remove) {
+                        delete options.from;
+                    }
                     break;
                 }
                 case 'sam':
                 case 'scale_channels': {
-                    let index = option_find_int(options, 'from', 0);
-                    index = (index < 0) ? i + index : index;
-                    const item = index < sections.length ? sections[index].layer : null;
-                    if (item) {
-                        layer.from = item;
-                        layer.inputs.push(item.outputs[0]);
+                    const from = option_find_int(options, 'from', 0);
+                    const index = from < 0 ? i + from : from;
+                    if (index >= 0 && index < sections.length) {
+                        const source = sections[index].layer;
+                        layer.from = source;
+                        layer.inputs.push(source.outputs[0]);
+                        delete options.from;
                     }
-                    delete options.from;
                     break;
                 }
                 case 'route': {
                     layer.inputs = [];
                     layer.layers = [];
+                    let remove = true;
                     const routes = options.layers ? options.layers.split(',').map((route) => Number.parseInt(route.trim(), 10)) : [];
-                    for (let j = 0; j < routes.length; j++) {
-                        const index = (routes[j] < 0) ? i + routes[j] : routes[j];
-                        const item = index < sections.length ? sections[index].layer : null;
-                        if (item) {
-                            layer.inputs.push(item.outputs[0]);
-                            layer.layers.push(item);
+                    for (const route of routes) {
+                        const index = route < 0 ? i + route : route;
+                        const exists = index >= 0 && index < sections.length;
+                        remove = exists && remove;
+                        if (exists) {
+                            const source = sections[index].layer;
+                            layer.inputs.push(source.outputs[0]);
+                            layer.layers.push(source);
                         }
                     }
-                    delete options.layers;
+                    if (remove) {
+                        delete options.layers;
+                    }
                     break;
                 }
             }
@@ -691,11 +709,14 @@ darknet.Graph = class {
                     case 'sam':
                     case 'scale_channels': {
                         const activation = option_find_str(options, 'activation', 'linear');
-                        layer.out_w = layer.from.out_w;
-                        layer.out_h = layer.from.out_h;
-                        layer.out_c = layer.from.out_c;
-                        layer.out = layer.out_w * layer.out_h * layer.out_c;
-                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'shortcut|scale_channels|sam'));
+                        const from = layer.from;
+                        if (from) {
+                            layer.out_w = from.out_w;
+                            layer.out_h = from.out_h;
+                            layer.out_c = from.out_c;
+                            layer.out = layer.out_w * layer.out_h * layer.out_c;
+                            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'shortcut|scale_channels|sam'));
+                        }
                         if (activation !== 'linear' && activation !== 'none') {
                             section.chain.push({ type: activation });
                         }
