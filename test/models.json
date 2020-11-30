@@ -1996,6 +1996,13 @@
     "link":   "https://github.com/eclipse/deeplearning4j"
   },
   {
+    "type":   "dlc",
+    "target": "inception_v3_quantized.dlc",
+    "source": "https://github.com/lutzroeder/netron/files/5615377/inception_v3_quantized.dlc.zip[inception_v3_quantized.dlc]",
+    "error":  "File contains undocumented DLC data in 'inception_v3_quantized.dlc'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/640"
+  },
+  {
     "type":   "dnn",
     "target": "brows_model.dnn",
     "source": "https://github.com/lutzroeder/netron/files/5118426/brows_model.zip[brows_model.dnn]",
