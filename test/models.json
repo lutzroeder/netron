@@ -4636,6 +4636,13 @@
     "format": "PyTorch v0.1.10"
   },
   {
+    "type":   "rknn",
+    "target": "resnet_18.rknn",
+    "source": "https://github.com/lutzroeder/netron/files/5615383/resnet_18.rknn.zip[resnet_18.rknn]",
+    "format": "RKNN v1.3.2",
+    "link":   "https://github.com/lutzroeder/netron/issues/639"
+  },
+  {
     "type":   "sklearn",
     "target": "batches.meta",
     "source": "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",

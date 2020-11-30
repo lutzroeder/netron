@@ -1198,6 +1198,7 @@ view.ModelFactoryService = class {
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt' ]);
         this.register('./weka', [ '.model' ]);
+        this.register('./rknn', [ '.rknn' ]);
         this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
