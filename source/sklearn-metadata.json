@@ -1588,7 +1588,7 @@
         },
         {
           "default": "mean",
-          "description": "The imputation strategy.\n\n- If \"mean\", then replace missing values using the mean along\neach column. Can only be used with numeric data.\n- If \"median\", then replace missing values using the median along\neach column. Can only be used with numeric data.\n- If \"most_frequent\", then replace missing using the most frequent\nvalue along each column. Can be used with strings or numeric data.\n- If \"constant\", then replace missing values with fill_value. Can be\nused with strings or numeric data.\n\n.. versionadded:: 0.20\nstrategy=\"constant\" for fixed value imputation.\n",
+          "description": "The imputation strategy.\n\n- If \"mean\", then replace missing values using the mean along\neach column. Can only be used with numeric data.\n- If \"median\", then replace missing values using the median along\neach column. Can only be used with numeric data.\n- If \"most_frequent\", then replace missing using the most frequent\nvalue along each column. Can be used with strings or numeric data.\nIf there is more than one such value, only the smallest is returned.\n- If \"constant\", then replace missing values with fill_value. Can be\nused with strings or numeric data.\n\n.. versionadded:: 0.20\nstrategy=\"constant\" for fixed value imputation.\n",
           "name": "strategy",
           "type": "string"
         },
