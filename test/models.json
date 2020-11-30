@@ -742,6 +742,13 @@
   },
   {
     "type":   "caffe",
+    "target": "yolov3_gen.prototext.txt",
+    "source": "https://github.com/lutzroeder/netron/files/5615031/yolov3_gen.prototext.txt.zip[yolov3_gen.prototext.txt]",
+    "format": "Caffe v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/276"
+  },
+  {
+    "type":   "caffe",
     "target": "yolov3-tiny.prototxt",
     "source": "https://raw.githubusercontent.com/eric612/MobileNet-YOLO/master/models/darknet_yolov3/yolov3-tiny.prototxt",
     "format": "Caffe v2",
