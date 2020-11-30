@@ -1189,7 +1189,7 @@ view.ModelFactoryService = class {
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7' ]);
         this.register('./tflite', [ '.tflite', '.lite', '.tfl', '.bin', '.pb', '.tmfile', '.h5', '.model', '.json' ]);
-        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/ ]);
+        this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
@@ -1491,7 +1491,7 @@ view.ModelFactoryService = class {
 
     accept(identifier) {
         const extension = identifier.split('.').pop().toLowerCase();
-        identifier = identifier.toLowerCase();
+        identifier = identifier.toLowerCase().split('/').pop();
         for (const entry of this._extensions) {
             if ((typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
                 (entry.extension instanceof RegExp && entry.extension.exec(identifier))) {
@@ -1511,7 +1511,7 @@ view.ModelFactoryService = class {
     }
 
     _filter(context) {
-        const identifier = context.identifier.toLowerCase();
+        const identifier = context.identifier.toLowerCase().split('/').pop();
         const list = this._extensions.filter((entry) =>
             (typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
             (entry.extension instanceof RegExp && entry.extension.exec(identifier)));

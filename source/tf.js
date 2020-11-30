@@ -73,6 +73,11 @@ tf.ModelFactory = class {
         if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
             return true;
         }
+        if (/^events.out.tfevents./.exec(identifier)) {
+            if (tf.EventFileReader.open(context.buffer)) {
+                return true;
+            }
+        }
         return false;
     }
 
@@ -86,6 +91,41 @@ tf.ModelFactory = class {
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'ckpt' || extension === 'index' || /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
                 return tf.ModelFactory._openBundle(context, host);
+            }
+            else if (/^events.out.tfevents./.exec(identifier)) {
+                format = 'TensorFlow Event File';
+                const eventFileReader = tf.EventFileReader.open(context.buffer);
+                saved_model = new tf.proto.SavedModel();
+                for (;;) {
+                    const event = eventFileReader.read();
+                    if (!event) {
+                        break;
+                    }
+                    switch (event.what) {
+                        case 'file_version': {
+                            switch (event.file_version) {
+                                case 'brain.Event:1':
+                                    format = 'TensorFlow Event File v1';
+                                    break;
+                                case 'brain.Event:2':
+                                    format = 'TensorFlow Event File v2';
+                                    break;
+                            }
+                            break;
+                        }
+                        case 'graph_def': {
+                            const buffer = event.graph_def;
+                            const reader = protobuf.Reader.create(buffer);
+                            const graph_def = tf.proto.GraphDef.decode(reader);
+                            const meta_graph = new tf.proto.MetaGraphDef();
+                            meta_graph.meta_info_def = new tf.proto.MetaGraphDef.MetaInfoDef();
+                            meta_graph.meta_info_def.any_info = event.wall_time.toString();
+                            meta_graph.graph_def = graph_def;
+                            saved_model.meta_graphs.push(meta_graph);
+                            break;
+                        }
+                    }
+                }
             }
             else if (extension === 'json') {
                 try {
@@ -264,10 +304,10 @@ tf.Model = class {
         this._graphs = [];
         if (model) {
             for (let i = 0; i < model.meta_graphs.length; i++) {
-                const metaGraph = model.meta_graphs[i];
+                const meta_graph = model.meta_graphs[i];
                 let name = null;
-                if (metaGraph.any_info) {
-                    name = metaGraph.any_info.toString();
+                if (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) {
+                    name = meta_graph.meta_info_def.any_info.toString();
                 }
                 else if (model.meta_graphs.length > 1) {
                     name = i.toString();
@@ -275,7 +315,7 @@ tf.Model = class {
                 else {
                     name = '-';
                 }
-                this._graphs.push(new tf.Graph(metadata, metaGraph, name, bundle));
+                this._graphs.push(new tf.Graph(metadata, meta_graph, name, bundle));
             }
             // Recursively add all subgraphs.
             const visited_graph = [];
@@ -1688,6 +1728,112 @@ tf.TensorBundle.BinaryReader = class {
             position += length;
         }
         return data;
+    }
+};
+
+tf.EventFileReader = class {
+
+    static open(buffer) {
+        if (buffer.length < 16) {
+            return null;
+        }
+        const masked_crc32c = (bytes) => {
+            const poly = 0x82f63b78;
+            let crc = 0xffffffff;
+            for (let n = 0; n < bytes.length; n++) {
+                crc ^= bytes[n];
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc & 1 ? (crc >>> 1) ^ poly : crc >>> 1;
+                crc = crc >>> 0;
+            }
+            crc = crc ^ 0xffffffff;
+            crc = crc >>> 0;
+            crc = ((crc >> 15) | (crc << 17)) + 0xa282ead8;
+            crc = crc >>> 0;
+            return crc;
+        };
+        const reader = new tf.EventFileReader.BinaryReader(buffer);
+        const length_bytes = reader.bytes(8);
+        const length_crc = reader.uint32();
+        if (masked_crc32c(length_bytes) !== length_crc) {
+            return null;
+        }
+        // reader.skip(-12);
+        // const length = reader.uint64().toNumber();
+        // reader.uint32(); // masked crc of length
+        // const data = reader.bytes(length);
+        // const data_crc = reader.uint32();
+        // if (masked_crc32c(data) !== data_crc) {
+        //     return null;
+        // }
+        return new tf.EventFileReader(buffer);
+    }
+
+    constructor(buffer) {
+        this._reader = new tf.EventFileReader.BinaryReader(buffer);
+    }
+
+    read() {
+        if (!this._reader.end()) {
+            const length = this._reader.uint64().toNumber();
+            this._reader.uint32(); // masked crc of length
+            const data = this._reader.bytes(length);
+            const reader = protobuf.Reader.create(data);
+            const event = tf.proto.Event.decode(reader);
+            this._reader.uint32(); // masked crc of data
+            return event;
+        }
+    }
+};
+
+tf.EventFileReader.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._position = 0;
+        this._end = this._buffer.length;
+    }
+
+    end() {
+        return this._position >= this._end;
+    }
+
+    bytes(size) {
+        const position = this._position;
+        this.skip(size);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._dataView.getUint8(position);
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._end) {
+            throw new tf.Error('Expected ' + (this._position - this._end) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._dataView.getUint32(position, true);
+    }
+
+    uint64() {
+        const position = this._position;
+        this.skip(8);
+        return this._dataView.getUint64(position, true);
     }
 };
 

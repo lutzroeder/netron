@@ -4946,6 +4946,27 @@
   },
   {
     "type":   "tf",
+    "target": "events.out.tfevents.1606692323.b5c8f88cc7ee.58.2",
+    "source": "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
+    "format": "TensorFlow Event File v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/638"
+  },
+  {
+    "type":   "tf",
+    "target": "events.out.tfevents.1606696207.eba7c8084653.55.0",
+    "source": "https://github.com/lutzroeder/netron/files/5613451/events.out.tfevents.1606696207.eba7c8084653.55.0.zip[events.out.tfevents.1606696207.eba7c8084653.55.0]",
+    "format": "TensorFlow Event File v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/638"
+  },
+  {
+    "type":   "tf",
+    "target": "events.out.tfevents.1606704213.784cbcc2d49a.55.162.v2",
+    "source": "https://github.com/lutzroeder/netron/files/5613605/events.out.tfevents.1606704213.784cbcc2d49a.55.162.v2.zip[events.out.tfevents.1606704213.784cbcc2d49a.55.162.v2]",
+    "format": "TensorFlow Event File v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/638"
+  },
+  {
+    "type":   "tf",
     "target": "exDeepFM-criteo.meta",
     "source": "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format": "TensorFlow MetaGraph",

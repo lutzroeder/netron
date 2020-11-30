@@ -4622,6 +4622,998 @@ $root.tensorflow.SavedTensorSlices = class SavedTensorSlices {
 $root.tensorflow.SavedTensorSlices.prototype.meta = null;
 $root.tensorflow.SavedTensorSlices.prototype.data = null;
 
+$root.tensorflow.Event = class Event {
+
+    constructor() {
+    }
+
+    get what() {
+        $root.tensorflow.Event.whatSet = $root.tensorflow.Event.whatSet || new Set([ "file_version", "graph_def", "summary", "log_message", "session_log", "tagged_run_metadata", "meta_graph_def"]);
+        return Object.keys(this).find((key) => $root.tensorflow.Event.whatSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.Event();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.wall_time = reader.double();
+                    break;
+                case 2:
+                    message.step = reader.int64();
+                    break;
+                case 3:
+                    message.file_version = reader.string();
+                    break;
+                case 4:
+                    message.graph_def = reader.bytes();
+                    break;
+                case 5:
+                    message.summary = $root.tensorflow.Summary.decode(reader, reader.uint32());
+                    break;
+                case 6:
+                    message.log_message = $root.tensorflow.LogMessage.decode(reader, reader.uint32());
+                    break;
+                case 7:
+                    message.session_log = $root.tensorflow.SessionLog.decode(reader, reader.uint32());
+                    break;
+                case 8:
+                    message.tagged_run_metadata = $root.tensorflow.TaggedRunMetadata.decode(reader, reader.uint32());
+                    break;
+                case 9:
+                    message.meta_graph_def = reader.bytes();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.Event();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "wall_time":
+                    message.wall_time = reader.float();
+                    break;
+                case "step":
+                    message.step = reader.integer();
+                    break;
+                case "file_version":
+                    message.file_version = reader.string();
+                    break;
+                case "graph_def":
+                    message.graph_def = reader.bytes();
+                    break;
+                case "summary":
+                    message.summary = $root.tensorflow.Summary.decodeText(reader, true);
+                    break;
+                case "log_message":
+                    message.log_message = $root.tensorflow.LogMessage.decodeText(reader, true);
+                    break;
+                case "session_log":
+                    message.session_log = $root.tensorflow.SessionLog.decodeText(reader, true);
+                    break;
+                case "tagged_run_metadata":
+                    message.tagged_run_metadata = $root.tensorflow.TaggedRunMetadata.decodeText(reader, true);
+                    break;
+                case "meta_graph_def":
+                    message.meta_graph_def = reader.bytes();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.Event.prototype.wall_time = 0;
+$root.tensorflow.Event.prototype.step = protobuf.Int64.create(0);
+
+$root.tensorflow.LogMessage = class LogMessage {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.LogMessage();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.level = reader.int32();
+                    break;
+                case 2:
+                    message.message = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.LogMessage();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "level":
+                    message.level = reader.enum($root.tensorflow.LogMessage.Level);
+                    break;
+                case "message":
+                    message.message = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.LogMessage.prototype.level = 0;
+$root.tensorflow.LogMessage.prototype.message = "";
+
+$root.tensorflow.LogMessage.Level = {
+    "UNKNOWN": 0,
+    "DEBUGGING": 10,
+    "INFO": 20,
+    "WARN": 30,
+    "ERROR": 40,
+    "FATAL": 50
+};
+
+$root.tensorflow.SessionLog = class SessionLog {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SessionLog();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.status = reader.int32();
+                    break;
+                case 2:
+                    message.checkpoint_path = reader.string();
+                    break;
+                case 3:
+                    message.msg = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SessionLog();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "status":
+                    message.status = reader.enum($root.tensorflow.SessionLog.SessionStatus);
+                    break;
+                case "checkpoint_path":
+                    message.checkpoint_path = reader.string();
+                    break;
+                case "msg":
+                    message.msg = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SessionLog.prototype.status = 0;
+$root.tensorflow.SessionLog.prototype.checkpoint_path = "";
+$root.tensorflow.SessionLog.prototype.msg = "";
+
+$root.tensorflow.SessionLog.SessionStatus = {
+    "STATUS_UNSPECIFIED": 0,
+    "START": 1,
+    "STOP": 2,
+    "CHECKPOINT": 3
+};
+
+$root.tensorflow.TaggedRunMetadata = class TaggedRunMetadata {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.TaggedRunMetadata();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.tag = reader.string();
+                    break;
+                case 2:
+                    message.run_metadata = reader.bytes();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.TaggedRunMetadata();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "tag":
+                    message.tag = reader.string();
+                    break;
+                case "run_metadata":
+                    message.run_metadata = reader.bytes();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.TaggedRunMetadata.prototype.tag = "";
+$root.tensorflow.TaggedRunMetadata.prototype.run_metadata = new Uint8Array([]);
+
+$root.tensorflow.WorkerHealth = {
+    "OK": 0,
+    "RECEIVED_SHUTDOWN_SIGNAL": 1,
+    "INTERNAL_ERROR": 2,
+    "SHUTTING_DOWN": 3
+};
+
+$root.tensorflow.WorkerShutdownMode = {
+    "DEFAULT": 0,
+    "NOT_CONFIGURED": 1,
+    "WAIT_FOR_COORDINATOR": 2,
+    "SHUTDOWN_AFTER_TIMEOUT": 3
+};
+
+$root.tensorflow.WatchdogConfig = class WatchdogConfig {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.WatchdogConfig();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.timeout_ms = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.WatchdogConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "timeout_ms":
+                    message.timeout_ms = reader.integer();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.WatchdogConfig.prototype.timeout_ms = protobuf.Int64.create(0);
+
+$root.tensorflow.RequestedExitCode = class RequestedExitCode {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RequestedExitCode();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.exit_code = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RequestedExitCode();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "exit_code":
+                    message.exit_code = reader.integer();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RequestedExitCode.prototype.exit_code = 0;
+
+$root.tensorflow.WorkerHeartbeatRequest = class WorkerHeartbeatRequest {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.WorkerHeartbeatRequest();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.shutdown_mode = reader.int32();
+                    break;
+                case 2:
+                    message.watchdog_config = $root.tensorflow.WatchdogConfig.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.exit_code = $root.tensorflow.RequestedExitCode.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.WorkerHeartbeatRequest();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "shutdown_mode":
+                    message.shutdown_mode = reader.enum($root.tensorflow.WorkerShutdownMode);
+                    break;
+                case "watchdog_config":
+                    message.watchdog_config = $root.tensorflow.WatchdogConfig.decodeText(reader, true);
+                    break;
+                case "exit_code":
+                    message.exit_code = $root.tensorflow.RequestedExitCode.decodeText(reader, true);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.WorkerHeartbeatRequest.prototype.shutdown_mode = 0;
+$root.tensorflow.WorkerHeartbeatRequest.prototype.watchdog_config = null;
+$root.tensorflow.WorkerHeartbeatRequest.prototype.exit_code = null;
+
+$root.tensorflow.WorkerHeartbeatResponse = class WorkerHeartbeatResponse {
+
+    constructor() {
+        this.worker_log = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.WorkerHeartbeatResponse();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.health_status = reader.int32();
+                    break;
+                case 2:
+                    message.worker_log.push($root.tensorflow.Event.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.hostname = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.WorkerHeartbeatResponse();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "health_status":
+                    message.health_status = reader.enum($root.tensorflow.WorkerHealth);
+                    break;
+                case "worker_log":
+                    message.worker_log.push($root.tensorflow.Event.decodeText(reader, true));
+                    break;
+                case "hostname":
+                    message.hostname = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.WorkerHeartbeatResponse.prototype.health_status = 0;
+$root.tensorflow.WorkerHeartbeatResponse.prototype.hostname = "";
+
+$root.tensorflow.SummaryDescription = class SummaryDescription {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SummaryDescription();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type_hint = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SummaryDescription();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "type_hint":
+                    message.type_hint = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SummaryDescription.prototype.type_hint = "";
+
+$root.tensorflow.HistogramProto = class HistogramProto {
+
+    constructor() {
+        this.bucket_limit = [];
+        this.bucket = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.HistogramProto();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.min = reader.double();
+                    break;
+                case 2:
+                    message.max = reader.double();
+                    break;
+                case 3:
+                    message.num = reader.double();
+                    break;
+                case 4:
+                    message.sum = reader.double();
+                    break;
+                case 5:
+                    message.sum_squares = reader.double();
+                    break;
+                case 6:
+                    message.bucket_limit = reader.doubles(message.bucket_limit, tag);
+                    break;
+                case 7:
+                    message.bucket = reader.doubles(message.bucket, tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.HistogramProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "min":
+                    message.min = reader.float();
+                    break;
+                case "max":
+                    message.max = reader.float();
+                    break;
+                case "num":
+                    message.num = reader.float();
+                    break;
+                case "sum":
+                    message.sum = reader.float();
+                    break;
+                case "sum_squares":
+                    message.sum_squares = reader.float();
+                    break;
+                case "bucket_limit":
+                    reader.array(message.bucket_limit, () => reader.float());
+                    break;
+                case "bucket":
+                    reader.array(message.bucket, () => reader.float());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.HistogramProto.prototype.min = 0;
+$root.tensorflow.HistogramProto.prototype.max = 0;
+$root.tensorflow.HistogramProto.prototype.num = 0;
+$root.tensorflow.HistogramProto.prototype.sum = 0;
+$root.tensorflow.HistogramProto.prototype.sum_squares = 0;
+
+$root.tensorflow.SummaryMetadata = class SummaryMetadata {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SummaryMetadata();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.plugin_data = $root.tensorflow.SummaryMetadata.PluginData.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.display_name = reader.string();
+                    break;
+                case 3:
+                    message.summary_description = reader.string();
+                    break;
+                case 4:
+                    message.data_class = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SummaryMetadata();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "plugin_data":
+                    message.plugin_data = $root.tensorflow.SummaryMetadata.PluginData.decodeText(reader, true);
+                    break;
+                case "display_name":
+                    message.display_name = reader.string();
+                    break;
+                case "summary_description":
+                    message.summary_description = reader.string();
+                    break;
+                case "data_class":
+                    message.data_class = reader.enum($root.tensorflow.DataClass);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SummaryMetadata.prototype.plugin_data = null;
+$root.tensorflow.SummaryMetadata.prototype.display_name = "";
+$root.tensorflow.SummaryMetadata.prototype.summary_description = "";
+$root.tensorflow.SummaryMetadata.prototype.data_class = 0;
+
+$root.tensorflow.SummaryMetadata.PluginData = class PluginData {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SummaryMetadata.PluginData();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.plugin_name = reader.string();
+                    break;
+                case 2:
+                    message.content = reader.bytes();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SummaryMetadata.PluginData();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "plugin_name":
+                    message.plugin_name = reader.string();
+                    break;
+                case "content":
+                    message.content = reader.bytes();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SummaryMetadata.PluginData.prototype.plugin_name = "";
+$root.tensorflow.SummaryMetadata.PluginData.prototype.content = new Uint8Array([]);
+
+$root.tensorflow.DataClass = {
+    "DATA_CLASS_UNKNOWN": 0,
+    "DATA_CLASS_SCALAR": 1,
+    "DATA_CLASS_TENSOR": 2,
+    "DATA_CLASS_BLOB_SEQUENCE": 3
+};
+
+$root.tensorflow.Summary = class Summary {
+
+    constructor() {
+        this.value = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.Summary();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.value.push($root.tensorflow.Summary.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.Summary();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "value":
+                    message.value.push($root.tensorflow.Summary.Value.decodeText(reader, true));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.Summary.Image = class Image {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.Summary.Image();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.height = reader.int32();
+                    break;
+                case 2:
+                    message.width = reader.int32();
+                    break;
+                case 3:
+                    message.colorspace = reader.int32();
+                    break;
+                case 4:
+                    message.encoded_image_string = reader.bytes();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.Summary.Image();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "height":
+                    message.height = reader.integer();
+                    break;
+                case "width":
+                    message.width = reader.integer();
+                    break;
+                case "colorspace":
+                    message.colorspace = reader.integer();
+                    break;
+                case "encoded_image_string":
+                    message.encoded_image_string = reader.bytes();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.Summary.Image.prototype.height = 0;
+$root.tensorflow.Summary.Image.prototype.width = 0;
+$root.tensorflow.Summary.Image.prototype.colorspace = 0;
+$root.tensorflow.Summary.Image.prototype.encoded_image_string = new Uint8Array([]);
+
+$root.tensorflow.Summary.Audio = class Audio {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.Summary.Audio();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.sample_rate = reader.float();
+                    break;
+                case 2:
+                    message.num_channels = reader.int64();
+                    break;
+                case 3:
+                    message.length_frames = reader.int64();
+                    break;
+                case 4:
+                    message.encoded_audio_string = reader.bytes();
+                    break;
+                case 5:
+                    message.content_type = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.Summary.Audio();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "sample_rate":
+                    message.sample_rate = reader.float();
+                    break;
+                case "num_channels":
+                    message.num_channels = reader.integer();
+                    break;
+                case "length_frames":
+                    message.length_frames = reader.integer();
+                    break;
+                case "encoded_audio_string":
+                    message.encoded_audio_string = reader.bytes();
+                    break;
+                case "content_type":
+                    message.content_type = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.Summary.Audio.prototype.sample_rate = 0;
+$root.tensorflow.Summary.Audio.prototype.num_channels = protobuf.Int64.create(0);
+$root.tensorflow.Summary.Audio.prototype.length_frames = protobuf.Int64.create(0);
+$root.tensorflow.Summary.Audio.prototype.encoded_audio_string = new Uint8Array([]);
+$root.tensorflow.Summary.Audio.prototype.content_type = "";
+
+$root.tensorflow.Summary.Value = class Value {
+
+    constructor() {
+    }
+
+    get value() {
+        $root.tensorflow.Summary.Value.valueSet = $root.tensorflow.Summary.Value.valueSet || new Set([ "simple_value", "obsolete_old_style_histogram", "image", "histo", "audio", "tensor"]);
+        return Object.keys(this).find((key) => $root.tensorflow.Summary.Value.valueSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.Summary.Value();
+        const end = reader.next(length);
+        while (reader.end(end)) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 7:
+                    message.node_name = reader.string();
+                    break;
+                case 1:
+                    message.tag = reader.string();
+                    break;
+                case 9:
+                    message.metadata = $root.tensorflow.SummaryMetadata.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.simple_value = reader.float();
+                    break;
+                case 3:
+                    message.obsolete_old_style_histogram = reader.bytes();
+                    break;
+                case 4:
+                    message.image = $root.tensorflow.Summary.Image.decode(reader, reader.uint32());
+                    break;
+                case 5:
+                    message.histo = $root.tensorflow.HistogramProto.decode(reader, reader.uint32());
+                    break;
+                case 6:
+                    message.audio = $root.tensorflow.Summary.Audio.decode(reader, reader.uint32());
+                    break;
+                case 8:
+                    message.tensor = $root.tensorflow.TensorProto.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.Summary.Value();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "node_name":
+                    message.node_name = reader.string();
+                    break;
+                case "tag":
+                    message.tag = reader.string();
+                    break;
+                case "metadata":
+                    message.metadata = $root.tensorflow.SummaryMetadata.decodeText(reader, true);
+                    break;
+                case "simple_value":
+                    message.simple_value = reader.float();
+                    break;
+                case "obsolete_old_style_histogram":
+                    message.obsolete_old_style_histogram = reader.bytes();
+                    break;
+                case "image":
+                    message.image = $root.tensorflow.Summary.Image.decodeText(reader, true);
+                    break;
+                case "histo":
+                    message.histo = $root.tensorflow.HistogramProto.decodeText(reader, true);
+                    break;
+                case "audio":
+                    message.audio = $root.tensorflow.Summary.Audio.decodeText(reader, true);
+                    break;
+                case "tensor":
+                    message.tensor = $root.tensorflow.TensorProto.decodeText(reader, true);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.Summary.Value.prototype.node_name = "";
+$root.tensorflow.Summary.Value.prototype.tag = "";
+$root.tensorflow.Summary.Value.prototype.metadata = null;
+
 $root.google = {};
 
 $root.google.protobuf = {};
