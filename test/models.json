@@ -1899,6 +1899,13 @@
   },
   {
     "type":   "darknet",
+    "target": "yolov3-tiny_default.cfg.txt",
+    "source": "https://github.com/lutzroeder/netron/files/5615015/yolov3-tiny_default.cfg.txt.zip[yolov3-tiny_default.cfg.txt]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
+  },
+  {
+    "type":   "darknet",
     "target": "yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg",
     "source": "https://github.com/lutzroeder/netron/files/4074756/yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg.zip[yolov3-tiny_3l_shortcut_multilayer_per_feature_softmax.cfg]",
     "format": "Darknet",
