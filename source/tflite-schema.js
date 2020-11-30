@@ -346,7 +346,8 @@ $root.tflite.BuiltinOperator = {
     PLACEHOLDER_FOR_GREATER_OP_CODES: 127,
     CUMSUM: 128,
     CALL_ONCE: 129,
-    BROADCAST_TO: 130
+    BROADCAST_TO: 130,
+    RFFT2D: 131
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -457,6 +458,7 @@ $root.tflite.BuiltinOptions = class {
             case 102: return $root.tflite.CumsumOptions.decode(reader, position);
             case 103: return $root.tflite.CallOnceOptions.decode(reader, position);
             case 104: return $root.tflite.BroadcastToOptions.decode(reader, position);
+            case 105: return $root.tflite.Rfft2dOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -567,6 +569,7 @@ $root.tflite.BuiltinOptions = class {
             case 'CumsumOptions': return $root.tflite.CumsumOptions.decodeText(reader, json);
             case 'CallOnceOptions': return $root.tflite.CallOnceOptions.decodeText(reader, json);
             case 'BroadcastToOptions': return $root.tflite.BroadcastToOptions.decodeText(reader, json);
+            case 'Rfft2dOptions': return $root.tflite.Rfft2dOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2213,6 +2216,19 @@ $root.tflite.BroadcastToOptions = class BroadcastToOptions {
 
     static decodeText(reader, json) {
         const $ = new $root.tflite.BroadcastToOptions();
+        return $;
+    }
+};
+
+$root.tflite.Rfft2dOptions = class Rfft2dOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.Rfft2dOptions();
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.Rfft2dOptions();
         return $;
     }
 };
