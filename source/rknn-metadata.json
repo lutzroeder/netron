@@ -1,0 +1,62 @@
+[
+  {
+    "name": "VSI_NN_OP_CONV2D",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_DECONVOLUTION",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_RELU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_LEAKY_RELU",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_LEAKY_SIGMOID",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_POOL",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_FCL",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "VSI_NN_OP_RESHAPE",
+    "schema": {
+      "category": "Shape" 
+    }
+  },
+  {
+    "name": "VSI_NN_OP_PERMUTE",
+    "schema": {
+      "category": "Shape" 
+    }
+  },
+  {
+    "name": "VSI_NN_OP_CONCAT",
+    "schema": {
+      "category": "Tensor"
+    }
+  }
+]
