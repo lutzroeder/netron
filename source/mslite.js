@@ -67,7 +67,8 @@ mslite.Graph = class {
             const data = tensor.data;
             const type = new mslite.TensorType(tensor.dataType, tensor.dims);
             const initializer = (data && data.length > 0) ? new mslite.Tensor(type, tensor.data) : null;
-            return new mslite.Argument(index.toString(), tensor, initializer);
+            const name = tensor.name || index.toString();
+            return new mslite.Argument(name, tensor, initializer);
         });
 
         this._inputs = [];
@@ -433,6 +434,7 @@ mslite.TensorType = class {
     constructor(dataType, dimensions) {
         switch (dataType) {
             case 0:  this._dataType = "?"; break;
+            case 12: this._dataType = "string"; break;
             case 30: this._dataType = "boolean"; break;
             case 31: this._dataType = "int"; break;
             case 32: this._dataType = "int8"; break;
