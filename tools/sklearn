@@ -39,10 +39,6 @@ sync() {
 
 install() {
     bold "sklearn install"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
-        return
-    fi
     venv
     ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid
     ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
@@ -52,10 +48,6 @@ install() {
 
 metadata() {
     bold "sklearn metadata"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
-        return
-    fi
     [[ $(grep -U $'\x0D' ./source/sklearn-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
