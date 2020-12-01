@@ -42,6 +42,11 @@ mslite.Model = class {
     constructor(metadata, model) {
         this._name = model.name || '';
         this._format = model.version || '';
+        const format = 'MindSpore Lite ';
+        if (this._format.startsWith(format)) {
+            const version = this._format.substring(format.length).replace(/^v/, '');
+            this._format = format + ' v' + version;
+        }
         this._graphs = [ new mslite.Graph(metadata, model, model) ];
     }
 
