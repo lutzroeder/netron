@@ -45,7 +45,7 @@ mslite.Model = class {
         const format = 'MindSpore Lite ';
         if (this._format.startsWith(format)) {
             const version = this._format.substring(format.length).replace(/^v/, '');
-            this._format = format + ' v' + version;
+            this._format = format + 'v' + version;
         }
         this._graphs = [ new mslite.Graph(metadata, model, model) ];
     }
@@ -69,10 +69,11 @@ mslite.Graph = class {
         this._name = subgraph.name || '';
 
         const args = model.allTensors.map((tensor, index) => {
+            const name = tensor.name || index.toString();
             const data = tensor.data;
             const type = new mslite.TensorType(tensor.dataType, tensor.dims);
             const initializer = (data && data.length > 0) ? new mslite.Tensor(type, tensor.data) : null;
-            return new mslite.Argument(index.toString(), tensor, initializer);
+            return new mslite.Argument(name, tensor, initializer);
         });
 
         this._inputs = [];
@@ -438,6 +439,7 @@ mslite.TensorType = class {
     constructor(dataType, dimensions) {
         switch (dataType) {
             case 0:  this._dataType = "?"; break;
+            case 12: this._dataType = "string"; break;
             case 30: this._dataType = "boolean"; break;
             case 31: this._dataType = "int"; break;
             case 32: this._dataType = "int8"; break;
