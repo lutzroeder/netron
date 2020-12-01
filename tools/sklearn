@@ -44,8 +44,8 @@ install() {
         return
     fi
     venv
-    ${python} -m pip install --quiet --use-feature=2020-resolver six cython pytest flake8 numpy scipy pylint astroid
-    ${python} -m pip install --quiet --use-feature=2020-resolver --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
+    ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid
+    ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
     # ${python} -m pip install --quiet ./third_party/source/sklearn
     deactivate
 }
