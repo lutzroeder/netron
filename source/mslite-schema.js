@@ -2630,7 +2630,8 @@ $root.mindspore.schema.ReduceMode = {
     ReduceProd: 3,
     ReduceSum: 4,
     ReduceSumSquare: 5,
-    ReduceASum: 6
+    ReduceASum: 6,
+    ReduceAll: 7
 };
 
 $root.mindspore.schema.Reduce = class Reduce {
