@@ -23439,6 +23439,99 @@
     }
   },
   {
+    "name": "LoadTPUEmbeddingFrequencyEstimatorParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the frequency estimator optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of last_hit_step used in the frequency estimator optimization algorithm.",
+          "name": "last_hit_step",
+          "type": 1
+        }
+      ],
+      "summary": "Load frequency estimator embedding parameters."
+    }
+  },
+  {
+    "name": "LoadTPUEmbeddingFrequencyEstimatorParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+      "inputs": [
+        {
+          "description": "Value of parameters used in the frequency estimator optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Value of last_hit_step used in the frequency estimator optimization algorithm.",
+          "name": "last_hit_step",
+          "type": 1
+        },
+        {
+          "description": "Value of gradient_accumulators used in the frequency estimator optimization\nalgorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Load frequency estimator embedding parameters with debug support."
+    }
+  },
+  {
     "name": "LoadTPUEmbeddingMDLAdagradLightParameters",
     "schema": {
       "attributes": [
@@ -42911,6 +43004,99 @@
         }
       ],
       "summary": "Retrieve FTRL embedding parameters with debug support."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingFrequencyEstimatorParameters",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the frequency estimator optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter last_hit_step updated by the frequency estimator optimization\nalgorithm.",
+          "name": "last_hit_step",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve frequency estimator embedding parameters."
+    }
+  },
+  {
+    "name": "RetrieveTPUEmbeddingFrequencyEstimatorParametersGradAccumDebug",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "table_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "table_name",
+          "type": "string"
+        },
+        {
+          "name": "num_shards",
+          "type": "int64"
+        },
+        {
+          "name": "shard_id",
+          "type": "int64"
+        },
+        {
+          "default": "",
+          "name": "config",
+          "type": "string"
+        }
+      ],
+      "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+      "outputs": [
+        {
+          "description": "Parameter parameters updated by the frequency estimator optimization algorithm.",
+          "name": "parameters",
+          "type": 1
+        },
+        {
+          "description": "Parameter last_hit_step updated by the frequency estimator optimization\nalgorithm.",
+          "name": "last_hit_step",
+          "type": 1
+        },
+        {
+          "description": "Parameter gradient_accumulators updated by the frequency estimator optimization\nalgorithm.",
+          "name": "gradient_accumulators",
+          "type": 1
+        }
+      ],
+      "summary": "Retrieve frequency estimator embedding parameters with debug support."
     }
   },
   {
