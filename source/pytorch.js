@@ -1005,6 +1005,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.MarginRankingLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.MSELoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.NLLLoss', function() {});
+        this._registerConstructor('torch.nn.modules.loss.NLLLoss2d', function() {});
         this._registerConstructor('torch.nn.modules.loss.SmoothL1Loss', function() {});
         this._registerConstructor('torch.nn.modules.module._IncompatibleKeys', function() {});
         this._registerConstructor('torch.nn.modules.module.Module', function() {});
