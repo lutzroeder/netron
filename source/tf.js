@@ -278,9 +278,9 @@ tf.ModelFactory = class {
                 });
             };
             const identifier = context.identifier;
-            const base = identifier.split('.');
-            const extension = base.pop().toLowerCase();
-            if (extension === 'data-00000-of-00001') {
+            if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier.toLowerCase())) {
+                const base = identifier.split('.');
+                base.pop();
                 const identifier = base.join('.') + '.index';
                 return context.request(identifier, null).then((buffer) => {
                     return open(buffer, identifier, context, host);
@@ -305,16 +305,7 @@ tf.Model = class {
         if (model) {
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
-                let name = null;
-                if (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) {
-                    name = meta_graph.meta_info_def.any_info.toString();
-                }
-                else if (model.meta_graphs.length > 1) {
-                    name = i.toString();
-                }
-                else {
-                    name = '-';
-                }
+                const name = (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) ? meta_graph.meta_info_def.any_info.toString() : ((model.meta_graphs.length > 1) ? i.toString() : '-');
                 this._graphs.push(new tf.Graph(metadata, meta_graph, name, bundle));
             }
             // Recursively add all subgraphs.
@@ -354,8 +345,7 @@ tf.Model = class {
 
 tf.Graph = class {
 
-    constructor(metadata, metaGraph, name, bundle) {
-        this._metadata = metadata;
+    constructor(metadata, meta_graph, name, bundle) {
         this._version = null;
         this._name = name;
         this._inputs = [];
@@ -363,33 +353,33 @@ tf.Graph = class {
         this._nodes = [];
         this._functions = [];
 
-        if (metaGraph && metaGraph.graph_def) {
-            this._metadata = new tf.GraphMetadata(metadata, metaGraph.meta_info_def);
-            const graph = metaGraph.graph_def;
+        if (meta_graph && meta_graph.graph_def) {
+            metadata = new tf.GraphMetadata(metadata, meta_graph.meta_info_def);
+            const graph = meta_graph.graph_def;
             if (graph.versions) {
                 this._version = 'v' + graph.versions.producer.toString();
             }
             else if (graph.version) {
                 this._version = graph.version;
             }
-            else if (metaGraph.meta_info_def && metaGraph.meta_info_def.tensorflow_version) {
-                this._version = metaGraph.meta_info_def.tensorflow_version;
+            else if (meta_graph.meta_info_def && meta_graph.meta_info_def.tensorflow_version) {
+                this._version = meta_graph.meta_info_def.tensorflow_version;
             }
-            if (metaGraph.meta_info_def && metaGraph.meta_info_def.tags) {
-                this._tags = metaGraph.meta_info_def.tags.join(', ');
+            if (meta_graph.meta_info_def && meta_graph.meta_info_def.tags) {
+                this._tags = meta_graph.meta_info_def.tags.join(', ');
             }
             const nodes = graph.node;
             if (nodes) {
-                const nodeMap = {};
-                this._namespaces = {};
+                const nodeMap = new Map();
+                const namespaces = new Set();
                 for (const node of nodes) {
                     const nodeName = node.name;
-                    nodeMap[nodeName] = node;
+                    nodeMap.set(nodeName, node);
                     if (node.op != 'Const') {
                         const lastIndex = nodeName.lastIndexOf('/');
                         if (lastIndex != -1) {
                             const namespace = nodeName.substring(0, lastIndex);
-                            this._namespaces[namespace] = true;
+                            namespaces.add(namespace);
                         }
                     }
                     node.output = [];
@@ -403,7 +393,7 @@ tf.Graph = class {
                         const inputName = split[0];
                         const outputIndex = split.length == 1 ? 0 : parseInt(split[1]);
                         let outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
-                        const outputNode = nodeMap[outputName];
+                        const outputNode = nodeMap.get(outputName);
                         outputName = outputIndex == 0 ? outputName : outputName + ':' + outputIndex.toString();
                         if (inputName.startsWith('^')) {
                             node.controlDependencies.push(outputName);
@@ -469,7 +459,7 @@ tf.Graph = class {
                 for (const node of nodes) {
                     const id = node.name;
                     if (!initializers[id] && !inputMap[id] /* && node.op != 'NoOp' */) {
-                        this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
+                        this._nodes.push(new tf.Node(metadata, namespaces, node, node.op, node.name, initializers, null));
                     }
                 }
             }
@@ -477,7 +467,7 @@ tf.Graph = class {
             if (graph.library) {
                 const funcs = graph.library.function;
                 for (const func of funcs) {
-                    this._functions.push(new tf.Function(this, func, this._metadata));
+                    this._functions.push(new tf.Function(this, func, metadata));
                 }
             }
         }
@@ -507,8 +497,9 @@ tf.Graph = class {
                 }
                 nodeMap.get(nodeName).push({ name: tensorName, value: tensor });
             }
+            const namespaces = new Set();
             for (const nodeName of nodeNames) {
-                this._nodes.push(new tf.Node(this, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
+                this._nodes.push(new tf.Node(metadata, namespaces, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
             }
         }
     }
@@ -544,10 +535,6 @@ tf.Graph = class {
 
     get metadata() {
         return this._metadata;
-    }
-
-    get namespaces() {
-        return this._namespaces;
     }
 
     get functions() {
@@ -623,8 +610,6 @@ tf.Function = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._metadata = metadata;
-        this._namespaces = {};
         this._functions = [];
 
         const inputs = func.signature.input_arg;
@@ -653,18 +638,19 @@ tf.Function = class {
             }
         }
 
+        const namespaces = new Set();
         const nodes = func.node_def;
         if (nodes) {
-            const nodeMap = {};
+            const nodeMap = new Map();
 
             for (const node of nodes) {
                 const nodeName = node.name;
-                nodeMap[nodeName] = node;
+                nodeMap.set(nodeName, node);
                 if (node.op != 'Const') {
                     const lastIndex = nodeName.lastIndexOf('/');
                     if (lastIndex != -1) {
                         const namespace = nodeName.substring(0, lastIndex);
-                        this._namespaces[namespace] = true;
+                        namespaces.add(namespace);
                     }
                 }
                 node.output = [];
@@ -678,7 +664,7 @@ tf.Function = class {
                     const inputName = split[0];
                     const outputIndex = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
                     let outputName = inputName.startsWith('^') ? inputName.substring(1) : inputName;
-                    const outputNode = nodeMap[outputName];
+                    const outputNode = nodeMap.get(outputName);
                     outputName = outputIndex == 0 ? outputName : outputName + ':' + outputIndex.toString();
                     if (inputName.startsWith('^')) {
                         node.controlDependencies.push(outputName);
@@ -734,8 +720,9 @@ tf.Function = class {
             }
 
             for (const node of nodes) {
-                if (!initializers[node.name])
-                    this._nodes.push(new tf.Node(this, node, node.op, node.name, initializers, null));
+                if (!initializers[node.name]) {
+                    this._nodes.push(new tf.Node(metadata, namespaces, node, node.op, node.name, initializers, null));
+                }
             }
         }
     }
@@ -769,14 +756,6 @@ tf.Function = class {
         return this._nodes;
     }
 
-    get metadata() {
-        return this._metadata;
-    }
-
-    get namespaces() {
-        return this._namespaces;
-    }
-
     get functions() {
         return this._functions;
     }
@@ -796,18 +775,32 @@ tf.Function = class {
 
 tf.Node = class {
 
-    constructor(graph, node, op, name, initializers, tensors) {
-        this._graph = graph;
+    constructor(metadata, namespaces, node, op, name, initializers, tensors) {
+        this._metadata = metadata;
         this._type = op;
         this._name = name;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
+
+        this._group = '';
+        if (namespaces.has(name)) {
+            this._group = name;
+        }
+        else {
+            const lastIndex = name.lastIndexOf('/');
+            if (lastIndex != -1) {
+                const namespace = name.substring(0, lastIndex);
+                if (namespaces.has(namespace)) {
+                    this._group = namespace;
+                }
+            }
+        }
+
         if (node) {
             if (Object.prototype.hasOwnProperty.call(node, 'device')) {
                 this._device = node.device;
             }
-            const metadata = graph.metadata;
             if (node.attr) {
                 for (const attributeName of Object.keys(node.attr)) {
                     const schema = metadata.attribute(this._type, attributeName);
@@ -898,18 +891,7 @@ tf.Node = class {
     }
 
     get group() {
-        const name = this._name;
-        if (this._graph.namespaces[name]) {
-            return name;
-        }
-        const lastIndex = name.lastIndexOf('/');
-        if (lastIndex != -1) {
-            const namespace = name.substring(0, lastIndex);
-            if (this._graph.namespaces[namespace]) {
-                return namespace;
-            }
-        }
-        return '';
+        return this._group;
     }
 
     get description() {
@@ -921,7 +903,7 @@ tf.Node = class {
     }
 
     get metadata() {
-        return this._graph.metadata.type(this.type);
+        return this._metadata.type(this.type);
     }
 
     get inputs() {
