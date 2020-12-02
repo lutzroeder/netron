@@ -1724,8 +1724,8 @@
   },
   {
     "type":   "darknet",
-    "target": "darknet53_448.cfg,darknet53_448.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg,https://pjreddie.com/media/files/darknet53_448.weights",
+    "target": "darknet53_448.weights,darknet53_448.cfg",
+    "source": "https://pjreddie.com/media/files/darknet53_448.weights,https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/darknet53_448.cfg",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },

@@ -1196,7 +1196,7 @@ view.ModelFactoryService = class {
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
-        this.register('./darknet', [ '.cfg', '.model', '.txt' ]);
+        this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn' ]);
         this.register('./dlc', [ '.dlc' ]);
