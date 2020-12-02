@@ -1,5 +1,207 @@
 [
   {
+    "name": "InputLayer",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Shape tuple (not including the batch axis), or `TensorShape`\n      instance (not including the batch axis).",
+          "name": "input_shape"
+        },
+        {
+          "description": "Optional input batch size (integer or None).",
+          "name": "batch_size"
+        },
+        {
+          "description": "Optional datatype of the input. When not provided, the Keras\n        default float type will be used.",
+          "name": "dtype"
+        },
+        {
+          "description": "Optional tensor to use as layer input. If set, the layer\n        will use the `tf.TypeSpec` of this tensor rather\n        than creating a new placeholder tensor.",
+          "name": "input_tensor"
+        },
+        {
+          "description": "Boolean, whether the placeholder created is meant to be sparse.\n        Default to False.",
+          "name": "sparse"
+        },
+        {
+          "description": "Boolean, whether the placeholder created is meant to be ragged.\n        In this case, values of 'None' in the 'shape' argument represent\n        ragged dimensions. For more information about RaggedTensors, see\n        [this guide](https://www.tensorflow.org/guide/ragged_tensors).\n        Default to False.",
+          "name": "ragged"
+        },
+        {
+          "description": "Optional name of the layer (string).",
+          "name": "name"
+        }
+      ],
+      "category": "Data",
+      "description": "Layer to be used as an entry point into a Network (a graph of layers).\n\nIt can either wrap an existing tensor (pass an `input_tensor` argument)\nor create a placeholder tensor (pass arguments `input_shape`, and\noptionally, `dtype`).\n\nIt is generally recommend to use the functional layer API via `Input`,\n(which creates an `InputLayer`) without directly using `InputLayer`.\n\nWhen using InputLayer with Keras Sequential model, it can be skipped by\nmoving the input_shape parameter to the first layer after the InputLayer.\n\nThis class can create placeholders for tf.Tensors, tf.SparseTensors, and\ntf.RaggedTensors by choosing 'sparse=True' or 'ragged=True'. Note that\n'sparse' and 'ragged' can't be configured to True at same time.",
+      "examples": [
+        {
+          "code": "# With explicit InputLayer.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.InputLayer(input_shape=(4,)),\n  tf.keras.layers.Dense(8)])\nmodel.compile(tf.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))\n\n# Without InputLayer and let the first layer to have the input_shape.\n# Keras will add a input for the model behind the scene.\nmodel = tf.keras.Sequential([\n  tf.keras.layers.Dense(8, input_shape=(4,))])\nmodel.compile(tf.optimizers.RMSprop(0.001), loss='mse')\nmodel.fit(np.zeros((10, 4)),\n          np.ones((10, 8)))"
+        }
+      ],
+      "package": "tensorflow.keras.layers"
+    }
+  },
+  {
+    "name": "InputSpec",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Expected DataType of the input.",
+          "name": "dtype"
+        },
+        {
+          "description": "Shape tuple, expected shape of the input\n    (may include None for unchecked axes). Includes the batch size.",
+          "name": "shape"
+        },
+        {
+          "description": "Integer, expected rank of the input.",
+          "name": "ndim"
+        },
+        {
+          "description": "Integer, maximum rank of the input.",
+          "name": "max_ndim"
+        },
+        {
+          "description": "Integer, minimum rank of the input.",
+          "name": "min_ndim"
+        },
+        {
+          "description": "Dictionary mapping integer axes to\n    a specific dimension value.",
+          "name": "axes"
+        },
+        {
+          "description": "If True, then allow inputs of rank N+1 as long\n    as the last axis of the input is 1, as well as inputs of rank N-1\n    as long as the last axis of the spec is 1.",
+          "name": "allow_last_axis_squeeze"
+        },
+        {
+          "description": "Expected key corresponding to this input when passing data as\n    a dictionary.",
+          "name": "name"
+        }
+      ],
+      "category": "Data",
+      "description": "Specifies the rank, dtype and shape of every input to a layer.\n\nLayers can expose (if appropriate) an `input_spec` attribute:\nan instance of `InputSpec`, or a nested structure of `InputSpec` instances\n(one per input tensor). These objects enable the layer to run input\ncompatibility checks for input structure, input rank, input shape, and\ninput dtype.\n\nA None entry in a shape is compatible with any dimension,\na None shape is compatible with any shape.",
+      "examples": [
+        {
+          "code": "class MyLayer(Layer):\n    def __init__(self):\n        super(MyLayer, self).__init__()\n        # The layer will accept inputs with shape (?, 28, 28) & (?, 28, 28, 1)\n        # and raise an appropriate error message otherwise.\n        self.input_spec = InputSpec(\n            shape=(None, 28, 28, 1),\n            allow_last_axis_squeeze=True)"
+        }
+      ],
+      "package": "tensorflow.keras.layers"
+    }
+  },
+  {
+    "name": "Attention",
+    "schema": {
+      "attributes": [
+        {
+          "description": "If `True`, will create a scalar variable to scale the attention\n    scores.",
+          "name": "use_scale"
+        },
+        {
+          "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past.",
+          "name": "causal"
+        },
+        {
+          "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Arguments:",
+          "name": "dropout"
+        },
+        {
+          "description": "List of the following tensors:\n    * query: Query `Tensor` of shape `[batch_size, Tq, dim]`.\n    * value: Value `Tensor` of shape `[batch_size, Tv, dim]`.\n    * key: Optional key `Tensor` of shape `[batch_size, Tv, dim]`. If not\n      given, will use `value` for both `key` and `value`, which is the\n      most common case.",
+          "name": "inputs"
+        },
+        {
+          "description": "List of the following tensors:\n    * query_mask: A boolean mask `Tensor` of shape `[batch_size, Tq]`.\n      If given, the output will be zero at the positions where\n      `mask==False`.\n    * value_mask: A boolean mask `Tensor` of shape `[batch_size, Tv]`.\n      If given, will apply the mask such that values at positions where\n      `mask==False` do not contribute to the result.",
+          "name": "mask"
+        },
+        {
+          "description": "bool, it `True`, returns the attention scores\n    (after masking and softmax) as an additional output argument.",
+          "name": "return_attention_scores"
+        },
+        {
+          "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```",
+          "name": "training"
+        }
+      ],
+      "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are `query` tensor of shape `[batch_size, Tq, dim]`, `value` tensor of\nshape `[batch_size, Tv, dim]` and `key` tensor of shape\n`[batch_size, Tv, dim]`. The calculation follows the steps:\n\n1. Calculate scores with shape `[batch_size, Tq, Tv]` as a `query`-`key` dot\n   product: `scores = tf.matmul(query, key, transpose_b=True)`.\n2. Use scores to calculate a distribution with shape\n   `[batch_size, Tq, Tv]`: `distribution = tf.nn.softmax(scores)`.\n3. Use `distribution` to create a linear combination of `value` with\n   shape `[batch_size, Tq, dim]`:\n   `return tf.matmul(distribution, value)`.",
+      "package": "tensorflow.keras.layers"
+    }
+  },
+  {
+    "name": "MultiHeadAttention",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Number of attention heads.",
+          "name": "num_heads"
+        },
+        {
+          "description": "Size of each attention head for query and key.",
+          "name": "key_dim"
+        },
+        {
+          "description": "Size of each attention head for value.",
+          "name": "value_dim"
+        },
+        {
+          "description": "Dropout probability.",
+          "name": "dropout"
+        },
+        {
+          "description": "Boolean, whether the dense layers use bias vectors/matrices.",
+          "name": "use_bias"
+        },
+        {
+          "description": "The expected shape of an output tensor, besides the batch and\n    sequence dims. If not specified, projects back to the key feature dim.",
+          "name": "output_shape"
+        },
+        {
+          "description": "axes over which the attention is applied. `None` means\n    attention over all axes, but batch, heads, and features.",
+          "name": "attention_axes"
+        },
+        {
+          "description": "Initializer for dense layer kernels.",
+          "name": "kernel_initializer"
+        },
+        {
+          "description": "Initializer for dense layer biases.",
+          "name": "bias_initializer"
+        },
+        {
+          "description": "Regularizer for dense layer kernels.",
+          "name": "kernel_regularizer"
+        },
+        {
+          "description": "Regularizer for dense layer biases.",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Regularizer for dense layer activity.",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Constraint for dense layer kernels.",
+          "name": "kernel_constraint"
+        },
+        {
+          "description": "Constraint for dense layer kernels.",
+          "name": "bias_constraint"
+        }
+      ],
+      "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention based on \"Attention\nis all you Need\". If `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are [batch_size, <query dimensions>, key_dim],\n[batch_size, <key/value dimensions>, key_dim],\n[batch_size, <key/value dimensions>, value_dim].\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.",
+      "examples": [
+        {
+          "code": ">>> layer = MultiHeadAttention(num_heads=2, key_dim=2)\n>>> target = tf.keras.Input(shape=[8, 16])\n>>> source = tf.keras.Input(shape=[4, 16])\n>>> output_tensor, weights = layer(target, source,\n...                                return_attention_scores=True)\n>>> print(output_tensor.shape)\n(None, 8, 16)\n>>> print(weights.shape)\n(None, 2, 8, 4)",
+          "summary": "Performs 1D cross-attention over two sequence inputs with an attention mask.\nReturns the additional attention weights over heads."
+        },
+        {
+          "code": ">>> layer = MultiHeadAttention(num_heads=2, key_dim=2, attention_axes=(2, 3))\n>>> input_tensor = tf.keras.Input(shape=[5, 3, 4, 16])\n>>> output_tensor = layer(input_tensor, input_tensor)\n>>> print(output_tensor.shape)\n(None, 5, 3, 4, 16)",
+          "summary": "Performs 2D self-attention over a 5D input tensor on axes 2 and 3."
+        }
+      ],
+      "package": "tensorflow.keras.layers"
+    }
+  },
+  {
     "name": "Bidirectional",
     "schema": {
       "attributes": [
@@ -3159,6 +3361,108 @@
     }
   },
   {
+    "name": "SeparableConv1D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Integer, the dimensionality of the output space (i.e. the number\n    of filters in the convolution).",
+          "name": "filters"
+        },
+        {
+          "description": "A single integer specifying the spatial\n    dimensions of the filters.",
+          "name": "kernel_size"
+        },
+        {
+          "description": "A single integer specifying the strides\n    of the convolution.\n    Specifying any `stride` value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+          "name": "strides"
+        },
+        {
+          "description": "One of `\"valid\"`, `\"same\"`, or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input. `\"causal\"` results in causal\n    (dilated) convolutions, e.g. `output[t]` does not depend on `input[t+1:]`.",
+          "name": "padding"
+        },
+        {
+          "description": "A string, one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch_size, length, channels)` while `channels_first` corresponds to\n    inputs with shape `(batch_size, channels, length)`.",
+          "name": "data_format"
+        },
+        {
+          "description": "A single integer, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+          "name": "dilation_rate"
+        },
+        {
+          "description": "The number of depthwise convolution output channels for\n    each input channel. The total number of depthwise convolution output\n    channels will be equal to `num_filters_in * depth_multiplier`.",
+          "name": "depth_multiplier"
+        },
+        {
+          "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+          "name": "activation"
+        },
+        {
+          "description": "Boolean, whether the layer uses a bias.",
+          "name": "use_bias"
+        },
+        {
+          "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`).",
+          "name": "depthwise_initializer"
+        },
+        {
+          "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`).",
+          "name": "pointwise_initializer"
+        },
+        {
+          "description": "An initializer for the bias vector. If None, the default\n    initializer will be used (see `keras.initializers`).",
+          "name": "bias_initializer"
+        },
+        {
+          "description": "Optional regularizer for the depthwise\n    convolution kernel (see `keras.regularizers`).",
+          "name": "depthwise_regularizer"
+        },
+        {
+          "description": "Optional regularizer for the pointwise\n    convolution kernel (see `keras.regularizers`).",
+          "name": "pointwise_regularizer"
+        },
+        {
+          "description": "Optional regularizer for the bias vector (\n    see `keras.regularizers`).",
+          "name": "bias_regularizer"
+        },
+        {
+          "description": "Optional regularizer function for the output (\n    see `keras.regularizers`).",
+          "name": "activity_regularizer"
+        },
+        {
+          "description": "Optional projection function to be applied to the\n    depthwise kernel after being updated by an `Optimizer` (e.g. used for\n    norm constraints or value constraints for layer weights). The function\n    must take as input the unprojected variable and must return the\n    projected variable (which must have the same shape). Constraints are\n    not safe to use when doing asynchronous distributed training (\n    see `keras.constraints`).",
+          "name": "depthwise_constraint"
+        },
+        {
+          "description": "Optional projection function to be applied to the\n    pointwise kernel after being updated by an `Optimizer` (\n    see `keras.constraints`).",
+          "name": "pointwise_constraint"
+        },
+        {
+          "description": "Optional projection function to be applied to the\n    bias after being updated by an `Optimizer` (\n    see `keras.constraints`).",
+          "name": "bias_constraint"
+        },
+        {
+          "description": "Boolean, if `True` the weights of this layer will be marked as\n    trainable (and listed in `layer.trainable_weights`).",
+          "name": "trainable"
+        }
+      ],
+      "category": "Layer",
+      "description": "Depthwise separable 1D convolution.\n\nThis layer performs a depthwise convolution that acts separately on\nchannels, followed by a pointwise convolution that mixes channels.\nIf `use_bias` is True and a bias initializer is provided,\nit adds a bias vector to the output.\nIt then optionally applies an activation function to produce the final output.",
+      "inputs": [
+        {
+          "description": "3D tensor with shape:\n`(batch_size, channels, steps)` if data_format='channels_first'\nor 5D tensor with shape:\n`(batch_size, steps, channels)` if data_format='channels_last'.",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "3D tensor with shape:\n`(batch_size, filters, new_steps)` if data_format='channels_first'\nor 3D tensor with shape:\n`(batch_size,  new_steps, filters)` if data_format='channels_last'.\n`new_steps` value might have changed due to padding or strides.",
+          "name": "output"
+        }
+      ],
+      "package": "tensorflow.keras.layers"
+    }
+  },
+  {
     "name": "SeparableConv2D",
     "schema": {
       "attributes": [
@@ -3816,6 +4120,107 @@
       "references": [
         {
           "description": "[Dropout: A Simple Way to Prevent Neural Networks from Overfitting]( http://www.jmlr.org/papers/volume15/srivastava14a/srivastava14a.pdf)"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SpatialDropout1D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Float between 0 and 1. Fraction of the input units to drop.",
+          "name": "rate"
+        }
+      ],
+      "category": "Dropout",
+      "description": "Spatial 1D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 1D feature maps instead of individual elements. If adjacent frames\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout1D will help promote independence\nbetween feature maps and should be used instead.",
+      "inputs": [
+        {
+          "description": "3D tensor with shape:\n`(samples, timesteps, channels)`",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as input.",
+          "name": "output"
+        }
+      ],
+      "package": "tensorflow.keras.layers",
+      "references": [
+        {
+          "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SpatialDropout2D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Float between 0 and 1. Fraction of the input units to drop.",
+          "name": "rate"
+        },
+        {
+          "description": "'channels_first' or 'channels_last'.\n    In 'channels_first' mode, the channels dimension\n    (the depth) is at index 1,\n    in 'channels_last' mode is it at index 3.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+          "name": "data_format"
+        }
+      ],
+      "category": "Dropout",
+      "description": "Spatial 2D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 2D feature maps instead of individual elements. If adjacent pixels\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout2D will help promote independence\nbetween feature maps and should be used instead.",
+      "inputs": [
+        {
+          "description": "4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as input.",
+          "name": "output"
+        }
+      ],
+      "package": "tensorflow.keras.layers",
+      "references": [
+        {
+          "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SpatialDropout3D",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Float between 0 and 1. Fraction of the input units to drop.",
+          "name": "rate"
+        },
+        {
+          "description": "'channels_first' or 'channels_last'.\n      In 'channels_first' mode, the channels dimension (the depth)\n      is at index 1, in 'channels_last' mode is it at index 4.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".",
+          "name": "data_format"
+        }
+      ],
+      "category": "Dropout",
+      "description": "Spatial 3D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 3D feature maps instead of individual elements. If adjacent voxels\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout3D will help promote independence\nbetween feature maps and should be used instead.",
+      "inputs": [
+        {
+          "description": "5D tensor with shape:\n`(samples, channels, dim1, dim2, dim3)` if data_format='channels_first'\nor 5D tensor with shape:\n`(samples, dim1, dim2, dim3, channels)` if data_format='channels_last'.",
+          "name": "input"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Same as input.",
+          "name": "output"
+        }
+      ],
+      "package": "tensorflow.keras.layers",
+      "references": [
+        {
+          "description": "[Efficient Object Localization Using Convolutional Networks](https://arxiv.org/abs/1411.4280)"
         }
       ]
     }
