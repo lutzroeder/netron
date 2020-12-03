@@ -21,7 +21,13 @@ venv() {
         msys*) source ${env_dir}/Scripts/activate;;
         *) source ${env_dir}/bin/activate;;
     esac
-    ${python} -m pip install --quiet --upgrade pip
+    ${python} -m pip install --quiet --upgrade pip setuptools wheel
+}
+
+clean() {
+    bold "sklearn clean"
+    rm -rf "./third_party/env/onnx"
+    rm -rf "./third_party/source/onnx"
 }
 
 sync() {
@@ -36,8 +42,8 @@ sync() {
 
 install() {
     bold "onnx install"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
+    if [ "$(uname -s)" = "Darwin" ]; then
+        echo "- macos [skip]"
         return
     fi
     case "${OSTYPE}" in
@@ -77,7 +83,7 @@ install() {
     export MACOSX_DEPLOYMENT_TARGET=10.9
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet "./third_party/source/onnx"
+    ${python} -m pip install --quiet --no-use-pep517 "./third_party/source/onnx"
     deactivate
 }
 
@@ -92,8 +98,8 @@ schema() {
 
 metadata() {
     bold "onnx metadata"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
-        echo "- arm64 [skip]"
+    if [ "$(uname -s)" = "Darwin" ]; then
+        echo "- macos [skip]"
         return
     fi
     [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
