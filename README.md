@@ -3,7 +3,7 @@
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), **Barracuda** (`.nn`), **ncnn** (`.param`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **UFF** (`.uff`) and **TensorFlow Lite** (`.tflite`).
+Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), **Barracuda** (`.nn`), **ncnn** (`.param`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **UFF** (`.uff`), **MindSpore Lite** (`.ms`) and **TensorFlow Lite** (`.tflite`).
 
 Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **Arm NN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **MNN** (`.mnn`), **PaddlePaddle** (`.zip`, `__model__`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).
 
