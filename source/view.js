@@ -1538,7 +1538,7 @@ view.ModelFactoryService = class {
             { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch)(,|;|\s)/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
-            { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' },
+            { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
         const text = new TextDecoder().decode(buffer.subarray(0, Math.min(4096, buffer.length)));
