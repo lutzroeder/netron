@@ -5652,5 +5652,76 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.normal_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "mean", "type": "float32", "default": 0 },
+        { "name": "std", "type": "float32", "default": 1 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.normal:Tensor_float",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "mean", "type": "float32", "default": 0 },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.normal:float_Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "mean", "type": "float32" },
+        { "name": "std", "type": "Tensor" },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.normal:Tensor_Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "mean", "type": "Tensor" },
+        { "name": "std", "type": "Tensor" },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.normal:float_float",
+    "schema": {
+      "inputs": [
+        { "name": "mean", "type": "float32", "default": 0 },
+        { "name": "std", "type": "float32" },
+        { "name": "size", "type": "int64[]" },
+        { "name": "generator", "type": "Generator", "optional": true, "default": null },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
