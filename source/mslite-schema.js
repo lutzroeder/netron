@@ -275,6 +275,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 193: return $root.mindspore.schema.All.decode(reader, position);
             case 194: return $root.mindspore.schema.Assert.decode(reader, position);
             case 195: return $root.mindspore.schema.Adder.decode(reader, position);
+            case 196: return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decode(reader, position);
         }
         return undefined;
     }
@@ -476,6 +477,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'All': return $root.mindspore.schema.All.decodeText(reader, json);
             case 'Assert': return $root.mindspore.schema.Assert.decodeText(reader, json);
             case 'Adder': return $root.mindspore.schema.Adder.decodeText(reader, json);
+            case 'SparseSoftmaxCrossEntropy': return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decodeText(reader, json);
         }
         return undefined;
     }
@@ -1150,13 +1152,11 @@ $root.mindspore.schema.BiasGrad = class BiasGrad {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.BiasGrad();
-        $.axis = reader.typedArray(position, 4, Int32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.BiasGrad();
-        $.axis = reader.typedArray(json.axis, Int32Array);
         return $;
     }
 };
@@ -1165,13 +1165,26 @@ $root.mindspore.schema.SoftmaxCrossEntropy = class SoftmaxCrossEntropy {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.SoftmaxCrossEntropy();
-        $.axis = reader.typedArray(position, 4, Int32Array);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.SoftmaxCrossEntropy();
-        $.axis = reader.typedArray(json.axis, Int32Array);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SparseSoftmaxCrossEntropy = class SparseSoftmaxCrossEntropy {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
+        $.isGrad = reader.int32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
+        $.isGrad = reader.value(json.isGrad, 0);
         return $;
     }
 };
