@@ -19,12 +19,13 @@ venv() {
         msys*) source ${env_dir}/Scripts/activate;;
         *) source ${env_dir}/bin/activate;;
     esac
-    ${python} -m pip install --quiet --upgrade pip
+    ${python} -m pip install --quiet --upgrade pip setuptools wheel
 }
 
 clean() {
     bold "sklearn clean"
     rm -rf "./third_party/env/sklearn"
+    rm -rf "./third_party/source/sklearn"
 }
 
 sync() {
@@ -40,9 +41,8 @@ sync() {
 install() {
     bold "sklearn install"
     venv
-    ${python} -m pip install --quiet six cython pytest flake8 numpy scipy pylint astroid
+    ${python} -m pip install --quiet scipy
     ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
-    # ${python} -m pip install --quiet ./third_party/source/sklearn
     deactivate
 }
 
