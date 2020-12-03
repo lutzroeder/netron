@@ -2917,6 +2917,8 @@ pytorch.Container.Zip = class {
                                     return {};
                                 case 'int':
                                     return 0;
+                                case 'float':
+                                    return 0.0;
                                 case 'Optional':
                                     return undefined;
                             }
@@ -3351,11 +3353,13 @@ pytorch.Utility = class {
     }
 
     static findModule(root) {
-        const keys = [ '', 'model', 'net' ];
-        for (const key of keys) {
-            const obj = key === '' ? root : root[key];
-            if (obj && obj._modules) {
-                return obj;
+        if (root) {
+            const keys = [ '', 'model', 'net' ];
+            for (const key of keys) {
+                const obj = key === '' ? root : root[key];
+                if (obj && obj._modules) {
+                    return obj;
+                }
             }
         }
         return null;
