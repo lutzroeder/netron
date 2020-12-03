@@ -26,6 +26,7 @@ clean() {
     bold "tf clean"
     rm -rf "./third_party/env/tf"
     rm -rf "./third_party/source/tf"
+    rm -rf "./third_party/source/tflite-support"
 }
 
 sync() {
@@ -44,7 +45,7 @@ sync() {
 
 install() {
     bold "tf install"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
+    if [ "$(uname -sm)" = "Darwin arm64" ]; then
         echo "- arm64 [skip]"
         return
     fi
@@ -77,7 +78,7 @@ schema() {
 
 metadata() {
     bold "tf metadata"
-    if [ "$(uname -ms)" = "Darwin arm64" ]; then
+    if [ "$(uname -sm)" = "Darwin arm64" ]; then
         echo "- arm64 [skip]"
         return
     fi
