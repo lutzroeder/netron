@@ -80,7 +80,14 @@ zoo() {
     rm -rf "./third_party/env/pytorch"
     venv
     ${python} -m pip install --quiet --upgrade future protobuf scipy
-    ${python} -m pip install --quiet --upgrade --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    # ${python} -m pip install --quiet --upgrade --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
+    rm -rf "./third_party/source/vision"
+    git clone --quiet --recursive https://github.com/pytorch/vision.git "./third_party/source/vision"
+    pushd ./third_party/source/vision > /dev/null
+    pip install . > /dev/null
+    popd > /dev/null
+    rm -rf "./third_party/source/vision"
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/pytorch-script.py zoo
     deactivate
