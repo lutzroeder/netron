@@ -80,7 +80,6 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
-    export MACOSX_DEPLOYMENT_TARGET=10.9
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${python} -m pip install --quiet --no-use-pep517 "./third_party/source/onnx"
