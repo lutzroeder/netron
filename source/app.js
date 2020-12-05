@@ -22,6 +22,7 @@ class Application {
 
         if (!electron.app.requestSingleInstanceLock()) {
             electron.app.quit();
+            return;
         }
 
         electron.app.on('second-instance', (event, commandLine, workingDirectory) => {
