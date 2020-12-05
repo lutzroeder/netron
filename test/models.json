@@ -4249,6 +4249,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "mobilenetv2-quant_none-nnapi.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5647823/mobilenetv2-quant_none-nnapi.pt.zip[mobilenetv2-quant_none-nnapi.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/644"
+  },
+  {
+    "type":   "pytorch",
     "target": "netron_issue_313_v1.pt",
     "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format": "TorchScript v1.0",

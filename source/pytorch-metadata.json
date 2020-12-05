@@ -5739,5 +5739,18 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.classes._nnapi.Compilation",
+    "schema": {
+      "inputs": [
+        { "name": "serialized_model", "type": "Tensor" },
+        { "name": "inputs", "type": "Tensor[]" },
+        { "name": "parameter_buffers", "type": "Tensor[]" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor[]" }
+      ]
+    }
   }
 ]
