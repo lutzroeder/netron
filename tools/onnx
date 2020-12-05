@@ -42,10 +42,6 @@ sync() {
 
 install() {
     bold "onnx install"
-    if [ "$(uname -s)" = "Darwin" ]; then
-        echo "- macos [skip]"
-        return
-    fi
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
@@ -56,6 +52,10 @@ install() {
             [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
             [ -x "$(command -v protoc)" ] || brew install protobuf > /dev/null
             protobuf=protobuf
+            if [ "$(uname -sm)" = "Darwin arm64" ]; then
+                PYTHON_ARCHITECTURE=$(${python} -c "import platform; print(platform.uname().machine);")
+                export CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${PYTHON_ARCHITECTURE}"
+            fi
             ;;
         msys*)
             [ ! -z "$(choco list --local-only --exacty --limit-output visualstudio2017-workload-vctools)" ] || $(choco install -yes visualstudio2017-workload-vctools) > /dev/null
@@ -80,9 +80,10 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
+    ${python} -m pip install --quiet --upgrade numpy
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet --no-use-pep517 "./third_party/source/onnx"
+    ${python} -m pip install --quiet "./third_party/source/onnx"
     deactivate
 }
 
@@ -97,10 +98,6 @@ schema() {
 
 metadata() {
     bold "onnx metadata"
-    if [ "$(uname -s)" = "Darwin" ]; then
-        echo "- macos [skip]"
-        return
-    fi
     [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
