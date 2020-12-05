@@ -127,7 +127,7 @@ mslite.Node = class {
 
         let schema = null;
         const data = op.primitive.value;
-        if (data.constructor) {
+        if (data && data.constructor) {
             this._type = data.constructor.name;
             schema = metadata.type(this._type);
             this._attributes = Object.keys(data).map((key) => new mslite.Attribute(metadata.attribute(this.type, key), key.toString(), data[key]));
