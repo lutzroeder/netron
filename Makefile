@@ -117,9 +117,8 @@ version:
 	git add ./package.json
 	git commit -m "Update to $$(node -pe "require('./package.json').version")"
 	git tag v$$(node -pe "require('./package.json').version")
-	git push --force
+	git push
 	git push --tags
-	git tag -d v$$(node -pe "require('./package.json').version")
 
 pull:
 	git fetch --prune origin "refs/tags/*:refs/tags/*"
