@@ -426,7 +426,6 @@ barracuda.NNModel = class {
         this._memories = [];
         const memoriesLength = reader.int32();
         for (let i = 0; i < memoriesLength; i++) {
-            // debugger;
             this._memories.push({
                 shape: reader.shape(),
                 in: reader.string(),
