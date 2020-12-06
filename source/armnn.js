@@ -21,7 +21,7 @@ armnn.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./armnn-schema').then((schema) => {
+        return host.require('./armnn-schema').then((/* schema */) => {
             armnn.schema = flatbuffers.get('armnn').armnnSerializer;
             let model = null;
             try {

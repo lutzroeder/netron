@@ -17,7 +17,6 @@ dnn.ModelFactory = class {
     open(context, host) {
         return host.require('./dnn-proto').then(() => {
             let model = null;
-            const identifier = context.identifier;
             try {
                 dnn.proto = protobuf.get('dnn').dnn;
                 const reader = protobuf.Reader.create(context.buffer);

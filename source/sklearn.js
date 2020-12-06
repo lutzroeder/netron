@@ -8,7 +8,6 @@ var zip = zip || require('./zip');
 sklearn.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
         const buffer = context.buffer;
         if (buffer.length > 14 && [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ].every((v, i) => v === undefined || v == buffer[i])) {
             // Reject PyTorch models with .pkl file extension.
@@ -1047,9 +1046,9 @@ sklearn.Container = class {
         };
         constructorTable['thinc.neural.ops.NumpyOps'] = function() {
         };
-        constructorTable['types.CodeType'] = function(args) {
+        constructorTable['types.CodeType'] = function(/* args */) {
         };
-        constructorTable['types.MethodType'] = function(args) {
+        constructorTable['types.MethodType'] = function(/* args */) {
         };
         constructorTable['xgboost.compat.XGBoostLabelEncoder'] = function() {};
         constructorTable['xgboost.core.Booster'] = function() {};
@@ -1138,7 +1137,7 @@ sklearn.Container = class {
             }
             throw new sklearn.Error("Unknown base type '" + base + "'.");
         };
-        functionTable['dill._dill._create_cell'] = function(args) {
+        functionTable['dill._dill._create_cell'] = function(/* args */) {
             return function() {
                 // TODO
             };
@@ -1146,7 +1145,7 @@ sklearn.Container = class {
         functionTable['dill._dill._create_code'] = function(args) {
             return function_call('types.CodeType', [ args ]);
         };
-        functionTable['dill._dill._create_function'] = function(fcode, fglobals, fname, fdefaults, fclosure, fdict, fkwdefaults) {
+        functionTable['dill._dill._create_function'] = function(/* fcode, fglobals, fname, fdefaults, fclosure, fdict, fkwdefaults */) {
             return function() {
                 // TODO
             };
@@ -1201,7 +1200,7 @@ sklearn.Container = class {
         functionTable['numpy.random._pickle.__randomstate_ctor'] = function() {
             return {};
         };
-        functionTable['numpy.core.numeric._frombuffer'] = function(buf, dtype, shape, order) {
+        functionTable['numpy.core.numeric._frombuffer'] = function(/* buf, dtype, shape, order */) {
             return {};
         };
         functionTable['re._compile'] = function(pattern, flags) {

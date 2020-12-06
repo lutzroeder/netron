@@ -89,7 +89,7 @@ paddle.ModelFactory = class {
                             map.set(keys[i], buffers[i]);
                         }
                         return new paddle.Model(metadata, format, programDesc, map);
-                    }).catch((err) => {
+                    }).catch((/* err */) => {
                         return new paddle.Model(metadata, format, programDesc, new Map());
                     });
                 }

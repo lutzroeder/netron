@@ -15,7 +15,6 @@ coreml.ModelFactory = class {
 
     open(context, host) {
         return host.require('./coreml-proto').then(() => {
-            const identifier = context.identifier;
             let decodedBuffer = null;
             try {
                 coreml.proto = protobuf.get('coreml').CoreML.Specification;

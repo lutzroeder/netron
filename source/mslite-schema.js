@@ -753,12 +753,12 @@ $root.mindspore.schema.Pad = class Pad {
 
 $root.mindspore.schema.Maximum = class Maximum {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Maximum();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Maximum();
         return $;
     }
@@ -766,12 +766,12 @@ $root.mindspore.schema.Maximum = class Maximum {
 
 $root.mindspore.schema.Minimum = class Minimum {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Minimum();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Minimum();
         return $;
     }
@@ -779,12 +779,12 @@ $root.mindspore.schema.Minimum = class Minimum {
 
 $root.mindspore.schema.Flatten = class Flatten {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Flatten();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Flatten();
         return $;
     }
@@ -792,12 +792,12 @@ $root.mindspore.schema.Flatten = class Flatten {
 
 $root.mindspore.schema.FlattenGrad = class FlattenGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FlattenGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FlattenGrad();
         return $;
     }
@@ -1150,12 +1150,12 @@ $root.mindspore.schema.BatchNorm = class BatchNorm {
 
 $root.mindspore.schema.BiasGrad = class BiasGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.BiasGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.BiasGrad();
         return $;
     }
@@ -1163,12 +1163,12 @@ $root.mindspore.schema.BiasGrad = class BiasGrad {
 
 $root.mindspore.schema.SoftmaxCrossEntropy = class SoftmaxCrossEntropy {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.SoftmaxCrossEntropy();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.SoftmaxCrossEntropy();
         return $;
     }
@@ -1191,12 +1191,12 @@ $root.mindspore.schema.SparseSoftmaxCrossEntropy = class SparseSoftmaxCrossEntro
 
 $root.mindspore.schema.make_tuple = class make_tuple {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.make_tuple();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.make_tuple();
         return $;
     }
@@ -1243,12 +1243,12 @@ $root.mindspore.schema.PoolingGrad = class PoolingGrad {
 
 $root.mindspore.schema.Shape = class Shape {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Shape();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Shape();
         return $;
     }
@@ -1273,12 +1273,12 @@ $root.mindspore.schema.ConstantOfShape = class ConstantOfShape {
 
 $root.mindspore.schema.Nchw2Nhwc = class Nchw2Nhwc {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Nchw2Nhwc();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Nchw2Nhwc();
         return $;
     }
@@ -1286,12 +1286,12 @@ $root.mindspore.schema.Nchw2Nhwc = class Nchw2Nhwc {
 
 $root.mindspore.schema.Nhwc2Nchw = class Nhwc2Nchw {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Nhwc2Nchw();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Nhwc2Nchw();
         return $;
     }
@@ -1800,12 +1800,12 @@ $root.mindspore.schema.Div = class Div {
 
 $root.mindspore.schema.AddGrad = class AddGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.AddGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.AddGrad();
         return $;
     }
@@ -1813,12 +1813,12 @@ $root.mindspore.schema.AddGrad = class AddGrad {
 
 $root.mindspore.schema.SubGrad = class SubGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.SubGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.SubGrad();
         return $;
     }
@@ -1826,12 +1826,12 @@ $root.mindspore.schema.SubGrad = class SubGrad {
 
 $root.mindspore.schema.MulGrad = class MulGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.MulGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.MulGrad();
         return $;
     }
@@ -1839,12 +1839,12 @@ $root.mindspore.schema.MulGrad = class MulGrad {
 
 $root.mindspore.schema.DivGrad = class DivGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.DivGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.DivGrad();
         return $;
     }
@@ -1852,12 +1852,12 @@ $root.mindspore.schema.DivGrad = class DivGrad {
 
 $root.mindspore.schema.RealDiv = class RealDiv {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.RealDiv();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.RealDiv();
         return $;
     }
@@ -1865,12 +1865,12 @@ $root.mindspore.schema.RealDiv = class RealDiv {
 
 $root.mindspore.schema.Rsqrt = class Rsqrt {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Rsqrt();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Rsqrt();
         return $;
     }
@@ -1878,12 +1878,12 @@ $root.mindspore.schema.Rsqrt = class Rsqrt {
 
 $root.mindspore.schema.Equal = class Equal {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Equal();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Equal();
         return $;
     }
@@ -1891,12 +1891,12 @@ $root.mindspore.schema.Equal = class Equal {
 
 $root.mindspore.schema.Less = class Less {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Less();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Less();
         return $;
     }
@@ -1904,12 +1904,12 @@ $root.mindspore.schema.Less = class Less {
 
 $root.mindspore.schema.Greater = class Greater {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Greater();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Greater();
         return $;
     }
@@ -1917,12 +1917,12 @@ $root.mindspore.schema.Greater = class Greater {
 
 $root.mindspore.schema.NotEqual = class NotEqual {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.NotEqual();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.NotEqual();
         return $;
     }
@@ -1930,12 +1930,12 @@ $root.mindspore.schema.NotEqual = class NotEqual {
 
 $root.mindspore.schema.LessEqual = class LessEqual {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LessEqual();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LessEqual();
         return $;
     }
@@ -1943,12 +1943,12 @@ $root.mindspore.schema.LessEqual = class LessEqual {
 
 $root.mindspore.schema.GreaterEqual = class GreaterEqual {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.GreaterEqual();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.GreaterEqual();
         return $;
     }
@@ -1956,12 +1956,12 @@ $root.mindspore.schema.GreaterEqual = class GreaterEqual {
 
 $root.mindspore.schema.Min = class Min {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Min();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Min();
         return $;
     }
@@ -1990,12 +1990,12 @@ $root.mindspore.schema.Slice = class Slice {
 
 $root.mindspore.schema.Floor = class Floor {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Floor();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Floor();
         return $;
     }
@@ -2003,12 +2003,12 @@ $root.mindspore.schema.Floor = class Floor {
 
 $root.mindspore.schema.Abs = class Abs {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Abs();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Abs();
         return $;
     }
@@ -2016,12 +2016,12 @@ $root.mindspore.schema.Abs = class Abs {
 
 $root.mindspore.schema.Neg = class Neg {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Neg();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Neg();
         return $;
     }
@@ -2029,12 +2029,12 @@ $root.mindspore.schema.Neg = class Neg {
 
 $root.mindspore.schema.NegGrad = class NegGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.NegGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.NegGrad();
         return $;
     }
@@ -2061,12 +2061,12 @@ $root.mindspore.schema.Exp = class Exp {
 
 $root.mindspore.schema.Cos = class Cos {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Cos();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Cos();
         return $;
     }
@@ -2074,12 +2074,12 @@ $root.mindspore.schema.Cos = class Cos {
 
 $root.mindspore.schema.Sin = class Sin {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Sin();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Sin();
         return $;
     }
@@ -2087,12 +2087,12 @@ $root.mindspore.schema.Sin = class Sin {
 
 $root.mindspore.schema.Sqrt = class Sqrt {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Sqrt();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Sqrt();
         return $;
     }
@@ -2100,12 +2100,12 @@ $root.mindspore.schema.Sqrt = class Sqrt {
 
 $root.mindspore.schema.Square = class Square {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Square();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Square();
         return $;
     }
@@ -2113,12 +2113,12 @@ $root.mindspore.schema.Square = class Square {
 
 $root.mindspore.schema.Ceil = class Ceil {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Ceil();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Ceil();
         return $;
     }
@@ -2126,12 +2126,12 @@ $root.mindspore.schema.Ceil = class Ceil {
 
 $root.mindspore.schema.Log = class Log {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Log();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Log();
         return $;
     }
@@ -2139,12 +2139,12 @@ $root.mindspore.schema.Log = class Log {
 
 $root.mindspore.schema.LogGrad = class LogGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LogGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LogGrad();
         return $;
     }
@@ -2152,12 +2152,12 @@ $root.mindspore.schema.LogGrad = class LogGrad {
 
 $root.mindspore.schema.Tan = class Tan {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Tan();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Tan();
         return $;
     }
@@ -2165,12 +2165,12 @@ $root.mindspore.schema.Tan = class Tan {
 
 $root.mindspore.schema.Atan = class Atan {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Atan();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Atan();
         return $;
     }
@@ -2178,12 +2178,12 @@ $root.mindspore.schema.Atan = class Atan {
 
 $root.mindspore.schema.Asin = class Asin {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Asin();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Asin();
         return $;
     }
@@ -2292,12 +2292,12 @@ $root.mindspore.schema.ArgMin = class ArgMin {
 
 $root.mindspore.schema.NetOutput = class NetOutput {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.NetOutput();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.NetOutput();
         return $;
     }
@@ -2561,12 +2561,12 @@ $root.mindspore.schema.Clip = class Clip {
 
 $root.mindspore.schema.Constant = class Constant {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Constant();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Constant();
         return $;
     }
@@ -2589,12 +2589,12 @@ $root.mindspore.schema.Elu = class Elu {
 
 $root.mindspore.schema.Broadcast = class Broadcast {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Broadcast();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Broadcast();
         return $;
     }
@@ -2772,12 +2772,12 @@ $root.mindspore.schema.LocalResponseNormalization = class LocalResponseNormaliza
 
 $root.mindspore.schema.ZerosLike = class ZerosLike {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.ZerosLike();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.ZerosLike();
         return $;
     }
@@ -2868,12 +2868,12 @@ $root.mindspore.schema.ReverseSequence = class ReverseSequence {
 
 $root.mindspore.schema.Rank = class Rank {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Rank();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Rank();
         return $;
     }
@@ -3028,12 +3028,12 @@ $root.mindspore.schema.EmbeddingLookupSparse = class EmbeddingLookupSparse {
 
 $root.mindspore.schema.FloorDiv = class FloorDiv {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FloorDiv();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FloorDiv();
         return $;
     }
@@ -3041,12 +3041,12 @@ $root.mindspore.schema.FloorDiv = class FloorDiv {
 
 $root.mindspore.schema.FloorMod = class FloorMod {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FloorMod();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FloorMod();
         return $;
     }
@@ -3073,12 +3073,12 @@ $root.mindspore.schema.L2Norm = class L2Norm {
 
 $root.mindspore.schema.LogicalAnd = class LogicalAnd {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LogicalAnd();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LogicalAnd();
         return $;
     }
@@ -3086,12 +3086,12 @@ $root.mindspore.schema.LogicalAnd = class LogicalAnd {
 
 $root.mindspore.schema.LogicalOr = class LogicalOr {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LogicalOr();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LogicalOr();
         return $;
     }
@@ -3099,12 +3099,12 @@ $root.mindspore.schema.LogicalOr = class LogicalOr {
 
 $root.mindspore.schema.LogicalXor = class LogicalXor {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LogicalXor();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LogicalXor();
         return $;
     }
@@ -3112,12 +3112,12 @@ $root.mindspore.schema.LogicalXor = class LogicalXor {
 
 $root.mindspore.schema.LogicalNot = class LogicalNot {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.LogicalNot();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.LogicalNot();
         return $;
     }
@@ -3146,12 +3146,12 @@ $root.mindspore.schema.MatrixDiag = class MatrixDiag {
 
 $root.mindspore.schema.Select = class Select {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Select();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Select();
         return $;
     }
@@ -3189,12 +3189,12 @@ $root.mindspore.schema.Reverse = class Reverse {
 
 $root.mindspore.schema.Round = class Round {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Round();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Round();
         return $;
     }
@@ -3202,12 +3202,12 @@ $root.mindspore.schema.Round = class Round {
 
 $root.mindspore.schema.Scatter = class Scatter {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Scatter();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Scatter();
         return $;
     }
@@ -3215,12 +3215,12 @@ $root.mindspore.schema.Scatter = class Scatter {
 
 $root.mindspore.schema.ScatterND = class ScatterND {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.ScatterND();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.ScatterND();
         return $;
     }
@@ -3260,12 +3260,12 @@ $root.mindspore.schema.Unstack = class Unstack {
 
 $root.mindspore.schema.OnnxInt8Quantize = class OnnxInt8Quantize {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.OnnxInt8Quantize();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.OnnxInt8Quantize();
         return $;
     }
@@ -3273,12 +3273,12 @@ $root.mindspore.schema.OnnxInt8Quantize = class OnnxInt8Quantize {
 
 $root.mindspore.schema.OnnxInt8Dequantize = class OnnxInt8Dequantize {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.OnnxInt8Dequantize();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.OnnxInt8Dequantize();
         return $;
     }
@@ -3286,12 +3286,12 @@ $root.mindspore.schema.OnnxInt8Dequantize = class OnnxInt8Dequantize {
 
 $root.mindspore.schema.FakeQuantWithMinMax = class FakeQuantWithMinMax {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FakeQuantWithMinMax();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FakeQuantWithMinMax();
         return $;
     }
@@ -3299,12 +3299,12 @@ $root.mindspore.schema.FakeQuantWithMinMax = class FakeQuantWithMinMax {
 
 $root.mindspore.schema.FakeQuantWithMinMaxPerChannel = class FakeQuantWithMinMaxPerChannel {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FakeQuantWithMinMaxPerChannel();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FakeQuantWithMinMaxPerChannel();
         return $;
     }
@@ -3312,12 +3312,12 @@ $root.mindspore.schema.FakeQuantWithMinMaxPerChannel = class FakeQuantWithMinMax
 
 $root.mindspore.schema.BatchNormFold = class BatchNormFold {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.BatchNormFold();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.BatchNormFold();
         return $;
     }
@@ -3325,12 +3325,12 @@ $root.mindspore.schema.BatchNormFold = class BatchNormFold {
 
 $root.mindspore.schema.MulFold = class MulFold {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.MulFold();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.MulFold();
         return $;
     }
@@ -3338,12 +3338,12 @@ $root.mindspore.schema.MulFold = class MulFold {
 
 $root.mindspore.schema.AddFold = class AddFold {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.AddFold();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.AddFold();
         return $;
     }
@@ -3351,12 +3351,12 @@ $root.mindspore.schema.AddFold = class AddFold {
 
 $root.mindspore.schema.SquaredDifference = class SquaredDifference {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.SquaredDifference();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.SquaredDifference();
         return $;
     }
@@ -3364,12 +3364,12 @@ $root.mindspore.schema.SquaredDifference = class SquaredDifference {
 
 $root.mindspore.schema.TupleGetItem = class TupleGetItem {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.TupleGetItem();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.TupleGetItem();
         return $;
     }
@@ -3428,12 +3428,12 @@ $root.mindspore.schema.Adam = class Adam {
 
 $root.mindspore.schema.Assign = class Assign {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Assign();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Assign();
         return $;
     }
@@ -3441,12 +3441,12 @@ $root.mindspore.schema.Assign = class Assign {
 
 $root.mindspore.schema.AssignAdd = class AssignAdd {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.AssignAdd();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.AssignAdd();
         return $;
     }
@@ -3551,12 +3551,12 @@ $root.mindspore.schema.SpaceToBatchND = class SpaceToBatchND {
 
 $root.mindspore.schema.MakeTuple = class MakeTuple {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.MakeTuple();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.MakeTuple();
         return $;
     }
@@ -3581,12 +3581,12 @@ $root.mindspore.schema.ToFormat = class ToFormat {
 
 $root.mindspore.schema.Depend = class Depend {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Depend();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Depend();
         return $;
     }
@@ -3594,12 +3594,12 @@ $root.mindspore.schema.Depend = class Depend {
 
 $root.mindspore.schema.ControlDepend = class ControlDepend {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.ControlDepend();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.ControlDepend();
         return $;
     }
@@ -3607,12 +3607,12 @@ $root.mindspore.schema.ControlDepend = class ControlDepend {
 
 $root.mindspore.schema.Return = class Return {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Return();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Return();
         return $;
     }
@@ -3698,12 +3698,12 @@ $root.mindspore.schema.LshProjection = class LshProjection {
 
 $root.mindspore.schema.HashtableLookup = class HashtableLookup {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.HashtableLookup();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.HashtableLookup();
         return $;
     }
@@ -3747,12 +3747,12 @@ $root.mindspore.schema.CustomPredict = class CustomPredict {
 
 $root.mindspore.schema.CustomNormalize = class CustomNormalize {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.CustomNormalize();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.CustomNormalize();
         return $;
     }
@@ -3760,12 +3760,12 @@ $root.mindspore.schema.CustomNormalize = class CustomNormalize {
 
 $root.mindspore.schema.CustomExtractFeatures = class CustomExtractFeatures {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.CustomExtractFeatures();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.CustomExtractFeatures();
         return $;
     }
@@ -3828,12 +3828,12 @@ $root.mindspore.schema.Rfft = class Rfft {
 
 $root.mindspore.schema.FftReal = class FftReal {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FftReal();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FftReal();
         return $;
     }
@@ -3841,12 +3841,12 @@ $root.mindspore.schema.FftReal = class FftReal {
 
 $root.mindspore.schema.FftImag = class FftImag {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.FftImag();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FftImag();
         return $;
     }
@@ -3869,12 +3869,12 @@ $root.mindspore.schema.DropoutGrad = class DropoutGrad {
 
 $root.mindspore.schema.MaximumGrad = class MaximumGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.MaximumGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.MaximumGrad();
         return $;
     }
@@ -3882,12 +3882,12 @@ $root.mindspore.schema.MaximumGrad = class MaximumGrad {
 
 $root.mindspore.schema.MinimumGrad = class MinimumGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.MinimumGrad();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.MinimumGrad();
         return $;
     }
@@ -3940,12 +3940,12 @@ $root.mindspore.schema.Loop = class Loop {
 
 $root.mindspore.schema.Identity = class Identity {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Identity();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Identity();
         return $;
     }
@@ -4004,12 +4004,12 @@ $root.mindspore.schema.UnsortedSegmentSum = class UnsortedSegmentSum {
 
 $root.mindspore.schema.OnesLike = class OnesLike {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.OnesLike();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.OnesLike();
         return $;
     }
@@ -4064,12 +4064,12 @@ $root.mindspore.schema.LpNormalization = class LpNormalization {
 
 $root.mindspore.schema.Switch = class Switch {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.Switch();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Switch();
         return $;
     }

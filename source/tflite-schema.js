@@ -1039,12 +1039,12 @@ $root.tflite.CallOptions = class CallOptions {
 
 $root.tflite.PadOptions = class PadOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.PadOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.PadOptions();
         return $;
     }
@@ -1052,12 +1052,12 @@ $root.tflite.PadOptions = class PadOptions {
 
 $root.tflite.PadV2Options = class PadV2Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.PadV2Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.PadV2Options();
         return $;
     }
@@ -1080,12 +1080,12 @@ $root.tflite.ReshapeOptions = class ReshapeOptions {
 
 $root.tflite.SpaceToBatchNDOptions = class SpaceToBatchNDOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SpaceToBatchNDOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SpaceToBatchNDOptions();
         return $;
     }
@@ -1093,12 +1093,12 @@ $root.tflite.SpaceToBatchNDOptions = class SpaceToBatchNDOptions {
 
 $root.tflite.BatchToSpaceNDOptions = class BatchToSpaceNDOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.BatchToSpaceNDOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.BatchToSpaceNDOptions();
         return $;
     }
@@ -1187,12 +1187,12 @@ $root.tflite.DivOptions = class DivOptions {
 
 $root.tflite.TopKV2Options = class TopKV2Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.TopKV2Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.TopKV2Options();
         return $;
     }
@@ -1236,12 +1236,12 @@ $root.tflite.GatherOptions = class GatherOptions {
 
 $root.tflite.TransposeOptions = class TransposeOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.TransposeOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.TransposeOptions();
         return $;
     }
@@ -1249,12 +1249,12 @@ $root.tflite.TransposeOptions = class TransposeOptions {
 
 $root.tflite.ExpOptions = class ExpOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.ExpOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ExpOptions();
         return $;
     }
@@ -1262,12 +1262,12 @@ $root.tflite.ExpOptions = class ExpOptions {
 
 $root.tflite.CosOptions = class CosOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.CosOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.CosOptions();
         return $;
     }
@@ -1358,12 +1358,12 @@ $root.tflite.StridedSliceOptions = class StridedSliceOptions {
 
 $root.tflite.LogSoftmaxOptions = class LogSoftmaxOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LogSoftmaxOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LogSoftmaxOptions();
         return $;
     }
@@ -1388,12 +1388,12 @@ $root.tflite.CastOptions = class CastOptions {
 
 $root.tflite.DequantizeOptions = class DequantizeOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.DequantizeOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.DequantizeOptions();
         return $;
     }
@@ -1401,12 +1401,12 @@ $root.tflite.DequantizeOptions = class DequantizeOptions {
 
 $root.tflite.MaximumMinimumOptions = class MaximumMinimumOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.MaximumMinimumOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.MaximumMinimumOptions();
         return $;
     }
@@ -1414,12 +1414,12 @@ $root.tflite.MaximumMinimumOptions = class MaximumMinimumOptions {
 
 $root.tflite.TileOptions = class TileOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.TileOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.TileOptions();
         return $;
     }
@@ -1457,12 +1457,12 @@ $root.tflite.ArgMinOptions = class ArgMinOptions {
 
 $root.tflite.GreaterOptions = class GreaterOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.GreaterOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.GreaterOptions();
         return $;
     }
@@ -1470,12 +1470,12 @@ $root.tflite.GreaterOptions = class GreaterOptions {
 
 $root.tflite.GreaterEqualOptions = class GreaterEqualOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.GreaterEqualOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.GreaterEqualOptions();
         return $;
     }
@@ -1483,12 +1483,12 @@ $root.tflite.GreaterEqualOptions = class GreaterEqualOptions {
 
 $root.tflite.LessOptions = class LessOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LessOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LessOptions();
         return $;
     }
@@ -1496,12 +1496,12 @@ $root.tflite.LessOptions = class LessOptions {
 
 $root.tflite.LessEqualOptions = class LessEqualOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LessEqualOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LessEqualOptions();
         return $;
     }
@@ -1509,12 +1509,12 @@ $root.tflite.LessEqualOptions = class LessEqualOptions {
 
 $root.tflite.NegOptions = class NegOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.NegOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.NegOptions();
         return $;
     }
@@ -1522,12 +1522,12 @@ $root.tflite.NegOptions = class NegOptions {
 
 $root.tflite.SelectOptions = class SelectOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SelectOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SelectOptions();
         return $;
     }
@@ -1535,12 +1535,12 @@ $root.tflite.SelectOptions = class SelectOptions {
 
 $root.tflite.SliceOptions = class SliceOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SliceOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SliceOptions();
         return $;
     }
@@ -1567,12 +1567,12 @@ $root.tflite.TransposeConvOptions = class TransposeConvOptions {
 
 $root.tflite.ExpandDimsOptions = class ExpandDimsOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.ExpandDimsOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ExpandDimsOptions();
         return $;
     }
@@ -1595,12 +1595,12 @@ $root.tflite.SparseToDenseOptions = class SparseToDenseOptions {
 
 $root.tflite.EqualOptions = class EqualOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.EqualOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.EqualOptions();
         return $;
     }
@@ -1608,12 +1608,12 @@ $root.tflite.EqualOptions = class EqualOptions {
 
 $root.tflite.NotEqualOptions = class NotEqualOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.NotEqualOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.NotEqualOptions();
         return $;
     }
@@ -1636,12 +1636,12 @@ $root.tflite.ShapeOptions = class ShapeOptions {
 
 $root.tflite.RankOptions = class RankOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.RankOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.RankOptions();
         return $;
     }
@@ -1649,12 +1649,12 @@ $root.tflite.RankOptions = class RankOptions {
 
 $root.tflite.PowOptions = class PowOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.PowOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.PowOptions();
         return $;
     }
@@ -1700,12 +1700,12 @@ $root.tflite.PackOptions = class PackOptions {
 
 $root.tflite.LogicalOrOptions = class LogicalOrOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LogicalOrOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LogicalOrOptions();
         return $;
     }
@@ -1728,12 +1728,12 @@ $root.tflite.OneHotOptions = class OneHotOptions {
 
 $root.tflite.AbsOptions = class AbsOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.AbsOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.AbsOptions();
         return $;
     }
@@ -1741,12 +1741,12 @@ $root.tflite.AbsOptions = class AbsOptions {
 
 $root.tflite.HardSwishOptions = class HardSwishOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.HardSwishOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.HardSwishOptions();
         return $;
     }
@@ -1754,12 +1754,12 @@ $root.tflite.HardSwishOptions = class HardSwishOptions {
 
 $root.tflite.LogicalAndOptions = class LogicalAndOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LogicalAndOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LogicalAndOptions();
         return $;
     }
@@ -1767,12 +1767,12 @@ $root.tflite.LogicalAndOptions = class LogicalAndOptions {
 
 $root.tflite.LogicalNotOptions = class LogicalNotOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.LogicalNotOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.LogicalNotOptions();
         return $;
     }
@@ -1797,12 +1797,12 @@ $root.tflite.UnpackOptions = class UnpackOptions {
 
 $root.tflite.FloorDivOptions = class FloorDivOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.FloorDivOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.FloorDivOptions();
         return $;
     }
@@ -1810,12 +1810,12 @@ $root.tflite.FloorDivOptions = class FloorDivOptions {
 
 $root.tflite.SquareOptions = class SquareOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SquareOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SquareOptions();
         return $;
     }
@@ -1823,12 +1823,12 @@ $root.tflite.SquareOptions = class SquareOptions {
 
 $root.tflite.ZerosLikeOptions = class ZerosLikeOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.ZerosLikeOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ZerosLikeOptions();
         return $;
     }
@@ -1836,12 +1836,12 @@ $root.tflite.ZerosLikeOptions = class ZerosLikeOptions {
 
 $root.tflite.FillOptions = class FillOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.FillOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.FillOptions();
         return $;
     }
@@ -1849,12 +1849,12 @@ $root.tflite.FillOptions = class FillOptions {
 
 $root.tflite.FloorModOptions = class FloorModOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.FloorModOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.FloorModOptions();
         return $;
     }
@@ -1862,12 +1862,12 @@ $root.tflite.FloorModOptions = class FloorModOptions {
 
 $root.tflite.RangeOptions = class RangeOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.RangeOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.RangeOptions();
         return $;
     }
@@ -1890,12 +1890,12 @@ $root.tflite.LeakyReluOptions = class LeakyReluOptions {
 
 $root.tflite.SquaredDifferenceOptions = class SquaredDifferenceOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SquaredDifferenceOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SquaredDifferenceOptions();
         return $;
     }
@@ -1938,12 +1938,12 @@ $root.tflite.UniqueOptions = class UniqueOptions {
 
 $root.tflite.ReverseV2Options = class ReverseV2Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.ReverseV2Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ReverseV2Options();
         return $;
     }
@@ -1951,12 +1951,12 @@ $root.tflite.ReverseV2Options = class ReverseV2Options {
 
 $root.tflite.AddNOptions = class AddNOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.AddNOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.AddNOptions();
         return $;
     }
@@ -1964,12 +1964,12 @@ $root.tflite.AddNOptions = class AddNOptions {
 
 $root.tflite.GatherNdOptions = class GatherNdOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.GatherNdOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.GatherNdOptions();
         return $;
     }
@@ -1977,12 +1977,12 @@ $root.tflite.GatherNdOptions = class GatherNdOptions {
 
 $root.tflite.WhereOptions = class WhereOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.WhereOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.WhereOptions();
         return $;
     }
@@ -2007,12 +2007,12 @@ $root.tflite.ReverseSequenceOptions = class ReverseSequenceOptions {
 
 $root.tflite.MatrixDiagOptions = class MatrixDiagOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.MatrixDiagOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.MatrixDiagOptions();
         return $;
     }
@@ -2020,12 +2020,12 @@ $root.tflite.MatrixDiagOptions = class MatrixDiagOptions {
 
 $root.tflite.QuantizeOptions = class QuantizeOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.QuantizeOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.QuantizeOptions();
         return $;
     }
@@ -2033,12 +2033,12 @@ $root.tflite.QuantizeOptions = class QuantizeOptions {
 
 $root.tflite.MatrixSetDiagOptions = class MatrixSetDiagOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.MatrixSetDiagOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.MatrixSetDiagOptions();
         return $;
     }
@@ -2095,12 +2095,12 @@ $root.tflite.WhileOptions = class WhileOptions {
 
 $root.tflite.NonMaxSuppressionV4Options = class NonMaxSuppressionV4Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.NonMaxSuppressionV4Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.NonMaxSuppressionV4Options();
         return $;
     }
@@ -2108,12 +2108,12 @@ $root.tflite.NonMaxSuppressionV4Options = class NonMaxSuppressionV4Options {
 
 $root.tflite.NonMaxSuppressionV5Options = class NonMaxSuppressionV5Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.NonMaxSuppressionV5Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.NonMaxSuppressionV5Options();
         return $;
     }
@@ -2121,12 +2121,12 @@ $root.tflite.NonMaxSuppressionV5Options = class NonMaxSuppressionV5Options {
 
 $root.tflite.ScatterNdOptions = class ScatterNdOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.ScatterNdOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.ScatterNdOptions();
         return $;
     }
@@ -2134,12 +2134,12 @@ $root.tflite.ScatterNdOptions = class ScatterNdOptions {
 
 $root.tflite.SelectV2Options = class SelectV2Options {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SelectV2Options();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SelectV2Options();
         return $;
     }
@@ -2147,12 +2147,12 @@ $root.tflite.SelectV2Options = class SelectV2Options {
 
 $root.tflite.DensifyOptions = class DensifyOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.DensifyOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.DensifyOptions();
         return $;
     }
@@ -2160,12 +2160,12 @@ $root.tflite.DensifyOptions = class DensifyOptions {
 
 $root.tflite.SegmentSumOptions = class SegmentSumOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.SegmentSumOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.SegmentSumOptions();
         return $;
     }
@@ -2209,12 +2209,12 @@ $root.tflite.CumsumOptions = class CumsumOptions {
 
 $root.tflite.BroadcastToOptions = class BroadcastToOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.BroadcastToOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.BroadcastToOptions();
         return $;
     }
@@ -2222,12 +2222,12 @@ $root.tflite.BroadcastToOptions = class BroadcastToOptions {
 
 $root.tflite.Rfft2dOptions = class Rfft2dOptions {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.Rfft2dOptions();
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.tflite.Rfft2dOptions();
         return $;
     }
@@ -2447,7 +2447,7 @@ $root.tflite.AssociatedFile = class AssociatedFile {
 
 $root.tflite.FeatureProperties = class FeatureProperties {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.tflite.FeatureProperties();
         return $;
     }

@@ -13,7 +13,6 @@
         "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
         "indent": [ "error", 4, { "SwitchCase": 1 } ],
         "linebreak-style": "off",
-        "no-unused-vars": 0,
         "no-trailing-spaces": "error",
         "prefer-const": ["error", { "destructuring": "all" } ],
         "semi": [ "error", "always" ]

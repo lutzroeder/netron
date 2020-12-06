@@ -13,7 +13,7 @@ mediapipe.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(context /*, host */) {
         return Promise.resolve().then(() => {
             let root;
             try {

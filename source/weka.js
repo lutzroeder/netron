@@ -22,7 +22,7 @@ weka.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(context /*, host */) {
         return Promise.resolve().then(() => {
             const reader = new java.io.InputObjectStream(context.buffer);
             const obj = reader.read();
@@ -129,7 +129,7 @@ java.io.InputObjectStream = class {
         throw new java.io.Error("Unsupported code '" + code + "'.");
     }
 
-    _classData(obj) {
+    _classData(/* obj */) {
         /*
         const classname = obj.$class.name;
         let flags = obj.$class.flags;

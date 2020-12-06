@@ -1316,7 +1316,7 @@ $root.MNN.CropAndResize = class CropAndResize {
 
 $root.MNN.Fill = class Fill {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.MNN.Fill();
         return $;
     }
@@ -1335,7 +1335,7 @@ $root.MNN.GatherV2 = class GatherV2 {
 
 $root.MNN.NonMaxSuppressionV2 = class NonMaxSuppressionV2 {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.MNN.NonMaxSuppressionV2();
         return $;
     }
@@ -1352,7 +1352,7 @@ $root.MNN.Range = class Range {
 
 $root.MNN.Rank = class Rank {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.MNN.Rank();
         return $;
     }
@@ -1752,7 +1752,7 @@ $root.MNN.QuantizeV2 = class QuantizeV2 {
 
 $root.MNN.RequantizationRange = class RequantizationRange {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.MNN.RequantizationRange();
         return $;
     }
@@ -1760,7 +1760,7 @@ $root.MNN.RequantizationRange = class RequantizationRange {
 
 $root.MNN.Requantize = class Requantize {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.MNN.Requantize();
         return $;
     }

@@ -12,7 +12,7 @@ dlc.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(/* context, host */) {
         return Promise.resolve().then(() => {
             throw new dlc.Error("File contains undocumented DLC data.");
         });

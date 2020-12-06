@@ -1224,8 +1224,6 @@ view.ModelFactoryService = class {
 
     open(context) {
         return this._openSignature(context).then((context) => {
-            const exception = (context) => {
-            };
             const entries = this._openArchive(context);
             const modelContext = new view.ModelContext(context, entries);
             return this._openContext(modelContext).then((model) => {

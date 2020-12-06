@@ -258,11 +258,11 @@ flatbuffers.Reader = class {
         return offset ? new type(this._buffer.buffer, this._buffer.byteOffset + this._vector(position + offset), this._length(position + offset)) : new type(0);
     }
 
-    unionArray(position, offset, decode) {
+    unionArray(/* position, offset, decode */) {
         throw new flatbuffers.Error('Not implemented.');
     }
 
-    structArray(position, offset, size, decode) {
+    structArray(/* position, offset, size, decode */) {
         throw new flatbuffers.Error('Not implemented.');
     }
 

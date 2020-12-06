@@ -16,7 +16,6 @@ mslite.ModelFactory = class {
 
     open(context, host) {
         return host.require('./mslite-schema').then(() => {
-            const identifier = context.identifier;
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;

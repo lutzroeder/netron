@@ -1766,7 +1766,7 @@ pytorch.Execution = class {
         });
         this._registerFunction('torch.warn', function() {
         });
-        this._registerFunction('uninitialized', function(type) {
+        this._registerFunction('uninitialized', function(/* type */) {
             return undefined;
         });
     }
@@ -2860,7 +2860,7 @@ pytorch.Container.Zip = class {
             const args = [ this.data ]; // self
             if (this.data.forward.__code__ && this.data.forward.__code__.parameters) {
                 for (const parameter of this.data.forward.__code__.parameters) {
-                    const defaultValue = (type, name) => {
+                    const defaultValue = (type) => {
                         if (type.type === 'type' && type.name.type) {
                             switch (type.name.value) {
                                 case 'Tensor':
@@ -3591,7 +3591,7 @@ pytorch.nnapi = {};
 
 pytorch.nnapi.SerializedModel = class {
 
-    constructor(serialized_model, buffer_ptrs) {
+    constructor(serialized_model /*, buffer_ptrs */) {
         const reader = new pytorch.nnapi.SerializedModel.BinaryReader(serialized_model);
         this.version = reader.int32();
         if (this.version !== 1) {

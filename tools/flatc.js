@@ -508,7 +508,7 @@ flatc.Parser.Tokenizer = class {
 
     peek() {
         if (!this._cache) {
-            this._token = this._tokenize(this._token);
+            this._token = this._tokenize();
             this._cache = true;
         }
         return this._token;
@@ -516,7 +516,7 @@ flatc.Parser.Tokenizer = class {
 
     read() {
         if (!this._cache) {
-            this._token = this._tokenize(this._token);
+            this._token = this._tokenize();
         }
         const next = this._position + this._token.token.length;
         while (this._position < next) {
@@ -589,7 +589,7 @@ flatc.Parser.Tokenizer = class {
         return ' at ' + this._file + ':' + (this._line + 1).toString() + ':' + (this._position - this._lineStart + 1).toString();
     }
 
-    _tokenize(token) {
+    _tokenize() {
         if (this._token.type !== '\n') {
             this._skipWhitespace();
         }
@@ -812,7 +812,7 @@ flatc.Root = class extends flatc.Object {
             return originIncludeFile;
         }
         for (const path of paths) {
-            const pathParts = origin.split('/');
+            const pathParts = path.split('/');
             pathParts.push(target);
             const pathIncludeFile = pathParts.join('/');
             if (fs.existsSync(pathIncludeFile)) {
@@ -905,7 +905,7 @@ flatc.Generator = class {
             }
 
             this._builder.add('');
-            this._builder.add('static decode(reader, position) {');
+            this._builder.add(type.fields.size !== 0 ? 'static decode(reader, position) {' : 'static decode(/* reader, position */) {');
             this._builder.indent();
                 this._builder.add('const $ = new ' + typeReference + '();');
                 for (const field of type.fields.values()) {
@@ -973,7 +973,7 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add('static decodeText(reader, json) {');
+                this._builder.add(type.fields.size !== 0 ? 'static decodeText(reader, json) {' : 'static decodeText(/* reader, json */) {');
                 this._builder.indent();
                     this._builder.add('const $ = new ' + typeReference + '();');
                     for (const field of type.fields.values()) {
@@ -1044,7 +1044,7 @@ flatc.Generator = class {
         this._builder.indent();
 
             this._builder.add('');
-            this._builder.add('static decode(reader, position) {');
+            this._builder.add(type.fields.size !== 0 ? 'static decode(reader, position) {' : 'static decode(/* reader, position */) {');
             this._builder.indent();
                 this._builder.add('const $ = new ' + typeReference + '();');
                 for (const field of type.fields.values()) {
@@ -1073,7 +1073,7 @@ flatc.Generator = class {
 
             if (this._text) {
                 this._builder.add('');
-                this._builder.add('static decodeText(reader, json) {');
+                this._builder.add(type.fields.size !== 0 ? 'static decodeText(reader, json) {' : 'static decodeText(/* reader, json */) {');
                 this._builder.indent();
                     this._builder.add('const $ = new ' + typeReference + '();');
                     for (const field of type.fields.values()) {
@@ -1114,7 +1114,7 @@ flatc.Generator = class {
 
         this._builder.indent();
             this._builder.add('');
-            this._builder.add('static decode(reader, position, type) {');
+            this._builder.add(type.values.size !== 0 ? 'static decode(reader, position, type) {' : 'static decode(/* reader, position, type */) {');
             this._builder.indent();
                 this._builder.add('switch (type) {');
                 this._builder.indent();
@@ -1129,7 +1129,7 @@ flatc.Generator = class {
             this._builder.add('}');
 
             this._builder.add('');
-            this._builder.add('static decodeText(reader, json, type) {');
+            this._builder.add(type.values.size !== 0 ? 'static decodeText(reader, json, type) {' : 'static decodeText(/* reader, json, type */) {');
             this._builder.indent();
                 this._builder.add('switch (type) {');
                 this._builder.indent();

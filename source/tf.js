@@ -284,7 +284,7 @@ tf.ModelFactory = class {
                 const identifier = base.join('.') + '.index';
                 return context.request(identifier, null).then((buffer) => {
                     return open(buffer, identifier, context, host);
-                }).catch((error) => {
+                }).catch((/* error */) => {
                     const identifier = base.join('.') + '.ckpt';
                     return context.request(identifier, null).then((buffer) => {
                         open(buffer, identifier, context, host);

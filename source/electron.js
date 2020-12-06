@@ -483,12 +483,12 @@ host.Telemetry = class {
             headers: { 'Content-Length': Buffer.byteLength(body) }
         };
         const request = https.request(options, (response) => {
-            response.on('error', (error) => {});
+            response.on('error', (/* error */) => {});
         });
         request.setTimeout(5000, () => {
             request.abort();
         });
-        request.on('error', (error) => {});
+        request.on('error', (/* error */) => {});
         request.write(body);
         request.end();
     }

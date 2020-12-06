@@ -1110,15 +1110,15 @@ darknet.Weights = class {
             const reader = new darknet.Weights.BinaryReader(buffer);
             const major = reader.int32();
             const minor = reader.int32();
-            const revision = reader.int32();
-            const seen = ((major * 10 + minor) >= 2) ? reader.int64() : reader.int32();
+            reader.int32(); // revision
+            ((major * 10 + minor) >= 2) ? reader.int64() : reader.int32(); // seen
             const transpose = (major > 1000) || (minor > 1000);
-            // if (transpose) {
-            //     throw new darknet.Error("Unsupported transpose weights file version '" + [ major, minor, revision ].join('.') + "'.");
-            // }
             if (!transpose) {
                 return new darknet.Weights(reader);
             }
+            // else {
+            //     throw new darknet.Error("Unsupported transpose weights file version '" + [ major, minor, revision ].join('.') + "'.");
+            // }
         }
         return null;
     }

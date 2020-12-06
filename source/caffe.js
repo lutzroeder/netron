@@ -39,7 +39,6 @@ caffe.ModelFactory = class {
         return host.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.get('caffe').caffe;
             return caffe.Metadata.open(host).then((metadata) => {
-                const extension = context.identifier.split('.').pop();
                 const tags = context.tags('pbtxt');
                 if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                     try {
@@ -59,7 +58,7 @@ caffe.ModelFactory = class {
                             let file = solver.net || solver.train_net;
                             file = file.split('/').pop();
                             return context.request(file, null).then((buffer) => {
-                                return this._openNetParameterText(metadata, context.identifier, buffer, host);
+                                return this._openNetParameterText(metadata, buffer);
                             }).catch((error) => {
                                 if (error) {
                                     const message = error && error.message ? error.message : error.toString();
@@ -73,29 +72,25 @@ caffe.ModelFactory = class {
                     }
                 }
                 else if (tags.has('layer') || tags.has('layers')) {
-                    return this._openNetParameterText(metadata, context.identifier, context.buffer, host);
+                    return this._openNetParameterText(metadata, context.buffer);
                 }
                 else {
-                    return this._openNetParameterBuffer(metadata, context.identifier, context.buffer, host);
+                    let netParameter = null;
+                    try {
+                        const reader = protobuf.Reader.create(context.buffer);
+                        netParameter = caffe.proto.NetParameter.decode(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
+                    }
+                    return new caffe.Model(metadata, netParameter);
                 }
             });
         });
     }
 
-    _openNetParameterBuffer(metadata, identifier, buffer, host, resolve, reject) {
-        let netParameter = null;
-        try {
-            const reader = protobuf.Reader.create(buffer);
-            netParameter = caffe.proto.NetParameter.decode(reader);
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
-        }
-        return new caffe.Model(metadata, netParameter);
-    }
-
-    _openNetParameterText(metadata, identifier, buffer, host) {
+    _openNetParameterText(metadata, buffer) {
         let netParameter = null;
         try {
             const reader = protobuf.TextReader.create(buffer);

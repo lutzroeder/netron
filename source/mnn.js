@@ -14,7 +14,7 @@ mnn.ModelFactory = class {
     }
 
     open(context, host) {
-        return host.require('./mnn-schema').then((schema) => {
+        return host.require('./mnn-schema').then((/* schema */) => {
             let net = null;
             try {
                 mnn.schema = flatbuffers.get('mnn').MNN;

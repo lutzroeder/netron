@@ -19,7 +19,6 @@ mlnet.ModelFactory = class {
     }
 
     open(context, host) {
-        const identifier = context.identifier;
         return mlnet.Metadata.open(host).then((metadata) => {
             const reader = new mlnet.ModelReader(context.entries('zip'));
             return new mlnet.Model(metadata, reader);

@@ -31,7 +31,6 @@ cntk.ModelFactory = class {
 
     open(context, host) {
         return host.require('./cntk-proto').then(() => {
-            const identifier = context.identifier;
             let version = 0;
             let obj = null;
             try {
