@@ -460,6 +460,49 @@
     }
   },
   {
+    "name": "LayerNorm",
+    "schema": {
+      "attributes": [
+        {
+          "type": "int32",
+          "default": 1,
+          "name": "axis"
+        },
+        {
+          "type": "float64",
+          "default": 0.001,
+          "name": "eps"
+        },
+        {
+          "type": "float32",
+          "default": 0.9,
+          "name": "momentum"
+        },
+        {
+          "type": "boolean",
+          "default": true,
+          "name": "fix_gamma"
+        },
+        {
+          "type": "boolean",
+          "default": false,
+          "name": "use_global_stats"
+        }
+      ],
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "gamma" },
+        { "name": "beta" },
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ]
+    }
+  },
+  {
     "name": "CuDNNBatchNorm",
     "schema": {
       "category": "Normalization",
