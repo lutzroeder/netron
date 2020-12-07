@@ -7,13 +7,8 @@ var npz = npz || {};
 npz.ModelFactory = class {
 
     match(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'npz') {
-            const entries = context.entries('zip');
-            return entries.length > 0 && entries.every((entry) => entry.name.endsWith('.npy'));
-        }
-        return false;
+        const entries = context.entries('zip');
+        return entries.length > 0 && entries.every((entry) => entry.name.endsWith('.npy'));
     }
 
     open(context, host) {
@@ -145,10 +140,10 @@ npz.ModelFactory = class {
                     if (!entry.name.endsWith('.npy')) {
                         throw new npz.Error("Invalid file name '" + entry.name + "'.");
                     }
-                    const id = entry.name.replace(/\.npy$/, '');
-                    const parts = id.split('/');
+                    const name = entry.name.replace(/\.npy$/, '');
+                    const parts = name.split('/');
                     const parameterName = parts.pop();
-                    const moduleName = (parts.length >= 2) ? parts.join('/') : '';
+                    const moduleName = parts.join('/');
                     if (!modulesMap.has(moduleName)) {
                         const newModule = { name: moduleName, parameters: [] };
                         modules.push(newModule);
