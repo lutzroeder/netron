@@ -19,6 +19,14 @@ host.ElectronHost = class {
         window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
+        window.addEventListener('unload', () => {
+            if (typeof __coverage__ !== 'undefined') {
+                const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html')) + '.json';
+                /* eslint-disable no-undef */
+                fs.writeFileSync(file, JSON.stringify(__coverage__));
+                /* eslint-enable no-undef */
+            }
+        });
         this._version = electron.remote.app.getVersion();
     }
 

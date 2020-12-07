@@ -1,5 +1,5 @@
 
-.PHONY: test
+.PHONY: test coverage
 
 build: clean lint build_python build_electron
 
@@ -42,14 +42,22 @@ build_electron: install
 	npx electron-builder --linux appimage --publish never
 	npx electron-builder --linux snap --publish never
 
+start: install
+	npx electron .
+
 lint: install
 	npx eslint source/*.js test/*.js publish/*.js tools/*.js
 
 test: install
 	node ./test/models.js
 
-start: install
-	npx electron .
+coverage:
+	rm -rf .nyc_output ./coverage ./dist/nyc
+	mkdir -p ./dist/nyc
+	cp ./package.json ./dist/nyc
+	cp -R ./source ./dist/nyc
+	nyc instrument --compact false ./source ./dist/nyc/source
+	nyc --reporter=lcov --instrument npx electron ./dist/nyc
 
 publish_python: build_python
 	python -m pip install --user twine
