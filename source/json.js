@@ -148,25 +148,27 @@ json.TextReader = class {
                 switch (c) {
                     case '{': {
                         this._next();
+                        this._whitespace();
                         obj = {};
                         first = true;
                         break;
                     }
                     case '[': {
                         this._next();
+                        this._whitespace();
                         obj = [];
                         first = true;
                         break;
                     }
                     default: {
                         const value = c === '"' ? this._string() : c >= '0' && c <= '9' ? this._number() : this._literal();
+                        this._whitespace();
                         if (this._char !== undefined) {
                             this._unexpected();
                         }
                         return value;
                     }
                 }
-                this._whitespace();
             }
         }
     }
