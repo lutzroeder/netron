@@ -6,20 +6,20 @@ numpy.Array = class {
 
     constructor(buffer) {
         if (buffer) {
-            const reader = new numpy.Reader(buffer);
+            const reader = new numpy.BinaryReader(buffer);
             const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
             if (!reader.bytes(6).every((v, i) => v == signature[i])) {
                 throw new numpy.Error('Invalid signature.');
             }
             const major = reader.byte();
             const minor = reader.byte();
-            if (major !== 1 && minor !== 0) {
+            if (major > 3) {
                 throw new numpy.Error("Invalid version '" + [ major, minor ].join('.') + "'.");
             }
-            const header = JSON.parse(reader.string().trim().replace(/'/g, '"').replace("False", "false").replace("(", "[").replace(/,*\),*/g, "]"));
-            if (header.fortran_order) {
-                throw new numpy.Error("Fortran order is not supported.'");
-            }
+            const size = major >= 2 ? reader.uint32() : reader.uint16();
+            const encoding = major >= 3 ? 'utf-8' : 'ascii';
+            const header_content = new TextDecoder(encoding).decode(reader.bytes(size));
+            const header = numpy.HeaderReader.create(header_content).read();
             if (!header.descr || header.descr.length < 2) {
                 throw new numpy.Error("Missing property 'descr'.");
             }
@@ -46,6 +46,10 @@ numpy.Array = class {
                 }
                 default:
                     throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+            }
+            if (header.fortran_order) {
+                this._data = null;
+                // throw new numpy.Error("Fortran order is not supported.'");
             }
         }
     }
@@ -84,7 +88,7 @@ numpy.Array = class {
 
     toBuffer() {
 
-        const writer = new numpy.Writer();
+        const writer = new numpy.BinaryWriter();
 
         writer.bytes([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
         writer.byte(1); // major
@@ -189,7 +193,7 @@ numpy.Array = class {
     }
 };
 
-numpy.Reader = class {
+numpy.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
@@ -217,18 +221,9 @@ numpy.Reader = class {
     uint16() {
         return this.byte() | (this.byte() << 8);
     }
-
-    string() {
-        const size = this.uint16();
-        let value = '';
-        for (let i = 0; i < size; i++) {
-            value += String.fromCharCode(this.byte());
-        }
-        return value;
-    }
 };
 
-numpy.Writer = class {
+numpy.BinaryWriter = class {
 
     constructor() {
         this._length = 0;
@@ -283,6 +278,307 @@ numpy.Writer = class {
             head = head.next;
         }
         return array;
+    }
+};
+
+numpy.HeaderReader = class {
+
+    constructor(text) {
+        this._text = text;
+        this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
+    }
+
+    static create(text) {
+        return new numpy.HeaderReader(text);
+    }
+
+    read() {
+        const decoder = new numpy.HeaderReader.StringDecoder(this._text);
+        const stack = [];
+        this._decoder = decoder;
+        this._position = 0;
+        this._char = decoder.decode();
+        this._whitespace();
+        let obj = undefined;
+        let close = undefined;
+        let first = true;
+        for (;;) {
+            this._whitespace();
+            let c = this._char;
+            if (!first && this._char !== '}' && this._char !== ']' && this._char !== ')') {
+                if (this._char !== ',') {
+                    this._unexpected();
+                }
+                this._next();
+                this._whitespace();
+                c = this._char;
+            }
+            if (c === close) {
+                this._next();
+                this._whitespace();
+                if (stack.length > 0) {
+                    close = stack.pop();
+                    obj = stack.pop();
+                    first = false;
+                    continue;
+                }
+                if (this._char !== undefined) {
+                    this._unexpected();
+                }
+                return obj;
+            }
+            first = false;
+            let key = undefined;
+            if (close === '}') {
+                key = this._string();
+                switch (key) {
+                    case '__proto__':
+                    case 'constructor':
+                    case 'prototype':
+                        throw new numpy.Error("Invalid key '" + key + "'" + this._location());
+                }
+                this._whitespace();
+                if (this._char !== ':') {
+                    this._unexpected();
+                }
+                this._next();
+            }
+            this._whitespace();
+            c = this._char;
+            let value = undefined;
+            let type = undefined;
+            switch (c) {
+                case '{': {
+                    this._next();
+                    value = {};
+                    type = '}';
+                    first = true;
+                    break;
+                }
+                case '(':
+                case '[': {
+                    this._next();
+                    value = [];
+                    type = c === '[' ? ']' : ')';
+                    first = true;
+                    break;
+                }
+                default: {
+                    value = c === "'" ? this._string() : this._literal();
+                    break;
+                }
+            }
+            this._whitespace();
+            if (!type && !obj) {
+                if (this._char !== undefined) {
+                    this._unexpected();
+                }
+                return value;
+            }
+            switch (close) {
+                case '}':
+                    obj[key] = value;
+                    break;
+                case ')':
+                case ']':
+                    obj.push(value);
+                    break;
+            }
+            if (type) {
+                if (obj) {
+                    stack.push(obj);
+                    stack.push(close);
+                }
+                obj = value;
+                close = type;
+            }
+        }
+    }
+
+    _next() {
+        if (this._char === undefined) {
+            this._unexpected();
+        }
+        this._position = this._decoder.position;
+        this._char = this._decoder.decode();
+    }
+
+    _whitespace() {
+        while (this._char === ' ' || this._char === '\n' || this._char === '\r' || this._char === '\t') {
+            this._next();
+        }
+    }
+
+    _literal() {
+        const c = this._char;
+        if (c >= '0' && c <= '9') {
+            return this._number();
+        }
+        switch (c) {
+            case 'T': this._expect('True'); return true;
+            case 'F': this._expect('False'); return false;
+            case 'N': this._expect('None'); return null;
+            case 'n': this._expect('nan'); return NaN;
+            case 'i': this._expect('inf'); return Infinity;
+            case '-': return this._number();
+        }
+        this._unexpected();
+    }
+
+    _number() {
+        let value = '';
+        if (this._char === '-') {
+            value = '-';
+            this._next();
+        }
+        if (this._char === 'i') {
+            this._expect('inf');
+            return -Infinity;
+        }
+        const c = this._char;
+        if (c < '0' || c > '9') {
+            this._unexpected();
+        }
+        value += c;
+        this._next();
+        if (c === '0') {
+            const n = this._char;
+            if (n >= '0' && n <= '9') {
+                this._unexpected();
+            }
+        }
+        while (this._char >= '0' && this._char <= '9') {
+            value += this._char;
+            this._next();
+        }
+        if (this._char === '.') {
+            value += '.';
+            this._next();
+            const n = this._char;
+            if (n < '0' || n > '9') {
+                this._unexpected();
+            }
+            while (this._char >= '0' && this._char <= '9') {
+                value += this._char;
+                this._next();
+            }
+        }
+        if (this._char === 'e' || this._char === 'E') {
+            value += this._char;
+            this._next();
+            const s = this._char;
+            if (s === '-' || s === '+') {
+                value += this._char;
+                this._next();
+            }
+            const c = this._char;
+            if (c < '0' || c > '9') {
+                this._unexpected();
+            }
+            value += this._char;
+            this._next();
+            while (this._char >= '0' && this._char <= '9') {
+                value += this._char;
+                this._next();
+            }
+        }
+        return +value;
+    }
+
+    _string() {
+        let value = '';
+        this._next();
+        while (this._char != "'") {
+            if (this._char === '\\') {
+                this._next();
+                if (this._char === 'u') {
+                    this._next();
+                    let uffff = 0;
+                    for (let i = 0; i < 4; i ++) {
+                        const hex = parseInt(this._char, 16);
+                        if (!isFinite(hex)) {
+                            this._unexpected();
+                        }
+                        this._next();
+                        uffff = uffff * 16 + hex;
+                    }
+                    value += String.fromCharCode(uffff);
+                }
+                else if (this._escape[this._char]) {
+                    value += this._escape[this._char];
+                    this._next();
+                }
+                else {
+                    this._unexpected();
+                }
+            }
+            else if (this._char < ' ') {
+                this._unexpected();
+            }
+            else {
+                value += this._char;
+                this._next();
+            }
+        }
+        this._next();
+        return value;
+    }
+
+    _expect(text) {
+        for (let i = 0; i < text.length; i++) {
+            if (text[i] !== this._char) {
+                this._unexpected();
+            }
+            this._next();
+        }
+    }
+
+    _unexpected() {
+        let c = this._char;
+        if (c === undefined) {
+            throw new numpy.Error('Unexpected end of JSON input.');
+        }
+        if (c < ' ' || c > '\x7F') {
+            const name = Object.keys(this._escape).filter((key) => this._escape[key] === c);
+            c = (name.length === 1) ? '\\' + name : '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4);
+        }
+        c = "token '" + c + "'";
+        throw new numpy.Error('Unexpected ' + c + this._location());
+    }
+
+    _location() {
+        let line = 1;
+        let column = 1;
+        this._decoder.position = 0;
+        let c;
+        do {
+            if (this._decoder.position === this.position) {
+                return ' at ' + line.toString() + ':' + column.toString() + '.';
+            }
+            c = this._decoder.decode();
+            if (c === '\n') {
+                line++;
+                column = 1;
+            }
+            else {
+                column++;
+            }
+        }
+        while (c !== undefined);
+        return ' at ' + line.toString() + ':' + column.toString() + '.';
+    }
+};
+
+numpy.HeaderReader.StringDecoder = class {
+
+    constructor(text) {
+        this.text = text;
+        this.position = 0;
+        this.length = text.length;
+    }
+
+    decode() {
+        return this.position < this.length ? this.text[this.position++] : undefined;
     }
 };
 
