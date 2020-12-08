@@ -2260,6 +2260,21 @@
     }
   },
   {
+    "name": "torch.unsafe_chunk",
+    "schema": {
+      "attributes": [
+        { "name": "chunks", "type": "int64" },
+        { "name": "dim", "type": "int64", "default": 0 }
+      ],
+      "inputs": [ 
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor[]" }
+      ]
+    }
+  },
+  {
     "name": "torch.view",
     "schema": {
       "attributes": [
@@ -3088,7 +3103,7 @@
     "schema": {
       "category": "Normalization",
       "attributes": [
-        { "name": "dim", "type": "int64" },
+        { "name": "dim", "type": "int64[]" },
         { "name": "keepdim", "type": "boolean", "default": false }
       ],
       "inputs": [
