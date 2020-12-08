@@ -774,6 +774,17 @@ sklearn.Container = class {
                         this.alignment = state[6];
                         this.int_dtypeflags = state[7];
                         break;
+                    case 9:
+                        this.version = state[0];
+                        this.byteorder = state[1];
+                        this.subarray = state[2];
+                        this.names = state[3];
+                        this.fields = state[4];
+                        this.elsize = state[5];
+                        this.alignment = state[6];
+                        this.int_dtypeflags = state[7];
+                        this.metadata = state[8];
+                        break;
                     default:
                         throw new sklearn.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                 }
