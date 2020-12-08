@@ -276,6 +276,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 194: return $root.mindspore.schema.Assert.decode(reader, position);
             case 195: return $root.mindspore.schema.Adder.decode(reader, position);
             case 196: return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decode(reader, position);
+            case 197: return $root.mindspore.schema.Reciprocal.decode(reader, position);
         }
         return undefined;
     }
@@ -478,6 +479,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Assert': return $root.mindspore.schema.Assert.decodeText(reader, json);
             case 'Adder': return $root.mindspore.schema.Adder.decodeText(reader, json);
             case 'SparseSoftmaxCrossEntropy': return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decodeText(reader, json);
+            case 'Reciprocal': return $root.mindspore.schema.Reciprocal.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4195,6 +4197,19 @@ $root.mindspore.schema.Assert = class Assert {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Assert();
         $.summarize = reader.value(json.summarize, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Reciprocal = class Reciprocal {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Reciprocal();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Reciprocal();
         return $;
     }
 };
