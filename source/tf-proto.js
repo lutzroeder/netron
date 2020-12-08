@@ -2042,6 +2042,7 @@ $root.tensorflow.OpDef.prototype.allows_uninitialized_input = false;
 $root.tensorflow.OpDef.ArgDef = class ArgDef {
 
     constructor() {
+        this.handle_data = [];
     }
 
     static decode(reader, length) {
@@ -2067,6 +2068,9 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
                     break;
                 case 6:
                     message.type_list_attr = reader.string();
+                    break;
+                case 7:
+                    message.handle_data.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decode(reader, reader.uint32()));
                     break;
                 case 16:
                     message.is_ref = reader.bool();
@@ -2102,6 +2106,9 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
                     break;
                 case "type_list_attr":
                     message.type_list_attr = reader.string();
+                    break;
+                case "handle_data":
+                    message.handle_data.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decodeText(reader, true));
                     break;
                 case "is_ref":
                     message.is_ref = reader.boolean();
