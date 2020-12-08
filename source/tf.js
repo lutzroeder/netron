@@ -464,14 +464,16 @@ tf.Graph = class {
                 }
                 for (const node of node_map.values()) {
                     if (node.op === 'ReadVariableOp' && node.in.length === 1 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                        const tensor = new tf.proto.TensorProto();
-                        tensor.dtype = node.attr.dtype.type;
-                        tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
-                        const initializer = map_resource(node.name, node.in[0], new tf.Tensor(tensor, name, 'Resource Variable'));
-                        if (initializer) {
-                            initializers.set(initializer.name, initializer);
-                            node_map.delete(initializer.name);
-                            node_map.delete(node.in[0].name);
+                        if (node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
+                            const tensor = new tf.proto.TensorProto();
+                            tensor.dtype = node.attr.dtype.type;
+                            tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
+                            const initializer = map_resource(node.name, node.in[0], new tf.Tensor(tensor, name, 'Resource Variable'));
+                            if (initializer) {
+                                initializers.set(initializer.name, initializer);
+                                node_map.delete(initializer.name);
+                                node_map.delete(node.in[0].name);
+                            }
                         }
                     }
                 }
