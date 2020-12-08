@@ -268,11 +268,11 @@ sidebar.NodeSidebar = class {
         }
         switch (type) {
             case 'shape':
-                return value.toString();
+                return value ? value.toString() : '(null)';
             case 'shape[]':
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph':
-                return value.toString();
+                return value ? value.toString() : '(null)';
             case 'graph[]':
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'tensor':
