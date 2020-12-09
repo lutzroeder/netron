@@ -1,16 +1,13 @@
 
 from __future__ import unicode_literals
 
-import onnx
-
-import json
 import io
+import json
 import os
 import re
 import sys
 
-from onnx import defs
-from onnx.defs import OpSchema
+import onnx
 from onnx.backend.test.case import collect_snippets
 
 snippets = collect_snippets()
@@ -90,7 +87,7 @@ attribute_type_table = {
 }
 
 def generate_json_attr_type(type):
-    assert isinstance(type, OpSchema.AttrType)
+    assert isinstance(type, onnx.defs.OpSchema.AttrType)
     s = str(type)
     s = s[s.rfind('.')+1:].lower()
     if s in attribute_type_table:
@@ -109,7 +106,7 @@ def generate_json_attr_default_value(attr_value):
     return None
 
 def generate_json_support_level_name(support_level):
-    assert isinstance(support_level, OpSchema.SupportType)
+    assert isinstance(support_level, onnx.defs.OpSchema.SupportType)
     s = str(support_level)
     return s[s.rfind('.')+1:].lower()
 
@@ -154,9 +151,9 @@ def generate_json(schemas, json_file):
                 json_input['name'] = input.name
                 json_input['description'] = format_description(input.description)
                 json_input['type'] = input.typeStr
-                if input.option == OpSchema.FormalParameterOption.Optional:
+                if input.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
                     json_input['option'] = 'optional'
-                elif input.option == OpSchema.FormalParameterOption.Variadic:
+                elif input.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
                     json_input['list'] = True
                 json_schema['inputs'].append(json_input)
         json_schema['min_input'] = schema.min_input
@@ -168,9 +165,9 @@ def generate_json(schemas, json_file):
                 json_output['name'] = output.name
                 json_output['description'] = format_description(output.description)
                 json_output['type'] = output.typeStr
-                if output.option == OpSchema.FormalParameterOption.Optional:
+                if output.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
                     json_output['option'] = 'optional'
-                elif output.option == OpSchema.FormalParameterOption.Variadic:
+                elif output.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
                     json_output['list'] = True
                 json_schema['outputs'].append(json_output)
         json_schema['min_output'] = schema.min_output
@@ -221,12 +218,12 @@ def generate_json(schemas, json_file):
         for line in json_root.splitlines():
             line = line.rstrip()
             if sys.version_info[0] < 3:
-                line = unicode(line)
+                line = str(line)
             fout.write(line)
             fout.write('\n')
 
 def metadata():
-    schemas = defs.get_all_schemas_with_history()
+    schemas = onnx.defs.get_all_schemas_with_history()
     schemas = sorted(schemas, key=lambda schema: schema.name)
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
     generate_json(schemas, json_file)
