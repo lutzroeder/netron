@@ -51,7 +51,7 @@ def rezip(zip_file_path):
     zip_dir = tempfile.mkdtemp()
     with zipfile.ZipFile(zip_file_path, 'r') as zip_file:
         zip_file.extractall(zip_dir)
-    for folder, subfolders, files in os.walk(zip_dir):
+    for folder, _, files in os.walk(zip_dir):
         if folder.endswith('/data'):
             for file in files:
                 path = os.path.join(folder, file)
@@ -59,7 +59,7 @@ def rezip(zip_file_path):
                 with open(path, 'w+b') as file_handle:
                     file_handle.write(bytearray(size))
     with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for folder, subfolders, files in os.walk(zip_dir):
+        for folder, _, files in os.walk(zip_dir):
             for file in files:
                 path = os.path.join(folder, file)
                 zip_file.write(path, os.path.relpath(path, zip_dir))
