@@ -2,13 +2,23 @@
   {
     "name": "VSI_NN_OP_CONV2D",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "bias" }
+      ]
     }
   },
   {
     "name": "VSI_NN_OP_DECONVOLUTION",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "bias" }
+      ]
     }
   },
   {
@@ -38,7 +48,12 @@
   {
     "name": "VSI_NN_OP_FCL",
     "schema": {
-      "category": "Layer"
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" },
+        { "name": "bias" }
+      ]
     }
   },
   {
@@ -56,7 +71,19 @@
   {
     "name": "VSI_NN_OP_CONCAT",
     "schema": {
-      "category": "Tensor"
+      "category": "Tensor",
+      "inputs": [
+        { "name": "inputs", "list": true }
+      ]
+    }
+  },
+  {
+    "name": "VSI_NN_OP_ADD",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "other" }
+      ]
     }
   }
 ]

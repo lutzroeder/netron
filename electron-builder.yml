@@ -63,6 +63,8 @@ fileAssociations:
     ext: paddle
   - name: "PaddlePaddle"
     ext: pdmodel
+  - name: "RKNN"
+    ext: rknn
 afterSign: "./publish/notarize.js"
 publish:
   - provider: github

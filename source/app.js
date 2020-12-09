@@ -135,7 +135,7 @@ class Application {
                     'model', 'dnn', 'cmf', 'mar', 'params',
                     'meta',
                     'tflite', 'lite', 'tfl',
-                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt',
+                    'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn',
                     'ncnn', 'param', 'tnnproto', 'tmfile', 'ms',
                     'pt', 'pth', 't7',
                     'pkl', 'joblib',
