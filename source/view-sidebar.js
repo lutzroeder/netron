@@ -1158,7 +1158,7 @@ sidebar.FindSidebar = class {
                     const match =
                         (argument.name && argument.name.toLowerCase().indexOf(text) != -1) ||
                         (argument.type && argument.type.dataType && argument.type.dataType.toLowerCase() === text) ||
-                        (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.some((dimension) => dimension.toString() === text)) ||
+                        (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.some((dimension) => dimension && dimension.toString() === text)) ||
                         (argument.type && argument.type.shape && argument.type.shape.dimensions && (argument.type.shape.toString() === text || argument.type.shape.toString() === '[' + text + ']'));
                     if (match && !edgeMatches.has(argument.name)) {
                         if (!argument.initializer) {
