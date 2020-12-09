@@ -936,6 +936,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.conv.ConvTranspose2d', function() {});
         this._registerConstructor('torch.nn.modules.conv.ConvTranspose3d', function() {});
         this._registerConstructor('torch.nn.modules.distance.CosineSimilarity', function() {});
+        this._registerConstructor('torch.nn.modules.dropout.AlphaDropout', function() {});
         this._registerConstructor('torch.nn.modules.dropout.Dropout', function() {});
         this._registerConstructor('torch.nn.modules.dropout.Dropout2d', function() {});
         this._registerConstructor('torch.nn.modules.dropout.Dropout3d', function() {});
