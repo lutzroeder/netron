@@ -3,9 +3,9 @@
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), **Barracuda** (`.nn`), **ncnn** (`.param`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **UFF** (`.uff`) and **TensorFlow Lite** (`.tflite`).
+Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **TensorFlow Lite** (`.tflite`), **Caffe** (`.caffemodel`, `.prototxt`), **Darknet** (`.cfg`), **Core ML** (`.mlmodel`), **MNN** (`.mnn`), **MXNet** (`.model`, `-symbol.json`), **ncnn** (`.param`), **PaddlePaddle** (`.zip`, `__model__`), **Caffe2** (`predict_net.pb`), **Barracuda** (`.nn`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **RKNN** (`.rknn`), **MindSpore Lite** (`.ms`), **UFF** (`.uff`).
 
-Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **Arm NN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **MNN** (`.mnn`), **PaddlePaddle** (`.zip`, `__model__`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).
+Netron has experimental support for **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`), **PyTorch** (`.pt`, `.pth`), **TorchScript** (`.pt`, `.pth`), **OpenVINO** (`.xml`), **Torch** (`.t7`), **Arm NN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`).
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 

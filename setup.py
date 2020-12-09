@@ -42,7 +42,7 @@ class build_py(setuptools.command.build_py.build_py):
             for file in files:
                 self.copy_file(file, target)
         if build_py.version:
-            for package, src_dir, build_dir, filenames in self.data_files:
+            for _, _, build_dir, filenames in self.data_files:
                 for filename in filenames:
                     if filename == 'index.html':
                         filepath = os.path.join(build_dir, filename)
@@ -68,7 +68,7 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning, and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning, and machine learning models.\n\n' +
-                     'Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **Core ML** (`.mlmodel`), **Caffe** (`.caffemodel`, `.prototxt`), **Caffe2** (`predict_net.pb`), **Darknet** (`.cfg`), **MXNet** (`.model`, `-symbol.json`), **Barracuda** (`.nn`), **ncnn** (`.param`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **UFF** (`.uff`) and **TensorFlow Lite** (`.tflite`). Netron has experimental support for **TorchScript** (`.pt`, `.pth`), **PyTorch** (`.pt`, `.pth`), **Torch** (`.t7`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **MNN** (`.mnn`), **PaddlePaddle** (`.zip`, `__model__`), **OpenVINO** (`.xml`), **scikit-learn** (`.pkl`), **TensorFlow.js** (`model.json`, `.pb`) and **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`).',
+                     'Netron supports **ONNX** (`.onnx`, `.pb`, `.pbtxt`), **Keras** (`.h5`, `.keras`), **TensorFlow Lite** (`.tflite`), **Caffe** (`.caffemodel`, `.prototxt`), **Darknet** (`.cfg`), **Core ML** (`.mlmodel`), **MNN** (`.mnn`), **MXNet** (`.model`, `-symbol.json`), **ncnn** (`.param`), **PaddlePaddle** (`.zip`, `__model__`), **Caffe2** (`predict_net.pb`), **Barracuda** (`.nn`), **Tengine** (`.tmfile`), **TNN** (`.tnnproto`), **RKNN** (`.rknn`), **MindSpore Lite** (`.ms`) and **UFF** (`.uff`). Netron has experimental support for **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.ckpt`, `.index`), **PyTorch** (`.pt`, `.pth`), **TorchScript** (`.pt`, `.pth`), **Torch** (`.t7`), **OpenVINO** (`.xml`), **ArmNN** (`.armnn`), **BigDL** (`.bigdl`, `.model`), **Chainer** (`.npz`, `.h5`), **CNTK** (`.model`, `.cntk`), **Deeplearning4j** (`.zip`), **MediaPipe** (`.pbtxt`), **ML.NET** (`.zip`), **scikit-learn** (`.pkl`) and **TensorFlow.js** (`model.json`, `.pb`)',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',
