@@ -357,52 +357,24 @@ onnx.Graph = class {
                 this._outputs.push(new onnx.Parameter(valueInfo.name, [ argument ]));
             }
             for (const node of nodes) {
-                const inputs = [];
                 const schema = metadata.type(node.op_type);
-                if (node.input && node.input.length > 0) {
-                    let inputIndex = 0;
-                    if (schema && schema.inputs) {
-                        for (const inputSchema of schema.inputs) {
-                            if (inputIndex < node.input.length || inputSchema.option != 'optional') {
-                                const inputCount = inputSchema.list ? (node.input.length - inputIndex) : 1;
-                                const inputArguments = node.input.slice(inputIndex, inputIndex + inputCount).map((id) => {
-                                    return arg(id, null, null, initializers.get(id), imageFormat);
-                                });
-                                inputIndex += inputCount;
-                                inputs.push(new onnx.Parameter(inputSchema.name, inputArguments));
-                            }
-                        }
-                    }
-                    else {
-                        inputs.push(...node.input.slice(inputIndex).map((id, index) => {
-                            return new onnx.Parameter((inputIndex + index).toString(), [
-                                arg(id, null, null, null, imageFormat)
-                            ]);
-                        }));
-                    }
+                const inputs = [];
+                node.input = node.input || [];
+                for (let i = 0; i < node.input.length; ) {
+                    const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
+                    const count = input.list ? node.input.length - i : 1;
+                    const list = node.input.slice(i, i + count).map((input) => arg(input, null, null, initializers.get(input), imageFormat));
+                    inputs.push(new onnx.Parameter(input.name, list));
+                    i += count;
                 }
                 const outputs = [];
-                if (node.output && node.output.length > 0) {
-                    let outputIndex = 0;
-                    if (schema && schema.outputs) {
-                        for (const outputSchema of schema.outputs) {
-                            if (outputIndex < node.output.length || outputSchema.option != 'optional') {
-                                const outputCount = outputSchema.list ? (node.output.length - outputIndex) : 1;
-                                const outputArguments = node.output.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                                    return arg(id, null, null, null, imageFormat);
-                                });
-                                outputIndex += outputCount;
-                                outputs.push(new onnx.Parameter(outputSchema.name, outputArguments));
-                            }
-                        }
-                    }
-                    else {
-                        outputs.push(...node.output.slice(outputIndex).map((id, index) => {
-                            return new onnx.Parameter((outputIndex + index).toString(), [
-                                arg(id, null, null, null, imageFormat)
-                            ]);
-                        }));
-                    }
+                node.output = node.output || [];
+                for (let i = 0; i < node.output.length; ) {
+                    const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
+                    const count = output.list ? node.output.length - i : 1;
+                    const list = node.output.slice(i, i + count).map((output) => arg(output, null, null, null, imageFormat));
+                    outputs.push(new onnx.Parameter(output.name, list));
+                    i += count;
                 }
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
             }
