@@ -276,7 +276,11 @@ $root.mindspore.schema.PrimitiveType = class {
             case 194: return $root.mindspore.schema.Assert.decode(reader, position);
             case 195: return $root.mindspore.schema.Adder.decode(reader, position);
             case 196: return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decode(reader, position);
-            case 197: return $root.mindspore.schema.Reciprocal.decode(reader, position);
+            case 197: return $root.mindspore.schema.SmoothL1Loss.decode(reader, position);
+            case 198: return $root.mindspore.schema.SmoothL1LossGrad.decode(reader, position);
+            case 199: return $root.mindspore.schema.SigmoidCrossEntropyWithLogits.decode(reader, position);
+            case 200: return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decode(reader, position);
+            case 201: return $root.mindspore.schema.Reciprocal.decode(reader, position);
         }
         return undefined;
     }
@@ -479,6 +483,10 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Assert': return $root.mindspore.schema.Assert.decodeText(reader, json);
             case 'Adder': return $root.mindspore.schema.Adder.decodeText(reader, json);
             case 'SparseSoftmaxCrossEntropy': return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decodeText(reader, json);
+            case 'SmoothL1Loss': return $root.mindspore.schema.SmoothL1Loss.decodeText(reader, json);
+            case 'SmoothL1LossGrad': return $root.mindspore.schema.SmoothL1LossGrad.decodeText(reader, json);
+            case 'SigmoidCrossEntropyWithLogits': return $root.mindspore.schema.SigmoidCrossEntropyWithLogits.decodeText(reader, json);
+            case 'SigmoidCrossEntropyWithLogitsGrad': return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decodeText(reader, json);
             case 'Reciprocal': return $root.mindspore.schema.Reciprocal.decodeText(reader, json);
         }
         return undefined;
@@ -4161,12 +4169,14 @@ $root.mindspore.schema.TensorListReserve = class TensorListReserve {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.TensorListReserve();
         $.elementDType = reader.int32_(position, 4, 0);
+        $.shapeType = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.TensorListReserve();
         $.elementDType = reader.value(json.elementDType, 0);
+        $.shapeType = reader.value(json.shapeType, 0);
         return $;
     }
 };
@@ -4197,6 +4207,66 @@ $root.mindspore.schema.Assert = class Assert {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Assert();
         $.summarize = reader.value(json.summarize, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SmoothL1Loss = class SmoothL1Loss {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SmoothL1Loss();
+        $.beta = reader.float32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SmoothL1Loss();
+        $.beta = reader.value(json.beta, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SmoothL1LossGrad = class SmoothL1LossGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SmoothL1LossGrad();
+        $.beta = reader.float32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SmoothL1LossGrad();
+        $.beta = reader.value(json.beta, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SigmoidCrossEntropyWithLogits = class SigmoidCrossEntropyWithLogits {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogits();
+        $.beta = reader.float32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogits();
+        $.beta = reader.value(json.beta, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad = class SigmoidCrossEntropyWithLogitsGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad();
+        $.beta = reader.float32_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad();
+        $.beta = reader.value(json.beta, 0);
         return $;
     }
 };
