@@ -281,6 +281,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 199: return $root.mindspore.schema.SigmoidCrossEntropyWithLogits.decode(reader, position);
             case 200: return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decode(reader, position);
             case 201: return $root.mindspore.schema.Reciprocal.decode(reader, position);
+            case 202: return $root.mindspore.schema.Merge.decode(reader, position);
         }
         return undefined;
     }
@@ -488,6 +489,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'SigmoidCrossEntropyWithLogits': return $root.mindspore.schema.SigmoidCrossEntropyWithLogits.decodeText(reader, json);
             case 'SigmoidCrossEntropyWithLogitsGrad': return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decodeText(reader, json);
             case 'Reciprocal': return $root.mindspore.schema.Reciprocal.decodeText(reader, json);
+            case 'Merge': return $root.mindspore.schema.Merge.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4280,6 +4282,19 @@ $root.mindspore.schema.Reciprocal = class Reciprocal {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Reciprocal();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Merge = class Merge {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Merge();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Merge();
         return $;
     }
 };
