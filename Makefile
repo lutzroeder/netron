@@ -78,8 +78,8 @@ build_web:
 	cp -R ./source/*.json ./dist/web
 	cp -R ./source/*.ico ./dist/web
 	cp -R ./source/*.png ./dist/web
-	cp -R ./node_modules/d3/dist/d3.min.js ./dist/web
-	cp -R ./node_modules/dagre/dist/dagre.min.js ./dist/web
+	cp -R ./node_modules/d3/dist/d3.js ./dist/web
+	cp -R ./node_modules/dagre/dist/dagre.js ./dist/web
 	cp -R ./node_modules/pako/dist/pako.min.js ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
 	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
