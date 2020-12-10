@@ -5767,5 +5767,31 @@
         { "name": "output", "type": "Tensor[]" }
       ]
     }
+  },
+  {
+    "name": "torch.argsort:",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "dim", "type": "int64", "default": -1 },
+        { "name": "descending", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.argsort:dimname",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "dim", "type": "Dimname" },
+        { "name": "descending", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
