@@ -104,7 +104,7 @@ class TestHost {
     request(base, file, encoding) {
         const pathname = path.join(base || path.join(__dirname, '../source'), file);
         if (!fs.existsSync(pathname)) {
-            return Promise.reject(new Error("File not found '" + file + "'."));
+            return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
         return Promise.resolve(fs.readFileSync(pathname, encoding));
     }

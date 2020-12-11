@@ -2942,7 +2942,7 @@
     "type":   "ncnn",
     "target": "squeezenet_v1.1.bin",
     "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
-    "error":  "File not found 'squeezenet_v1.1.param' in 'squeezenet_v1.1.bin'.",
+    "error":  "The file 'squeezenet_v1.1.param' does not exist in 'squeezenet_v1.1.bin'.",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {

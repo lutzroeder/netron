@@ -270,7 +270,7 @@ host.ElectronHost = class {
             const pathname = path.join(base || __dirname, file);
             fs.exists(pathname, (exists) => {
                 if (!exists) {
-                    reject(new Error("File not found '" + file + "'."));
+                    reject(new Error("The file '" + file + "' does not exist."));
                 }
                 else {
                     fs.readFile(pathname, encoding, (err, data) => {
@@ -334,8 +334,10 @@ host.ElectronHost = class {
     _openFile(file) {
         if (file) {
             this._view.show('welcome spinner');
-            this._readFile(file).then((buffer) => {
-                const context = new host.ElectronHost.ElectonContext(this, path.dirname(file), path.basename(file), buffer);
+            const dirname = path.dirname(file);
+            const basename = path.basename(file);
+            this.request(dirname, basename, null).then((buffer) => {
+                const context = new host.ElectronHost.ElectonContext(this, dirname, basename, buffer);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {
@@ -358,26 +360,6 @@ host.ElectronHost = class {
                 this._update('path', null);
             });
         }
-    }
-
-    _readFile(file) {
-        return new Promise((resolve, reject) => {
-            fs.exists(file, (exists) => {
-                if (!exists) {
-                    reject(new Error('The file \'' + file + '\' does not exist.'));
-                }
-                else {
-                    fs.readFile(file, null, (err, buffer) => {
-                        if (err) {
-                            reject(err);
-                        }
-                        else {
-                            resolve(buffer);
-                        }
-                    });
-                }
-            });
-        });
     }
 
     _request(url, headers, encoding, timeout) {
