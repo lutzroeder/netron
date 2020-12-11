@@ -56,7 +56,7 @@ gzip.Entry = class {
         else {
             this._data = new require('./zip').Inflater().inflateRaw(compressedData);
         }
-        reader.position = -8;
+        reader.seek(-8);
         reader.uint32(); // CRC32
         const size = reader.uint32();
         if (size != this._data.length) {
@@ -99,8 +99,8 @@ gzip.Reader = class {
         return this._position;
     }
 
-    set position(value) {
-        this._position = value >= 0 ? value : this._end + value;
+    seek(position) {
+        this._position = position >= 0 ? position : this._end + position;
     }
 
     skip(offset) {
