@@ -44,7 +44,7 @@ zip.Archive = class {
         if (offset > buffer.length) {
             throw new zip.Error('Invalid central directory offset.');
         }
-        reader.position = offset; // central directory offset
+        reader.seek(offset); // central directory offset
         while (reader.match([ 0x50, 0x4B, 0x01, 0x02 ])) {
             this._entries.push(new zip.Entry(reader));
         }
@@ -99,12 +99,12 @@ zip.Entry = class {
                         }
                         break;
                 }
-                reader.position = position + size;
+                reader.seek(position + size);
             }
         }
         reader.bytes(commentLength); // comment
         const position = reader.position;
-        reader.position = localHeaderOffset;
+        reader.seek(localHeaderOffset);
         if (!reader.match([ 0x50, 0x4B, 0x03, 0x04 ])) {
             throw new zip.Error('Invalid local file header signature.');
         }
@@ -118,7 +118,7 @@ zip.Entry = class {
             this._name += String.fromCharCode(c);
         }
         this._compressedData = reader.bytes(this._compressedSize);
-        reader.position = position;
+        reader.seek(position);
     }
 
     get name() {
@@ -508,8 +508,8 @@ zip.BinaryReader = class {
         return this._position;
     }
 
-    set position(value) {
-        this._position = value >= 0 ? value : this._end + value;
+    seek(position) {
+        this._position = position >= 0 ? position : this._end + position;
     }
 
     peek() {
