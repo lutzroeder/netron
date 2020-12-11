@@ -574,7 +574,7 @@ mlnet.ModelHeader = class {
             const assemblyNameOffset = reader.uint64();
             const assemblyNameSize = reader.uint32();
             if (stringTableOffset != 0 && stringCharsOffset != 0) {
-                reader.position = stringTableOffset;
+                reader.seek(stringTableOffset);
                 const stringCount = stringTableSize >> 3;
                 const stringSizes = [];
                 let previousStringSize = 0;
@@ -583,7 +583,7 @@ mlnet.ModelHeader = class {
                     stringSizes.push(stringSize - previousStringSize);
                     previousStringSize = stringSize;
                 }
-                reader.position = stringCharsOffset;
+                reader.seek(stringCharsOffset);
                 this.strings = [];
                 for (let i = 0; i < stringCount; i++) {
                     const cch = stringSizes[i] >> 1;
@@ -595,14 +595,14 @@ mlnet.ModelHeader = class {
                 }
             }
             if (assemblyNameOffset != 0) {
-                reader.position = assemblyNameOffset;
+                reader.seek(assemblyNameOffset);
                 this.assemblyName = textDecoder.decode(reader.bytes(assemblyNameSize));
             }
-            reader.position = tailOffset;
+            reader.seek(tailOffset);
             reader.assert('LEDOM\0LM');
 
             this._reader = reader;
-            this._reader.position = modelBlockOffset;
+            this._reader.seek(modelBlockOffset);
         }
     }
 
@@ -663,12 +663,12 @@ mlnet.Reader = class {
         this._position = 0;
     }
 
-    set position(value) {
-        this._position = value;
-    }
-
     get position() {
         return this._position;
+    }
+
+    seek(position) {
+        this._position = position;
     }
 
     skip(offset) {
@@ -852,9 +852,9 @@ mlnet.BinaryLoader = class { // 'BINLOADR'
         const tailOffset = reader.int64();
         reader.int64(); // rowCount
         const columnCount = reader.int32();
-        reader.position = tailOffset;
+        reader.seek(tailOffset);
         reader.assert('\0BVD\0LMC');
-        reader.position = tableOfContentsOffset;
+        reader.seek(tableOfContentsOffset);
         this.schema = {};
         this.schema.inputs = [];
         for (let c = 0; c < columnCount; c  ++) {
