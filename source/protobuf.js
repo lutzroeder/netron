@@ -26,15 +26,8 @@ protobuf.Reader = class {
         return new protobuf.Reader(buffer);
     }
 
-    next(length) {
-        if (length === undefined) {
-            return this._length;
-        }
-        return this._position + length;
-    }
-
-    end(position) {
-        return this._position < position;
+    get length() {
+        return this._length;
     }
 
     get position() {

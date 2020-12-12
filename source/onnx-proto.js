@@ -26,8 +26,8 @@ $root.onnx.AttributeProto = class AttributeProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.AttributeProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -183,8 +183,8 @@ $root.onnx.ValueInfoProto = class ValueInfoProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.ValueInfoProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -242,8 +242,8 @@ $root.onnx.NodeProto = class NodeProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.NodeProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -325,8 +325,8 @@ $root.onnx.TrainingInfoProto = class TrainingInfoProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.TrainingInfoProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -389,8 +389,8 @@ $root.onnx.ModelProto = class ModelProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.ModelProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -491,8 +491,8 @@ $root.onnx.StringStringEntryProto = class StringStringEntryProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.StringStringEntryProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -541,8 +541,8 @@ $root.onnx.TensorAnnotation = class TensorAnnotation {
 
     static decode(reader, length) {
         const message = new $root.onnx.TensorAnnotation();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -596,8 +596,8 @@ $root.onnx.GraphProto = class GraphProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.GraphProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -695,8 +695,8 @@ $root.onnx.TensorProto = class TensorProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.TensorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -840,8 +840,8 @@ $root.onnx.TensorProto.Segment = class Segment {
 
     static decode(reader, length) {
         const message = new $root.onnx.TensorProto.Segment();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -895,8 +895,8 @@ $root.onnx.SparseTensorProto = class SparseTensorProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.SparseTensorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -951,8 +951,8 @@ $root.onnx.TensorShapeProto = class TensorShapeProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.TensorShapeProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -996,8 +996,8 @@ $root.onnx.TensorShapeProto.Dimension = class Dimension {
 
     static decode(reader, length) {
         const message = new $root.onnx.TensorShapeProto.Dimension();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1055,8 +1055,8 @@ $root.onnx.TypeProto = class TypeProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1127,8 +1127,8 @@ $root.onnx.TypeProto.Tensor = class Tensor {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto.Tensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1176,8 +1176,8 @@ $root.onnx.TypeProto.Sequence = class Sequence {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto.Sequence();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1218,8 +1218,8 @@ $root.onnx.TypeProto.Map = class Map {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto.Map();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1267,8 +1267,8 @@ $root.onnx.TypeProto.SparseTensor = class SparseTensor {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto.SparseTensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1316,8 +1316,8 @@ $root.onnx.TypeProto.Opaque = class Opaque {
 
     static decode(reader, length) {
         const message = new $root.onnx.TypeProto.Opaque();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1365,8 +1365,8 @@ $root.onnx.OperatorSetIdProto = class OperatorSetIdProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.OperatorSetIdProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1424,8 +1424,8 @@ $root.onnx.FunctionProto = class FunctionProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.FunctionProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1517,8 +1517,8 @@ $root.onnx.OperatorProto = class OperatorProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.OperatorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1582,8 +1582,8 @@ $root.onnx.OperatorSetProto = class OperatorSetProto {
 
     static decode(reader, length) {
         const message = new $root.onnx.OperatorSetProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

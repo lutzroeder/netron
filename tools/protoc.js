@@ -1253,8 +1253,8 @@ protoc.Generator = class {
         this._builder.add('static decode(reader, length) {');
         this._builder.indent();
             this._builder.add('const message = new $root' + type.fullName + '();');
-            this._builder.add('const end = reader.next(length);');
-            this._builder.add("while (reader.end(end)) {");
+            this._builder.add('const end = length !== undefined ? reader.position + length : reader.length;');
+            this._builder.add("while (reader.position < end) {");
             this._builder.indent();
                 this._builder.add("const tag = reader.uint32();");
                 if (type.group) {

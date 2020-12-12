@@ -13,8 +13,8 @@ $root.CoreML.Specification.Pipeline = class Pipeline {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Pipeline();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -39,8 +39,8 @@ $root.CoreML.Specification.PipelineClassifier = class PipelineClassifier {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PipelineClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -64,8 +64,8 @@ $root.CoreML.Specification.PipelineRegressor = class PipelineRegressor {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PipelineRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -89,8 +89,8 @@ $root.CoreML.Specification.FeatureDescription = class FeatureDescription {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FeatureDescription();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -123,8 +123,8 @@ $root.CoreML.Specification.Metadata = class Metadata {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Metadata();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -166,8 +166,8 @@ $root.CoreML.Specification.ModelDescription = class ModelDescription {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ModelDescription();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -208,8 +208,8 @@ $root.CoreML.Specification.SerializedModel = class SerializedModel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SerializedModel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -242,8 +242,8 @@ $root.CoreML.Specification.Model = class Model {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Model();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -384,8 +384,8 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint = class VisionFeature
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 20:
@@ -410,8 +410,8 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene = class Scene {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Scene();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -441,8 +441,8 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects = class Objec
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -479,8 +479,8 @@ $root.CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.TextClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -520,8 +520,8 @@ $root.CoreML.Specification.CoreMLModels.WordTagger = class WordTagger {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.WordTagger();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -577,8 +577,8 @@ $root.CoreML.Specification.CoreMLModels.Gazetteer = class Gazetteer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.Gazetteer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -613,8 +613,8 @@ $root.CoreML.Specification.CoreMLModels.WordEmbedding = class WordEmbedding {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.WordEmbedding();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -651,8 +651,8 @@ $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing = class Sound
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 20:
@@ -674,8 +674,8 @@ $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish = clas
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoreMLModels.SoundAnalysisPreprocessing.Vggish();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -695,8 +695,8 @@ $root.CoreML.Specification.StringToInt64Map = class StringToInt64Map {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StringToInt64Map();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -719,8 +719,8 @@ $root.CoreML.Specification.Int64ToStringMap = class Int64ToStringMap {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64ToStringMap();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -743,8 +743,8 @@ $root.CoreML.Specification.StringToDoubleMap = class StringToDoubleMap {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StringToDoubleMap();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -767,8 +767,8 @@ $root.CoreML.Specification.Int64ToDoubleMap = class Int64ToDoubleMap {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64ToDoubleMap();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -791,8 +791,8 @@ $root.CoreML.Specification.StringVector = class StringVector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StringVector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -815,8 +815,8 @@ $root.CoreML.Specification.Int64Vector = class Int64Vector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64Vector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -839,8 +839,8 @@ $root.CoreML.Specification.FloatVector = class FloatVector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FloatVector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -863,8 +863,8 @@ $root.CoreML.Specification.DoubleVector = class DoubleVector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DoubleVector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -886,8 +886,8 @@ $root.CoreML.Specification.Int64Range = class Int64Range {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64Range();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -916,8 +916,8 @@ $root.CoreML.Specification.Int64Set = class Int64Set {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64Set();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -939,8 +939,8 @@ $root.CoreML.Specification.DoubleRange = class DoubleRange {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DoubleRange();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -968,8 +968,8 @@ $root.CoreML.Specification.Int64FeatureType = class Int64FeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64FeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -988,8 +988,8 @@ $root.CoreML.Specification.DoubleFeatureType = class DoubleFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DoubleFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -1008,8 +1008,8 @@ $root.CoreML.Specification.StringFeatureType = class StringFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StringFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -1028,8 +1028,8 @@ $root.CoreML.Specification.SizeRange = class SizeRange {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SizeRange();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1062,8 +1062,8 @@ $root.CoreML.Specification.ImageFeatureType = class ImageFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ImageFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1108,8 +1108,8 @@ $root.CoreML.Specification.ImageFeatureType.ImageSize = class ImageSize {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ImageFeatureType.ImageSize();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1138,8 +1138,8 @@ $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes = class Enumera
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ImageFeatureType.EnumeratedImageSizes();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1161,8 +1161,8 @@ $root.CoreML.Specification.ImageFeatureType.ImageSizeRange = class ImageSizeRang
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ImageFeatureType.ImageSizeRange();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1201,8 +1201,8 @@ $root.CoreML.Specification.ArrayFeatureType = class ArrayFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArrayFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1252,8 +1252,8 @@ $root.CoreML.Specification.ArrayFeatureType.Shape = class Shape {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArrayFeatureType.Shape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1276,8 +1276,8 @@ $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes = class EnumeratedS
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArrayFeatureType.EnumeratedShapes();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1300,8 +1300,8 @@ $root.CoreML.Specification.ArrayFeatureType.ShapeRange = class ShapeRange {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArrayFeatureType.ShapeRange();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1328,8 +1328,8 @@ $root.CoreML.Specification.DictionaryFeatureType = class DictionaryFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DictionaryFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1359,8 +1359,8 @@ $root.CoreML.Specification.SequenceFeatureType = class SequenceFeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SequenceFeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1395,8 +1395,8 @@ $root.CoreML.Specification.FeatureType = class FeatureType {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FeatureType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1442,8 +1442,8 @@ $root.CoreML.Specification.ArrayFeatureExtractor = class ArrayFeatureExtractor {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArrayFeatureExtractor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1466,8 +1466,8 @@ $root.CoreML.Specification.BayesianProbitRegressor = class BayesianProbitRegress
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BayesianProbitRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1530,8 +1530,8 @@ $root.CoreML.Specification.BayesianProbitRegressor.Gaussian = class Gaussian {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BayesianProbitRegressor.Gaussian();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1559,8 +1559,8 @@ $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight = class Fe
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureValueWeight();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1589,8 +1589,8 @@ $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight = class Feature
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BayesianProbitRegressor.FeatureWeight();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1627,8 +1627,8 @@ $root.CoreML.Specification.CategoricalMapping = class CategoricalMapping {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CategoricalMapping();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1660,8 +1660,8 @@ $root.CoreML.Specification.CustomModel = class CustomModel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CustomModel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -1697,8 +1697,8 @@ $root.CoreML.Specification.CustomModel.CustomModelParamValue = class CustomModel
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CustomModel.CustomModelParamValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -1740,8 +1740,8 @@ $root.CoreML.Specification.DictVectorizer = class DictVectorizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DictVectorizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1767,8 +1767,8 @@ $root.CoreML.Specification.FeatureVectorizer = class FeatureVectorizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FeatureVectorizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1790,8 +1790,8 @@ $root.CoreML.Specification.FeatureVectorizer.InputColumn = class InputColumn {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FeatureVectorizer.InputColumn();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1821,8 +1821,8 @@ $root.CoreML.Specification.GLMRegressor = class GLMRegressor {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GLMRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1853,8 +1853,8 @@ $root.CoreML.Specification.GLMRegressor.DoubleArray = class DoubleArray {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GLMRegressor.DoubleArray();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1889,8 +1889,8 @@ $root.CoreML.Specification.GLMClassifier = class GLMClassifier {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GLMClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1931,8 +1931,8 @@ $root.CoreML.Specification.GLMClassifier.DoubleArray = class DoubleArray {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GLMClassifier.DoubleArray();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1979,8 +1979,8 @@ $root.CoreML.Specification.KNearestNeighborsClassifier = class KNearestNeighbors
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.KNearestNeighborsClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2037,8 +2037,8 @@ $root.CoreML.Specification.NearestNeighborsIndex = class NearestNeighborsIndex {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NearestNeighborsIndex();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2074,8 +2074,8 @@ $root.CoreML.Specification.UniformWeighting = class UniformWeighting {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.UniformWeighting();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2094,8 +2094,8 @@ $root.CoreML.Specification.InverseDistanceWeighting = class InverseDistanceWeigh
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.InverseDistanceWeighting();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2114,8 +2114,8 @@ $root.CoreML.Specification.LinearIndex = class LinearIndex {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LinearIndex();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2134,8 +2134,8 @@ $root.CoreML.Specification.SingleKdTreeIndex = class SingleKdTreeIndex {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SingleKdTreeIndex();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2159,8 +2159,8 @@ $root.CoreML.Specification.SquaredEuclideanDistance = class SquaredEuclideanDist
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SquaredEuclideanDistance();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2184,8 +2184,8 @@ $root.CoreML.Specification.Int64Parameter = class Int64Parameter {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Int64Parameter();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2220,8 +2220,8 @@ $root.CoreML.Specification.DoubleParameter = class DoubleParameter {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DoubleParameter();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2248,8 +2248,8 @@ $root.CoreML.Specification.StringParameter = class StringParameter {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StringParameter();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2273,8 +2273,8 @@ $root.CoreML.Specification.BoolParameter = class BoolParameter {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BoolParameter();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2298,8 +2298,8 @@ $root.CoreML.Specification.Identity = class Identity {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Identity();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2328,8 +2328,8 @@ $root.CoreML.Specification.Imputer = class Imputer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Imputer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2390,8 +2390,8 @@ $root.CoreML.Specification.NeuralNetwork = class NeuralNetwork {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetwork();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2429,8 +2429,8 @@ $root.CoreML.Specification.NeuralNetworkImageScaler = class NeuralNetworkImageSc
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkImageScaler();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -2471,8 +2471,8 @@ $root.CoreML.Specification.NeuralNetworkMeanImage = class NeuralNetworkMeanImage
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkMeanImage();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2499,8 +2499,8 @@ $root.CoreML.Specification.NeuralNetworkPreprocessing = class NeuralNetworkPrepr
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkPreprocessing();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2530,8 +2530,8 @@ $root.CoreML.Specification.ActivationReLU = class ActivationReLU {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationReLU();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2550,8 +2550,8 @@ $root.CoreML.Specification.ActivationLeakyReLU = class ActivationLeakyReLU {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationLeakyReLU();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2575,8 +2575,8 @@ $root.CoreML.Specification.ActivationTanh = class ActivationTanh {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationTanh();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2595,8 +2595,8 @@ $root.CoreML.Specification.ActivationScaledTanh = class ActivationScaledTanh {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationScaledTanh();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2624,8 +2624,8 @@ $root.CoreML.Specification.ActivationSigmoid = class ActivationSigmoid {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationSigmoid();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2644,8 +2644,8 @@ $root.CoreML.Specification.ActivationLinear = class ActivationLinear {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationLinear();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2673,8 +2673,8 @@ $root.CoreML.Specification.ActivationSigmoidHard = class ActivationSigmoidHard {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationSigmoidHard();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2702,8 +2702,8 @@ $root.CoreML.Specification.ActivationPReLU = class ActivationPReLU {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationPReLU();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2727,8 +2727,8 @@ $root.CoreML.Specification.ActivationELU = class ActivationELU {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationELU();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2752,8 +2752,8 @@ $root.CoreML.Specification.ActivationThresholdedReLU = class ActivationThreshold
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationThresholdedReLU();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2777,8 +2777,8 @@ $root.CoreML.Specification.ActivationSoftsign = class ActivationSoftsign {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationSoftsign();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2797,8 +2797,8 @@ $root.CoreML.Specification.ActivationSoftplus = class ActivationSoftplus {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationSoftplus();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -2817,8 +2817,8 @@ $root.CoreML.Specification.ActivationParametricSoftplus = class ActivationParame
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationParametricSoftplus();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2851,8 +2851,8 @@ $root.CoreML.Specification.ActivationParams = class ActivationParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ActivationParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 5:
@@ -2911,8 +2911,8 @@ $root.CoreML.Specification.Tensor = class Tensor {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Tensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2948,8 +2948,8 @@ $root.CoreML.Specification.NeuralNetworkLayer = class NeuralNetworkLayer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkLayer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3463,8 +3463,8 @@ $root.CoreML.Specification.BranchLayerParams = class BranchLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BranchLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3492,8 +3492,8 @@ $root.CoreML.Specification.LoopLayerParams = class LoopLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LoopLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3529,8 +3529,8 @@ $root.CoreML.Specification.LoopBreakLayerParams = class LoopBreakLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LoopBreakLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3549,8 +3549,8 @@ $root.CoreML.Specification.LoopContinueLayerParams = class LoopContinueLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LoopContinueLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3569,8 +3569,8 @@ $root.CoreML.Specification.CopyLayerParams = class CopyLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CopyLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3589,8 +3589,8 @@ $root.CoreML.Specification.GreaterThanLayerParams = class GreaterThanLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GreaterThanLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -3614,8 +3614,8 @@ $root.CoreML.Specification.GreaterEqualLayerParams = class GreaterEqualLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GreaterEqualLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -3639,8 +3639,8 @@ $root.CoreML.Specification.LessThanLayerParams = class LessThanLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LessThanLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -3664,8 +3664,8 @@ $root.CoreML.Specification.LessEqualLayerParams = class LessEqualLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LessEqualLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -3689,8 +3689,8 @@ $root.CoreML.Specification.EqualLayerParams = class EqualLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.EqualLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3714,8 +3714,8 @@ $root.CoreML.Specification.NotEqualLayerParams = class NotEqualLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NotEqualLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3739,8 +3739,8 @@ $root.CoreML.Specification.LogicalAndLayerParams = class LogicalAndLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LogicalAndLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3759,8 +3759,8 @@ $root.CoreML.Specification.LogicalOrLayerParams = class LogicalOrLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LogicalOrLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3779,8 +3779,8 @@ $root.CoreML.Specification.LogicalXorLayerParams = class LogicalXorLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LogicalXorLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3799,8 +3799,8 @@ $root.CoreML.Specification.LogicalNotLayerParams = class LogicalNotLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LogicalNotLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3820,8 +3820,8 @@ $root.CoreML.Specification.BorderAmounts = class BorderAmounts {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BorderAmounts();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -3843,8 +3843,8 @@ $root.CoreML.Specification.BorderAmounts.EdgeSizes = class EdgeSizes {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BorderAmounts.EdgeSizes();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3872,8 +3872,8 @@ $root.CoreML.Specification.ValidPadding = class ValidPadding {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ValidPadding();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3897,8 +3897,8 @@ $root.CoreML.Specification.SamePadding = class SamePadding {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SamePadding();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3927,8 +3927,8 @@ $root.CoreML.Specification.SamplingMode = class SamplingMode {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SamplingMode();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3959,8 +3959,8 @@ $root.CoreML.Specification.BoxCoordinatesMode = class BoxCoordinatesMode {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BoxCoordinatesMode();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3992,8 +3992,8 @@ $root.CoreML.Specification.WeightParams = class WeightParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.WeightParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4041,8 +4041,8 @@ $root.CoreML.Specification.QuantizationParams = class QuantizationParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.QuantizationParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4074,8 +4074,8 @@ $root.CoreML.Specification.LinearQuantizationParams = class LinearQuantizationPa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LinearQuantizationParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4101,8 +4101,8 @@ $root.CoreML.Specification.LookUpTableQuantizationParams = class LookUpTableQuan
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LookUpTableQuantizationParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4133,8 +4133,8 @@ $root.CoreML.Specification.ConvolutionLayerParams = class ConvolutionLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ConvolutionLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4201,8 +4201,8 @@ $root.CoreML.Specification.Convolution3DLayerParams = class Convolution3DLayerPa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Convolution3DLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4323,8 +4323,8 @@ $root.CoreML.Specification.InnerProductLayerParams = class InnerProductLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.InnerProductLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4368,8 +4368,8 @@ $root.CoreML.Specification.EmbeddingLayerParams = class EmbeddingLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.EmbeddingLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4409,8 +4409,8 @@ $root.CoreML.Specification.EmbeddingNDLayerParams = class EmbeddingNDLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.EmbeddingNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4450,8 +4450,8 @@ $root.CoreML.Specification.BatchnormLayerParams = class BatchnormLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BatchnormLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4510,8 +4510,8 @@ $root.CoreML.Specification.PoolingLayerParams = class PoolingLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PoolingLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4565,8 +4565,8 @@ $root.CoreML.Specification.PoolingLayerParams.ValidCompletePadding = class Valid
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PoolingLayerParams.ValidCompletePadding();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -4588,8 +4588,8 @@ $root.CoreML.Specification.Pooling3DLayerParams = class Pooling3DLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Pooling3DLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4680,8 +4680,8 @@ $root.CoreML.Specification.GlobalPooling3DLayerParams = class GlobalPooling3DLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GlobalPooling3DLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4715,8 +4715,8 @@ $root.CoreML.Specification.PaddingLayerParams = class PaddingLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PaddingLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4749,8 +4749,8 @@ $root.CoreML.Specification.PaddingLayerParams.PaddingConstant = class PaddingCon
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PaddingLayerParams.PaddingConstant();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4774,8 +4774,8 @@ $root.CoreML.Specification.PaddingLayerParams.PaddingReflection = class PaddingR
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PaddingLayerParams.PaddingReflection();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -4794,8 +4794,8 @@ $root.CoreML.Specification.PaddingLayerParams.PaddingReplication = class Padding
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PaddingLayerParams.PaddingReplication();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -4814,8 +4814,8 @@ $root.CoreML.Specification.ConcatLayerParams = class ConcatLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ConcatLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 100:
@@ -4839,8 +4839,8 @@ $root.CoreML.Specification.LRNLayerParams = class LRNLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LRNLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4876,8 +4876,8 @@ $root.CoreML.Specification.SoftmaxLayerParams = class SoftmaxLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SoftmaxLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -4896,8 +4896,8 @@ $root.CoreML.Specification.SplitLayerParams = class SplitLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SplitLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4921,8 +4921,8 @@ $root.CoreML.Specification.AddLayerParams = class AddLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AddLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4946,8 +4946,8 @@ $root.CoreML.Specification.MultiplyLayerParams = class MultiplyLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MultiplyLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4971,8 +4971,8 @@ $root.CoreML.Specification.UnaryFunctionLayerParams = class UnaryFunctionLayerPa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.UnaryFunctionLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5025,8 +5025,8 @@ $root.CoreML.Specification.UpsampleLayerParams = class UpsampleLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.UpsampleLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5072,8 +5072,8 @@ $root.CoreML.Specification.ResizeBilinearLayerParams = class ResizeBilinearLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ResizeBilinearLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5101,8 +5101,8 @@ $root.CoreML.Specification.CropResizeLayerParams = class CropResizeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CropResizeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5142,8 +5142,8 @@ $root.CoreML.Specification.BiasLayerParams = class BiasLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BiasLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5172,8 +5172,8 @@ $root.CoreML.Specification.ScaleLayerParams = class ScaleLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ScaleLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5212,8 +5212,8 @@ $root.CoreML.Specification.LoadConstantLayerParams = class LoadConstantLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LoadConstantLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5240,8 +5240,8 @@ $root.CoreML.Specification.L2NormalizeLayerParams = class L2NormalizeLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.L2NormalizeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5265,8 +5265,8 @@ $root.CoreML.Specification.FlattenLayerParams = class FlattenLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FlattenLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5296,8 +5296,8 @@ $root.CoreML.Specification.ReshapeLayerParams = class ReshapeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReshapeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5330,8 +5330,8 @@ $root.CoreML.Specification.PermuteLayerParams = class PermuteLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PermuteLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5353,8 +5353,8 @@ $root.CoreML.Specification.ReorganizeDataLayerParams = class ReorganizeDataLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReorganizeDataLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5388,8 +5388,8 @@ $root.CoreML.Specification.SliceLayerParams = class SliceLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SliceLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5431,8 +5431,8 @@ $root.CoreML.Specification.ReduceLayerParams = class ReduceLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5486,8 +5486,8 @@ $root.CoreML.Specification.CropLayerParams = class CropLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CropLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5514,8 +5514,8 @@ $root.CoreML.Specification.AverageLayerParams = class AverageLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AverageLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -5534,8 +5534,8 @@ $root.CoreML.Specification.MaxLayerParams = class MaxLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MaxLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -5554,8 +5554,8 @@ $root.CoreML.Specification.MinLayerParams = class MinLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MinLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -5574,8 +5574,8 @@ $root.CoreML.Specification.DotProductLayerParams = class DotProductLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DotProductLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5599,8 +5599,8 @@ $root.CoreML.Specification.MeanVarianceNormalizeLayerParams = class MeanVariance
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MeanVarianceNormalizeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5632,8 +5632,8 @@ $root.CoreML.Specification.SequenceRepeatLayerParams = class SequenceRepeatLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SequenceRepeatLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5657,8 +5657,8 @@ $root.CoreML.Specification.SimpleRecurrentLayerParams = class SimpleRecurrentLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SimpleRecurrentLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5715,8 +5715,8 @@ $root.CoreML.Specification.GRULayerParams = class GRULayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GRULayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5795,8 +5795,8 @@ $root.CoreML.Specification.LSTMParams = class LSTMParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LSTMParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -5840,8 +5840,8 @@ $root.CoreML.Specification.LSTMWeightParams = class LSTMWeightParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LSTMWeightParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5922,8 +5922,8 @@ $root.CoreML.Specification.UniDirectionalLSTMLayerParams = class UniDirectionalL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.UniDirectionalLSTMLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5969,8 +5969,8 @@ $root.CoreML.Specification.BiDirectionalLSTMLayerParams = class BiDirectionalLST
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BiDirectionalLSTMLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6013,8 +6013,8 @@ $root.CoreML.Specification.CustomLayerParams = class CustomLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CustomLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -6053,8 +6053,8 @@ $root.CoreML.Specification.CustomLayerParams.CustomLayerParamValue = class Custo
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CustomLayerParams.CustomLayerParamValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -6089,8 +6089,8 @@ $root.CoreML.Specification.TransposeLayerParams = class TransposeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TransposeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6112,8 +6112,8 @@ $root.CoreML.Specification.BatchedMatMulLayerParams = class BatchedMatMulLayerPa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BatchedMatMulLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6165,8 +6165,8 @@ $root.CoreML.Specification.ConcatNDLayerParams = class ConcatNDLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ConcatNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6194,8 +6194,8 @@ $root.CoreML.Specification.SoftmaxNDLayerParams = class SoftmaxNDLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SoftmaxNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6220,8 +6220,8 @@ $root.CoreML.Specification.ReverseLayerParams = class ReverseLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReverseLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6243,8 +6243,8 @@ $root.CoreML.Specification.ReverseSeqLayerParams = class ReverseSeqLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReverseSeqLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6273,8 +6273,8 @@ $root.CoreML.Specification.LoadConstantNDLayerParams = class LoadConstantNDLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LoadConstantNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6301,8 +6301,8 @@ $root.CoreML.Specification.FillLikeLayerParams = class FillLikeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FillLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6327,8 +6327,8 @@ $root.CoreML.Specification.FillStaticLayerParams = class FillStaticLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FillStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6355,8 +6355,8 @@ $root.CoreML.Specification.FillDynamicLayerParams = class FillDynamicLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FillDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6380,8 +6380,8 @@ $root.CoreML.Specification.WhereBroadcastableLayerParams = class WhereBroadcasta
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.WhereBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6400,8 +6400,8 @@ $root.CoreML.Specification.SinLayerParams = class SinLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SinLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6420,8 +6420,8 @@ $root.CoreML.Specification.CosLayerParams = class CosLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CosLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6440,8 +6440,8 @@ $root.CoreML.Specification.TanLayerParams = class TanLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TanLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6460,8 +6460,8 @@ $root.CoreML.Specification.AsinLayerParams = class AsinLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AsinLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6480,8 +6480,8 @@ $root.CoreML.Specification.AcosLayerParams = class AcosLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AcosLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6500,8 +6500,8 @@ $root.CoreML.Specification.AtanLayerParams = class AtanLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AtanLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6520,8 +6520,8 @@ $root.CoreML.Specification.SinhLayerParams = class SinhLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SinhLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6540,8 +6540,8 @@ $root.CoreML.Specification.CoshLayerParams = class CoshLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CoshLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6560,8 +6560,8 @@ $root.CoreML.Specification.TanhLayerParams = class TanhLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TanhLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6580,8 +6580,8 @@ $root.CoreML.Specification.AsinhLayerParams = class AsinhLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AsinhLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6600,8 +6600,8 @@ $root.CoreML.Specification.AcoshLayerParams = class AcoshLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AcoshLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6620,8 +6620,8 @@ $root.CoreML.Specification.AtanhLayerParams = class AtanhLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AtanhLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6640,8 +6640,8 @@ $root.CoreML.Specification.PowBroadcastableLayerParams = class PowBroadcastableL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PowBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6660,8 +6660,8 @@ $root.CoreML.Specification.Exp2LayerParams = class Exp2LayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Exp2LayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6680,8 +6680,8 @@ $root.CoreML.Specification.WhereNonZeroLayerParams = class WhereNonZeroLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.WhereNonZeroLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6700,8 +6700,8 @@ $root.CoreML.Specification.MatrixBandPartLayerParams = class MatrixBandPartLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MatrixBandPartLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6729,8 +6729,8 @@ $root.CoreML.Specification.UpperTriangularLayerParams = class UpperTriangularLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.UpperTriangularLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6754,8 +6754,8 @@ $root.CoreML.Specification.LowerTriangularLayerParams = class LowerTriangularLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LowerTriangularLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6779,8 +6779,8 @@ $root.CoreML.Specification.BroadcastToLikeLayerParams = class BroadcastToLikeLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BroadcastToLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6800,8 +6800,8 @@ $root.CoreML.Specification.BroadcastToStaticLayerParams = class BroadcastToStati
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BroadcastToStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -6823,8 +6823,8 @@ $root.CoreML.Specification.BroadcastToDynamicLayerParams = class BroadcastToDyna
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.BroadcastToDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6843,8 +6843,8 @@ $root.CoreML.Specification.AddBroadcastableLayerParams = class AddBroadcastableL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AddBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6863,8 +6863,8 @@ $root.CoreML.Specification.MaxBroadcastableLayerParams = class MaxBroadcastableL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MaxBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6883,8 +6883,8 @@ $root.CoreML.Specification.MinBroadcastableLayerParams = class MinBroadcastableL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MinBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6903,8 +6903,8 @@ $root.CoreML.Specification.ModBroadcastableLayerParams = class ModBroadcastableL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ModBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6923,8 +6923,8 @@ $root.CoreML.Specification.FloorDivBroadcastableLayerParams = class FloorDivBroa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FloorDivBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6943,8 +6943,8 @@ $root.CoreML.Specification.SubtractBroadcastableLayerParams = class SubtractBroa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SubtractBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6963,8 +6963,8 @@ $root.CoreML.Specification.MultiplyBroadcastableLayerParams = class MultiplyBroa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MultiplyBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -6983,8 +6983,8 @@ $root.CoreML.Specification.DivideBroadcastableLayerParams = class DivideBroadcas
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DivideBroadcastableLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -7003,8 +7003,8 @@ $root.CoreML.Specification.GatherLayerParams = class GatherLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GatherLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7038,8 +7038,8 @@ $root.CoreML.Specification.ScatterLayerParams = class ScatterLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ScatterLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7067,8 +7067,8 @@ $root.CoreML.Specification.GatherNDLayerParams = class GatherNDLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GatherNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -7087,8 +7087,8 @@ $root.CoreML.Specification.ScatterNDLayerParams = class ScatterNDLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ScatterNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7112,8 +7112,8 @@ $root.CoreML.Specification.GatherAlongAxisLayerParams = class GatherAlongAxisLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GatherAlongAxisLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7137,8 +7137,8 @@ $root.CoreML.Specification.ScatterAlongAxisLayerParams = class ScatterAlongAxisL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ScatterAlongAxisLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7166,8 +7166,8 @@ $root.CoreML.Specification.StackLayerParams = class StackLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.StackLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7192,8 +7192,8 @@ $root.CoreML.Specification.RankPreservingReshapeLayerParams = class RankPreservi
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RankPreservingReshapeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7216,8 +7216,8 @@ $root.CoreML.Specification.ConstantPaddingLayerParams = class ConstantPaddingLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ConstantPaddingLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7248,8 +7248,8 @@ $root.CoreML.Specification.RandomNormalLikeLayerParams = class RandomNormalLikeL
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomNormalLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7282,8 +7282,8 @@ $root.CoreML.Specification.RandomNormalStaticLayerParams = class RandomNormalSta
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomNormalStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7318,8 +7318,8 @@ $root.CoreML.Specification.RandomNormalDynamicLayerParams = class RandomNormalDy
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomNormalDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7351,8 +7351,8 @@ $root.CoreML.Specification.RandomUniformLikeLayerParams = class RandomUniformLik
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomUniformLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7385,8 +7385,8 @@ $root.CoreML.Specification.RandomUniformStaticLayerParams = class RandomUniformS
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomUniformStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7421,8 +7421,8 @@ $root.CoreML.Specification.RandomUniformDynamicLayerParams = class RandomUniform
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomUniformDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7454,8 +7454,8 @@ $root.CoreML.Specification.RandomBernoulliLikeLayerParams = class RandomBernoull
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomBernoulliLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7484,8 +7484,8 @@ $root.CoreML.Specification.RandomBernoulliStaticLayerParams = class RandomBernou
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomBernoulliStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7516,8 +7516,8 @@ $root.CoreML.Specification.RandomBernoulliDynamicLayerParams = class RandomBerno
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RandomBernoulliDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7545,8 +7545,8 @@ $root.CoreML.Specification.CategoricalDistributionLayerParams = class Categorica
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CategoricalDistributionLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7587,8 +7587,8 @@ $root.CoreML.Specification.ReduceL1LayerParams = class ReduceL1LayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceL1LayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7620,8 +7620,8 @@ $root.CoreML.Specification.ReduceL2LayerParams = class ReduceL2LayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceL2LayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7653,8 +7653,8 @@ $root.CoreML.Specification.ReduceMaxLayerParams = class ReduceMaxLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceMaxLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7686,8 +7686,8 @@ $root.CoreML.Specification.ReduceMinLayerParams = class ReduceMinLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceMinLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7719,8 +7719,8 @@ $root.CoreML.Specification.ReduceSumLayerParams = class ReduceSumLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceSumLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7752,8 +7752,8 @@ $root.CoreML.Specification.ReduceProdLayerParams = class ReduceProdLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceProdLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7785,8 +7785,8 @@ $root.CoreML.Specification.ReduceMeanLayerParams = class ReduceMeanLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceMeanLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7818,8 +7818,8 @@ $root.CoreML.Specification.ReduceLogSumLayerParams = class ReduceLogSumLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceLogSumLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7851,8 +7851,8 @@ $root.CoreML.Specification.ReduceSumSquareLayerParams = class ReduceSumSquareLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceSumSquareLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7884,8 +7884,8 @@ $root.CoreML.Specification.ReduceLogSumExpLayerParams = class ReduceLogSumExpLay
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReduceLogSumExpLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7917,8 +7917,8 @@ $root.CoreML.Specification.ExpandDimsLayerParams = class ExpandDimsLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ExpandDimsLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7940,8 +7940,8 @@ $root.CoreML.Specification.FlattenTo2DLayerParams = class FlattenTo2DLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FlattenTo2DLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7966,8 +7966,8 @@ $root.CoreML.Specification.ReshapeStaticLayerParams = class ReshapeStaticLayerPa
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReshapeStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -7989,8 +7989,8 @@ $root.CoreML.Specification.ReshapeLikeLayerParams = class ReshapeLikeLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReshapeLikeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8009,8 +8009,8 @@ $root.CoreML.Specification.ReshapeDynamicLayerParams = class ReshapeDynamicLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ReshapeDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8030,8 +8030,8 @@ $root.CoreML.Specification.SqueezeLayerParams = class SqueezeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SqueezeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8058,8 +8058,8 @@ $root.CoreML.Specification.TopKLayerParams = class TopKLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TopKLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8091,8 +8091,8 @@ $root.CoreML.Specification.ArgMaxLayerParams = class ArgMaxLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArgMaxLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8120,8 +8120,8 @@ $root.CoreML.Specification.ArgMinLayerParams = class ArgMinLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArgMinLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8150,8 +8150,8 @@ $root.CoreML.Specification.SplitNDLayerParams = class SplitNDLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SplitNDLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8182,8 +8182,8 @@ $root.CoreML.Specification.CeilLayerParams = class CeilLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CeilLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8202,8 +8202,8 @@ $root.CoreML.Specification.RoundLayerParams = class RoundLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RoundLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8222,8 +8222,8 @@ $root.CoreML.Specification.FloorLayerParams = class FloorLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.FloorLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8242,8 +8242,8 @@ $root.CoreML.Specification.SignLayerParams = class SignLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SignLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8262,8 +8262,8 @@ $root.CoreML.Specification.ClipLayerParams = class ClipLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ClipLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8297,8 +8297,8 @@ $root.CoreML.Specification.SliceStaticLayerParams = class SliceStaticLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SliceStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8340,8 +8340,8 @@ $root.CoreML.Specification.SliceDynamicLayerParams = class SliceDynamicLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SliceDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -8376,8 +8376,8 @@ $root.CoreML.Specification.TileLayerParams = class TileLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TileLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8399,8 +8399,8 @@ $root.CoreML.Specification.GetShapeLayerParams = class GetShapeLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GetShapeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8419,8 +8419,8 @@ $root.CoreML.Specification.ErfLayerParams = class ErfLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ErfLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -8439,8 +8439,8 @@ $root.CoreML.Specification.GeluLayerParams = class GeluLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.GeluLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8470,8 +8470,8 @@ $root.CoreML.Specification.RangeStaticLayerParams = class RangeStaticLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RangeStaticLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8503,8 +8503,8 @@ $root.CoreML.Specification.RangeDynamicLayerParams = class RangeDynamicLayerPara
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RangeDynamicLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -8532,8 +8532,8 @@ $root.CoreML.Specification.SlidingWindowsLayerParams = class SlidingWindowsLayer
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SlidingWindowsLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8566,8 +8566,8 @@ $root.CoreML.Specification.LayerNormalizationLayerParams = class LayerNormalizat
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LayerNormalizationLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8602,8 +8602,8 @@ $root.CoreML.Specification.NonMaximumSuppressionLayerParams = class NonMaximumSu
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NonMaximumSuppressionLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8639,8 +8639,8 @@ $root.CoreML.Specification.ClampedReLULayerParams = class ClampedReLULayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ClampedReLULayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8668,8 +8668,8 @@ $root.CoreML.Specification.ArgSortLayerParams = class ArgSortLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ArgSortLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8697,8 +8697,8 @@ $root.CoreML.Specification.SliceBySizeLayerParams = class SliceBySizeLayerParams
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SliceBySizeLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -8733,8 +8733,8 @@ $root.CoreML.Specification.NeuralNetworkClassifier = class NeuralNetworkClassifi
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8782,8 +8782,8 @@ $root.CoreML.Specification.OneHotLayerParams = class OneHotLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.OneHotLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8819,8 +8819,8 @@ $root.CoreML.Specification.CumSumLayerParams = class CumSumLayerParams {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CumSumLayerParams();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8854,8 +8854,8 @@ $root.CoreML.Specification.NeuralNetworkRegressor = class NeuralNetworkRegressor
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NeuralNetworkRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8894,8 +8894,8 @@ $root.CoreML.Specification.NetworkUpdateParameters = class NetworkUpdateParamete
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NetworkUpdateParameters();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8939,8 +8939,8 @@ $root.CoreML.Specification.LossLayer = class LossLayer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LossLayer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8970,8 +8970,8 @@ $root.CoreML.Specification.CategoricalCrossEntropyLossLayer = class CategoricalC
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.CategoricalCrossEntropyLossLayer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -8999,8 +8999,8 @@ $root.CoreML.Specification.MeanSquaredErrorLossLayer = class MeanSquaredErrorLos
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.MeanSquaredErrorLossLayer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9033,8 +9033,8 @@ $root.CoreML.Specification.Optimizer = class Optimizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Optimizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 10:
@@ -9059,8 +9059,8 @@ $root.CoreML.Specification.SGDOptimizer = class SGDOptimizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SGDOptimizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9092,8 +9092,8 @@ $root.CoreML.Specification.AdamOptimizer = class AdamOptimizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.AdamOptimizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9133,8 +9133,8 @@ $root.CoreML.Specification.Normalizer = class Normalizer {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Normalizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9169,8 +9169,8 @@ $root.CoreML.Specification.OneHotEncoder = class OneHotEncoder {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.OneHotEncoder();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9211,8 +9211,8 @@ $root.CoreML.Specification.Scaler = class Scaler {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Scaler();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9247,8 +9247,8 @@ $root.CoreML.Specification.NonMaximumSuppression = class NonMaximumSuppression {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NonMaximumSuppression();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9309,8 +9309,8 @@ $root.CoreML.Specification.NonMaximumSuppression.PickTop = class PickTop {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.NonMaximumSuppression.PickTop();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9334,8 +9334,8 @@ $root.CoreML.Specification.LinearKernel = class LinearKernel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LinearKernel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -9354,8 +9354,8 @@ $root.CoreML.Specification.RBFKernel = class RBFKernel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.RBFKernel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9379,8 +9379,8 @@ $root.CoreML.Specification.PolyKernel = class PolyKernel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.PolyKernel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9412,8 +9412,8 @@ $root.CoreML.Specification.SigmoidKernel = class SigmoidKernel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SigmoidKernel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9446,8 +9446,8 @@ $root.CoreML.Specification.Kernel = class Kernel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Kernel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9478,8 +9478,8 @@ $root.CoreML.Specification.SparseNode = class SparseNode {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SparseNode();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9508,8 +9508,8 @@ $root.CoreML.Specification.SparseVector = class SparseVector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SparseVector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9532,8 +9532,8 @@ $root.CoreML.Specification.SparseSupportVectors = class SparseSupportVectors {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SparseSupportVectors();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9556,8 +9556,8 @@ $root.CoreML.Specification.DenseVector = class DenseVector {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DenseVector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9580,8 +9580,8 @@ $root.CoreML.Specification.DenseSupportVectors = class DenseSupportVectors {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.DenseSupportVectors();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9604,8 +9604,8 @@ $root.CoreML.Specification.Coefficients = class Coefficients {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.Coefficients();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9632,8 +9632,8 @@ $root.CoreML.Specification.SupportVectorRegressor = class SupportVectorRegressor
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SupportVectorRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9686,8 +9686,8 @@ $root.CoreML.Specification.SupportVectorClassifier = class SupportVectorClassifi
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.SupportVectorClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9747,8 +9747,8 @@ $root.CoreML.Specification.TreeEnsembleParameters = class TreeEnsembleParameters
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TreeEnsembleParameters();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9779,8 +9779,8 @@ $root.CoreML.Specification.TreeEnsembleParameters.TreeNode = class TreeNode {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TreeEnsembleParameters.TreeNode();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9849,8 +9849,8 @@ $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo = clas
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TreeEnsembleParameters.TreeNode.EvaluationInfo();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9883,8 +9883,8 @@ $root.CoreML.Specification.TreeEnsembleClassifier = class TreeEnsembleClassifier
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TreeEnsembleClassifier();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9918,8 +9918,8 @@ $root.CoreML.Specification.TreeEnsembleRegressor = class TreeEnsembleRegressor {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.TreeEnsembleRegressor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -9948,8 +9948,8 @@ $root.CoreML.Specification.ItemSimilarityRecommender = class ItemSimilarityRecom
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ItemSimilarityRecommender();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -10004,8 +10004,8 @@ $root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem = class Conne
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ItemSimilarityRecommender.ConnectedItem();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -10034,8 +10034,8 @@ $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems = class Simila
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.ItemSimilarityRecommender.SimilarItems();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -10071,8 +10071,8 @@ $root.CoreML.Specification.LinkedModel = class LinkedModel {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LinkedModel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -10094,8 +10094,8 @@ $root.CoreML.Specification.LinkedModelFile = class LinkedModelFile {
 
     static decode(reader, length) {
         const message = new $root.CoreML.Specification.LinkedModelFile();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

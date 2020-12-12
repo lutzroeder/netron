@@ -10,8 +10,8 @@ $root.tensorflow.SavedModel = class SavedModel {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedModel();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -61,8 +61,8 @@ $root.tensorflow.MetaGraphDef = class MetaGraphDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.MetaGraphDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -144,8 +144,8 @@ $root.tensorflow.MetaGraphDef.MetaInfoDef = class MetaInfoDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.MetaGraphDef.MetaInfoDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -238,8 +238,8 @@ $root.tensorflow.CollectionDef = class CollectionDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -303,8 +303,8 @@ $root.tensorflow.CollectionDef.NodeList = class NodeList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef.NodeList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -344,8 +344,8 @@ $root.tensorflow.CollectionDef.BytesList = class BytesList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef.BytesList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -385,8 +385,8 @@ $root.tensorflow.CollectionDef.Int64List = class Int64List {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef.Int64List();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -426,8 +426,8 @@ $root.tensorflow.CollectionDef.FloatList = class FloatList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef.FloatList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -467,8 +467,8 @@ $root.tensorflow.CollectionDef.AnyList = class AnyList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.CollectionDef.AnyList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -512,8 +512,8 @@ $root.tensorflow.TensorInfo = class TensorInfo {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorInfo();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -579,8 +579,8 @@ $root.tensorflow.TensorInfo.CooSparse = class CooSparse {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorInfo.CooSparse();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -636,8 +636,8 @@ $root.tensorflow.TensorInfo.CompositeTensor = class CompositeTensor {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorInfo.CompositeTensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -686,8 +686,8 @@ $root.tensorflow.SignatureDef = class SignatureDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SignatureDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -740,8 +740,8 @@ $root.tensorflow.AssetFileDef = class AssetFileDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.AssetFileDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -790,8 +790,8 @@ $root.tensorflow.GraphDef = class GraphDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.GraphDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -854,8 +854,8 @@ $root.tensorflow.FunctionDefLibrary = class FunctionDefLibrary {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.FunctionDefLibrary();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -906,8 +906,8 @@ $root.tensorflow.FunctionDef = class FunctionDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.FunctionDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -985,8 +985,8 @@ $root.tensorflow.FunctionDef.ArgAttrs = class ArgAttrs {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.FunctionDef.ArgAttrs();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1025,8 +1025,8 @@ $root.tensorflow.GradientDef = class GradientDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.GradientDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1079,8 +1079,8 @@ $root.tensorflow.AttrValue = class AttrValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.AttrValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -1181,8 +1181,8 @@ $root.tensorflow.AttrValue.ListValue = class ListValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.AttrValue.ListValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -1264,8 +1264,8 @@ $root.tensorflow.NameAttrList = class NameAttrList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.NameAttrList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1325,8 +1325,8 @@ $root.tensorflow.TensorProto = class TensorProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1467,8 +1467,8 @@ $root.tensorflow.VariantTensorDataProto = class VariantTensorDataProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.VariantTensorDataProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1523,8 +1523,8 @@ $root.tensorflow.ResourceHandleProto = class ResourceHandleProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.ResourceHandleProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1599,8 +1599,8 @@ $root.tensorflow.ResourceHandleProto.DtypeAndShape = class DtypeAndShape {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.ResourceHandleProto.DtypeAndShape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1649,8 +1649,8 @@ $root.tensorflow.TensorShapeProto = class TensorShapeProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorShapeProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -1697,8 +1697,8 @@ $root.tensorflow.TensorShapeProto.Dim = class Dim {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorShapeProto.Dim();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1804,8 +1804,8 @@ $root.tensorflow.NodeDef = class NodeDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.NodeDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1881,8 +1881,8 @@ $root.tensorflow.NodeDef.ExperimentalDebugInfo = class ExperimentalDebugInfo {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.NodeDef.ExperimentalDebugInfo();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1931,8 +1931,8 @@ $root.tensorflow.OpDef = class OpDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.OpDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2047,8 +2047,8 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.OpDef.ArgDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2137,8 +2137,8 @@ $root.tensorflow.OpDef.AttrDef = class AttrDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.OpDef.AttrDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2221,8 +2221,8 @@ $root.tensorflow.OpDeprecation = class OpDeprecation {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.OpDeprecation();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2271,8 +2271,8 @@ $root.tensorflow.OpList = class OpList {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.OpList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2312,8 +2312,8 @@ $root.tensorflow.VersionDef = class VersionDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.VersionDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2369,8 +2369,8 @@ $root.tensorflow.SavedObjectGraph = class SavedObjectGraph {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedObjectGraph();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2423,8 +2423,8 @@ $root.tensorflow.SavedObject = class SavedObject {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedObject();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2517,8 +2517,8 @@ $root.tensorflow.SavedUserObject = class SavedUserObject {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedUserObject();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2573,8 +2573,8 @@ $root.tensorflow.SavedAsset = class SavedAsset {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedAsset();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2616,8 +2616,8 @@ $root.tensorflow.SavedFunction = class SavedFunction {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedFunction();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2665,8 +2665,8 @@ $root.tensorflow.SavedConcreteFunction = class SavedConcreteFunction {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedConcreteFunction();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -2721,8 +2721,8 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedBareConcreteFunction();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2783,8 +2783,8 @@ $root.tensorflow.SavedConstant = class SavedConstant {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedConstant();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2826,8 +2826,8 @@ $root.tensorflow.SavedVariable = class SavedVariable {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedVariable();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2916,8 +2916,8 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.FunctionSpec();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -2985,8 +2985,8 @@ $root.tensorflow.SavedResource = class SavedResource {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedResource();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3027,8 +3027,8 @@ $root.tensorflow.SaveableObject = class SaveableObject {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SaveableObject();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 2:
@@ -3090,8 +3090,8 @@ $root.tensorflow.VariableDef = class VariableDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.VariableDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3191,8 +3191,8 @@ $root.tensorflow.SaveSliceInfoDef = class SaveSliceInfoDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SaveSliceInfoDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3256,8 +3256,8 @@ $root.tensorflow.StructuredValue = class StructuredValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.StructuredValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3374,8 +3374,8 @@ $root.tensorflow.NoneValue = class NoneValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.NoneValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 default:
@@ -3409,8 +3409,8 @@ $root.tensorflow.ListValue = class ListValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.ListValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3450,8 +3450,8 @@ $root.tensorflow.TupleValue = class TupleValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TupleValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3491,8 +3491,8 @@ $root.tensorflow.DictValue = class DictValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.DictValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3531,8 +3531,8 @@ $root.tensorflow.PairValue = class PairValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.PairValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3581,8 +3581,8 @@ $root.tensorflow.NamedTupleValue = class NamedTupleValue {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.NamedTupleValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3629,8 +3629,8 @@ $root.tensorflow.TensorSpecProto = class TensorSpecProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorSpecProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3685,8 +3685,8 @@ $root.tensorflow.BoundedTensorSpecProto = class BoundedTensorSpecProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.BoundedTensorSpecProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3755,8 +3755,8 @@ $root.tensorflow.TypeSpecProto = class TypeSpecProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TypeSpecProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3827,8 +3827,8 @@ $root.tensorflow.TrackableObjectGraph = class TrackableObjectGraph {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TrackableObjectGraph();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3870,8 +3870,8 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TrackableObjectGraph.TrackableObject();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3922,8 +3922,8 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class Ob
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -3971,8 +3971,8 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class S
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4034,8 +4034,8 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = cl
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4090,8 +4090,8 @@ $root.tensorflow.SaverDef = class SaverDef {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SaverDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4180,8 +4180,8 @@ $root.tensorflow.BundleHeaderProto = class BundleHeaderProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.BundleHeaderProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4242,8 +4242,8 @@ $root.tensorflow.BundleEntryProto = class BundleEntryProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.BundleEntryProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4326,8 +4326,8 @@ $root.tensorflow.TensorSliceProto = class TensorSliceProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorSliceProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4371,8 +4371,8 @@ $root.tensorflow.TensorSliceProto.Extent = class Extent {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TensorSliceProto.Extent();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4420,8 +4420,8 @@ $root.tensorflow.SavedSliceMeta = class SavedSliceMeta {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedSliceMeta();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4483,8 +4483,8 @@ $root.tensorflow.SavedTensorSliceMeta = class SavedTensorSliceMeta {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedTensorSliceMeta();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4531,8 +4531,8 @@ $root.tensorflow.SavedSlice = class SavedSlice {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedSlice();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4587,8 +4587,8 @@ $root.tensorflow.SavedTensorSlices = class SavedTensorSlices {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SavedTensorSlices();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4641,8 +4641,8 @@ $root.tensorflow.Event = class Event {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.Event();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4732,8 +4732,8 @@ $root.tensorflow.LogMessage = class LogMessage {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.LogMessage();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4790,8 +4790,8 @@ $root.tensorflow.SessionLog = class SessionLog {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SessionLog();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4853,8 +4853,8 @@ $root.tensorflow.TaggedRunMetadata = class TaggedRunMetadata {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.TaggedRunMetadata();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4916,8 +4916,8 @@ $root.tensorflow.WatchdogConfig = class WatchdogConfig {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.WatchdogConfig();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -4958,8 +4958,8 @@ $root.tensorflow.RequestedExitCode = class RequestedExitCode {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.RequestedExitCode();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5000,8 +5000,8 @@ $root.tensorflow.WorkerHeartbeatRequest = class WorkerHeartbeatRequest {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.WorkerHeartbeatRequest();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5057,8 +5057,8 @@ $root.tensorflow.WorkerHeartbeatResponse = class WorkerHeartbeatResponse {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.WorkerHeartbeatResponse();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5112,8 +5112,8 @@ $root.tensorflow.SummaryDescription = class SummaryDescription {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SummaryDescription();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5156,8 +5156,8 @@ $root.tensorflow.HistogramProto = class HistogramProto {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.HistogramProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5238,8 +5238,8 @@ $root.tensorflow.SummaryMetadata = class SummaryMetadata {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SummaryMetadata();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5301,8 +5301,8 @@ $root.tensorflow.SummaryMetadata.PluginData = class PluginData {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.SummaryMetadata.PluginData();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5358,8 +5358,8 @@ $root.tensorflow.Summary = class Summary {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.Summary();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5398,8 +5398,8 @@ $root.tensorflow.Summary.Image = class Image {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.Summary.Image();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5461,8 +5461,8 @@ $root.tensorflow.Summary.Audio = class Audio {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.Summary.Audio();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -5536,8 +5536,8 @@ $root.tensorflow.Summary.Value = class Value {
 
     static decode(reader, length) {
         const message = new $root.tensorflow.Summary.Value();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 7:
@@ -5632,8 +5632,8 @@ $root.google.protobuf.Any = class Any {
 
     static decode(reader, length) {
         const message = new $root.google.protobuf.Any();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

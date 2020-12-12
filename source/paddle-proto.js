@@ -13,8 +13,8 @@ $root.paddle.framework.proto.Version = class Version {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.Version();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -73,8 +73,8 @@ $root.paddle.framework.proto.OpDesc = class OpDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 3:
@@ -151,8 +151,8 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpDesc.Attr();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -289,8 +289,8 @@ $root.paddle.framework.proto.OpDesc.Var = class Var {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpDesc.Var();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -345,8 +345,8 @@ $root.paddle.framework.proto.OpProto = class OpProto {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -422,8 +422,8 @@ $root.paddle.framework.proto.OpProto.Var = class Var {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpProto.Var();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -502,8 +502,8 @@ $root.paddle.framework.proto.OpProto.Attr = class Attr {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpProto.Attr();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -580,8 +580,8 @@ $root.paddle.framework.proto.VarType = class VarType {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -690,8 +690,8 @@ $root.paddle.framework.proto.VarType.TensorDesc = class TensorDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType.TensorDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -743,8 +743,8 @@ $root.paddle.framework.proto.VarType.LoDTensorDesc = class LoDTensorDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType.LoDTensorDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -797,8 +797,8 @@ $root.paddle.framework.proto.VarType.LoDTensorArrayDesc = class LoDTensorArrayDe
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType.LoDTensorArrayDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -852,8 +852,8 @@ $root.paddle.framework.proto.VarType.ReaderDesc = class ReaderDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType.ReaderDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -893,8 +893,8 @@ $root.paddle.framework.proto.VarType.Tuple = class Tuple {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarType.Tuple();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -933,8 +933,8 @@ $root.paddle.framework.proto.VarDesc = class VarDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.VarDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1008,8 +1008,8 @@ $root.paddle.framework.proto.BlockDesc = class BlockDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.BlockDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1086,8 +1086,8 @@ $root.paddle.framework.proto.OpVersion = class OpVersion {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpVersion();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1134,8 +1134,8 @@ $root.paddle.framework.proto.OpVersionMap = class OpVersionMap {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpVersionMap();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1174,8 +1174,8 @@ $root.paddle.framework.proto.OpVersionMap.OpVersionPair = class OpVersionPair {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.OpVersionMap.OpVersionPair();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1234,8 +1234,8 @@ $root.paddle.framework.proto.ProgramDesc = class ProgramDesc {
 
     static decode(reader, length) {
         const message = new $root.paddle.framework.proto.ProgramDesc();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

@@ -12,8 +12,8 @@ $root.CNTK.proto.NDShape = class NDShape {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDShape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -35,8 +35,8 @@ $root.CNTK.proto.Axis = class Axis {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.Axis();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -73,8 +73,8 @@ $root.CNTK.proto.NDArrayView = class NDArrayView {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDArrayView();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -134,8 +134,8 @@ $root.CNTK.proto.NDArrayView.FloatValues = class FloatValues {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDArrayView.FloatValues();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -158,8 +158,8 @@ $root.CNTK.proto.NDArrayView.DoubleValues = class DoubleValues {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDArrayView.DoubleValues();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -181,8 +181,8 @@ $root.CNTK.proto.NDArrayView.BytesValue = class BytesValue {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDArrayView.BytesValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -207,8 +207,8 @@ $root.CNTK.proto.NDArrayView.IntValues = class IntValues {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.NDArrayView.IntValues();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -231,8 +231,8 @@ $root.CNTK.proto.Vector = class Vector {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.Vector();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -255,8 +255,8 @@ $root.CNTK.proto.Dictionary = class Dictionary {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.Dictionary();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -288,8 +288,8 @@ $root.CNTK.proto.DictionaryValue = class DictionaryValue {
 
     static decode(reader, length) {
         const message = new $root.CNTK.proto.DictionaryValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

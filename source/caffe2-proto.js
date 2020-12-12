@@ -10,8 +10,8 @@ $root.caffe2.ExternalDataProto = class ExternalDataProto {
 
     static decode(reader, length) {
         const message = new $root.caffe2.ExternalDataProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -90,8 +90,8 @@ $root.caffe2.TensorProto = class TensorProto {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -241,8 +241,8 @@ $root.caffe2.TensorProto.Segment = class Segment {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorProto.Segment();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -304,8 +304,8 @@ $root.caffe2.QTensorProto = class QTensorProto {
 
     static decode(reader, length) {
         const message = new $root.caffe2.QTensorProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -440,8 +440,8 @@ $root.caffe2.TensorProtos = class TensorProtos {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorProtos();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -482,8 +482,8 @@ $root.caffe2.TensorShape = class TensorShape {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorShape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -551,8 +551,8 @@ $root.caffe2.TensorShapes = class TensorShapes {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorShapes();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -592,8 +592,8 @@ $root.caffe2.TensorBoundShape = class TensorBoundShape {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorBoundShape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -665,8 +665,8 @@ $root.caffe2.TensorBoundShapes = class TensorBoundShapes {
 
     static decode(reader, length) {
         const message = new $root.caffe2.TensorBoundShapes();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -720,8 +720,8 @@ $root.caffe2.AOTConfig = class AOTConfig {
 
     static decode(reader, length) {
         const message = new $root.caffe2.AOTConfig();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -797,8 +797,8 @@ $root.caffe2.Argument = class Argument {
 
     static decode(reader, length) {
         const message = new $root.caffe2.Argument();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -925,8 +925,8 @@ $root.caffe2.DeviceOption = class DeviceOption {
 
     static decode(reader, length) {
         const message = new $root.caffe2.DeviceOption();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1005,8 +1005,8 @@ $root.caffe2.OperatorDef = class OperatorDef {
 
     static decode(reader, length) {
         const message = new $root.caffe2.OperatorDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1120,8 +1120,8 @@ $root.caffe2.MapFieldEntry = class MapFieldEntry {
 
     static decode(reader, length) {
         const message = new $root.caffe2.MapFieldEntry();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1180,8 +1180,8 @@ $root.caffe2.BackendOptions = class BackendOptions {
 
     static decode(reader, length) {
         const message = new $root.caffe2.BackendOptions();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1235,8 +1235,8 @@ $root.caffe2.PartitionInfo = class PartitionInfo {
 
     static decode(reader, length) {
         const message = new $root.caffe2.PartitionInfo();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1306,8 +1306,8 @@ $root.caffe2.NetDef = class NetDef {
 
     static decode(reader, length) {
         const message = new $root.caffe2.NetDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1401,8 +1401,8 @@ $root.caffe2.ExecutionStep = class ExecutionStep {
 
     static decode(reader, length) {
         const message = new $root.caffe2.ExecutionStep();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1527,8 +1527,8 @@ $root.caffe2.PlanDef = class PlanDef {
 
     static decode(reader, length) {
         const message = new $root.caffe2.PlanDef();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1581,8 +1581,8 @@ $root.caffe2.BlobProto = class BlobProto {
 
     static decode(reader, length) {
         const message = new $root.caffe2.BlobProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -1665,8 +1665,8 @@ $root.caffe2.DBReaderProto = class DBReaderProto {
 
     static decode(reader, length) {
         const message = new $root.caffe2.DBReaderProto();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:

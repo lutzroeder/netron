@@ -1087,8 +1087,8 @@ view.ModelContext = class {
                     }
                     case 'pb': {
                         const reader = protobuf.Reader.create(this.buffer);
-                        const end = reader.next();
-                        while (reader.position < end) {
+                        const length = reader.length;
+                        while (reader.position < length) {
                             const tag = reader.uint32();
                             const number = tag >>> 3;
                             const type = tag & 7;

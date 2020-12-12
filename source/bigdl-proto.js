@@ -25,8 +25,8 @@ $root.com.intel.analytics.bigdl.serialization.BigDLModule = class BigDLModule {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.BigDLModule();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -172,8 +172,8 @@ $root.com.intel.analytics.bigdl.serialization.InitMethod = class InitMethod {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.InitMethod();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -202,8 +202,8 @@ $root.com.intel.analytics.bigdl.serialization.BigDLTensor = class BigDLTensor {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.BigDLTensor();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -268,8 +268,8 @@ $root.com.intel.analytics.bigdl.serialization.TensorStorage = class TensorStorag
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.TensorStorage();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -319,8 +319,8 @@ $root.com.intel.analytics.bigdl.serialization.Regularizer = class Regularizer {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.Regularizer();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -374,8 +374,8 @@ $root.com.intel.analytics.bigdl.serialization.AttrValue = class AttrValue {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.AttrValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -466,8 +466,8 @@ $root.com.intel.analytics.bigdl.serialization.AttrValue.ArrayValue = class Array
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.AttrValue.ArrayValue();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -541,8 +541,8 @@ $root.com.intel.analytics.bigdl.serialization.NameAttrList = class NameAttrList 
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.NameAttrList();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -571,8 +571,8 @@ $root.com.intel.analytics.bigdl.serialization.Shape = class Shape {
 
     static decode(reader, length) {
         const message = new $root.com.intel.analytics.bigdl.serialization.Shape();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
@@ -615,8 +615,8 @@ $root.google.protobuf.Any = class Any {
 
     static decode(reader, length) {
         const message = new $root.google.protobuf.Any();
-        const end = reader.next(length);
-        while (reader.end(end)) {
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
             const tag = reader.uint32();
             switch (tag >>> 3) {
                 case 1:
