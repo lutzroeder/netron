@@ -133,8 +133,8 @@
   },
   {
     "type":   "barracuda",
-    "target": "continuous2vis8vec2action.nn",
-    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/com.unity.ml-agents/Tests/Editor/TestModels/continuous2vis8vec2action.nn",
+    "target": "continuous2vis8vec2action_deprecated.nn",
+    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/com.unity.ml-agents/Tests/Editor/TestModels/continuous2vis8vec2action_deprecated.nn",
     "format": "Barracuda v16",
     "link":   "https://github.com/Unity-Technologies/ml-agents"
   },
@@ -4704,12 +4704,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2587902/binarizer.zip[binarizer.joblib]",
     "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
-  },
-  {
-    "type":   "sklearn",
-    "target": "curvrank.localization.dorsal.weights.pkl",
-    "source": "https://lev.cs.rpi.edu/public/models/curvrank.localization.dorsal.weights.pkl",
-    "format": "NumPy Weights"
   },
   {
     "type":   "sklearn",
