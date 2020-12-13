@@ -10,7 +10,7 @@ openvino.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
             try {
-                const reader = base.TextReader.create(context.buffer);
+                const reader = base.TextReader.create(context.reader.peek(), 2048);
                 for (;;) {
                     const line = reader.read();
                     if (line === undefined) {
@@ -32,12 +32,13 @@ openvino.ModelFactory = class {
                 case 'v8_context_snapshot.bin':
                     return false;
             }
-            const buffer = context.buffer;
+            const reader = context.reader;
             const signature = [ 0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE ];
-            if (buffer && buffer.length > 6 && signature.every((v, i) => v == buffer[i])) {
+            if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
                 return false;
             }
-            if (buffer.length > 4) {
+            if (reader.length > 4) {
+                const buffer = reader.peek(4);
                 const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
@@ -76,18 +77,19 @@ openvino.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'xml':
-                return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((bin) => {
+                return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((reader) => {
+                    const buffer = reader.read();
                     const decoder = new TextDecoder('utf-8');
-                    const xml = decoder.decode(context.buffer);
-                    return open(host, xml, bin);
+                    const xml = decoder.decode(context.reader.peek());
+                    return open(host, xml, buffer);
                 }).catch(() => {
                     const decoder = new TextDecoder('utf-8');
-                    const xml = decoder.decode(context.buffer);
+                    const xml = decoder.decode(context.reader.peek());
                     return open(host, xml, null);
                 });
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
-                    return open(host, xml, context.buffer);
+                    return open(host, xml, context.reader.peek());
                 });
         }
     }

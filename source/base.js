@@ -543,10 +543,10 @@ DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits
 base.TextDecoder = class {
 
     static create(buffer) {
-        const length = buffer.length;
         if (typeof buffer === 'string') {
             return new base.TextDecoder.String(buffer);
         }
+        const length = buffer.length;
         if (length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
             return new base.TextDecoder.Utf8(buffer, 3);
         }
@@ -712,18 +712,18 @@ base.TextDecoder.Utf16BE = class {
 
 base.TextReader = class {
 
-    constructor(buffer, size) {
+    constructor(buffer, length) {
         this._decoder = base.TextDecoder.create(buffer);
         this._position = 0;
-        this._size = size || Number.MAX_SAFE_INTEGER;
+        this._length = length || Number.MAX_SAFE_INTEGER;
     }
 
-    static create(buffer, size) {
-        return new base.TextReader(buffer, size);
+    static create(buffer, length) {
+        return new base.TextReader(buffer, length);
     }
 
     read() {
-        if (this._position >= this._size) {
+        if (this._position >= this._length) {
             return undefined;
         }
         let line = '';
@@ -731,11 +731,11 @@ base.TextReader = class {
         for (;;) {
             const c = this._decoder.decode();
             if (c === undefined) {
-                this._size = this._position;
+                this._length = this._position;
                 break;
             }
             this._position++;
-            if (this._position > this._size) {
+            if (this._position > this._length) {
                 break;
             }
             if (c === '\n') {

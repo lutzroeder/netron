@@ -6,8 +6,9 @@ var json = json || require('./json');
 rknn.ModelFactory = class {
 
     match(context) {
-        const buffer = context.buffer;
-        if (buffer && buffer.length > 4 && [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ].every((value, index) => buffer[index] === value)) {
+        const reader = context.reader;
+        const signature = [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ];
+        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
             return true;
         }
         return false;
@@ -15,7 +16,7 @@ rknn.ModelFactory = class {
 
     open(context, host) {
         return rknn.Metadata.open(host).then((metadata) => {
-            const container = rknn.Container.open(context.buffer);
+            const container = rknn.Container.open(context.reader.peek());
             return new rknn.Model(metadata, container.model, container.weights);
         });
     }

@@ -21,7 +21,7 @@ bigdl.ModelFactory = class {
             try {
                 // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
                 bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
-                const reader = protobuf.Reader.create(context.buffer);
+                const reader = protobuf.Reader.create(context.reader.peek());
                 module = bigdl.proto.BigDLModule.decode(reader);
             }
             catch (error) {

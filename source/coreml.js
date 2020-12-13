@@ -18,7 +18,7 @@ coreml.ModelFactory = class {
             let decodedBuffer = null;
             try {
                 coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                const reader = protobuf.Reader.create(context.buffer);
+                const reader = protobuf.Reader.create(context.reader.peek());
                 decodedBuffer = coreml.proto.Model.decode(reader);
             }
             catch (error) {

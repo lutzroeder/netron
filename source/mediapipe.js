@@ -17,7 +17,8 @@ mediapipe.ModelFactory = class {
         return Promise.resolve().then(() => {
             let root;
             try {
-                const reader = protobuf.TextReader.create(context.buffer);
+                const buffer = context.reader.peek();
+                const reader = protobuf.TextReader.create(buffer);
                 root = new mediapipe.Object(reader);
             }
             catch (error) {

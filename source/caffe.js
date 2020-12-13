@@ -17,14 +17,14 @@ caffe.ModelFactory = class {
             return false;
         }
         if (extension == 'pt') {
-            // Reject PyTorch models
-            const buffer = context.buffer;
-            const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-            if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
-                return false;
-            }
-            // Reject TorchScript models
-            if (buffer && buffer.length > 2 && buffer[0] == 0x50 && buffer[1] == 0x4B) {
+            const reader = context.reader;
+            const signatures = [
+                // Reject PyTorch models
+                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ],
+                // Reject TorchScript models
+                [ 0x50, 0x4b ]
+            ];
+            if (signatures.some((signature) => signature.length <= reader.length && reader.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
                 return false;
             }
         }
@@ -42,7 +42,7 @@ caffe.ModelFactory = class {
                 const tags = context.tags('pbtxt');
                 if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                     try {
-                        const reader = protobuf.TextReader.create(context.buffer);
+                        const reader = protobuf.TextReader.create(context.reader.peek());
                         reader.field = function(tag, message) {
                             if (message instanceof caffe.proto.SolverParameter) {
                                 message[tag] = this.read();
@@ -57,7 +57,8 @@ caffe.ModelFactory = class {
                         else if (solver.net || solver.train_net) {
                             let file = solver.net || solver.train_net;
                             file = file.split('/').pop();
-                            return context.request(file, null).then((buffer) => {
+                            return context.request(file, null).then((reader) => {
+                                const buffer = reader.read();
                                 return this._openNetParameterText(metadata, buffer);
                             }).catch((error) => {
                                 if (error) {
@@ -72,12 +73,12 @@ caffe.ModelFactory = class {
                     }
                 }
                 else if (tags.has('layer') || tags.has('layers')) {
-                    return this._openNetParameterText(metadata, context.buffer);
+                    return this._openNetParameterText(metadata, context.reader.peek());
                 }
                 else {
                     let netParameter = null;
                     try {
-                        const reader = protobuf.Reader.create(context.buffer);
+                        const reader = protobuf.Reader.create(context.reader.peek());
                         netParameter = caffe.proto.NetParameter.decode(reader);
                     }
                     catch (error) {

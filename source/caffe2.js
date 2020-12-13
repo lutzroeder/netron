@@ -19,15 +19,21 @@ caffe2.ModelFactory = class {
                     }
                     const schema = [[1,2],[2,2],[3,2],[4,0],[5,2],[6,2],[7,2],[8,2],[9,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        const buffer = context.buffer;
-                        if (buffer.length > 3 && buffer[0] == 0x0A) {
-                            const size = buffer[1];
-                            if (size < 64 && buffer.length > 2 + size + 1 && buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) && buffer[2 + size] == 0x12) {
+                        const reader = context.reader;
+                        if (reader.length > 3) {
+                            const buffer = reader.peek(Math.min(reader.length, 67));
+                            if (buffer[0] == 0x0A) {
+                                const size = buffer[1];
+                                if (size < 64 &&
+                                    buffer.length > 2 + size + 1 &&
+                                    buffer.slice(2, 2 + size).every((c) => c >= 32 && c <= 127) &&
+                                    buffer[2 + size] == 0x12) {
+                                    return true;
+                                }
+                            }
+                            if (buffer[0] == 0x12) {
                                 return true;
                             }
-                        }
-                        if (buffer.length > 3 && buffer[0] == 0x12) {
-                            return true;
                         }
                     }
                 }
@@ -84,28 +90,32 @@ caffe2.ModelFactory = class {
                         return new caffe2.Model(metadata, predict_net, init_net);
                     };
                     if (base.toLowerCase().endsWith('init_net') || base.toLowerCase().startsWith('init_net')) {
-                        return context.request(identifier.replace('init_net', 'predict_net'), null).then((buffer) => {
-                            return openText(buffer, context.buffer, true);
+                        return context.request(identifier.replace('init_net', 'predict_net'), null).then((reader) => {
+                            const buffer = reader.read();
+                            return openText(buffer, context.reader.peek(), true);
                         }).catch(() => {
-                            return openText(context.buffer, null, true);
+                            return openText(context.reader.peek(), null, true);
                         });
                     }
                     else if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
-                        return context.request(identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb'), null).then((buffer) => {
-                            return openText(context.buffer, buffer, false);
+                        return context.request(identifier.replace('predict_net', 'init_net').replace(/\.pbtxt/, '.pb'), null).then((reader) => {
+                            const buffer = reader.read();
+                            return openText(context.reader.peek(), buffer, false);
                         }).catch(() => {
-                            return context.request(identifier.replace('predict_net', 'init_net'), null).then((buffer) => {
-                                return openText(context.buffer, buffer, true);
+                            return context.request(identifier.replace('predict_net', 'init_net'), null).then((reader) => {
+                                const buffer = reader.read();
+                                return openText(context.reader.peek(), buffer, true);
                             }).catch(() => {
-                                return openText(context.buffer, null, true);
+                                return openText(context.reader.peek(), null, true);
                             });
                         });
                     }
                     else {
-                        return context.request(base + '_init.pb', null).then((buffer) => {
-                            return openText(context.buffer, buffer, false);
+                        return context.request(base + '_init.pb', null).then((reader) => {
+                            const buffer = reader.read();
+                            return openText(context.reader.peek(), buffer, false);
                         }).catch(() => {
-                            return openText(context.buffer, null, false);
+                            return openText(context.reader.peek(), null, false);
                         });
                     }
                 }
@@ -135,31 +145,35 @@ caffe2.ModelFactory = class {
                         return new caffe2.Model(metadata, predict_net, init_net);
                     };
                     if (base.toLowerCase().endsWith('init_net')) {
-                        return context.request(base.replace(/init_net$/, '') + 'predict_net.' + extension, null).then((buffer) => {
-                            return openBinary(buffer, context.buffer);
+                        return context.request(base.replace(/init_net$/, '') + 'predict_net.' + extension, null).then((reader) => {
+                            const buffer = reader.read();
+                            return openBinary(buffer, context.reader.peek());
                         }).catch(() => {
-                            return openBinary(context.buffer, null);
+                            return openBinary(context.reader.peek(), null);
                         });
                     }
                     else if (base.toLowerCase().endsWith('_init')) {
-                        return context.request(base.replace(/_init$/, '') + '.' + extension, null).then((buffer) => {
-                            return openBinary(buffer, context.buffer);
+                        return context.request(base.replace(/_init$/, '') + '.' + extension, null).then((reader) => {
+                            const buffer = reader.read();
+                            return openBinary(buffer, context.reader.peek());
                         }).catch(() => {
-                            return openBinary(context.buffer, null);
+                            return openBinary(context.reader.peek(), null);
                         });
                     }
                     else if (base.toLowerCase().endsWith('predict_net') || base.toLowerCase().startsWith('predict_net')) {
-                        return context.request(identifier.replace('predict_net', 'init_net'), null).then((buffer) => {
-                            return openBinary(context.buffer, buffer);
+                        return context.request(identifier.replace('predict_net', 'init_net'), null).then((reader) => {
+                            const buffer = reader.read();
+                            return openBinary(context.reader.peek(), buffer);
                         }).catch(() => {
-                            return openBinary(context.buffer, null);
+                            return openBinary(context.reader.peek(), null);
                         });
                     }
                     else {
-                        return context.request(base + '_init.' + extension, null).then((buffer) => {
-                            return openBinary(context.buffer, buffer);
+                        return context.request(base + '_init.' + extension, null).then((reader) => {
+                            const buffer = reader.read();
+                            return openBinary(context.reader.peek(), buffer);
                         }).catch(() => {
-                            return openBinary(context.buffer, null);
+                            return openBinary(context.reader.peek(), null);
                         });
                     }
                 }

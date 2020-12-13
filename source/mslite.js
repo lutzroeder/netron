@@ -6,9 +6,9 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 mslite.ModelFactory = class {
 
     match(context) {
-        const buffer = context.buffer;
+        const reader = context.reader;
         const signature = 'MSL1';
-        if (buffer && buffer.length > 8 && buffer.subarray(4, 8).every((x, i) => x === signature.charCodeAt(i))) {
+        if (reader.length > 8 && reader.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
             return true;
         }
         return false;
@@ -19,10 +19,8 @@ mslite.ModelFactory = class {
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
-                const reader = new flatbuffers.Reader(context.buffer);
-                if (!mslite.schema.MetaGraph.identifier(reader)) {
-                    throw new mslite.Error('Invalid identifier.');
-                }
+                const buffer = context.reader.peek();
+                const reader = new flatbuffers.Reader(buffer);
                 model = mslite.schema.MetaGraph.create(reader);
             }
             catch (error) {

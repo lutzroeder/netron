@@ -106,7 +106,8 @@ class TestHost {
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
-        return Promise.resolve(fs.readFileSync(pathname, encoding));
+        const buffer = fs.readFileSync(pathname, encoding);
+        return Promise.resolve(encoding ? buffer : new TestBinaryReader(buffer));
     }
 
     event(/* category, action, label, value */) {
@@ -131,13 +132,110 @@ class TestHost {
     }
 }
 
+class TestBinaryReader {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    create(buffer) {
+        return new TestBinaryReader(buffer);
+    }
+
+    reader(length) {
+        return this.create(this.read(length));
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    peek(length) {
+        if (this._position === 0 && length === undefined) {
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        const end = this._position;
+        this.seek(position);
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+
+    uint16() {
+        const position = this._position;
+        this.skip(2);
+        return this._view.getUint16(position, true);
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
+    }
+
+    uint64() {
+        const position = this._position;
+        this.skip(8);
+        return this._view.getUint64(position, true);
+    }
+
+    int16() {
+        const position = this._position;
+        this.skip(2);
+        return this._view.getInt16(position, true);
+    }
+
+    int32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getInt32(position, true);
+    }
+
+    int64() {
+        const position = this._position;
+        this.skip(8);
+        return this._view.getInt64(position, true);
+    }
+}
+
 class TestContext {
 
-    constructor(host, folder, identifier, buffer) {
+    constructor(host, folder, identifier, reader) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
-        this._buffer = buffer;
+        this._reader = reader;
     }
 
     request(file, encoding) {
@@ -148,8 +246,9 @@ class TestContext {
         return this._identifier;
     }
 
-    get buffer() {
-        return this._buffer;
+    get reader() {
+        // this._reader.seek(0);
+        return this._reader;
     }
 }
 
@@ -482,7 +581,8 @@ function loadModel(target, item) {
     const fd = fs.openSync(target, 'r');
     fs.readSync(fd, buffer, 0, size, 0);
     fs.closeSync(fd);
-    const context = new TestContext(host, folder, identifier, buffer);
+    const reader = new TestBinaryReader(buffer);
+    const context = new TestContext(host, folder, identifier, reader);
     const modelFactoryService = new view.ModelFactoryService(host);
     let opened = false;
     return modelFactoryService.open(context).then((model) => {

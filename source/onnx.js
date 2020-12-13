@@ -35,11 +35,14 @@ onnx.ModelFactory = class {
                 }
             }
         }
-        const buffer = context.buffer;
-        if (buffer && buffer.length > 11 && buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
-            const producers = [ 'keras2onnx', 'tf2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2' ];
-            if (producers.some((producer) => Array.from(producer).every((ch, index) => index < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
-                return true;
+        const reader = context.reader;
+        if (reader.length > 11) {
+            const buffer = reader.peek(12);
+            if (buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
+                const producers = [ 'keras2onnx', 'tf2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2' ];
+                if (producers.some((producer) => Array.from(producer).every((ch, index) => index < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
+                    return true;
+                }
             }
         }
         tags = context.tags('pbtxt');
@@ -63,7 +66,8 @@ onnx.ModelFactory = class {
                 case 'prototxt': {
                     try {
                         onnx.proto = protobuf.get('onnx').onnx;
-                        const reader = protobuf.TextReader.create(context.buffer);
+                        const buffer = context.reader.peek();
+                        const reader = protobuf.TextReader.create(buffer);
                         model = onnx.proto.ModelProto.decodeText(reader);
                         format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                     }
@@ -80,7 +84,8 @@ onnx.ModelFactory = class {
                         // input_0.pb, output_0.pb
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
-                            const reader = protobuf.Reader.create(context.buffer);
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             model = onnx.proto.ModelProto.decode(reader);
                             format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         }
@@ -92,7 +97,8 @@ onnx.ModelFactory = class {
                     else {
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
-                            const reader = protobuf.Reader.create(context.buffer);
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             const tensor = onnx.proto.TensorProto.decode(reader);
                             tensor.name = tensor.name || context.identifier;
                             model = new onnx.proto.ModelProto();

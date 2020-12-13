@@ -36,8 +36,9 @@ tf.ModelFactory = class {
                 return false;
             }
             if (identifier == 'tfhub_module.pb') {
-                const buffer = context.buffer;
-                if (buffer && buffer.length == 2 && buffer[0] == 0x08 && buffer[1] == 0x03) {
+                const reader = context.reader;
+                const signature = [ 0x08, 0x03 ];
+                if (signature.length === reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
                     return false;
                 }
             }
@@ -62,8 +63,11 @@ tf.ModelFactory = class {
             }
         }
         if (extension === 'index' || extension === 'ckpt') {
-            if (context.buffer.length > 8) {
-                const buffer = context.buffer.subarray(context.buffer.length - 8, context.buffer.length);
+            const reader = context.reader;
+            if (reader.length > 8) {
+                reader.seek(-8);
+                const buffer = reader.read(8);
+                reader.seek(0);
                 const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
                 if (buffer.every((value, index) => value === signature[index])) {
                     return true;
@@ -74,7 +78,7 @@ tf.ModelFactory = class {
             return true;
         }
         if (/^events.out.tfevents./.exec(identifier)) {
-            if (tf.EventFileReader.open(context.buffer)) {
+            if (tf.EventFileReader.open(context.reader)) {
                 return true;
             }
         }
@@ -94,7 +98,7 @@ tf.ModelFactory = class {
             }
             else if (/^events.out.tfevents./.exec(identifier)) {
                 format = 'TensorFlow Event File';
-                const eventFileReader = tf.EventFileReader.open(context.buffer);
+                const eventFileReader = tf.EventFileReader.open(context.reader);
                 saved_model = new tf.proto.SavedModel();
                 for (;;) {
                     const event = eventFileReader.read();
@@ -129,7 +133,8 @@ tf.ModelFactory = class {
             }
             else if (extension === 'json') {
                 try {
-                    const reader = json.TextReader.create(context.buffer);
+                    const buffer = context.reader.peek();
+                    const reader = json.TextReader.create(buffer);
                     const root = reader.read();
                     const graph_def = new tf.proto.GraphDef();
                     const meta_graph = new tf.proto.MetaGraphDef();
@@ -153,7 +158,9 @@ tf.ModelFactory = class {
                     if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                         try {
                             if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                                saved_model = tf.proto.SavedModel.decodeText(protobuf.TextReader.create(context.buffer));
+                                const buffer = context.reader.peek();
+                                const reader = protobuf.TextReader.create(buffer);
+                                saved_model = tf.proto.SavedModel.decodeText(reader);
                                 format = 'TensorFlow Saved Model';
                                 if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
                                     format = format + ' v' + saved_model.saved_model_schema_version.toString();
@@ -167,7 +174,9 @@ tf.ModelFactory = class {
                     else if (tags.has('graph_def')) {
                         try {
                             if (!saved_model) {
-                                const meta_graph = tf.proto.MetaGraphDef.decodeText(protobuf.TextReader.create(context.buffer));
+                                const buffer = context.reader.peek();
+                                const reader = protobuf.TextReader.create(buffer);
+                                const meta_graph = tf.proto.MetaGraphDef.decodeText(reader);
                                 saved_model = new tf.proto.SavedModel();
                                 saved_model.meta_graphs.push(meta_graph);
                                 format = 'TensorFlow MetaGraph';
@@ -179,7 +188,9 @@ tf.ModelFactory = class {
                     }
                     else if (tags.has('node')) {
                         try {
-                            const graph_def = tf.proto.GraphDef.decodeText(protobuf.TextReader.create(context.buffer));
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.TextReader.create(buffer);
+                            const graph_def = tf.proto.GraphDef.decodeText(reader);
                             const meta_graph = new tf.proto.MetaGraphDef();
                             meta_graph.graph_def = graph_def;
                             saved_model = new tf.proto.SavedModel();
@@ -195,7 +206,8 @@ tf.ModelFactory = class {
                 else {
                     try {
                         if (identifier.endsWith('saved_model.pb')) {
-                            const reader = protobuf.Reader.create(context.buffer);
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             saved_model = tf.proto.SavedModel.decode(reader);
                             format = 'TensorFlow Saved Model';
                             if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
@@ -204,15 +216,17 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        const buffer = context.buffer;
-                        if (buffer.length > 3 && buffer[0] == 0x08 && buffer[1] == 0x01 && buffer[2] == 0x12) {
+                        const reader = context.reader;
+                        const signature = [ 0x08, 0x01, 0x12 ];
+                        if (signature.length < reader.length && reader.peek(3).every((value, index) => value === signature[index])) {
                             const message = error && error.message ? error.message : error.toString();
                             throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
                         }
                     }
                     try {
                         if (!saved_model && extension == 'meta') {
-                            const reader = protobuf.Reader.create(context.buffer);
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             const meta_graph = tf.proto.MetaGraphDef.decode(reader);
                             saved_model = new tf.proto.SavedModel();
                             saved_model.meta_graphs.push(meta_graph);
@@ -225,7 +239,8 @@ tf.ModelFactory = class {
                     }
                     try {
                         if (!saved_model) {
-                            const reader = protobuf.Reader.create(context.buffer);
+                            const buffer = context.reader.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             const graph_def = tf.proto.GraphDef.decode(reader);
                             const meta_graph = new tf.proto.MetaGraphDef();
                             meta_graph.graph_def = graph_def;
@@ -251,7 +266,8 @@ tf.ModelFactory = class {
                     saved_model.meta_graphs[0].object_graph_def.nodes &&
                     saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
                     const identifier = 'variables/variables.index';
-                    return context.request(identifier, null).then((buffer) => {
+                    return context.request(identifier, null).then((reader) => {
+                        const buffer = reader.read();
                         return tf.TensorBundle.open(buffer, identifier, context, host).then((bundle) => {
                             return new tf.Model(metadata, saved_model, format, producer, bundle);
 
@@ -282,16 +298,19 @@ tf.ModelFactory = class {
                 const base = identifier.split('.');
                 base.pop();
                 const identifier = base.join('.') + '.index';
-                return context.request(identifier, null).then((buffer) => {
+                return context.request(identifier, null).then((reader) => {
+                    const buffer = reader.read();
                     return open(buffer, identifier, context, host);
                 }).catch((/* error */) => {
                     const identifier = base.join('.') + '.ckpt';
-                    return context.request(identifier, null).then((buffer) => {
+                    return context.request(identifier, null).then((reader) => {
+                        const buffer = reader.read();
                         open(buffer, identifier, context, host);
                     });
                 });
             }
-            return open(context.buffer, identifier, context, host);
+            const buffer = context.reader.peek();
+            return open(buffer, identifier, context, host);
         });
     }
 };
@@ -1470,7 +1489,8 @@ tf.TensorBundle = class {
             const name = basename + '.data-' + shardIndex + '-of-' + shardCount;
             promises.push(context.request(name, null));
         }
-        return Promise.all(promises).then((shards) => {
+        return Promise.all(promises).then((readers) => {
+            const shards = readers.map((reader) => reader.read());
             return new tf.TensorBundle(format, table.entries, shards);
         }).catch((error) => {
             host.exception(error, false);
@@ -1570,7 +1590,7 @@ tf.TensorBundle.Table = class {
         const reader = new tf.TensorBundle.BinaryReader(buffer);
         reader.seek(-8);
         const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-        if (!reader.bytes(8).every((value, index) => value === signature[index])) {
+        if (!reader.read(8).every((value, index) => value === signature[index])) {
             throw new tf.Error('Invalid table signature.');
         }
         reader.seek(-48); // kEncodedLength
@@ -1597,7 +1617,7 @@ tf.TensorBundle.Table.Block = class {
         // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/io/block.cc
         this.entries = new Map();
         reader.seek(offset);
-        const buffer = reader.bytes(size); // blockContents
+        const buffer = reader.read(size); // blockContents
         const compression = reader.byte();
         reader.uint32(); // crc32
         reader = new tf.TensorBundle.BinaryReader(buffer);
@@ -1629,8 +1649,8 @@ tf.TensorBundle.Table.Block = class {
                     break;
                 }
                 key = key.substring(0, sharedSize);
-                key = key + textDecoder.decode(reader.bytes(nonSharedSize));
-                const value = reader.bytes(valueSize);
+                key = key + textDecoder.decode(reader.read(nonSharedSize));
+                const value = reader.read(valueSize);
                 this.entries.set(key, value);
             }
         }
@@ -1678,7 +1698,7 @@ tf.TensorBundle.BinaryReader = class {
         return reader;
     }
 
-    bytes(size) {
+    read(size) {
         const position = this._position;
         this.skip(size);
         return this._buffer.subarray(position, this._position);
@@ -1742,7 +1762,7 @@ tf.TensorBundle.BinaryReader = class {
                         length = (this.uint32() & mask[short]) + 1;
                         this._position += short - 4;
                     }
-                    data.set(this.bytes(length), position);
+                    data.set(this.read(length), position);
                     break;
                 }
                 case 1: {
@@ -1772,8 +1792,8 @@ tf.TensorBundle.BinaryReader = class {
 
 tf.EventFileReader = class {
 
-    static open(buffer) {
-        if (buffer.length < 16) {
+    static open(reader) {
+        if (reader.length < 16) {
             return null;
         }
         const masked_crc32c = (bytes) => {
@@ -1797,82 +1817,37 @@ tf.EventFileReader = class {
             crc = crc >>> 0;
             return crc;
         };
-        const reader = new tf.EventFileReader.BinaryReader(buffer);
-        const length_bytes = reader.bytes(8);
+        const length_bytes = reader.read(8);
         const length_crc = reader.uint32();
+        reader.seek(0);
         if (masked_crc32c(length_bytes) !== length_crc) {
             return null;
         }
         // reader.skip(-12);
         // const length = reader.uint64().toNumber();
         // reader.uint32(); // masked crc of length
-        // const data = reader.bytes(length);
+        // const data = reader.read(length);
         // const data_crc = reader.uint32();
         // if (masked_crc32c(data) !== data_crc) {
         //     return null;
         // }
-        return new tf.EventFileReader(buffer);
+        return new tf.EventFileReader(reader);
     }
 
-    constructor(buffer) {
-        this._reader = new tf.EventFileReader.BinaryReader(buffer);
+    constructor(reader) {
+        this._reader = reader;
     }
 
     read() {
-        if (!this._reader.end()) {
+        if (this._reader.position < this._reader.length) {
             const length = this._reader.uint64().toNumber();
             this._reader.uint32(); // masked crc of length
-            const data = this._reader.bytes(length);
+            const data = this._reader.read(length);
             const reader = protobuf.Reader.create(data);
             const event = tf.proto.Event.decode(reader);
             this._reader.uint32(); // masked crc of data
             return event;
         }
-    }
-};
-
-tf.EventFileReader.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-        this._end = this._buffer.length;
-    }
-
-    end() {
-        return this._position >= this._end;
-    }
-
-    bytes(size) {
-        const position = this._position;
-        this.skip(size);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._dataView.getUint8(position);
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._end) {
-            throw new tf.Error('Expected ' + (this._position - this._end) + ' more bytes. The file might be corrupted. Unexpected end of file.');
-        }
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getUint64(position, true);
     }
 };
 

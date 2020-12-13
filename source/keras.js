@@ -6,9 +6,9 @@ var json = json || require('./json');
 keras.ModelFactory = class {
 
     match(context) {
-        const buffer = context.buffer;
+        const reader = context.reader;
         const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-        if (buffer && buffer.length > signature.length && signature.every((v, i) => v === buffer[i])) {
+        if (reader.length > signature.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
             return true;
         }
         const tags = context.tags('json');
@@ -47,7 +47,8 @@ keras.ModelFactory = class {
                 case 'model':
                 case 'pb':
                 case 'pth': {
-                    const file = new hdf5.File(context.buffer);
+                    const buffer = context.reader.peek();
+                    const file = new hdf5.File(buffer);
                     rootGroup = file.rootGroup;
                     if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
                         const model_config_json = rootGroup.attribute('model_config');
@@ -113,7 +114,7 @@ keras.ModelFactory = class {
                                 const moduleName = group.attributes.name || group.name;
                                 for (const variableGroup of group.groups) {
                                     if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
-                                        throw new keras.Error('Group format is not HDF5 tensor variable.');
+                                        throw new keras.Error('Group is not HDF5 tensor variable.');
                                     }
                                     const variable = variableGroup.value;
                                     if (!variable) {
@@ -171,7 +172,8 @@ keras.ModelFactory = class {
                     break;
                 }
                 case 'json': {
-                    const reader = json.TextReader.create(context.buffer);
+                    const buffer = context.reader.peek();
+                    const reader = json.TextReader.create(buffer);
                     const root = reader.read();
                     if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
                         format = 'TensorFlow.js Weights';

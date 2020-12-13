@@ -10,13 +10,13 @@ darknet.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'weights':
-                if (darknet.Weights.open(context.buffer)) {
+                if (darknet.Weights.open(context.reader)) {
                     return true;
                 }
                 break;
             default:
                 try {
-                    const reader = base.TextReader.create(context.buffer);
+                    const reader = base.TextReader.create(context.reader.peek(), 65536);
                     for (;;) {
                         const line = reader.read();
                         if (line === undefined) {
@@ -50,14 +50,15 @@ darknet.ModelFactory = class {
             const basename = parts.join('.');
             switch (extension) {
                 case 'weights':
-                    return context.request(basename + '.cfg', null).then((cfg) => {
-                        return open(metadata, cfg, context.buffer);
+                    return context.request(basename + '.cfg', null).then((reader) => {
+                        const buffer = reader.read();
+                        return open(metadata, buffer, context.reader);
                     });
                 default:
-                    return context.request(basename + '.weights', null).then((weights) => {
-                        return open(metadata, context.buffer, weights);
+                    return context.request(basename + '.weights', null).then((reader) => {
+                        return open(metadata, context.reader.peek(), reader);
                     }).catch(() => {
-                        return open(metadata, context.buffer, null);
+                        return open(metadata, context.reader.peek(), null);
                     });
             }
         });
@@ -1105,9 +1106,8 @@ darknet.TensorShape = class {
 
 darknet.Weights = class {
 
-    static open(buffer) {
-        if (buffer) {
-            const reader = new darknet.Weights.BinaryReader(buffer);
+    static open(reader) {
+        if (reader && reader.length >= 20) {
             const major = reader.int32();
             const minor = reader.int32();
             reader.int32(); // revision
@@ -1128,50 +1128,12 @@ darknet.Weights = class {
     }
 
     read(size) {
-        return this._reader.bytes(size);
+        return this._reader.read(size);
     }
 
     validate() {
-        if (!this._reader.end()) {
+        if (this._reader.position != this._reader.length) {
             throw new darknet.Error('Invalid weights size.');
-        }
-    }
-};
-
-darknet.Weights.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._position = 0;
-    }
-
-    end() {
-        return this._position === this._buffer.length;
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._dataView.getInt32(position, true);
-    }
-
-    int64() {
-        const position = this._position;
-        this.skip(8);
-        return this._dataView.getInt64(position, true);
-    }
-
-    bytes(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    skip(offset) {
-        this._position += offset;
-        if (this._position > this._buffer.length) {
-            throw new darknet.Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
         }
     }
 };

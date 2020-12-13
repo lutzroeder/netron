@@ -38,7 +38,7 @@ uff.ModelFactory = class {
             if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
                 try {
                     uff.proto = protobuf.get('uff').uff;
-                    const reader = protobuf.TextReader.create(context.buffer);
+                    const reader = protobuf.TextReader.create(context.reader.peek());
                     meta_graph = uff.proto.MetaGraph.decodeText(reader);
                 }
                 catch (error) {
@@ -48,7 +48,7 @@ uff.ModelFactory = class {
             else {
                 try {
                     uff.proto = protobuf.get('uff').uff;
-                    const reader = protobuf.Reader.create(context.buffer);
+                    const reader = protobuf.Reader.create(context.reader.peek());
                     meta_graph = uff.proto.MetaGraph.decode(reader);
                 }
                 catch (error) {

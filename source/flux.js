@@ -20,7 +20,7 @@ flux.ModelFactory = class {
         return Promise.resolve().then(() => {
             let root = null;
             try {
-                const reader = json.BinaryReader.create(context.buffer);
+                const reader = json.BinaryReader.create(context.reader.peek());
                 root = reader.read();
             }
             catch (error) {

@@ -9,16 +9,15 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context) {
-        const buffer = context.buffer;
+        const reader = context.reader;
         // Reject PyTorch models with .model file extension.
-        const torch = [ 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (buffer && buffer.length > 14 && buffer[0] == 0x80 && torch.every((v, i) => v == buffer[i + 2])) {
+        const torch = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        if (torch.length <= reader.length && reader.peek(torch.length).every((value, index) => torch[index] === undefined || torch[index] === value)) {
             return false;
         }
         // CNTK v1
-        if (buffer && buffer.length >= 8 &&
-            buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
-            buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
+        const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
+        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
             return true;
         }
         // CNTK v2
@@ -34,11 +33,10 @@ cntk.ModelFactory = class {
             let version = 0;
             let obj = null;
             try {
-                const buffer = context.buffer;
-                if (buffer && buffer.length >= 8 &&
-                    buffer[0] == 0x42 && buffer[1] == 0x00 && buffer[2] == 0x43 && buffer[3] == 0x00 &&
-                    buffer[4] == 0x4E && buffer[5] == 0x00 && buffer[6] == 0x00 && buffer[7] == 0x00) {
-                    obj = new cntk_v1.ComputationNetwork(buffer);
+                const reader = context.reader;
+                const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
+                if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
+                    obj = new cntk_v1.ComputationNetwork(reader.peek());
                     version = 1;
                 }
             }
@@ -50,7 +48,7 @@ cntk.ModelFactory = class {
                 if (!obj) {
                     cntk_v2 = protobuf.get('cntk').CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const reader = protobuf.Reader.create(context.buffer);
+                    const reader = protobuf.Reader.create(context.reader.peek());
                     const dictionary = cntk_v2.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;

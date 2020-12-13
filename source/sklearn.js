@@ -8,19 +8,28 @@ var zip = zip || require('./zip');
 sklearn.ModelFactory = class {
 
     match(context) {
-        const buffer = context.buffer;
-        if (buffer.length > 14 && [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ].every((v, i) => v === undefined || v == buffer[i])) {
+        const reader = context.reader;
+        const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
+        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
             return false;
         }
-        if (buffer.length > 1 && buffer[buffer.length - 1] === 0x2E) {
-            return true;
+        if (reader.length > 2) {
+            const buffer = reader.peek(2);
+            if (buffer[0] === 0x80 && buffer[1] < 5) {
+                return true;
+            }
+            if (buffer[0] === 0x78) {
+                return true;
+            }
         }
-        if (buffer.length > 2 && buffer[0] === 0x80 && buffer[1] < 5) {
-            return true;
-        }
-        if (buffer.length > 2 && buffer[0] === 0x78) {
-            return true;
+        if (reader.length > 1) {
+            reader.seek(-1);
+            const value = reader.byte();
+            reader.seek(0);
+            if (value === 0x2e) {
+                return true;
+            }
         }
         return false;
     }
@@ -31,7 +40,9 @@ sklearn.ModelFactory = class {
             return sklearn.Metadata.open(host).then((metadata) => {
                 let container;
                 try {
-                    container = new sklearn.Container(context.buffer, pickle, (error, fatal) => {
+                    const reader = context.reader;
+                    const buffer = reader.peek();
+                    container = new sklearn.Container(buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
