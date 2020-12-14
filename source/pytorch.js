@@ -847,6 +847,8 @@ pytorch.Execution = class {
         this._context.scope.builtins.float = { __module__: 'builtins', __name__: 'float', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.str = { __module__: 'builtins', __name__: 'str', __class__: this._context.scope.builtins.type };
         this._context.scope.builtins.tuple = { __module__: 'builtins', __name__: 'tuple', __class__: this._context.scope.builtins.type };
+        this._context.scope.ops = { __name__: 'torch', __class__: this._context.scope.builtins.module };
+        this._context.scope.ops._caffe2 = { __name__: 'torch', __class__: this._context.scope.builtins.module };
         this._context.scope.typing = { __name__: 'typing', __class__: this._context.scope.builtins.module };
         this._context.scope.typing._GenericAlias = { __module__: 'typing', __name__: '_GenericAlias', __class__: this._context.scope.builtins.type };
         this._context.scope.typing._SpecialForm = { __module__: 'typing', __name__: '_SpecialForm', __class__: this._context.scope.builtins.type };
@@ -3287,7 +3289,7 @@ pytorch.Utility = class {
             case 'Tensor[]':
                 return Array.isArray(obj) && obj.length > 0 && obj.every((tensor) => pytorch.Utility.isTensor(tensor) || tensor === null);
             case 'Scalar':
-                return obj !== null || obj !== Object(obj);
+                return obj !== null && obj !== Object(obj);
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':

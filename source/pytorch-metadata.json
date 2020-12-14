@@ -2021,12 +2021,10 @@
   {
     "name": "torch.sub_:Tensor",
     "schema": {
-      "attributes": [
-        { "name": "alpha", "type": "Scalar", "default": 1 }
-      ],
       "inputs": [
         { "name": "input", "type": "Tensor" },
-        { "name": "other", "type": "Tensor" }
+        { "name": "other", "type": "Tensor" },
+        { "name": "alpha", "type": "Scalar", "default": 1 }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2036,12 +2034,10 @@
   {
     "name": "torch.sub_:Scalar",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "input", "type": "Tensor" },
         { "name": "other", "type": "Scalar" },
         { "name": "alpha", "type": "Scalar", "default": 1 }
-      ],
-      "inputs": [
-        { "name": "input", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2095,12 +2091,10 @@
   {
     "name": "torch.sub:Scalar",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "input", "type": "Tensor" },
         { "name": "other", "type": "Scalar" },
         { "name": "alpha", "type": "Scalar", "default": 1 }
-      ],
-      "inputs": [
-        { "name": "input", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2125,12 +2119,10 @@
   {
     "name": "torch.sub:Tensor",
     "schema": {
-      "attributes": [
-        { "name": "alpha", "type": "Scalar", "default": 1 }
-      ],
       "inputs": [
         { "name": "input", "type": "Tensor" },
-        { "name": "other", "type": "Tensor" }
+        { "name": "other", "type": "Tensor" },
+        { "name": "alpha", "type": "Scalar", "default": 1 }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -5791,6 +5783,178 @@
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.CopyGPUToCPU",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "Tensor" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.CopyCPUToGPU",
+    "schema": {
+      "inputs": [
+        { "name": "input", "type": "Tensor" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.GenerateProposals",
+    "schema": {
+      "inputs": [
+        { "name": "scores", "type": "Tensor" },
+        { "name": "bbox_deltas", "type": "Tensor" },
+        { "name": "im_info", "type": "Tensor" },
+        { "name": "anchors", "type": "Tensor" },
+        { "name": "spatial_scale", "type": "float32" },
+        { "name": "pre_nms_topN", "type": "int64" },
+        { "name": "post_nms_topN", "type": "int64" },
+        { "name": "nms_thresh", "type": "float32" },
+        { "name": "min_size", "type": "float32" },
+        { "name": "angle_bound_on", "type": "boolean" },
+        { "name": "angle_bound_lo", "type": "int64" },
+        { "name": "angle_bound_hi", "type": "int64" },
+        { "name": "clip_angle_thresh", "type": "float32" },
+        { "name": "legacy_plus_one", "type": "boolean" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output_0", "type": "Tensor" },
+        { "name": "output_1", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.CollectRpnProposals",
+    "schema": {
+      "inputs": [
+        { "name": "input_list", "type": "Tensor[]" },
+        { "name": "rpn_max_level", "type": "int64" },
+        { "name": "rpn_min_level", "type": "int64" },
+        { "name": "rpn_post_nms_topN", "type": "int64" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "rois", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.DistributeFpnProposals",
+    "schema": {
+      "inputs": [
+        { "name": "rois", "type": "Tensor" },
+        { "name": "roi_canonical_scale", "type": "int64" },
+        { "name": "roi_canonical_level", "type": "int64" },
+        { "name": "roi_max_level", "type": "int64" },
+        { "name": "roi_min_level", "type": "int64" },
+        { "name": "legacy_plus_one", "type": "boolean" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "rois_fpn2", "type": "Tensor" },
+        { "name": "rois_fpn3", "type": "Tensor" },
+        { "name": "rois_fpn4", "type": "Tensor" },
+        { "name": "rois_fpn5", "type": "Tensor" },
+        { "name": "rois_idx_restore_int32", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.RoIAlign",
+    "schema": {
+      "inputs": [
+        { "name": "features", "type": "Tensor" },
+        { "name": "rois", "type": "Tensor" },
+        { "name": "order", "type": "string" },
+        { "name": "spatial_scale", "type": "float32" },
+        { "name": "pooled_h", "type": "int64" },
+        { "name": "pooled_w", "type": "int64" },
+        { "name": "sampling_ratio", "type": "int64" },
+        { "name": "aligned", "type": "boolean" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.BatchPermutation",
+    "schema": {
+      "inputs": [
+        { "name": "X", "type": "Tensor" },
+        { "name": "indices", "type": "Tensor" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.BBoxTransform",
+    "schema": {
+      "inputs": [
+        { "name": "rois", "type": "Tensor" },
+        { "name": "deltas", "type": "Tensor" },
+        { "name": "im_info", "type": "Tensor" },
+        { "name": "weights", "type": "float32[]" },
+        { "name": "apply_scale", "type": "boolean" },
+        { "name": "rotated", "type": "boolean" },
+        { "name": "angle_bound_on", "type": "boolean" },
+        { "name": "angle_bound_lo", "type": "int64" },
+        { "name": "angle_bound_hi", "type": "int64" },
+        { "name": "clip_angle_thresh", "type": "float32" },
+        { "name": "legacy_plus_one", "type": "boolean" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "output_0", "type": "Tensor" },
+        { "name": "output_1", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops._caffe2.BoxWithNMSLimit",
+    "schema": {
+      "inputs": [
+        { "name": "scores", "type": "Tensor" },
+        { "name": "boxes", "type": "Tensor" },
+        { "name": "batch_splits", "type": "Tensor" },
+        { "name": "score_thresh", "type": "float32" },
+        { "name": "nms", "type": "float32" },
+        { "name": "detections_per_im", "type": "int64" },
+        { "name": "soft_nms_enabled", "type": "boolean" },
+        { "name": "soft_nms_method", "type": "string" },
+        { "name": "soft_nms_sigma", "type": "float32" },
+        { "name": "soft_nms_min_score_thres", "type": "float32" },
+        { "name": "rotated", "type": "boolean" },
+        { "name": "cls_agnostic_bbox_reg", "type": "boolean" },
+        { "name": "input_boxes_include_bg_cls", "type": "boolean" },
+        { "name": "output_classes_include_bg_cls", "type": "boolean" },
+        { "name": "legacy_plus_one", "type": "boolean" },
+        { "name": "?" }
+      ],
+      "outputs": [
+        { "name": "scores", "type": "Tensor" },
+        { "name": "boxes", "type": "Tensor" },
+        { "name": "classes", "type": "Tensor" },
+        { "name": "batch_splits", "type": "Tensor" },
+        { "name": "keeps", "type": "Tensor" },
+        { "name": "keeps_size", "type": "Tensor" }
       ]
     }
   }
