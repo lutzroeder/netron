@@ -4298,3 +4298,18 @@ $root.mindspore.schema.Merge = class Merge {
         return $;
     }
 };
+
+$root.mindspore.schema.GeLU = class GeLU {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.GeLU();
+        $.approximate = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.GeLU();
+        $.approximate = reader.value(json.approximate, false);
+        return $;
+    }
+};
