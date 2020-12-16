@@ -39,7 +39,7 @@ onnx.ModelFactory = class {
         if (reader.length > 11) {
             const buffer = reader.peek(12);
             if (buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
-                const producers = [ 'keras2onnx', 'tf2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2' ];
+                const producers = [ 'keras2onnx', 'tf2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2', 'OnnxMLTools' ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
                     return true;
                 }
