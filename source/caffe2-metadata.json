@@ -19270,5 +19270,19 @@
       ],
       "support_level": "default"
     }
+  },
+  {
+    "name": "AsyncNetBarrier",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Specifies either inputs should be across different devices in dev inference options",
+          "name": "cross_device",
+          "option": "optional"
+        }
+      ],
+      "description": "\nThis is a pretty much no-op operator, since it's only purposes is make sure that\nasync_scheduling will schedule certian operations earlier than others.\n\nExaple where this operator can work well - mixture of data-parallel and model-\nparallel training, where one wants to force that all copies are started before\ndata-parallel part starts.\n",
+      "support_level": "default"
+    }
   }
 ]
