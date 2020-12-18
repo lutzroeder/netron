@@ -275,21 +275,24 @@ host.ElectronHost = class {
                 else if (err) {
                     reject(err);
                 }
+                else if (!stats.isFile()) {
+                    reject(new Error("The path '" + file + "' is not a file."));
+                }
                 else if (stats && stats.size < 0x7ffff000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
                             reject(err);
                         }
                         else {
-                            resolve(encoding ? data : new host.ElectronHost.BinaryReader(data));
+                            resolve(encoding ? data : new host.ElectronHost.BinaryStream(data));
                         }
                     });
                 }
                 else if (encoding) {
-                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB.."));
+                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
                 }
                 else {
-                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") is greater than 2 GB.."));
+                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") is greater than 2 GB."));
                 }
             });
         });
@@ -345,8 +348,8 @@ host.ElectronHost = class {
             this._view.show('welcome spinner');
             const dirname = path.dirname(file);
             const basename = path.basename(file);
-            this.request(dirname, basename, null).then((reader) => {
-                const context = new host.ElectronHost.ElectonContext(this, dirname, basename, reader);
+            this.request(dirname, basename, null).then((stream) => {
+                const context = new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {
@@ -493,13 +496,12 @@ host.Telemetry = class {
     }
 };
 
-host.ElectronHost.BinaryReader = class {
+host.ElectronHost.BinaryStream = class {
 
     constructor(buffer) {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
     get position() {
@@ -511,10 +513,10 @@ host.ElectronHost.BinaryReader = class {
     }
 
     create(buffer) {
-        return new host.ElectronHost.BinaryReader(buffer);
+        return new host.ElectronHost.BinaryStream(buffer);
     }
 
-    reader(length) {
+    stream(length) {
         return this.create(this.read(length));
     }
 
@@ -552,51 +554,15 @@ host.ElectronHost.BinaryReader = class {
         this.skip(1);
         return this._buffer[position];
     }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getUint16(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getUint64(position, true);
-    }
-
-    int16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getInt16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getInt32(position, true);
-    }
-
-    int64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getInt64(position, true);
-    }
 };
 
 host.ElectronHost.ElectonContext = class {
 
-    constructor(host, folder, identifier, reader) {
+    constructor(host, folder, identifier, stream) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
-        this._reader = reader;
+        this._stream = stream;
     }
 
     request(file, encoding) {
@@ -607,8 +573,8 @@ host.ElectronHost.ElectonContext = class {
         return this._identifier;
     }
 
-    get reader() {
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 };
 

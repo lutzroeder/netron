@@ -7,9 +7,9 @@ var flexbuffers = {};
 tflite.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         const signature = 'TFL3';
-        if (reader.length > 8 && reader.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
+        if (stream.length > 8 && stream.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
             return true;
         }
         const extension = context.identifier.split('.').pop().toLowerCase();
@@ -31,7 +31,8 @@ tflite.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        const reader = new flatbuffers.TextReader(context.reader.peek());
+                        const buffer = context.stream.peek();
+                        const reader = new flatbuffers.TextReader(buffer);
                         model = tflite.schema.Model.createText(reader);
                     }
                     catch (error) {
@@ -41,7 +42,8 @@ tflite.ModelFactory = class {
                     break;
                 default:
                     try {
-                        const reader = new flatbuffers.Reader(context.reader.peek());
+                        const buffer = context.stream.peek();
+                        const reader = new flatbuffers.Reader(buffer);
                         if (!tflite.schema.Model.identifier(reader)) {
                             throw new tflite.Error('Invalid identifier.');
                         }

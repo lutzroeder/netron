@@ -6,9 +6,9 @@ var json = json || require('./json');
 keras.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-        if (reader.length > signature.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return true;
         }
         const tags = context.tags('json');
@@ -47,7 +47,7 @@ keras.ModelFactory = class {
                 case 'model':
                 case 'pb':
                 case 'pth': {
-                    const buffer = context.reader.peek();
+                    const buffer = context.stream.peek();
                     const file = new hdf5.File(buffer);
                     rootGroup = file.rootGroup;
                     if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
@@ -172,7 +172,7 @@ keras.ModelFactory = class {
                     break;
                 }
                 case 'json': {
-                    const buffer = context.reader.peek();
+                    const buffer = context.stream.peek();
                     const reader = json.TextReader.create(buffer);
                     const root = reader.read();
                     if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {

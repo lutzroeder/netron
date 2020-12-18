@@ -9,7 +9,7 @@ tnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
             try {
-                const reader = base.TextReader.create(context.reader.peek(), 2048);
+                const reader = base.TextReader.create(context.stream.peek(), 2048);
                 const text = reader.read();
                 if (text !== undefined) {
                     const line = text.trim();
@@ -26,9 +26,9 @@ tnn.ModelFactory = class {
             }
         }
         if (identifier.endsWith('.tnnmodel')) {
-            const reader = context.reader;
+            const stream = context.stream;
             const signature = [ 0x02, 0x00, 0xbc, 0xfa ];
-            if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
+            if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
                 return true;
             }
         }
@@ -40,18 +40,18 @@ tnn.ModelFactory = class {
             const identifier = context.identifier.toLowerCase();
             if (identifier.endsWith('.tnnproto')) {
                 const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
-                return context.request(tnnmodel, null).then((reader) => {
-                    const buffer = reader.read();
-                    return new tnn.Model(metadata, context.reader.peek(), buffer);
+                return context.request(tnnmodel, null).then((stream) => {
+                    const buffer = stream.peek();
+                    return new tnn.Model(metadata, context.stream.peek(), buffer);
                 }).catch(() => {
-                    return new tnn.Model(metadata, context.reader.peek(), null);
+                    return new tnn.Model(metadata, context.stream.peek(), null);
                 });
             }
             else if (identifier.endsWith('.tnnmodel')) {
                 const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                return context.request(tnnproto, null).then((reader) => {
-                    const buffer = reader.read();
-                    return new tnn.Model(metadata, buffer, context.reader.peek());
+                return context.request(tnnproto, null).then((stream) => {
+                    const buffer = stream.peek();
+                    return new tnn.Model(metadata, buffer, context.stream.peek());
                 });
             }
         });

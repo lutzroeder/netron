@@ -6,9 +6,9 @@ var tengine = tengine || {};
 tengine.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
-        if (reader.length > 4) {
-            const buffer = reader.peek(2);
+        const stream = context.stream;
+        if (stream.length > 4) {
+            const buffer = stream.peek(2);
             if (buffer[0] < 4 && buffer[1] === 0) {
                 return true;
             }
@@ -18,7 +18,7 @@ tengine.ModelFactory = class {
 
     open(context, host) {
         return tengine.Metadata.open(host).then((metadata) => {
-            const buffer = context.reader.peek();
+            const buffer = context.stream.peek();
             const majorVersion = buffer[0] | buffer[1] << 8;
             const minorVersion = buffer[2] | buffer[3] << 8;
             if (majorVersion !== 2) {

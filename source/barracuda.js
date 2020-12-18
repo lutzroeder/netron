@@ -6,9 +6,9 @@ var barracuda = barracuda || {};
 barracuda.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
-        if (reader.length > 12) {
-            const buffer = reader.peek(12);
+        const stream = context.stream;
+        if (stream.length > 12) {
+            const buffer = stream.peek(12);
             if (buffer[0] <= 0x10 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
                 return true;
             }
@@ -18,7 +18,7 @@ barracuda.ModelFactory = class {
 
     open(context /*, host */) {
         return barracuda.Metadata.open().then((metadata) => {
-            const nn = new barracuda.NNModel(context.reader.peek());
+            const nn = new barracuda.NNModel(context.stream.peek());
             return new barracuda.Model(metadata, nn);
         });
     }

@@ -18,7 +18,7 @@ mnn.ModelFactory = class {
             let net = null;
             try {
                 mnn.schema = flatbuffers.get('mnn').MNN;
-                const buffer = context.reader.peek();
+                const buffer = context.stream.peek();
                 const reader = new flatbuffers.Reader(buffer);
                 net = mnn.schema.Net.create(reader);
             }

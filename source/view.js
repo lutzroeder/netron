@@ -341,7 +341,7 @@ view.View = class {
     }
 
     open(context) {
-        this._host.event('Model', 'Open', 'Size', context.reader.length);
+        this._host.event('Model', 'Open', 'Size', context.stream.length);
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
@@ -1039,8 +1039,8 @@ view.ModelContext = class {
         return this._context.identifier;
     }
 
-    get reader() {
-        return this._context.reader;
+    get stream() {
+        return this._context.stream;
     }
 
     entries(format) {
@@ -1054,7 +1054,7 @@ view.ModelContext = class {
             try {
                 switch (type) {
                     case 'pbtxt': {
-                        const decoder = base.TextDecoder.create(this.reader.peek());
+                        const decoder = base.TextDecoder.create(this.stream.peek());
                         let count = 0;
                         for (let i = 0; i < 0x100; i++) {
                             const c = decoder.decode();
@@ -1065,7 +1065,7 @@ view.ModelContext = class {
                             }
                         }
                         if (count < 4) {
-                            const reader = protobuf.TextReader.create(this.reader.peek());
+                            const reader = protobuf.TextReader.create(this.stream.peek());
                             reader.start(false);
                             while (!reader.end(false)) {
                                 const tag = reader.tag();
@@ -1086,7 +1086,7 @@ view.ModelContext = class {
                         break;
                     }
                     case 'pb': {
-                        const reader = protobuf.Reader.create(this.reader.peek());
+                        const reader = protobuf.Reader.create(this.stream.peek());
                         const length = reader.length;
                         while (reader.position < length) {
                             const tag = reader.uint32();
@@ -1108,7 +1108,7 @@ view.ModelContext = class {
                         break;
                     }
                     case 'json': {
-                        const reader = json.TextReader.create(this.reader.peek());
+                        const reader = json.TextReader.create(this.stream.peek());
                         const obj = reader.read();
                         if (!Array.isArray(obj)) {
                             for (const key in obj) {
@@ -1136,7 +1136,7 @@ view.ModelContext = class {
 
 view.ArchiveContext = class {
 
-    constructor(entries, rootFolder, identifier, reader) {
+    constructor(entries, rootFolder, identifier, stream) {
         this._entries = {};
         if (entries) {
             for (const entry of entries) {
@@ -1149,7 +1149,7 @@ view.ArchiveContext = class {
             }
         }
         this._identifier = identifier.substring(rootFolder.length);
-        this._reader = reader;
+        this._stream = stream;
     }
 
     request(file, encoding) {
@@ -1157,15 +1157,15 @@ view.ArchiveContext = class {
         if (!entry) {
             return Promise.reject(new Error('File not found.'));
         }
-        return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.reader);
+        return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
     }
 
     get identifier() {
         return this._identifier;
     }
 
-    get reader() {
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 };
 
@@ -1305,24 +1305,24 @@ view.ModelFactoryService = class {
                 throw new view.ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
             }
         }
-        const reader = context.reader;
-        reader.seek(0);
-        const buffer = reader.peek(Math.min(16, reader.length));
+        const stream = context.stream;
+        stream.seek(0);
+        const buffer = stream.peek(Math.min(16, stream.length));
         const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-        const content = buffer.length > 268435456 ? '(' + bytes + ') [' + reader.length.toString() + ']': '(' + bytes + ')';
+        const content = buffer.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
         throw new view.ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
     }
 
     _openArchive(context) {
         const entries = new Map();
-        let reader = context.reader;
+        let stream = context.stream;
         let extension;
         let identifier = context.identifier;
-        let buffer = reader.peek(Math.min(512, reader.length));
+        let buffer = stream.peek(Math.min(512, stream.length));
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
-                const entries = new gzip.Archive(reader).entries;
+                const entries = new gzip.Archive(stream).entries;
                 if (entries.length === 1) {
                     const entry = entries[0];
                     if (entry.name) {
@@ -1340,8 +1340,8 @@ view.ModelFactoryService = class {
                             }
                         }
                     }
-                    reader = entry.reader;
-                    buffer = reader.peek(Math.min(512, reader.length));
+                    stream = entry.stream;
+                    buffer = stream.peek(Math.min(512, stream.length));
                 }
             }
         }
@@ -1353,7 +1353,7 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'zip' || (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B)) {
-                entries.set('zip', new zip.Archive(reader).entries);
+                entries.set('zip', new zip.Archive(stream).entries);
             }
             if (extension === 'tar' || (buffer.length >= 512)) {
                 let sum = 0;
@@ -1366,7 +1366,7 @@ view.ModelFactoryService = class {
                 }
                 checksum = parseInt(checksum, 8);
                 if (!isNaN(checksum) && sum === checksum) {
-                    entries.set('tar', new tar.Archive(reader).entries);
+                    entries.set('tar', new tar.Archive(stream).entries);
                 }
             }
         }
@@ -1439,7 +1439,7 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            const context = new view.ModelContext(new view.ArchiveContext(null, rootFolder, entry.name, entry.reader));
+                            const context = new view.ModelContext(new view.ArchiveContext(null, rootFolder, entry.name, entry.stream));
                             let modules = this._filter(context);
                             const nextModule = () => {
                                 if (modules.length > 0) {
@@ -1484,7 +1484,7 @@ view.ModelFactoryService = class {
                         return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(entries, rootFolder, match.name, match.reader)));
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(entries, rootFolder, match.name, match.stream)));
                 }
             };
             return nextEntry();
@@ -1524,18 +1524,18 @@ view.ModelFactoryService = class {
     }
 
     _openSignature(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         let empty = true;
         let position = 0;
-        while (empty && position < reader.length) {
-            const buffer = reader.read(Math.min(4096, reader.length - position));
+        while (empty && position < stream.length) {
+            const buffer = stream.read(Math.min(4096, stream.length - position));
             position += buffer.length;
             if (!buffer.every((value) => value === 0x00)) {
                 empty = false;
                 break;
             }
         }
-        reader.seek(0);
+        stream.seek(0);
         if (empty) {
             return Promise.reject(new view.ModelError('File has no content.', true));
         }
@@ -1555,7 +1555,7 @@ view.ModelFactoryService = class {
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
-        const buffer = reader.peek(Math.min(4096, reader.length));
+        const buffer = stream.peek(Math.min(4096, stream.length));
         const text = new TextDecoder().decode(buffer);
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {

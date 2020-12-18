@@ -8,14 +8,14 @@ var zip = zip || require('./zip');
 sklearn.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
+        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
             return false;
         }
-        if (reader.length > 2) {
-            const buffer = reader.peek(2);
+        if (stream.length > 2) {
+            const buffer = stream.peek(2);
             if (buffer[0] === 0x80 && buffer[1] < 5) {
                 return true;
             }
@@ -23,10 +23,10 @@ sklearn.ModelFactory = class {
                 return true;
             }
         }
-        if (reader.length > 1) {
-            reader.seek(-1);
-            const value = reader.byte();
-            reader.seek(0);
+        if (stream.length > 1) {
+            stream.seek(-1);
+            const value = stream.byte();
+            stream.seek(0);
             if (value === 0x2e) {
                 return true;
             }
@@ -40,8 +40,7 @@ sklearn.ModelFactory = class {
             return sklearn.Metadata.open(host).then((metadata) => {
                 let container;
                 try {
-                    const reader = context.reader;
-                    const buffer = reader.peek();
+                    const buffer = context.stream.peek();
                     container = new sklearn.Container(buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
                         host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);

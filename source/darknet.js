@@ -10,13 +10,13 @@ darknet.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         switch (extension) {
             case 'weights':
-                if (darknet.Weights.open(context.reader)) {
+                if (darknet.Weights.open(context.stream)) {
                     return true;
                 }
                 break;
             default:
                 try {
-                    const reader = base.TextReader.create(context.reader.peek(), 65536);
+                    const reader = base.TextReader.create(context.stream.peek(), 65536);
                     for (;;) {
                         const line = reader.read();
                         if (line === undefined) {
@@ -50,15 +50,15 @@ darknet.ModelFactory = class {
             const basename = parts.join('.');
             switch (extension) {
                 case 'weights':
-                    return context.request(basename + '.cfg', null).then((reader) => {
-                        const buffer = reader.read();
-                        return open(metadata, buffer, context.reader);
+                    return context.request(basename + '.cfg', null).then((stream) => {
+                        const buffer = stream.read();
+                        return open(metadata, buffer, context.stream);
                     });
                 default:
-                    return context.request(basename + '.weights', null).then((reader) => {
-                        return open(metadata, context.reader.peek(), reader);
+                    return context.request(basename + '.weights', null).then((stream) => {
+                        return open(metadata, context.stream.peek(), stream);
                     }).catch(() => {
-                        return open(metadata, context.reader.peek(), null);
+                        return open(metadata, context.stream.peek(), null);
                     });
             }
         });
@@ -1106,15 +1106,16 @@ darknet.TensorShape = class {
 
 darknet.Weights = class {
 
-    static open(reader) {
-        if (reader && reader.length >= 20) {
+    static open(stream) {
+        if (stream && stream.length >= 20) {
+            const reader = new darknet.BinaryReader(stream.read(12));
             const major = reader.int32();
             const minor = reader.int32();
             reader.int32(); // revision
-            ((major * 10 + minor) >= 2) ? reader.int64() : reader.int32(); // seen
+            ((major * 10 + minor) >= 2) ? stream.skip(8) : stream.skip(4); // seen
             const transpose = (major > 1000) || (minor > 1000);
             if (!transpose) {
-                return new darknet.Weights(reader);
+                return new darknet.Weights(stream);
             }
             // else {
             //     throw new darknet.Error("Unsupported transpose weights file version '" + [ major, minor, revision ].join('.') + "'.");
@@ -1123,18 +1124,71 @@ darknet.Weights = class {
         return null;
     }
 
-    constructor(reader) {
-        this._reader = reader;
+    constructor(stream) {
+        this._stream = stream;
     }
 
     read(size) {
-        return this._reader.read(size);
+        return this._stream.read(size);
     }
 
     validate() {
-        if (this._reader.position != this._reader.length) {
+        if (this._stream.position != this._stream.length) {
             throw new darknet.Error('Invalid weights size.');
         }
+    }
+};
+
+darknet.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    peek(length) {
+        if (this._position === 0 && length === undefined) {
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        const end = this._position;
+        this.seek(position);
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    int32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getInt32(position, true);
     }
 };
 

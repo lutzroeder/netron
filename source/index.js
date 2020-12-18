@@ -380,7 +380,7 @@ host.BrowserHost = class {
             request.onload = () => {
                 if (request.status == 200) {
                     if (request.responseType == 'arraybuffer') {
-                        resolve(new host.BrowserHost.BinaryReader(new Uint8Array(request.response)));
+                        resolve(new host.BrowserHost.BinaryStream(new Uint8Array(request.response)));
                     }
                     else {
                         resolve(request.responseText);
@@ -809,13 +809,12 @@ host.Dropdown = class {
     }
 };
 
-host.BrowserHost.BinaryReader = class {
+host.BrowserHost.BinaryStream = class {
 
     constructor(buffer) {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
     get position() {
@@ -827,10 +826,10 @@ host.BrowserHost.BinaryReader = class {
     }
 
     create(buffer) {
-        return new host.BrowserHost.BinaryReader(buffer);
+        return new host.BrowserHost.BinaryStream(buffer);
     }
 
-    reader(length) {
+    stream(length) {
         return this.create(this.read(length));
     }
 
@@ -868,42 +867,6 @@ host.BrowserHost.BinaryReader = class {
         this.skip(1);
         return this._buffer[position];
     }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getUint16(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getUint64(position, true);
-    }
-
-    int16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getInt16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getInt32(position, true);
-    }
-
-    int64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getInt64(position, true);
-    }
 };
 
 host.BrowserHost.BrowserFileContext = class {
@@ -920,13 +883,13 @@ host.BrowserHost.BrowserFileContext = class {
         return this._file.name;
     }
 
-    get reader() {
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 
     open() {
-        return this.request(this._file.name, null).then((reader) => {
-            this._reader = reader;
+        return this.request(this._file.name, null).then((stream) => {
+            this._stream = stream;
         });
     }
 
@@ -938,7 +901,7 @@ host.BrowserHost.BrowserFileContext = class {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                resolve(encoding ? e.target.result : new host.BrowserHost.BinaryReader(new Uint8Array(e.target.result)));
+                resolve(encoding ? e.target.result : new host.BrowserHost.BinaryStream(new Uint8Array(e.target.result)));
             };
             reader.onerror = (e) => {
                 e = e || window.event;
@@ -972,9 +935,9 @@ host.BrowserHost.BrowserFileContext = class {
 
 host.BrowserHost.BrowserContext = class {
 
-    constructor(host, url, identifier, reader) {
+    constructor(host, url, identifier, stream) {
         this._host = host;
-        this._reader = reader;
+        this._stream = stream;
         if (identifier) {
             this._identifier = identifier;
             this._base = url;
@@ -997,8 +960,8 @@ host.BrowserHost.BrowserContext = class {
         return this._identifier;
     }
 
-    get reader() {
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 };
 

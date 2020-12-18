@@ -22,9 +22,9 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'params') {
-            const reader = context.reader;
+            const stream = context.stream;
             const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
-            if (reader.length > signature.length && reader.peek(signature.length).every((value, index) => value == signature[index])) {
+            if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
                 return true;
             }
         }
@@ -42,7 +42,7 @@ mxnet.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        const reader = json.TextReader.create(context.reader.peek());
+                        const reader = json.TextReader.create(context.stream.peek());
                         symbol = reader.read();
                         if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                             format  = 'TVM';
@@ -54,8 +54,8 @@ mxnet.ModelFactory = class {
                     }
                     basename = mxnet.ModelFactory._basename(identifier, 'json', 'symbol');
                     if (basename) {
-                        return context.request(basename + '-0000.params', null).then((reader) => {
-                            const buffer = reader.read();
+                        return context.request(basename + '-0000.params', null).then((stream) => {
+                            const buffer = stream.peek();
                             return this._openModel(identifier, format, null, symbol, null, buffer, host);
                         }).catch(() => {
                             return this._openModel(identifier, format, null, symbol, null, params, host);
@@ -63,7 +63,7 @@ mxnet.ModelFactory = class {
                     }
                     return this._openModel(identifier, format, null, symbol, null, null, host);
                 case 'params':
-                    params = context.reader.peek();
+                    params = context.stream.peek();
                     basename = mxnet.ModelFactory._basename(context.identifier, 'params');
                     if (basename) {
                         return context.request(basename + '-symbol.json', 'utf-8').then((text) => {

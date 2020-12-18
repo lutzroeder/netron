@@ -6,14 +6,18 @@ tar.Archive = class {
 
     constructor(buffer) {
         this._entries = [];
-        const reader = buffer instanceof Uint8Array ? new tar.BinaryReader(buffer) : buffer;
-        while (reader.position < reader.length) {
-            this._entries.push(new tar.Entry(reader));
-            if (reader.position + 512 > reader.length ||
-                reader.peek(512).every((value) => value === 0x00)) {
+        const stream = buffer instanceof Uint8Array ? new tar.BinaryReader(buffer) : buffer;
+        if (stream.length < 512) {
+            throw new tar.Error('Invalid tar archive size.');
+        }
+        while (stream.position < stream.length) {
+            this._entries.push(new tar.Entry(stream));
+            if (stream.position + 512 > stream.length ||
+                stream.peek(512).every((value) => value === 0x00)) {
                 break;
             }
         }
+        stream.seek(0);
     }
 
     get entries() {
@@ -23,52 +27,39 @@ tar.Archive = class {
 
 tar.Entry = class {
 
-    constructor(reader) {
-        const header = reader.peek(512);
+    constructor(stream) {
+        const buffer = stream.read(512);
+        const reader = new tar.BinaryReader(buffer);
         let sum = 0;
-        for (let i = 0; i < header.length; i++) {
-            sum += (i >= 148 && i < 156) ? 32 : header[i];
+        for (let i = 0; i < buffer.length; i++) {
+            sum += (i >= 148 && i < 156) ? 32 : buffer[i];
         }
-        const string = (length) => {
-            const buffer = reader.read(length);
-            let position = 0;
-            let text = '';
-            for (let i = 0; i < length; i++) {
-                const c = buffer[position++];
-                if (c === 0) {
-                    break;
-                }
-                text += String.fromCharCode(c);
-            }
-            return text;
-        };
-        this._name = string(100);
-        string(8); // file mode
-        string(8); // owner
-        string(8); // group
-        const size = parseInt(string(12).trim(), 8); // size
-        string(12); // timestamp
-        const checksum = parseInt(string(8).trim(), 8); // checksum
+        this._name = reader.string(100);
+        reader.string(8); // file mode
+        reader.string(8); // owner
+        reader.string(8); // group
+        const size = parseInt(reader.string(12).trim(), 8); // size
+        reader.string(12); // timestamp
+        const checksum = parseInt(reader.string(8).trim(), 8); // checksum
         if (isNaN(checksum) || sum != checksum) {
             throw new tar.Error('Invalid tar archive.');
         }
-        string(1); // link indicator
-        string(100); // name of linked file
-        reader.read(255);
-        this._reader = reader.reader(size);
-        reader.read(((size % 512) != 0) ? (512 - (size % 512)) : 0);
+        reader.string(1); // link indicator
+        reader.string(100); // name of linked file
+        this._stream = stream.stream(size);
+        stream.read(((size % 512) != 0) ? (512 - (size % 512)) : 0);
     }
 
     get name() {
         return this._name;
     }
 
-    get reader() {
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 
     get data() {
-        return this.reader.peek();
+        return this.stream.peek();
     }
 };
 
@@ -93,7 +84,7 @@ tar.BinaryReader = class {
         return new tar.BinaryReader(buffer);
     }
 
-    reader(length) {
+    stream(length) {
         return this.create(this.read(length));
     }
 
@@ -124,6 +115,20 @@ tar.BinaryReader = class {
         const position = this._position;
         this.skip(length !== undefined ? length : this._length - this._position);
         return this._buffer.subarray(position, this._position);
+    }
+
+    string(length) {
+        const buffer = this.read(length);
+        let position = 0;
+        let text = '';
+        for (let i = 0; i < length; i++) {
+            const c = buffer[position++];
+            if (c === 0) {
+                break;
+            }
+            text += String.fromCharCode(c);
+        }
+        return text;
     }
 };
 

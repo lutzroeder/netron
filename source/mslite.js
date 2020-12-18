@@ -6,9 +6,9 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 mslite.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         const signature = 'MSL1';
-        if (reader.length > 8 && reader.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
+        if (stream.length > 8 && stream.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
             return true;
         }
         return false;
@@ -19,7 +19,7 @@ mslite.ModelFactory = class {
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
-                const buffer = context.reader.peek();
+                const buffer = context.stream.peek();
                 const reader = new flatbuffers.Reader(buffer);
                 model = mslite.schema.MetaGraph.create(reader);
             }

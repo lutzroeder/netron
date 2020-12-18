@@ -107,7 +107,7 @@ class TestHost {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
         const buffer = fs.readFileSync(pathname, encoding);
-        return Promise.resolve(encoding ? buffer : new TestBinaryReader(buffer));
+        return Promise.resolve(encoding ? buffer : new TestBinaryStream(buffer));
     }
 
     event(/* category, action, label, value */) {
@@ -132,13 +132,12 @@ class TestHost {
     }
 }
 
-class TestBinaryReader {
+class TestBinaryStream {
 
     constructor(buffer) {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
     }
 
     get position() {
@@ -150,10 +149,10 @@ class TestBinaryReader {
     }
 
     create(buffer) {
-        return new TestBinaryReader(buffer);
+        return new TestBinaryStream(buffer);
     }
 
-    reader(length) {
+    stream(length) {
         return this.create(this.read(length));
     }
 
@@ -191,51 +190,15 @@ class TestBinaryReader {
         this.skip(1);
         return this._buffer[position];
     }
-
-    uint16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getUint16(position, true);
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getUint32(position, true);
-    }
-
-    uint64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getUint64(position, true);
-    }
-
-    int16() {
-        const position = this._position;
-        this.skip(2);
-        return this._view.getInt16(position, true);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getInt32(position, true);
-    }
-
-    int64() {
-        const position = this._position;
-        this.skip(8);
-        return this._view.getInt64(position, true);
-    }
 }
 
 class TestContext {
 
-    constructor(host, folder, identifier, reader) {
+    constructor(host, folder, identifier, stream) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
-        this._reader = reader;
+        this._stream = stream;
     }
 
     request(file, encoding) {
@@ -246,9 +209,8 @@ class TestContext {
         return this._identifier;
     }
 
-    get reader() {
-        // this._reader.seek(0);
-        return this._reader;
+    get stream() {
+        return this._stream;
     }
 }
 
@@ -581,7 +543,7 @@ function loadModel(target, item) {
     const fd = fs.openSync(target, 'r');
     fs.readSync(fd, buffer, 0, size, 0);
     fs.closeSync(fd);
-    const reader = new TestBinaryReader(buffer);
+    const reader = new TestBinaryStream(buffer);
     const context = new TestContext(host, folder, identifier, reader);
     const modelFactoryService = new view.ModelFactoryService(host);
     let opened = false;

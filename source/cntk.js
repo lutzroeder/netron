@@ -9,15 +9,15 @@ var cntk_v2 = null;
 cntk.ModelFactory = class {
 
     match(context) {
-        const reader = context.reader;
+        const stream = context.stream;
         // Reject PyTorch models with .model file extension.
         const torch = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (torch.length <= reader.length && reader.peek(torch.length).every((value, index) => torch[index] === undefined || torch[index] === value)) {
+        if (torch.length <= stream.length && stream.peek(torch.length).every((value, index) => torch[index] === undefined || torch[index] === value)) {
             return false;
         }
         // CNTK v1
         const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
-        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return true;
         }
         // CNTK v2
@@ -33,10 +33,10 @@ cntk.ModelFactory = class {
             let version = 0;
             let obj = null;
             try {
-                const reader = context.reader;
+                const stream = context.stream;
                 const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
-                if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => value === signature[index])) {
-                    obj = new cntk_v1.ComputationNetwork(reader.peek());
+                if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                    obj = new cntk_v1.ComputationNetwork(stream.peek());
                     version = 1;
                 }
             }
@@ -48,7 +48,7 @@ cntk.ModelFactory = class {
                 if (!obj) {
                     cntk_v2 = protobuf.get('cntk').CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const reader = protobuf.Reader.create(context.reader.peek());
+                    const reader = protobuf.Reader.create(context.stream.peek());
                     const dictionary = cntk_v2.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;

@@ -7,8 +7,8 @@ torch.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension == 't7') {
-            const reader = context.reader;
-            if (reader.length >= 1 && reader.peek(1)[0] <= 58) {
+            const stream = context.stream;
+            if (stream.length >= 1 && stream.peek(1)[0] <= 58) {
                 return true;
             }
         }
@@ -18,7 +18,7 @@ torch.ModelFactory = class {
     open(context, host) {
         return torch.Metadata.open(host).then((metadata) => {
             const identifier = context.identifier;
-            const buffer = context.reader.peek();
+            const buffer = context.stream.peek();
             const reader = new torch.T7Reader(buffer, (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
                     host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);

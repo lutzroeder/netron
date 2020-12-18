@@ -11,7 +11,7 @@ ncnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const reader = base.TextReader.create(context.reader.peek(), 2048);
+            const reader = base.TextReader.create(context.stream.peek(), 2048);
             const signature = reader.read();
             if (signature !== undefined) {
                 if (signature.trim() === '7767517') {
@@ -24,9 +24,9 @@ ncnn.ModelFactory = class {
             }
         }
         if (identifier.endsWith('.param.bin')) {
-            const reader = context.reader;
-            if (reader.length > 4) {
-                const buffer = reader.peek(4);
+            const stream = context.stream;
+            if (stream.length > 4) {
+                const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature == 0x007685DD) {
                     return true;
@@ -37,9 +37,9 @@ ncnn.ModelFactory = class {
             if (identifier == 'snapshot_blob.bin' || identifier === 'v8_context_snapshot.bin') {
                 return false;
             }
-            const reader = context.reader;
-            if (reader.length > 4) {
-                const buffer = reader.peek(4);
+            const stream = context.stream;
+            if (stream.length > 4) {
+                const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
@@ -69,20 +69,20 @@ ncnn.ModelFactory = class {
                 else if (identifier.endsWith('.cfg.ncnn')) {
                     bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
                 }
-                return context.request(bin, null).then((reader) => {
-                    const buffer = reader.read();
-                    return openText(context.reader.peek(), buffer);
+                return context.request(bin, null).then((stream) => {
+                    const buffer = stream.read();
+                    return openText(context.stream.peek(), buffer);
                 }).catch(() => {
-                    return openText(context.reader.peek(), null);
+                    return openText(context.stream.peek(), null);
                 });
             }
             else if (identifier.endsWith('.param.bin')) {
                 bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
-                return context.request(bin, null).then((reader) => {
-                    const buffer = reader.read();
-                    return openBinary(context.reader.peek(), buffer);
+                return context.request(bin, null).then((stream) => {
+                    const buffer = stream.read();
+                    return openBinary(context.stream.peek(), buffer);
                 }).catch(() => {
-                    return openBinary(context.reader.peek(), null);
+                    return openBinary(context.stream.peek(), null);
                 });
             }
             else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
@@ -93,9 +93,9 @@ ncnn.ModelFactory = class {
                 else if (identifier.endsWith('.weights.ncnn')) {
                     text = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
                 }
-                return context.request(text, null).then((reader) => {
-                    const buffer = reader.read();
-                    return openText(buffer, context.reader.peek());
+                return context.request(text, null).then((stream) => {
+                    const buffer = stream.peek();
+                    return openText(buffer, context.stream.peek());
                 });
             }
         });

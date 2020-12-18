@@ -10,7 +10,8 @@ weka.ModelFactory = class {
 
     match(context) {
         try {
-            const reader = new java.io.InputObjectStream(context.reader.peek());
+            const buffer = context.stream.peek();
+            const reader = new java.io.InputObjectStream(buffer);
             const obj = reader.read();
             if (obj && obj.$class && obj.$class.name) {
                 return true;
@@ -24,7 +25,8 @@ weka.ModelFactory = class {
 
     open(context /*, host */) {
         return Promise.resolve().then(() => {
-            const reader = new java.io.InputObjectStream(context.reader.peek());
+            const buffer = context.stream.peek();
+            const reader = new java.io.InputObjectStream(buffer);
             const obj = reader.read();
             throw new weka.Error("Unsupported type '" + obj.$class.name + "'.");
         });

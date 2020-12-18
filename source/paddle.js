@@ -40,7 +40,8 @@ paddle.ModelFactory = class {
                         case 'pbtxt':
                         case 'txt': {
                             try {
-                                const reader = protobuf.TextReader.create(context.reader.peek());
+                                const buffer = context.stream.peek();
+                                const reader = protobuf.TextReader.create(buffer);
                                 programDesc = paddle.proto.ProgramDesc.decodeText(reader);
                             }
                             catch (error) {
@@ -51,7 +52,8 @@ paddle.ModelFactory = class {
                         }
                         default: {
                             try {
-                                const reader = protobuf.Reader.create(context.reader.peek());
+                                const buffer = context.stream.peek();
+                                const reader = protobuf.Reader.create(buffer);
                                 programDesc = paddle.proto.ProgramDesc.decode(reader);
                             }
                             catch (error) {

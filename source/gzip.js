@@ -7,13 +7,13 @@ gzip.Archive = class {
 
     constructor(buffer) {
         this._entries = [];
-        const reader = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
+        const stream = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
         const signature = [ 0x1f, 0x8b ];
-        if (reader.length < 18 || !reader.peek(2).every((value, index) => value === signature[index])) {
+        if (stream.length < 18 || !stream.peek(2).every((value, index) => value === signature[index])) {
             throw new gzip.Error('Invalid gzip archive.');
         }
-        this._entries.push(new gzip.Entry(reader));
-        reader.seek(0);
+        this._entries.push(new gzip.Entry(stream));
+        stream.seek(0);
     }
 
     get entries() {
@@ -23,12 +23,13 @@ gzip.Archive = class {
 
 gzip.Entry = class {
 
-    constructor(reader) {
+    constructor(stream) {
         const signature = [ 0x1f, 0x8b ];
-        if (reader.position + 2 > reader.length ||
-            !reader.read(2).every((value, index) => value === signature[index])) {
+        if (stream.position + 2 > stream.length ||
+            !stream.read(2).every((value, index) => value === signature[index])) {
             throw new gzip.Error('Invalid gzip signature.');
         }
+        let reader = new gzip.BinaryReader(stream.read(8));
         const compressionMethod = reader.byte();
         if (compressionMethod != 8) {
             throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
@@ -38,13 +39,13 @@ gzip.Entry = class {
         reader.byte();
         reader.byte(); // OS
         if ((flags & 4) != 0) { // FEXTRA
-            const xlen = reader.uint16();
-            reader.skip(xlen);
+            const xlen = stream.byte() | (stream.byte() << 8);
+            stream.skip(xlen);
         }
         const string = () => {
             let text = '';
-            while (reader.position < reader.length) {
-                const value = reader.byte();
+            while (stream.position < stream.length) {
+                const value = stream.byte();
                 if (value === 0x00) {
                     break;
                 }
@@ -59,10 +60,10 @@ gzip.Entry = class {
             string();
         }
         if ((flags & 1) != 0) { // CRC16x
-            reader.uint16();
+            stream.skip(2);
         }
-        this._reader = reader.reader();
-        reader.seek(-8);
+        this._stream = stream.stream(stream.length - stream.position - 8);
+        reader = new gzip.BinaryReader(stream.read(8));
         reader.uint32(); // CRC32
         this._size = reader.uint32();
     }
@@ -71,9 +72,9 @@ gzip.Entry = class {
         return this._name;
     }
 
-    get reader() {
+    get stream() {
         if (this._size !== undefined) {
-            const compressedData = this._reader.read();
+            const compressedData = this._stream.read();
             let buffer = null;
             if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
                 buffer = require('zlib').inflateRawSync(compressedData);
@@ -87,14 +88,14 @@ gzip.Entry = class {
             if (this._size != buffer.length) {
                 throw new gzip.Error('Invalid size.');
             }
-            this._reader = this._reader.create(buffer);
+            this._stream = this._stream.create(buffer);
             delete this._size;
         }
-        return this._reader;
+        return this._stream;
     }
 
     get data() {
-        return this.reader.peek();
+        return this.stream.peek();
     }
 };
 
@@ -119,7 +120,7 @@ gzip.BinaryReader = class {
         return new gzip.BinaryReader(buffer);
     }
 
-    reader(length) {
+    stream(length) {
         return this.create(this.read(length));
     }
 

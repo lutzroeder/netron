@@ -2287,10 +2287,10 @@ pytorch.Container = class {
         if (context.entries('zip').some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
             return new pytorch.Container.Zip(context.entries('zip'), metadata, pickle, python, exception);
         }
-        const reader = context.reader;
+        const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (signature.length <= reader.length && reader.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
-            return new pytorch.Container.Pickle(reader.peek(), pickle, exception);
+        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
+            return new pytorch.Container.Pickle(stream.peek(), pickle, exception);
         }
         if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
             return new pytorch.Container.Tar(context.entries('tar'), pickle, exception);
