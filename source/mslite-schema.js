@@ -282,6 +282,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 200: return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decode(reader, position);
             case 201: return $root.mindspore.schema.Reciprocal.decode(reader, position);
             case 202: return $root.mindspore.schema.Merge.decode(reader, position);
+            case 203: return $root.mindspore.schema.Mod.decode(reader, position);
         }
         return undefined;
     }
@@ -490,6 +491,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'SigmoidCrossEntropyWithLogitsGrad': return $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad.decodeText(reader, json);
             case 'Reciprocal': return $root.mindspore.schema.Reciprocal.decodeText(reader, json);
             case 'Merge': return $root.mindspore.schema.Merge.decodeText(reader, json);
+            case 'Mod': return $root.mindspore.schema.Mod.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3060,6 +3062,19 @@ $root.mindspore.schema.FloorMod = class FloorMod {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.FloorMod();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Mod = class Mod {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Mod();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Mod();
         return $;
     }
 };
