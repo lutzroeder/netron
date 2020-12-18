@@ -283,6 +283,7 @@ rknn.Tensor = class {
         let size = 0;
         switch (this._type.dataType) {
             case 'uint8': size = 1; break;
+            case 'int8': size = 1; break;
             case 'int32': size = 4; break;
             case 'float16': size = 2; break;
             case 'float32': size = 4; break;
@@ -365,6 +366,11 @@ rknn.Tensor = class {
                         context.index++;
                         context.count++;
                         break;
+                    case 'int8':
+                        results.push(context.view.getInt8(context.index, true));
+                        context.index += 1;
+                        context.count++;
+                        break;
                     case 'int32':
                         results.push(context.view.getInt32(context.index, true));
                         context.index += 4;
@@ -394,6 +400,7 @@ rknn.TensorType = class {
     constructor(dataType, shape) {
         switch (dataType.vx_type) {
             case 'VSI_NN_TYPE_UINT8': this._dataType = 'uint8'; break;
+            case 'VSI_NN_TYPE_INT8': this._dataType = 'int8'; break;
             case 'VSI_NN_TYPE_INT32': this._dataType = 'int32'; break;
             case 'VSI_NN_TYPE_FLOAT16': this._dataType = 'float16'; break;
             case 'VSI_NN_TYPE_FLOAT32': this._dataType = 'float32'; break;
