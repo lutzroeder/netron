@@ -19284,5 +19284,12 @@
       "description": "\nThis is a pretty much no-op operator, since it's only purposes is make sure that\nasync_scheduling will schedule certian operations earlier than others.\n\nExaple where this operator can work well - mixture of data-parallel and model-\nparallel training, where one wants to force that all copies are started before\ndata-parallel part starts.\n",
       "support_level": "default"
     }
+  },
+  {
+    "name": "UnsafeCoalesce",
+    "schema": {
+      "description": "\nCoalesce the N inputs into N outputs and a single coalesced output blob.\nThis allows operations that operate over multiple small kernels (e.g.\nbiases in a deep CNN) to be coalesced into a single larger operation,\namortizing the kernel launch overhead, synchronization costs for\ndistributed computation, etc.\nThe operator:\n- computes the total size of the coalesced blob by summing the input sizes\n- allocates the coalesced output blob as the total size\n- copies the input vectors into the coalesced blob, at the correct offset.\n- aliases each Output(i) to- point into the coalesced blob, at the corresponding offset for Input(i).\nThis is 'unsafe' as the output vectors are aliased, so use with\ncaution.\n",
+      "support_level": "default"
+    }
   }
 ]
