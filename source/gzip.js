@@ -62,10 +62,11 @@ gzip.Entry = class {
         if ((flags & 1) != 0) { // CRC16x
             stream.skip(2);
         }
-        this._stream = stream.stream(stream.length - stream.position - 8);
+        const compressedStream = stream.stream(stream.length - stream.position - 8);
         reader = new gzip.BinaryReader(stream.read(8));
         reader.uint32(); // CRC32
-        this._size = reader.uint32();
+        const length = reader.uint32();
+        this._stream = new gzip.InflaterStream(compressedStream, length);
     }
 
     get name() {
@@ -73,29 +74,93 @@ gzip.Entry = class {
     }
 
     get stream() {
-        if (this._size !== undefined) {
-            const compressedData = this._stream.read();
-            let buffer = null;
-            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-                buffer = require('zlib').inflateRawSync(compressedData);
-            }
-            else if (typeof pako !== 'undefined') {
-                buffer = pako.inflateRaw(compressedData);
-            }
-            else {
-                buffer = new require('./zip').Inflater().inflateRaw(compressedData);
-            }
-            if (this._size != buffer.length) {
-                throw new gzip.Error('Invalid size.');
-            }
-            this._stream = this._stream.create(buffer);
-            delete this._size;
-        }
         return this._stream;
     }
 
     get data() {
         return this.stream.peek();
+    }
+};
+
+gzip.InflaterStream = class {
+
+    constructor(stream, length) {
+        this._stream = stream;
+        this._position = 0;
+        this._length = length;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    inflate() {
+        if (this._buffer === undefined) {
+            const compressed = this._stream.peek();
+            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+                this._buffer = require('zlib').inflateRawSync(compressed);
+            }
+            else if (typeof pako !== 'undefined') {
+                this._buffer = pako.inflateRaw(compressed);
+            }
+            else {
+                this._buffer = new require('./zip').Inflater().inflateRaw(compressed);
+            }
+            if (this._buffer.length !== this._length) {
+                throw new gzip.Error('Invalid size.');
+            }
+            delete this._stream;
+        }
+    }
+
+    seek(position) {
+        if (this._buffer === undefined) {
+            this.inflate();
+        }
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        if (this._buffer === undefined) {
+            this.inflate();
+        }
+        this._position += offset;
+    }
+
+    stream(length) {
+        return new gzip.BinaryReader(this.read(length));
+    }
+
+    peek(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - this._position;
+        this.skip(length);
+        const end = this._position;
+        this.seek(position);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - this._position;
+        this.skip(length);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
     }
 };
 

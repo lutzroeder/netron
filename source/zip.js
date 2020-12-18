@@ -146,7 +146,7 @@ zip.Entry = class {
             }
             case 8: {
                 // Deflate
-                this._size = size;
+                this._stream = new zip.InflaterStream(this._stream, size);
                 break;
             }
             default:
@@ -160,15 +160,6 @@ zip.Entry = class {
     }
 
     get stream() {
-        if (this._size !== undefined) {
-            const compressedData = this._stream.peek();
-            const buffer = new zip.Inflater().inflateRaw(compressedData);
-            if (this._size != buffer.length) {
-                throw new zip.Error('Invalid uncompressed size.');
-            }
-            this._stream = this._stream.create(buffer);
-            delete this._size;
-        }
         return this._stream;
     }
 
@@ -502,7 +493,76 @@ zip.BitReader = class {
         this.data -= length;
         return tree.symbol[sum + current];
     }
+};
 
+zip.InflaterStream = class {
+
+    constructor(stream, length) {
+        this._stream = stream;
+        this._position = 0;
+        this._length = length;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    inflate() {
+        if (this._buffer === undefined) {
+            const compressed = this._stream.peek();
+            this._buffer = new zip.Inflater().inflateRaw(compressed);
+            if (this._length != this._buffer.length) {
+                throw new zip.Error('Invalid uncompressed size.');
+            }
+            delete this._stream;
+        }
+    }
+
+    seek(position) {
+        if (this._buffer === undefined) {
+            this.inflate();
+        }
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        if (this._buffer === undefined) {
+            this.inflate();
+        }
+        this._position += offset;
+    }
+
+    peek(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - position;
+        this.skip(length);
+        const end = this._position;
+        this.seek(position);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - position;
+        this.skip(length);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
 };
 
 zip.BinaryReader = class {

@@ -292,7 +292,7 @@ host.ElectronHost = class {
                     reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
                 }
                 else {
-                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") is greater than 2 GB."));
+                    resolve(new host.ElectronHost.FileStream(pathname, stats.size));
                 }
             });
         });
@@ -512,12 +512,9 @@ host.ElectronHost.BinaryStream = class {
         return this._length;
     }
 
-    create(buffer) {
-        return new host.ElectronHost.BinaryStream(buffer);
-    }
-
     stream(length) {
-        return this.create(this.read(length));
+        const buffer = this.read(length);
+        return new host.ElectronHost.BinaryStream(buffer.slice(0));
     }
 
     seek(position) {
@@ -553,6 +550,69 @@ host.ElectronHost.BinaryStream = class {
         const position = this._position;
         this.skip(1);
         return this._buffer[position];
+    }
+};
+
+host.ElectronHost.FileStream = class {
+
+    constructor(file, length) {
+        this._file = file;
+        this._length = length;
+        this._position = 0;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    stream(length) {
+        const buffer = this.read(length);
+        return new host.ElectronHost.BinaryStream(buffer);
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    peek(length) {
+        length = length !== undefined ? length : this._length - this._position;
+        const position = this._position;
+        this.skip(length);
+        this.seek(position);
+        const descriptor = fs.openSync(this._file, 'r');
+        const buffer = new Uint8Array(length);
+        fs.readSync(descriptor, buffer, 0, length, position);
+        fs.closeSync(descriptor);
+        return buffer;
+    }
+
+    read(length) {
+        length = length !== undefined ? length : this._length - this._position;
+        const position = this._position;
+        this.skip(length);
+        const descriptor = fs.openSync(this._file, 'r');
+        const buffer = new Uint8Array(length);
+        fs.readSync(descriptor, buffer, 0, length, position);
+        fs.closeSync(descriptor);
+        return buffer;
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        const descriptor = fs.openSync(this._file, 'r');
+        const buffer = new Uint8Array(1);
+        fs.readSync(descriptor, buffer, 0, 1, position);
+        fs.closeSync(descriptor);
+        return buffer[0];
     }
 };
 

@@ -825,12 +825,9 @@ host.BrowserHost.BinaryStream = class {
         return this._length;
     }
 
-    create(buffer) {
-        return new host.BrowserHost.BinaryStream(buffer);
-    }
-
     stream(length) {
-        return this.create(this.read(length));
+        const buffer = this.read(length);
+        return new host.BrowserHost.BinaryStream(buffer.slice(0));
     }
 
     seek(position) {

@@ -2290,7 +2290,7 @@ pytorch.Container = class {
         const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
-            return new pytorch.Container.Pickle(stream.peek(), pickle, exception);
+            return new pytorch.Container.Pickle(stream, pickle, exception);
         }
         if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
             return new pytorch.Container.Tar(context.entries('tar'), pickle, exception);
@@ -2431,8 +2431,8 @@ pytorch.Container.Tar = class {
 
 pytorch.Container.Pickle = class {
 
-    constructor(buffer, pickle, exception) {
-        this._buffer = buffer;
+    constructor(stream, pickle, exception) {
+        this._stream = stream;
         this._pickle = pickle;
         this._exceptionCallback = exception;
     }
@@ -2457,14 +2457,14 @@ pytorch.Container.Pickle = class {
     }
 
     _unpickle() {
-        if (!this._buffer) {
+        if (!this._stream) {
             return;
         }
 
         const execution = new pytorch.Execution(null, null, this._exceptionCallback);
-        const unpickler = new this._pickle.Unpickler(this._buffer);
+        const unpickler = new this._pickle.Unpickler(this._stream.peek());
 
-        this._buffer = null;
+        this._stream = null;
         this._pickle = null;
         this._exceptionCallback = null;
 
@@ -3769,7 +3769,7 @@ pytorch.nnapi.SerializedModel = class {
                             operand.value = reader.int32();
                             break;
                         case 'int32*':
-                            operand.value = reader.bytes(value.source_length);
+                            operand.value = reader.read(value.source_length);
                             break;
                         default:
                             throw new pytorch.Error("Unsupported NNAPI operand type '" + operand.type.toString() + "'.");
@@ -3833,7 +3833,7 @@ pytorch.nnapi.SerializedModel.BinaryReader = class {
         }
     }
 
-    bytes(length) {
+    read(length) {
         const position = this._position;
         this.skip(length);
         return this._buffer.subarray(position, this._position);

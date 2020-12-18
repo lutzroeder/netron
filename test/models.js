@@ -148,12 +148,9 @@ class TestBinaryStream {
         return this._length;
     }
 
-    create(buffer) {
-        return new TestBinaryStream(buffer);
-    }
-
     stream(length) {
-        return this.create(this.read(length));
+        const buffer = this.read(length);
+        return new TestBinaryStream(buffer.slice(0));
     }
 
     seek(position) {
