@@ -900,6 +900,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.distributions.transforms.LowerCholeskyTransform', function() {});
         this._registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
+        this._registerConstructor('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
@@ -1026,6 +1027,7 @@ pytorch.Execution = class {
                 }
             };
         });
+        this._registerConstructor('torch.nn.qat.modules.conv.Conv2d', function() {});
         this._registerConstructor('torch.nn.quantized.modules.activation.ReLU', function() {});
         this._registerConstructor('torch.nn.quantized.modules.batchnorm.BatchNorm2d', function() {});
         this._registerConstructor('torch.nn.quantized.modules.conv.Conv2d', function() {});
@@ -1051,6 +1053,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.optim.optimizer._RequiredParameter', function() {});
         this._registerConstructor('torch.optim.rmsprop.RMSprop', function() {});
         this._registerConstructor('torch.optim.sgd.SGD', function() {});
+        this._registerConstructor('torch.quantization.fake_quantize.FakeQuantize', function() {});
         this._registerConstructor('torch.quantization.observer._PartialWrapper', function() {});
         this._registerConstructor('torch.quantization.observer.MinMaxObserver', function() {});
         this._registerConstructor('torch.quantization.QConfig.QConfig', function() {});
