@@ -104,5 +104,3 @@ dmg:
     y: 170
     type: link
     path: /Applications
-nsis:
-  perMachine: true
