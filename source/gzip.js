@@ -98,35 +98,16 @@ gzip.InflaterStream = class {
         return this._length;
     }
 
-    inflate() {
-        if (this._buffer === undefined) {
-            const compressed = this._stream.peek();
-            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-                this._buffer = require('zlib').inflateRawSync(compressed);
-            }
-            else if (typeof pako !== 'undefined') {
-                this._buffer = pako.inflateRaw(compressed);
-            }
-            else {
-                this._buffer = new require('./zip').Inflater().inflateRaw(compressed);
-            }
-            if (this._buffer.length !== this._length) {
-                throw new gzip.Error('Invalid size.');
-            }
-            delete this._stream;
-        }
-    }
-
     seek(position) {
         if (this._buffer === undefined) {
-            this.inflate();
+            this._inflate();
         }
         this._position = position >= 0 ? position : this._length + position;
     }
 
     skip(offset) {
         if (this._buffer === undefined) {
-            this.inflate();
+            this._inflate();
         }
         this._position += offset;
     }
@@ -161,6 +142,25 @@ gzip.InflaterStream = class {
         const position = this._position;
         this.skip(1);
         return this._buffer[position];
+    }
+
+    _inflate() {
+        if (this._buffer === undefined) {
+            const compressed = this._stream.peek();
+            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
+                this._buffer = require('zlib').inflateRawSync(compressed);
+            }
+            else if (typeof pako !== 'undefined') {
+                this._buffer = pako.inflateRaw(compressed);
+            }
+            else {
+                this._buffer = new require('./zip').Inflater().inflateRaw(compressed);
+            }
+            if (this._buffer.length !== this._length) {
+                throw new gzip.Error('Invalid size.');
+            }
+            delete this._stream;
+        }
     }
 };
 

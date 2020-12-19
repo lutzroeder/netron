@@ -1108,13 +1108,14 @@ darknet.Weights = class {
 
     static open(stream) {
         if (stream && stream.length >= 20) {
-            const reader = new darknet.BinaryReader(stream.read(12));
-            const major = reader.int32();
-            const minor = reader.int32();
-            reader.int32(); // revision
-            ((major * 10 + minor) >= 2) ? stream.skip(8) : stream.skip(4); // seen
+            const buffer = stream.peek(12);
+            const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+            const major = view.getInt32(0, true);
+            const minor = view.getInt32(4, true);
+            view.getInt32(8, true); // revision
             const transpose = (major > 1000) || (minor > 1000);
             if (!transpose) {
+                stream.skip(12 + (((major * 10 + minor) >= 2) ? 8 : 4));
                 return new darknet.Weights(stream);
             }
             // else {
@@ -1136,59 +1137,6 @@ darknet.Weights = class {
         if (this._stream.position != this._stream.length) {
             throw new darknet.Error('Invalid weights size.');
         }
-    }
-};
-
-darknet.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-    }
-
-    peek(length) {
-        if (this._position === 0 && length === undefined) {
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        const end = this._position;
-        this.seek(position);
-        return this._buffer.subarray(position, end);
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    int32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getInt32(position, true);
     }
 };
 

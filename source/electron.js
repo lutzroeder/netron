@@ -292,7 +292,7 @@ host.ElectronHost = class {
                     reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
                 }
                 else {
-                    resolve(new host.ElectronHost.FileStream(pathname, stats.size));
+                    resolve(new host.ElectronHost.FileStream(pathname, 0, stats.size, stats.mtimeMs));
                 }
             });
         });
@@ -555,10 +555,12 @@ host.ElectronHost.BinaryStream = class {
 
 host.ElectronHost.FileStream = class {
 
-    constructor(file, length) {
+    constructor(file, start, length, mtime) {
         this._file = file;
+        this._start = start;
         this._length = length;
         this._position = 0;
+        this._mtime = mtime;
     }
 
     get position() {
@@ -570,8 +572,11 @@ host.ElectronHost.FileStream = class {
     }
 
     stream(length) {
-        const buffer = this.read(length);
-        return new host.ElectronHost.BinaryStream(buffer);
+        const file = new host.ElectronHost.FileStream(this._file, this._position, length, this._mtime);
+        this.skip(length);
+        return file;
+        // const buffer = this.read(length);
+        // return new host.ElectronHost.BinaryStream(buffer);
     }
 
     seek(position) {
@@ -580,39 +585,70 @@ host.ElectronHost.FileStream = class {
 
     skip(offset) {
         this._position += offset;
+        if (this._position > this._length) {
+            throw new Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     peek(length) {
         length = length !== undefined ? length : this._length - this._position;
+        if (length < 0x10000000) {
+            const position = this._fill(length);
+            this._position -= length;
+            return this._buffer.subarray(position, position + length);
+        }
         const position = this._position;
         this.skip(length);
         this.seek(position);
-        const descriptor = fs.openSync(this._file, 'r');
         const buffer = new Uint8Array(length);
-        fs.readSync(descriptor, buffer, 0, length, position);
-        fs.closeSync(descriptor);
+        this._read(buffer, position);
         return buffer;
     }
 
     read(length) {
         length = length !== undefined ? length : this._length - this._position;
+        if (length < 0x10000000) {
+            const position = this._fill(length);
+            return this._buffer.subarray(position, position + length);
+        }
         const position = this._position;
         this.skip(length);
-        const descriptor = fs.openSync(this._file, 'r');
         const buffer = new Uint8Array(length);
-        fs.readSync(descriptor, buffer, 0, length, position);
-        fs.closeSync(descriptor);
+        this._read(buffer, position);
         return buffer;
     }
 
     byte() {
+        const position = this._fill(1);
+        return this.buffer[position];
+    }
+
+    _fill(length) {
+        if (this._position + length > this._length) {
+            throw new Error('Expected ' + (this._position + length - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+        if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
+            this._offset = this._position;
+            this._buffer = new Uint8Array(Math.min(0x10000000, this._length - this._offset));
+            this._read(this._buffer, this._offset);
+        }
         const position = this._position;
-        this.skip(1);
+        this._position += length;
+        return position - this._offset;
+    }
+
+    _read(buffer, offset) {
         const descriptor = fs.openSync(this._file, 'r');
-        const buffer = new Uint8Array(1);
-        fs.readSync(descriptor, buffer, 0, 1, position);
-        fs.closeSync(descriptor);
-        return buffer[0];
+        const stat = fs.statSync(this._file);
+        if (stat.mtimeMs != this._mtime) {
+            throw new Error("File '" + this._file + "' last modified time changed.");
+        }
+        try {
+            fs.readSync(descriptor, buffer, 0, buffer.length, offset + this._start);
+        }
+        finally {
+            fs.closeSync(descriptor);
+        }
     }
 };
 

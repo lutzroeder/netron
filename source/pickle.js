@@ -5,7 +5,7 @@ var pickle = pickle || {};
 pickle.Unpickler = class {
 
     constructor(buffer) {
-        this._reader = new pickle.Reader(buffer);
+        this._reader = buffer instanceof Uint8Array ? new pickle.BinaryReader(buffer) : new pickle.StreamReader(buffer);
     }
 
     load(function_call, persistent_load) {
@@ -13,7 +13,7 @@ pickle.Unpickler = class {
         const marker = [];
         let stack = [];
         const memo = new Map();
-        while (!reader.end()) {
+        while (reader.position < reader.length) {
             const opcode = reader.byte();
             switch (opcode) {
                 case pickle.OpCode.PROTO: {
@@ -97,13 +97,13 @@ pickle.Unpickler = class {
                     stack.push(reader.uint16());
                     break;
                 case pickle.OpCode.BINBYTES:
-                    stack.push(reader.bytes(reader.int32()));
+                    stack.push(reader.read(reader.int32()));
                     break;
                 case pickle.OpCode.BINBYTES8:
-                    stack.push(reader.bytes(reader.int64()));
+                    stack.push(reader.read(reader.int64()));
                     break;
                 case pickle.OpCode.SHORT_BINBYTES:
-                    stack.push(reader.bytes(reader.byte()));
+                    stack.push(reader.read(reader.byte()));
                     break;
                 case pickle.OpCode.FLOAT:
                     stack.push(parseFloat(reader.line()));
@@ -264,7 +264,7 @@ pickle.Unpickler = class {
                     stack.push(false);
                     break;
                 case pickle.OpCode.LONG1: {
-                    const data = reader.bytes(reader.byte());
+                    const data = reader.read(reader.byte());
                     let number = 0;
                     switch (data.length) {
                         case 0: number = 0; break;
@@ -279,7 +279,7 @@ pickle.Unpickler = class {
                 }
                 case pickle.OpCode.LONG4:
                     // TODO decode LONG4
-                    stack.push(reader.bytes(reader.uint32()));
+                    stack.push(reader.read(reader.uint32()));
                     break;
                 case pickle.OpCode.TUPLE1:
                     stack.push([ stack.pop() ]);
@@ -301,10 +301,10 @@ pickle.Unpickler = class {
                     memo.set(memo.size, stack[stack.length - 1]);
                     break;
                 case pickle.OpCode.FRAME:
-                    reader.bytes(8);
+                    reader.read(8);
                     break;
                 case pickle.OpCode.BYTEARRAY8: {
-                    stack.push(reader.bytes(reader.int64()));
+                    stack.push(reader.read(reader.int64()));
                     break;
                 }
                 case pickle.OpCode.NONE:
@@ -320,7 +320,11 @@ pickle.Unpickler = class {
     }
 
     read(size) {
-        return this._reader.bytes(size);
+        return this._reader.read(size);
+    }
+
+    stream(size) {
+        return this._reader.stream(size);
     }
 
     unescape(token, size) {
@@ -477,18 +481,23 @@ pickle.OpCode = {
     READONLY_BUFFER: 152   // '\x98' (Protocol 5)
 };
 
-pickle.Reader = class {
+pickle.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._length = buffer.length;
         this._position = 0;
+        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._utf8Decoder = new TextDecoder('utf-8');
         this._asciiDecoder = new TextDecoder('ascii');
     }
 
-    end() {
-        return this._position >= this._buffer.length;
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
     }
 
     skip(offset) {
@@ -498,16 +507,37 @@ pickle.Reader = class {
         }
     }
 
+    stream(length) {
+        const buffer = this.read(length);
+        return new pickle.BinaryReader(buffer);
+    }
+
+    peek(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - this._position;
+        this.skip(length);
+        const end = this._position;
+        this.skip(-length);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        const position = this._position;
+        length = length !== undefined ? length : this._length - this._position;
+        this.skip(length);
+        if (position === 0 && length === this._length) {
+            return this._buffer;
+        }
+        return this._buffer.subarray(position, this._position);
+    }
+
     byte() {
         const position = this._position;
         this.skip(1);
         return this._dataView.getUint8(position);
-    }
-
-    bytes(length) {
-        const position = this._position;
-        this.skip(length);
-        return this._buffer.subarray(position, this._position);
     }
 
     uint16() {
@@ -550,7 +580,7 @@ pickle.Reader = class {
     }
 
     string(size, encoding) {
-        const data = this.bytes(size);
+        const data = this.read(size);
         return (encoding == 'utf-8') ?
             this._utf8Decoder.decode(data) :
             this._asciiDecoder.decode(data);
@@ -568,6 +598,115 @@ pickle.Reader = class {
     }
 };
 
+pickle.StreamReader = class {
+
+    constructor(stream) {
+        this._stream = stream;
+        this._length = stream.length;
+        this._position = 0;
+        this._utf8Decoder = new TextDecoder('utf-8');
+        this._asciiDecoder = new TextDecoder('ascii');
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._length) {
+            throw new pickle.Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    stream(length) {
+        this._stream.seek(this._position);
+        this.skip(length);
+        return this._stream.stream(length);
+    }
+
+    read(length) {
+        this._stream.seek(this._position);
+        this.skip(length);
+        return this._stream.read(length);
+    }
+
+    byte() {
+        const position = this._fill(1);
+        return this._dataView.getUint8(position);
+    }
+
+    uint16() {
+        const position = this._fill(2);
+        return this._dataView.getUint16(position, true);
+    }
+
+    int32() {
+        const position = this._fill(4);
+        return this._dataView.getInt32(position, true);
+    }
+
+    uint32() {
+        const position = this._fill(4);
+        return this._dataView.getUint32(position, true);
+    }
+
+    int64() {
+        const low = this.uint32();
+        const high = this.uint32();
+        if (high !== 0) {
+            throw new pickle.Error('Unsupported 64-bit integer value.');
+        }
+        return low;
+    }
+
+    float32() {
+        const position = this._fill(4);
+        return this._dataView.getFloat32(position, true);
+    }
+
+    float64() {
+        const position = this._fill(8);
+        return this._dataView.getFloat64(position, true);
+    }
+
+    string(size, encoding) {
+        const data = this.read(size);
+        return (encoding == 'utf-8') ?
+            this._utf8Decoder.decode(data) :
+            this._asciiDecoder.decode(data);
+    }
+
+    line() {
+        const index = this._buffer.indexOf(0x0A, this._position);
+        if (index == -1) {
+            throw new pickle.Error("Could not find end of line.");
+        }
+        const size = index - this._position;
+        const text = this.string(size, 'ascii');
+        this.skip(1);
+        return text;
+    }
+
+    _fill(length) {
+        if (this._position + length > this._length) {
+            throw new Error('Expected ' + (this._position + length - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+        if (!this._buffer || this._position < this._offset || this._position + length > this._offset + this._buffer.length) {
+            this._offset = this._position;
+            this._stream.seek(this._offset);
+            this._buffer = this._stream.read(Math.min(0x10000000, this._length - this._offset));
+            this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+        }
+        const position = this._position;
+        this._position += length;
+        return position - this._offset;
+    }
+};
 
 pickle.Error = class extends Error {
     constructor(message) {

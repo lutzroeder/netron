@@ -8,7 +8,7 @@ numpy.Array = class {
         if (buffer) {
             const reader = new numpy.BinaryReader(buffer);
             const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
-            if (!reader.bytes(6).every((v, i) => v == signature[i])) {
+            if (!reader.read(6).every((v, i) => v == signature[i])) {
                 throw new numpy.Error('Invalid signature.');
             }
             const major = reader.byte();
@@ -18,7 +18,7 @@ numpy.Array = class {
             }
             const size = major >= 2 ? reader.uint32() : reader.uint16();
             const encoding = major >= 3 ? 'utf-8' : 'ascii';
-            const header_content = new TextDecoder(encoding).decode(reader.bytes(size));
+            const header_content = new TextDecoder(encoding).decode(reader.read(size));
             const header = numpy.HeaderReader.create(header_content).read();
             if (!header.descr || header.descr.length < 2) {
                 throw new numpy.Error("Missing property 'descr'.");
@@ -31,7 +31,7 @@ numpy.Array = class {
             switch (this._byteOrder) {
                 case '|': {
                     this._dataType = header.descr.substring(1);
-                    this._data = reader.bytes(reader.size - reader.position);
+                    this._data = reader.read(reader.size - reader.position);
                     break;
                 }
                 case '>':
@@ -41,7 +41,7 @@ numpy.Array = class {
                     }
                     this._dataType = header.descr.substring(1);
                     const size = parseInt(header.descr[2], 10) * this._shape.reduce((a, b) => a * b, 1);
-                    this._data = reader.bytes(size);
+                    this._data = reader.read(size);
                     break;
                 }
                 default:
@@ -90,7 +90,7 @@ numpy.Array = class {
 
         const writer = new numpy.BinaryWriter();
 
-        writer.bytes([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
+        writer.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ]); // '\\x93NUMPY'
         writer.byte(1); // major
         writer.byte(0); // minor
 
@@ -137,7 +137,7 @@ numpy.Array = class {
         context.data = new Uint8Array(size);
         context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);
-        writer.bytes(context.data);
+        writer.write(context.data);
 
         return writer.toBuffer();
     }
@@ -212,7 +212,7 @@ numpy.BinaryReader = class {
         return this._buffer[this._position++];
     }
 
-    bytes(size) {
+    read(size) {
         const value = this._buffer.slice(this._position, this._position + size);
         this._position += size;
         return value;
@@ -232,14 +232,14 @@ numpy.BinaryWriter = class {
     }
 
     byte(value) {
-        this.bytes([ value ]);
+        this.write([ value ]);
     }
 
     uint16(value) {
-        this.bytes([ value & 0xff, (value >> 8) & 0xff ]);
+        this.write([ value & 0xff, (value >> 8) & 0xff ]);
     }
 
-    bytes(values) {
+    write(values) {
         const array = new Uint8Array(values.length);
         for (let i = 0; i < values.length; i++) {
             array[i] = values[i];

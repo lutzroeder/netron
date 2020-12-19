@@ -468,7 +468,7 @@ barracuda.NNModel = class {
         }
         for (const layer of this._layers) {
             for (const tensor of layer.tensors) {
-                tensor.data = reader.bytes(tensor.offset * tensor.itemsize, tensor.length * tensor.itemsize);
+                tensor.data = reader.read(tensor.offset * tensor.itemsize, tensor.length * tensor.itemsize);
             }
         }
     }
@@ -518,7 +518,7 @@ barracuda.BinaryReader = class {
         }
     }
 
-    bytes(offset, length) {
+    read(offset, length) {
         const start = this._position + offset;
         const end = start + length;
         if (end > this._buffer.length) {

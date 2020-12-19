@@ -267,8 +267,7 @@ tf.ModelFactory = class {
                     saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
                     const identifier = 'variables/variables.index';
                     return context.request(identifier, null).then((stream) => {
-                        const buffer = stream.peek();
-                        return tf.TensorBundle.open(buffer, identifier, context, host).then((bundle) => {
+                        return tf.TensorBundle.open(stream, identifier, context, host).then((bundle) => {
                             return new tf.Model(metadata, saved_model, format, producer, bundle);
 
                         });
@@ -284,8 +283,8 @@ tf.ModelFactory = class {
 
     static _openBundle(context, host) {
         return tf.Metadata.open(host).then((metadata) => {
-            const open = (buffer, identifier, context, host) => {
-                return tf.TensorBundle.open(buffer, identifier, context, host).then((bundle) => {
+            const open = (stream, identifier, context, host) => {
+                return tf.TensorBundle.open(stream, identifier, context, host).then((bundle) => {
                     return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                 }).catch((error) => {
                     host.exception(error, false);
@@ -297,20 +296,17 @@ tf.ModelFactory = class {
             if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier.toLowerCase())) {
                 const base = identifier.split('.');
                 base.pop();
-                const identifier = base.join('.') + '.index';
-                return context.request(identifier, null).then((stream) => {
-                    const buffer = stream.peek();
-                    return open(buffer, identifier, context, host);
+                const index = base.join('.') + '.index';
+                return context.request(index, null).then((stream) => {
+                    return open(stream, index, context, host);
                 }).catch((/* error */) => {
-                    const identifier = base.join('.') + '.ckpt';
-                    return context.request(identifier, null).then((stream) => {
-                        const buffer = stream.peek();
-                        open(buffer, identifier, context, host);
+                    const ckpt = base.join('.') + '.ckpt';
+                    return context.request(ckpt, null).then((stream) => {
+                        open(stream, ckpt, context, host);
                     });
                 });
             }
-            const buffer = context.stream.peek();
-            return open(buffer, identifier, context, host);
+            return open(context.stream, identifier, context, host);
         });
     }
 };
@@ -1466,9 +1462,9 @@ tf.TensorShape = class {
 
 tf.TensorBundle = class {
 
-    static open(buffer, identifier, context, host) {
+    static open(stream, identifier, context, host) {
         const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
-        const table = new tf.TensorBundle.Table(buffer);
+        const table = new tf.TensorBundle.Table(stream);
         if (!table.entries.has('')) {
             throw new tf.Error('Bundle header not available.');
         }
@@ -1489,16 +1485,15 @@ tf.TensorBundle = class {
             const name = basename + '.data-' + shardIndex + '-of-' + shardCount;
             promises.push(context.request(name, null));
         }
-        return Promise.all(promises).then((readers) => {
-            const shards = readers.map((stream) => stream.peek());
-            return new tf.TensorBundle(format, table.entries, shards);
+        return Promise.all(promises).then((streams) => {
+            return new tf.TensorBundle(format, table.entries, streams);
         }).catch((error) => {
             host.exception(error, false);
             return new tf.TensorBundle(format, table.entries, null);
         });
     }
 
-    constructor(format, entries, shards) {
+    constructor(format, entries, streams) {
         this._format = format;
         this._tensors = [];
         switch (format) {
@@ -1559,8 +1554,10 @@ tf.TensorBundle = class {
                         tensor.tensor_shape = entry.shape;
                         const offset = Number.isInteger(entry.offset) ? entry.offset : entry.offset.toNumber();
                         const size = Number.isInteger(entry.size) ? entry.size : entry.size.toNumber();
-                        if (shards) {
-                            tensor.tensor_content = shards[entry.shard_id].slice(offset, offset + size);
+                        if (streams) {
+                            const stream = streams[entry.shard_id];
+                            stream.seek(offset);
+                            tensor.tensor_content = stream.peek(size);
                         }
                         this._tensors.push(new tf.Tensor(tensor, name, null));
                     }
@@ -1581,12 +1578,14 @@ tf.TensorBundle = class {
 
 tf.TensorBundle.Table = class {
 
-    constructor(buffer) {
+    constructor(stream) {
         // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/io/table.cc
         this.entries = new Map();
-        if (buffer.length <= 48) {
+        if (stream.length <= 54) {
             throw new tf.Error('Invalid index file size.');
         }
+        stream.seek(-48);
+        const buffer = stream.peek(48);
         const reader = new tf.BinaryReader(buffer);
         reader.seek(-8);
         const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
@@ -1598,29 +1597,30 @@ tf.TensorBundle.Table = class {
         reader.varint64(); // metaindex size
         const indexOffset = reader.varint64();
         const indexSize = reader.varint64();
-        const indexBlock = new tf.TensorBundle.Table.Block(reader, indexOffset, indexSize);
+        const indexBlock = new tf.TensorBundle.Table.Block(stream, indexOffset, indexSize);
         for (const entry of indexBlock.entries) {
             const valueReader = new tf.BinaryReader(entry[1]);
             const offset = valueReader.varint64();
             const size = valueReader.varint64();
-            const block = new tf.TensorBundle.Table.Block(reader, offset, size);
+            const block = new tf.TensorBundle.Table.Block(stream, offset, size);
             for (const pair of block.entries) {
                 this.entries.set(pair[0], pair[1]);
             }
         }
+        stream.seek(0);
     }
 };
 
 tf.TensorBundle.Table.Block = class {
 
-    constructor(reader, offset, size) {
+    constructor(stream, offset, size) {
         // https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/lib/io/block.cc
         this.entries = new Map();
-        reader.seek(offset);
-        const buffer = reader.read(size); // blockContents
-        const compression = reader.byte();
-        reader.uint32(); // crc32
-        reader = new tf.BinaryReader(buffer);
+        stream.seek(offset);
+        const buffer = stream.read(size); // blockContents
+        const compression = stream.byte();
+        stream.skip(4); // crc32
+        let reader = new tf.BinaryReader(buffer);
         switch (compression) {
             case 0: // kNoCompression
                 break;

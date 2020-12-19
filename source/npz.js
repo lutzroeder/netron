@@ -150,7 +150,8 @@ npz.ModelFactory = class {
                         modulesMap.set(moduleName, newModule);
                     }
                     const module = modulesMap.get(moduleName);
-                    let array = new numpy.Array(entry.data);
+                    const data = entry.data;
+                    let array = new numpy.Array(data);
                     if (array.byteOrder === '|') {
                         if (array.dataType !== 'O') {
                             throw new npz.Error("Invalid data type '" + array.dataType + "'.");

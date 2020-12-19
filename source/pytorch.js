@@ -673,7 +673,14 @@ pytorch.Tensor = class {
             return context;
         }
 
-        context.data = this._data;
+        try {
+            context.data = this._data instanceof Uint8Array ? this._data : this._data.peek();
+        }
+        catch (err) {
+            context.state = err.message;
+            return context;
+        }
+
         context.dataType = this._type.dataType;
         context.dimensions = this._type.shape.dimensions;
         context.dataView = new DataView(context.data.buffer, context.data.byteOffset, context.data.byteLength);
@@ -2465,7 +2472,7 @@ pytorch.Container.Pickle = class {
         }
 
         const execution = new pytorch.Execution(null, null, this._exceptionCallback);
-        const unpickler = new this._pickle.Unpickler(this._stream.peek());
+        const unpickler = new this._pickle.Unpickler(this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream);
 
         this._stream = null;
         this._pickle = null;
@@ -2541,7 +2548,7 @@ pytorch.Container.Pickle = class {
             if (size != storage.size) {
                 throw new pytorch.Error('Storage size mismatch.');
             }
-            storage.data = unpickler.read(storage.dataTypeSize * storage.size);
+            storage.data = unpickler.stream(storage.dataTypeSize * storage.size);
         }
 
         const root = pytorch.Utility.findModule(obj);
