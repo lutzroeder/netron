@@ -525,6 +525,13 @@
   },
   {
     "type":   "caffe",
+    "target": "MobileNetSSD_train_template.prototxt",
+    "source": "https://raw.githubusercontent.com/chuanqi305/MobileNet-SSD/master/template/MobileNetSSD_train_template.prototxt",
+    "format": "Caffe v2",
+    "link":   "https://github.com/chuanqi305/MobileNet-SSD"
+  },
+  {
+    "type":   "caffe",
     "target": "mnist_siamese_solver.prototxt,mnist_siamese_train_test.prototxt",
     "source": "https://raw.githubusercontent.com/BVLC/caffe/master/examples/siamese/mnist_siamese_solver.prototxt,https://raw.githubusercontent.com/BVLC/caffe/master/examples/siamese/mnist_siamese_train_test.prototxt",
     "format": "Caffe v2",

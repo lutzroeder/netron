@@ -59,7 +59,7 @@ caffe.ModelFactory = class {
                             file = file.split('/').pop();
                             return context.request(file, null).then((stream) => {
                                 const buffer = stream.peek();
-                                return this._openNetParameterText(metadata, buffer);
+                                return this._openNetParameterText(metadata, file, buffer);
                             }).catch((error) => {
                                 if (error) {
                                     const message = error && error.message ? error.message : error.toString();
@@ -73,7 +73,7 @@ caffe.ModelFactory = class {
                     }
                 }
                 else if (tags.has('layer') || tags.has('layers')) {
-                    return this._openNetParameterText(metadata, context.stream.peek());
+                    return this._openNetParameterText(metadata, context.identifier, context.stream.peek());
                 }
                 else {
                     let netParameter = null;
@@ -91,7 +91,7 @@ caffe.ModelFactory = class {
         });
     }
 
-    _openNetParameterText(metadata, buffer) {
+    _openNetParameterText(metadata, identifier, buffer) {
         let netParameter = null;
         try {
             const reader = protobuf.TextReader.create(buffer);
@@ -128,6 +128,18 @@ caffe.ModelFactory = class {
                 }
                 return type[token];
             };
+            if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
+                reader.integer = function() {
+                    const token = this.token();
+                    const value = Number.parseInt(token, 10);
+                    this.next();
+                    this.semicolon();
+                    if (Number.isNaN(token - value)) {
+                        return token;
+                    }
+                    return value;
+                };
+            }
             netParameter = caffe.proto.NetParameter.decodeText(reader);
         }
         catch (error) {
