@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
-/* global pako */
 
 var gzip = gzip || {};
+var zip = zip || require('./zip');
 
 gzip.Archive = class {
 
@@ -147,15 +147,8 @@ gzip.InflaterStream = class {
     _inflate() {
         if (this._buffer === undefined) {
             const compressed = this._stream.peek();
-            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-                this._buffer = require('zlib').inflateRawSync(compressed);
-            }
-            else if (typeof pako !== 'undefined') {
-                this._buffer = pako.inflateRaw(compressed);
-            }
-            else {
-                this._buffer = new require('./zip').Inflater().inflateRaw(compressed);
-            }
+            this._buffer = new Uint8Array(this._length);
+            new zip.Inflater().inflateRaw(compressed, this._buffer);
             if (this._buffer.length !== this._length) {
                 throw new gzip.Error('Invalid size.');
             }

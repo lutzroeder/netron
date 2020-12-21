@@ -11,8 +11,7 @@ import distutils.command.build
 node_dependencies = [
     ( 'netron', [
         'node_modules/d3/dist/d3.js',
-        'node_modules/dagre/dist/dagre.js',
-        'node_modules/pako/dist/pako.min.js' ] )
+        'node_modules/dagre/dist/dagre.js' ] )
 ]
 
 class build(distutils.command.build.build):

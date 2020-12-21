@@ -19,8 +19,7 @@
     "dependencies": {
         "d3": "6.3.1",
         "dagre": "0.8.5",
-        "electron-updater": "4.3.5",
-        "pako": "2.0.2"
+        "electron-updater": "4.3.5"
     },
     "devDependencies": {
         "electron": "11.1.0",

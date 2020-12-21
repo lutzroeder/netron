@@ -667,7 +667,7 @@ sklearn.Container = class {
 
     constructor(buffer, pickle, exception) {
         if (buffer.length > 0 && buffer[0] == 0x78) {
-            buffer = new zip.Inflater().inflate(buffer);
+            buffer = new zip.Inflater().inflateRaw(buffer.subarray(2, buffer.length - 2));
         }
 
         const unpickler = new pickle.Unpickler(buffer);
