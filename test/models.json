@@ -1,5 +1,11 @@
 [
   {
+    "type":   "acuity",
+    "target": "inception_v1.json",
+    "source": "https://raw.githubusercontent.com/VeriSilicon/acuity-models/master/models/inception_v1/inception_v1.json",
+    "link":   "https://github.com/VeriSilicon/acuity-models"
+  },
+  {
     "type":   "any",
     "target": "config.json",
     "source": "https://github.com/lutzroeder/netron/files/5398758/config.json.zip[config.json]",
