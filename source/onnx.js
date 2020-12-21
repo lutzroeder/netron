@@ -197,6 +197,7 @@ onnx.Model = class {
         if (model && model.graph) {
             const graphMetadata = new onnx.GraphMetadata(metadata, imports);
             this._graphs = [ new onnx.Graph(graphMetadata, imageFormat, model.graph) ];
+            this._graphs[0].listSubgraphs(this._graphs)
         }
     }
 
@@ -383,6 +384,24 @@ onnx.Graph = class {
                     i += count;
                 }
                 this._nodes.push(new onnx.Node(metadata, imageFormat, node.op_type, node.domain, node.name, node.doc_string, node.attribute, inputs, outputs));
+            }
+        }
+    }
+
+    listSubgraphs(list) {
+        if (list === undefined) {
+            list = []
+        }
+        for (const node of this.nodes) {
+            for (const attribute of node.attributes) {
+                if (attribute.type === 'graph[]') {
+                    for (const graph of attribute.value) {
+                        list.push(graph)
+                    }
+                }
+                if (attribute.type === 'graph') {
+                    list.push(attribute.value)
+                }
             }
         }
     }
