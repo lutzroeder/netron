@@ -97,6 +97,12 @@
     "link":   "https://github.com/lutzroeder/netron/issues/250"
   },
   {
+    "type":   "acuity",
+    "target": "inception_v1.json",
+    "source": "https://raw.githubusercontent.com/VeriSilicon/acuity-models/master/models/inception_v1/inception_v1.json",
+    "link":   "https://github.com/VeriSilicon/acuity-models"
+  },
+  {
     "type":   "armnn",
     "target": "simple_network.armnn",
     "source": "https://github.com/lutzroeder/netron/files/4951689/simple_network.zip[simple_network.armnn]",

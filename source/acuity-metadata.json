@@ -1,0 +1,2967 @@
+[
+  {
+    "name": "a_times_b_plus_c",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" },
+        { "name": "C" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "abs",
+    "schema": {
+
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "add",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "C" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "addn",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "argmin",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": -1 }
+      ]
+    }
+  },
+  {
+    "name": "base_input_layer",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "batch2space",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "block_shape", "default": [2, 2] },
+        { "name": "block_crops", "default": [ [0, 0], [0, 0] ] }
+      ]
+    }
+  },
+  {
+    "name": "batchnorm_single",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" },
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "constants": [
+        { "name": "bias" },
+        { "name": "scale" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "eps", "default": 0.0001 }
+      ]
+    }
+  },
+  {
+    "name": "batchnormalize",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "beta" },
+        { "name": "gamma" },
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "eps", "default": 0.0001 }
+      ]
+    }
+  },
+  {
+    "name": "capsule_norm",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "cast",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "in_data_type", "default": 0 },
+        { "name": "out_data_type", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "clipbyvalue",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "clip_value_min", "default": 0 },
+        { "name": "clip_value_max", "default": 255 }
+      ]
+    }
+  },
+  {
+    "name": "concat",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "out" }
+      ],
+      "attributes": [
+        { "name": "dim", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "concatshift",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "data" },
+        { "name": "shifted_data" }
+      ],
+      "attributes": [
+        { "name": "dim", "default": 1 },
+        { "name": "keep_size", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "continuationindicator",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "time_step", "default": 0 },
+        { "name": "batch_size", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "conv1d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "group_number", "default": 1 },
+        { "name": "ksize", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "pad", "default": [0, 0] },
+        { "name": "dilation", "default": [1, 1, 1] }
+      ]
+    }
+  },
+  {
+    "name": "conv2d_op",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input"},
+        { "name": "weight"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "padding", "default": "VALID" },
+        { "name": "group_number", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "dilation", "default": [1, 1, 1] },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "conv3d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "bias", "default": false },
+        { "name": "group_number", "default": 1 },
+        { "name": "ksize_d", "default": 1 },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_d", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "pad_method", "default": "padding_const" },
+        { "name": "pad", "default": [0, 0, 0, 0, 0, 0] },
+        { "name": "dilation", "default": [1, 1, 1, 1, 1] }
+      ]
+    }
+  },
+  {
+    "name": "convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "group_number", "default": 1 },
+        { "name": "regularize", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "dilation", "default": [1, 1, 1, 1] },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 },
+        { "name": "multiplier", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "crop_image",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "crop_size", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "cropandresize",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "boxes" },
+        { "name": "box_ind" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "num_crop_boxes", "default": 0 },
+        { "name": "crop_size", "default": [] },
+        { "name": "resize_method", "default": "bilinear" }
+      ]
+    }
+  },
+  {
+    "name": "ctc_loss_layer",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "time_major", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "customlayer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": []
+    }
+  },
+  {
+    "name": "deconvolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "group_number", "default": 1 },
+        { "name": "regularize", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 },
+        { "name": "output_shape", "default": [] },
+        { "name": "output_padding_h", "default": 0 },
+        { "name": "output_padding_w", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "depth2space",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "block_size", "default": 2 },
+        { "name": "mode", "default": "DCR" }
+      ]
+    }
+  },
+  {
+    "name": "depthwise_conv1d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "group_number", "default": 2 },
+        { "name": "ksize", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "pad", "default": [0, 0] },
+        { "name": "dilation", "default": [1, 1, 1] },
+        { "name": "multiplier", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "depthwise_conv2d_op",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input"},
+        { "name": "weight"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "padding", "default": "VALID" },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "dilation", "default": [1, 1, 1, 1] },
+        { "name": "multiplier", "default": 1 },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "depthwise_convolution",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "regularize", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "dilation", "default": [1, 1, 1, 1] },
+        { "name": "multiplier", "default": 1 },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "dequantize",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "detectionevaluate",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" },
+        { "name": "out2" },
+        { "name": "out3" },
+        { "name": "out4" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "detectionoutput",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"},
+        { "name": "in2"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "digit_capsule",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "num_output", "default": 1 },
+        { "name": "vec_len", "default": 1 },
+        { "name": "iterations", "default": 3 }
+      ]
+    }
+  },
+  {
+    "name": "divide",
+    "schema": {
+      "inputs": [
+        { "name": "dividend" },
+        { "name": "divisor" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "dropout",
+    "schema": {
+      "category": "Dropout",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "ratio", "default": 0.5 },
+        { "name": "scale_train", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "dtype_converter",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "eltwise",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "operation", "default": "SUM" },
+        { "name": "coeff", "default": "" }
+      ]
+    }
+  },
+  {
+    "name": "elu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "alpha", "default": 0.1 }
+      ]
+    }
+  },
+  {
+    "name": "embedding_lookup",
+    "schema": {
+      "category": "Embedding",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "embedding_params" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "partition_strategy", "default": "mod" }
+      ]
+    }
+  },
+  {
+    "name": "equal",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "exp",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "expand_broadcast",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "shape", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "expanddims",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "dim", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "flatten",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "floor",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "floor_div",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "fullconnect",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "regularize", "default": false },
+        { "name": "axis", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "fullconnect_op",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "weights" }
+      ],
+      "constants": [
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "bias", "default": true },
+        { "name": "axis", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "gather",
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "gathernd",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "generator_input_layer",
+    "schema": {
+      "category": "Data",
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "greater",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "greater_equal",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "group_conv1d",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "padding", "default": "VALID" },
+        { "name": "bias", "default": true },
+        { "name": "group_number", "default": 2 },
+        { "name": "ksize", "default": 1 },
+        { "name": "stride", "default": 1 },
+        { "name": "pad", "default": [0, 0] },
+        { "name": "dilation", "default": [1, 1, 1] }
+      ]
+    }
+  },
+  {
+    "name": "gru",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" },
+        { "name": "in_hstat" }
+      ],
+      "constants": [
+        { "name": "gates_kernel" },
+        { "name": "gates_bias" },
+        { "name": "candidate_kernel" },
+        { "name": "candidate_bias" }
+      ],
+      "outputs": [
+        { "name": "output" },
+        { "name": "out_hstat" }
+      ],
+      "attributes": [
+        { "name": "num_units", "default": 1 },
+        { "name": "time_major", "default": true },
+        { "name": "bias", "default": true },
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "sigmoid" },
+        { "name": "return_sequences", "default": true },
+        { "name": "direction", "default": "forward" },
+        { "name": "linear_before_reset", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "gru_cell",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "data" },
+        { "name": "hstat" },
+        { "name": "cond_reset" },
+        { "name": "cond_update" },
+        { "name": "cond_candidate" }
+      ],
+      "constants": [
+        { "name": "gates_kernel" },
+        { "name": "gates_bias" },
+        { "name": "candidate_kernel" },
+        { "name": "candidate_bias" }
+      ],
+      "outputs": [
+        { "name": "data" },
+        { "name": "hstat" }
+      ],
+      "attributes": [
+        { "name": "num_units", "default": 1 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "sigmoid" },
+        { "name": "linear_before_reset", "default": 0 },
+        { "name": "cudnn_implementation", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "gru_keras",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "kernel" },
+        { "name": "recurrent_kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [],
+      "attributes": [
+        { "name": "units", "default": 1 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "hard_sigmoid" },
+        { "name": "use_bias", "default": true },
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "reset_after", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "h5_input_layer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "hard_swish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "image_resize",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "type", "default": "bilinear" },
+        { "name": "new_size", "default": [] },
+        { "name": "align_corners", "default": false },
+        { "name": "half_pixel", "default": false },
+        { "name": "size_factors", "default": null }
+      ]
+    }
+  },
+  {
+    "name": "image_transform",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "input",
+    "schema": {
+      "category": "Data",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "size", "default": "" },
+        { "name": "channels", "default": 1 },
+        { "name": "shape", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "instancenormalize",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "bias" },
+        { "name": "scale" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "eps", "default": 0.0001 },
+        { "name": "axis", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "keras_rnn_lstm",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "kernel" },
+        { "name": "recurrent_kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [],
+      "attributes": [
+        { "name": "cell", "default": null },
+        { "name": "go_backwards", "default": false },
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "stateful", "default": false },
+        { "name": "unroll", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "l2normalize",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "l2n_dim", "default": null },
+        { "name": "eps", "default": 1e-12 }
+      ]
+    }
+  },
+  {
+    "name": "l2normalizescale",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "scale" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "l2n_dim", "default": null },
+        { "name": "eps", "default": 1e-12 }
+      ]
+    }
+  },
+  {
+    "name": "l2pooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "padding", "default": "VALID" },
+        { "name": "type", "default": "MAX" },
+        { "name": "global_pooling", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "round_type", "default": "ceil" },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "layernormalize",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "bias" },
+        { "name": "scale" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "eps", "default": 0.0001 }
+      ]
+    }
+  },
+  {
+    "name": "leakyrelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "leaky_ratio", "default": 0.1 }
+      ]
+    }
+  },
+  {
+    "name": "less",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "less_equal",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "lmdb_input_layer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" }
+      ],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "localresponsenormalization",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "local_size", "default": 1 },
+        { "name": "bias", "default": 2 },
+        { "name": "alpha", "default": 0.0001 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "type", "default": "NORM_ACROSS_CHANNELS" }
+      ]
+    }
+  },
+  {
+    "name": "localresponsenormalization_tf",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "local_size", "default": 1 },
+        { "name": "bias", "default": 2 },
+        { "name": "alpha", "default": 0.0001 },
+        { "name": "beta", "default": 0.75 },
+        { "name": "type", "default": "NORM_ACROSS_CHANNELS" }
+      ]
+    }
+  },
+  {
+    "name": "log",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "log_softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "sf_axis", "default": -1 }
+      ]
+    }
+  },
+  {
+    "name": "logical_and",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "logical_or",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "lstm",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "data" },
+        { "name": "hstat" },
+        { "name": "cstat" }
+      ],
+      "constants": [
+        { "name": "lstm_cell_kernel" },
+        { "name": "lstm_cell_bias" },
+        { "name": "weight_proj" },
+        { "name": "bias_proj" }
+      ],
+      "outputs": [
+        { "name": "data" },
+        { "name": "hstat" },
+        { "name": "cstat" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "time_major", "default": true },
+        { "name": "forget_bias", "default": 1 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "use_cifg", "default": false },
+        { "name": "use_peepholes", "default": false },
+        { "name": "num_proj", "default": null },
+        { "name": "cell_clip", "default": 0 },
+        { "name": "proj_clip", "default": 0 },
+        { "name": "recurrent_activation", "default": "sigmoid" },
+        { "name": "return_sequences", "default": true }
+      ]
+    }
+  },
+  {
+    "name": "lstm_keras",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "kernel" },
+        { "name": "recurrent_kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [],
+      "attributes": [
+        { "name": "units", "default": 1 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "recurrent_activation", "default": "hard_sigmoid" },
+        { "name": "use_bias", "default": true },
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "lstmunit",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "data" },
+        { "name": "hstat" },
+        { "name": "cstat" }
+      ],
+      "constants": [
+        { "name": "wi" },
+        { "name": "wf" },
+        { "name": "wc" },
+        { "name": "wo" },
+        { "name": "hi" },
+        { "name": "hf" },
+        { "name": "hc" },
+        { "name": "ho" },
+        { "name": "bi" },
+        { "name": "bf" },
+        { "name": "bc" },
+        { "name": "bo" },
+        { "name": "wp" },
+        { "name": "bp" },
+        { "name": "ln_i" },
+        { "name": "ln_f" },
+        { "name": "ln_c" },
+        { "name": "ln_o" }
+      ],
+      "outputs": [
+        { "name": "data" },
+        { "name": "hstat" },
+        { "name": "cstat" }
+      ],
+      "attributes": [
+        { "name": "weights", "default": 1 },
+        { "name": "num_proj", "default": null },
+        { "name": "forget_bias", "default": 1 },
+        { "name": "cell_clip", "default": 0 },
+        { "name": "proj_clip", "default": 0 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "use_layer_norm_lstm", "default": false },
+        { "name": "use_cifg", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "margin_loss_layer",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "margin", "default": 0.4 },
+        { "name": "downweight", "default": 0.5 }
+      ]
+    }
+  },
+  {
+    "name": "mat_inverse",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "adjoint", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "matmul",
+    "schema": {
+      "inputs": [
+        { "name": "A" },
+        { "name": "B" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "transpose_a", "default": false },
+        { "name": "transpose_b", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "minimum",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "minimum_with_clip",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "clip", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "mish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "moments",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "mean" },
+        { "name": "variance" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": [] },
+        { "name": "keep_dims", "default": true }
+      ]
+    }
+  },
+  {
+    "name": "multiply",
+    "schema": {
+      "inputs": [],
+      "constants": [
+        { "name": "scale" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": 1 },
+        { "name": "bias", "default": true }
+      ]
+    }
+  },
+  {
+    "name": "nce_loss",
+    "schema": {
+      "inputs": [
+        { "name": "in0"},
+        { "name": "in1"}
+      ],
+      "constants": [
+        { "name": "weight" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "num_sampled", "default": 1 },
+        { "name": "num_classes", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "neg",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "noop",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "noop_multi_out",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [],
+      "attributes": []
+    }
+  },
+  {
+    "name": "norm_with_channel_mean",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "mean", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "norm_with_min_max",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "min_value", "default": 0 },
+        { "name": "max_value", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "norm_with_scale",
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "scale", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "not_equal",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "npy_input_layer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "output",
+    "schema": {
+      "category": "Data",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "pad",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "padding_value", "default": [] },
+        { "name": "padding_mode", "default": "CONSTANT" },
+        { "name": "padding_const", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "permute",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "perm", "default": [0] }
+      ]
+    }
+  },
+  {
+    "name": "pool3d",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "type", "default": "MAX" },
+        { "name": "global_pooling", "default": false },
+        { "name": "ksize_d", "default": 1 },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_d", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "round_type", "default": "ceil" },
+        { "name": "pad_method", "default": "padding_const" },
+        { "name": "pad", "default": [0, 0, 0, 0, 0, 0] }
+      ]
+    }
+  },
+  {
+    "name": "pooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "padding", "default": "VALID" },
+        { "name": "type", "default": "MAX" },
+        { "name": "global_pooling", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "round_type", "default": "ceil" },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "poolwithargmax",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" }
+      ],
+      "attributes": [
+        { "name": "padding", "default": "VALID" },
+        { "name": "type", "default": "MAX" },
+        { "name": "global_pooling", "default": false },
+        { "name": "ksize_h", "default": 1 },
+        { "name": "ksize_w", "default": 1 },
+        { "name": "stride_h", "default": 1 },
+        { "name": "stride_w", "default": 1 },
+        { "name": "pad_h", "default": 0 },
+        { "name": "pad_w", "default": 0 },
+        { "name": "round_type", "default": "ceil" },
+        { "name": "pad_method", "default": "auto" },
+        { "name": "pad", "default": [0, 0, 0, 0] },
+        { "name": "pad_h_b", "default": 0 },
+        { "name": "pad_w_r", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "postprocess",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "perm", "default": [0, 1, 2, 3] },
+        { "name": "dim_num", "default": 4 }
+      ]
+    }
+  },
+  {
+    "name": "pow",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "prelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "a" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "preprocess",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "type", "default": "VSI_NN_OP_PRE_PROCESS_RGB" },
+        { "name": "left", "default": 0 },
+        { "name": "top", "default": 0 },
+        { "name": "width", "default": 244 },
+        { "name": "height", "default": 224 },
+        { "name": "mean", "default": [0, 0, 0] },
+        { "name": "scale", "default": 1 },
+        { "name": "perm", "default": [0, 1, 2, 3] },
+        { "name": "in_dim_num", "default": 4 },
+        { "name": "out_dim_num", "default": 4 },
+        { "name": "out_size", "default": [224, 224, 3, 1] },
+        { "name": "reverse_channel", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "primary_capsule",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "weight" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "num_output", "default": 1 },
+        { "name": "vec_len", "default": 1 },
+        { "name": "strides", "default": [1, 1] },
+        { "name": "ksize", "default": [1, 1] },
+        { "name": "padding", "default": "SAME" }
+      ]
+    }
+  },
+  {
+    "name": "priorbox",
+    "schema": {
+      "inputs": [
+        { "name": "data" },
+        { "name": "shape" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "mini_size", "default": "" },
+        { "name": "max_size", "default": "" },
+        { "name": "aspect_ratio", "default": "" },
+        { "name": "flip", "default": "" },
+        { "name": "clip", "default": "" },
+        { "name": "variance", "default": "0.1" },
+        { "name": "image_size", "default": 0 },
+        { "name": "image_h", "default": 0 },
+        { "name": "image_w", "default": 0 },
+        { "name": "step", "default": 0 },
+        { "name": "step_h", "default": 0 },
+        { "name": "step_w", "default": 0 },
+        { "name": "offset", "default": 0.5 }
+      ]
+    }
+  },
+  {
+    "name": "proposal",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" }
+      ],
+      "attributes": [
+        { "name": "feat_stride", "default": 16 },
+        { "name": "anchor_scales", "default": "8 16 32" },
+        { "name": "anchor_ratios", "default": "0.5 1 2" },
+        { "name": "anchor_base_size", "default": 16 },
+        { "name": "pre_nms_top_n", "default": 6000 },
+        { "name": "post_nms_top_n", "default": 300 },
+        { "name": "nms_thresh", "default": 0.7 },
+        { "name": "min_size", "default": 16 },
+        { "name": "im_info", "default": "800 600 1 1" },
+        { "name": "has_bg", "default": true },
+        { "name": "dynamic", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "quantize",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "real_div",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "reconstruction_loss",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "balance_factor", "default": 0.0005 }
+      ]
+    }
+  },
+  {
+    "name": "recurrent",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "reducemax",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": null },
+        { "name": "keep_dims", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "reducemean",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": null },
+        { "name": "keep_dims", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "reducemin",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": null },
+        { "name": "keep_dims", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "reducesum",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": [] },
+        { "name": "keep_dims", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "region",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "relu_keras",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "alpha", "default": 0 },
+        { "name": "max_value", "default": "inf" },
+        { "name": "threshold", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "relun",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "relu_clamp_top", "default": "inf" },
+        { "name": "relu_clamp_bottom", "default": "0" }
+      ]
+    }
+  },
+  {
+    "name": "reorg",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "stride", "default": 2 }
+      ]
+    }
+  },
+  {
+    "name": "reshape",
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "shape", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "resizebilinear_image",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "new_size", "default": [] },
+        { "name": "align_corners", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "resizenearest_image",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "new_size", "default": [] },
+        { "name": "align_corners", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "reverse",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "reverse_sequence",
+    "schema": {
+      "inputs": [
+        { "name": "input" },
+        { "name": "seq_lengths" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "seq_axis", "default": 1 },
+        { "name": "batch_axis", "default": 2 }
+      ]
+    }
+  },
+  {
+    "name": "roipooling",
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "pooled_h", "default": 6 },
+        { "name": "pooled_w", "default": 6 },
+        { "name": "spatial_scale", "default": 0.0625 },
+        { "name": "sampling_ratio", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "route_train",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "rsqrt",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "scatternd",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "shape", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "shuffle",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "group_number", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "signalframe",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "frame_length", "default": 0 },
+        { "name": "frame_step", "default": 0 },
+        { "name": "pad_end", "default": false },
+        { "name": "pad_value", "default": 0 },
+        { "name": "axis", "default": -1 }
+      ]
+    }
+  },
+  {
+    "name": "simplernn_keras",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "kernel" },
+        { "name": "recurrent_kernel" },
+        { "name": "bias" }
+      ],
+      "outputs": [],
+      "attributes": [
+        { "name": "units", "default": 1 },
+        { "name": "activation", "default": "tanh" },
+        { "name": "use_bias", "default": true },
+        { "name": "return_sequences", "default": false },
+        { "name": "return_state", "default": false },
+        { "name": "go_backwards", "default": false },
+        { "name": "stateful", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "sin",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "slice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "begin", "default": [] },
+        { "name": "size", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "softmax",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "sf_axis", "default": -1 },
+        { "name": "beta", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "softmax_with_logits_loss_layer",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "softrelu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "space2batch",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "block_shape", "default": [2, 2] },
+        { "name": "block_paddings", "default": [ [0, 0], [0, 0] ] }
+      ]
+    }
+  },
+  {
+    "name": "space2depth",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "block_size", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "split",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "dim", "default": 1 },
+        { "name": "slices", "default": "" },
+        { "name": "slices_tf", "default": "" },
+        { "name": "unstack", "default": false }
+      ]
+    }
+  },
+  {
+    "name": "sqlite_input_layer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" },
+        { "name": "out2" }
+      ],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "sqrt",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "square",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "squashing",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "squeeze",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis_list", "default": null },
+        { "name": "name", "default": null }
+      ]
+    }
+  },
+  {
+    "name": "stack",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "axis", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "stack_concat",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" },
+        { "name": "in2" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "shape", "default": [1, 32, 256] },
+        { "name": "axis", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "stridedslice",
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "slice_begin_mask", "default": 0 },
+        { "name": "slice_end_mask", "default": 0 },
+        { "name": "slice_ellipsis_mask", "default": 0 },
+        { "name": "slice_new_axis_mask", "default": 0 },
+        { "name": "slice_shrink_axis_mask", "default": 0 },
+        { "name": "slice_begin", "default": [0, 0, 0, 0] },
+        { "name": "slice_end", "default": [-1, -1, -1, -1] },
+        { "name": "slice_strides", "default": [1, 1, 1, 1] }
+      ]
+    }
+  },
+  {
+    "name": "subgraph",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "sg_argv", "default": "" },
+        { "name": "sg_func", "default": "" },
+        { "name": "sg_out_shapes", "default": "" },
+        { "name": "sg_graph_buffer", "default": "" },
+        { "name": "sg_input_nodes", "default": "" },
+        { "name": "sg_output_nodes", "default": "" }
+      ]
+    }
+  },
+  {
+    "name": "subtract",
+    "schema": {
+      "inputs": [
+        { "name": "minuend" },
+        { "name": "subtrahend" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "svdf",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [
+        { "name": "weights_feature" },
+        { "name": "weights_time" },
+        { "name": "bias" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "rank", "default": 1 },
+        { "name": "num_units", "default": 1 },
+        { "name": "spectrogram_length", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "swish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "tanh",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "hyperbolic_tan_scale_a", "default": 1 },
+        { "name": "hyperbolic_tan_scale_b", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "text_input_layer",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "tile",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "multiples", "default": [] }
+      ]
+    }
+  },
+  {
+    "name": "topk",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "topk", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "topk_score",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" }
+      ],
+      "attributes": [
+        { "name": "topk", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "unstack",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [],
+      "attributes": [
+        { "name": "axis", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "upsampling",
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "factor", "default": 2 }
+      ]
+    }
+  },
+  {
+    "name": "variable",
+    "schema": {
+      "category": "Data",
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [
+        { "name": "data" }
+      ],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": [
+        { "name": "shape", "default": [1] }
+      ]
+    }
+  },
+  {
+    "name": "where",
+    "schema": {
+      "inputs": [
+        { "name": "in0" },
+        { "name": "in1" },
+        { "name": "in2" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "word2vec_input",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "out0" },
+        { "name": "out1" }
+      ],
+      "attributes": [
+        { "name": "database", "default": "" },
+        { "name": "shapes", "default": [] },
+        { "name": "sparse_tensors", "default": [] },
+        { "name": "data_types", "default": [] },
+        { "name": "dictionary", "default": "" },
+        { "name": "model", "default": "skip-gram" },
+        { "name": "num_skips", "default": 2 },
+        { "name": "skip_window", "default": 1 }
+      ]
+    }
+  },
+  {
+    "name": "yolo",
+    "schema": {
+      "inputs": [
+        { "name": "input" }
+      ],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  },
+  {
+    "name": "yoloprocess",
+    "schema": {
+      "inputs": [],
+      "constants": [],
+      "outputs": [
+        { "name": "output" }
+      ],
+      "attributes": []
+    }
+  }
+]
