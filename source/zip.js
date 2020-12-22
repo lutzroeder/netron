@@ -225,16 +225,6 @@ zip.HuffmanTree = class {
 
 zip.Inflater = class {
 
-    inflate(data) {
-        if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-            return require('zlib').inflateSync(data);
-        }
-        if (typeof pako !== 'undefined') {
-            return pako.inflate(data);
-        }
-        throw new zip.Error("zlib inflate not supported.");
-    }
-
     inflateRaw(data) {
 
         if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
