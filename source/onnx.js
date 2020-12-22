@@ -196,7 +196,21 @@ onnx.Model = class {
         this._graphs = [];
         if (model && model.graph) {
             const graphMetadata = new onnx.GraphMetadata(metadata, imports);
-            this._graphs = [ new onnx.Graph(graphMetadata, imageFormat, model.graph) ];
+            const graphs = [ model.graph ];
+            while (graphs.length > 0) {
+                const graph = graphs.shift();
+                this._graphs.push(new onnx.Graph(graphMetadata, imageFormat, graph));
+                for (const node of graph.node || []) {
+                    for (const attribute of node.attribute || []) {
+                        if (attribute.g) {
+                            graphs.push(attribute.g);
+                        }
+                        else if (attribute.graphs && attribute.graphs.length > 0) {
+                            graphs.push(...attribute.graphs);
+                        }
+                    }
+                }
+            }
         }
     }
 
