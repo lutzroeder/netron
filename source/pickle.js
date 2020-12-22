@@ -272,6 +272,7 @@ pickle.Unpickler = class {
                         case 2: number = data[1] << 8 | data[0]; break;
                         case 3: number = data[2] << 16 | data[1] << 8 | data[0]; break;
                         case 4: number = data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]; break;
+                        case 5: number = data[4] * 0x100000000 + ((data[3] << 24 | data[2] << 16 | data[1] << 8 | data[0]) >>> 0); break;
                         default: number = Array.prototype.slice.call(data, 0); break;
                     }
                     stack.push(number);
