@@ -37,7 +37,7 @@ build_python: install
 	python ./setup.py build --version bdist_wheel
 
 build_electron: install
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never
 	npx electron-builder --win --publish never
 	npx electron-builder --linux appimage --publish never
 	npx electron-builder --linux snap --publish never
@@ -64,7 +64,7 @@ publish_python: build_python
 	python -m twine upload --non-interactive --skip-existing --verbose dist/dist/*
 
 publish_electron: install
-	npx electron-builder --mac --publish always
+	npx electron-builder --mac --universal --publish always
 	npx electron-builder --win --publish always
 	npx electron-builder --linux appimage --publish always
 	npx electron-builder --linux snap --publish always

@@ -70,11 +70,12 @@ publish:
   - provider: github
     releaseType: release
 mac:
+  artifactName: ${productName}-${version}-mac.${ext}
   category: public.app-category.developer-tools
   darkModeSupport: true
-  hardenedRuntime: true
   gatekeeperAssess: false
-  target: 
+  hardenedRuntime: true
+  target:
   - dmg
   - zip
 linux:
@@ -96,6 +97,8 @@ win:
   - sha256
   verifyUpdateCodeSignature: false
 dmg:
+  artifactName: ${productName}-${version}.${ext}
+  title: "${productName} ${version}"
   iconSize: 160
   contents:
   - x: 180

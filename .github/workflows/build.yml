@@ -42,7 +42,7 @@ jobs:
         run: |
           case "${{ matrix.os }}" in
             macos*)
-              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never -c.mac.identity=null
+              CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never -c.mac.identity=null
               ;;
             ubuntu*)
               npx electron-builder --linux appimage --publish never
