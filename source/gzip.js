@@ -146,11 +146,8 @@ gzip.InflaterStream = class {
 
     _inflate() {
         if (this._buffer === undefined) {
-            const compressed = this._stream.peek();
-            this._buffer = new zip.Inflater().inflateRaw(compressed);
-            if (this._buffer.length !== this._length) {
-                throw new gzip.Error('Invalid size.');
-            }
+            const buffer = this._stream.peek();
+            this._buffer = new zip.Inflater().inflateRaw(buffer, this._length);
             delete this._stream;
         }
     }

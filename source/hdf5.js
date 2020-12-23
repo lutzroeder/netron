@@ -1166,8 +1166,8 @@ hdf5.Filter = class {
     decode(data) {
         switch (this.id) {
             case 1: { // gzip
-                const rawData = data.subarray(2, data.length); // skip zlib header
-                return new zip.Inflater().inflateRaw(rawData);
+                const buffer = data.subarray(2, data.length); // skip zlib header
+                return new zip.Inflater().inflateRaw(buffer);
             }
             default:
                 throw hdf5.Error("Unsupported filter '" + this.name + "'.");
