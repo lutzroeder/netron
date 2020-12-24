@@ -3165,6 +3165,13 @@
   },
   {
     "type":   "onnx",
+    "target": "keras2onnx.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/5738366/keras2onnx.onnx.zip[keras2onnx.onnx]",
+    "error":  "File format is not onnx.ModelProto (Unexpected end of file) in 'keras2onnx.onnx'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "Kmeans.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2592495/Kmeans.onnx.zip[Kmeans.onnx]",
     "format": "ONNX v3", "producer": "ML.NET 0.7.27009.0",
