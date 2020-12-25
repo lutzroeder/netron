@@ -1,5 +1,4 @@
 /* jshint esversion: 6 */
-/* global pako */
 
 var zip = zip || {};
 
@@ -176,9 +175,6 @@ zip.Inflater = class {
         let buffer = null;
         if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
             buffer = require('zlib').inflateRawSync(data);
-        }
-        else if (typeof pako !== 'undefined') {
-            buffer = pako.inflateRaw(data);
         }
         else {
             const reader = new zip.BitReader(data);
