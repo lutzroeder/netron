@@ -962,6 +962,8 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.modules.loss.BCELoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.BCEWithLogitsLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.CrossEntropyLoss', function() {});
+        this._registerConstructor('torch.nn.modules.loss.CTCLoss', function() {});
+        this._registerConstructor('torch.nn.modules.loss.KLDivLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.L1Loss', function() {});
         this._registerConstructor('torch.nn.modules.loss.MarginRankingLoss', function() {});
         this._registerConstructor('torch.nn.modules.loss.MSELoss', function() {});
