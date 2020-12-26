@@ -436,7 +436,35 @@ mslite.TensorType = class {
     constructor(dataType, dimensions) {
         switch (dataType) {
             case 0:  this._dataType = "?"; break;
+            case 1:  this._dataType = "MetaTypeType"; break;
+            case 2:  this._dataType = "MetaTypeAnything"; break;
+            case 3:  this._dataType = "MetaTypeObject"; break;
+            case 4:  this._dataType = "MetaTypeTypeType"; break;
+            case 5:  this._dataType = "MetaTypeProblem"; break;
+            case 6:  this._dataType = "MetaTypeExternal"; break;
+            case 7:  this._dataType = "MetaTypeNone"; break;
+            case 8:  this._dataType = "MetaTypeNull"; break;
+            case 9:  this._dataType = "MetaTypeEllipsis"; break;
+            case 10: this._dataType = "MetaTypeEnd"; break;
+            case 11: this._dataType = "ObjectTypeNumber"; break;
             case 12: this._dataType = "string"; break;
+            case 13: this._dataType = "ObjectTypeList"; break;
+            case 14: this._dataType = "ObjectTypeTuple"; break;
+            case 15: this._dataType = "ObjectTypeSlice"; break;
+            case 16: this._dataType = "ObjectTypeKeyword"; break;
+            case 17: this._dataType = "ObjectTypeTensorType"; break;
+            case 18: this._dataType = "ObjectTypeRowTensorType"; break;
+            case 19: this._dataType = "ObjectTypeSparseTensorType"; break;
+            case 20: this._dataType = "ObjectTypeUndeterminedType"; break;
+            case 21: this._dataType = "ObjectTypeClass"; break;
+            case 22: this._dataType = "ObjectTypeDictionary"; break;
+            case 23: this._dataType = "ObjectTypeFunction"; break;
+            case 24: this._dataType = "ObjectTypeJTagged"; break;
+            case 25: this._dataType = "ObjectTypeSymbolicKeyType"; break;
+            case 26: this._dataType = "ObjectTypeEnvType"; break;
+            case 27: this._dataType = "ObjectTypeRefKey"; break;
+            case 28: this._dataType = "ObjectTypeRef"; break;
+            case 29: this._dataType = "ObjectTypeEnd"; break;
             case 30: this._dataType = "boolean"; break;
             case 31: this._dataType = "int"; break;
             case 32: this._dataType = "int8"; break;
@@ -453,6 +481,7 @@ mslite.TensorType = class {
             case 43: this._dataType = "float32"; break;
             case 44: this._dataType = "float64"; break;
             case 45: this._dataType = "complex64"; break;
+            case 46: this._dataType = "NumberTypeEnd"; break;
             default:
                 throw new mslite.Error("Unknown data type '" + dataType.toString() + "'.");
         }
