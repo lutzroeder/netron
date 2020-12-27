@@ -558,6 +558,34 @@ function loadModel(target, item) {
         if (item.runtime && model.runtime != item.runtime) {
             throw new Error("Invalid runtime '" + model.runtime + "'.");
         }
+        if (item.assert) {
+            for (const assert of item.assert) {
+                const parts = assert.split('=').map((item) => item.trim());
+                const properties = parts[0].split('.');
+                const value = parts[1];
+                let context = { model: model };
+                while (properties.length) {
+                    const property = properties.shift();
+                    if (context[property] !== undefined) {
+                        context = context[property];
+                        continue;
+                    }
+                    const match = /(.*)\[(.*)\]/.exec(property);
+                    if (match.length === 3 && context[match[1]] !== undefined) {
+                        const array = context[match[1]];
+                        const index = parseInt(match[2], 10);
+                        if (array[index] !== undefined) {
+                            context = array[index];
+                            continue;
+                        }
+                    }
+                    throw new Error("Invalid property path: '" + parts[0]);
+                }
+                if (context !== value.toString()) {
+                    throw new Error("Invalid '" + value.toString() + "' != '" + assert + "'.");
+                }
+            }
+        }
         model.version;
         model.description;
         model.author;

@@ -3040,6 +3040,7 @@
     "target": "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format": "ONNX v3",
+    "assert": [ "model.graphs[0].nodes[0].outputs[0].arguments[0].type.denotation = Image(Bgr8,SRGB,NominalRange_0_255)" ],
     "link":   "https://github.com/lutzroeder/netron/issues/183"
   },
   {
@@ -5483,7 +5484,9 @@
     "type":   "tflite",
     "target": "densenet.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
-    "format": "TensorFlow Lite v3"
+    "format": "TensorFlow Lite v3",
+    "assert": [ "model.graphs[0].nodes[0].type=Conv2D" ],
+    "link":   "https://www.tensorflow.org/lite/guide/hosted_models"
   },
   {
     "type":   "tflite",
