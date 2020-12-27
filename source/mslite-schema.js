@@ -283,6 +283,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 201: return $root.mindspore.schema.Reciprocal.decode(reader, position);
             case 202: return $root.mindspore.schema.Merge.decode(reader, position);
             case 203: return $root.mindspore.schema.Mod.decode(reader, position);
+            case 204: return $root.mindspore.schema.GeLU.decode(reader, position);
         }
         return undefined;
     }
@@ -492,6 +493,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Reciprocal': return $root.mindspore.schema.Reciprocal.decodeText(reader, json);
             case 'Merge': return $root.mindspore.schema.Merge.decodeText(reader, json);
             case 'Mod': return $root.mindspore.schema.Mod.decodeText(reader, json);
+            case 'GeLU': return $root.mindspore.schema.GeLU.decodeText(reader, json);
         }
         return undefined;
     }
