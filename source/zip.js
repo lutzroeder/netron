@@ -34,7 +34,6 @@ zip.Archive = class {
         reader.skip(12);
         let offset = reader.uint32(); // central directory offset
         if (offset > stream.length) {
-            console.log("*");
             if (!lookup(stream, [ 0x50, 0x4B, 0x06, 0x06 ])) {
                 throw new zip.Error('Zip64 end of central directory not found.');
             }
