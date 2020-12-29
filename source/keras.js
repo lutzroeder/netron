@@ -40,13 +40,7 @@ keras.ModelFactory = class {
             const identifier = context.identifier;
             const weights = new keras.Weights();
             switch (identifier.split('.').pop().toLowerCase()) {
-                case 'keras':
-                case 'h5':
-                case 'hd5':
-                case 'hdf5':
-                case 'model':
-                case 'pb':
-                case 'pth': {
+                default: {
                     const buffer = context.stream.peek();
                     const file = new hdf5.File(buffer);
                     rootGroup = file.rootGroup;

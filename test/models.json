@@ -2215,7 +2215,7 @@
   },
   {
     "type":   "keras",
-    "target": "nested_bidrectional_weights.h5",
+    "target": "nested_bidrectional.weights",
     "source": "https://github.com/lutzroeder/netron/files/4304644/nested_bidrectional.zip[nested_bidrectional_weights.h5]",
     "format": "Keras v2.3.1",
     "link":   "https://github.com/lutzroeder/netron/issues/428"
