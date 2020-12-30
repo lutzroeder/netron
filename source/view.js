@@ -1201,7 +1201,7 @@ view.ModelFactoryService = class {
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn' ]);
         this.register('./dlc', [ '.dlc' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
@@ -1551,6 +1551,7 @@ view.ModelFactoryService = class {
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
             { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch)(,|;|\s)/ },
+            { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }

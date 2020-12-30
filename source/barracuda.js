@@ -534,10 +534,9 @@ barracuda.BinaryReader = class {
     }
 
     int32s() {
-        const values = [];
-        const count = this.int32();
-        for (let i = 0; i < count; i++) {
-            values.push(this.int32());
+        const values = new Array(this.int32());
+        for (let i = 0; i < values.length; i++) {
+            values[i] = this.int32();
         }
         return values;
     }
