@@ -284,6 +284,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 202: return $root.mindspore.schema.Merge.decode(reader, position);
             case 203: return $root.mindspore.schema.Mod.decode(reader, position);
             case 204: return $root.mindspore.schema.GeLU.decode(reader, position);
+            case 205: return $root.mindspore.schema.Gru.decode(reader, position);
         }
         return undefined;
     }
@@ -494,6 +495,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Merge': return $root.mindspore.schema.Merge.decodeText(reader, json);
             case 'Mod': return $root.mindspore.schema.Mod.decodeText(reader, json);
             case 'GeLU': return $root.mindspore.schema.GeLU.decodeText(reader, json);
+            case 'Gru': return $root.mindspore.schema.Gru.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3516,11 +3518,28 @@ $root.mindspore.schema.Lstm = class Lstm {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.Lstm();
         $.bidirection = reader.bool_(position, 4, false);
+        $.smooth = reader.float32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Lstm();
+        $.bidirection = reader.value(json.bidirection, false);
+        $.smooth = reader.value(json.smooth, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Gru = class Gru {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Gru();
+        $.bidirection = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Gru();
         $.bidirection = reader.value(json.bidirection, false);
         return $;
     }
