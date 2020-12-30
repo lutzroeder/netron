@@ -620,7 +620,7 @@ host.ElectronHost.FileStream = class {
 
     byte() {
         const position = this._fill(1);
-        return this.buffer[position];
+        return this._buffer[position];
     }
 
     _fill(length) {
