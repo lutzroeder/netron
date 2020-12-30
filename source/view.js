@@ -1285,6 +1285,7 @@ view.ModelFactoryService = class {
                 type: 'json',
                 name: 'JSON',
                 formats: [
+                    { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
                     { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
                     { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
