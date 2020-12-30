@@ -15,7 +15,7 @@ tnn.ModelFactory = class {
                     const line = text.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
-                        if (header.length === 3 || (header.length >= 4 && header[3] === '4206624770')) {
+                        if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
                             return true;
                         }
                     }
@@ -27,8 +27,11 @@ tnn.ModelFactory = class {
         }
         if (identifier.endsWith('.tnnmodel')) {
             const stream = context.stream;
-            const signature = [ 0x02, 0x00, 0xbc, 0xfa ];
-            if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            const signature_v1 = [ 0x02, 0x00, 0xbc, 0xfa ];
+            const signature_v2 = [ 0x04, 0x00, 0xbc, 0xfa ];
+            if (signature.length <= stream.length && 
+                (stream.peek(signature_v1.length).every((value, index) => value === signature_v1[index]) || 
+                stream.peek(signature_v2.length).every((value, index) => value === signature_v2[index]))) {
                 return true;
             }
         }
@@ -84,7 +87,7 @@ tnn.Graph = class {
         const reader = new tnn.TextProtoReader(tnnproto);
         for (const input of reader.inputs) {
             const shape = new tnn.TensorShape(input.shape);
-            const type = new tnn.TensorType('float32', shape);
+            const type = new tnn.TensorType(input.data_type, shape);
             this._inputs.push(new tnn.Parameter(input.name, [ new tnn.Argument(input.name, type, null) ]));
         }
         for (const output of reader.outputs) {
@@ -299,7 +302,8 @@ tnn.Node = class {
             case 'Div':
             case 'Sub':
             case 'Add':
-            case 'Mul': {
+            case 'Mul':
+            case 'MatMul': {
                 if (this._inputs.length === 1) {
                     const resource = resources.read(this._name);
                     if (resource) {
@@ -328,6 +332,18 @@ tnn.Node = class {
                     const scale_data_size = resource.scale.length;
                     this._weight(resource, 'scale', [ scale_data_size]);
                     this._weight(resource, 'bias', [ scale_data_size ]);
+                }
+                break;
+            }
+            case 'Gather': {
+                const resource = resources.read(this._name);
+                if (resource) {
+                    if (resource.data) {
+                        this._weight(resource, 'data', [ resource.data.length ]);
+                    }
+                    if (resource.indices) {
+                        this._weight(resource, 'indices', [ resource.indices.length ]);
+                    }
                 }
                 break;
             }
@@ -649,14 +665,21 @@ tnn.TextProtoReader = class {
         if (header.length < 3) {
             throw new tnn.Error('Invalid header size.');
         }
-        else if (header.length > 3 && header[3] !== '4206624770') {
+        else if (header.length > 3 && (header[3] !== '4206624770' && header[3] !== '4206624772')) {
             throw new tnn.Error("Invalid signature '" + header[3] + "'.");
         }
         this._inputs = split(lines.shift(), ':', true, false).map((input) => {
             const array = split(input, ' ', true, false);
             const name = array.shift();
+            if (header[3] === '4206624772') {
+                const shape_size = parseInt(array.shift(), 10);
+                const shape = array.slice(0, -1).map((dim) => parseInt(dim, 10));
+                const data_type = [ 'float32', 'float16', 'int8', 'int32', 'bfloat16' ][parseInt(array[shape_size], 10)];
+                return { name: name, shape: shape, data_type:  data_type };
+
+            }
             const shape = array.map((dim) => parseInt(dim, 10));
-            return { name: name, shape: shape };
+            return { name: name, shape: shape, data_type:  'float32' };
         });
         lines.shift();
         this._outputs = split(lines.shift(), ' ', true, false).map((output) => { return { name: output }; });
@@ -717,13 +740,13 @@ tnn.LayerResourceReader = class {
         if (buffer) {
             const reader = new tnn.BinaryReader(buffer);
             const magic_number = reader.uint32();
-            if (magic_number !== 0xFABC0002) {
+            if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
                 throw new tnn.Error("Invalid blob header signature '" + magic_number.toString() + "'.");
             }
             const layerCount = reader.int32() & 0x1FFFFFFF;
             const raw = (reader) => {
                 const magic_number = reader.uint32();
-                if (magic_number !== 0xFABC0002) {
+                if (magic_number !== 0xFABC0002 && magic_number !== 0xFABC0004) {
                     throw new tnn.Error("Invalid raw signature '" + magic_number.toString() + "'.");
                 }
                 const data_type = reader.int32();
@@ -733,6 +756,10 @@ tnn.LayerResourceReader = class {
                 const length = reader.int32();
                 if (length <= 0) {
                     return null;
+                }
+                if (magic_number === 0xFABC0004) {
+                    const dim_size = reader.int32();
+                    const dims = reader.bytes(dim_size * 4);
                 }
                 return {
                     dataType: [ 'float32', 'float16', 'int8', 'int32', 'bfloat16' ][data_type],
@@ -787,7 +814,8 @@ tnn.LayerResourceReader = class {
                     case 'Add':
                     case 'Div':
                     case 'Mul':
-                    case 'Sub': {
+                    case 'Sub':
+                    case 'MatMul': {
                         resource.slope = raw(reader);
                         break;
                     }
@@ -807,6 +835,17 @@ tnn.LayerResourceReader = class {
                     case 'BlobScale':
                         resource.scale = raw(reader);
                         resource.bias = raw(reader);
+                        break;
+                    case 'Gather':
+                        // reader.expect(resource.name);
+                        const has_data = reader.int32();
+                        if (has_data) {
+                            resource.data = raw(reader);
+                        }
+                        const has_indices = reader.int32();
+                        if (has_indices) {
+                            resource.indices = raw(reader);
+                        }
                         break;
                     default:
                         throw new tnn.Error("Unknown layer resource type '" + resource.type + "'.");
