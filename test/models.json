@@ -5764,6 +5764,15 @@
   },
   {
     "type":   "tnn",
+    "target": "tnn_v2_model.tnnmodel,tnn_v2_model.tnnproto",
+    "source": "https://github.com/lutzroeder/netron/files/5753725/tnn_v2_model.zip[tnn_v2_model.tnnmodel,tnn_v2_model.tnnproto]",
+    "format": "TNN",
+    "link":   "https://github.com/lutzroeder/netron/issues/521"
+  },
+
+
+  {
+    "type":   "tnn",
     "target": "version-slim-320_simplified.tnnproto,version-slim-320_simplified.tnnmodel",
     "source": "https://gitee.com/darren3d/tnn-resource/raw/master/model/face-detector/version-slim-320_simplified.tnnproto,https://gitee.com/darren3d/tnn-resource/raw/master/model/face-detector/version-slim-320_simplified.tnnmodel",
     "format": "TNN",
