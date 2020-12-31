@@ -1072,6 +1072,12 @@ pytorch.Execution = class {
         this._registerConstructor('torch.utils.data.dataset.ConcatDataset', function() {});
         this._registerConstructor('torch.utils.data.sampler.BatchSampler', function() {});
         this._registerConstructor('torch.utils.data.sampler.SequentialSampler', function() {});
+        this._registerConstructor('torch.utils.hooks.RemovableHandle', function() {
+            this.__setstate__ = function(state) {
+                this.hooks_dict_ref = state[0] || new Map();
+                this.id = state[1];
+            };
+        });
         this._registerConstructor('torchvision.datasets.folder.ImageFolder', function() {});
         this._registerConstructor('torchvision.datasets.mnist.MNIST', function() {});
         this._registerConstructor('torchvision.datasets.vision.StandardTransform', function() {});
