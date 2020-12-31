@@ -930,6 +930,7 @@ openvino.TensorType = class {
             case 'fp16':    this._dataType = 'float16'; break;
             case 'f32':     this._dataType = 'float32'; break;
             case 'fp32':    this._dataType = 'float32'; break;
+            case 'bf16':    this._dataType = 'bfloat16'; break;
             case 'i8':      this._dataType = 'int8'; break;
             case 'i16':     this._dataType = 'int16'; break;
             case 'i32':     this._dataType = 'int32'; break;
