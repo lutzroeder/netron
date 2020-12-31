@@ -559,6 +559,14 @@
     }
   },
   {
+    "name": "Concatenation",
+    "schema": {
+      "category": "Tensor",
+      "inputs": null,
+      "outputs": null
+    }
+  },
+  {
     "name": "Split",
     "schema": {
       "attributes": [
