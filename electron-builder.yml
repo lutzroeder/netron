@@ -69,6 +69,10 @@ afterSign: "./publish/notarize.js"
 publish:
   - provider: github
     releaseType: release
+linux:
+  target:
+  - AppImage
+  - snap
 mac:
   artifactName: ${productName}-${version}-mac.${ext}
   category: public.app-category.developer-tools
@@ -78,18 +82,6 @@ mac:
   target:
   - dmg
   - zip
-linux:
-  target:
-  - AppImage
-  - snap
-snap:
-  plugs:
-  - default
-  - removable-media
-  publish:
-  - provider: snapStore
-    channels:
-    - stable
 win:
   target:
   - nsis
@@ -99,6 +91,7 @@ win:
 dmg:
   artifactName: ${productName}-${version}.${ext}
   title: "${productName} ${version}"
+  writeUpdateInfo: false
   iconSize: 160
   contents:
   - x: 180
@@ -107,3 +100,13 @@ dmg:
     y: 170
     type: link
     path: /Applications
+nsis:
+  differentialPackage: false
+snap:
+  plugs:
+  - default
+  - removable-media
+  publish:
+  - provider: snapStore
+    channels:
+    - stable
