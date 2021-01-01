@@ -2262,6 +2262,9 @@ pytorch.Execution.Context = class {
     }
 
     setx(name, value) {
+        if (typeof name !== 'string' || !name.split) {
+            throw new pytorch.Error("Invalid name '" + JSON.stringify(name) + "'.");
+        }
         const parts = name.split('.');
         if (parts.length == 1) {
             this.set(parts[0], value);
