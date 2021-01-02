@@ -1366,7 +1366,7 @@ protoc.Generator = class {
                             if (field instanceof protoc.MapField) {
                                 const value = field.type instanceof protoc.PrimitiveType ?
                                     'reader.' + field.type.name + '()' :
-                                    fieldTypeName(field) + '.decodeText(reader, true)';
+                                    fieldTypeName(field) + '.decodeText(reader)';
                                 this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
                             }
                             else if (field.repeated) { // Repeated fields
@@ -1377,7 +1377,7 @@ protoc.Generator = class {
                                     this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.text + '());');
                                 }
                                 else {
-                                    this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decodeText(reader, true));');
+                                    this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decodeText(reader));');
                                 }
                             // Non-repeated
                             }
@@ -1388,7 +1388,7 @@ protoc.Generator = class {
                                 this._builder.add(variable + ' = reader.' + field.type.text + '();');
                             }
                             else {
-                                this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decodeText(reader, true);');
+                                this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decodeText(reader);');
                             }
                             this._builder.add("break;");
                         this._builder.outdent();

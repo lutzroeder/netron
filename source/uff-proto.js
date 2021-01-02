@@ -56,16 +56,16 @@ $root.uff.MetaGraph = class MetaGraph {
                     message.descriptor_core_version = reader.integer();
                     break;
                 case "descriptors":
-                    message.descriptors.push($root.uff.Descriptor.decodeText(reader, true));
+                    message.descriptors.push($root.uff.Descriptor.decodeText(reader));
                     break;
                 case "graphs":
-                    message.graphs.push($root.uff.Graph.decodeText(reader, true));
+                    message.graphs.push($root.uff.Graph.decodeText(reader));
                     break;
                 case "referenced_data":
-                    message.referenced_data.push($root.uff.MetaGraph.ReferencedDataEntry.decodeText(reader, true));
+                    message.referenced_data.push($root.uff.MetaGraph.ReferencedDataEntry.decodeText(reader));
                     break;
                 case "extra_fields":
-                    message.extra_fields.push($root.uff.MetaGraph.ExtraFieldsEntry.decodeText(reader, true));
+                    message.extra_fields.push($root.uff.MetaGraph.ExtraFieldsEntry.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -114,7 +114,7 @@ $root.uff.MetaGraph.ReferencedDataEntry = class ReferencedDataEntry {
                     message.key = reader.string();
                     break;
                 case "value":
-                    message.value = $root.uff.Data.decodeText(reader, true);
+                    message.value = $root.uff.Data.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -163,7 +163,7 @@ $root.uff.MetaGraph.ExtraFieldsEntry = class ExtraFieldsEntry {
                     message.key = reader.string();
                     break;
                 case "value":
-                    message.value = $root.uff.Data.decodeText(reader, true);
+                    message.value = $root.uff.Data.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -273,10 +273,10 @@ $root.uff.Graph = class Graph {
                     message.id = reader.string();
                     break;
                 case "nodes":
-                    message.nodes.push($root.uff.Node.decodeText(reader, true));
+                    message.nodes.push($root.uff.Node.decodeText(reader));
                     break;
                 case "extra_fields":
-                    message.extra_fields.push($root.uff.Graph.ExtraFieldsEntry.decodeText(reader, true));
+                    message.extra_fields.push($root.uff.Graph.ExtraFieldsEntry.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -324,7 +324,7 @@ $root.uff.Graph.ExtraFieldsEntry = class ExtraFieldsEntry {
                     message.key = reader.string();
                     break;
                 case "value":
-                    message.value = $root.uff.Data.decodeText(reader, true);
+                    message.value = $root.uff.Data.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -391,10 +391,10 @@ $root.uff.Node = class Node {
                     message.operation = reader.string();
                     break;
                 case "fields":
-                    message.fields.push($root.uff.Node.FieldsEntry.decodeText(reader, true));
+                    message.fields.push($root.uff.Node.FieldsEntry.decodeText(reader));
                     break;
                 case "extra_fields":
-                    message.extra_fields.push($root.uff.Node.ExtraFieldsEntry.decodeText(reader, true));
+                    message.extra_fields.push($root.uff.Node.ExtraFieldsEntry.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -443,7 +443,7 @@ $root.uff.Node.FieldsEntry = class FieldsEntry {
                     message.key = reader.string();
                     break;
                 case "value":
-                    message.value = $root.uff.Data.decodeText(reader, true);
+                    message.value = $root.uff.Data.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -492,7 +492,7 @@ $root.uff.Node.ExtraFieldsEntry = class ExtraFieldsEntry {
                     message.key = reader.string();
                     break;
                 case "value":
-                    message.value = $root.uff.Data.decodeText(reader, true);
+                    message.value = $root.uff.Data.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -582,25 +582,25 @@ $root.uff.Data = class Data {
                     message.s = reader.string();
                     break;
                 case "s_list":
-                    message.s_list = $root.uff.ListString.decodeText(reader, true);
+                    message.s_list = $root.uff.ListString.decodeText(reader);
                     break;
                 case "d":
                     message.d = reader.float();
                     break;
                 case "d_list":
-                    message.d_list = $root.uff.ListDouble.decodeText(reader, true);
+                    message.d_list = $root.uff.ListDouble.decodeText(reader);
                     break;
                 case "b":
                     message.b = reader.boolean();
                     break;
                 case "b_list":
-                    message.b_list = $root.uff.ListBool.decodeText(reader, true);
+                    message.b_list = $root.uff.ListBool.decodeText(reader);
                     break;
                 case "i":
                     message.i = reader.integer();
                     break;
                 case "i_list":
-                    message.i_list = $root.uff.ListInt64.decodeText(reader, true);
+                    message.i_list = $root.uff.ListInt64.decodeText(reader);
                     break;
                 case "blob":
                     message.blob = reader.bytes();
@@ -612,13 +612,13 @@ $root.uff.Data = class Data {
                     message.dtype = reader.enum($root.uff.DataType);
                     break;
                 case "dtype_list":
-                    message.dtype_list = $root.uff.ListDataType.decodeText(reader, true);
+                    message.dtype_list = $root.uff.ListDataType.decodeText(reader);
                     break;
                 case "dim_orders":
-                    message.dim_orders = $root.uff.DimensionOrders.decodeText(reader, true);
+                    message.dim_orders = $root.uff.DimensionOrders.decodeText(reader);
                     break;
                 case "dim_orders_list":
-                    message.dim_orders_list = $root.uff.ListDimensionOrders.decodeText(reader, true);
+                    message.dim_orders_list = $root.uff.ListDimensionOrders.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -676,7 +676,7 @@ $root.uff.DimensionOrders = class DimensionOrders {
             const tag = reader.tag();
             switch (tag) {
                 case "orders":
-                    message.orders.push($root.uff.DimensionOrders.OrdersEntry.decodeText(reader, true));
+                    message.orders.push($root.uff.DimensionOrders.OrdersEntry.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -722,7 +722,7 @@ $root.uff.DimensionOrders.OrdersEntry = class OrdersEntry {
                     message.key = reader.enum($root.uff.OrderEnum);
                     break;
                 case "value":
-                    message.value = $root.uff.ListInt64.decodeText(reader, true);
+                    message.value = $root.uff.ListInt64.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -971,7 +971,7 @@ $root.uff.ListDimensionOrders = class ListDimensionOrders {
             const tag = reader.tag();
             switch (tag) {
                 case "val":
-                    message.val.push($root.uff.DimensionOrders.decodeText(reader, true));
+                    message.val.push($root.uff.DimensionOrders.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
