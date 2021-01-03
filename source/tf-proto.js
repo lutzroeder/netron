@@ -489,7 +489,7 @@ $root.tensorflow.CollectionDef.AnyList = class AnyList {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    message.value.push($root.google.protobuf.Any.decodeText(reader));
+                    reader.anyarray(message.value, () => new $root.google.protobuf.Any());
                     break;
                 default:
                     reader.field(tag, message);
@@ -5651,26 +5651,7 @@ $root.google.protobuf.Any = class Any {
     }
 
     static decodeText(reader) {
-        const message = new $root.google.protobuf.Any();
-        reader.start();
-        if (reader.any(message)) {
-            return message;
-        }
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "type_url":
-                    message.type_url = reader.string();
-                    break;
-                case "value":
-                    message.value = reader.bytes();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
+        return reader.any(() => new $root.google.protobuf.Any());
     }
 };
 

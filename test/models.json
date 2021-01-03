@@ -2339,6 +2339,13 @@
   },
   {
     "type":   "mediapipe",
+    "target": "cpu_oss_hairsegment.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/5760736/cpu_oss_hairsegment.pbtxt.zip[cpu_oss_hairsegment.pbtxt]",
+    "format": "MediaPipe",
+    "link":   "https://github.com/lutzroeder/netron/issues/423"
+  },
+  {
+    "type":   "mediapipe",
     "target": "face_detection_mobile_cpu.pbtxt",
     "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/face_detection/face_detection_mobile_cpu.pbtxt",
     "format": "MediaPipe",

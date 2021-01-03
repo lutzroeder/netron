@@ -472,17 +472,73 @@ protobuf.TextReader = class {
         return value;
     }
 
-    any(message) {
+    any(type) {
+        this.start();
+        const message = type();
         if (this._token.startsWith('[') && this._token.endsWith(']')) {
-            message.type_url = this._token;
+            message.type_url = this._token.substring(1, this._token.length - 1).trim();
             this.next();
-            this.expect('{');
+            this.match(':');
             message.value = this.read();
-            this.expect('}');
             this.match(';');
-            return true;
+            if (!this.end()) {
+                this.expect('}');
+            }
         }
-        return false;
+        else {
+            while (!this.end()) {
+                const tag = this.tag();
+                switch (tag) {
+                    case "type_url":
+                        message.type_url = this.string();
+                        break;
+                    case "value":
+                        message.value = this.bytes();
+                        break;
+                    default:
+                        this.field(tag, message);
+                        break;
+                }
+            }
+        }
+        return message;
+    }
+
+    anyarray(obj, type) {
+        this.start();
+        if (this._token.startsWith('[') && this._token.endsWith(']')) {
+            while (!this.end()) {
+                if (this._token.startsWith('[') && this._token.endsWith(']')) {
+                    const message = type();
+                    message.type_url = this._token.substring(1, this._token.length - 1).trim();
+                    this.next();
+                    this.match(':');
+                    message.value = this.read();
+                    this.match(';');
+                    obj.push(message);
+                    continue;
+                }
+                this.expect('[');
+            }
+        }
+        else {
+            const message = type();
+            while (!this.end()) {
+                const tag = this.tag();
+                switch (tag) {
+                    case "type_url":
+                        message.type_url = this.string();
+                        break;
+                    case "value":
+                        message.value = this.bytes();
+                        break;
+                    default:
+                        this.field(tag, message);
+                        break;
+                }
+            }
+            obj.push(message);
+        }
     }
 
     entry(obj, key, value) {
