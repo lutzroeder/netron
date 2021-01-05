@@ -24,6 +24,8 @@ $root.mindspore.schema.QuantParam = class QuantParam {
         $.varCorr = reader.float32_(position, 18, 1);
         $.meanCorr = reader.float32_(position, 20, 0);
         $.dstDtype = reader.int32_(position, 22, 32);
+        $.roundType = reader.int32_(position, 24, 1);
+        $.multiplier = reader.int32_(position, 26, -1);
         return $;
     }
 
@@ -39,6 +41,8 @@ $root.mindspore.schema.QuantParam = class QuantParam {
         $.varCorr = reader.value(json.varCorr, 1);
         $.meanCorr = reader.value(json.meanCorr, 0);
         $.dstDtype = reader.value(json.dstDtype, 32);
+        $.roundType = reader.value(json.roundType, 1);
+        $.multiplier = reader.value(json.multiplier, -1);
         return $;
     }
 };
@@ -286,6 +290,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 204: return $root.mindspore.schema.If.decode(reader, position);
             case 205: return $root.mindspore.schema.GeLU.decode(reader, position);
             case 206: return $root.mindspore.schema.Gru.decode(reader, position);
+            case 207: return $root.mindspore.schema.NonZero.decode(reader, position);
         }
         return undefined;
     }
@@ -498,6 +503,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'If': return $root.mindspore.schema.If.decodeText(reader, json);
             case 'GeLU': return $root.mindspore.schema.GeLU.decodeText(reader, json);
             case 'Gru': return $root.mindspore.schema.Gru.decodeText(reader, json);
+            case 'NonZero': return $root.mindspore.schema.NonZero.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4361,6 +4367,19 @@ $root.mindspore.schema.GeLU = class GeLU {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.GeLU();
         $.approximate = reader.value(json.approximate, false);
+        return $;
+    }
+};
+
+$root.mindspore.schema.NonZero = class NonZero {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.NonZero();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.NonZero();
         return $;
     }
 };
