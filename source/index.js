@@ -21,6 +21,8 @@ host.BrowserHost = class {
         this._type = this._meta.type ? this._meta.type[0] : 'Browser';
         this._version = this._meta.version ? this._meta.version[0] : null;
         this._telemetry = this._version && this._version !== '0.0.0';
+        this._environment = new Map();
+        this._environment.set('zoom', 'd3');
     }
 
     get document() {
@@ -106,8 +108,7 @@ host.BrowserHost = class {
         });
 
         const params = new URLSearchParams(window.location.search);
-
-        this._zoom = params.get('zoom') || 'd3';
+        this._environment.set('zoom', params.has('zoom') ? params.get('zoom') : this._environment.get('zoom'));
 
         this._menu = new host.Dropdown(this.document, 'menu-button', 'menu-dropdown');
         this._menu.add({
@@ -250,10 +251,7 @@ host.BrowserHost = class {
     }
 
     environment(name) {
-        if (name == 'zoom') {
-            return this._zoom;
-        }
-        return null;
+        return this._environment.get(name);
     }
 
     error(message, detail) {

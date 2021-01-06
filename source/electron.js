@@ -28,6 +28,8 @@ host.ElectronHost = class {
             }
         });
         this._version = electron.remote.app.getVersion();
+        this._environment = new Map();
+        this._environment.set('zoom', 'd3');
     }
 
     get document() {
@@ -183,10 +185,7 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        if (name == 'zoom') {
-            return 'd3';
-        }
-        return null;
+        return this._environment.get(name);
     }
 
     error(message, detail) {
