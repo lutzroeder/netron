@@ -3287,6 +3287,30 @@
     }
   },
   {
+    "name": "torch.silu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.silu_",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
     "name": "torch.hardswish",
     "schema": {
       "category": "Activation",
