@@ -25,7 +25,7 @@ $root.mindspore.schema.QuantParam = class QuantParam {
         $.meanCorr = reader.float32_(position, 20, 0);
         $.dstDtype = reader.int32_(position, 22, 32);
         $.roundType = reader.int32_(position, 24, 1);
-        $.multiplier = reader.int32_(position, 26, -1);
+        $.multiplier = reader.int32_(position, 26, 1);
         return $;
     }
 
@@ -42,7 +42,7 @@ $root.mindspore.schema.QuantParam = class QuantParam {
         $.meanCorr = reader.value(json.meanCorr, 0);
         $.dstDtype = reader.value(json.dstDtype, 32);
         $.roundType = reader.value(json.roundType, 1);
-        $.multiplier = reader.value(json.multiplier, -1);
+        $.multiplier = reader.value(json.multiplier, 1);
         return $;
     }
 };
