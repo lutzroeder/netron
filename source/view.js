@@ -46,10 +46,16 @@ view.View = class {
                 this.clearSelection();
             });
             if (this._host.environment('zoom') === 'scroll') {
+                window.addEventListener('wheel', (e) => {
+                    this._mouseWheelHandler(e);
+                });
                 this._getElementById('graph').addEventListener('mousewheel', (e) => {
                     this._mouseWheelHandler(e);
                 });
                 this._getElementById('graph').addEventListener('scroll', (e) => {
+                    this._scrollHandler(e);
+                });
+                this._getElementById('graph').addEventListener('wheel', (e) => {
                     this._scrollHandler(e);
                 });
                 this._getElementById('graph').addEventListener('gesturestart', (e) => {
@@ -175,7 +181,7 @@ view.View = class {
     zoomIn() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                this._updateZoom(this._zoom * 1.05);
+                this._updateZoom(this._zoom * 1.1);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -188,7 +194,7 @@ view.View = class {
     zoomOut() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                this._updateZoom(this._zoom * 0.95);
+                this._updateZoom(this._zoom * 0.9);
                 break;
             case 'd3':
                 if (this._zoom) {
