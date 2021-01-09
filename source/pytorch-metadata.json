@@ -89,7 +89,7 @@
     }
   },
   {
-    "name": "Softmax",
+    "name": "torch.nn.modules.activation.Softmax",
     "schema": {
       "category": "Activation"
     }
