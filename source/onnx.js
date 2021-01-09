@@ -618,21 +618,13 @@ onnx.Attribute = class {
 
         const AttributeType = onnx.proto.AttributeProto.AttributeType;
         switch (attribute.type) {
-            case AttributeType.INTS:
-                this._value = attribute.ints;
-                this._type = 'int64[]';
+            case AttributeType.FLOAT:
+                this._value = attribute.f;
+                this._type = 'float32';
                 break;
-            case AttributeType.FLOATS:
-                this._value = attribute.floats;
-                this._type = 'float32[]';
-                break;
-            case AttributeType.STRINGS:
-                this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
-                this._type = 'string[]';
-                break;
-            case AttributeType.GRAPHS:
-                this._value = attribute.graphs.map((graph) => context.graph(graph));
-                this._type = 'graph[]';
+            case AttributeType.INT:
+                this._value = attribute.i;
+                this._type = 'int64';
                 break;
             case AttributeType.STRING:
                 switch (operator) {
@@ -645,25 +637,41 @@ onnx.Attribute = class {
                 }
                 this._type = 'string';
                 break;
-            case AttributeType.FLOAT:
-                this._value = attribute.f;
-                this._type = 'float32';
-                break;
-            case AttributeType.INT:
-                this._value = attribute.i;
-                this._type = 'int64';
-                break;
             case AttributeType.TENSOR:
                 this._value = new onnx.Tensor(attribute.t);
                 this._type = 'tensor';
                 break;
-            case AttributeType.SPARSE_TENSOR:
-                this._value = new onnx.Tensor(attribute.sparse_tensor);
-                this._type = 'tensor[]';
-                break;
             case AttributeType.GRAPH:
                 this._value = context.graph(attribute.g);
                 this._type = 'graph';
+                break;
+            case AttributeType.FLOATS:
+                this._value = attribute.floats;
+                this._type = 'float32[]';
+                break;
+            case AttributeType.INTS:
+                this._value = attribute.ints;
+                this._type = 'int64[]';
+                break;
+            case AttributeType.STRINGS:
+                this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
+                this._type = 'string[]';
+                break;
+            case AttributeType.TENSORS:
+                this._value = attribute.tensors.map((tensor) => new onnx.Tensor(tensor));
+                this._type = 'tensor[]';
+                break;
+            case AttributeType.GRAPHS:
+                this._value = attribute.graphs.map((graph) => context.graph(graph));
+                this._type = 'graph[]';
+                break;
+            case AttributeType.SPARSE_TENSOR:
+                this._value = new onnx.Tensor(attribute.sparse_tensor);
+                this._type = 'tensor';
+                break;
+            case AttributeType.SPARSE_TENSORS:
+                this._value = attribute.sparse_tensors.map((tensor) => new onnx.Tensor(tensor));
+                this._type = 'tensor[]';
                 break;
             default:
                 throw new onnx.Error("Unknown attribute type '" + attribute.type + "'.");
