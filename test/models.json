@@ -4680,6 +4680,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "ViT-B-32.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5790183/ViT-B-32.pt.zip[ViT-B-32.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
+  },
+  {
+    "type":   "pytorch",
     "target": "vgg-cifar10.pth.tar",
     "source": "http://www.cs.unc.edu/~cyfu/cifar10/model_best.pth.tar",
     "format": "PyTorch v0.1.10",

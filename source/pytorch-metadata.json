@@ -2283,17 +2283,15 @@
   {
     "name": "torch.to:dtype_layout",
     "schema": {
-      "attributes": [
-        { "name": "dtype", "type": "ScalarType" },
-        { "name": "layout", "type": "Layout" },
-        { "name": "device", "type": "Device" },
-        { "name": "pin_memory", "type": "boolean", "default": false },
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+        { "name": "layout", "type": "Layout", "optional": true, "default": null },
+        { "name": "device", "type": "Device", "optional": true, "default": null },
+        { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
         { "name": "non_blocking", "type": "boolean", "default": false },
         { "name": "copy", "type": "boolean", "default": false },
         { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-      ],
-      "inputs": [
-        { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2303,15 +2301,13 @@
   {
     "name": "torch.to:device",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
         { "name": "device", "type": "Device" },
         { "name": "dtype", "type": "ScalarType" },
         { "name": "non_blocking", "type": "boolean", "default": false },
         { "name": "copy", "type": "boolean", "default": false },
         { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-      ],
-      "inputs": [
-        { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2321,14 +2317,12 @@
   {
     "name": "torch.to:dtype",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
         { "name": "dtype", "type": "ScalarType" },
         { "name": "non_blocking", "type": "boolean", "default": false },
         { "name": "copy", "type": "boolean", "default": false },
         { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-      ],
-      "inputs": [
-        { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -2338,14 +2332,12 @@
   {
     "name": "torch.to:other",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "other", "type": "Tensor" },
         { "name": "non_blocking", "type": "boolean", "default": false },
         { "name": "copy", "type": "boolean", "default": false },
         { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-      ],
-      "inputs": [
-        { "name": "self", "type": "Tensor" },
-        { "name": "other", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
@@ -4277,11 +4269,9 @@
   {
     "name": "torch.size",
     "schema": {
-      "attributes": [
-        { "name": "dim", "type": "int64" }
-      ],
       "inputs": [
-        { "name": "self", "type": "Tensor" }
+        { "name": "self", "type": "Tensor" },
+        { "name": "dim", "type": "int64" }
       ],
       "outputs": [
         { "name": "output", "type": "int64" }

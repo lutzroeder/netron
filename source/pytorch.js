@@ -1058,6 +1058,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.optim.lr_scheduler.ExponentialLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.LambdaLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.MultiStepLR', function() {});
+        this._registerConstructor('torch.optim.lr_scheduler.OneCycleLR', function() {});
         this._registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
         this._registerConstructor('torch.optim.optimizer._RequiredParameter', function() {});
         this._registerConstructor('torch.optim.rmsprop.RMSprop', function() {});
@@ -1115,6 +1116,8 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.inception.InceptionC', function() {});
         this._registerConstructor('torchvision.models.inception.InceptionD', function() {});
         this._registerConstructor('torchvision.models.inception.InceptionE', function() {});
+        this._registerConstructor('torchvision.models.mnasnet._InvertedResidual', function() {});
+        this._registerConstructor('torchvision.models.mnasnet.MNASNet', function() {});
         this._registerConstructor('torchvision.models.mobilenet.ConvBNReLU', function() {});
         this._registerConstructor('torchvision.models.mobilenet.MobileNetV2', function() {});
         this._registerConstructor('torchvision.models.mobilenet.InvertedResidual', function() {});
@@ -2967,8 +2970,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
             args.length === 1 && args[0].type === 'call' && args[0].target.member.type == 'id') {
             const innerCall = args[0];
             resolvedTarget = pytorch.Utility.target(innerCall.target.target);
-            args = innerCall.arguments;
             name = innerCall.target.member.value;
+            args = innerCall.arguments;
             outputTypes = [ 'int64' ];
         }
         if (resolvedTarget) {
@@ -3214,7 +3217,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     next = true;
                                     break;
                                 }
-                                const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
+                                const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type, size: [] };
                                 tensor.__variable__ = this.variable();
                                 result.push(tensor);
                                 node.outputs.push([ { id: tensor.__variable__ } ]);
@@ -3310,7 +3313,7 @@ pytorch.Utility = class {
             case 'Tensor[]':
                 return Array.isArray(obj) && obj.length > 0 && obj.every((tensor) => pytorch.Utility.isTensor(tensor) || tensor === null);
             case 'Scalar':
-                return obj !== null && obj !== Object(obj);
+                return (obj !== null && obj !== Object(obj)) || (pytorch.Utility.isTensor(obj) && Array.isArray(obj.size) && obj.size.length === 0);
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':
