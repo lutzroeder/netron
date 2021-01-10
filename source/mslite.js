@@ -14,8 +14,8 @@ mslite.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./mslite-schema').then(() => {
+    open(context) {
+        return context.require('./mslite-schema').then(() => {
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
@@ -27,7 +27,7 @@ mslite.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
             }
-            return mslite.Metadata.open(host).then((metadata) => {
+            return mslite.Metadata.open(context).then((metadata) => {
                 return new mslite.Model(metadata, model);
             });
         });
@@ -518,11 +518,11 @@ mslite.TensorShape = class {
 
 mslite.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (mslite.Metadata._metadata) {
             return Promise.resolve(mslite.Metadata._metadata);
         }
-        return host.request(null, 'mslite-metadata.json', 'utf-8').then((data) => {
+        return context.request('mslite-metadata.json', 'utf-8', null).then((data) => {
             mslite.Metadata._metadata = new mslite.Metadata(data);
             return mslite.Metadata._metadata;
         }).catch(() => {

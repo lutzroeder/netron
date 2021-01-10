@@ -15,9 +15,9 @@ dl4j.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(context) {
         return Promise.resolve().then(() => {
-            return dl4j.Metadata.open(host).then((metadata) => {
+            return dl4j.Metadata.open(context).then((metadata) => {
                 const entries = context.entries('zip');
                 const container = dl4j.ModelFactory._openContainer(entries);
                 return new dl4j.Model(metadata, container.configuration, container.coefficients);
@@ -451,12 +451,12 @@ dl4j.TensorShape = class {
 
 dl4j.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         dl4j.Metadata.textDecoder = dl4j.Metadata.textDecoder || new TextDecoder('utf-8');
         if (dl4j.Metadata._metadata) {
             return Promise.resolve(dl4j.Metadata._metadata);
         }
-        return host.request(null, 'dl4j-metadata.json', 'utf-8').then((data) => {
+        return context.request('dl4j-metadata.json', 'utf-8', null).then((data) => {
             dl4j.Metadata._metadata = new dl4j.Metadata(data);
             return dl4j.Metadata._metadata;
         }).catch(() => {

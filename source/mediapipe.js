@@ -15,7 +15,7 @@ mediapipe.ModelFactory = class {
 
     open(context /*, host */) {
         return Promise.resolve().then(() => {
-        // return host.require('./mediapipe-proto').then(() => {
+        // return context.require('./mediapipe-proto').then(() => {
             mediapipe.proto = protobuf.get('mediapipe');
             try {
                 const buffer = context.stream.peek();

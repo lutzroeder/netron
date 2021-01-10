@@ -22,8 +22,8 @@ tflite.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./tflite-schema').then(() => {
+    open(context) {
+        return context.require('./tflite-schema').then(() => {
             tflite.schema = flatbuffers.get('tflite').tflite;
             let model = null;
             const identifier = context.identifier;
@@ -55,7 +55,7 @@ tflite.ModelFactory = class {
                     }
                     break;
             }
-            return tflite.Metadata.open(host).then((metadata) => {
+            return tflite.Metadata.open(context).then((metadata) => {
                 return new tflite.Model(metadata, model);
             });
         });
@@ -729,11 +729,11 @@ tflite.TensorShape = class {
 
 tflite.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (tflite.Metadata._metadata) {
             return Promise.resolve(tflite.Metadata._metadata);
         }
-        return host.request(null, 'tflite-metadata.json', 'utf-8').then((data) => {
+        return context.request('tflite-metadata.json', 'utf-8', null).then((data) => {
             tflite.Metadata._metadata = new tflite.Metadata(data);
             return tflite.Metadata._metadata;
         }).catch(() => {

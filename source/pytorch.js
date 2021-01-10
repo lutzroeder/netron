@@ -14,16 +14,16 @@ pytorch.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(context) {
         const identifier = context.identifier;
-        return host.require('./pickle').then((pickle) => {
-            return host.require('./python').then((python) => {
-                return pytorch.Metadata.open(host).then((metadata) => {
+        return context.require('./pickle').then((pickle) => {
+            return context.require('./python').then((python) => {
+                return pytorch.Metadata.open(context).then((metadata) => {
                     let container = null;
                     try {
                         container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
                             const message = error && error.message ? error.message : error.toString();
-                            host.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
+                            context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                         });
                     }
                     catch (error) {
@@ -3899,12 +3899,12 @@ pytorch.nnapi.SerializedModel.BinaryReader = class {
 
 pytorch.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (pytorch.Metadata._metadata) {
             return Promise.resolve(pytorch.Metadata._metadata);
         }
         else {
-            return host.request(null, 'pytorch-metadata.json', 'utf-8').then((data) => {
+            return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
                 pytorch.Metadata._metadata = new pytorch.Metadata(data);
                 return pytorch.Metadata._metadata;
             }).catch(() => {

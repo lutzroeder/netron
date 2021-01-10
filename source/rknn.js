@@ -14,8 +14,8 @@ rknn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return rknn.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return rknn.Metadata.open(context).then((metadata) => {
             const buffer = context.stream.peek();
             const container = rknn.Container.open(buffer);
             return new rknn.Model(metadata, container.model, container.weights);
@@ -483,11 +483,11 @@ rknn.Container = class {
 
 rknn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (rknn.Metadata._metadata) {
             return Promise.resolve(rknn.Metadata._metadata);
         }
-        return host.request(null, 'rknn-metadata.json', 'utf-8').then((data) => {
+        return context.request('rknn-metadata.json', 'utf-8', null).then((data) => {
             rknn.Metadata._metadata = new rknn.Metadata(data);
             return rknn.Metadata._metadata;
         }).catch(() => {

@@ -13,8 +13,8 @@ coreml.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./coreml-proto').then(() => {
+    open(context) {
+        return context.require('./coreml-proto').then(() => {
             let decodedBuffer = null;
             try {
                 coreml.proto = protobuf.get('coreml').CoreML.Specification;
@@ -25,7 +25,7 @@ coreml.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new coreml.Error('File format is not coreml.Model (' + message.replace(/\.$/, '') + ').');
             }
-            return coreml.Metadata.open(host).then((metadata) => {
+            return coreml.Metadata.open(context).then((metadata) => {
                 return new coreml.Model(metadata, decodedBuffer);
             });
         });
@@ -1116,11 +1116,11 @@ coreml.Utility = class {
 
 coreml.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (coreml.Metadata._metadata) {
             return Promise.resolve(coreml.Metadata._metadata);
         }
-        return host.request(null, 'coreml-metadata.json', 'utf-8').then((data) => {
+        return context.request('coreml-metadata.json', 'utf-8', null).then((data) => {
             coreml.Metadata._metadata = new coreml.Metadata(data);
             return coreml.Metadata._metadata;
         }).catch(() => {

@@ -28,8 +28,8 @@ cntk.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./cntk-proto').then(() => {
+    open(context) {
+        return context.require('./cntk-proto').then(() => {
             let version = 0;
             let obj = null;
             try {
@@ -58,7 +58,7 @@ cntk.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
             }
-            return cntk.Metadata.open(host).then((metadata) => {
+            return cntk.Metadata.open(context).then((metadata) => {
                 return new cntk.Model(metadata, version, obj);
             });
         });
@@ -757,11 +757,11 @@ cntk.TensorShape = class {
 
 cntk.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (cntk.Metadata._metadata) {
             return Promise.resolve(cntk.Metadata._metadata);
         }
-        return host.request(null, 'cntk-metadata.json', 'utf-8').then((data) => {
+        return context.request('cntk-metadata.json', 'utf-8', null).then((data) => {
             cntk.Metadata._metadata = new cntk.Metadata(data);
             return cntk.Metadata._metadata;
         }).catch(() => {

@@ -14,8 +14,8 @@ dnn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./dnn-proto').then(() => {
+    open(context) {
+        return context.require('./dnn-proto').then(() => {
             let model = null;
             try {
                 dnn.proto = protobuf.get('dnn').dnn;
@@ -26,7 +26,7 @@ dnn.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new dnn.Error('File format is not dnn.Graph (' + message.replace(/\.$/, '') + ').');
             }
-            return dnn.Metadata.open(host).then((metadata) => {
+            return dnn.Metadata.open(context).then((metadata) => {
                 return new dnn.Model(metadata, model);
             });
         });
@@ -456,11 +456,11 @@ dnn.TensorShape = class {
 
 dnn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (dnn.Metadata._metadata) {
             return Promise.resolve(dnn.Metadata._metadata);
         }
-        return host.request(null, 'dnn-metadata.json', 'utf-8').then((data) => {
+        return context.request('dnn-metadata.json', 'utf-8', null).then((data) => {
             dnn.Metadata._metadata = new dnn.Metadata(data);
             return dnn.Metadata._metadata;
         }).catch(() => {

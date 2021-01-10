@@ -264,7 +264,7 @@ host.ElectronHost = class {
         }
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(base || __dirname, file);
             fs.stat(pathname, (err, stats) => {
@@ -347,7 +347,7 @@ host.ElectronHost = class {
             this._view.show('welcome spinner');
             const dirname = path.dirname(file);
             const basename = path.basename(file);
-            this.request(dirname, basename, null).then((stream) => {
+            this.request(basename, null, dirname).then((stream) => {
                 const context = new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
@@ -660,16 +660,24 @@ host.ElectronHost.ElectonContext = class {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        return this._host.request(this._folder, file, encoding);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 

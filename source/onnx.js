@@ -55,8 +55,8 @@ onnx.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./onnx-proto').then(() => {
+    open(context) {
+        return context.require('./onnx-proto').then(() => {
             let model = null;
             let format = null;
             const identifier = context.identifier;
@@ -120,7 +120,7 @@ onnx.ModelFactory = class {
                     }
                 }
             }
-            return onnx.Metadata.open(host).then((metadata) => {
+            return onnx.Metadata.open(context).then((metadata) => {
                 return new onnx.Model(metadata, model, format);
             });
         });
@@ -1098,11 +1098,11 @@ onnx.GraphMetadata = class {
 
 onnx.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (onnx.Metadata._metadata) {
             return Promise.resolve(onnx.Metadata._metadata);
         }
-        return host.request(null, 'onnx-metadata.json', 'utf-8').then((data) => {
+        return context.request('onnx-metadata.json', 'utf-8', null).then((data) => {
             onnx.Metadata._metadata = new onnx.Metadata(data);
             return onnx.Metadata._metadata;
         }).catch(() => {

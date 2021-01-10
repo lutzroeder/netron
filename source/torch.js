@@ -15,13 +15,13 @@ torch.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return torch.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return torch.Metadata.open(context).then((metadata) => {
             const identifier = context.identifier;
             const buffer = context.stream.peek();
             const reader = new torch.T7Reader(buffer, (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    context.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                 }
                 return null;
             });
@@ -608,11 +608,11 @@ torch.TensorShape = class {
 
 torch.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (torch.Metadata._metadata) {
             return Promise.resolve(torch.Metadata._metadata);
         }
-        return host.request(null, 'torch-metadata.json', 'utf-8').then((data) => {
+        return context.request('torch-metadata.json', 'utf-8', null).then((data) => {
             torch.Metadata._metadata = new torch.Metadata(data);
             return torch.Metadata._metadata;
         }).catch(() => {

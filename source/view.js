@@ -975,7 +975,7 @@ view.View = class {
                 this.showNodeDocumentation(node);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
-                this._host.require('./numpy').then((numpy) => {
+                this._context.require('./numpy').then((numpy) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
@@ -1037,16 +1037,24 @@ view.ModelContext = class {
         this._entries = entries || new Map();
     }
 
-    request(file, encoding) {
-        return this._context.request(file, encoding);
-    }
-
     get identifier() {
         return this._context.identifier;
     }
 
     get stream() {
         return this._context.stream;
+    }
+
+    request(file, encoding, base) {
+        return this._context.request(file, encoding, base);
+    }
+
+    require(id) {
+        return this._context.require(id);
+    }
+
+    exception(error, fatal) {
+        this._context.exception(error, fatal);
     }
 
     entries(format) {
@@ -1142,7 +1150,8 @@ view.ModelContext = class {
 
 view.ArchiveContext = class {
 
-    constructor(entries, rootFolder, identifier, stream) {
+    constructor(host, entries, rootFolder, identifier, stream) {
+        this._host = host;
         this._entries = {};
         if (entries) {
             for (const entry of entries) {
@@ -1158,20 +1167,31 @@ view.ArchiveContext = class {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        const entry = this._entries[file];
-        if (!entry) {
-            return Promise.reject(new Error('File not found.'));
-        }
-        return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        if (base === undefined) {
+            const entry = this._entries[file];
+            if (!entry) {
+                return Promise.reject(new Error('File not found.'));
+            }
+            return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
+        }
+        return this._host.request(file, encoding, base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 
@@ -1401,7 +1421,7 @@ view.ModelFactoryService = class {
                         return nextModule();
                     }
                     match = true;
-                    return modelFactory.open(context, this._host).then((model) => {
+                    return modelFactory.open(context).then((model) => {
                         return model;
                     }).catch((error) => {
                         const text = " in '" + context.identifier + "'.";
@@ -1447,7 +1467,7 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            const context = new view.ModelContext(new view.ArchiveContext(null, rootFolder, entry.name, entry.stream));
+                            const context = new view.ModelContext(new view.ArchiveContext(this._host, null, rootFolder, entry.name, entry.stream));
                             let modules = this._filter(context);
                             const nextModule = () => {
                                 if (modules.length > 0) {
@@ -1492,7 +1512,7 @@ view.ModelFactoryService = class {
                         return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(entries, rootFolder, match.name, match.stream)));
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, rootFolder, match.name, match.stream)));
                 }
             };
             return nextEntry();

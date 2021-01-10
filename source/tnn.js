@@ -36,8 +36,8 @@ tnn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return tnn.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return tnn.Metadata.open(context).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
             if (identifier.endsWith('.tnnproto')) {
                 const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
@@ -582,11 +582,11 @@ tnn.TensorShape = class {
 
 tnn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (tnn.Metadata._metadata) {
             return Promise.resolve(tnn.Metadata._metadata);
         }
-        return host.request(null, 'tnn-metadata.json', 'utf-8').then((data) => {
+        return context.request('tnn-metadata.json', 'utf-8', null).then((data) => {
             tnn.Metadata._metadata = new tnn.Metadata(data);
             return tnn.Metadata._metadata;
         }).catch(() => {

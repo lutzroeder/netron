@@ -30,8 +30,8 @@ keras.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./hdf5').then((hdf5) => {
+    open(context) {
+        return context.require('./hdf5').then((hdf5) => {
             let format = 'Keras';
             let producer = '';
             let backend = '';
@@ -220,7 +220,7 @@ keras.ModelFactory = class {
                 throw new keras.Error('\'class_name\' is not present.');
             }
 
-            return keras.Metadata.open(host).then((metadata) => {
+            return keras.Metadata.open(context).then((metadata) => {
                 return new keras.Model(metadata, format, producer, backend, model_config, weights);
             });
         });
@@ -1056,11 +1056,11 @@ keras.TensorShape = class {
 
 keras.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (keras.Metadata._metadata) {
             return Promise.resolve(keras.Metadata._metadata);
         }
-        return host.request(null, 'keras-metadata.json', 'utf-8').then((data) => {
+        return context.request('keras-metadata.json', 'utf-8', null).then((data) => {
             keras.Metadata._metadata = new keras.Metadata(data);
             return keras.Metadata._metadata;
         }).catch(() => {

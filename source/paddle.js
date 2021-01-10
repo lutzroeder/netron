@@ -23,9 +23,9 @@ paddle.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return paddle.Metadata.open(host).then((metadata) => {
-            return host.require('./paddle-proto').then(() => {
+    open(context) {
+        return paddle.Metadata.open(context).then((metadata) => {
+            return context.require('./paddle-proto').then(() => {
                 paddle.proto = protobuf.get('paddle').paddle.framework.proto;
                 const container = paddle.Container.open(context);
                 if (container) {
@@ -727,11 +727,11 @@ paddle.Container = class {
 
 paddle.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (paddle.Metadata._metadata) {
             return Promise.resolve(paddle.Metadata._metadata);
         }
-        return host.request(null, 'paddle-metadata.json', 'utf-8').then((data) => {
+        return context.request('paddle-metadata.json', 'utf-8', null).then((data) => {
             paddle.Metadata._metadata = new paddle.Metadata(data);
             return paddle.Metadata._metadata;
         }).catch(() => {

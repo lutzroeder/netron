@@ -35,10 +35,10 @@ caffe.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./caffe-proto').then(() => {
+    open(context) {
+        return context.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.get('caffe').caffe;
-            return caffe.Metadata.open(host).then((metadata) => {
+            return caffe.Metadata.open(context).then((metadata) => {
                 const tags = context.tags('pbtxt');
                 if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                     try {
@@ -752,11 +752,11 @@ caffe.Utility = class {
 
 caffe.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (caffe.Metadata._metadata) {
             return Promise.resolve(caffe.Metadata._metadata);
         }
-        return host.request(null, 'caffe-metadata.json', 'utf-8').then((data) => {
+        return context.request('caffe-metadata.json', 'utf-8', null).then((data) => {
             caffe.Metadata._metadata = new caffe.Metadata(data);
             return caffe.Metadata._metadata;
         }).catch(() => {

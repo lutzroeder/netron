@@ -20,8 +20,8 @@ armnn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./armnn-schema').then((/* schema */) => {
+    open(context) {
+        return context.require('./armnn-schema').then((/* schema */) => {
             armnn.schema = flatbuffers.get('armnn').armnnSerializer;
             let model = null;
             try {
@@ -45,7 +45,7 @@ armnn.ModelFactory = class {
                 throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
             }
 
-            return armnn.Metadata.open(host).then((metadata) => {
+            return armnn.Metadata.open(context).then((metadata) => {
                 return new armnn.Model(metadata, model);
             });
         });
@@ -553,11 +553,11 @@ armnn.TensorShape = class {
 
 armnn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (armnn.Metadata._metadata) {
             return Promise.resolve(armnn.Metadata._metadata);
         }
-        return host.request(null, 'armnn-metadata.json', 'utf-8').then((data) => {
+        return context.request('armnn-metadata.json', 'utf-8', null).then((data) => {
             armnn.Metadata._metadata = new armnn.Metadata(data);
             return armnn.Metadata._metadata;
         }).catch(() => {

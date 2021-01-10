@@ -101,7 +101,7 @@ class TestHost {
         }
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         const pathname = path.join(base || path.join(__dirname, '../source'), file);
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
@@ -198,16 +198,20 @@ class TestContext {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        return this._host.request(this._folder, file, encoding);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
     }
 }
 

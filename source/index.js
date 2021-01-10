@@ -309,7 +309,7 @@ host.BrowserHost = class {
         this.document.body.removeChild(element);
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         const url = base ? (base + '/' + file) : this._url(file);
         return this._request(url, null, encoding);
     }
@@ -448,7 +448,7 @@ host.BrowserHost = class {
 
     _open(file, files) {
         this._view.show('welcome spinner');
-        const context = new host.BrowserHost.BrowserFileContext(file, files);
+        const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
                 this._view.show(null);
@@ -869,7 +869,8 @@ host.BrowserHost.BinaryStream = class {
 
 host.BrowserHost.BrowserFileContext = class {
 
-    constructor(file, blobs) {
+    constructor(host, file, blobs) {
+        this._host = host;
         this._file = file;
         this._blobs = {};
         for (const blob of blobs) {
@@ -885,13 +886,10 @@ host.BrowserHost.BrowserFileContext = class {
         return this._stream;
     }
 
-    open() {
-        return this.request(this._file.name, null).then((stream) => {
-            this._stream = stream;
-        });
-    }
-
-    request(file, encoding) {
+    request(file, encoding, base) {
+        if (base !== undefined) {
+            return this._host.request(file, encoding, base);
+        }
         const blob = this._blobs[file];
         if (!blob) {
             return Promise.reject(new Error("File not found '" + file + "'."));
@@ -929,6 +927,20 @@ host.BrowserHost.BrowserFileContext = class {
             }
         });
     }
+
+    require(id) {
+        return this._context.require(id);
+    }
+
+    exception(error, fatal) {
+        this._context.exception(error, fatal);
+    }
+
+    open() {
+        return this.request(this._file.name, null).then((stream) => {
+            this._stream = stream;
+        });
+    }
 };
 
 host.BrowserHost.BrowserContext = class {
@@ -950,16 +962,24 @@ host.BrowserHost.BrowserContext = class {
         }
     }
 
-    request(file, encoding) {
-        return this._host.request(this._base, file, encoding);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._base : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 

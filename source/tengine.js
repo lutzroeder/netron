@@ -16,8 +16,8 @@ tengine.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return tengine.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return tengine.Metadata.open(context).then((metadata) => {
             const buffer = context.stream.peek();
             const majorVersion = buffer[0] | buffer[1] << 8;
             const minorVersion = buffer[2] | buffer[3] << 8;
@@ -451,11 +451,11 @@ tengine.TensorShape = class {
 
 tengine.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (tengine.Metadata._metadata) {
             return Promise.resolve(tengine.Metadata._metadata);
         }
-        return host.request(null, 'tengine-metadata.json', 'utf-8').then((data) => {
+        return context.request('tengine-metadata.json', 'utf-8', null).then((data) => {
             tengine.Metadata._metadata = new tengine.Metadata(data);
             return tengine.Metadata._metadata;
         }).catch(() => {

@@ -50,8 +50,8 @@ ncnn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return ncnn.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return ncnn.Metadata.open(context).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
             const openBinary = (param, bin) => {
                 const reader = new ncnn.BinaryParamReader(metadata, param);
@@ -587,11 +587,11 @@ ncnn.TensorShape = class {
 
 ncnn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (ncnn.Metadata._metadata) {
             return Promise.resolve(ncnn.Metadata._metadata);
         }
-        return host.request(null, 'ncnn-metadata.json', 'utf-8').then((data) => {
+        return context.request('ncnn-metadata.json', 'utf-8', null).then((data) => {
             ncnn.Metadata._metadata = new ncnn.Metadata(data);
             return ncnn.Metadata._metadata;
         }).catch(() => {

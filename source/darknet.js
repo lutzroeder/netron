@@ -39,8 +39,8 @@ darknet.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return darknet.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return darknet.Metadata.open(context).then((metadata) => {
             const open = (metadata, cfg, weights) => {
                 return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
             };
@@ -1142,11 +1142,11 @@ darknet.Weights = class {
 
 darknet.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (darknet.Metadata._metadata) {
             return Promise.resolve(darknet.Metadata._metadata);
         }
-        return host.request(null, 'darknet-metadata.json', 'utf-8').then((data) => {
+        return context.request('darknet-metadata.json', 'utf-8', null).then((data) => {
             darknet.Metadata._metadata = new darknet.Metadata(data);
             return darknet.Metadata._metadata;
         }).catch(() => {

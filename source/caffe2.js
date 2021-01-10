@@ -51,9 +51,9 @@ caffe2.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./caffe2-proto').then(() => {
-            return caffe2.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return context.require('./caffe2-proto').then(() => {
+            return caffe2.Metadata.open(context).then((metadata) => {
                 const identifier = context.identifier;
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
@@ -777,11 +777,11 @@ caffe2.TensorShape = class {
 
 caffe2.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (caffe2.Metadata._metadata) {
             return Promise.resolve(caffe2.Metadata._metadata);
         }
-        return host.request(null, 'caffe2-metadata.json', 'utf-8').then((data) => {
+        return context.request('caffe2-metadata.json', 'utf-8', null).then((data) => {
             caffe2.Metadata._metadata = new caffe2.Metadata(data);
             return caffe2.Metadata._metadata;
         }).catch(() => {

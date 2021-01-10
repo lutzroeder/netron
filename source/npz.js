@@ -11,9 +11,9 @@ npz.ModelFactory = class {
         return entries.length > 0 && entries.every((entry) => entry.name.endsWith('.npy'));
     }
 
-    open(context, host) {
-        return host.require('./numpy').then((numpy) => {
-            return host.require('./pickle').then((pickle) => {
+    open(context) {
+        return context.require('./numpy').then((numpy) => {
+            return context.require('./pickle').then((pickle) => {
                 const modules = [];
                 const modulesMap = new Map();
                 const functionTable = new Map();

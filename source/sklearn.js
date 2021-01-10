@@ -34,16 +34,16 @@ sklearn.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./pickle').then((pickle) => {
+    open(context) {
+        return context.require('./pickle').then((pickle) => {
             const identifier = context.identifier;
-            return sklearn.Metadata.open(host).then((metadata) => {
+            return sklearn.Metadata.open(context).then((metadata) => {
                 let container;
                 try {
                     const buffer = context.stream.peek();
                     container = new sklearn.Container(buffer, pickle, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
-                        host.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
+                        context.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
                     });
                 }
                 catch (error) {
@@ -613,11 +613,11 @@ sklearn.TensorShape = class {
 
 sklearn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (sklearn.Metadata._metadata) {
             return Promise.resolve(sklearn.Metadata._metadata);
         }
-        return host.request(null, 'sklearn-metadata.json', 'utf-8').then((data) => {
+        return context.request('sklearn-metadata.json', 'utf-8', null).then((data) => {
             sklearn.Metadata._metadata = new sklearn.Metadata(data);
             return sklearn.Metadata._metadata;
         }).catch(() => {

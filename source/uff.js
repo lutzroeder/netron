@@ -30,8 +30,8 @@ uff.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./uff-proto').then(() => {
+    open(context) {
+        return context.require('./uff-proto').then(() => {
             let meta_graph = null;
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
@@ -58,7 +58,7 @@ uff.ModelFactory = class {
                     throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
                 }
             }
-            return uff.Metadata.open(host).then((metadata) => {
+            return uff.Metadata.open(context).then((metadata) => {
                 return new uff.Model(metadata, meta_graph);
             });
         });
@@ -500,11 +500,11 @@ uff.TensorShape = class {
 
 uff.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (uff.Metadata._metadata) {
             return Promise.resolve(uff.Metadata._metadata);
         }
-        return host.request(null, 'uff-metadata.json', 'utf-8').then((data) => {
+        return context.request('uff-metadata.json', 'utf-8', null).then((data) => {
             uff.Metadata._metadata = new uff.Metadata(data);
             return uff.Metadata._metadata;
         }).catch(() => {
