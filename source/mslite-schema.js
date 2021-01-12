@@ -291,6 +291,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 205: return $root.mindspore.schema.GeLU.decode(reader, position);
             case 206: return $root.mindspore.schema.Gru.decode(reader, position);
             case 207: return $root.mindspore.schema.NonZero.decode(reader, position);
+            case 208: return $root.mindspore.schema.InvertPermutation.decode(reader, position);
+            case 209: return $root.mindspore.schema.Size.decode(reader, position);
         }
         return undefined;
     }
@@ -504,6 +506,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'GeLU': return $root.mindspore.schema.GeLU.decodeText(reader, json);
             case 'Gru': return $root.mindspore.schema.Gru.decodeText(reader, json);
             case 'NonZero': return $root.mindspore.schema.NonZero.decodeText(reader, json);
+            case 'InvertPermutation': return $root.mindspore.schema.InvertPermutation.decodeText(reader, json);
+            case 'Size': return $root.mindspore.schema.Size.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4376,6 +4380,32 @@ $root.mindspore.schema.NonZero = class NonZero {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.NonZero();
+        return $;
+    }
+};
+
+$root.mindspore.schema.InvertPermutation = class InvertPermutation {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.InvertPermutation();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.InvertPermutation();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Size = class Size {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Size();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Size();
         return $;
     }
 };
