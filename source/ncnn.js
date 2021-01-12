@@ -397,7 +397,7 @@ ncnn.Node = class {
                 const direction = parseInt(layer.attr['2'] || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
                 this._weight(blobReader, 'weight_xc', [ num_directions, num_output, weight_data_size / num_directions / num_output ]);
-                this._weight(blobReader, 'bias_c', [ num_directions, 1, num_output ]);
+                this._weight(blobReader, 'bias_c', [ num_directions, num_output ]);
                 this._weight(blobReader, 'weight_hc', [ num_directions, num_output, num_output ]);
                 break;
             }
@@ -406,9 +406,9 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
                 const direction = parseInt(layer.attr['2'] || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
-                this._weight(blobReader, 'weight_xc', [ num_directions, num_output * 4, weight_data_size / num_directions / num_output / 4 ]);
+                this._weight(blobReader, 'weight_xc', [ num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4 ]);
                 this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
-                this._weight(blobReader, 'weight_hc', [ num_directions, num_output * 4, num_output ]);
+                this._weight(blobReader, 'weight_hc', [ num_directions, 4, num_output, num_output ]);
                 break;
             }
             case 'GRU': {
@@ -416,9 +416,9 @@ ncnn.Node = class {
                 const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
                 const direction = parseInt(layer.attr['2'] || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
-                this._weight(blobReader, 'weight_xc', [ num_directions, num_output * 3, weight_data_size / num_directions / num_output / 3 ]);
+                this._weight(blobReader, 'weight_xc', [ num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3 ]);
                 this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
-                this._weight(blobReader, 'weight_hc', [ num_directions, num_output * 3, num_output ]);
+                this._weight(blobReader, 'weight_hc', [ num_directions, 3, num_output, num_output ]);
                 break;
             }
         }
