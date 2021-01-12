@@ -2946,6 +2946,13 @@
   },
   {
     "type":   "ncnn",
+    "target": "rnn-lstm-gru.param,rnn-lstm-gru.bin",
+    "source": "https://github.com/lutzroeder/netron/files/5800011/rnn-lstm-gru.zip[rnn-lstm-gru.param,rnn-lstm-gru.bin]",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":   "ncnn",
     "target": "shufflenet.param",
     "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/shufflenet.param",
     "format": "ncnn",
