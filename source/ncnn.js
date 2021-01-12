@@ -325,9 +325,12 @@ ncnn.Node = class {
                 break;
             }
             case 'InstanceNorm': {
-                const channels = parseInt(layer.attr['0'] || 0, 10);
-                this._weight(blobReader, 'gamma', [ channels ], 'float32');
-                this._weight(blobReader, 'beta', [ channels ], 'float32');
+                const affine = parseInt(layer.attr['2'] || 1, 10);
+                if (affine === 1) {
+                    const channels = parseInt(layer.attr['0'] || 0, 10);
+                    this._weight(blobReader, 'gamma', [ channels ], 'float32');
+                    this._weight(blobReader, 'beta', [ channels ], 'float32');
+                }
                 break;
             }
             case 'Scale': {
@@ -348,6 +351,74 @@ ncnn.Node = class {
             case 'PReLU': {
                 const num_slope = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'slope', [ num_slope ], 'float32');
+                break;
+            }
+            case 'Padding': {
+                const per_channel_pad_data_size = parseInt(layer.attr['6'] || 0, 10);
+                this._weight(blobReader, 'per_channel_pad_data', [ per_channel_pad_data_size ], 'float32');
+                break;
+            }
+            case 'MemoryData': {
+                const w = parseInt(layer.attr['0'] || 0, 10);
+                const h = parseInt(layer.attr['1'] || 0, 10);
+                const c = parseInt(layer.attr['2'] || 0, 10);
+                if (c != 0) {
+                    this._weight(blobReader, 'data', [ c, h, w ], 'float32');
+                }
+                else if (h != 0) {
+                    this._weight(blobReader, 'data', [ h, w ], 'float32');
+                }
+                else if (w != 0) {
+                    this._weight(blobReader, 'data', [ w ], 'float32');
+                }
+                else {
+                    this._weight(blobReader, 'data', [ 1 ], 'float32');
+                }
+                break;
+            }
+            case 'GroupNorm': {
+                const affine = parseInt(layer.attr['3'] || 1, 10);
+                if (affine === 1) {
+                    const channels = parseInt(layer.attr['1'] || 0, 10);
+                    this._weight(blobReader, 'gamma', [ channels ], 'float32');
+                    this._weight(blobReader, 'beta', [ channels ], 'float32');
+                }
+                break;
+            }
+            case 'LayerNorm': {
+                const channels = parseInt(layer.attr['0'] || 0, 10);
+                this._weight(blobReader, 'gamma', [ channels ], 'float32');
+                this._weight(blobReader, 'beta', [ channels ], 'float32');
+                break;
+            }
+            case 'RNN': {
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
+                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_directions = direction == 2 ? 2 : 1;
+                this._weight(blobReader, 'weight_xc', [ num_directions, num_output, weight_data_size / num_directions / num_output ]);
+                this._weight(blobReader, 'bias_c', [ num_directions, num_output ]);
+                this._weight(blobReader, 'weight_hc', [ num_directions, num_output, num_output ]);
+                break;
+            }
+            case 'LSTM': {
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
+                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_directions = direction == 2 ? 2 : 1;
+                this._weight(blobReader, 'weight_xc', [ num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4 ]);
+                this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
+                this._weight(blobReader, 'weight_hc', [ num_directions, 4, num_output, num_output ]);
+                break;
+            }
+            case 'GRU': {
+                const num_output = parseInt(layer.attr['0'] || 0, 10);
+                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
+                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_directions = direction == 2 ? 2 : 1;
+                this._weight(blobReader, 'weight_xc', [ num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3 ]);
+                this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
+                this._weight(blobReader, 'weight_hc', [ num_directions, 3, num_output, num_output ]);
                 break;
             }
         }
