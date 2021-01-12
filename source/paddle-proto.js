@@ -60,7 +60,8 @@ $root.paddle.framework.proto.AttrType = {
     "BLOCK": 8,
     "LONG": 9,
     "BLOCKS": 10,
-    "LONGS": 11
+    "LONGS": 11,
+    "FLOAT64S": 12
 };
 
 $root.paddle.framework.proto.OpDesc = class OpDesc {
@@ -147,6 +148,7 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
         this.bools = [];
         this.blocks_idx = [];
         this.longs = [];
+        this.float64s = [];
     }
 
     static decode(reader, length) {
@@ -196,6 +198,9 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                     break;
                 case 15:
                     message.longs = reader.array(message.longs, () => reader.int64(), tag);
+                    break;
+                case 16:
+                    message.float64s = reader.doubles(message.float64s, tag);
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -258,6 +263,9 @@ $root.paddle.framework.proto.OpDesc.Attr = class Attr {
                     break;
                 case "longs":
                     reader.array(message.longs, () => reader.integer());
+                    break;
+                case "float64s":
+                    reader.array(message.float64s, () => reader.float());
                     break;
                 default:
                     reader.field(tag, message);
