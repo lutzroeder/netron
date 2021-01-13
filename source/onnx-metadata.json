@@ -23044,6 +23044,56 @@
     }
   },
   {
+    "name": "Relu",
+    "schema": {
+      "category": "Activation",
+      "description": "Relu takes one input data (Tensor<T>) and produces one output data\n(Tensor<T>) where the rectified linear function, y = max(0, x), is applied to\nthe tensor elementwise.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Relu',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.clip(x, 0, np.inf)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_relu')",
+          "summary": "relu"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor",
+          "name": "X",
+          "type": "T"
+        }
+      ],
+      "max_input": 1,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor",
+          "name": "Y",
+          "type": "T"
+        }
+      ],
+      "since_version": 14,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float)",
+            "tensor(int32)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int64)",
+            "tensor(float16)",
+            "tensor(double)",
+            "tensor(bfloat16)"
+          ],
+          "description": "Constrain input and output types to signed numeric tensors.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Reshape",
     "schema": {
       "attributes": [
