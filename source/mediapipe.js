@@ -13,7 +13,7 @@ mediapipe.ModelFactory = class {
         return false;
     }
 
-    open(context /*, host */) {
+    open(context) {
         return Promise.resolve().then(() => {
         // return context.require('./mediapipe-proto').then(() => {
             mediapipe.proto = protobuf.get('mediapipe');

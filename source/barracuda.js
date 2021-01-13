@@ -16,7 +16,7 @@ barracuda.ModelFactory = class {
         return false;
     }
 
-    open(context /*, host */) {
+    open(context) {
         return barracuda.Metadata.open().then((metadata) => {
             const nn = new barracuda.NNModel(context.stream.peek());
             return new barracuda.Model(metadata, nn);

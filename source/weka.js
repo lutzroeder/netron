@@ -22,7 +22,7 @@ weka.ModelFactory = class {
         return false;
     }
 
-    open(context /*, host */) {
+    open(context) {
         return Promise.resolve().then(() => {
             const reader = new java.io.InputObjectStream(context.stream);
             const obj = reader.read();
