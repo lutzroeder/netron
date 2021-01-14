@@ -634,10 +634,14 @@ $root.mindspore.schema.ResizeMethod = {
 };
 
 $root.mindspore.schema.CoordinateTransformMode = {
-    ASYMMETRIC: 0,
-    ALIGN_CORNERS: 1,
-    HALF_PIXEL: 2,
-    CROP_AND_RESIZE: 3
+    COMMON: 0,
+    HALF_PIXEL: 1,
+    PYTORCH_HALF_PIXEL: 2,
+    TF_HALF_PIXEL: 3,
+    TF_CROP_AND_RESIZE: 4,
+    ALIGN_CORNERS: 5,
+    ASYMMETRIC: 6,
+    ALIGN_CORNERS_WITH_HALF_PIEXL: 7
 };
 
 $root.mindspore.schema.NearestMode = {
