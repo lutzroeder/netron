@@ -680,7 +680,7 @@ onnx.Attribute = class {
         const metadata = context.metadata.attribute(operator, attribute.name);
         if (metadata) {
             if (metadata.type && metadata.type !== this._type) {
-                throw new onnx.Error("Unexpected '" + operator + ":" + attribute.name + "' attribute type '" + metadata.type + "'.");
+                throw new onnx.Error("Unexpected '" + operator + ":" + attribute.name + "' attribute type '" + this._type + "'.");
             }
             if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 if (this._value == metadata.default) {
