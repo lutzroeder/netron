@@ -2502,12 +2502,6 @@ pytorch.Container.Pickle = class {
         if (sys_info.protocol_version != 1001) {
             throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
         }
-        if (sys_info.type_sizes &&
-            ((sys_info.type_sizes.int && sys_info.type_sizes.int != 4) ||
-            (sys_info.type_sizes.long && sys_info.type_sizes.long != 4) ||
-            (sys_info.type_sizes.short && sys_info.type_sizes.short != 2))) {
-            throw new pytorch.Error('Unsupported type sizes.');
-        }
         this._littleEndian = sys_info.little_endian;
 
         const module_source_map = new Map();
