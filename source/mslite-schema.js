@@ -293,6 +293,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 207: return $root.mindspore.schema.NonZero.decode(reader, position);
             case 208: return $root.mindspore.schema.InvertPermutation.decode(reader, position);
             case 209: return $root.mindspore.schema.Size.decode(reader, position);
+            case 210: return $root.mindspore.schema.RandomStandardNormal.decode(reader, position);
         }
         return undefined;
     }
@@ -508,6 +509,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'NonZero': return $root.mindspore.schema.NonZero.decodeText(reader, json);
             case 'InvertPermutation': return $root.mindspore.schema.InvertPermutation.decodeText(reader, json);
             case 'Size': return $root.mindspore.schema.Size.decodeText(reader, json);
+            case 'RandomStandardNormal': return $root.mindspore.schema.RandomStandardNormal.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4410,6 +4412,23 @@ $root.mindspore.schema.Size = class Size {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Size();
+        return $;
+    }
+};
+
+$root.mindspore.schema.RandomStandardNormal = class RandomStandardNormal {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.RandomStandardNormal();
+        $.seed = reader.int32_(position, 4, 0);
+        $.seed2 = reader.int32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.RandomStandardNormal();
+        $.seed = reader.value(json.seed, 0);
+        $.seed2 = reader.value(json.seed2, 0);
         return $;
     }
 };
