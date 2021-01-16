@@ -2243,6 +2243,20 @@
   },
   {
     "type":   "keras",
+    "target": "netron_issue_540_1.h5",
+    "source": "https://github.com/lutzroeder/netron/files/5748679/netron_issue_540_1.h5.zip[netron_issue_540_1.h5]",
+    "format": "Keras v2.4.0", "runtime": "tensorflow",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
+    "target": "netron_issue_540_2.h5",
+    "source": "https://github.com/lutzroeder/netron/files/5748680/netron_issue_540_2.h5.zip[netron_issue_540_2.h5]",
+    "format": "Keras v2.4.0", "runtime": "tensorflow",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
     "target": "netron_issue_553.h5",
     "source": "https://github.com/lutzroeder/netron/files/4979486/netron_issue_553.zip[netron_issue_553.h5]",
     "format": "Keras v2.2.4-tf",
@@ -2305,24 +2319,17 @@
   },
   {
     "type":   "keras",
+    "target": "yolov3-tiny.h5",
+    "source": "https://github.com/lutzroeder/netron/files/5823763/yolov3-tiny.h5.zip[yolov3-tiny.h5]",
+    "format": "Keras v2.4.0", "runtime": "tensorflow",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
     "target": "tiramisu_fc_dense103_model.json",
     "source": "https://raw.githubusercontent.com/0bserver07/One-Hundred-Layers-Tiramisu/master/tiramisu_fc_dense103_model.json",
     "format": "Keras v2.0.2", "runtime": "tensorflow",
     "link":   "https://github.com/0bserver07/One-Hundred-Layers-Tiramisu"
-  },
-  {
-    "type":   "keras",
-    "target": "netron_issue_540_1.h5",
-    "source": "https://github.com/lutzroeder/netron/files/5748679/netron_issue_540_1.h5.zip[netron_issue_540_1.h5]",
-    "format": "Keras v2.4.0", "runtime": "tensorflow",
-    "link":   "https://github.com/lutzroeder/netron/issues/540"
-  },
-  {
-    "type":   "keras",
-    "target": "netron_issue_540_2.h5",
-    "source": "https://github.com/lutzroeder/netron/files/5748680/netron_issue_540_2.h5.zip[netron_issue_540_2.h5]",
-    "format": "Keras v2.4.0", "runtime": "tensorflow",
-    "link":   "https://github.com/lutzroeder/netron/issues/540"
   },
   {
     "type":   "keras",
