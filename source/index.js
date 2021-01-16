@@ -929,11 +929,11 @@ host.BrowserHost.BrowserFileContext = class {
     }
 
     require(id) {
-        return this._context.require(id);
+        return this._host.require(id);
     }
 
     exception(error, fatal) {
-        this._context.exception(error, fatal);
+        this._host.exception(error, fatal);
     }
 
     open() {

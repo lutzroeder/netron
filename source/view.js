@@ -975,7 +975,7 @@ view.View = class {
                 this.showNodeDocumentation(node);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
-                this._context.require('./numpy').then((numpy) => {
+                this._host.require('./numpy').then((numpy) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
