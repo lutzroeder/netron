@@ -30,6 +30,7 @@ host.ElectronHost = class {
         this._version = electron.remote.app.getVersion();
         this._environment = new Map();
         this._environment.set('zoom', 'd3');
+        this._openFileQueue = [];
     }
 
     get document() {
@@ -50,6 +51,9 @@ host.ElectronHost = class {
 
     initialize(view) {
         this._view = view;
+        electron.ipcRenderer.on('open', (_, data) => {
+            this._openFile(data.file);
+        });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (electron.remote.app.isPackaged) {
@@ -97,11 +101,15 @@ host.ElectronHost = class {
     start() {
         this._view.show('welcome');
 
-        electron.ipcRenderer.on('open', (_, data) => {
-            if (this._view.accept(data.file)) {
-                this._openFile(data.file);
+        if (this._openFileQueue !== null) {
+            const queue = this._openFileQueue;
+            this._openFileQueue = null;
+            if (queue.length > 0) {
+                const file = queue.pop();
+                this._openFile(file);
             }
-        });
+        }
+
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -343,7 +351,11 @@ host.ElectronHost = class {
     }
 
     _openFile(file) {
-        if (file) {
+        if (this._openFileQueue) {
+            this._openFileQueue.push(file);
+            return;
+        }
+        if (file && this._view.accept(file)) {
             this._view.show('welcome spinner');
             const dirname = path.dirname(file);
             const basename = path.basename(file);
