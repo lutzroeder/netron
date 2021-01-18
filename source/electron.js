@@ -16,10 +16,12 @@ host.ElectronHost = class {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
         });
-        window.eval = global.eval = () => {
+        this._document = window.document;
+        this._window = window;
+        this._window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
-        window.addEventListener('unload', () => {
+        this._window.addEventListener('unload', () => {
             if (typeof __coverage__ !== 'undefined') {
                 const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html')) + '.json';
                 /* eslint-disable no-undef */
@@ -30,11 +32,16 @@ host.ElectronHost = class {
         this._version = electron.remote.app.getVersion();
         this._environment = new Map();
         this._environment.set('zoom', 'd3');
+        // this._environment.set('zoom', 'scroll');
         this._openFileQueue = [];
     }
 
+    get window() {
+        return this._window;
+    }
+
     get document() {
-        return window.document;
+        return this._document;
     }
 
     get version() {

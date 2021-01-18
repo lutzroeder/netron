@@ -7,13 +7,14 @@ var host = {};
 host.BrowserHost = class {
 
     constructor() {
-        if (window.location.hostname.endsWith('.github.io')) {
-            window.location.replace('https://netron.app');
+        this._document = window.document;
+        this._window = window;
+        if (this._window.location.hostname.endsWith('.github.io')) {
+            this._window.location.replace('https://netron.app');
         }
-        window.eval = () => {
+        this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
-        this._document = window.document;
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
             if (element.content) {
@@ -26,6 +27,11 @@ host.BrowserHost = class {
         this._telemetry = this._version && this._version !== '0.0.0';
         this._environment = new Map();
         this._environment.set('zoom', 'd3');
+        // this._environment.set('zoom', 'scroll');
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
@@ -53,10 +59,10 @@ host.BrowserHost = class {
                     script.setAttribute('type', 'text/javascript');
                     script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
                     script.onload = () => {
-                        if (window.ga) {
-                            window.ga.l = 1 * new Date();
-                            window.ga('create', 'UA-54146-13', 'auto');
-                            window.ga('set', 'anonymizeIp', true);
+                        if (this.window.ga) {
+                            this.window.ga.l = 1 * new Date();
+                            this.window.ga('create', 'UA-54146-13', 'auto');
+                            this.window.ga('set', 'anonymizeIp', true);
                         }
                         resolve();
                     };
@@ -106,14 +112,14 @@ host.BrowserHost = class {
     }
 
     start() {
-        window.addEventListener('error', (e) => {
+        this.window.addEventListener('error', (e) => {
             this.exception(e.error, true);
         });
 
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(this.window.location.search);
         this._environment.set('zoom', params.has('zoom') ? params.get('zoom') : this._environment.get('zoom'));
 
-        this._menu = new host.Dropdown(this.document, 'menu-button', 'menu-dropdown');
+        this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
         this._menu.add({
             label: 'Properties...',
             accelerator: 'CmdOrCtrl+Enter',
@@ -267,21 +273,21 @@ host.BrowserHost = class {
 
     require(id) {
         const url = this._url(id + '.js');
-        window.__modules__ = window.__modules__ || {};
-        if (window.__modules__[url]) {
-            return Promise.resolve(window.__exports__[url]);
+        this.window.__modules__ = this.window.__modules__ || {};
+        if (this.window.__modules__[url]) {
+            return Promise.resolve(this.window.__exports__[url]);
         }
         return new Promise((resolve, reject) => {
-            window.module = { exports: {} };
+            this.window.module = { exports: {} };
             const script = document.createElement('script');
             script.setAttribute('id', id);
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
             script.onload = (e) => {
-                if (window.module && window.module.exports) {
-                    const exports = window.module.exports;
-                    delete window.module;
-                    window.__modules__[id] = exports;
+                if (this.window.module && this.window.module.exports) {
+                    const exports = this.window.module.exports;
+                    delete this.window.module;
+                    this.window.__modules__[id] = exports;
                     resolve(exports);
                 }
                 else {
@@ -289,7 +295,7 @@ host.BrowserHost = class {
                 }
             };
             script.onerror = (e) => {
-                delete window.module;
+                delete this.window.module;
                 reject(new Error('The script \'' + e.target.src + '\' failed to load.'));
             };
             this.document.head.appendChild(script);
@@ -315,11 +321,11 @@ host.BrowserHost = class {
     }
 
     openURL(url) {
-        window.location = url;
+        this.window.location = url;
     }
 
     exception(error, fatal) {
-        if (this._telemetry && window.ga && error.telemetry !== false) {
+        if (this._telemetry && this.window.ga && error.telemetry !== false) {
             const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
@@ -331,7 +337,7 @@ host.BrowserHost = class {
                     description.push(error.stack.split('\n').shift());
                 }
             }
-            window.ga('send', 'exception', {
+            this.window.ga('send', 'exception', {
                 exDescription: description.join(' @ '),
                 exFatal: fatal,
                 appName: this.type,
@@ -341,8 +347,8 @@ host.BrowserHost = class {
     }
 
     screen(name) {
-        if (this._telemetry && window.ga) {
-            window.ga('send', 'screenview', {
+        if (this._telemetry && this.window.ga) {
+            this.window.ga('send', 'screenview', {
                 screenName: name,
                 appName: this.type,
                 appVersion: this.version
@@ -351,8 +357,8 @@ host.BrowserHost = class {
     }
 
     event(category, action, label, value) {
-        if (this._telemetry && window.ga) {
-            window.ga('send', 'event', {
+        if (this._telemetry && this.window.ga) {
+            this.window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
                 eventLabel: label,
@@ -415,8 +421,8 @@ host.BrowserHost = class {
 
     _url(file) {
         let url = file;
-        if (window && window.location && window.location.href) {
-            let location = window.location.href.split('?').shift();
+        if (this.window && this.window.location && this.window.location.href) {
+            let location = this.window.location.href.split('?').shift();
             if (location.endsWith('.html')) {
                 location = location.split('/').slice(0, -1).join('/');
             }
@@ -506,11 +512,11 @@ host.BrowserHost = class {
     _about() {
         const self = this;
         const eventHandler = () => {
-            window.removeEventListener('keydown', eventHandler);
+            this.window.removeEventListener('keydown', eventHandler);
             self.document.body.removeEventListener('click', eventHandler);
             self._view.show('default');
         };
-        window.addEventListener('keydown', eventHandler);
+        this.window.addEventListener('keydown', eventHandler);
         this.document.body.addEventListener('click', eventHandler);
         this._view.show('about');
     }
@@ -681,14 +687,14 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 
 host.Dropdown = class {
 
-    constructor(document, button, dropdown) {
-        this._document = document;
-        this._dropdown = document.getElementById(dropdown);
-        this._button = document.getElementById(button);
+    constructor(host, button, dropdown) {
+        this._host = host;
+        this._dropdown = this._host.document.getElementById(dropdown);
+        this._button = this._host.document.getElementById(button);
         this._items = [];
         this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
         this._acceleratorMap = {};
-        window.addEventListener('keydown', (e) => {
+        this._host.window.addEventListener('keydown', (e) => {
             let code = e.keyCode;
             code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
             code |= e.altKey ? 0x0200 : 0;
@@ -703,7 +709,7 @@ host.Dropdown = class {
                 e.preventDefault();
             }
         });
-        this._document.body.addEventListener('click', (e) => {
+        this._host.document.body.addEventListener('click', (e) => {
             if (!this._button.contains(e.target)) {
                 this.close();
             }
@@ -779,7 +785,7 @@ host.Dropdown = class {
 
         for (const item of this._items) {
             if (Object.keys(item).length > 0) {
-                const button = this._document.createElement('button');
+                const button = this._host.document.createElement('button');
                 button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
                 button.addEventListener('click', () => {
                     this.close();
@@ -789,14 +795,14 @@ host.Dropdown = class {
                 });
                 this._dropdown.appendChild(button);
                 if (item.accelerator) {
-                    const accelerator = this._document.createElement('span');
+                    const accelerator = this._host.document.createElement('span');
                     accelerator.style.float = 'right';
                     accelerator.innerHTML = item.accelerator.text;
                     button.appendChild(accelerator);
                 }
             }
             else {
-                const separator = this._document.createElement('div');
+                const separator = this._host.document.createElement('div');
                 separator.setAttribute('class', 'separator');
                 this._dropdown.appendChild(separator);
             }
@@ -900,7 +906,7 @@ host.BrowserHost.BrowserFileContext = class {
                 resolve(encoding ? e.target.result : new host.BrowserHost.BinaryStream(new Uint8Array(e.target.result)));
             };
             reader.onerror = (e) => {
-                e = e || window.event;
+                e = e || this.window.event;
                 let message = '';
                 const error = e.target.error;
                 switch(error.code) {

@@ -36,42 +36,49 @@ view.View = class {
             this._getElementById('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
-                this._preventZoom(e);
-            });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
             });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
-            if (this._host.environment('zoom') === 'scroll') {
-                window.addEventListener('wheel', (e) => {
-                    this._mouseWheelHandler(e);
-                });
-                this._getElementById('graph').addEventListener('mousewheel', (e) => {
-                    this._mouseWheelHandler(e);
-                });
-                this._getElementById('graph').addEventListener('scroll', (e) => {
-                    this._scrollHandler(e);
-                });
-                this._getElementById('graph').addEventListener('wheel', (e) => {
-                    this._scrollHandler(e);
-                });
-                this._getElementById('graph').addEventListener('gesturestart', (e) => {
-                    e.preventDefault();
-                    this._gestureStartZoom = this._zoom;
-                }, false);
-                this._getElementById('graph').addEventListener('gesturechange', (e) => {
-                    e.preventDefault();
-                    this._updateZoom(this._gestureStartZoom * e.scale, e);
-                }, false);
-                this._getElementById('graph').addEventListener('gestureend', (e) => {
-                    e.preventDefault();
-                    this._updateZoom(this._gestureStartZoom * e.scale, e);
-                }, false);
-            }
             this._host.start();
+            switch (this._host.environment('zoom')) {
+                case 'scroll': {
+                    const elements = [ 'graph', 'toolbar' ];
+                    for (const id of elements) {
+                        const element = this._getElementById(id);
+                        element.addEventListener('mousewheel', (e) => {
+                            this._mouseWheelHandler(e);
+                        });
+                        element.addEventListener('scroll', (e) => {
+                            this._scrollHandler(e);
+                        });
+                        element.addEventListener('wheel', (e) => {
+                            this._scrollHandler(e);
+                        });
+                        element.addEventListener('gesturestart', (e) => {
+                            e.preventDefault();
+                            this._gestureStartZoom = this._zoom;
+                        }, false);
+                        element.addEventListener('gesturechange', (e) => {
+                            e.preventDefault();
+                            this._updateZoom(this._gestureStartZoom * e.scale, e);
+                        }, false);
+                        element.addEventListener('gestureend', (e) => {
+                            e.preventDefault();
+                            this._updateZoom(this._gestureStartZoom * e.scale, e);
+                        }, false);
+                    }
+                    break;
+                }
+                case 'd3': {
+                    this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
+                        this._preventZoom(e);
+                    });
+                    break;
+                }
+            }
         }).catch((err) => {
             this.error(err, null, null);
         });
@@ -229,7 +236,7 @@ view.View = class {
 
         const min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
 
-        zoom = Math.min(zoom, 2);
+        zoom = Math.min(zoom, 1.0);
         zoom = Math.max(min, zoom);
 
         const scrollLeft = this._scrollLeft || container.scrollLeft;
@@ -952,7 +959,7 @@ view.View = class {
                         }
                     }, 'image/png');
                 };
-                imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                imageElement.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
                 this._host.document.body.insertBefore(imageElement, this._host.document.body.firstChild);
             }
         }
