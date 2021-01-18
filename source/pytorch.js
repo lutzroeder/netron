@@ -1047,6 +1047,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.quantized.modules.linear.Linear', function() {});
         this._registerConstructor('torch.nn.quantized.modules.linear.LinearPackedParams', function() {});
         this._registerConstructor('torch.nn.quantized.modules.Quantize', function() {});
+        this._registerConstructor('torch.nn.utils.prune.L1Unstructured', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNorm', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormStateDictHook', function() {});
         this._registerConstructor('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', function() {});
