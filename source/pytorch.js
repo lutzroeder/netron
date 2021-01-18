@@ -3,6 +3,7 @@
 // Experimental
 
 var pytorch = pytorch || {};
+var pickle = pickle || require('./pickle');
 var base = base || require('./base');
 
 pytorch.ModelFactory = class {
@@ -16,22 +17,20 @@ pytorch.ModelFactory = class {
 
     open(context) {
         const identifier = context.identifier;
-        return context.require('./pickle').then((pickle) => {
-            return context.require('./python').then((python) => {
-                return pytorch.Metadata.open(context).then((metadata) => {
-                    let container = null;
-                    try {
-                        container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
-                            const message = error && error.message ? error.message : error.toString();
-                            context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-                        });
-                    }
-                    catch (error) {
+        return context.require('./python').then((python) => {
+            return pytorch.Metadata.open(context).then((metadata) => {
+                let container = null;
+                try {
+                    container = pytorch.Container.open(context, metadata, pickle, python, (error, fatal) => {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new pytorch.Error('File format is not PyTorch (' + message.replace(/\.$/, '') + ').');
-                    }
-                    return new pytorch.Model(metadata, container);
-                });
+                        context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
+                    });
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new pytorch.Error('File format is not PyTorch (' + message.replace(/\.$/, '') + ').');
+                }
+                return new pytorch.Model(metadata, container);
             });
         });
     }

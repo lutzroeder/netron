@@ -29,6 +29,7 @@ darknet.ModelFactory = class {
                         if (text.startsWith('[') && text.endsWith(']')) {
                             return true;
                         }
+                        return false;
                     }
                 }
                 catch (err) {

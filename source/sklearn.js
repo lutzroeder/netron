@@ -3,6 +3,7 @@
 // Experimental
 
 var sklearn = sklearn || {};
+var pickle = pickle || require('./pickle');
 var zip = zip || require('./zip');
 
 sklearn.ModelFactory = class {
@@ -35,23 +36,21 @@ sklearn.ModelFactory = class {
     }
 
     open(context) {
-        return context.require('./pickle').then((pickle) => {
-            const identifier = context.identifier;
-            return sklearn.Metadata.open(context).then((metadata) => {
-                let container;
-                try {
-                    const buffer = context.stream.peek();
-                    container = new sklearn.Container(buffer, pickle, (error, fatal) => {
-                        const message = error && error.message ? error.message : error.toString();
-                        context.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-                    });
-                }
-                catch (error) {
+        const identifier = context.identifier;
+        return sklearn.Metadata.open(context).then((metadata) => {
+            let container;
+            try {
+                const buffer = context.stream.peek();
+                container = new sklearn.Container(buffer, pickle, (error, fatal) => {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new sklearn.Error('File is not scikit-learn (' + message.replace(/\.$/, '') + ').');
-                }
-                return new sklearn.Model(metadata, container);
-            });
+                    context.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
+                });
+            }
+            catch (error) {
+                const message = error && error.message ? error.message : error.toString();
+                throw new sklearn.Error('File is not scikit-learn (' + message.replace(/\.$/, '') + ').');
+            }
+            return new sklearn.Model(metadata, container);
         });
     }
 };
@@ -1114,6 +1113,12 @@ sklearn.Container = class {
         functionTable['__builtin__.frozenset'] = function(iterable) {
             return iterable ? iterable : [];
         };
+        functionTable['__builtin__.getattr'] = function(obj, name, defaultValue) {
+            if (Object.prototype.hasOwnProperty.call(obj, name)) {
+                return obj[name];
+            }
+            return defaultValue;
+        };
         functionTable['_codecs.encode'] = function(obj /*, econding */) {
             return obj;
         };
@@ -1288,6 +1293,9 @@ sklearn.Container = class {
                         }
                         else if (obj.__module__.startsWith('xgboost.')) {
                             return 'XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                        }
+                        else if (obj.__module__.startsWith('lightgbm.')) {
+                            return 'LightGBM Pickle';
                         }
                         else if (obj.__module__.startsWith('nolearn.lasagne.')) {
                             return 'Lasagne';

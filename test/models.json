@@ -2338,6 +2338,13 @@
     "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
+    "type":   "lightgbm",
+    "target": "simple_example.txt",
+    "source": "https://github.com/lutzroeder/netron/files/5832361/simple_example.txt.zip[simple_example.txt]",
+    "format": "LightGBM v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/669"
+  },
+  {
     "type":   "mediapipe",
     "target": "clipped_images_from_file_at_24fps.pbtxt",
     "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/media_sequence/clipped_images_from_file_at_24fps.pbtxt",
