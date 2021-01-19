@@ -4,17 +4,13 @@ set -e
 
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "caffe clean"
+    echo "caffe clean"
     rm -rf "./third_party/source/caffe"
 }
 
 sync() {
-    bold "caffe sync"
+    echo "caffe sync"
     [ -d "./third_party/source/caffe" ] || git clone --quiet https://github.com/BVLC/caffe.git "./third_party/source/caffe"
     pushd "./third_party/source/caffe" > /dev/null
     git pull --quiet --prune
@@ -22,7 +18,7 @@ sync() {
 }
 
 schema() {
-    bold "caffe schema"
+    echo "caffe schema"
     [[ $(grep -U $'\x0D' ./source/caffe-proto.js) ]] && crlf=1
     temp=$(mktemp -d)
     sed 's/required float min = 1;/optional float min = 1;/g;s/required float max = 2;/optional float max = 2;/g' < ./third_party/source/caffe/src/caffe/proto/caffe.proto > ${temp}/caffe.proto

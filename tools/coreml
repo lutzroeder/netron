@@ -18,18 +18,14 @@ venv() {
     ${python} -m pip install --quiet --upgrade pip
 }
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "coreml clean"
+    echo "coreml clean"
     rm -rf "./third_party/source/env/coremltools"
     rm -rf "./third_party/source/coremltools"
 }
 
 sync() {
-    bold "coreml sync"
+    echo "coreml sync"
     [ -d "./third_party/source/coremltools" ] || git clone --quiet https://github.com/apple/coremltools.git "./third_party/source/coremltools"
     pushd "./third_party/source/coremltools" > /dev/null
     git pull --quiet --prune
@@ -37,7 +33,7 @@ sync() {
 }
 
 schema() {
-    bold "coreml schema"
+    echo "coreml schema"
     [[ $(grep -U $'\x0D' ./source/coreml-proto.js) ]] && crlf=1
     node ./tools/protoc.js --root coreml --out ./source/coreml-proto.js --path ./third_party/source/coremltools/mlmodel/format Model.proto
     if [[ -n ${crlf} ]]; then

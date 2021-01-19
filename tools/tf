@@ -8,10 +8,6 @@ case "${OSTYPE}" in
     *) python="python";;
 esac
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 venv() {
     env_dir=./third_party/env/tf
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
@@ -23,14 +19,14 @@ venv() {
 }
 
 clean() {
-    bold "tf clean"
+    echo "tf clean"
     rm -rf "./third_party/env/tensorflow"
     rm -rf "./third_party/source/tensorflow"
     rm -rf "./third_party/source/tflite-support"
 }
 
 sync() {
-    bold "tf sync"
+    echo "tf sync"
     [ -d "./third_party/source/tensorflow" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
     pushd "./third_party/source/tensorflow" > /dev/null
     git pull --quiet --prune
@@ -44,7 +40,7 @@ sync() {
 }
 
 install() {
-    bold "tf install"
+    echo "tf install"
     if [ "$(${python} -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')" = "3.9" ]; then
         echo "- python 3.9 [skip]"
         return
@@ -60,13 +56,13 @@ install() {
 }
 
 schema() {
-    bold "tf schema"
+    echo "tf schema"
     [[ $(grep -U $'\x0D' ./source/tf-proto.js) ]] && crlf=1
     node ./tools/protoc.js --text --root tf --out ./source/tf-proto.js --path ./third_party/source/tensorflow tensorflow/core/protobuf/saved_model.proto tensorflow/core/protobuf/tensor_bundle.proto tensorflow/core/util/saved_tensor_slice.proto tensorflow/core/util/event.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tf-proto.js ./source/tf-proto.js
     fi
-    bold "tflite schema"
+    echo "tflite schema"
     [[ $(grep -U $'\x0D' ./source/tflite-schema.js) ]] && crlf=1
     temp1=$(mktemp -d)
     temp2=$(mktemp -d)
@@ -81,7 +77,7 @@ schema() {
 }
 
 metadata() {
-    bold "tf metadata"
+    echo "tf metadata"
     if [ "$(${python} -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')" = "3.9" ]; then
         echo "- python 3.9 [skip]"
         return
@@ -98,7 +94,7 @@ metadata() {
         unix2dos --quiet --newfile ./source/tf-metadata.json ./source/tf-metadata.json
     fi
     deactivate
-    bold "keras metadata"
+    echo "keras metadata"
     venv
     if [[ $(grep -U $'\x0D' ./source/keras-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/keras-script.py metadata
@@ -109,7 +105,7 @@ metadata() {
 }
 
 zoo() {
-    bold "keras zoo"
+    echo "keras zoo"
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/keras-script.py zoo

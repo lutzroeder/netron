@@ -3,17 +3,13 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "mediapipe clean"
+    echo "mediapipe clean"
     rm -rf "./third_party/source/mediapipe"
 }
 
 sync() {
-    bold "mediapipe sync"
+    echo "mediapipe sync"
     download() {
         echo ${1}
         mkdir -p "./third_party/source/mediapipe/$(dirname ${1})"
@@ -45,7 +41,7 @@ sync() {
 }
 
 schema() {
-    bold "mediapipe schema"
+    echo "mediapipe schema"
     [[ $(grep -U $'\x0D' ./source/mediapipe-proto.js) ]] && crlf=1
     node ./tools/protoc.js  --text --root mediapipe --out ./source/mediapipe-proto.js --path ./third_party/source/mediapipe --path ./third_party/source/tensorflow \
         mediapipe/framework/calculator.proto \

@@ -3,16 +3,10 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-identifier=onnx
-
 case "${OSTYPE}" in
     msys*) python="winpty python";;
     *) python="python";;
 esac
-
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
 
 venv() {
     env_dir=./third_party/env/onnx
@@ -25,13 +19,13 @@ venv() {
 }
 
 clean() {
-    bold "sklearn clean"
+    echo "sklearn clean"
     rm -rf "./third_party/env/onnx"
     rm -rf "./third_party/source/onnx"
 }
 
 sync() {
-    bold "onnx sync"
+    echo "onnx sync"
     [ -d "./third_party/source/onnx" ] || git clone --quiet --recursive https://github.com/onnx/onnx.git "./third_party/source/onnx"
     pushd "./third_party/source/onnx" > /dev/null
     git pull --quiet --prune
@@ -41,7 +35,7 @@ sync() {
 }
 
 install() {
-    bold "onnx install"
+    echo "onnx install"
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
@@ -88,7 +82,7 @@ install() {
 }
 
 schema() {
-    bold "onnx schema"
+    echo "onnx schema"
     [[ $(grep -U $'\x0D' ./source/onnx-proto.js) ]] && crlf=1
     node ./tools/protoc.js --text --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
@@ -97,7 +91,7 @@ schema() {
 }
 
 metadata() {
-    bold "onnx metadata"
+    echo "onnx metadata"
     [[ $(grep -U $'\x0D' ./source/onnx-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
@@ -109,7 +103,7 @@ metadata() {
 }
 
 infer() {
-    bold "onnx infer"
+    echo "onnx infer"
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/onnx-script.py infer ${1}
@@ -117,7 +111,7 @@ infer() {
 }
 
 optimize() {
-    bold "onnx optimize"
+    echo "onnx optimize"
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     ${python} ./tools/onnx-script.py optimize ${1}
