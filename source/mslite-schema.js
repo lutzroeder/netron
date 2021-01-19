@@ -1210,13 +1210,13 @@ $root.mindspore.schema.SparseSoftmaxCrossEntropy = class SparseSoftmaxCrossEntro
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
-        $.isGrad = reader.int32_(position, 4, 0);
+        $.isGrad = reader.bool_(position, 4, false);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
-        $.isGrad = reader.value(json.isGrad, 0);
+        $.isGrad = reader.value(json.isGrad, false);
         return $;
     }
 };
@@ -4308,30 +4308,26 @@ $root.mindspore.schema.SmoothL1LossGrad = class SmoothL1LossGrad {
 
 $root.mindspore.schema.SigmoidCrossEntropyWithLogits = class SigmoidCrossEntropyWithLogits {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogits();
-        $.beta = reader.float32_(position, 4, 0);
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogits();
-        $.beta = reader.value(json.beta, 0);
         return $;
     }
 };
 
 $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad = class SigmoidCrossEntropyWithLogitsGrad {
 
-    static decode(reader, position) {
+    static decode(/* reader, position */) {
         const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad();
-        $.beta = reader.float32_(position, 4, 0);
         return $;
     }
 
-    static decodeText(reader, json) {
+    static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.SigmoidCrossEntropyWithLogitsGrad();
-        $.beta = reader.value(json.beta, 0);
         return $;
     }
 };
