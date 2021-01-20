@@ -1383,6 +1383,9 @@ pytorch.Execution = class {
         this._registerFunction('__builtin__.slice', function(start, stop , step) {
             return [ start, stop, step ];
         });
+        this._registerFunction('__builtin__.type', function(obj) {
+            return obj ? obj.__class__ : undefined;
+        });
         this._registerFunction('collections.Counter', function(/* iterable */) {
             return {};
         });
@@ -1859,6 +1862,7 @@ pytorch.Execution = class {
             if (target.__class__ === this._context.scope.builtins.type) {
                 const obj = {};
                 obj.__proto__ = target;
+                obj.__class__ = target;
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
                     obj.__init__.apply(obj, args);
                 }
@@ -1904,6 +1908,7 @@ pytorch.Execution = class {
         if (func.__class__ === this._context.scope.builtins.type) {
             const obj = {};
             obj.__proto__ = func;
+            obj.__class__ = func;
             if (obj.__init__ && typeof obj.__init__ === 'function') {
                 obj.__init__.apply(obj, args);
             }
