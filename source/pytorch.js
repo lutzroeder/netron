@@ -908,6 +908,7 @@ pytorch.Execution = class {
         this._registerConstructor('torch.nn.intrinsic.modules.fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', function() {});
         this._registerConstructor('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', function() {});
+        this._registerConstructor('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', function() {});
         this._registerConstructor('torch.nn.modules.activation.CELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.ELU', function() {});
         this._registerConstructor('torch.nn.modules.activation.GELU', function() {});
