@@ -1110,6 +1110,7 @@ pytorch.Execution = class {
         this._registerConstructor('torchvision.models.googlenet.BasicConv2d', function() {});
         this._registerConstructor('torchvision.models.googlenet.GoogLeNet', function() {});
         this._registerConstructor('torchvision.models.googlenet.Inception', function() {});
+        this._registerConstructor('torchvision.models.googlenet.InceptionAux', function() {});
         this._registerConstructor('torchvision.models.inception.BasicConv2d', function() {});
         this._registerConstructor('torchvision.models.inception.Inception3', function() {});
         this._registerConstructor('torchvision.models.inception.InceptionAux', function() {});
