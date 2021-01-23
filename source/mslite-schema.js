@@ -631,7 +631,7 @@ $root.mindspore.schema.MetaGraph = class MetaGraph {
 };
 
 $root.mindspore.schema.ResizeMethod = {
-    UNKNOW: -1,
+    UNKNOWN: -1,
     LINEAR: 0,
     NEAREST: 1,
     CUBIC: 2
@@ -694,7 +694,7 @@ $root.mindspore.schema.ActivationType = {
     HARD_TANH: 16,
     SIGN: 17,
     SWISH: 18,
-    UNKNOW: 19
+    UNKNOWN: 19
 };
 
 $root.mindspore.schema.ActivationGradType = {
@@ -714,7 +714,7 @@ $root.mindspore.schema.ActivationGradType = {
     HSIGMOID: 13,
     THRESHOLDRELU: 14,
     LINEAR: 15,
-    UNKNOW: 16
+    UNKNOWN: 16
 };
 
 $root.mindspore.schema.ReduceType = {
@@ -725,7 +725,7 @@ $root.mindspore.schema.ReduceType = {
     REDUCE_LOG_SUM_EXP: 4,
     REDUCE_PROD: 5,
     REDUCE_SUM: 6,
-    UNKNOW: 7
+    UNKNOWN: 7
 };
 
 $root.mindspore.schema.PoolMode = {
@@ -737,7 +737,7 @@ $root.mindspore.schema.EltwiseMode = {
     PROD: 0,
     SUM: 1,
     MAXIMUM: 2,
-    UNKNOW: 3
+    UNKNOWN: 3
 };
 
 $root.mindspore.schema.PadMode = {
@@ -4019,17 +4019,17 @@ $root.mindspore.schema.LayerNorm = class LayerNorm {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.LayerNorm();
-        $.normalizedShape = reader.typedArray(position, 4, Int32Array);
-        $.epsilon = reader.float32_(position, 6, 0.00001);
-        $.elementwiseAffine = reader.bool_(position, 8, false);
+        $.begin_norm_axis = reader.int32_(position, 4, 0);
+        $.begin_params_axis = reader.int32_(position, 6, 0);
+        $.epsilon = reader.float32_(position, 8, 0.00001);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.LayerNorm();
-        $.normalizedShape = reader.typedArray(json.normalizedShape, Int32Array);
+        $.begin_norm_axis = reader.value(json.begin_norm_axis, 0);
+        $.begin_params_axis = reader.value(json.begin_params_axis, 0);
         $.epsilon = reader.value(json.epsilon, 0.00001);
-        $.elementwiseAffine = reader.value(json.elementwiseAffine, false);
         return $;
     }
 };
