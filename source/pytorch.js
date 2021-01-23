@@ -93,7 +93,7 @@ pytorch.Graph = class {
                             continue;
                         }
                         for (const key of Object.keys(module)) {
-                            if (key !== '__module__' && key !== '__name__' && key !== '__parent__') {
+                            if (key !== '__module__' && key !== '__name__' && key !== '__class__' && key !== '__parent__') {
                                 const obj = module[key];
                                 if (!Array.isArray(obj) && obj === Object(obj)) {
                                     if (pytorch.Utility.isTensor(obj)) {
