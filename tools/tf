@@ -9,7 +9,7 @@ case "${OSTYPE}" in
 esac
 
 venv() {
-    env_dir=./third_party/env/tf
+    env_dir=./third_party/env/tensorflow
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
