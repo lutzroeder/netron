@@ -5046,14 +5046,12 @@
   {
     "name": "torch.topk:",
     "schema": {
-      "attributes": [
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
         { "name": "k", "type": "int64" },
         { "name": "dim", "type": "int64", "default": -1 },
         { "name": "largest", "type": "int64", "default": true },
         { "name": "sorted", "type": "boolean", "default": false }
-      ],
-      "inputs": [
-        { "name": "self", "type": "Tensor" }
       ],
       "outputs": [
         { "name": "values", "type": "Tensor" },
