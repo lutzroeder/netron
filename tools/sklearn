@@ -9,7 +9,7 @@ case "${OSTYPE}" in
 esac
 
 venv() {
-    env_dir=./third_party/env/sklearn
+    env_dir=./third_party/env/scikit-learn
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -20,14 +20,14 @@ venv() {
 
 clean() {
     echo "sklearn clean"
-    rm -rf "./third_party/env/sklearn"
-    rm -rf "./third_party/source/sklearn"
+    rm -rf "./third_party/env/scikit-learn"
+    rm -rf "./third_party/source/scikit-learn"
 }
 
 sync() {
     echo "sklearn sync"
-    [ -d "./third_party/source/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/sklearn"
-    pushd "./third_party/source/sklearn" > /dev/null
+    [ -d "./third_party/source/scikit-learn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/scikit-learn"
+    pushd "./third_party/source/scikit-learn" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
