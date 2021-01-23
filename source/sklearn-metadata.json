@@ -1633,7 +1633,7 @@
         },
         {
           "default": null,
-          "description": "A single str (see :ref:`scoring_parameter`) or a callable\n(see :ref:`scoring`) to evaluate the predictions on the test set.\n\nFor evaluating multiple metrics, either give a list of (unique) strings\nor a dict with names as keys and callables as values.\n\nNOTE that when using custom scorers, each scorer should return a single\nvalue. Metric functions returning a list/array of values can be wrapped\ninto multiple scorers that return one value each.\n\nSee :ref:`multimetric_grid_search` for an example.\n\nIf None, the estimator's score method is used.\n",
+          "description": "Strategy to evaluate the performance of the cross-validated model on\nthe test set.\n\nIf `scoring` represents a single score, one can use:\n\n- a single string (see :ref:`scoring_parameter`);\n- a callable (see :ref:`scoring`) that returns a single value.\n\nIf `scoring` reprents multiple scores, one can use:\n\n- a list or tuple of unique strings;\n- a callable returning a dictionary where the keys are the metric\nnames and the values are the metric scores;\n- a dictionary with metric names as keys and callables a values.\n\nSee :ref:`multimetric_grid_search` for an example.\n",
           "name": "scoring"
         },
         {
