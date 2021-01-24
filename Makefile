@@ -3,7 +3,7 @@
 
 build: clean lint build_python build_electron
 
-publish: clean lint publish_electron publish_python publish_web publish_winget
+publish: clean lint publish_electron publish_python publish_web publish_cask publish_winget
 
 install:
 	@[ -d node_modules ] || npm install

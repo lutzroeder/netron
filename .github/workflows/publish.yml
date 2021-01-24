@@ -84,12 +84,12 @@ jobs:
           GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
         run: make publish_web
 
-#      - if: startsWith(matrix.os, 'macos')
-#        name: Publish cask
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
-#          GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
-#        run: make publish_cask
+      - if: startsWith(matrix.os, 'macos')
+        name: Publish cask
+        env:
+          GITHUB_TOKEN: ${{ secrets.PUBLISH_GITHUB_TOKEN }}
+          GITHUB_USER: ${{ secrets.PUBLISH_GITHUB_USER }}
+        run: make publish_cask
 
       - if: startsWith(matrix.os, 'windows')
         name: Publish winget
