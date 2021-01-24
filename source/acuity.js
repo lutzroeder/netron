@@ -22,9 +22,7 @@ acuity.ModelFactory = class {
             const extension = context.identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'json': {
-                    const buffer = context.stream.peek();
-                    const reader = json.TextReader.create(buffer);
-                    const model = reader.read();
+                    const model = context.tags('json').get('');
                     if (model && model.MetaData && model.Layers) {
                         return new acuity.Model(metadata, model);
                     }

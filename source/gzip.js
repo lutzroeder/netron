@@ -5,14 +5,17 @@ var zip = zip || require('./zip');
 
 gzip.Archive = class {
 
-    constructor(buffer) {
-        this._entries = [];
+    static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
         const signature = [ 0x1f, 0x8b ];
-        if (stream.length < 18 || !stream.peek(2).every((value, index) => value === signature[index])) {
-            throw new gzip.Error('Invalid gzip archive.');
+        if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
+            return new gzip.Archive(stream);
         }
-        this._entries.push(new gzip.Entry(stream));
+        throw new gzip.Error('Invalid gzip archive.');
+    }
+
+    constructor(stream) {
+        this._entries = [ new gzip.Entry(stream) ];
         stream.seek(0);
     }
 

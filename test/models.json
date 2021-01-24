@@ -2338,6 +2338,13 @@
     "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
   },
   {
+    "type":   "lasagne",
+    "target": "net2.pkl",
+    "source": "https://raw.githubusercontent.com/Aabglov/LasaganeTest/master/results/net2.pkl",
+    "format": "Lasagne",
+    "link":   "https://github.com/Aabglov/LasaganeTest"
+  },
+  {
     "type":   "lightgbm",
     "target": "simple_example.txt",
     "source": "https://github.com/lutzroeder/netron/files/5832361/simple_example.txt.zip[simple_example.txt]",
@@ -4847,16 +4854,9 @@
   },
   {
     "type":   "sklearn",
-    "target": "net2.pkl",
-    "source": "https://raw.githubusercontent.com/Aabglov/LasaganeTest/master/results/net2.pkl",
-    "format": "Lasagne",
-    "link":   "https://github.com/Aabglov/LasaganeTest"
-  },
-  {
-    "type":   "sklearn",
     "target": "pima.xgboost.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
-    "format": "XGBoost",
+    "format": "scikit-learn XGBoost",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
   },
   {

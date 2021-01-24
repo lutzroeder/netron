@@ -42,8 +42,7 @@ mxnet.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        const reader = json.TextReader.create(context.stream.peek());
-                        symbol = reader.read();
+                        symbol = context.tags('json').get('');
                         if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                             format  = 'TVM';
                         }

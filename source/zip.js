@@ -1,16 +1,25 @@
 /* jshint esversion: 6 */
 
 var zip = zip || {};
+var zlib = zlib || {};
 
 zip.Archive = class {
 
-    constructor(buffer) {
-        this._entries = [];
+    static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new zip.BinaryReader(buffer) : buffer;
-        const signature = [ 0x50, 0x4B, 0x01, 0x02 ];
-        if (stream.length < 4 || !stream.peek(2).every((value, index) => value === signature[index])) {
-            throw new zip.Error('Invalid Zip archive.');
+        if (stream.length > 2 && stream.peek(1)[0] === 0x78) { // zlib
+            return new zlib.Archive(stream);
         }
+        const signature = [ 0x50, 0x4B, 0x01, 0x02 ];
+        if (stream.length > 4 && stream.peek(2).every((value, index) => value === signature[index])) {
+            return new zip.Archive(stream);
+        }
+        throw new zip.Error('Invalid Zip archive.');
+    }
+
+
+    constructor(stream) {
+        this._entries = [];
         const lookup = (stream, signature) => {
             let position = stream.length;
             do {
@@ -50,6 +59,7 @@ zip.Archive = class {
         stream.seek(offset); // central directory offset
 
         const entries = [];
+        const signature = [ 0x50, 0x4B, 0x01, 0x02 ];
         while (stream.position + 4 < stream.length && stream.read(4).every((value, index) => value === signature[index])) {
             const entry = {};
             const reader = new zip.BinaryReader(stream.read(42));
@@ -506,6 +516,9 @@ zip.InflaterStream = class {
     }
 
     get length() {
+        if (this._length === undefined) {
+            this._inflate();
+        }
         return this._length;
     }
 
@@ -555,6 +568,7 @@ zip.InflaterStream = class {
         if (this._buffer === undefined) {
             const buffer = this._stream.peek();
             this._buffer = new zip.Inflater().inflateRaw(buffer, this._length);
+            this._length = this._buffer.length;
             delete this._stream;
         }
     }
@@ -630,6 +644,37 @@ zip.BinaryReader = class {
         const position = this._position;
         this.skip(4);
         return this._view.getUint32(position, true);
+    }
+};
+
+zlib.Archive = class {
+
+    constructor(stream) {
+        stream.read(2);
+        this._entries = [ new zlib.Entry(stream) ];
+    }
+
+    get entries() {
+        return this._entries;
+    }
+};
+
+zlib.Entry = class {
+
+    constructor(stream) {
+        this._stream = new zip.InflaterStream(stream);
+    }
+
+    get name() {
+        return '';
+    }
+
+    get stream() {
+        return this._stream;
+    }
+
+    get data() {
+        return this.stream.peek();
     }
 };
 

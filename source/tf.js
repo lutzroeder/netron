@@ -133,9 +133,7 @@ tf.ModelFactory = class {
             }
             else if (extension === 'json') {
                 try {
-                    const buffer = context.stream.peek();
-                    const reader = json.TextReader.create(buffer);
-                    const root = reader.read();
+                    const root = context.tags('json').get('');
                     const graph_def = new tf.proto.GraphDef();
                     const meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = graph_def;

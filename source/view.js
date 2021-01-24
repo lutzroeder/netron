@@ -8,6 +8,7 @@ var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
+var python = python || require('./python');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -746,7 +747,7 @@ view.View = class {
                             let text = '';
                             const type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
-                                text = type.shape.dimensions.join('\u00D7');
+                                text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
                             }
 
                             if (this._showNames) {
@@ -1131,6 +1132,7 @@ view.ModelContext = class {
                     case 'json': {
                         const reader = json.TextReader.create(this.stream.peek());
                         const obj = reader.read();
+                        tags.set('', obj);
                         if (!Array.isArray(obj)) {
                             for (const key in obj) {
                                 tags.set(key, key === 'format' && obj[key] === 'graph-model' ? obj[key] : true);
@@ -1143,11 +1145,31 @@ view.ModelContext = class {
                                 }
                             }
                         }
+                        break;
+                    }
+                    case 'pkl': {
+                        if (this.stream.length > 2) {
+                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
+                            const header = stream.peek(2);
+                            if (header[0] === 0x80 && header[1] < 7) {
+                                const unpickler = new python.Unpickler(stream);
+                                const execution = new python.Execution(null, (error, fatal) => {
+                                    const message = error && error.message ? error.message : error.toString();
+                                    this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                });
+                                const data = unpickler.load((name, args) => execution.invoke(name, args));
+                                const name = data && data.__module__ && data.__name__ ? data.__module__ + '.' + data.__name__ : '';
+                                tags.set(name, data);
+                                this.stream.seek(0);
+                            }
+                        }
+                        break;
                     }
                 }
             }
             catch (error) {
                 tags = new Map();
+                this.stream.seek(0);
             }
             this._tags.set(type, tags);
         }
@@ -1226,6 +1248,7 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
+        this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
@@ -1358,7 +1381,7 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
-                const entries = new gzip.Archive(stream).entries;
+                const entries = gzip.Archive.open(stream).entries;
                 if (entries.length === 1) {
                     const entry = entries[0];
                     if (entry.name) {
@@ -1389,7 +1412,7 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'zip' || (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B)) {
-                entries.set('zip', new zip.Archive(stream).entries);
+                entries.set('zip', zip.Archive.open(stream).entries);
             }
             if (extension === 'tar' || (buffer.length >= 512)) {
                 let sum = 0;
@@ -1402,7 +1425,7 @@ view.ModelFactoryService = class {
                 }
                 checksum = parseInt(checksum, 8);
                 if (!isNaN(checksum) && sum === checksum) {
-                    entries.set('tar', new tar.Archive(stream).entries);
+                    entries.set('tar', tar.Archive.open(stream).entries);
                 }
             }
         }

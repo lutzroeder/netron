@@ -4,12 +4,16 @@ var tar = tar || {};
 
 tar.Archive = class {
 
-    constructor(buffer) {
-        this._entries = [];
+    static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new tar.BinaryReader(buffer) : buffer;
-        if (stream.length < 512) {
-            throw new tar.Error('Invalid tar archive size.');
+        if (stream.length > 512) {
+            return new tar.Archive(stream);
         }
+        throw new tar.Error('Invalid tar archive size.');
+    }
+
+    constructor(stream) {
+        this._entries = [];
         while (stream.position < stream.length) {
             this._entries.push(new tar.Entry(stream));
             if (stream.position + 512 > stream.length ||

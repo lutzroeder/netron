@@ -342,7 +342,7 @@ function decompress(buffer, identifier) {
     let archive = null;
     const extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
-        archive = new gzip.Archive(buffer);
+        archive = gzip.Archive.open(buffer);
         if (archive.entries.length == 1) {
             const entry = archive.entries[0];
             if (entry.name) {
@@ -360,10 +360,10 @@ function decompress(buffer, identifier) {
 
     switch (identifier.split('.').pop().toLowerCase()) {
         case 'tar':
-            archive = new tar.Archive(buffer);
+            archive = tar.Archive.open(buffer);
             break;
         case 'zip':
-            archive = new zip.Archive(buffer);
+            archive = zip.Archive.open(buffer);
             break;
     }
     return archive;
