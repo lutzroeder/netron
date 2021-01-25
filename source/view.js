@@ -1150,8 +1150,20 @@ view.ModelContext = class {
                     case 'pkl': {
                         if (this.stream.length > 2) {
                             const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
-                            const header = stream.peek(2);
-                            if (header[0] === 0x80 && header[1] < 7) {
+                            const match = (stream) => {
+                                const head = stream.peek(2);
+                                if (head[0] === 0x80 && head[1] < 7) {
+                                    return true;
+                                }
+                                stream.seek(-1);
+                                const tail = stream.peek(1);
+                                stream.seek(0);
+                                if (tail[0] === 0x2e) {
+                                    return true;
+                                }
+                                return false;
+                            };
+                            if (match(stream)) {
                                 const unpickler = new python.Unpickler(stream);
                                 const execution = new python.Execution(null, (error, fatal) => {
                                     const message = error && error.message ? error.message : error.toString();
@@ -1248,8 +1260,10 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
+        this.register('./npz', [ '.npz', '.pkl' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
+        this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
@@ -1268,7 +1282,6 @@ view.ModelFactoryService = class {
         this.register('./dnn', [ '.dnn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
-        this.register('./npz', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
         this.register('./acuity', [ '.json' ]);

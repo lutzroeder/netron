@@ -3,33 +3,14 @@
 // Experimental
 
 var sklearn = sklearn || {};
-var python = python || require('./python');
-var zip = zip || require('./zip');
 
 sklearn.ModelFactory = class {
 
     match(context) {
-
-        const stream = context.stream;
-        const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
-            // Reject PyTorch models with .pkl file extension.
-            return false;
-        }
-        if (stream.length > 2) {
-            const buffer = stream.peek(2);
-            if (buffer[0] === 0x80 && buffer[1] < 5) {
-                return true;
-            }
-            if (buffer[0] === 0x78) {
-                return true;
-            }
-        }
-        if (stream.length > 1) {
-            stream.seek(-1);
-            const value = stream.byte();
-            stream.seek(0);
-            if (value === 0x2e) {
+        const tags = context.tags('pkl');
+        if (tags.size === 1) {
+            const key = tags.keys().next().value;
+            if (key.startsWith('sklearn.') || key.startsWith('xgboost.sklearn.') || key.startsWith('lightgbm.sklearn.')) {
                 return true;
             }
         }
@@ -37,40 +18,19 @@ sklearn.ModelFactory = class {
     }
 
     open(context) {
-        const identifier = context.identifier;
         return sklearn.Metadata.open(context).then((metadata) => {
-            let container;
-            try {
-                const buffer = context.stream.peek();
-                container = new sklearn.Container(buffer, (error, fatal) => {
-                    const message = error && error.message ? error.message : error.toString();
-                    context.exception(new sklearn.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-                });
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new sklearn.Error('File is not scikit-learn (' + message.replace(/\.$/, '') + ').');
-            }
-            return new sklearn.Model(metadata, container);
+            const tags = context.tags('pkl');
+            const obj = tags.values().next().value;
+            return new sklearn.Model(metadata, obj);
         });
     }
 };
 
 sklearn.Model = class {
 
-    constructor(metadata, container) {
-        this._format = container.format;
-        this._graphs = [];
-        switch (container.type) {
-            case 'object': {
-                this._graphs = container.data.map((obj, index) => new sklearn.Graph(metadata, index.toString(), container.type, obj));
-                break;
-            }
-            case 'weights': {
-                this._graphs.push(new sklearn.Graph(metadata, '', container.type, container.data));
-                break;
-            }
-        }
+    constructor(metadata, obj) {
+        this._format = 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+        this._graphs = [ new sklearn.Graph(metadata, obj) ];
     }
 
     get format() {
@@ -84,53 +44,12 @@ sklearn.Model = class {
 
 sklearn.Graph = class {
 
-    constructor(metadata, index, type, obj) {
-        this._name = index.toString();
+    constructor(metadata, obj) {
+        this._name = '';
         this._metadata = metadata;
         this._nodes = [];
         this._groups = false;
-
-        switch (type) {
-            case 'object': {
-                this._process('', '', obj, ['data']);
-                break;
-            }
-            case 'weights': {
-                const group_map = new Map();
-                const groups = [];
-                let separator = '_';
-                if (Array.from(obj.keys()).every((key) => key.indexOf('.') !== -1) && !Array.from(obj.keys()).every((key) => key.indexOf('_') !== -1)) {
-                    separator = '.';
-                }
-                for (const pair of obj) {
-                    const key = pair[0];
-                    const parts = key.split(separator);
-                    const value = pair[1];
-                    const name = parts.length > 1 ? parts.pop() : '?';
-                    const id = parts.join(separator);
-                    let group = group_map.get(id);
-                    if (!group) {
-                        group = { id: id, arrays: [] };
-                        groups.push(group);
-                        group_map.set(id, group);
-                    }
-                    group.arrays.push({
-                        key: key,
-                        name: name,
-                        value: value
-                    });
-                }
-                this._nodes.push(...groups.map((group) => {
-                    const inputs = group.arrays.map((array) => {
-                        return new sklearn.Parameter(array.name, [
-                            new sklearn.Argument(array.key, null, new sklearn.Tensor(array.key, array.value))
-                        ]);
-                    });
-                    return new sklearn.Node(this._metadata, '', group.id, { __module__: '', __name__: 'Weights' }, inputs, []);
-                }));
-                break;
-            }
-        }
+        this._process('', '', obj, ['data']);
     }
 
     _process(group, name, obj, inputs) {
@@ -663,70 +582,10 @@ sklearn.Metadata = class {
     }
 };
 
-sklearn.Container = class {
+sklearn.Utility = class {
 
-    constructor(buffer, exception) {
-        if (buffer.length > 0 && buffer[0] == 0x78) {
-            buffer = buffer.subarray(2, buffer.length - 2);
-            buffer = new zip.Inflater().inflateRaw(buffer);
-        }
-        const execution = new python.Execution(null, exception);
-        const unpickler = new python.Unpickler(buffer);
-        const obj = unpickler.load((name, args) => execution.invoke(name, args));
-        const weights = sklearn.Container.findWeights(obj);
-        if (weights) {
-            this._format = 'NumPy Weights';
-            this._type = 'weights';
-            this._data = weights;
-        }
-        else {
-            if (obj) {
-                this._type = 'object';
-                if (Array.isArray(obj)) {
-                    if (obj.length > 16 || Object(obj[0]) !== obj[0]) {
-                        throw new sklearn.Error('Unsupported pickle array format');
-                    }
-                }
-                this._data = Array.isArray(obj) ? obj : [ obj ];
-                const set = new Set(this._data.map((obj) => {
-                    if (obj && obj.__module__) {
-                        if (obj.__module__.startsWith('sklearn.')) {
-                            return 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-                        }
-                        else if (obj.__module__ === 'xgboost.sklearn') {
-                            return 'scikit-learn XGBoost' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-                        }
-                        else if (obj.__module__ === 'lightgbm.sklearn') {
-                            return 'scikit-learn LightGBM';
-                        }
-                        else if (obj.__module__.startsWith('gensim.')) {
-                            return 'gensim';
-                        }
-                    }
-                    return 'Pickle';
-                }));
-                const formats = Array.from(set.values());
-                if (formats.length > 1) {
-                    throw new sklearn.Error("Invalid array format '" + JSON.stringify(formats) + "'.");
-                }
-                this._format = formats[0];
-            }
-            else {
-                throw new sklearn.Error('File does not contain root module or state dictionary.');
-            }
-        }
-    }
-
-    get format() {
-        return this._format;
-    }
-
-    get type() {
-        return this._type;
-    }
-
-    get data() {
-        return this._data;
+    static isTensor(obj) {
+        return obj && obj.__module__ === 'numpy' && obj.__name__ === 'ndarray';
     }
 
     static findWeights(obj) {
@@ -773,13 +632,6 @@ sklearn.Container = class {
             }
         }
         return null;
-    }
-};
-
-sklearn.Utility = class {
-
-    static isTensor(obj) {
-        return obj && obj.__module__ === 'numpy' && obj.__name__ === 'ndarray';
     }
 };
 

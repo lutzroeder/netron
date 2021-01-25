@@ -3029,6 +3029,20 @@
     "link":   "https://github.com/lutzroeder/netron/issues/337"
   },
   {
+    "type":   "npz",
+    "target": "mobilenet_v2_normal_72820.pkl",
+    "source": "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
+    "format": "NumPy Weights",
+    "link":   "https://github.com/MegEngine/Models/tree/master/official/quantization"
+  },
+  {
+    "type":   "npz",
+    "target": "R-50.pkl",
+    "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
+    "format": "NumPy Weights",
+    "link":   "https://github.com/facebookresearch/Detectron"
+  },
+  {
     "type":   "onnx",
     "target": "arcface-resnet100.onnx",
     "source": "https://s3.amazonaws.com/onnx-model-zoo/arcface/resnet100/resnet100.onnx",
@@ -4012,6 +4026,27 @@
     "link":   "https://github.com/lutzroeder/netron/issues/246"
   },
   {
+    "type":   "pickle",
+    "target": "batches.meta",
+    "source": "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
+    "format": "Pickle",
+    "link":   "https://github.com/MadryLab/cifar10_challenge"
+  },
+  {
+    "type":   "pickle",
+    "target": "svm.pkl",
+    "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
+    "format": "Pickle",
+    "link":   "https://github.com/dfridovi/imagelib/blob/master/svm.pkl"
+  },
+  {
+    "type":   "pickle",
+    "target": "robinhood-portfolio_data_user.pkl.pkl",
+    "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
+    "format": "Pickle",
+    "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
+  },
+  {
     "type":   "pytorch",
     "target": "alexnet.pkl.pth.zip",
     "source": "https://github.com/lutzroeder/netron/files/5213453/alexnet.pkl.pth.zip",
@@ -4756,13 +4791,6 @@
   },
   {
     "type":   "sklearn",
-    "target": "batches.meta",
-    "source": "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
-    "format": "Pickle",
-    "link":   "https://github.com/MadryLab/cifar10_challenge"
-  },
-  {
-    "type":   "sklearn",
     "target": "best_boston.pb",
     "source": "https://github.com/lutzroeder/netron/files/3335715/xgboost_best_boston.zip[best_boston.pkl]",
     "format": "scikit-learn v0.20.2",
@@ -4802,13 +4830,6 @@
     "source": "https://github.com/lutzroeder/netron/files/5728549/iris_svc.joblib.z.zip[iris_svc.joblib.z]",
     "format": "scikit-learn v0.24.0rc1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
-  },
-  {
-    "type":   "sklearn",
-    "target": "mobilenet_v2_normal_72820.pkl",
-    "source": "https://data.megengine.org.cn/models/weights/mobilenet_v2_normal_72820.pkl",
-    "format": "NumPy Weights",
-    "link":   "https://github.com/MegEngine/Models/tree/master/official/quantization"
   },
   {
     "type":   "sklearn",
@@ -4856,22 +4877,8 @@
     "type":   "sklearn",
     "target": "pima.xgboost.joblib.pkl",
     "source": "https://github.com/lutzroeder/netron/files/2656501/pima.xgboost.joblib.pkl.zip[pima.xgboost.joblib.pkl]",
-    "format": "scikit-learn XGBoost",
+    "format": "scikit-learn",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
-  },
-  {
-    "type":   "sklearn",
-    "target": "R-50.pkl",
-    "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
-    "format": "NumPy Weights",
-    "link":   "https://github.com/facebookresearch/Detectron"
-  },
-  {
-    "type":   "sklearn",
-    "target": "robinhood-portfolio_data_user.pkl.pkl",
-    "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
-    "format": "Pickle",
-    "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
     "type":   "sklearn",
@@ -4886,13 +4893,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.pkl]",
     "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
-  },
-  {
-    "type":   "sklearn",
-    "target": "svm.pkl",
-    "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
-    "format": "scikit-learn",
-    "link":   "https://github.com/dfridovi/imagelib/blob/master/svm.pkl"
   },
   {
     "type":   "sklearn",
