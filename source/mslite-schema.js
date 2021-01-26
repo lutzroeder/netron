@@ -1650,6 +1650,8 @@ $root.mindspore.schema.DeConv2D = class DeConv2D {
         $.dilateH = reader.int32_(position, 32, 0);
         $.hasBias = reader.bool_(position, 34, false);
         $.activationType = reader.int8_(position, 36, 0);
+        $.outputPaddingW = reader.int32_(position, 38, 0);
+        $.outputPaddingH = reader.int32_(position, 40, 0);
         return $;
     }
 
@@ -1672,6 +1674,8 @@ $root.mindspore.schema.DeConv2D = class DeConv2D {
         $.dilateH = reader.value(json.dilateH, 0);
         $.hasBias = reader.value(json.hasBias, false);
         $.activationType = $root.mindspore.schema.ActivationType[json.activationType];
+        $.outputPaddingW = reader.value(json.outputPaddingW, 0);
+        $.outputPaddingH = reader.value(json.outputPaddingH, 0);
         return $;
     }
 };
