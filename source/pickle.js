@@ -16,23 +16,36 @@ pickle.ModelFactory = class {
             return false;
         }
         const tags = context.tags('pkl');
-        if (tags.size === 1 || tags.keys().next().value === '') {
+        if (tags.size === 1) {
             return true;
         }
         return false;
     }
 
-    open(/* context */) {
+    open(context) {
         return new Promise((resolve) => {
-            resolve(new pickle.Model());
+            const value = context.tags('pkl').values().next().value;
+            if (value && value.__module__ && value.__name__) {
+                context.exception(new pickle.Error("Unknown Pickle type '" + value.__module__ + "." + value.__name__ + "'."));
+            }
+            else if (Array.isArray(value)) {
+                context.exception(new pickle.Error('Unknown Pickle array object.'));
+            }
+            else if (value === null || value === undefined) {
+                context.exception(new pickle.Error('Unknown Pickle null object.'));
+            }
+            else {
+                context.exception(new pickle.Error('Unknown Pickle object.'));
+            }
+            resolve(new pickle.Model(value));
         });
     }
 };
 
 pickle.Model = class {
 
-    constructor() {
-        this._graphs = [];
+    constructor(value) {
+        this._graphs = [ new pickle.Graph(value) ];
     }
 
     get format() {
@@ -41,6 +54,56 @@ pickle.Model = class {
 
     get graphs() {
         return this._graphs;
+    }
+};
+
+pickle.Graph = class {
+
+    constructor(/* value */) {
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [ new pickle.Node() ];
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+};
+
+pickle.Node = class {
+
+    constructor(/* value */) {
+        this._inputs = [];
+        this._outputs = [];
+        this._attributes = [];
+    }
+
+    get type() {
+        return '?';
+    }
+
+    get name() {
+        return '';
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get attributes() {
+        return this._attributes;
     }
 };
 

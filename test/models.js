@@ -213,6 +213,10 @@ class TestContext {
     require(id) {
         return this._host.require(id);
     }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
+    }
 }
 
 class HTMLDocument {
