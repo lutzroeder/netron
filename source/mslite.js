@@ -44,7 +44,16 @@ mslite.Model = class {
             const version = this._format.substring(format.length).replace(/^v/, '');
             this._format = format + 'v' + version;
         }
-        this._graphs = [ new mslite.Graph(metadata, model, model) ];
+        this._graphs = [];
+        const subgraphs = model.subGraph;
+        if (subgraphs === []) {
+            this._graphs = [ new mslite.Graph(metadata, model, model) ];
+        }
+        else {
+            for (let i = 0; i < subgraphs.length; i++) {
+                this._graphs.push(new mslite.Graph(metadata, subgraphs[i], model));
+            }
+        }
     }
 
     get name() {
@@ -74,20 +83,36 @@ mslite.Graph = class {
         });
 
         this._inputs = [];
-        for (let i = 0; i < subgraph.inputIndex.length; i++) {
-            const index = subgraph.inputIndex[i];
-            this._inputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
-        }
-
         this._outputs = [];
-        for (let i = 0; i < subgraph.outputIndex.length; i++) {
-            const index = subgraph.outputIndex[i];
-            this._outputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
-        }
-
         this._nodes = [];
-        for (let i = 0; i < subgraph.nodes.length; i++) {
-            this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
+        if (subgraph === model) {
+            for (let i = 0; i < subgraph.inputIndex.length; i++) {
+                const index = subgraph.inputIndex[i];
+                this._inputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
+            }
+            for (let i = 0; i < subgraph.outputIndex.length; i++) {
+                const index = subgraph.outputIndex[i];
+                this._outputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
+            }
+            for (let i = 0; i < subgraph.nodes.length; i++) {
+                this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
+            }
+        }
+        else {
+            for (let i = 0; i < subgraph.inputIndices.length; i++) {
+                const index = subgraph.inputIndices[i];
+                this._inputs.push(new mslite.Parameter(i.toString(), true, [args[index]]));
+            }
+
+            for (let i = 0; i < subgraph.outputIndices.length; i++) {
+                const index = subgraph.outputIndices[i];
+                this._outputs.push(new mslite.Parameter(i.toString(), true, [args[index]]));
+            }
+
+            for (let i = 0; i < subgraph.nodeIndices.length; i++) {
+                const nodeId = subgraph.nodeIndices[i];
+                this._nodes.push(new mslite.Node(metadata, model.nodes[nodeId], args));
+            }
         }
     }
 
