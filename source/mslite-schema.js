@@ -61,6 +61,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantParams = reader.tableArray(position, 18, $root.mindspore.schema.QuantParam.decode);
         $.quantClusters = reader.typedArray(position, 20, Float32Array);
         $.name = reader.string_(position, 22, null);
+        $.enableHuffmanCode = reader.bool_(position, 24, false);
         return $;
     }
 
@@ -76,6 +77,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantParams = reader.objectArray(json.quantParams, $root.mindspore.schema.QuantParam.decodeText);
         $.quantClusters = reader.typedArray(json.quantClusters, Float32Array);
         $.name = reader.value(json.name, null);
+        $.enableHuffmanCode = reader.value(json.enableHuffmanCode, false);
         return $;
     }
 };
