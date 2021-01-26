@@ -1430,7 +1430,7 @@
         },
         {
           "default": false,
-          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n",
+          "description": "This parameter is ignored when ``fit_intercept`` is set to False.\nIf True, the regressors X will be normalized before regression by\nsubtracting the mean and dividing by the l2-norm.\nIf you wish to standardize, please use\n:class:`~sklearn.preprocessing.StandardScaler` before calling ``fit``\non an estimator with ``normalize=False``.\n\n.. deprecated:: 1.0\n`normalize` was deprecated in version 1.0 and will be\nremoved in 1.2.\n",
           "name": "normalize",
           "option": "optional",
           "type": "boolean"
