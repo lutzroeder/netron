@@ -2318,7 +2318,7 @@ python.Execution = class {
                 globals.__file__ = file;
                 this._packages.set(name, globals);
                 const context = this._context.push(globals);
-                this._block(program.body, context);
+                this.block(program.body, context);
                 if (raw) {
                     return program;
                 }
@@ -2422,10 +2422,10 @@ python.Execution = class {
         for (const parameter of method.parameters) {
             context.set(parameter.name, locals.shift());
         }
-        return this._block(method.body.statements, context);
+        return this.block(method.body.statements, context);
     }
 
-    _block(statements, context) {
+    block(statements, context) {
         statements = Array.prototype.slice.call(statements);
         while (statements.length > 0) {
             const statement = statements.shift();
@@ -2471,7 +2471,7 @@ python.Execution = class {
                     };
                     context.set(statement.name, scope);
                     context = context.push(scope);
-                    this._block(statement.body.statements, context);
+                    this.block(statement.body.statements, context);
                     context = context.pop();
                     break;
                 }

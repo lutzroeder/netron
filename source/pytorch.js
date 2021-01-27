@@ -1256,6 +1256,18 @@ pytorch.Execution = class extends python.Execution {
                 groups: groups
             };
         });
+        this.registerFunction('ops.quantized.conv3d_prepack', function(weight, bias, stride, padding, dilation, groups) {
+            return {
+                __module__: '__torch__.torch.classes.quantized',
+                __name__: 'Conv3dPackedParamsBase',
+                weight: weight,
+                bias: bias,
+                stride: stride,
+                padding: padding,
+                dilation: dilation,
+                groups: groups
+            };
+        });
         this.registerFunction('ops.quantized.conv_transpose2d_prepack', function(weight, bias, stride, padding, dilation, groups) {
             return {
                 __module__: '__torch__.torch.classes.quantized',
@@ -2128,7 +2140,7 @@ pytorch.Container.Zip = class {
                         if (type.type === 'type' && type.name.type) {
                             switch (type.name.value) {
                                 case 'Tensor':
-                                    return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'trace-input-tensor' };
+                                    return { __module__: 'torch', __name__: 'Tensor', __variable__: parameter.name, __origin__: 'graph-input' };
                                 case 'Tuple':
                                     return type.arguments.map((type) => defaultValue(type));
                                 case 'List':
@@ -2150,7 +2162,7 @@ pytorch.Container.Zip = class {
                         const value = defaultValue(type);
                         if (pytorch.Utility.isTensor(value)) {
                             value.__variable__ = parameter.name;
-                            value.__origin__ = 'trace-input-tensor';
+                            value.__origin__ = 'graph-input';
                             this._inputs.push(parameter.name);
                         }
                         args.push(value);
@@ -2241,6 +2253,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         if (paramsBase && paramsBase.__module__ === '__torch__.torch.classes.quantized') {
                             switch (paramsBase.__name__) {
                                 case 'Conv2dPackedParamsBase':
+                                case 'Conv3dPackedParamsBase': {
                                     copyArgs.shift();
                                     copyEvalArgs.shift();
                                     copyArgs.unshift({ type: null });
@@ -2248,7 +2261,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     copyArgs.unshift({ type: null });
                                     copyEvalArgs.unshift(paramsBase.weight);
                                     break;
-                                case 'LinearPackedParamsBase':
+                                }
+                                case 'LinearPackedParamsBase': {
                                     copyArgs.shift();
                                     copyEvalArgs.shift();
                                     copyArgs.unshift({ type: null });
@@ -2256,6 +2270,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     copyArgs.unshift({ type: null });
                                     copyEvalArgs.unshift(paramsBase.weight);
                                     break;
+                                }
                                 default:
                                     throw new pytorch.Error("Unsupported type '" + paramsBase.__name__ + "'.");
                             }
@@ -2386,7 +2401,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     for (const paramter of schema.outputs) {
                         switch (paramter.type) {
                             case 'Tensor': {
-                                const parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
+                                const parameter = { __module__: 'torch', __name__: 'Tensor', __origin__: type };
                                 switch (type) {
                                     case 'torch.cat':
                                     case 'torch.conv2d':
@@ -2440,7 +2455,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 const tensors = [];
                                 const outputs = [];
                                 for (let i = 0; i < count; i ++) {
-                                    const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type };
+                                    const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__:  type };
                                     tensor.__variable__ = this.variable();
                                     tensors.push(tensor);
                                     outputs.push({ id: tensor.__variable__ });
@@ -2454,7 +2469,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     next = true;
                                     break;
                                 }
-                                const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__: 'invoke-output-' + type, size: [] };
+                                const tensor = { __module__: 'torch', __name__: 'Tensor', __origin__: type, size: [] };
                                 tensor.__variable__ = this.variable();
                                 result.push(tensor);
                                 node.outputs.push([ { id: tensor.__variable__ } ]);
@@ -2477,6 +2492,34 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
             }
         }
         return super.call(target, name, args, context);
+    }
+
+    block(statements, context) {
+        for (let i = 0; i < statements.length - 1; i++) {
+            const assign = statements[i];
+            const condition = statements[i + 1];
+            // _x = torch.ne(torch.len(torch.size(input)), 5)
+            // if _x:
+            //   ops.prim.RaiseException(...)
+            if (assign.type === '=' &&
+                condition.type === 'if' &&
+                pytorch.Utility.isEqual(assign.target, condition.condition) &&
+                pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
+                pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
+                pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
+                condition.then.statements.length == 1 &&
+                pytorch.Utility.isCall(condition.then.statements[0], 'ops.prim.RaiseException', 1)) {
+                const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
+                const size = this.expression(assign.expression.arguments[1], context);
+                if (tensor.size && tensor.size.length && tensor.size.length !== size &&
+                    tensor.size.every((item) => isNaN(item)) && size >= 3 && size <= 5) {
+                    if (tensor.__origin__ === 'torch.quantize_per_tensor') {
+                        tensor.size = Array(size).fill(NaN);
+                    }
+                }
+            }
+        }
+        return super.block(statements, context);
     }
 
     push(node) {
@@ -2570,6 +2613,19 @@ pytorch.Utility = class {
                 return obj === null || obj === Object(obj);
         }
         return true;
+    }
+
+    static isCall(expression, name, size) {
+        if (expression.type === 'call' &&
+            expression.arguments.length === size &&
+            pytorch.Utility.target(expression.target) === name) {
+            return true;
+        }
+        return false;
+    }
+
+    static isEqual(a, b) {
+        return (a.type === 'id' && b.type === 'id' && a.value === b.value);
     }
 
     static findModule(root) {

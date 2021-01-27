@@ -4504,6 +4504,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "quant_3d.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5877566/quant_3d.pt.zip[quant_3d.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/546"
+  },
+  {
+    "type":   "pytorch",
     "target": "r3d_18.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
