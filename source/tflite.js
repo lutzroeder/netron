@@ -165,7 +165,7 @@ tflite.Graph = class {
             const tensor = subgraph.tensors[i];
             const buffer = model.buffers[tensor.buffer];
             const is_variable = tensor.is_variable;
-            const data = buffer.data;
+            const data = buffer ? buffer.data : null;
             const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(i, tensor, buffer, is_variable) : null;
             args.push(new tflite.Argument(i, tensor, initializer));
             tensorNames.push(tensor.name);
