@@ -19291,5 +19291,54 @@
       "description": "\nCoalesce the N inputs into N outputs and a single coalesced output blob.\nThis allows operations that operate over multiple small kernels (e.g.\nbiases in a deep CNN) to be coalesced into a single larger operation,\namortizing the kernel launch overhead, synchronization costs for\ndistributed computation, etc.\nThe operator:\n- computes the total size of the coalesced blob by summing the input sizes\n- allocates the coalesced output blob as the total size\n- copies the input vectors into the coalesced blob, at the correct offset.\n- aliases each Output(i) to- point into the coalesced blob, at the corresponding offset for Input(i).\nThis is 'unsafe' as the output vectors are aliased, so use with\ncaution.\n",
       "support_level": "default"
     }
+  },
+  {
+    "name": "Int8FCPackWeight",
+    "schema": {
+      "attributes": [
+        {
+          "description": "See FC operator",
+          "name": "axis_w",
+          "option": "optional"
+        },
+        {
+          "description": "Default false. Per output channel quantization",
+          "name": "quantize_channelwise",
+          "option": "optional"
+        },
+        {
+          "description": "Default false. Store unpacked quantized weights to W_q.original_tensor",
+          "name": "save_unpacked_weights",
+          "option": "optional"
+        },
+        {
+          "description": "The scale of input activation tensor. Only meaningful when bias is provided (NOTE: this is not the scale of weight",
+          "name": "in_scale",
+          "option": "optional"
+        }
+      ],
+      "description": "Prepack weight for Int8FC",
+      "inputs": [
+        {
+          "description": "Weight tensor in KRSC layout",
+          "name": "W"
+        },
+        {
+          "description": "Bias tensor",
+          "name": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "description": "Weight/bias tensor in a packed format with type Int8FCDNNLowPPackedWeightBlob",
+          "name": "W_q"
+        },
+        {
+          "description": "Bias int32 quantized tensor",
+          "name": "B_q"
+        }
+      ],
+      "support_level": "default"
+    }
   }
 ]
