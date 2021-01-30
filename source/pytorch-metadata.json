@@ -5969,5 +5969,42 @@
         { "name": "keeps_size", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.repeat_interleave:Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "repeats", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.repeat_interleave:self_Tensor",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "repeats", "type": "Tensor" },
+        { "name": "dim", "type": "int64", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.repeat_interleave:self_int",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "repeats", "type": "int64" },
+        { "name": "dim", "type": "int64", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
