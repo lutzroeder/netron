@@ -1621,7 +1621,7 @@ view.ModelFactoryService = class {
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
-            { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch)(,|;|\s)/ },
+            { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
             { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
