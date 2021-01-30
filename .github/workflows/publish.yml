@@ -27,7 +27,8 @@ jobs:
         with:
           node-version: 12
 
-      - name: Install Python
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
