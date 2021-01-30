@@ -174,24 +174,10 @@
   },
   {
     "type":   "bigdl",
-    "target": "analytics-zoo_alexnet-quantize_imagenet_0.1.0.model",
-    "source": "https://sourceforge.net/projects/analytics-zoo/files/analytics-zoo-models/image-classification/analytics-zoo_alexnet-quantize_imagenet_0.1.0.model/download",
-    "format": "BigDL v0.5.0",
-    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
-  },
-  {
-    "type":   "bigdl",
-    "target": "analytics-zoo_inception-v1_imagenet_0.1.0.model",
-    "source": "https://sourceforge.net/projects/analytics-zoo/files/analytics-zoo-models/image-classification/analytics-zoo_inception-v1_imagenet_0.1.0.model/download",
-    "format": "BigDL v0.5.0",
-    "link":   "https://github.com/intel-analytics/analytics-zoo/tree/master/pyzoo/zoo/examples/nnframes/imageTransferLearning"
-  },
-  {
-    "type":   "bigdl",
     "target": "analytics-zoo_squeezenet-quantize_imagenet_0.1.0.model",
-    "source": "https://sourceforge.net/projects/analytics-zoo/files/analytics-zoo-models/image-classification/analytics-zoo_squeezenet-quantize_imagenet_0.1.0.model/download",
+    "source": "https://github.com/lutzroeder/netron/files/5891323/analytics-zoo_squeezenet-quantize_imagenet_0.1.0.model.zip[analytics-zoo_squeezenet-quantize_imagenet_0.1.0.model]",
     "format": "BigDL v0.5.0",
-    "link":   "https://analytics-zoo.github.io/master/#ProgrammingGuide/image-classification"
+    "link":   "https://github.com/lutzroeder/netron/issues/355"
   },
   {
     "type":   "caffe",
