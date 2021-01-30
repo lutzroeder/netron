@@ -1011,6 +1011,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerConstructor('torch.nn.quantized.modules.activation.ReLU', function() {});
         this.registerConstructor('torch.nn.quantized.modules.batchnorm.BatchNorm2d', function() {});
         this.registerConstructor('torch.nn.quantized.modules.conv.Conv2d', function() {});
+        this.registerConstructor('torch.nn.quantized.modules.conv.ConvTranspose2d', function() {});
         this.registerConstructor('torch.nn.quantized.modules.DeQuantize', function() {});
         this.registerConstructor('torch.nn.quantized.modules.functional_modules.FloatFunctional', function() {});
         this.registerConstructor('torch.nn.quantized.modules.functional_modules.QFunctional', function() {});
