@@ -1123,6 +1123,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerConstructor('torchvision.ops.deform_conv.DeformConv2d', function() {});
         this.registerConstructor('torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork', function() {});
         this.registerConstructor('torchvision.ops.feature_pyramid_network.LastLevelMaxPool', function() {});
+        this.registerConstructor('torchvision.ops.feature_pyramid_network.LastLevelP6P7', function() {});
         this.registerConstructor('torchvision.ops.misc.ConvTranspose2d', function() {});
         this.registerConstructor('torchvision.ops.misc.FrozenBatchNorm2d', function() {});
         this.registerConstructor('torchvision.ops.poolers.LevelMapper', function() {});
