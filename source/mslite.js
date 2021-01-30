@@ -7,9 +7,12 @@ mslite.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = 'MSL1';
-        if (stream.length > 8 && stream.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
-            return true;
+        if (stream.length >= 8) {
+            const buffer = stream.peek(8);
+            const reader = new flatbuffers.Reader(buffer);
+            if (reader.identifier === 'MSL1') {
+                return true;
+            }
         }
         return false;
     }

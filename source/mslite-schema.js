@@ -592,7 +592,7 @@ $root.mindspore.schema.SubGraph = class SubGraph {
 $root.mindspore.schema.MetaGraph = class MetaGraph {
 
     static identifier(reader) {
-        return reader.identifier('MSL1');
+        return reader.identifier === 'MSL1';
     }
 
     static create(reader) {

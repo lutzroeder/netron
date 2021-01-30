@@ -6,9 +6,16 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 mnn.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'mnn') {
-            return true;
+        const stream = context.stream;
+        if (stream.length >= 4) {
+            const extension = context.identifier.split('.').pop().toLowerCase();
+            if (extension == 'mnn') {
+                const buffer = stream.peek(4);
+                const reader = new flatbuffers.Reader(buffer);
+                if (reader.root === 0x00000018 || reader.root === 0x0000001C) {
+                    return true;
+                }
+            }
         }
         return false;
     }

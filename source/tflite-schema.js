@@ -2415,7 +2415,7 @@ $root.tflite.SignatureDef = class SignatureDef {
 $root.tflite.Model = class Model {
 
     static identifier(reader) {
-        return reader.identifier('TFL3');
+        return reader.identifier === 'TFL3';
     }
 
     static create(reader) {
@@ -2730,7 +2730,7 @@ $root.tflite.SubGraphMetadata = class SubGraphMetadata {
 $root.tflite.ModelMetadata = class ModelMetadata {
 
     static identifier(reader) {
-        return reader.identifier('M001');
+        return reader.identifier === 'M001';
     }
 
     static create(reader) {

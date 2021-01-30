@@ -24,16 +24,14 @@ flatbuffers.Reader = class {
         return this.int32(this._position) + this._position;
     }
 
-    identifier(text) {
-        if (text.length !== 4) {
-            throw new flatbuffers.Error('File identifier must be 4 characters in length.');
+    get identifier() {
+        if (this._buffer.length >= 8) {
+            const buffer = this._buffer.slice(4, 8);
+            if (buffer.every((c) => c >= 32 && c <= 128)) {
+                return String.fromCharCode(...buffer);
+            }
         }
-        const start = this._position + 4;
-        const end = start + 4;
-        if (end > this._buffer.length) {
-            return false;
-        }
-        return this._buffer.slice(start, end).every((value, index) => value === text.charCodeAt(index));
+        return '';
     }
 
     bool(offset) {
@@ -372,6 +370,5 @@ flatbuffers.Error = class extends Error {
 if (typeof module !== "undefined" && typeof module.exports === "object") {
     module.exports.Reader = flatbuffers.Reader;
     module.exports.TextReader = flatbuffers.TextReader;
-    module.exports.Error = flatbuffers.Error;
     module.exports.get = flatbuffers.get;
 }

@@ -2470,7 +2470,7 @@ $root.armnnSerializer.FeatureCompatibilityVersions = class FeatureCompatibilityV
 $root.armnnSerializer.SerializedGraph = class SerializedGraph {
 
     static identifier(reader) {
-        return reader.identifier('ARMN');
+        return reader.identifier === 'ARMN';
     }
 
     static create(reader) {
