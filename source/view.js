@@ -56,7 +56,7 @@ view.View = class {
                             this._scrollHandler(e);
                         });
                         element.addEventListener('wheel', (e) => {
-                            this._scrollHandler(e);
+                            this._mouseWheelHandler(e);
                         });
                         element.addEventListener('gesturestart', (e) => {
                             e.preventDefault();
@@ -233,29 +233,29 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        const container = this._getElementById('graph');
+        const graphElement = this._getElementById('graph');
 
-        const min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+        const min = Math.min(Math.max(graphElement.clientHeight / this._height, 0.2), 1);
 
         zoom = Math.min(zoom, 1.0);
         zoom = Math.max(min, zoom);
 
-        const scrollLeft = this._scrollLeft || container.scrollLeft;
-        const scrollTop = this._scrollTop || container.scrollTop;
+        const scrollLeft = this._scrollLeft || graphElement.scrollLeft;
+        const scrollTop = this._scrollTop || graphElement.scrollTop;
 
-        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
+        const x = (e ? e.pageX : (graphElement.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (graphElement.clientHeight / 2)) + scrollTop;
 
-        const graph = this._getElementById('canvas');
-        graph.style.width = zoom * this._width;
-        graph.style.height = zoom * this._height;
+        const canvasElement = this._getElementById('canvas');
+        canvasElement.style.width = zoom * this._width;
+        canvasElement.style.height = zoom * this._height;
 
         this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
         this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
         this._scrollLeft = Math.max(0, this._scrollLeft);
         this._scrollTop = Math.max(0, this._scrollTop);
-        container.scrollLeft = this._scrollLeft;
-        container.scrollTop = this._scrollTop;
+        graphElement.scrollLeft = this._scrollLeft;
+        graphElement.scrollTop = this._scrollTop;
 
         this._zoom = zoom;
     }
@@ -280,23 +280,47 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const graphElement = this._getElementById('canvas');
-            const graphRect = graphElement.getBoundingClientRect();
-            let x = 0;
-            let y = 0;
-            for (const element of selection) {
-                element.classList.add('select');
-                this._selection.push(element);
-                const transform = element.transform.baseVal.consolidate();
-                const box = element.getBBox();
-                const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
-                const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
-                x += ex;
-                y += ey;
+            const graphElement = this._getElementById('graph');
+            switch (this._host.environment('zoom')) {
+                case 'd3': {
+                    let x = 0;
+                    let y = 0;
+                    for (const element of selection) {
+                        element.classList.add('select');
+                        this._selection.push(element);
+                        const transform = element.transform.baseVal.consolidate();
+                        const box = element.getBBox();
+                        const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
+                        const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
+                        x += ex;
+                        y += ey;
+                    }
+                    x = x / selection.length;
+                    y = y / selection.length;
+                    const canvasElement = this._getElementById('canvas');
+                    const canvasRect = canvasElement.getBoundingClientRect();
+                    this._zoom.transform(d3.select(canvasElement), d3.zoomIdentity.translate((canvasRect.width / 2) - x, (canvasRect.height / 2) - y));
+                    break;
+                }
+                case 'scroll': {
+                    let x = 0;
+                    let y = 0;
+                    for (const element of selection) {
+                        element.classList.add('select');
+                        this._selection.push(element);
+                        const rect = element.getBoundingClientRect();
+                        x += rect.left + (rect.width / 2);
+                        y += rect.top + (rect.height / 2);
+                    }
+                    x = x / selection.length;
+                    y = y / selection.length;
+                    const rect = graphElement.getBoundingClientRect();
+                    const left = (graphElement.scrollLeft + x - rect.left) - (rect.width / 2);
+                    const top = (graphElement.scrollTop + y - rect.top) - (rect.height / 2);
+                    graphElement.scrollTo({ left: left, top: top, behavior: 'smooth' });
+                    break;
+                }
             }
-            x = x / selection.length;
-            y = y / selection.length;
-            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));
         }
     }
 
@@ -419,9 +443,10 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
-            const graphElement = this._getElementById('canvas');
-            while (graphElement.lastChild) {
-                graphElement.removeChild(graphElement.lastChild);
+            const graphElement = this._getElementById('graph');
+            const canvasElement = this._getElementById('canvas');
+            while (canvasElement.lastChild) {
+                canvasElement.removeChild(canvasElement.lastChild);
             }
             if (!graph) {
                 return Promise.resolve();
@@ -429,14 +454,14 @@ view.View = class {
             else {
                 switch (this._host.environment('zoom')) {
                     case 'scroll':
-                        this._zoom = 0;
-                        graphElement.style.position = 'static';
-                        graphElement.style.margin = 'auto';
+                        this._zoom = 1;
+                        canvasElement.style.position = 'static';
+                        canvasElement.style.margin = 'auto';
                         break;
                     case 'd3':
                         this._zoom = null;
-                        graphElement.style.position = 'absolute';
-                        graphElement.style.margin = '0';
+                        canvasElement.style.position = 'absolute';
+                        canvasElement.style.margin = '0';
                         break;
                 }
 
@@ -647,10 +672,10 @@ view.View = class {
 
                     const nodeName = node.name;
                     if (nodeName) {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName, class: 'graph-node' });
+                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + nodeName, class: 'graph-node' });
                     }
                     else {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString(), class: 'graph-node' });
+                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + id.toString(), class: 'graph-node' });
                         id++;
                     }
 
@@ -714,7 +739,7 @@ view.View = class {
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } );
+                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), class: 'graph-input' } );
                 }
 
                 for (const output of graph.outputs) {
@@ -737,7 +762,7 @@ view.View = class {
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: outputElement.format(graphElement) } );
+                    g.setNode(nodeId++, { label: outputElement.format(canvasElement) } );
                 }
 
                 for (const edge of Object.keys(edgeMap)) {
@@ -774,22 +799,29 @@ view.View = class {
                 }
                 backgroundElement.setAttribute('fill', 'none');
                 backgroundElement.setAttribute('pointer-events', 'all');
-                graphElement.appendChild(backgroundElement);
+                canvasElement.appendChild(backgroundElement);
 
                 const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
-                graphElement.appendChild(originElement);
+                canvasElement.appendChild(originElement);
 
                 let svg = null;
-                if (this._host.environment('zoom') === 'd3') {
-                    svg = d3.select(graphElement);
-                    this._zoom = d3.zoom();
-                    this._zoom(svg);
-                    this._zoom.scaleExtent([0.1, 2]);
-                    this._zoom.on('zoom', (event) => {
-                        originElement.setAttribute('transform', event.transform.toString());
-                    });
-                    this._zoom.transform(svg, d3.zoomIdentity);
+                switch (this._host.environment('zoom')) {
+                    case 'd3': {
+                        svg = d3.select(canvasElement);
+                        this._zoom = d3.zoom();
+                        this._zoom(svg);
+                        this._zoom.scaleExtent([0.1, 2]);
+                        this._zoom.on('zoom', (event) => {
+                            originElement.setAttribute('transform', event.transform.toString());
+                        });
+                        this._zoom.transform(svg, d3.zoomIdentity);
+                        break;
+                    }
+                    case 'scroll': {
+                        this._zoom = 1;
+                        break;
+                    }
                 }
 
                 return this._timeout(20).then(() => {
@@ -797,51 +829,23 @@ view.View = class {
                     const graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
-                    const originElements = Array.from(graphElement.getElementsByClassName('graph-input') || []);
-                    if (originElements.length === 0) {
-                        const nodeElements = Array.from(graphElement.getElementsByClassName('graph-node') || []);
+                    const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
+                    if (elements.length === 0) {
+                        const nodeElements = Array.from(canvasElement.getElementsByClassName('graph-node') || []);
                         if (nodeElements.length > 0) {
-                            originElements.push(nodeElements[0]);
+                            elements.push(nodeElements[0]);
                         }
                     }
 
                     switch (this._host.environment('zoom')) {
-                        case 'scroll': {
-                            const size = graphElement.getBBox();
-                            const margin = 100;
-                            const width = Math.ceil(margin + size.width + margin);
-                            const height = Math.ceil(margin + size.height + margin);
-                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                            backgroundElement.setAttribute('width', width);
-                            backgroundElement.setAttribute('height', height);
-                            this._width = width;
-                            this._height = height;
-                            this._zoom = 1;
-                            delete this._scrollLeft;
-                            delete this._scrollRight;
-                            graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                            graphElement.setAttribute('width', width);
-                            graphElement.setAttribute('height', height);
-                            if (originElements && originElements.length > 0) {
-                                // Center view based on input elements
-                                for (let j = 0; j < originElements.length; j++) {
-                                    originElements[j].scrollIntoView({ behavior: 'instant' });
-                                    break;
-                                }
-                            }
-                            else {
-                                // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-                            }
-                            break;
-                        }
                         case 'd3': {
-                            const svgSize = graphElement.getBoundingClientRect();
-                            if (originElements && originElements.length > 0) {
+                            const svgSize = canvasElement.getBoundingClientRect();
+                            if (elements && elements.length > 0) {
                                 // Center view based on input elements
                                 const xs = [];
                                 const ys = [];
-                                for (let i = 0; i < originElements.length; i++) {
-                                    const inputTransform = originElements[i].transform.baseVal.consolidate().matrix;
+                                for (let i = 0; i < elements.length; i++) {
+                                    const inputTransform = elements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
                                     ys.push(inputTransform.f);
                                 }
@@ -856,6 +860,57 @@ view.View = class {
                             }
                             else {
                                 this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                            }
+                            break;
+                        }
+                        case 'scroll': {
+                            const size = canvasElement.getBBox();
+                            const margin = 100;
+                            const width = Math.ceil(margin + size.width + margin);
+                            const height = Math.ceil(margin + size.height + margin);
+                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                            backgroundElement.setAttribute('width', width);
+                            backgroundElement.setAttribute('height', height);
+                            this._width = width;
+                            this._height = height;
+                            this._zoom = 1;
+                            delete this._scrollLeft;
+                            delete this._scrollRight;
+                            canvasElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                            canvasElement.setAttribute('width', width);
+                            canvasElement.setAttribute('height', height);
+
+                            this._updateZoom(this._zoom);
+
+                            if (elements && elements.length > 0) {
+                                // Center view based on input elements
+                                const xs = [];
+                                const ys = [];
+                                for (let i = 0; i < elements.length; i++) {
+                                    const element = elements[i];
+                                    const rect = element.getBoundingClientRect();
+                                    xs.push(rect.left + (rect.width / 2));
+                                    ys.push(rect.top + (rect.height / 2));
+                                }
+                                let x = xs[0];
+                                const y = ys[0];
+                                if (ys.every(y => y === ys[0])) {
+                                    x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                }
+                                // const canvasRect = graphElement.getBoundingClientRect();
+                                const graphRect = graphElement.getBoundingClientRect();
+                                // const sx = (canvasRect.width / (this._showHorizontal ? 4 : 2)) - x;
+                                // const sy = (canvasRect.height / (this._showHorizontal ? 2 : 4)) - y;
+                                const left = (graphElement.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                                const top = (graphElement.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
+                            }
+                            else {
+                                const canvasRect = graphElement.getBoundingClientRect();
+                                const graphRect = graphElement.getBoundingClientRect();
+                                const left = (graphElement.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                                const top = (graphElement.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
                             }
                             break;
                         }
