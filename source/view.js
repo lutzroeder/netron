@@ -1622,7 +1622,7 @@ view.ModelFactoryService = class {
     }
 
     accept(identifier) {
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.indexOf('.') === -1 ? '' : identifier.split('.').pop().toLowerCase();
         identifier = identifier.toLowerCase().split('/').pop();
         for (const entry of this._extensions) {
             if ((typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
