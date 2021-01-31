@@ -18957,7 +18957,7 @@
         }
       ],
       "category": "Tensor",
-      "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
+      "description": "Given a tensor containing the data to be padded (`data`), a tensor containing the number of start and end pad values for axis (`pads`), (optionally) a `mode`, and (optionally) `constant_value`,\na padded tensor (`output`) is generated.\n\nThe three supported `modes` are (similar to corresponding modes supported by `numpy.pad`):\n\n1) `constant`(default) - pads with a given constant value as specified by `constant_value` (which defaults to 0, empty string, or False)\n\n2) `reflect` - pads with the reflection of the vector mirrored on the first and last values of the vector along each axis\n\n3) `edge` - pads with the edge values of array\n\n\nExample 1 (`constant` mode):\n  Insert 0 pads to the beginning of the second dimension.\n\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'constant'\n\n  constant_value = 0.0\n\n  output =\n  [\n      [0.0, 0.0, 1.0, 1.2],\n      [0.0, 0.0, 2.3, 3.4],\n      [0.0, 0.0, 4.5, 5.7],\n  ]\n\n\nExample 2 (`reflect` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'reflect'\n\n  output =\n  [\n      [1.0, 1.2, 1.0, 1.2],\n      [2.3, 3.4, 2.3, 3.4],\n      [4.5, 5.7, 4.5, 5.7],\n  ]\n\n\nExample 3 (`edge` mode):\n  data =\n  [\n      [1.0, 1.2],\n      [2.3, 3.4],\n      [4.5, 5.7],\n  ]\n\n  pads = [0, 2, 0, 0]\n\n  mode = 'edge'\n\n  output =\n  [\n      [1.0, 1.0, 1.0, 1.2],\n      [2.3, 2.3, 2.3, 3.4],\n      [4.5, 4.5, 4.5, 5.7],\n  ]\n\n",
       "domain": "ai.onnx",
       "examples": [
         {
@@ -18981,7 +18981,7 @@
           "type": "tensor(int64)"
         },
         {
-          "description": "(Optional) A scalar value to be used if the mode chosen is `constant` (by default it is 0).",
+          "description": "(Optional) A scalar value to be used if the mode chosen is `constant` (by default it is 0, empty string or False).",
           "name": "constant_value",
           "option": "optional",
           "type": "T"
@@ -19021,7 +19021,7 @@
             "tensor(complex64)",
             "tensor(complex128)"
           ],
-          "description": "Constrains input and output to only numeric types.",
+          "description": "Constrain input and output types to all tensor types.",
           "type_param_str": "T"
         }
       ]
