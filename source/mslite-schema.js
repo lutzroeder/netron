@@ -297,6 +297,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 209: return $root.mindspore.schema.Size.decode(reader, position);
             case 210: return $root.mindspore.schema.RandomStandardNormal.decode(reader, position);
             case 211: return $root.mindspore.schema.CropAndResize.decode(reader, position);
+            case 212: return $root.mindspore.schema.Erf.decode(reader, position);
         }
         return undefined;
     }
@@ -514,6 +515,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Size': return $root.mindspore.schema.Size.decodeText(reader, json);
             case 'RandomStandardNormal': return $root.mindspore.schema.RandomStandardNormal.decodeText(reader, json);
             case 'CropAndResize': return $root.mindspore.schema.CropAndResize.decodeText(reader, json);
+            case 'Erf': return $root.mindspore.schema.Erf.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4450,6 +4452,19 @@ $root.mindspore.schema.CropAndResize = class CropAndResize {
         const $ = new $root.mindspore.schema.CropAndResize();
         $.method = $root.mindspore.schema.ResizeMethod[json.method];
         $.extrapolation_value = reader.value(json.extrapolation_value, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Erf = class Erf {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Erf();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Erf();
         return $;
     }
 };
