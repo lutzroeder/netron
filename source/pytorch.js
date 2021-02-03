@@ -1198,11 +1198,21 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('annotate', function(type, value) {
             return value;
         });
-        this.registerFunction('int', function(/* tensor */) {
-            return NaN; // TODO
+        this.registerFunction('int', function(tensor) {
+            if (tensor && tensor.storage && tensor.storage.dataType === 'int64' && tensor.storage.data.length === 8) {
+                const buffer = tensor.storage.data;
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                return view.getInt64(0, true);
+            }
+            return NaN;
         });
-        this.registerFunction('float', function(/* tensor */) {
-            return NaN; // TODO
+        this.registerFunction('float', function(tensor) {
+            if (tensor && tensor.storage && tensor.storage.dataType === 'float32' && tensor.storage.data.length === 4) {
+                const buffer = tensor.storage.data;
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                return view.getFloat32(0, true);
+            }
+            return NaN;
         });
         this.registerFunction('unchecked_cast', function(type, value) {
             return value;
@@ -2599,7 +2609,7 @@ pytorch.Utility = class {
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':
-                return Number.isInteger(obj) || isNaN(obj);
+                return Number.isInteger(obj) || isNaN(obj) || obj instanceof base.Int64;
             case 'int64[]':
                 return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || Number.isNaN(item) || item === undefined);
             case 'int64[1]':

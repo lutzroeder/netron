@@ -2895,18 +2895,30 @@
     }
   },
   {
-    "name": "torch.quantize_per_tensor",
+    "name": "torch.quantize_per_tensor:",
     "schema": {
-      "attributes": [
-        { "name": "scale", "type": "float32" },
-        { "name": "zero_point", "type": "float32" },
-        { "name": "dtype", "type": "ScalarType" }
-      ],
       "inputs": [
-        { "name": "self", "type": "Tensor" }
+        { "name": "self", "type": "Tensor" },
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "int64" },
+        { "name": "dtype", "type": "ScalarType" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.quantize_per_tensor:tensors",
+    "schema": {
+      "inputs": [
+        { "name": "tensors", "type": "Tensor[]" },
+        { "name": "scales", "type": "Tensor" },
+        { "name": "zero_points", "type": "Tensor" },
+        { "name": "dtype", "type": "ScalarType" }
+      ],
+      "outputs": [
+        { "name": "outputs", "type": "Tensor[]" }
       ]
     }
   },
