@@ -1178,7 +1178,7 @@ sidebar.FindSidebar = class {
                             edgeMatches.add(argument.name);
                         }
                         else {
-                            initializers.push(argument.initializer);
+                            initializers.push(argument);
                         }
                     }
                 }
@@ -1196,11 +1196,13 @@ sidebar.FindSidebar = class {
                 nodeMatches.add(node.name);
             }
 
-            for (const initializer of initializers) {
-                const initializeItem = this._host.document.createElement('li');
-                initializeItem.innerText = '\u25A0 ' + initializer.name;
-                initializeItem.id = 'initializer-' + initializer.name;
-                this._resultElement.appendChild(initializeItem);
+            for (const argument of initializers) {
+                if (argument.name) {
+                    const initializeItem = this._host.document.createElement('li');
+                    initializeItem.innerText = '\u25A0 ' + argument.name;
+                    initializeItem.id = 'initializer-' + argument.name;
+                    this._resultElement.appendChild(initializeItem);
+                }
             }
         }
 

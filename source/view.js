@@ -583,7 +583,7 @@ view.View = class {
                                         separator = ' = ';
                                     }
                                 }
-                                block.add('initializer-' + argument.name, initializer.name, shape, type ? type.toString() : '', separator);
+                                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
