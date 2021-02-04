@@ -1678,13 +1678,14 @@ view.ModelFactoryService = class {
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
             { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
             { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
+            { name: 'NumPy Array', value: /^\x93NUMPY/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
         const buffer = stream.peek(Math.min(4096, stream.length));
-        const text = new TextDecoder().decode(buffer);
+        const text = String.fromCharCode.apply(null, buffer);
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
                 return Promise.reject(new view.ModelError("Invalid file content. File contains " + entry.name + ".", true));
