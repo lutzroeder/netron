@@ -298,6 +298,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 210: return $root.mindspore.schema.RandomStandardNormal.decode(reader, position);
             case 211: return $root.mindspore.schema.CropAndResize.decode(reader, position);
             case 212: return $root.mindspore.schema.Erf.decode(reader, position);
+            case 213: return $root.mindspore.schema.StridedSliceGrad.decode(reader, position);
         }
         return undefined;
     }
@@ -516,6 +517,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'RandomStandardNormal': return $root.mindspore.schema.RandomStandardNormal.decodeText(reader, json);
             case 'CropAndResize': return $root.mindspore.schema.CropAndResize.decodeText(reader, json);
             case 'Erf': return $root.mindspore.schema.Erf.decodeText(reader, json);
+            case 'StridedSliceGrad': return $root.mindspore.schema.StridedSliceGrad.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4452,6 +4454,37 @@ $root.mindspore.schema.CropAndResize = class CropAndResize {
         const $ = new $root.mindspore.schema.CropAndResize();
         $.method = $root.mindspore.schema.ResizeMethod[json.method];
         $.extrapolation_value = reader.value(json.extrapolation_value, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.StridedSliceGrad = class StridedSliceGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.StridedSliceGrad();
+        $.beginMask = reader.int32_(position, 4, 0);
+        $.endMask = reader.int32_(position, 6, 0);
+        $.ellipsisMask = reader.int32_(position, 8, 0);
+        $.newAxisMask = reader.int32_(position, 10, 0);
+        $.shrinkAxisMask = reader.int32_(position, 12, 0);
+        $.begin = reader.typedArray(position, 14, Int32Array);
+        $.end = reader.typedArray(position, 16, Int32Array);
+        $.stride = reader.typedArray(position, 18, Int32Array);
+        $.isScale = reader.typedArray(position, 20, Int32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.StridedSliceGrad();
+        $.beginMask = reader.value(json.beginMask, 0);
+        $.endMask = reader.value(json.endMask, 0);
+        $.ellipsisMask = reader.value(json.ellipsisMask, 0);
+        $.newAxisMask = reader.value(json.newAxisMask, 0);
+        $.shrinkAxisMask = reader.value(json.shrinkAxisMask, 0);
+        $.begin = reader.typedArray(json.begin, Int32Array);
+        $.end = reader.typedArray(json.end, Int32Array);
+        $.stride = reader.typedArray(json.stride, Int32Array);
+        $.isScale = reader.typedArray(json.isScale, Int32Array);
         return $;
     }
 };
