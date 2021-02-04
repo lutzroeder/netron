@@ -4436,8 +4436,15 @@
     "type":   "pytorch",
     "target": "netron_issue_609.pt",
     "source": "https://github.com/lutzroeder/netron/files/5309279/netron_issue_609.pt.zip[netron_issue_609.pt]",
-    "format":  "TorchScript v1.6",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/609"
+  },
+  {
+    "type":   "pytorch",
+    "target": "netron_issue_677.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5923252/netron_issue_677.pt.zip[netron_issue_677.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/677"
   },
   {
     "type":   "pytorch",

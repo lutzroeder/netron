@@ -2650,6 +2650,18 @@ python.Execution = class {
             case 'tuple': {
                 return expression.value.map((expression) => this.expression(expression, context));
             }
+            case 'dict': {
+                const dict = {};
+                for (const pair of expression.value) {
+                    if (pair.type !== 'pair') {
+                        throw new python.Error("Unsupported dict item type '" + pair.type + "'.");
+                    }
+                    const key = this.expression(pair.key, context);
+                    const value = this.expression(pair.value, context);
+                    dict[key] = value;
+                }
+                return dict;
+            }
         }
         throw new python.Error("Unknown expression '" + expression.type + "'.");
     }

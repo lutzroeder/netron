@@ -2183,10 +2183,29 @@ pytorch.Container.Zip = class {
                 }
             }
             const result = this.data.forward.__call__(args);
-            const outputs = !Array.isArray(result) ? [ result ] : result;
-            for (const output of outputs) {
-                if (pytorch.Utility.isTensor(output)) {
-                    this._outputs.push(output.__variable__);
+            if (Array.isArray(result)) {
+                for (const output of result) {
+                    if (pytorch.Utility.isTensor(output)) {
+                        this._outputs.push(output.__variable__);
+                    }
+                }
+            }
+            else if (pytorch.Utility.isTensor(result)) {
+                this._outputs.push(result.__variable__);
+            }
+            else if (Object(result) === result) {
+                for (const key of Object.keys(result)) {
+                    const value = result[key];
+                    if (Array.isArray(value)) {
+                        for (const output of value) {
+                            if (pytorch.Utility.isTensor(output)) {
+                                this._outputs.push(output.__variable__);
+                            }
+                        }
+                    }
+                    else if (pytorch.Utility.isTensor(value)) {
+                        this._outputs.push(value.__variable__);
+                    }
                 }
             }
             this._nodes = this.execution.nodes;
