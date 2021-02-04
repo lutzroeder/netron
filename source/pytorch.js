@@ -1032,6 +1032,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerConstructor('torch.optim.lr_scheduler.LambdaLR', function() {});
         this.registerConstructor('torch.optim.lr_scheduler.MultiStepLR', function() {});
         this.registerConstructor('torch.optim.lr_scheduler.OneCycleLR', function() {});
+        this.registerConstructor('torch.optim.lr_scheduler.ReduceLROnPlateau', function() {});
         this.registerConstructor('torch.optim.lr_scheduler.StepLR', function() {});
         this.registerConstructor('torch.optim.optimizer._RequiredParameter', function() {});
         this.registerConstructor('torch.optim.rmsprop.RMSprop', function() {});
