@@ -1000,7 +1000,7 @@
       "attributes": [
         {
           "default": "content",
-          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
+          "description": "- If `'filename'`, the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\n- If `'file'`, the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\n- If `'content'`, the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
         },
@@ -1037,7 +1037,7 @@
           "name": "tokenizer"
         },
         {
-          "default": "None",
+          "default": null,
           "description": "If 'english', a built-in stop word list for English is used.\nThere are several known issues with 'english' and you should\nconsider an alternative (see :ref:`stop_words`).\n\nIf a list, that list is assumed to contain stop words, all of which\nwill be removed from the resulting tokens.\nOnly applies if ``analyzer == 'word'``.\n\nIf None, no stop words will be used. max_df can be set to a value\nin the range [0.7, 1.0) to automatically detect and filter stop\nwords based on intra corpus document frequency of terms.\n",
           "name": "stop_words",
           "type": "string"
@@ -1103,7 +1103,7 @@
       "attributes": [
         {
           "default": "content",
-          "description": "If 'filename', the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\nIf 'file', the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\nOtherwise the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
+          "description": "- If `'filename'`, the sequence passed as an argument to fit is\nexpected to be a list of filenames that need reading to fetch\nthe raw content to analyze.\n\n- If `'file'`, the sequence items must have a 'read' method (file-like\nobject) that is called to fetch the bytes in memory.\n\n- If `'content'`, the input is expected to be a sequence of items that\ncan be of type string or byte.\n",
           "name": "input",
           "type": "string"
         },
@@ -1140,7 +1140,7 @@
           "name": "tokenizer"
         },
         {
-          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\n\nSince v0.21, if ``input`` is ``filename`` or ``file``, the data is\nfirst read from the file and then passed to the given callable\nanalyzer.\n",
+          "description": "Whether the feature should be made of word or character n-grams.\nOption 'char_wb' creates character n-grams only from text inside\nword boundaries; n-grams at the edges of words are padded with space.\n\nIf a callable is passed it is used to extract the sequence of features\nout of the raw, unprocessed input.\n\n.. versionchanged:: 0.21\nSince v0.21, if ``input`` is ``'filename'`` or ``'file'``, the data\nis first read from the file and then passed to the given callable\nanalyzer.\n",
           "name": "analyzer"
         },
         {
