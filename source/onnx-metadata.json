@@ -11548,6 +11548,10 @@
         {
           "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data], outputs=[data],\n       name='test_identity')",
           "summary": "identity"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = [\n    np.array([[[\n        [1, 2],\n        [3, 4],\n    ]]], dtype=np.float32),\n    np.array([[[\n        [2, 3],\n        [1, 5],\n    ]]], dtype=np.float32)]\n\nexpect(node, inputs=[data], outputs=[data], name='test_identity_sequence',\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)])",
+          "summary": "sequence"
         }
       ],
       "inputs": [
@@ -11604,13 +11608,17 @@
         {
           "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data], outputs=[data],\n       name='test_identity')",
           "summary": "identity"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = [\n    np.array([[[\n        [1, 2],\n        [3, 4],\n    ]]], dtype=np.float32),\n    np.array([[[\n        [2, 3],\n        [1, 5],\n    ]]], dtype=np.float32)]\n\nexpect(node, inputs=[data], outputs=[data], name='test_identity_sequence',\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)])",
+          "summary": "sequence"
         }
       ],
       "inputs": [
         {
           "description": "Input tensor",
           "name": "input",
-          "type": "T"
+          "type": "V"
         }
       ],
       "max_input": 1,
@@ -11621,7 +11629,7 @@
         {
           "description": "Tensor to copy input into.",
           "name": "output",
-          "type": "T"
+          "type": "V"
         }
       ],
       "since_version": 13,
@@ -11644,10 +11652,25 @@
             "tensor(string)",
             "tensor(bool)",
             "tensor(complex64)",
-            "tensor(complex128)"
+            "tensor(complex128)",
+            "seq(tensor(uint8))",
+            "seq(tensor(uint16))",
+            "seq(tensor(uint32))",
+            "seq(tensor(uint64))",
+            "seq(tensor(int8))",
+            "seq(tensor(int16))",
+            "seq(tensor(int32))",
+            "seq(tensor(int64))",
+            "seq(tensor(float16))",
+            "seq(tensor(float))",
+            "seq(tensor(double))",
+            "seq(tensor(string))",
+            "seq(tensor(bool))",
+            "seq(tensor(complex64))",
+            "seq(tensor(complex128))"
           ],
-          "description": "Constrain input and output types to all tensor types.",
-          "type_param_str": "T"
+          "description": "Constrain input and output types to all tensor and sequence types.",
+          "type_param_str": "V"
         }
       ]
     }
