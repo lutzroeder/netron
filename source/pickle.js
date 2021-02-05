@@ -25,14 +25,14 @@ pickle.ModelFactory = class {
     open(context) {
         return new Promise((resolve) => {
             const value = context.tags('pkl').values().next().value;
-            if (value && value.__module__ && value.__name__) {
-                context.exception(new pickle.Error("Unknown Pickle type '" + value.__module__ + "." + value.__name__ + "'."));
+            if (value === null || value === undefined) {
+                context.exception(new pickle.Error('Unknown Pickle null object.'));
             }
             else if (Array.isArray(value)) {
                 context.exception(new pickle.Error('Unknown Pickle array object.'));
             }
-            else if (value === null || value === undefined) {
-                context.exception(new pickle.Error('Unknown Pickle null object.'));
+            else if (value && value.__module__ && value.__name__) {
+                context.exception(new pickle.Error("Unknown Pickle type '" + value.__module__ + "." + value.__name__ + "'."));
             }
             else {
                 context.exception(new pickle.Error('Unknown Pickle object.'));
