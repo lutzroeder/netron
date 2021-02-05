@@ -357,6 +357,7 @@ view.View = class {
             { name: 'Error loading ONNX model.', message: /^File format is not onnx.ModelProto (Offset is outside the bounds of the DataView)/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' },
+            { name: 'RangeError', message: /^Maximum call stack size exceeded/, url: 'https://github.com/lutzroeder/netron/issues/589' },
             { name: 'Error loading model', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
             { name: 'Error loading model', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
             { name: 'Error loading model', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
@@ -523,7 +524,7 @@ view.View = class {
                         }
                         const type = node.type;
                         if (typeof type !== 'string' || !type.split) { // #416
-                            throw new view.ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
+                            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
                         const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
                         const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
@@ -626,6 +627,9 @@ view.View = class {
                             }
                             for (const output of outputs) {
                                 for (const argument of output.arguments) {
+                                    if (!argument) {
+                                        throw new view.Error("Invalid null argument in '" + model.format + "'.");
+                                    }
                                     if (argument.name != '') {
                                         let tuple = edgeMap[argument.name];
                                         if (!tuple) {
@@ -1082,16 +1086,6 @@ view.View = class {
     }
 };
 
-view.ModelError = class extends Error {
-
-    constructor(message, telemetry) {
-        super(message);
-        this.name = 'Error loading model.';
-        this.telemetry = telemetry;
-        this.stack = undefined;
-    }
-};
-
 view.ModelContext = class {
 
     constructor(context, entries) {
@@ -1375,7 +1369,7 @@ view.ModelFactoryService = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const format = [ 'Zip', 'tar' ].find((extension) => context.entries(extension.toLowerCase()).length > 0);
         if (format) {
-            throw new view.ModelError("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
+            throw new view.Error("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
         }
         const knownUnsupportedIdentifiers = new Set([
             'natives_blob.bin',
@@ -1412,8 +1406,9 @@ view.ModelFactoryService = class {
                 formats: [
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
-                    { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
-                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
+                    { name: 'keras-yolo2 configuration', tags: [ 'model', 'train', 'valid' ] },
+                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] },
+                    { name: 'DeepLearningExamples configuration', tags: [ 'attention_probs_dropout_prob', 'hidden_act', 'hidden_dropout_prob', 'hidden_size', ] }
                 ]
             }
         ];
@@ -1422,14 +1417,14 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of encoding.formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new view.ModelError('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new view.ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
             }
         }
         const stream = context.stream;
@@ -1437,7 +1432,7 @@ view.ModelFactoryService = class {
         const buffer = stream.peek(Math.min(16, stream.length));
         const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         const content = buffer.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-        throw new view.ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
+        throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
     }
 
     _openArchive(context) {
@@ -1513,7 +1508,7 @@ view.ModelFactoryService = class {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
                     if (!module.ModelFactory) {
-                        throw new view.ModelError("Failed to load module '" + id + "'.");
+                        throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
                     if (!modelFactory.match(context)) {
@@ -1537,7 +1532,7 @@ view.ModelFactoryService = class {
                     if (errors.length === 1) {
                         return Promise.reject(errors[0]);
                     }
-                    return Promise.reject(new view.ModelError(errors.map((err) => err.message).join('\n')));
+                    return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
                 }
                 return Promise.resolve(null);
             }
@@ -1664,7 +1659,7 @@ view.ModelFactoryService = class {
         }
         stream.seek(0);
         if (empty) {
-            return Promise.reject(new view.ModelError('File has no content.', true));
+            return Promise.reject(new view.Error('File has no content.', true));
         }
         /* eslint-disable no-control-regex */
         const entries = [
@@ -1688,10 +1683,20 @@ view.ModelFactoryService = class {
         const text = String.fromCharCode.apply(null, buffer);
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                return Promise.reject(new view.ModelError("Invalid file content. File contains " + entry.name + ".", true));
+                return Promise.reject(new view.Error("Invalid file content. File contains " + entry.name + ".", true));
             }
         }
         return Promise.resolve(context);
+    }
+};
+
+view.Error = class extends Error {
+
+    constructor(message, telemetry) {
+        super(message);
+        this.name = 'Error loading model.';
+        this.telemetry = telemetry;
+        this.stack = undefined;
     }
 };
 
