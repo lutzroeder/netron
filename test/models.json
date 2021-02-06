@@ -3,7 +3,7 @@
     "type":   "_",
     "target": "config.json",
     "source": "https://github.com/lutzroeder/netron/files/5398758/config.json.zip[config.json]",
-    "error":  "Invalid file content. File contains keras-yolo2 configuation.",
+    "error":  "Invalid file content. File contains keras-yolo2 configuration.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
