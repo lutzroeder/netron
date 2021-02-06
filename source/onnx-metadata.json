@@ -23138,6 +23138,10 @@
       "domain": "ai.onnx",
       "examples": [
         {
+          "code": "original_shape = [0, 3, 4]\ntest_cases = {\n    'allowzero_reordered': np.array([3, 4, 0], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n        allowzero=1,  # if allowzero=1, final shape = (3, 4, 0)\n                      # if allowzero=0, final shape = (3, 4, 4)\n    )\n\n    reshaped = reshape_reference_implementation(data, shape, allowzero=1)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "summary": "allowzero"
+        },
+        {
           "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
@@ -23182,6 +23186,10 @@
       "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor).",
       "domain": "ai.onnx",
       "examples": [
+        {
+          "code": "original_shape = [0, 3, 4]\ntest_cases = {\n    'allowzero_reordered': np.array([3, 4, 0], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n        allowzero=1,  # if allowzero=1, final shape = (3, 4, 0)\n                      # if allowzero=0, final shape = (3, 4, 4)\n    )\n\n    reshaped = reshape_reference_implementation(data, shape, allowzero=1)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "summary": "allowzero"
+        },
         {
           "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
@@ -23245,6 +23253,10 @@
       "domain": "ai.onnx",
       "examples": [
         {
+          "code": "original_shape = [0, 3, 4]\ntest_cases = {\n    'allowzero_reordered': np.array([3, 4, 0], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n        allowzero=1,  # if allowzero=1, final shape = (3, 4, 0)\n                      # if allowzero=0, final shape = (3, 4, 4)\n    )\n\n    reshaped = reshape_reference_implementation(data, shape, allowzero=1)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "summary": "allowzero"
+        },
+        {
           "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
           "summary": "reshape"
         }
@@ -23273,6 +23285,81 @@
         }
       ],
       "since_version": 13,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(bfloat16)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Reshape",
+    "schema": {
+      "attributes": [
+        {
+          "description": "(Optional) By default, when any value in the 'shape' input is equal to zero the corresponding dimension value is copied from the input tensor dynamically. allowzero=1 indicates that if any value in the 'shape' input is set to zero, the zero value is honored, similar to NumPy.",
+          "name": "allowzero",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Shape",
+      "description": "Reshape the input tensor similar to numpy.reshape.\nFirst input is the data tensor, second input is a shape tensor which specifies the output shape. It outputs the reshaped tensor.\nAt most one dimension of the new shape can be -1. In this case, the value is\ninferred from the size of the tensor and the remaining dimensions. A dimension\ncould also be 0, in which case the actual dimension value is unchanged (i.e. taken\nfrom the input tensor). If 'allowzero' is set, and the new shape includes 0, the\ndimension will be set explicitly to zero (i.e. not taken from input tensor)",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "original_shape = [0, 3, 4]\ntest_cases = {\n    'allowzero_reordered': np.array([3, 4, 0], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n        allowzero=1,  # if allowzero=1, final shape = (3, 4, 0)\n                      # if allowzero=0, final shape = (3, 4, 4)\n    )\n\n    reshaped = reshape_reference_implementation(data, shape, allowzero=1)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "summary": "allowzero"
+        },
+        {
+          "code": "original_shape = [2, 3, 4]\ntest_cases = {\n    'reordered_all_dims': np.array([4, 2, 3], dtype=np.int64),\n    'reordered_last_dims': np.array([2, 4, 3], dtype=np.int64),\n    'reduced_dims': np.array([2, 12], dtype=np.int64),\n    'extended_dims': np.array([2, 3, 2, 2], dtype=np.int64),\n    'one_dim': np.array([24], dtype=np.int64),\n    'negative_dim': np.array([2, -1, 2], dtype=np.int64),\n    'negative_extended_dims': np.array([-1, 2, 3, 4], dtype=np.int64),\n    'zero_dim': np.array([2, 0, 4, 1], dtype=np.int64),\n    'zero_and_negative_dim': np.array([2, 0, 1, -1], dtype=np.int64),\n}\ndata = np.random.random_sample(original_shape).astype(np.float32)\n\nfor test_name, shape in test_cases.items():\n    node = onnx.helper.make_node(\n        'Reshape',\n        inputs=['data', 'shape'],\n        outputs=['reshaped'],\n    )\n\n    reshaped = reshape_reference_implementation(data, shape)\n\n    expect(node, inputs=[data, shape], outputs=[reshaped],\n           name='test_reshape_' + test_name)",
+          "summary": "reshape"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "An input tensor.",
+          "name": "data",
+          "type": "T"
+        },
+        {
+          "description": "Specified shape for output.",
+          "name": "shape",
+          "type": "tensor(int64)"
+        }
+      ],
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 2,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Reshaped data.",
+          "name": "reshaped",
+          "type": "T"
+        }
+      ],
+      "since_version": 14,
       "support_level": "common",
       "type_constraints": [
         {
