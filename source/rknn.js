@@ -401,6 +401,7 @@ rknn.TensorType = class {
         switch (dataType.vx_type) {
             case 'VSI_NN_TYPE_UINT8': this._dataType = 'uint8'; break;
             case 'VSI_NN_TYPE_INT8': this._dataType = 'int8'; break;
+            case 'VSI_NN_TYPE_INT16': this._dataType = 'int16'; break;
             case 'VSI_NN_TYPE_INT32': this._dataType = 'int32'; break;
             case 'VSI_NN_TYPE_FLOAT16': this._dataType = 'float16'; break;
             case 'VSI_NN_TYPE_FLOAT32': this._dataType = 'float32'; break;
