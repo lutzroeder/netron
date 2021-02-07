@@ -37,7 +37,21 @@ sync() {
 install() {
     echo "sklearn install"
     venv
-    ${python} -m pip install --quiet scipy
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+        export OPENBLAS=$(brew --prefix openblas)
+        ${python} -m pip install --upgrade --quiet pybind11
+        ${python} -m pip install --upgrade --quiet cython
+        ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
+        git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
+        export CFLAGS="-falign-functions=8 ${CFLAGS}"
+        pushd ./third_party/source/scipy > /dev/null
+        python setup.py install --quiet >/dev/null 2>&1
+        popd > /dev/null
+        rm -rf ./third_party/source/scipy
+    else
+        ${python} -m pip install --quiet scipy
+    fi
     ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
     deactivate
 }
