@@ -49,6 +49,11 @@ install() {
             if [ "$(uname -sm)" = "Darwin arm64" ]; then
                 PYTHON_ARCHITECTURE=$(${python} -c "import platform; print(platform.uname().machine);")
                 export CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${PYTHON_ARCHITECTURE}"
+                if [ ${PYTHON_ARCHITECTURE} = "arm64" ]; then
+                    [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+                    export OPENBLAS=$(brew --prefix openblas)
+                    pep517=--no-use-pep517
+                fi
             fi
             ;;
         msys*)
@@ -74,7 +79,7 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
-    ${python} -m pip install --quiet --upgrade numpy
+    ${python} -m pip install --quiet --upgrade numpy ${pep517}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
     ${python} -m pip install --quiet "./third_party/source/onnx"
