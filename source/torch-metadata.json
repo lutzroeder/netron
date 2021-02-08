@@ -559,5 +559,29 @@
     "name": "nn.MM",
     "schema": {
     }
+  },
+  {
+    "name": "cudnn.BLSTM",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "cudnn.RNN",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "cudnn.BatchBRNNReLU",
+    "schema": {
+      "category": "Normalization"
+    }
+  },
+  {
+    "name": "nn.Transpose",
+    "schema": {
+      "category": "Transform"
+    }
   }
 ]
