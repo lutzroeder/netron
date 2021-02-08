@@ -138,6 +138,7 @@ $root.MNN.OpType = {
     TensorArrayScatter: 138,
     TensorArraySplit: 139,
     TensorArrayConcat: 140,
+    LSTMBlockCell: 141,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -312,6 +313,7 @@ $root.MNN.OpParameter = class {
             case 87: return $root.MNN.RandomUniform.decode(reader, position);
             case 88: return $root.MNN.LayerNorm.decode(reader, position);
             case 89: return $root.MNN.TensorArray.decode(reader, position);
+            case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
         }
         return undefined;
     }
@@ -407,6 +409,7 @@ $root.MNN.OpParameter = class {
             case 'RandomUniform': return $root.MNN.RandomUniform.decodeText(reader, json);
             case 'LayerNorm': return $root.MNN.LayerNorm.decodeText(reader, json);
             case 'TensorArray': return $root.MNN.TensorArray.decodeText(reader, json);
+            case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
         }
         return undefined;
     }
@@ -1580,6 +1583,17 @@ $root.MNN.TensorArray = class TensorArray {
         $.identical_element_shapes = reader.bool_(position, 6, false);
         $.element_shape = reader.typedArray(position, 8, Int32Array);
         $.T = reader.int32_(position, 10, 1);
+        return $;
+    }
+};
+
+$root.MNN.LSTMBlockCell = class LSTMBlockCell {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.LSTMBlockCell();
+        $.cell_clip = reader.float32_(position, 4, 3);
+        $.forget_bias = reader.float32_(position, 6, 1);
+        $.use_peephole = reader.bool_(position, 8, false);
         return $;
     }
 };
