@@ -407,7 +407,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `uint32`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `uint16`, `uint32`, `uint64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -8047,6 +8047,62 @@
     }
   },
   {
+    "name": "CollectiveBcastRecvV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bool`, `float32`, `float16`, `float64`, `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tshape",
+          "type": "type"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "group_size",
+          "type": 3
+        },
+        {
+          "name": "group_key",
+          "type": 3
+        },
+        {
+          "name": "instance_key",
+          "type": 3
+        },
+        {
+          "name": "shape",
+          "typeAttr": "Tshape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Receives a tensor value broadcast from another device."
+    }
+  },
+  {
     "name": "CollectiveBcastSend",
     "schema": {
       "attributes": [
@@ -8086,6 +8142,53 @@
         {
           "name": "input",
           "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "data",
+          "typeAttr": "T"
+        }
+      ],
+      "summary": "Broadcasts a tensor value to one or more other devices."
+    }
+  },
+  {
+    "name": "CollectiveBcastSendV2",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bool`, `float32`, `float16`, `float64`, `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": "auto",
+          "name": "communication_hint",
+          "type": "string"
+        },
+        {
+          "default": 0.0,
+          "name": "timeout_seconds",
+          "type": "float32"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "group_size",
+          "type": 3
+        },
+        {
+          "name": "group_key",
+          "type": 3
+        },
+        {
+          "name": "instance_key",
+          "type": 3
         }
       ],
       "outputs": [
@@ -11329,6 +11432,11 @@
           "minimum": 1,
           "name": "output_shapes",
           "type": "shape[]"
+        },
+        {
+          "default": "",
+          "name": "data_transfer_protocol",
+          "type": "string"
         }
       ],
       "inputs": [
@@ -11351,6 +11459,78 @@
         {
           "name": "job_name",
           "type": 7
+        },
+        {
+          "name": "max_outstanding_requests",
+          "type": 9
+        },
+        {
+          "name": "iteration_counter",
+          "type": 20
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ],
+      "summary": "Creates a dataset that reads data from the tf.data service."
+    }
+  },
+  {
+    "name": "DataServiceDatasetV2",
+    "schema": {
+      "attributes": [
+        {
+          "default": -1,
+          "name": "task_refresh_interval_hint_ms",
+          "type": "int64"
+        },
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": "",
+          "name": "data_transfer_protocol",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "dataset_id",
+          "type": 9
+        },
+        {
+          "name": "processing_mode",
+          "type": 7
+        },
+        {
+          "name": "address",
+          "type": 7
+        },
+        {
+          "name": "protocol",
+          "type": 7
+        },
+        {
+          "name": "job_name",
+          "type": 7
+        },
+        {
+          "name": "consumer_index",
+          "type": 9
+        },
+        {
+          "name": "num_consumers",
+          "type": 9
         },
         {
           "name": "max_outstanding_requests",
@@ -13641,7 +13821,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `uint64`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -14533,6 +14713,11 @@
           "default": [],
           "name": "max_sequence_lengths",
           "type": "int64[]"
+        },
+        {
+          "default": [],
+          "name": "num_features",
+          "type": "int64[]"
         }
       ],
       "description": "sample_splits[i], embedding_indices[i] and aggregation_weights[i] correspond\nto the ith feature. table_ids[i] indicates which embedding table to look up ith\nfeature.\n\nThe tensors at corresponding positions in two of the input lists,\nembedding_indices and aggregation_weights, must have the same shape, i.e. rank 1\nwith dim_size() equal to the total number of lookups into the table described by\nthe corresponding feature.",
@@ -14698,6 +14883,11 @@
         {
           "default": [],
           "name": "max_sequence_lengths",
+          "type": "int64[]"
+        },
+        {
+          "default": [],
+          "name": "num_features",
           "type": "int64[]"
         }
       ],
@@ -17900,7 +18090,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `uint64`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -20615,7 +20805,7 @@
         },
         {
           "default": "CONSTANT",
-          "description": "Fill mode, \"REFLECT\", \"WRAP\", or \"CONSTANT\".",
+          "description": "Fill mode, \"REFLECT\", \"WRAP\", \"CONSTANT\", or \"NEAREST\".",
           "name": "fill_mode",
           "type": "string"
         }
@@ -21170,6 +21360,7 @@
           "type": "type"
         }
       ],
+      "description": "    Computes y = x; y[i, :] += v; return y.",
       "inputs": [
         {
           "description": "A `Tensor` of type T.",
@@ -21194,7 +21385,7 @@
           "typeAttr": "T"
         }
       ],
-      "summary": "    Adds v into specified rows of x.\n\n    Computes y = x; y[i, :] += v; return y."
+      "summary": "Adds v into specified rows of x."
     }
   },
   {
@@ -25399,7 +25590,7 @@
           "type": "type"
         }
       ],
-      "description": "The `band` part is computed as follows:\nAssume `input` has `k` dimensions `[I, J, K, ..., M, N]`, then the output is a\ntensor with the same shape where\n\n`band[i, j, k, ..., m, n] = in_band(m, n) * input[i, j, k, ..., m, n]`.\n\nThe indicator function\n\n`in_band(m, n) = (num_lower < 0 || (m-n) <= num_lower)) &&\n                 (num_upper < 0 || (n-m) <= num_upper)`.\n\nFor example:\n\n```\n# if 'input' is [[ 0,  1,  2, 3]\n                 [-1,  0,  1, 2]\n                 [-2, -1,  0, 1]\n                 [-3, -2, -1, 0]],\n\ntf.matrix_band_part(input, 1, -1) ==> [[ 0,  1,  2, 3]\n                                       [-1,  0,  1, 2]\n                                       [ 0, -1,  0, 1]\n                                       [ 0,  0, -1, 0]],\n\ntf.matrix_band_part(input, 2, 1) ==> [[ 0,  1,  0, 0]\n                                      [-1,  0,  1, 0]\n                                      [-2, -1,  0, 1]\n                                      [ 0, -2, -1, 0]]\n```\n\nUseful special cases:\n\n```\n tf.matrix_band_part(input, 0, -1) ==> Upper triangular part.\n tf.matrix_band_part(input, -1, 0) ==> Lower triangular part.\n tf.matrix_band_part(input, 0, 0) ==> Diagonal.\n```",
+      "description": "The `band` part is computed as follows:\nAssume `input` has `k` dimensions `[I, J, K, ..., M, N]`, then the output is a\ntensor with the same shape where\n\n`band[i, j, k, ..., m, n] = in_band(m, n) * input[i, j, k, ..., m, n]`.\n\nThe indicator function\n\n`in_band(m, n) = (num_lower < 0 || (m-n) <= num_lower)) &&\n                 (num_upper < 0 || (n-m) <= num_upper)`.\n\nFor example:\n\n```\n# if 'input' is [[ 0,  1,  2, 3]\n#                [-1,  0,  1, 2]\n#                [-2, -1,  0, 1]\n#                [-3, -2, -1, 0]],\n\ntf.matrix_band_part(input, 1, -1) ==> [[ 0,  1,  2, 3]\n                                       [-1,  0,  1, 2]\n                                       [ 0, -1,  0, 1]\n                                       [ 0,  0, -1, 0]],\n\ntf.matrix_band_part(input, 2, 1) ==> [[ 0,  1,  0, 0]\n                                      [-1,  0,  1, 0]\n                                      [-2, -1,  0, 1]\n                                      [ 0, -2, -1, 0]]\n```\n\nUseful special cases:\n\n```\n tf.matrix_band_part(input, 0, -1) ==> Upper triangular part.\n tf.matrix_band_part(input, -1, 0) ==> Lower triangular part.\n tf.matrix_band_part(input, 0, 0) ==> Diagonal.\n```",
       "inputs": [
         {
           "description": "Rank `k` tensor.",
@@ -26870,7 +27061,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int16`, `int32`, `int64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`.",
           "name": "T",
           "type": "type"
         }
@@ -27375,7 +27566,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `uint64`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -29963,6 +30154,47 @@
     }
   },
   {
+    "name": "ParallelBatchDataset",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 1,
+          "name": "output_types",
+          "type": "type[]"
+        },
+        {
+          "minimum": 1,
+          "name": "output_shapes",
+          "type": "shape[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_dataset",
+          "type": 21
+        },
+        {
+          "name": "batch_size",
+          "type": 9
+        },
+        {
+          "name": "num_parallel_calls",
+          "type": 9
+        },
+        {
+          "name": "drop_remainder",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "handle",
+          "type": 21
+        }
+      ]
+    }
+  },
+  {
     "name": "ParallelConcat",
     "schema": {
       "attributes": [
@@ -31739,7 +31971,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -37743,7 +37975,7 @@
             "type": "type",
             "value": 3
           },
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`.",
           "name": "Tidx",
           "type": "type"
         }
@@ -38256,7 +38488,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `uint64`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -39753,7 +39985,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `uint8`, `int8`, `int32`, `float16`, `float32`, `float64`.",
+          "description": "Must be one of the following: `uint8`, `int8`, `int32`, `float16`, `float32`, `float64`, `bfloat16`.",
           "name": "T",
           "type": "type"
         },
@@ -43801,6 +44033,30 @@
     }
   },
   {
+    "name": "RiscAbs",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscAdd",
     "schema": {
       "attributes": [
@@ -43831,6 +44087,99 @@
     }
   },
   {
+    "name": "RiscBinaryArithmetic",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `ADD`, `SUB`, `MUL`, `DIV`, `REM`, `MIN`, `POW`.",
+          "name": "op_type",
+          "type": "string"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscBinaryComparison",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `EQ`, `NE`, `GE`, `GT`, `LE`, `LT`.",
+          "name": "op_type",
+          "type": "string"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "type": 10
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscBitcast",
+    "schema": {
+      "attributes": [
+        {
+          "name": "SrcT",
+          "type": "type"
+        },
+        {
+          "name": "DstT",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "SrcT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "DstT"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscBroadcast",
     "schema": {
       "attributes": [
@@ -43856,6 +44205,81 @@
         {
           "name": "shape",
           "typeAttr": "Tidx"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscCast",
+    "schema": {
+      "attributes": [
+        {
+          "name": "SrcT",
+          "type": "type"
+        },
+        {
+          "name": "DstT",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "SrcT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "DstT"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscCeil",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscCholesky",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
         }
       ],
       "outputs": [
@@ -43909,6 +44333,51 @@
     }
   },
   {
+    "name": "RiscCondition",
+    "schema": {
+      "attributes": [
+        {
+          "name": "func_true",
+          "type": "function"
+        },
+        {
+          "name": "func_false",
+          "type": "function"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "SrcT",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "DstT",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "pred",
+          "type": 10
+        },
+        {
+          "name": "input_true",
+          "typeAttr": "SrcT"
+        },
+        {
+          "name": "input_false",
+          "typeAttr": "SrcT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "DstT"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscConv",
     "schema": {
       "attributes": [
@@ -43918,13 +44387,12 @@
           "type": "type"
         },
         {
-          "description": "1-D tensor of length 4.  The stride of the sliding window for each\ndimension of `input`. The dimension order is determined by the value of\n`data_format`, see below for details.",
           "name": "strides",
           "type": "int64[]"
         },
         {
           "default": "NHWC",
-          "description": "Specify the data format of the input and output data. With the\ndefault format \"NHWC\", the data is stored in the order of:\n    [batch, height, width, channels].\nAlternatively, the format could be \"NCHW\", the data storage order of:\n    [batch, channels, height, width]. Must be one of the following: `NHWC`, `NCHW`.",
+          "description": "Must be one of the following: `NHWC`, `NCHW`.",
           "name": "data_format",
           "type": "string"
         },
@@ -43935,31 +44403,78 @@
             1,
             1
           ],
-          "description": "1-D tensor of length 4.  The dilation factor for each dimension of\n`input`. If set to k > 1, there will be k-1 skipped cells between each\nfilter element on that dimension. The dimension order is determined by the\nvalue of `data_format`, see above for details. Dilations in the batch and\ndepth dimensions must be 1.",
           "name": "dilations",
           "type": "int64[]"
         }
       ],
       "inputs": [
         {
-          "description": "A 4-D tensor. The dimension order is interpreted according to the value\nof `data_format`, see below for details.",
           "name": "input",
           "typeAttr": "T"
         },
         {
-          "description": "A 4-D tensor of shape\n`[filter_height, filter_width, in_channels, out_channels]`",
           "name": "filter",
           "typeAttr": "T"
         }
       ],
       "outputs": [
         {
-          "description": "A 4-D tensor. The dimension order is determined by the value of\n`data_format`, see below for details.",
           "name": "output",
           "typeAttr": "T"
         }
+      ]
+    }
+  },
+  {
+    "name": "RiscCos",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
       ],
-      "summary": "Computes a 2-D convolution given 4-D `input` and `filter` tensors."
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscDiv",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -44001,6 +44516,272 @@
     }
   },
   {
+    "name": "RiscExp",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscFft",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "description": "Must be one of the following: `complex64`, `complex128`.",
+          "name": "Tcomplex",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "Tcomplex"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "Tcomplex"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscFloor",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscGather",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "batch_dims",
+          "type": "int64"
+        },
+        {
+          "name": "Tparams",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Taxis",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "params",
+          "typeAttr": "Tparams"
+        },
+        {
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "name": "axis",
+          "typeAttr": "Taxis"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "Tparams"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscImag",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "description": "Must be one of the following: `complex64`, `complex128`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "Must be one of the following: `float32`, `float64`.",
+          "name": "Tout",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "Tout"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscIsFinite",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "type": 10
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscLog",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscLogicalAnd",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x",
+          "type": 10
+        },
+        {
+          "name": "y",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "type": 10
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscLogicalNot",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "type": 10
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscLogicalOr",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x",
+          "type": 10
+        },
+        {
+          "name": "y",
+          "type": 10
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "type": 10
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscMax",
     "schema": {
       "attributes": [
@@ -44028,6 +44809,86 @@
         }
       ],
       "summary": "Returns max(x, y) element-wise."
+    }
+  },
+  {
+    "name": "RiscMin",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscMul",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscNeg",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
     }
   },
   {
@@ -44117,6 +44978,170 @@
     }
   },
   {
+    "name": "RiscPow",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscRandomUniform",
+    "schema": {
+      "attributes": [
+        {
+          "default": 0,
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "shape",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": 1
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscReal",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 8
+          },
+          "description": "Must be one of the following: `complex64`, `complex128`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 1
+          },
+          "description": "Must be one of the following: `float32`, `float64`.",
+          "name": "Tout",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "Tout"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscReduce",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `MEAN`, `SUM`.",
+          "name": "reduce_type",
+          "type": "string"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Index",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "name": "axis",
+          "typeAttr": "Index"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscRem",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscReshape",
     "schema": {
       "attributes": [
@@ -44143,6 +45168,80 @@
         {
           "name": "shape",
           "typeAttr": "Tshape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscReverse",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tidx",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "tensor",
+          "typeAttr": "T"
+        },
+        {
+          "name": "axis",
+          "typeAttr": "Tidx"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscScatter",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tindices",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "indices",
+          "typeAttr": "Tindices"
+        },
+        {
+          "name": "updates",
+          "typeAttr": "T"
+        },
+        {
+          "name": "shape",
+          "typeAttr": "Tindices"
         }
       ],
       "outputs": [
@@ -44187,6 +45286,30 @@
     }
   },
   {
+    "name": "RiscSign",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "RiscSlice",
     "schema": {
       "attributes": [
@@ -44219,6 +45342,250 @@
         {
           "name": "output",
           "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscSort",
+    "schema": {
+      "attributes": [
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Index",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "description": "Must be one of the following: `ASCENDING`, `DESCENDING`.",
+          "name": "direction",
+          "type": "string"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        },
+        {
+          "name": "axis",
+          "typeAttr": "Index"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscSqueeze",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": [],
+          "minimum": 0,
+          "name": "squeeze_dims",
+          "type": "int64[]"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscSub",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "z",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscTranspose",
+    "schema": {
+      "attributes": [
+        {
+          "name": "T",
+          "type": "type"
+        },
+        {
+          "default": {
+            "type": "type",
+            "value": 3
+          },
+          "description": "Must be one of the following: `int32`, `int64`.",
+          "name": "Tperm",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        },
+        {
+          "name": "perm",
+          "typeAttr": "Tperm"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscTriangularSolve",
+    "schema": {
+      "attributes": [
+        {
+          "default": true,
+          "name": "lower",
+          "type": "boolean"
+        },
+        {
+          "default": false,
+          "name": "adjoint",
+          "type": "boolean"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "matrix",
+          "typeAttr": "T"
+        },
+        {
+          "name": "rhs",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscUnary",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Must be one of the following: `ABL`, `CEIL`, `COS`, `EXP`, `FLOOR`, `IMAG`, `LOG`, `NEG`, `REAL`, `SIGN`.",
+          "name": "op_type",
+          "type": "string"
+        },
+        {
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`.",
+          "name": "T",
+          "type": "type"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "x",
+          "typeAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y",
+          "typeAttr": "T"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RiscWhile",
+    "schema": {
+      "attributes": [
+        {
+          "minimum": 0,
+          "name": "T",
+          "type": "type[]"
+        },
+        {
+          "name": "cond",
+          "type": "function"
+        },
+        {
+          "name": "body",
+          "type": "function"
+        },
+        {
+          "default": [],
+          "name": "output_shapes",
+          "type": "shape[]"
+        },
+        {
+          "default": 10,
+          "name": "parallel_iterations",
+          "type": "int64"
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input",
+          "typeListAttr": "T"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "typeListAttr": "T"
         }
       ]
     }
@@ -44348,57 +45715,6 @@
         }
       ],
       "summary": "Rounds the values of a tensor to the nearest integer, element-wise."
-    }
-  },
-  {
-    "name": "Rpc",
-    "schema": {
-      "attributes": [
-        {
-          "default": "",
-          "description": "RPC protocol to use.  Empty string means use the default protocol.\nOptions include 'grpc'.",
-          "name": "protocol",
-          "type": "string"
-        },
-        {
-          "default": true,
-          "description": "`boolean`. If `true` (default), then failures to connect\n(i.e., the server does not immediately respond) cause an RPC failure.",
-          "name": "fail_fast",
-          "type": "boolean"
-        },
-        {
-          "default": 0,
-          "description": "`int`. If `0` (default), then the kernel will run the RPC\nrequest and only time out if the RPC deadline passes or the session times out.\nIf this value is greater than `0`, then the op will raise an exception if\nthe RPC takes longer than `timeout_in_ms`.",
-          "name": "timeout_in_ms",
-          "type": "int64"
-        }
-      ],
-      "description": "This op asynchronously performs either a single RPC request, or a batch\nof requests.  RPC requests are defined by three main parameters:\n\n  - `address` (the host+port or BNS address of the request)\n  - `method` (the RPC method name for the request)\n  - `request` (the serialized proto string, or vector of strings,\n     of the RPC request argument).\n\nFor example, if you have an RPC service running on port localhost:2345,\nand its interface is configured with the following proto declaration:\n\n```\nservice MyService {\n  rpc MyMethod(MyRequestProto) returns (MyResponseProto) {\n  }\n};\n```\n\nthen call this op with arguments:\n\n```\naddress = \"localhost:2345\"\nmethod = \"MyService/MyMethod\"\n```\n\nThe `request` tensor is a string tensor representing serialized `MyRequestProto`\nstrings; and the output string tensor `response` will have the same shape\nand contain (upon successful completion) corresponding serialized\n`MyResponseProto` strings.\n\nFor example, to send a single, empty, `MyRequestProto`, call\nthis op with `request = \"\"`.  To send 5 **parallel** empty requests,\ncall this op with `request = [\"\", \"\", \"\", \"\", \"\"]`.\n\nMore generally, one can create a batch of `MyRequestProto` serialized protos\nfrom regular batched tensors using the `encode_proto` op, and convert\nthe response `MyResponseProto` serialized protos to batched tensors\nusing the `decode_proto` op.\n\n**NOTE** Working with serialized proto strings is faster than instantiating\nactual proto objects in memory, so no performance degradation is expected\ncompared to writing custom kernels for this workflow.\n\nIf the connection fails or the remote worker returns an error\nstatus, the op reraises this exception locally.\n\nSee the `TryRpc` op if you prefer to handle RPC failures manually in the graph.",
-      "inputs": [
-        {
-          "description": "`0-D` or `1-D`.  The address (i.e. host_name:port) of the RPC server.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `method` and `request`.",
-          "name": "address",
-          "type": 7
-        },
-        {
-          "description": "`0-D` or `1-D`.  The method address on the RPC server.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `address` and `request`.",
-          "name": "method",
-          "type": 7
-        },
-        {
-          "description": "`0-D` or `1-D`.  Serialized proto strings: the rpc request argument.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `address` and `method`.",
-          "name": "request",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "description": "Same shape as `request`. Serialized proto strings: the rpc responses.",
-          "name": "response",
-          "type": 7
-        }
-      ],
-      "summary": "Perform batches of RPC requests."
     }
   },
   {
@@ -54954,7 +56270,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`, `uint32`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`, `uint32`, `uint64`.",
           "name": "T",
           "type": "type"
         }
@@ -58972,7 +60288,7 @@
           "type": "int64"
         }
       ],
-      "description": "running time is proportional to the product of K and the input\nsize. Sorting the whole array is more efficient for sufficiently large\nvalues of K. The median-of-medians algorithm is probably faster, but\ndifficult to implement efficiently in XLA. If there are fewer than K\nunique numbers (not NANs), the results are padded with negative\ninfinity. NaNs are never returned. Subnormal numbers are flushed to\nzero. If an element appears at multiple indices, the highest index is\nreturned. If a TopK element never appears in the input due to padding\nvalues, the indices are padded with negative one. If a padding value\nappears in the input and padding is needed, the highest index of the\npadding value will be returned. The semantics are not the same as\nkth_order_statistic.",
+      "description": "The running time is proportional to the product of K and the input\nsize. Sorting the whole array is more efficient for sufficiently large\nvalues of K. The median-of-medians algorithm is probably faster, but\ndifficult to implement efficiently in XLA. If there are fewer than K\nunique numbers (not NANs), the results are padded with negative\ninfinity. NaNs are never returned. Subnormal numbers are flushed to\nzero. If an element appears at multiple indices, the highest index is\nreturned. If a TopK element never appears in the input due to padding\nvalues, the indices are padded with negative one. If a padding value\nappears in the input and padding is needed, the highest index of the\npadding value will be returned. The semantics are not the same as\nkth_order_statistic.",
       "inputs": [
         {
           "name": "input",
@@ -58989,7 +60305,7 @@
           "type": 3
         }
       ],
-      "summary": "Returns the TopK unique values in the array in sorted order. The"
+      "summary": "Returns the TopK unique values in the array in sorted order."
     }
   },
   {
@@ -59045,7 +60361,7 @@
           "type": "int64"
         }
       ],
-      "description": "of MakeUnique and TopKUnique. The returned top-K will have its lower bits\nreplaced by iota, thus it will be close to the original value but not exactly\nthe same. The running time is proportional to the product of K and the input\nsize. NaNs are never returned. Subnormal numbers are flushed to zero.",
+      "description": "This is a combination of MakeUnique and TopKUnique. The returned top-K will\nhave its lower bits replaced by iota, thus it will be close to the original\nvalue but not exactly the same. The running time is proportional to the product\nof K and the input size. NaNs are never returned. Subnormal numbers are flushed\nto zero.",
       "inputs": [
         {
           "name": "input",
@@ -59062,7 +60378,7 @@
           "type": 3
         }
       ],
-      "summary": "Returns the TopK values in the array in sorted order. This is a combination"
+      "summary": "Returns the TopK values in the array in sorted order."
     }
   },
   {
@@ -59190,7 +60506,7 @@
     "schema": {
       "attributes": [
         {
-          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `complex64`, `complex128`.",
+          "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `uint64`, `int64`, `complex64`, `complex128`.",
           "name": "T",
           "type": "type"
         }
@@ -59288,67 +60604,6 @@
         }
       ],
       "summary": "Outputs random values from a truncated normal distribution."
-    }
-  },
-  {
-    "name": "TryRpc",
-    "schema": {
-      "attributes": [
-        {
-          "default": "",
-          "description": "RPC protocol to use.  Empty string means use the default protocol.\nOptions include 'grpc'.",
-          "name": "protocol",
-          "type": "string"
-        },
-        {
-          "default": true,
-          "description": "`boolean`. If `true` (default), then failures to connect\n(i.e., the server does not immediately respond) cause an RPC failure.",
-          "name": "fail_fast",
-          "type": "boolean"
-        },
-        {
-          "default": 0,
-          "description": "`int`. If `0` (default), then the kernel will run the RPC\nrequest and only time out if the RPC deadline passes or the session times out.\nIf this value is greater than `0`, then the op will raise an exception if\nthe RPC takes longer than `timeout_in_ms`.",
-          "name": "timeout_in_ms",
-          "type": "int64"
-        }
-      ],
-      "description": "This op asynchronously performs either a single RPC request, or a batch\nof requests.  RPC requests are defined by three main parameters:\n\n  - `address` (the host+port or BNS address of the request)\n  - `method` (the method name for the request)\n  - `request` (the serialized proto string, or vector of strings,\n     of the RPC request argument).\n\nFor example, if you have an RPC service running on port localhost:2345,\nand its interface is configured with the following proto declaration:\n\n```\nservice MyService {\n  rpc MyMethod(MyRequestProto) returns (MyResponseProto) {\n  }\n};\n```\n\nthen call this op with arguments:\n\n```\naddress = \"localhost:2345\"\nmethod = \"MyService/MyMethod\"\n```\n\nThe `request` tensor is a string tensor representing serialized `MyRequestProto`\nstrings; and the output string tensor `response` will have the same shape\nand contain (upon successful completion) corresponding serialized\n`MyResponseProto` strings.\n\nFor example, to send a single, empty, `MyRequestProto`, call\nthis op with `request = \"\"`.  To send 5 **parallel** empty requests,\ncall this op with `request = [\"\", \"\", \"\", \"\", \"\"]`.\n\nMore generally, one can create a batch of `MyRequestProto` serialized protos\nfrom regular batched tensors using the `encode_proto` op, and convert\nthe response `MyResponseProto` serialized protos to batched tensors\nusing the `decode_proto` op.\n\n**NOTE** Working with serialized proto strings is faster than instantiating\nactual proto objects in memory, so no performance degradation is expected\ncompared to writing custom kernels for this workflow.\n\nUnlike the standard `Rpc` op, if the connection fails or the remote worker\nreturns an error status, this op does **not** reraise the exception.\nInstead, the `status_code` and `status_message` entry for the corresponding RPC\ncall is set with the error returned from the RPC call.  The `response` tensor\nwill contain valid response values for those minibatch entries whose RPCs did\nnot fail; the rest of the entries will have empty strings.",
-      "inputs": [
-        {
-          "description": "`0-D` or `1-D`.  The address (i.e. host_name:port) of the RPC server.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `method` and `request`.",
-          "name": "address",
-          "type": 7
-        },
-        {
-          "description": "`0-D` or `1-D`.  The method address on the RPC server.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `address` and `request`.",
-          "name": "method",
-          "type": 7
-        },
-        {
-          "description": "`0-D` or `1-D`.  Serialized proto strings: the rpc request argument.\nIf this tensor has more than 1 element, then multiple parallel rpc requests\nare sent.  This argument broadcasts with `address` and `method`.",
-          "name": "request",
-          "type": 7
-        }
-      ],
-      "outputs": [
-        {
-          "description": "Same shape as `request`. Serialized proto strings: the rpc responses.",
-          "name": "response",
-          "type": 7
-        },
-        {
-          "description": "Same shape as `request`.  Values correspond to tensorflow Status enum codes.",
-          "name": "status_code",
-          "type": 3
-        },
-        {
-          "description": "Same shape as `request`.  Values correspond to Status messages\nreturned from the RPC calls.",
-          "name": "status_message",
-          "type": 7
-        }
-      ],
-      "summary": "Perform batches of RPC requests."
     }
   },
   {
