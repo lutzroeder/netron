@@ -224,7 +224,8 @@ $root.caffe2.TensorProto.DataType = {
     "INT64": 10,
     "FLOAT16": 12,
     "DOUBLE": 13,
-    "ZERO_COLLISION_HASH": 14
+    "ZERO_COLLISION_HASH": 14,
+    "REBATCHING_BUFFER": 15
 };
 
 $root.caffe2.TensorProto.StorageType = {
