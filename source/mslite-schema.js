@@ -301,6 +301,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 213: return $root.mindspore.schema.StridedSliceGrad.decode(reader, position);
             case 214: return $root.mindspore.schema.IsFinite.decode(reader, position);
             case 215: return $root.mindspore.schema.BatchMatMul.decode(reader, position);
+            case 216: return $root.mindspore.schema.LinSpace.decode(reader, position);
+            case 217: return $root.mindspore.schema.UniformReal.decode(reader, position);
         }
         return undefined;
     }
@@ -522,6 +524,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'StridedSliceGrad': return $root.mindspore.schema.StridedSliceGrad.decodeText(reader, json);
             case 'IsFinite': return $root.mindspore.schema.IsFinite.decodeText(reader, json);
             case 'BatchMatMul': return $root.mindspore.schema.BatchMatMul.decodeText(reader, json);
+            case 'LinSpace': return $root.mindspore.schema.LinSpace.decodeText(reader, json);
+            case 'UniformReal': return $root.mindspore.schema.UniformReal.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4524,15 +4528,45 @@ $root.mindspore.schema.BatchMatMul = class BatchMatMul {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.BatchMatMul();
-        $.adj_x = reader.bool_(position, 4, false);
-        $.adj_y = reader.bool_(position, 6, false);
+        $.transpose_a = reader.bool_(position, 4, false);
+        $.transpose_b = reader.bool_(position, 6, false);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.BatchMatMul();
-        $.adj_x = reader.value(json.adj_x, false);
-        $.adj_y = reader.value(json.adj_y, false);
+        $.transpose_a = reader.value(json.transpose_a, false);
+        $.transpose_b = reader.value(json.transpose_b, false);
+        return $;
+    }
+};
+
+$root.mindspore.schema.LinSpace = class LinSpace {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.LinSpace();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.LinSpace();
+        return $;
+    }
+};
+
+$root.mindspore.schema.UniformReal = class UniformReal {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.UniformReal();
+        $.seed = reader.int32_(position, 4, 0);
+        $.seed2 = reader.int32_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.UniformReal();
+        $.seed = reader.value(json.seed, 0);
+        $.seed2 = reader.value(json.seed2, 0);
         return $;
     }
 };
