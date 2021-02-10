@@ -350,7 +350,10 @@ $root.tflite.BuiltinOperator = {
     CALL_ONCE: 129,
     BROADCAST_TO: 130,
     RFFT2D: 131,
-    CONV_3D: 132
+    CONV_3D: 132,
+    IMAG: 133,
+    REAL: 134,
+    COMPLEX_ABS: 135
 };
 
 $root.tflite.BuiltinOptions = class {
