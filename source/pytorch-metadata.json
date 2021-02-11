@@ -1041,7 +1041,7 @@
     }
   },
   {
-    "name": "ops.quantized.batch_norm",
+    "name": "ops.quantized.batch_norm:",
     "schema": {
       "inputs": [
         { "name": "qx", "type": "Tensor" },
@@ -6024,6 +6024,116 @@
     "schema": {
       "inputs": [
         { "name": "self", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.hardswish",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "input", "type": "Tensor" },
+        { "name": "output_scale", "type": "float32" },
+        { "name": "output_zero_point", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.celu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "output_scale", "type": "float32" },
+        { "name": "output_zero_point", "type": "int64" },
+        { "name": "alpha", "type": "Scalar", "default": 1 }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.mul:",
+    "schema": {
+      "inputs": [
+        { "name": "qa", "type": "Tensor" },
+        { "name": "qb", "type": "Tensor" },
+        { "name": "scale", "type": "float32" },
+        { "name": "zero_point", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "qc", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.mul:Scalar",
+    "schema": {
+      "inputs": [
+        { "name": "qa", "type": "Tensor" },
+        { "name": "b", "type": "Scalar" }
+      ],
+      "outputs": [
+        { "name": "qc", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.mul:Scalar2",
+    "schema": {
+      "inputs": [
+        { "name": "a", "type": "Scalar" },
+        { "name": "qb", "type": "Tensor" }
+      ],
+      "outputs": [
+        { "name": "qc", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.relu6",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "qx", "type": "Scalar" },
+        { "name": "inplace", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.leaky_relu",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "qx", "type": "Scalar" },
+        { "name": "negative_slope", "type": "Scalar", "default": false },
+        { "name": "inplace", "type": "boolean" },
+        { "name": "output_scale", "type": "float32" },
+        { "name": "output_zero_point", "type": "int64" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "ops.quantized.sigmoid",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        { "name": "qx", "type": "Scalar" },
+        { "name": "output_scale", "type": "float32" },
+        { "name": "output_zero_point", "type": "int64" }
       ],
       "outputs": [
         { "name": "output", "type": "Tensor" }
