@@ -11,7 +11,7 @@ Netron has experimental support for **TensorFlow** (`.pb`, `.meta`, `.pbtxt`, `.
 
 ## Install
 
-**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew cask install netron`
+**macOS**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.dmg` file or run `brew install netron`
 
 **Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` file or run `snap install netron`
 

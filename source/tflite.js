@@ -8,9 +8,22 @@ tflite.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = 'TFL3';
-        if (stream.length > 8 && stream.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
-            return true;
+        if (stream.length >= 8) {
+            const buffer = stream.peek(Math.min(32, stream.length));
+            const reader = new flatbuffers.Reader(buffer);
+            if (reader.identifier === 'TFL3') {
+                return true;
+            }
+            if (reader.root === 0x00000018) {
+                const identifier = context.identifier;
+                const extension = identifier.split('.').pop().toLowerCase();
+                if (extension === 'tflite') {
+                    const version = reader.uint32_(reader.root, 4, 0);
+                    if (version === 3) {
+                        return true;
+                    }
+                }
+            }
         }
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
@@ -22,8 +35,8 @@ tflite.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./tflite-schema').then(() => {
+    open(context) {
+        return context.require('./tflite-schema').then(() => {
             tflite.schema = flatbuffers.get('tflite').tflite;
             let model = null;
             const identifier = context.identifier;
@@ -44,9 +57,6 @@ tflite.ModelFactory = class {
                     try {
                         const buffer = context.stream.peek();
                         const reader = new flatbuffers.Reader(buffer);
-                        if (!tflite.schema.Model.identifier(reader)) {
-                            throw new tflite.Error('Invalid identifier.');
-                        }
                         model = tflite.schema.Model.create(reader);
                     }
                     catch (error) {
@@ -55,7 +65,7 @@ tflite.ModelFactory = class {
                     }
                     break;
             }
-            return tflite.Metadata.open(host).then((metadata) => {
+            return tflite.Metadata.open(context).then((metadata) => {
                 return new tflite.Model(metadata, model);
             });
         });
@@ -165,7 +175,7 @@ tflite.Graph = class {
             const tensor = subgraph.tensors[i];
             const buffer = model.buffers[tensor.buffer];
             const is_variable = tensor.is_variable;
-            const data = buffer.data;
+            const data = buffer ? buffer.data : null;
             const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(i, tensor, buffer, is_variable) : null;
             args.push(new tflite.Argument(i, tensor, initializer));
             tensorNames.push(tensor.name);
@@ -729,11 +739,11 @@ tflite.TensorShape = class {
 
 tflite.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (tflite.Metadata._metadata) {
             return Promise.resolve(tflite.Metadata._metadata);
         }
-        return host.request(null, 'tflite-metadata.json', 'utf-8').then((data) => {
+        return context.request('tflite-metadata.json', 'utf-8', null).then((data) => {
             tflite.Metadata._metadata = new tflite.Metadata(data);
             return tflite.Metadata._metadata;
         }).catch(() => {

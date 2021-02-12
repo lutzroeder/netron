@@ -15,13 +15,13 @@ torch.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return torch.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return torch.Metadata.open(context).then((metadata) => {
             const identifier = context.identifier;
             const buffer = context.stream.peek();
             const reader = new torch.T7Reader(buffer, (name) => {
                 if (name && name != 'nn.JointTrainModule' && !name.startsWith('nn.MSDNet_') && !name.startsWith('onmt.')) {
-                    host.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
+                    context.exception(new torch.Error("Unknown type '" + name + "' in '" + identifier + "'."), false);
                 }
                 return null;
             });
@@ -608,11 +608,11 @@ torch.TensorShape = class {
 
 torch.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (torch.Metadata._metadata) {
             return Promise.resolve(torch.Metadata._metadata);
         }
-        return host.request(null, 'torch-metadata.json', 'utf-8').then((data) => {
+        return context.request('torch-metadata.json', 'utf-8', null).then((data) => {
             torch.Metadata._metadata = new torch.Metadata(data);
             return torch.Metadata._metadata;
         }).catch(() => {
@@ -673,7 +673,10 @@ torch.T7Reader = class {
         this._registry['bnn.Binary'] = function(reader) { reader.nn(this); };
         this._registry['bnn.SpatialConvolution'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.BatchNormalization'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.BatchBRNNReLU'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.BLSTM'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.ReLU'] = function(reader) { reader.nn(this); };
+        this._registry['cudnn.RNN'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.Sigmoid'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.SoftMax'] = function(reader) { reader.nn(this); };
         this._registry['cudnn.LogSoftMax'] = function(reader) { reader.nn(this); };
@@ -697,6 +700,8 @@ torch.T7Reader = class {
         this._registry['nn.BilinearSamplerBHWD'] = function(reader) { reader.nn(this); };
         this._registry['nn.BinActiveZ'] = function(reader) { reader.nn(this); }; // allenai/XNOR-Net
         this._registry['nn.BCECriterion'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Bottle'] = function(reader) { reader.nn(this); };
+        this._registry['nn.Clamp'] = function(reader) { reader.nn(this); };
         this._registry['nn.CMul'] = function(reader) { reader.nn(this); };
         this._registry['nn.CAddTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.CDivTable'] = function(reader) { reader.nn(this); };
@@ -708,6 +713,7 @@ torch.T7Reader = class {
         this._registry['nn.Contiguous'] = function(reader) { reader.nn(this); };
         this._registry['nn.Constant'] = function(reader) { reader.nn(this); };
         this._registry['nn.CostVolMulti'] = function(reader) { reader.nn(this); };
+        this._registry['nn.DataParallelTable'] = function(reader) { reader.nn(this); };
         this._registry['nn.DepthConcat'] = function(reader) { reader.nn(this); };
         this._registry['nn.Dropout'] = function(reader) { reader.nn(this); };
         this._registry['nn.Exp'] = function(reader) { reader.nn(this); };

@@ -263,7 +263,7 @@ def metadata():
             return 'false'
         raise Exception()
 
-    tensorflow_repo_dir = os.path.join(os.path.dirname(__file__), '../third_party/source/tf')
+    tensorflow_repo_dir = os.path.join(os.path.dirname(__file__), '../third_party/source/tensorflow')
     api_def_map = read_api_def_map(os.path.join(tensorflow_repo_dir, 'tensorflow/core/api_def/base_api'))
     input_file = os.path.join(tensorflow_repo_dir, 'tensorflow/core/ops/ops.pbtxt')
     ops_list = op_def_pb2.OpList()

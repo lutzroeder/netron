@@ -15,8 +15,8 @@ bigdl.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./bigdl-proto').then(() => {
+    open(context) {
+        return context.require('./bigdl-proto').then(() => {
             let module = null;
             try {
                 // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
@@ -28,7 +28,7 @@ bigdl.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new bigdl.Error('File format is not bigdl.BigDLModule (' + message.replace(/\.$/, '') + ').');
             }
-            return bigdl.Metadata.open(host).then((metadata) => {
+            return bigdl.Metadata.open(context).then((metadata) => {
                 return new bigdl.Model(metadata, module);
             });
         });
@@ -423,11 +423,11 @@ bigdl.TensorShape = class {
 
 bigdl.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (bigdl.Metadata._metadata) {
             return Promise.resolve(bigdl.Metadata._metadata);
         }
-        return host.request(null, 'bigdl-metadata.json', 'utf-8').then((data) => {
+        return context.request('bigdl-metadata.json', 'utf-8', null).then((data) => {
             bigdl.Metadata._metadata = new bigdl.Metadata(data);
             return bigdl.Metadata._metadata;
         }).catch(() => {

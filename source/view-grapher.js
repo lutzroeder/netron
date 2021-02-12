@@ -70,6 +70,9 @@ grapher.Renderer = class {
                 const labelElement = this.createElement('g');
                 labelElement.style.opacity = 0;
                 labelElement.setAttribute('class', 'edge-label');
+                if (edge.id) {
+                    labelElement.setAttribute('id', 'edge-label-' + edge.id);
+                }
                 labelElement.appendChild(textContainer);
                 svgEdgeLabelGroup.appendChild(labelElement);
                 const edgeBox = textContainer.getBBox();

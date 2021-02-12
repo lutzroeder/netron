@@ -7,15 +7,18 @@ mslite.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = 'MSL1';
-        if (stream.length > 8 && stream.peek(8).subarray(4, 8).every((value, index) => value === signature.charCodeAt(index))) {
-            return true;
+        if (stream.length >= 8) {
+            const buffer = stream.peek(8);
+            const reader = new flatbuffers.Reader(buffer);
+            if (reader.identifier === 'MSL1') {
+                return true;
+            }
         }
         return false;
     }
 
-    open(context, host) {
-        return host.require('./mslite-schema').then(() => {
+    open(context) {
+        return context.require('./mslite-schema').then(() => {
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
@@ -27,7 +30,7 @@ mslite.ModelFactory = class {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mslite.Error('File format is not mslite.MetaGraph (' + message.replace(/\.$/, '') + ').');
             }
-            return mslite.Metadata.open(host).then((metadata) => {
+            return mslite.Metadata.open(context).then((metadata) => {
                 return new mslite.Model(metadata, model);
             });
         });
@@ -39,12 +42,21 @@ mslite.Model = class {
     constructor(metadata, model) {
         this._name = model.name || '';
         this._format = model.version || '';
+        this._graphs = [];
         const format = 'MindSpore Lite ';
         if (this._format.startsWith(format)) {
             const version = this._format.substring(format.length).replace(/^v/, '');
             this._format = format + 'v' + version;
         }
-        this._graphs = [ new mslite.Graph(metadata, model, model) ];
+        const subgraphs = model.subGraph;
+        if (Array.isArray(subgraphs)) {
+            this._graphs.push(new mslite.Graph(metadata, model, model));
+        }
+        else {
+            for (const subgraph of subgraphs) {
+                this._graphs.push(new mslite.Graph(metadata, subgraph, model));
+            }
+        }
     }
 
     get name() {
@@ -64,7 +76,9 @@ mslite.Graph = class {
 
     constructor(metadata, subgraph, model) {
         this._name = subgraph.name || '';
-
+        this._inputs = [];
+        this._outputs = [];
+        this._nodes = [];
         const args = model.allTensors.map((tensor, index) => {
             const name = tensor.name || index.toString();
             const data = tensor.data;
@@ -72,22 +86,32 @@ mslite.Graph = class {
             const initializer = (data && data.length > 0) ? new mslite.Tensor(type, tensor.data) : null;
             return new mslite.Argument(name, tensor, initializer);
         });
-
-        this._inputs = [];
-        for (let i = 0; i < subgraph.inputIndex.length; i++) {
-            const index = subgraph.inputIndex[i];
-            this._inputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
+        if (subgraph === model) {
+            for (let i = 0; i < subgraph.inputIndex.length; i++) {
+                const index = subgraph.inputIndex[i];
+                this._inputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
+            }
+            for (let i = 0; i < subgraph.outputIndex.length; i++) {
+                const index = subgraph.outputIndex[i];
+                this._outputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
+            }
+            for (let i = 0; i < subgraph.nodes.length; i++) {
+                this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
+            }
         }
-
-        this._outputs = [];
-        for (let i = 0; i < subgraph.outputIndex.length; i++) {
-            const index = subgraph.outputIndex[i];
-            this._outputs.push(new mslite.Parameter(i.toString(), true, [ args[index] ]));
-        }
-
-        this._nodes = [];
-        for (let i = 0; i < subgraph.nodes.length; i++) {
-            this._nodes.push(new mslite.Node(metadata, subgraph.nodes[i], args));
+        else {
+            for (let i = 0; i < subgraph.inputIndices.length; i++) {
+                const index = subgraph.inputIndices[i];
+                this._inputs.push(new mslite.Parameter(i.toString(), true, [args[index]]));
+            }
+            for (let i = 0; i < subgraph.outputIndices.length; i++) {
+                const index = subgraph.outputIndices[i];
+                this._outputs.push(new mslite.Parameter(i.toString(), true, [args[index]]));
+            }
+            for (let i = 0; i < subgraph.nodeIndices.length; i++) {
+                const nodeId = subgraph.nodeIndices[i];
+                this._nodes.push(new mslite.Node(metadata, model.nodes[nodeId], args));
+            }
         }
     }
 
@@ -436,7 +460,33 @@ mslite.TensorType = class {
     constructor(dataType, dimensions) {
         switch (dataType) {
             case 0:  this._dataType = "?"; break;
+            case 1:  this._dataType = "type"; break;
+            case 2:  this._dataType = "any"; break;
+            case 3:  this._dataType = "object"; break;
+            case 4:  this._dataType = "typetype"; break;
+            case 5:  this._dataType = "problem"; break;
+            case 6:  this._dataType = "external"; break;
+            case 7:  this._dataType = "none"; break;
+            case 8:  this._dataType = "null"; break;
+            case 9:  this._dataType = "ellipsis"; break;
+            case 11: this._dataType = "number"; break;
             case 12: this._dataType = "string"; break;
+            case 13: this._dataType = "list"; break;
+            case 14: this._dataType = "tuple"; break;
+            case 15: this._dataType = "slice"; break;
+            case 16: this._dataType = "keyword"; break;
+            case 17: this._dataType = "tensortype"; break;
+            case 18: this._dataType = "rowtensortype"; break;
+            case 19: this._dataType = "sparsetensortype"; break;
+            case 20: this._dataType = "undeterminedtype"; break;
+            case 21: this._dataType = "class"; break;
+            case 22: this._dataType = "dictionary"; break;
+            case 23: this._dataType = "function"; break;
+            case 24: this._dataType = "jtagged"; break;
+            case 25: this._dataType = "symbolickeytype"; break;
+            case 26: this._dataType = "envtype"; break;
+            case 27: this._dataType = "refkey"; break;
+            case 28: this._dataType = "ref"; break;
             case 30: this._dataType = "boolean"; break;
             case 31: this._dataType = "int"; break;
             case 32: this._dataType = "int8"; break;
@@ -492,11 +542,11 @@ mslite.TensorShape = class {
 
 mslite.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (mslite.Metadata._metadata) {
             return Promise.resolve(mslite.Metadata._metadata);
         }
-        return host.request(null, 'mslite-metadata.json', 'utf-8').then((data) => {
+        return context.request('mslite-metadata.json', 'utf-8', null).then((data) => {
             mslite.Metadata._metadata = new mslite.Metadata(data);
             return mslite.Metadata._metadata;
         }).catch(() => {

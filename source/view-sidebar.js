@@ -59,6 +59,10 @@ sidebar.Sidebar = class {
         if (sidebarElement) {
             sidebarElement.style.width = '0';
         }
+        const graphElement = this._getElementById('graph');
+        if (graphElement) {
+            graphElement.style.marginRight = '0';
+        }
     }
 
     _deactivate() {
@@ -75,6 +79,7 @@ sidebar.Sidebar = class {
     }
 
     _activate(item) {
+        const width = 'min(calc(100vw * 0.6), 500px)';
         const sidebarElement = this._getElementById('sidebar');
         if (sidebarElement) {
             sidebarElement.innerHTML = '';
@@ -109,8 +114,12 @@ sidebar.Sidebar = class {
                 contentElement.appendChild(item.content);
             }
 
-            sidebarElement.style.width = 'calc(100vw * 0.6)';
+            sidebarElement.style.width = width;
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
+        }
+        const graphElement = this._getElementById('graph');
+        if (graphElement) {
+            graphElement.style.marginRight = width;
         }
     }
 };
@@ -1169,7 +1178,7 @@ sidebar.FindSidebar = class {
                             edgeMatches.add(argument.name);
                         }
                         else {
-                            initializers.push(argument.initializer);
+                            initializers.push(argument);
                         }
                     }
                 }
@@ -1187,11 +1196,13 @@ sidebar.FindSidebar = class {
                 nodeMatches.add(node.name);
             }
 
-            for (const initializer of initializers) {
-                const initializeItem = this._host.document.createElement('li');
-                initializeItem.innerText = '\u25A0 ' + initializer.name;
-                initializeItem.id = 'initializer-' + initializer.name;
-                this._resultElement.appendChild(initializeItem);
+            for (const argument of initializers) {
+                if (argument.name) {
+                    const initializeItem = this._host.document.createElement('li');
+                    initializeItem.innerText = '\u25A0 ' + argument.name;
+                    initializeItem.id = 'initializer-' + argument.name;
+                    this._resultElement.appendChild(initializeItem);
+                }
             }
         }
 

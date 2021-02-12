@@ -89,7 +89,13 @@
         { "name": "coffset", "default": 0 },
         { "name": "outw", "default": 0 },
         { "name": "outh", "default": 0 },
-        { "name": "outc", "default": 0 }
+        { "name": "outc", "default": 0 },
+        { "name": "woffset2", "default": 0 },
+        { "name": "hoffset2", "default": 0 },
+        { "name": "coffset2", "default": 0 },
+        { "name": "starts", "default": [] },
+        { "name": "ends", "default": [] },
+        { "name": "axes", "default": [] }
       ]
     }
   },
@@ -219,9 +225,14 @@
     }
   },
   {
-    "name": "Exp",
+    "name": "MemoryData",
     "schema": {
-      "operator": 19
+      "operator": 19,
+      "attributes": [
+        { "name": "w", "default": 0 },
+        { "name": "h", "default": 0 },
+        { "name": "c", "default": 0 }
+      ]
     }
   },
   {
@@ -242,16 +253,19 @@
         { "name": "pad_left", "default": 0 },
         { "name": "global_pooling", "default": 0 },
         { "name": "pad_mode", "default": 0 },
-        { "name": "" },
-        { "name": "" },
-        { "name": "" },
+        { "name": "avgpool_count_include_pad", "default": 0 },
+        { "name": "adaptive_pooling", "default": 0 },
+        { "name": "out_w", "default": 0 },
         { "name": "" },
         { "name": "" },
         { "name": "kernel_h", "default": 0 },
         { "name": "stride_h", "default": 1 },
-        { "name": "pad_top",	"default": 0 },
-        { "name": "pad_right",	"default": 0 },
-        { "name": "pad_bottom",	"default": 0 }
+        { "name": "pad_top", "default": 0 },
+        { "name": "pad_right", "default": 0 },
+        { "name": "pad_bottom", "default": 0 },
+        { "name": "" },
+        { "name": "" },
+        { "name": "out_h", "default": 0 }
       ]
     }
   },
@@ -395,14 +409,24 @@
     "name": "RNN",
     "schema": {
       "operator": 38,
-      "category": "Layer"
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "direction", "default": 1 }
+      ]
     }
   },
   {
     "name": "LSTM",
     "schema": {
       "operator": 39,
-      "category": "Layer"
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "direction", "default": 1 }
+      ]
     }
   },
   {
@@ -419,7 +443,10 @@
   {
     "name": "UnaryOp",
     "schema": {
-      "operator": 41
+      "operator": 41,
+      "attributes": [
+        { "name": "op_type", "type": "int32", "default": 0 }
+      ]
     }
   },
   {
@@ -449,7 +476,19 @@
   {
     "name": "Padding",
     "schema": {
-      "operator": 43
+      "operator": 43,
+      "category": "Layer",
+      "attributes": [
+        { "name": "top", "default": 0 },
+        { "name": "bottom", "default": 0 },
+        { "name": "left", "default": 0 },
+        { "name": "right", "default": 0 },
+        { "name": "type", "default": 0 },
+        { "name": "value", "type": "float32", "default": 0 },
+        { "name": "per_channel_pad_data_size", "default": 0, "visible": false },
+        { "name": "front", "default": 0 },
+        { "name": "behind", "default": 0 }
+      ]
     }
   },
   {
@@ -467,7 +506,20 @@
   {
     "name": "Normalize",
     "schema": {
-      "operator": 46
+      "operator": 46,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "across_spatial", "default": 0 },
+        { "name": "channel_shared", "default": 0 },
+        { "name": "eps", "type": "float32", "default": 0.0001 },
+        { "name": "scale_data_size", "default": 0, "visible": false },
+        { "name": "across_channel", "default": 0 },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "" },
+        { "name": "eps_mode", "default": 0 }
+      ]
     }
   },
   {
@@ -522,7 +574,16 @@
   {
     "name": "Interp",
     "schema": {
-      "operator": 50
+      "operator": 50,
+      "attributes": [
+        { "name": "resize_type", "default": 0 },
+        { "name": "height_scale", "type": "float32", "default": 1.0 },
+        { "name": "width_scale", "type": "float32", "default": 1.0 },
+        { "name": "output_height", "default": 0 },
+        { "name": "output_width", "default": 0 },
+        { "name": "dynamic_target_size", "default": 0 },
+        { "name": "align_corner", "default": 0 }
+      ]
     }
   },
   {
@@ -554,26 +615,41 @@
     "schema": {
       "operator": 52,
       "attributes": [
-        { "name": "group", "default": 1 }
+        { "name": "group", "default": 1 },
+        { "name": "reverse", "default": 0 }
       ]
     }
   },
   {
     "name": "InstanceNorm",
     "schema": {
-      "operator": 53
+      "operator": 53,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "channels", "default": 0 },
+        { "name": "eps", "type": "float32", "default": 0.001 },
+        { "name": "affine", "default": 1 }
+      ]
     }
   },
   {
     "name": "Clip",
     "schema": {
-      "operator": 54
+      "operator": 54,
+      "attributes": [
+        { "name": "min", "type": "float32" },
+        { "name": "max", "type": "float32" }
+      ]
     }
   },
   {
     "name": "Reorg",
     "schema": {
-      "operator": 55
+      "operator": 55,
+      "attributes": [
+        { "name": "stride", "default": 1 },
+        { "name": "mode", "default": 0 }
+      ]
     }
   },
   {
@@ -656,14 +732,126 @@
     "name": "HardSigmoid",
     "schema": {
       "operator": 65,
-      "category": "Activation"
+      "category": "Activation",
+      "attributes": [
+        { "name": "alpha", "type": "float32", "default": 0.2 },
+        { "name": "beta", "type": "float32", "default": 0.5 }
+      ]
     }
   },
   {
     "name": "SELU",
     "schema": {
       "operator": 66,
+      "category": "Activation",
+      "attributes": [
+        { "name": "alpha", "type": "float32", "default": 1.67326324 },
+        { "name": "lambda", "type": "float32", "default": 1.050700987 }
+      ]
+    }
+  },
+  {
+    "name": "HardSwish",
+    "schema": {
+      "operator": 67,
+      "category": "Activation",
+      "attributes": [
+        { "name": "alpha", "type": "float32", "default": 0.2 },
+        { "name": "beta", "type": "float32", "default": 0.5 }
+      ]
+    }
+  },
+  {
+    "name": "Noop",
+    "schema": {
+      "operator": 68
+    }
+  },
+  {
+    "name": "PixelShuffle",
+    "schema": {
+      "operator": 69,
+      "attributes": [
+        { "name": "upscale_factor", "default": 1 },
+        { "name": "mode", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "DeepCopy",
+    "schema": {
+      "operator": 70
+    }
+  },
+  {
+    "name": "Mish",
+    "schema": {
+      "operator": 71,
       "category": "Activation"
+    }
+  },
+  {
+    "name": "StatisticsPooling",
+    "schema": {
+      "operator": 72,
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "Swish",
+    "schema": {
+      "operator": 73,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "Gemm",
+    "schema": {
+      "operator": 74,
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "GroupNorm",
+    "schema": {
+      "operator": 75,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "group", "default": 1 },
+        { "name": "channels", "default": 0 },
+        { "name": "eps", "type": "float32", "default": 0.001 },
+        { "name": "affine", "default": 0 }
+      ]
+    }
+  },
+  {
+    "name": "LayerNorm",
+    "schema": {
+      "operator": 76,
+      "category": "Normalization",
+      "attributes": [
+        { "name": "channels", "default": 0 },
+        { "name": "eps", "type": "float32", "default": 0.001 }
+      ]
+    }
+  },
+  {
+    "name": "Softplus",
+    "schema": {
+      "operator": 77,
+      "category": "Activation"
+    }
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "operator": 78,
+      "category": "Layer",
+      "attributes": [
+        { "name": "num_output", "default": 0 },
+        { "name": "weight_data_size", "default": 0, "visible": false },
+        { "name": "direction", "default": 1 }
+      ]
     }
   },
   {

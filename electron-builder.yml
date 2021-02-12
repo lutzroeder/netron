@@ -69,26 +69,19 @@ afterSign: "./publish/notarize.js"
 publish:
   - provider: github
     releaseType: release
-mac:
-  category: public.app-category.developer-tools
-  darkModeSupport: true
-  hardenedRuntime: true
-  gatekeeperAssess: false
-  target: 
-  - dmg
-  - zip
 linux:
   target:
   - AppImage
   - snap
-snap:
-  plugs:
-  - default
-  - removable-media
-  publish:
-  - provider: snapStore
-    channels:
-    - stable
+mac:
+  artifactName: ${productName}-${version}-mac.${ext}
+  category: public.app-category.developer-tools
+  darkModeSupport: true
+  gatekeeperAssess: false
+  hardenedRuntime: true
+  target:
+  - dmg
+  - zip
 win:
   target:
   - nsis
@@ -96,6 +89,9 @@ win:
   - sha256
   verifyUpdateCodeSignature: false
 dmg:
+  artifactName: ${productName}-${version}.${ext}
+  title: "${productName} ${version}"
+  writeUpdateInfo: false
   iconSize: 160
   contents:
   - x: 180
@@ -104,3 +100,13 @@ dmg:
     y: 170
     type: link
     path: /Applications
+nsis:
+  differentialPackage: false
+snap:
+  plugs:
+  - default
+  - removable-media
+  publish:
+  - provider: snapStore
+    channels:
+    - stable

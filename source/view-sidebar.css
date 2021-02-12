@@ -1,5 +1,5 @@
 
-.sidebar { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; height: 100%; width: 0; max-width: 500px; position: fixed; transition: 0.2s; z-index: 1; top: 0; right: 0; background-color: #ececec; color: #242424; overflow: hidden; border-left: 1px solid #ccc; }
+.sidebar { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif; font-size: 12px; height: 100%; width: 0; position: fixed; transition: 0.2s; z-index: 1; top: 0; right: 0; background-color: #ececec; color: #242424; overflow: hidden; border-left: 1px solid #ccc; }
 .sidebar-title { font-weight: bold; font-size: 12px; letter-spacing: 0.5px; height: 20px; margin: 0; padding: 20px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .sidebar-closebutton { padding: 8px 8px 8px 32px; text-decoration: none; font-size: 25px; color: #777777; opacity: 1.0; display: block; transition: 0.2s; position: absolute; top: 0; right: 15px; margin-left: 50px; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .sidebar-closebutton:hover { color: #242424; }

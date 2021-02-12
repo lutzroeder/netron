@@ -13,19 +13,21 @@ mediapipe.ModelFactory = class {
         return false;
     }
 
-    open(context /*, host */) {
+    open(context) {
         return Promise.resolve().then(() => {
-            let root;
+        // return context.require('./mediapipe-proto').then(() => {
+            mediapipe.proto = protobuf.get('mediapipe');
             try {
                 const buffer = context.stream.peek();
                 const reader = protobuf.TextReader.create(buffer);
-                root = new mediapipe.Object(reader);
+                // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
+                const config = new mediapipe.Object(reader);
+                return new mediapipe.Model(config);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
             }
-            return new mediapipe.Model(root);
         });
     }
 };
@@ -172,15 +174,45 @@ mediapipe.Node = class {
             }
             this._outputs.push(new mediapipe.Parameter('output_side_packet', args));
         }
-        const options = node.options || node.node_options || null;
-        if (options) {
-            for (const key of Object.keys(options)) {
-                if (key === '__type__') {
-                    continue;
-                }
-                const value = options[key];
-                this._attributes.push(new mediapipe.Attribute(key, value));
+        const options = new Map();
+        if (node.options) {
+            for (const key of Object.keys(node.options)) {
+                options.set(key, options[key]);
             }
+        }
+        const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [ node.node_options ] : [];
+        if (mediapipe.proto.google && node_options.every((options) => options instanceof mediapipe.proto.google.protobuf.Any)) {
+            for (const entry of node_options) {
+                const value = new RegExp(/^\{(.*)\}\s*$/, 's').exec(entry.value);
+                const buffer = new TextEncoder('utf-8').encode(value[1]);
+                const reader = protobuf.TextReader.create(buffer);
+                if (entry.type_url.startsWith('type.googleapis.com/mediapipe.')) {
+                    const type = entry.type_url.split('.').pop();
+                    if (mediapipe.proto && mediapipe.proto.mediapipe && mediapipe.proto.mediapipe[type]) {
+                        const message = mediapipe.proto.mediapipe[type].decodeText(reader);
+                        for (const key of Object.keys(message)) {
+                            options.set(key, message[key]);
+                        }
+                        continue;
+                    }
+                }
+                const message = new mediapipe.Object(reader);
+                for (const key of Object.keys(message)) {
+                    options.set(key, message[key]);
+                }
+            }
+        }
+        else {
+            for (const entry of node_options) {
+                for (const key of Object.keys(entry)) {
+                    if (key !== '__type__') {
+                        options.set(key, entry[key]);
+                    }
+                }
+            }
+        }
+        for (const pair of options) {
+            this._attributes.push(new mediapipe.Attribute(pair[0], pair[1]));
         }
     }
 
@@ -282,17 +314,16 @@ mediapipe.Argument = class {
 
 mediapipe.Object = class {
 
-    constructor(reader) {
-        reader.start();
-
-        let close = false;
+    constructor(reader, block) {
+        if (!block) {
+            reader.start();
+        }
         const type = reader.token();
         if (type.startsWith('[') && type.endsWith(']')) {
             this.__type__ = type.substring(1, type.length - 1);
             reader.next();
             reader.match(':');
             reader.start();
-            close = true;
         }
         const arrayTags = new Set();
         while (!reader.end()) {
@@ -300,7 +331,21 @@ mediapipe.Object = class {
             const next = reader.token();
             let obj = null;
             if (next === '{') {
-                obj = new mediapipe.Object(reader);
+                reader.start();
+                obj = new mediapipe.Object(reader, true);
+                if (obj.__type__) {
+                    while (!reader.end()) {
+                        if (!Array.isArray(obj)) {
+                            obj = [ obj ];
+                        }
+                        const token = reader.token();
+                        if (token.startsWith('[') && token.endsWith(']')) {
+                            obj.push(new mediapipe.Object(reader, true));
+                            continue;
+                        }
+                        break;
+                    }
+                }
             }
             else if (next.startsWith('"') && next.endsWith('"')) {
                 obj = next.substring(1, next.length - 1);
@@ -341,9 +386,6 @@ mediapipe.Object = class {
                 }
                 this[tag] = obj;
             }
-        }
-        if (close) {
-            reader.expect('}');
         }
     }
 };

@@ -3,23 +3,19 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "bigdl clean"
+    echo "bigdl clean"
     rm -rf ./third_party/source/bigdl
 }
 
 sync() {
-    bold "bigdl sync"
+    echo "bigdl sync"
     mkdir -p "./third_party/source/bigdl/spark/dl/src/main/resources/serialization"
     curl --silent --location --output "./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto" "https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto?raw=true"
 }
 
 schema() {
-    bold "bigdl schema"
+    echo "bigdl schema"
     [[ $(grep -U $'\x0D' ./source/bigdl-proto.js) ]] && crlf=1
     node ./tools/protoc.js --root bigdl --out ./source/bigdl-proto.js ./third_party/source/bigdl/spark/dl/src/main/resources/serialization/bigdl.proto
     if [[ -n ${crlf} ]]; then

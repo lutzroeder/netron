@@ -3,12 +3,8 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 schema() {
-    bold "uff schema"
+    echo "uff schema"
     [[ $(grep -U $'\x0D' ./source/uff-proto.js) ]] && crlf=1
     node ./tools/protoc.js --text --root uff --out ./source/uff-proto.js ./tools/uff.proto
     if [[ -n ${crlf} ]]; then

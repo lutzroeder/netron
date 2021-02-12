@@ -3,23 +3,19 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "paddle clean"
+    echo "paddle clean"
     rm -rf "./third_party/source/paddle"
 }
 
 sync() {
-    bold "paddle sync"
+    echo "paddle sync"
     mkdir -p "./third_party/source/paddle/paddle/fluid/framework"
     curl --silent --location --output "./third_party/source/paddle/paddle/fluid/framework/framework.proto" "https://github.com/PaddlePaddle/Paddle/blob/develop/paddle/fluid/framework/framework.proto?raw=true"
 }
 
 schema() {
-    bold "paddle schema"
+    echo "paddle schema"
     [[ $(grep -U $'\x0D' ./source/paddle-proto.js) ]] && crlf=1
     node ./tools/protoc.js --root paddle --text --out ./source/paddle-proto.js ./third_party/source/paddle/paddle/fluid/framework/framework.proto
     if [[ -n ${crlf} ]]; then

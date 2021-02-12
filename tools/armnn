@@ -3,23 +3,19 @@
 set -e
 pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 clean() {
-    bold "armnn clean"
+    echo "armnn clean"
     rm -rf ./third_party/source/armnn
 }
 
 sync() {
-    bold "armnn sync"
+    echo "armnn sync"
     mkdir -p "./third_party/source/armnn/src/armnnSerializer"
     curl --silent --location --output "./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs" "https://github.com/ARM-software/armnn/raw/branches/armnn_20_08/src/armnnSerializer/ArmnnSchema.fbs?raw=true"
 }
 
 schema() {
-    bold "armnn schema"
+    echo "armnn schema"
     [[ $(grep -U $'\x0D' ./source/armnn-schema.js) ]] && crlf=1
     node ./tools/flatc.js --text --root armnn --out ./source/armnn-schema.js ./third_party/source/armnn/src/armnnSerializer/ArmnnSchema.fbs
     if [[ -n ${crlf} ]]; then

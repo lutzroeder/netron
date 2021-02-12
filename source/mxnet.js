@@ -31,7 +31,7 @@ mxnet.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
+    open(context) {
         return Promise.resolve().then(() => {
             const identifier = context.identifier;
             const extension = context.identifier.split('.').pop().toLowerCase();
@@ -42,8 +42,7 @@ mxnet.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        const reader = json.TextReader.create(context.stream.peek());
-                        symbol = reader.read();
+                        symbol = context.tags('json').get('');
                         if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                             format  = 'TVM';
                         }
@@ -56,12 +55,12 @@ mxnet.ModelFactory = class {
                     if (basename) {
                         return context.request(basename + '-0000.params', null).then((stream) => {
                             const buffer = stream.peek();
-                            return this._openModel(identifier, format, null, symbol, null, buffer, host);
+                            return this._openModel(format, null, symbol, null, buffer, context);
                         }).catch(() => {
-                            return this._openModel(identifier, format, null, symbol, null, params, host);
+                            return this._openModel(format, null, symbol, null, params, context);
                         });
                     }
-                    return this._openModel(identifier, format, null, symbol, null, null, host);
+                    return this._openModel(format, null, symbol, null, null, context);
                 case 'params':
                     params = context.stream.peek();
                     basename = mxnet.ModelFactory._basename(context.identifier, 'params');
@@ -71,12 +70,12 @@ mxnet.ModelFactory = class {
                             if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                                 format  = 'TVM';
                             }
-                            return this._openModel(identifier, format, null, symbol, null, params, host);
+                            return this._openModel(format, null, symbol, null, params, context);
                         }).catch(() => {
-                            return this._openModel(identifier, format, null, null, null, params, host);
+                            return this._openModel(format, null, null, null, params, context);
                         });
                     }
-                    return this._openModel(identifier, format, null, null, null, params, host);
+                    return this._openModel(format, null, null, null, params, context);
                 case 'mar':
                 case 'model': {
                     const entries = new Map();
@@ -189,7 +188,7 @@ mxnet.ModelFactory = class {
                         // continue regardless of error
                     }
 
-                    return this._openModel(identifier, format, manifest, symbol, signature, params, host);
+                    return this._openModel(format, manifest, symbol, signature, params, context);
                 }
                 default:
                     throw new mxnet.Error('Unsupported file extension.');
@@ -197,8 +196,8 @@ mxnet.ModelFactory = class {
         });
     }
 
-    _openModel(identifier, format, manifest, symbol, signature, params, host) {
-        return mxnet.Metadata.open(host).then((metadata) => {
+    _openModel(format, manifest, symbol, signature, params, context) {
+        return mxnet.Metadata.open(context).then((metadata) => {
             const parameters = new Map();
             if (params) {
                 try {
@@ -1029,11 +1028,11 @@ mxnet.TensorShape = class {
 
 mxnet.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (mxnet.Metadata._metadata) {
             return Promise.resolve(mxnet.Metadata._metadata);
         }
-        return host.request(null, 'mxnet-metadata.json', 'utf-8').then((data) => {
+        return context.request('mxnet-metadata.json', 'utf-8', null).then((data) => {
             mxnet.Metadata._metadata = new mxnet.Metadata(data);
             return mxnet.Metadata._metadata;
         }).catch(() => {

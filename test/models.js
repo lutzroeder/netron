@@ -101,7 +101,7 @@ class TestHost {
         }
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         const pathname = path.join(base || path.join(__dirname, '../source'), file);
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
@@ -198,16 +198,24 @@ class TestContext {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        return this._host.request(this._folder, file, encoding);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 }
 
@@ -338,7 +346,7 @@ function decompress(buffer, identifier) {
     let archive = null;
     const extension = identifier.split('.').pop().toLowerCase();
     if (extension == 'gz' || extension == 'tgz') {
-        archive = new gzip.Archive(buffer);
+        archive = gzip.Archive.open(buffer);
         if (archive.entries.length == 1) {
             const entry = archive.entries[0];
             if (entry.name) {
@@ -356,10 +364,10 @@ function decompress(buffer, identifier) {
 
     switch (identifier.split('.').pop().toLowerCase()) {
         case 'tar':
-            archive = new tar.Archive(buffer);
+            archive = tar.Archive.open(buffer);
             break;
         case 'zip':
-            archive = new zip.Archive(buffer);
+            archive = zip.Archive.open(buffer);
             break;
     }
     return archive;
@@ -557,6 +565,34 @@ function loadModel(target, item) {
         }
         if (item.runtime && model.runtime != item.runtime) {
             throw new Error("Invalid runtime '" + model.runtime + "'.");
+        }
+        if (item.assert) {
+            for (const assert of item.assert) {
+                const parts = assert.split('=').map((item) => item.trim());
+                const properties = parts[0].split('.');
+                const value = parts[1];
+                let context = { model: model };
+                while (properties.length) {
+                    const property = properties.shift();
+                    if (context[property] !== undefined) {
+                        context = context[property];
+                        continue;
+                    }
+                    const match = /(.*)\[(.*)\]/.exec(property);
+                    if (match.length === 3 && context[match[1]] !== undefined) {
+                        const array = context[match[1]];
+                        const index = parseInt(match[2], 10);
+                        if (array[index] !== undefined) {
+                            context = array[index];
+                            continue;
+                        }
+                    }
+                    throw new Error("Invalid property path: '" + parts[0]);
+                }
+                if (context !== value.toString()) {
+                    throw new Error("Invalid '" + value.toString() + "' != '" + assert + "'.");
+                }
+            }
         }
         model.version;
         model.description;

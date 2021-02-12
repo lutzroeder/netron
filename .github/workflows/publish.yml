@@ -27,7 +27,8 @@ jobs:
         with:
           node-version: 12
 
-      - name: Install Python
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.7
@@ -53,7 +54,7 @@ jobs:
             macos*)
               mkdir -p ~/.private_keys
               echo '${{ secrets.API_KEY }}' > ~/.private_keys/AuthKey_${{ secrets.API_KEY_ID }}.p8
-              npx electron-builder --mac --publish always
+              npx electron-builder --mac --universal --publish always
               ;;
             ubuntu*)
               sudo snap install snapcraft --classic

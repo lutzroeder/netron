@@ -273,6 +273,7 @@ protoc.Type = class extends protoc.Namespace {
         super(parent, name);
         this.fields = new Map();
         this.oneofs = new Map();
+        this.extensions = [];
         this.reserved = [];
     }
 
@@ -352,7 +353,7 @@ protoc.PrimitiveType = class extends protoc.Type {
 
 protoc.Field = class extends protoc.Object {
 
-    constructor(parent, name, id, type, rule) {
+    constructor(parent, name, id, type, rule, extend) {
         super(parent instanceof protoc.OneOf ? parent.parent : parent, name);
         if (!Number.isInteger(id) || id < 0) {
             throw new protoc.Error('Identifier must be a non-negative integer.');
@@ -363,6 +364,7 @@ protoc.Field = class extends protoc.Object {
         this.id = id;
         this._type = type;
         this.rule = rule && rule !== 'optional' ? rule : undefined;
+        this.extend = extend;
         this.required = rule === 'required';
         this.repeated = rule === 'repeated';
         if (parent instanceof protoc.OneOf) {
@@ -481,11 +483,11 @@ protoc.Parser = class {
 
     _parseId(token, acceptNegative) {
         switch (token) {
-            case "max":
-            case "Max":
-            case "MAX":
-                return 536870911;
-            case "0":
+            case 'max':
+            case 'Max':
+            case 'MAX':
+                return 0x1fffffff;
+            case '0':
                 return 0;
         }
         if (!acceptNegative && token.charAt(0) === "-") {
@@ -556,9 +558,11 @@ protoc.Parser = class {
             case 'enum':
                 this._parseEnum(parent, token);
                 return true;
-            case 'service':
             case 'extend':
-                throw new protoc.Error("Keyword '" + token + "' is not supported.");
+                this._parseExtend(parent, token);
+                return true;
+            case 'service':
+                throw new protoc.Error("Keyword '" + token + "' is not supported" + this._tokenizer.location());
         }
         return false;
     }
@@ -609,7 +613,9 @@ protoc.Parser = class {
                     self._readRanges(type.reserved, true);
                     break;
                 case 'extensions':
-                    throw new protoc.Error("Keyword 'extensions' is not supported.");
+                    self._readRanges(type.extensions);
+                    break;
+                    // throw new protoc.Error("Keyword 'extensions' is not supported" + self._tokenizer.location());
                 default:
                     if (self._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
                         throw self._parseError(token);
@@ -621,7 +627,7 @@ protoc.Parser = class {
         });
     }
 
-    _parseField(parent, rule) {
+    _parseField(parent, rule, extend) {
         const type = this._tokenizer.next();
         if (type === "group") {
             this._parseGroup(parent, rule);
@@ -636,7 +642,7 @@ protoc.Parser = class {
         }
         this._tokenizer.expect("=");
         const id = this._parseId(this._tokenizer.next());
-        const field = new protoc.Field(parent, name, id, type, rule);
+        const field = new protoc.Field(parent, name, id, type, rule, extend);
         const self = this;
         this._ifBlock(field, function (token) {
             if (token === "option") {
@@ -783,6 +789,31 @@ protoc.Parser = class {
             self._parseInlineOptions(dummy); // skip
         });
         parent.add(token, value);
+    }
+
+    _parseExtend(parent, token) {
+        token = this._tokenizer.next();
+        if (!protoc.Parser._isTypeReference(token)) {
+            throw this._parseError(token, "reference");
+        }
+        const reference = token;
+        const self = this;
+        this._ifBlock(null, function(token) {
+            switch (token) {
+                case "required":
+                case "repeated":
+                case "optional":
+                    self._parseField(parent, token, reference);
+                    break;
+                default:
+                    if (!self._syntax !== 'proto3' || !protoc.Parser._isTypeReference(token)) {
+                        throw self._parseError(token);
+                    }
+                    self._tokenizer.push(token);
+                    self._parseField(parent, "optional", reference);
+                    break;
+            }
+        });
     }
 
     _parseOption(parent, token) {
@@ -937,7 +968,7 @@ protoc.Parser = class {
 
     _parseError(token, name) {
         name = name || 'token';
-        const location = ' at ' + this._tokenizer.file + ':' + this._tokenizer.line;
+        const location = this._tokenizer.location();
         return new protoc.Error("Invalid " + name + " '" + token + "'" + location + ".");
     }
 };
@@ -1115,6 +1146,10 @@ protoc.Parser.Tokenizer = class {
     _readError(message) {
         const location = ' at ' + this._file + ':' + this._line.toString();
         return new protoc.Error(message + location + '.');
+    }
+
+    location() {
+        return ' at ' + this.file + ':' + this.line;
     }
 };
 
@@ -1341,75 +1376,76 @@ protoc.Generator = class {
 
     _buildDecodeTextFunction(type) {
         /* eslint-disable indent */
-        const fieldTypeName = (field) => "$root" + field.type.fullName;
+        const typeName = (type) => "$root" + type.fullName;
         this._builder.add('static decodeText(reader) {');
         this._builder.indent();
-            this._builder.add('const message = new $root' + type.fullName + '();');
-            this._builder.add('reader.start();');
-            if (type.fullName === ".google.protobuf.Any") {
-                this._builder.add('if (reader.any(message)) {');
-                this._builder.indent();
-                    this._builder.add('return message;');
-                this._builder.outdent();
-                this._builder.add('}');
+            if (type.fullName === '.google.protobuf.Any') {
+                this._builder.add('return reader.any(() => new ' + typeName(type) + '());');
             }
-            this._builder.add('while (!reader.end()) {');
-            this._builder.indent();
-                this._builder.add('const tag = reader.tag();');
-                this._builder.add('switch (tag) {');
+            else {
+                this._builder.add('const message = new ' + typeName(type) + '();');
+                this._builder.add('reader.start();');
+                this._builder.add('while (!reader.end()) {');
                 this._builder.indent();
-                    for (const field of type.fields.values()) {
-                        const variable = "message" + protoc.Generator._propertyReference(field.name);
-                        this._builder.add('case "' + field.name + '":');
-                        this._builder.indent();
-                            // Map fields
-                            if (field instanceof protoc.MapField) {
-                                const value = field.type instanceof protoc.PrimitiveType ?
-                                    'reader.' + field.type.name + '()' :
-                                    fieldTypeName(field) + '.decodeText(reader, true)';
-                                this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
-                            }
-                            else if (field.repeated) { // Repeated fields
-                                if (field.type instanceof protoc.Enum) {
-                                    this._builder.add('reader.array(' + variable + ', () => reader.enum(' + fieldTypeName(field) + '));');
+                    this._builder.add('const tag = reader.tag();');
+                    this._builder.add('switch (tag) {');
+                    this._builder.indent();
+                        for (const field of type.fields.values()) {
+                            const variable = "message" + protoc.Generator._propertyReference(field.name);
+                            this._builder.add('case "' + field.name + '":');
+                            this._builder.indent();
+                                // Map fields
+                                if (field instanceof protoc.MapField) {
+                                    const value = field.type instanceof protoc.PrimitiveType ?
+                                        'reader.' + field.type.name + '()' :
+                                        typeName(field.type) + '.decodeText(reader)';
+                                    this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
+                                }
+                                else if (field.repeated) { // Repeated fields
+                                    if (field.type instanceof protoc.Enum) {
+                                        this._builder.add('reader.array(' + variable + ', () => reader.enum(' + typeName(field.type) + '));');
+                                    }
+                                    else if (field.type instanceof protoc.PrimitiveType) {
+                                        this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.text + '());');
+                                    }
+                                    else if (field.type.fullName === '.google.protobuf.Any') {
+                                        this._builder.add('reader.anyarray(' + variable + ', () => new ' + typeName(field.type) + '());');
+                                    }
+                                    else {
+                                        this._builder.add(variable + '.push(' + typeName(field.type) + '.decodeText(reader));');
+                                    }
+                                // Non-repeated
+                                }
+                                else if (field.type instanceof protoc.Enum) {
+                                    this._builder.add(variable + ' = reader.enum(' + typeName(field.type) + ');');
                                 }
                                 else if (field.type instanceof protoc.PrimitiveType) {
-                                    this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.text + '());');
+                                    this._builder.add(variable + ' = reader.' + field.type.text + '();');
                                 }
                                 else {
-                                    this._builder.add(variable + '.push(' + fieldTypeName(field) + '.decodeText(reader, true));');
+                                    this._builder.add(variable + ' = ' + typeName(field.type) + '.decodeText(reader);');
                                 }
-                            // Non-repeated
-                            }
-                            else if (field.type instanceof protoc.Enum) {
-                                this._builder.add(variable + ' = reader.enum(' + fieldTypeName(field) + ');');
-                            }
-                            else if (field.type instanceof protoc.PrimitiveType) {
-                                this._builder.add(variable + ' = reader.' + field.type.text + '();');
-                            }
-                            else {
-                                this._builder.add(variable + ' = ' + fieldTypeName(field) + '.decodeText(reader, true);');
-                            }
+                                this._builder.add("break;");
+                            this._builder.outdent();
+                        }
+
+                        this._builder.add("default:");
+                        this._builder.indent();
+                            this._builder.add("reader.field(tag, message);");
                             this._builder.add("break;");
                         this._builder.outdent();
-                    }
-
-                    this._builder.add("default:");
-                    this._builder.indent();
-                        this._builder.add("reader.field(tag, message);");
-                        this._builder.add("break;");
                     this._builder.outdent();
+                    this._builder.add('}');
                 this._builder.outdent();
                 this._builder.add('}');
-            this._builder.outdent();
-            this._builder.add('}');
-            for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
-                this._builder.add('if (!Object.prototype.hasOwnProperty.call(message, "' + field.name + '"))');
-                this._builder.indent();
-                    this._builder.add('throw new protobuf.Error("Excepted \'' + field.name + '\'.");');
-                this._builder.outdent();
-           }
-            this._builder.add('return message;');
+                for (const field of Array.from(type.fields.values()).filter((field) => field.required)) {
+                    this._builder.add('if (!Object.prototype.hasOwnProperty.call(message, "' + field.name + '"))');
+                    this._builder.indent();
+                        this._builder.add('throw new protobuf.Error("Excepted \'' + field.name + '\'.");');
+                    this._builder.outdent();
+                }
+                this._builder.add('return message;');
+            }
         this._builder.outdent();
         this._builder.add('}');
         /* eslint-enable indent */

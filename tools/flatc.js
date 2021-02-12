@@ -882,7 +882,7 @@ flatc.Generator = class {
                     this._builder.add('');
                     this._builder.add('static identifier(reader) {');
                     this._builder.indent();
-                        this._builder.add("return reader.identifier('" + file_identifier + "');");
+                        this._builder.add("return reader.identifier === '" + file_identifier + "';");
                     this._builder.outdent();
                     this._builder.add('}');
                 }

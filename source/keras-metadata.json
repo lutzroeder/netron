@@ -30,6 +30,10 @@
         {
           "description": "Optional name of the layer (string).",
           "name": "name"
+        },
+        {
+          "description": "A `tf.TypeSpec` object to create Input from. This `tf.TypeSpec`\n        represents the entire batch. When provided, all other args except\n        name must be None.",
+          "name": "type_spec"
         }
       ],
       "category": "Data",
@@ -102,7 +106,7 @@
           "name": "causal"
         },
         {
-          "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Arguments:",
+          "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Args:",
           "name": "dropout"
         },
         {
@@ -1460,23 +1464,23 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n        (i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space (i.e. the number\n      of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\n        specifying the length of the 1D convolution window.",
+          "description": "An integer or tuple/list of a single integer, specifying the\n      length of the 1D convolution window.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of a single integer,\n        specifying the stride length of the convolution.\n        Specifying any stride value != 1 is incompatible with specifying\n        any `dilation_rate` value != 1.",
+          "description": "An integer or tuple/list of a single integer, specifying the\n      stride length of the convolution.",
           "name": "strides"
         },
         {
-          "description": "Currently only supports `\"valid\"` (case-insensitive).\n        `\"same\"` may be supported in the future.\n        `\"valid\"` means no padding.",
+          "description": "Currently only supports `\"valid\"` (case-insensitive). `\"same\"`\n      may be supported in the future. `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
-          "description": "Activation function to use.\n        If you don't specify anything, no activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use. If you don't specify anything, no\n      activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -1494,7 +1498,7 @@
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n        the `kernel` weights matrix.",
+          "description": "Regularizer function applied to the `kernel` weights\n      matrix.",
           "name": "kernel_regularizer",
           "visible": false
         },
@@ -1504,7 +1508,7 @@
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n        the output of the layer (its \"activation\")..",
+          "description": "Regularizer function applied to the output of the\n      layer (its \"activation\")..",
           "name": "activity_regularizer",
           "visible": false
         },
@@ -1518,11 +1522,11 @@
         },
         {
           "default": "channels_last",
-          "description": "A string,\n        one of `channels_last` (default) or `channels_first`.\n        The ordering of the dimensions in the inputs.\n        `channels_last` corresponds to inputs with shape\n        `(batch, length, channels)` while `channels_first`\n        corresponds to inputs with shape\n        `(batch, channels, length)`.\n        It defaults to the `image_data_format` value found in your\n        Keras config file at `~/.keras/keras.json`.\n        If you never set it, then it will be \"channels_last\".",
+          "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, length,\n      channels)` while `channels_first` corresponds to inputs with shape\n      `(batch, channels, length)`. It defaults to the `image_data_format`\n      value found in your Keras config file at `~/.keras/keras.json`. If you\n      never set it, then it will be \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "implementation mode, either `1`, `2`, or `3`.\n        `1` loops over input spatial locations to perform the forward pass.\n        It is memory-efficient but performs a lot of (small) ops.\n\n        `2` stores layer weights in a dense but sparsely-populated 2D matrix\n        and implements the forward pass as a single matrix-multiply. It uses\n        a lot of RAM but performs few (large) ops.\n\n        `3` stores layer weights in a sparse tensor and implements the forward\n        pass as a single sparse matrix-multiply.\n\n        How to choose:\n\n        `1`: large, dense models,\n        `2`: small models,\n        `3`: large, sparse models,\n\n        where \"large\" stands for large input/output activations\n        (i.e. many `filters`, `input_filters`, large `input_size`,\n        `output_size`), and \"sparse\" stands for few connections between inputs\n        and outputs, i.e. small ratio\n        `filters * input_filters * kernel_size / (input_size * strides)`,\n        where inputs to and outputs of the layer are assumed to have shapes\n        `(input_size, input_filters)`, `(output_size, filters)`\n        respectively.\n\n        It is recommended to benchmark each in the setting of interest to pick\n        the most efficient one (in terms of speed and memory usage). Correct\n        choice of implementation can lead to dramatic speed improvements (e.g.\n        50X), potentially at the expense of RAM.\n\n        Also, only `padding=\"valid\"` is supported by `implementation=1`.",
+          "description": "implementation mode, either `1`, `2`, or `3`. `1` loops\n      over input spatial locations to perform the forward pass. It is\n      memory-efficient but performs a lot of (small) ops.  `2` stores layer\n      weights in a dense but sparsely-populated 2D matrix and implements the\n      forward pass as a single matrix-multiply. It uses a lot of RAM but\n      performs few (large) ops.  `3` stores layer weights in a sparse tensor\n      and implements the forward pass as a single sparse matrix-multiply.\n        How to choose:\n        `1`: large, dense models,\n        `2`: small models,\n        `3`: large, sparse models,  where \"large\" stands for large\n          input/output activations (i.e. many `filters`, `input_filters`,\n          large `input_size`, `output_size`), and \"sparse\" stands for few\n          connections between inputs and outputs, i.e. small ratio `filters *\n          input_filters * kernel_size / (input_size * strides)`, where inputs\n          to and outputs of the layer are assumed to have shapes `(input_size,\n          input_filters)`, `(output_size, filters)` respectively.  It is\n          recommended to benchmark each in the setting of interest to pick the\n          most efficient one (in terms of speed and memory usage). Correct\n          choice of implementation can lead to dramatic speed improvements\n          (e.g. 50X), potentially at the expense of RAM.  Also, only\n          `padding=\"valid\"` is supported by `implementation=1`.",
           "name": "implementation"
         }
       ],
@@ -1541,7 +1545,7 @@
       ],
       "outputs": [
         {
-          "description": "3D tensor with shape: `(batch_size, new_steps, filters)`\n`steps` value might have changed due to padding or strides.",
+          "description": "3D tensor with shape: `(batch_size, new_steps, filters)` `steps` value\n  might have changed due to padding or strides.",
           "name": "output"
         }
       ],
@@ -1553,28 +1557,28 @@
     "schema": {
       "attributes": [
         {
-          "description": "Integer, the dimensionality of the output space\n        (i.e. the number of output filters in the convolution).",
+          "description": "Integer, the dimensionality of the output space (i.e. the number\n      of output filters in the convolution).",
           "name": "filters"
         },
         {
-          "description": "An integer or tuple/list of 2 integers, specifying the\n        width and height of the 2D convolution window.\n        Can be a single integer to specify the same value for\n        all spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the width\n      and height of the 2D convolution window. Can be a single integer to\n      specify the same value for all spatial dimensions.",
           "name": "kernel_size"
         },
         {
-          "description": "An integer or tuple/list of 2 integers,\n        specifying the strides of the convolution along the width and height.\n        Can be a single integer to specify the same value for\n        all spatial dimensions.",
+          "description": "An integer or tuple/list of 2 integers, specifying the strides of\n      the convolution along the width and height. Can be a single integer to\n      specify the same value for all spatial dimensions.",
           "name": "strides"
         },
         {
-          "description": "Currently only support `\"valid\"` (case-insensitive).\n        `\"same\"` will be supported in future.\n        `\"valid\"` means no padding.",
+          "description": "Currently only support `\"valid\"` (case-insensitive). `\"same\"`\n      will be supported in future. `\"valid\"` means no padding.",
           "name": "padding"
         },
         {
           "default": "channels_last",
-          "description": "A string,\n        one of `channels_last` (default) or `channels_first`.\n        The ordering of the dimensions in the inputs.\n        `channels_last` corresponds to inputs with shape\n        `(batch, height, width, channels)` while `channels_first`\n        corresponds to inputs with shape\n        `(batch, channels, height, width)`.\n        It defaults to the `image_data_format` value found in your\n        Keras config file at `~/.keras/keras.json`.\n        If you never set it, then it will be \"channels_last\".",
+          "description": "A string, one of `channels_last` (default) or\n      `channels_first`. The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape `(batch, height, width,\n      channels)` while `channels_first` corresponds to inputs with shape\n      `(batch, channels, height, width)`. It defaults to the\n      `image_data_format` value found in your Keras config file at\n      `~/.keras/keras.json`. If you never set it, then it will be\n      \"channels_last\".",
           "name": "data_format"
         },
         {
-          "description": "Activation function to use.\n        If you don't specify anything, no activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
+          "description": "Activation function to use. If you don't specify anything, no\n      activation is applied\n        (ie. \"linear\" activation: `a(x) = x`).",
           "name": "activation"
         },
         {
@@ -1593,7 +1597,7 @@
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n        the `kernel` weights matrix.",
+          "description": "Regularizer function applied to the `kernel` weights\n      matrix.",
           "name": "kernel_regularizer",
           "visible": false
         },
@@ -1603,7 +1607,7 @@
           "visible": false
         },
         {
-          "description": "Regularizer function applied to\n        the output of the layer (its \"activation\").",
+          "description": "Regularizer function applied to the output of the\n      layer (its \"activation\").",
           "name": "activity_regularizer"
         },
         {
@@ -1615,7 +1619,7 @@
           "name": "bias_constraint"
         },
         {
-          "description": "implementation mode, either `1`, `2`, or `3`.\n        `1` loops over input spatial locations to perform the forward pass.\n        It is memory-efficient but performs a lot of (small) ops.\n\n        `2` stores layer weights in a dense but sparsely-populated 2D matrix\n        and implements the forward pass as a single matrix-multiply. It uses\n        a lot of RAM but performs few (large) ops.\n\n        `3` stores layer weights in a sparse tensor and implements the forward\n        pass as a single sparse matrix-multiply.\n\n        How to choose:\n\n        `1`: large, dense models,\n        `2`: small models,\n        `3`: large, sparse models,\n\n        where \"large\" stands for large input/output activations\n        (i.e. many `filters`, `input_filters`, large `np.prod(input_size)`,\n        `np.prod(output_size)`), and \"sparse\" stands for few connections\n        between inputs and outputs, i.e. small ratio\n        `filters * input_filters * np.prod(kernel_size) / (np.prod(input_size)\n        * np.prod(strides))`, where inputs to and outputs of the layer are\n        assumed to have shapes `input_size + (input_filters,)`,\n        `output_size + (filters,)` respectively.\n\n        It is recommended to benchmark each in the setting of interest to pick\n        the most efficient one (in terms of speed and memory usage). Correct\n        choice of implementation can lead to dramatic speed improvements (e.g.\n        50X), potentially at the expense of RAM.\n\n        Also, only `padding=\"valid\"` is supported by `implementation=1`.",
+          "description": "implementation mode, either `1`, `2`, or `3`. `1` loops\n      over input spatial locations to perform the forward pass. It is\n      memory-efficient but performs a lot of (small) ops.  `2` stores layer\n      weights in a dense but sparsely-populated 2D matrix and implements the\n      forward pass as a single matrix-multiply. It uses a lot of RAM but\n      performs few (large) ops.  `3` stores layer weights in a sparse tensor\n      and implements the forward pass as a single sparse matrix-multiply.\n        How to choose:\n        `1`: large, dense models,\n        `2`: small models,\n        `3`: large, sparse models,  where \"large\" stands for large\n          input/output activations (i.e. many `filters`, `input_filters`,\n          large `np.prod(input_size)`, `np.prod(output_size)`), and \"sparse\"\n          stands for few connections between inputs and outputs, i.e. small\n          ratio `filters * input_filters * np.prod(kernel_size) /\n          (np.prod(input_size) * np.prod(strides))`, where inputs to and\n          outputs of the layer are assumed to have shapes `input_size +\n          (input_filters,)`, `output_size + (filters,)` respectively.  It is\n          recommended to benchmark each in the setting of interest to pick the\n          most efficient one (in terms of speed and memory usage). Correct\n          choice of implementation can lead to dramatic speed improvements\n          (e.g. 50X), potentially at the expense of RAM.  Also, only\n          `padding=\"valid\"` is supported by `implementation=1`.",
           "name": "implementation"
         }
       ],
@@ -1628,13 +1632,13 @@
       ],
       "inputs": [
         {
-          "description": "4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.",
+          "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n  data_format='channels_first'\nor 4D tensor with shape: `(samples, rows, cols, channels)` if\n  data_format='channels_last'.",
           "name": "input"
         }
       ],
       "outputs": [
         {
-          "description": "4D tensor with shape:\n`(samples, filters, new_rows, new_cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, new_rows, new_cols, filters)` if data_format='channels_last'.\n`rows` and `cols` values might have changed due to padding.",
+          "description": "4D tensor with shape: `(samples, filters, new_rows, new_cols)` if\n  data_format='channels_first'\nor 4D tensor with shape: `(samples, new_rows, new_cols, filters)` if\n  data_format='channels_last'. `rows` and `cols` values might have changed\n  due to padding.",
           "name": "output"
         }
       ],
@@ -2784,7 +2788,7 @@
         },
         {
           "default": "valid",
-          "description": "One of `\"valid\"`, `\"same\"` or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
+          "description": "One of `\"valid\"`, `\"same\"` or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.\n    `\"causal\"` results in causal (dilated) convolutions, e.g. `output[t]`\n    does not depend on `input[t+1:]`. Useful when modeling temporal data\n    where the model should not violate the temporal order.\n    See [WaveNet: A Generative Model for Raw Audio, section\n      2.1](https://arxiv.org/abs/1609.03499).",
           "name": "padding"
         },
         {
@@ -2913,7 +2917,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3059,7 +3063,7 @@
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3160,7 +3164,7 @@
           "name": "strides"
         },
         {
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3377,7 +3381,7 @@
           "name": "strides"
         },
         {
-          "description": "One of `\"valid\"`, `\"same\"`, or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input. `\"causal\"` results in causal\n    (dilated) convolutions, e.g. `output[t]` does not depend on `input[t+1:]`.",
+          "description": "One of `\"valid\"`, `\"same\"`, or `\"causal\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input. `\"causal\"` results in causal\n    (dilated) convolutions, e.g. `output[t]` does not depend on `input[t+1:]`.",
           "name": "padding"
         },
         {
@@ -3473,7 +3477,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -3634,7 +3638,7 @@
         },
         {
           "default": "valid",
-          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+          "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
           "name": "padding"
         },
         {
@@ -4394,7 +4398,7 @@
           "name": "mask"
         }
       ],
-      "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary TensorFlow functions\ncan be used when constructing `Sequential` and Functional API\nmodels. `Lambda` layers are best suited for simple operations or\nquick experimentation. For more advanced use cases, follow\n[this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
+      "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary expressions can be used\nas a `Layer` when constructing `Sequential`\nand Functional API models. `Lambda` layers are best suited for simple\noperations or quick experimentation. For more advanced use cases, follow\n[this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nWARNING: `tf.keras.layers.Lambda` layers have (de)serialization limitations!\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
       "examples": [
         {
           "code": "# add a x -> x^2 layer\nmodel.add(Lambda(lambda x: x ** 2))"

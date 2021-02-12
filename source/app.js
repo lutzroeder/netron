@@ -95,10 +95,10 @@ class Application {
             this._configuration.set('userId', this._uuid());
         }
         if (this._openFileQueue) {
-            const openFileQueue = this._openFileQueue;
+            const queue = this._openFileQueue;
             this._openFileQueue = null;
-            while (openFileQueue.length > 0) {
-                const file = openFileQueue.shift();
+            while (queue.length > 0) {
+                const file = queue.shift();
                 this._openFile(file);
             }
         }

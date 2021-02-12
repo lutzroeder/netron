@@ -6,15 +6,22 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 mnn.ModelFactory = class {
 
     match(context) {
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension == 'mnn') {
-            return true;
+        const stream = context.stream;
+        if (stream.length >= 4) {
+            const extension = context.identifier.split('.').pop().toLowerCase();
+            if (extension == 'mnn') {
+                const buffer = stream.peek(4);
+                const reader = new flatbuffers.Reader(buffer);
+                if (reader.root === 0x00000018 || reader.root === 0x0000001C) {
+                    return true;
+                }
+            }
         }
         return false;
     }
 
-    open(context, host) {
-        return host.require('./mnn-schema').then((/* schema */) => {
+    open(context) {
+        return context.require('./mnn-schema').then((/* schema */) => {
             let net = null;
             try {
                 mnn.schema = flatbuffers.get('mnn').MNN;
@@ -27,7 +34,7 @@ mnn.ModelFactory = class {
                 throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
 
             }
-            return mnn.Metadata.open(host).then((metadata) => {
+            return mnn.Metadata.open(context).then((metadata) => {
                 return new mnn.Model(metadata, net);
             });
         });
@@ -513,11 +520,11 @@ mnn.TensorShape = class {
 
 mnn.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (mnn.Metadata._metadata) {
             return Promise.resolve(mnn.Metadata._metadata);
         }
-        return host.request(null, 'mnn-metadata.json', 'utf-8').then((data) => {
+        return context.request('mnn-metadata.json', 'utf-8', null).then((data) => {
             mnn.Metadata._metadata = new mnn.Metadata(data);
             return mnn.Metadata._metadata;
         }).catch(() => {

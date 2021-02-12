@@ -50,9 +50,9 @@ openvino.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        const open = (host, xml, bin) => {
-            return openvino.Metadata.open(host).then((metadata) => {
+    open(context) {
+        const open = (xml, bin) => {
+            return openvino.Metadata.open(context).then((metadata) => {
                 let errors = false;
                 let xmlDoc = null;
                 try {
@@ -81,15 +81,15 @@ openvino.ModelFactory = class {
                     const buffer = stream.read();
                     const decoder = new TextDecoder('utf-8');
                     const xml = decoder.decode(context.stream.peek());
-                    return open(host, xml, buffer);
+                    return open(xml, buffer);
                 }).catch(() => {
                     const decoder = new TextDecoder('utf-8');
                     const xml = decoder.decode(context.stream.peek());
-                    return open(host, xml, null);
+                    return open(xml, null);
                 });
             case 'bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
-                    return open(host, xml, context.stream.peek());
+                    return open(xml, context.stream.peek());
                 });
         }
     }
@@ -930,6 +930,7 @@ openvino.TensorType = class {
             case 'fp16':    this._dataType = 'float16'; break;
             case 'f32':     this._dataType = 'float32'; break;
             case 'fp32':    this._dataType = 'float32'; break;
+            case 'bf16':    this._dataType = 'bfloat16'; break;
             case 'i8':      this._dataType = 'int8'; break;
             case 'i16':     this._dataType = 'int16'; break;
             case 'i32':     this._dataType = 'int32'; break;
@@ -984,11 +985,11 @@ openvino.TensorShape = class {
 
 openvino.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (openvino.Metadata._metadata) {
             return Promise.resolve(openvino.Metadata._metadata);
         }
-        return host.request(null, 'openvino-metadata.json', 'utf-8').then((data) => {
+        return context.request('openvino-metadata.json', 'utf-8', null).then((data) => {
             openvino.Metadata._metadata = new openvino.Metadata(data);
             return openvino.Metadata._metadata;
         }).catch(() => {

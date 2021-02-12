@@ -18,8 +18,8 @@ mlnet.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return mlnet.Metadata.open(host).then((metadata) => {
+    open(context) {
+        return mlnet.Metadata.open(context).then((metadata) => {
             const reader = new mlnet.ModelReader(context.entries('zip'));
             return new mlnet.Model(metadata, reader);
         });
@@ -361,11 +361,11 @@ mlnet.TensorShape = class {
 
 mlnet.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (mlnet.Metadata._metadata) {
             return Promise.resolve(mlnet.Metadata._metadata);
         }
-        return host.request(null, 'mlnet-metadata.json', 'utf-8').then((data) => {
+        return context.request('mlnet-metadata.json', 'utf-8', null).then((data) => {
             mlnet.Metadata._metadata = new mlnet.Metadata(data);
             return mlnet.Metadata._metadata;
         }).catch(() => {

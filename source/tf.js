@@ -85,8 +85,8 @@ tf.ModelFactory = class {
         return false;
     }
 
-    open(context, host) {
-        return host.require('./tf-proto').then(() => {
+    open(context) {
+        return context.require('./tf-proto').then(() => {
             tf.proto = protobuf.get('tf').tensorflow;
             let saved_model = null;
             let format = null;
@@ -94,7 +94,7 @@ tf.ModelFactory = class {
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'ckpt' || extension === 'index' || /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-                return tf.ModelFactory._openBundle(context, host);
+                return tf.ModelFactory._openBundle(context);
             }
             else if (/^events.out.tfevents./.exec(identifier)) {
                 format = 'TensorFlow Event File';
@@ -133,9 +133,7 @@ tf.ModelFactory = class {
             }
             else if (extension === 'json') {
                 try {
-                    const buffer = context.stream.peek();
-                    const reader = json.TextReader.create(buffer);
-                    const root = reader.read();
+                    const root = context.tags('json').get('');
                     const graph_def = new tf.proto.GraphDef();
                     const meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = graph_def;
@@ -260,14 +258,14 @@ tf.ModelFactory = class {
                     producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
                 }
             }
-            return tf.Metadata.open(host).then((metadata) => {
+            return tf.Metadata.open(context).then((metadata) => {
                 if (saved_model.meta_graphs.length === 1 &&
                     saved_model.meta_graphs[0].object_graph_def &&
                     saved_model.meta_graphs[0].object_graph_def.nodes &&
                     saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
                     const identifier = 'variables/variables.index';
                     return context.request(identifier, null).then((stream) => {
-                        return tf.TensorBundle.open(stream, identifier, context, host).then((bundle) => {
+                        return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
                             return new tf.Model(metadata, saved_model, format, producer, bundle);
 
                         });
@@ -281,13 +279,13 @@ tf.ModelFactory = class {
         });
     }
 
-    static _openBundle(context, host) {
-        return tf.Metadata.open(host).then((metadata) => {
-            const open = (stream, identifier, context, host) => {
-                return tf.TensorBundle.open(stream, identifier, context, host).then((bundle) => {
+    static _openBundle(context) {
+        return tf.Metadata.open(context).then((metadata) => {
+            const open = (stream, identifier, context) => {
+                return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
                     return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                 }).catch((error) => {
-                    host.exception(error, false);
+                    context.exception(error, false);
                     const message = error && error.message ? error.message : error.toString();
                     throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
@@ -298,15 +296,15 @@ tf.ModelFactory = class {
                 base.pop();
                 const index = base.join('.') + '.index';
                 return context.request(index, null).then((stream) => {
-                    return open(stream, index, context, host);
+                    return open(stream, index, context);
                 }).catch((/* error */) => {
                     const ckpt = base.join('.') + '.ckpt';
                     return context.request(ckpt, null).then((stream) => {
-                        open(stream, ckpt, context, host);
+                        open(stream, ckpt, context);
                     });
                 });
             }
-            return open(context.stream, identifier, context, host);
+            return open(context.stream, identifier, context);
         });
     }
 };
@@ -1462,7 +1460,7 @@ tf.TensorShape = class {
 
 tf.TensorBundle = class {
 
-    static open(stream, identifier, context, host) {
+    static open(stream, identifier, context) {
         const format = !identifier.toLowerCase().endsWith('.index') ? 1 : 2;
         const table = new tf.TensorBundle.Table(stream);
         if (!table.entries.has('')) {
@@ -1488,7 +1486,7 @@ tf.TensorBundle = class {
         return Promise.all(promises).then((streams) => {
             return new tf.TensorBundle(format, table.entries, streams);
         }).catch((error) => {
-            host.exception(error, false);
+            context.exception(error, false);
             return new tf.TensorBundle(format, table.entries, null);
         });
     }
@@ -1920,11 +1918,11 @@ tf.GraphMetadata = class {
 
 tf.Metadata = class {
 
-    static open(host) {
+    static open(context) {
         if (tf.Metadata._metadata) {
             return Promise.resolve(tf.Metadata._metadata);
         }
-        return host.request(null, 'tf-metadata.json', 'utf-8').then((data) => {
+        return context.request('tf-metadata.json', 'utf-8', null).then((data) => {
             tf.Metadata._metadata = new tf.Metadata(data);
             return tf.Metadata._metadata;
         }).catch(() => {

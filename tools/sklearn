@@ -8,12 +8,8 @@ case "${OSTYPE}" in
     *) python="python";;
 esac
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 venv() {
-    env_dir=./third_party/env/sklearn
+    env_dir=./third_party/env/scikit-learn
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
     case "${OSTYPE}" in
         msys*) source ${env_dir}/Scripts/activate;;
@@ -23,15 +19,15 @@ venv() {
 }
 
 clean() {
-    bold "sklearn clean"
-    rm -rf "./third_party/env/sklearn"
-    rm -rf "./third_party/source/sklearn"
+    echo "sklearn clean"
+    rm -rf "./third_party/env/scikit-learn"
+    rm -rf "./third_party/source/scikit-learn"
 }
 
 sync() {
-    bold "sklearn sync"
-    [ -d "./third_party/source/sklearn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/sklearn"
-    pushd "./third_party/source/sklearn" > /dev/null
+    echo "sklearn sync"
+    [ -d "./third_party/source/scikit-learn" ] || git clone --quiet --recursive "https://github.com/scikit-learn/scikit-learn.git" "./third_party/source/scikit-learn"
+    pushd "./third_party/source/scikit-learn" > /dev/null
     git pull --quiet --prune
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
@@ -39,7 +35,25 @@ sync() {
 }
 
 install() {
-    bold "sklearn install"
+    echo "sklearn install"
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        venv
+        [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+        export OPENBLAS=$(brew --prefix openblas)
+        ${python} -m pip install --upgrade --quiet pybind11
+        ${python} -m pip install --upgrade --quiet cython
+        ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
+        rm -rf ./third_party/source/scipy
+        git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
+        export CFLAGS="-falign-functions=8 ${CFLAGS}"
+        pushd ./third_party/source/scipy > /dev/null
+        python setup.py install --quiet >/dev/null 2>&1
+        popd > /dev/null
+        rm -rf ./third_party/source/scipy
+        ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn --no-use-pep517
+        deactivate
+        return
+    fi
     venv
     ${python} -m pip install --quiet scipy
     ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn
@@ -47,7 +61,7 @@ install() {
 }
 
 metadata() {
-    bold "sklearn metadata"
+    echo "sklearn metadata"
     [[ $(grep -U $'\x0D' ./source/sklearn-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python

@@ -1,0 +1,72 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "mediapipe clean"
+    rm -rf "./third_party/source/mediapipe"
+}
+
+sync() {
+    echo "mediapipe sync"
+    download() {
+        echo ${1}
+        mkdir -p "./third_party/source/mediapipe/$(dirname ${1})"
+        curl --silent --location --output "./third_party/source/mediapipe/${1}" "https://github.com/google/mediapipe/blob/master/${1}?raw=true"
+    }
+    download "mediapipe/framework/calculator.proto"
+    download "mediapipe/framework/calculator_options.proto"
+    download "mediapipe/framework/mediapipe_options.proto"
+    download "mediapipe/framework/packet_factory.proto"
+    download "mediapipe/framework/packet_generator.proto"
+    download "mediapipe/framework/status_handler.proto"
+    download "mediapipe/framework/stream_handler.proto"
+    download "mediapipe/calculators/core/packet_resampler_calculator.proto"
+    download "mediapipe/calculators/image/image_cropping_calculator.proto"
+    download "mediapipe/calculators/image/image_transformation_calculator.proto"
+    download "mediapipe/calculators/image/opencv_image_encoder_calculator.proto"
+    download "mediapipe/calculators/image/recolor_calculator.proto"
+    download "mediapipe/calculators/tensorflow/tensorflow_inference_calculator.proto"
+    download "mediapipe/calculators/tensorflow/tensorflow_session_from_saved_model_calculator.proto"
+    download "mediapipe/calculators/tensorflow/unpack_media_sequence_calculator.proto"
+    download "mediapipe/calculators/tflite/tflite_converter_calculator.proto"
+    download "mediapipe/calculators/tflite/tflite_inference_calculator.proto"
+    download "mediapipe/calculators/tflite/tflite_tensors_to_segmentation_calculator.proto"
+    download "mediapipe/calculators/util/detections_to_render_data_calculator.proto"
+    download "mediapipe/gpu/scale_mode.proto"
+    download "mediapipe/util/audio_decoder.proto"
+    download "mediapipe/util/color.proto"
+    download "mediapipe/util/render_data.proto"
+}
+
+schema() {
+    echo "mediapipe schema"
+    [[ $(grep -U $'\x0D' ./source/mediapipe-proto.js) ]] && crlf=1
+    node ./tools/protoc.js  --text --root mediapipe --out ./source/mediapipe-proto.js --path ./third_party/source/mediapipe --path ./third_party/source/tensorflow \
+        mediapipe/framework/calculator.proto \
+        mediapipe/calculators/core/packet_resampler_calculator.proto \
+        mediapipe/calculators/image/image_cropping_calculator.proto \
+        mediapipe/calculators/image/image_transformation_calculator.proto \
+        mediapipe/calculators/image/opencv_image_encoder_calculator.proto \
+        mediapipe/calculators/image/recolor_calculator.proto \
+        mediapipe/calculators/tensorflow/tensorflow_inference_calculator.proto \
+        mediapipe/calculators/tensorflow/tensorflow_session_from_saved_model_calculator.proto \
+        mediapipe/calculators/tensorflow/unpack_media_sequence_calculator.proto \
+        mediapipe/calculators/util/detections_to_render_data_calculator.proto \
+        mediapipe/calculators/tflite/tflite_converter_calculator.proto \
+        mediapipe/calculators/tflite/tflite_inference_calculator.proto \
+        mediapipe/calculators/tflite/tflite_tensors_to_segmentation_calculator.proto
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/mediapipe-proto.js ./source/mediapipe-proto.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+    esac
+done

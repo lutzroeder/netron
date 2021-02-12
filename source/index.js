@@ -7,10 +7,14 @@ var host = {};
 host.BrowserHost = class {
 
     constructor() {
-        window.eval = () => {
+        this._document = window.document;
+        this._window = window;
+        if (this._window.location.hostname.endsWith('.github.io')) {
+            this._window.location.replace('https://netron.app');
+        }
+        this._window.eval = () => {
             throw new Error('window.eval() not supported.');
         };
-        this._document = window.document;
         this._meta = {};
         for (const element of Array.from(this._document.getElementsByTagName('meta'))) {
             if (element.content) {
@@ -21,6 +25,13 @@ host.BrowserHost = class {
         this._type = this._meta.type ? this._meta.type[0] : 'Browser';
         this._version = this._meta.version ? this._meta.version[0] : null;
         this._telemetry = this._version && this._version !== '0.0.0';
+        this._environment = new Map();
+        this._environment.set('zoom', 'd3');
+        // this._environment.set('zoom', 'scroll');
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
@@ -48,10 +59,10 @@ host.BrowserHost = class {
                     script.setAttribute('type', 'text/javascript');
                     script.setAttribute('src', 'https://www.google-analytics.com/analytics.js');
                     script.onload = () => {
-                        if (window.ga) {
-                            window.ga.l = 1 * new Date();
-                            window.ga('create', 'UA-54146-13', 'auto');
-                            window.ga('set', 'anonymizeIp', true);
+                        if (this.window.ga) {
+                            this.window.ga.l = 1 * new Date();
+                            this.window.ga('create', 'UA-54146-13', 'auto');
+                            this.window.ga('set', 'anonymizeIp', true);
                         }
                         resolve();
                     };
@@ -101,15 +112,14 @@ host.BrowserHost = class {
     }
 
     start() {
-        window.addEventListener('error', (e) => {
+        this.window.addEventListener('error', (e) => {
             this.exception(e.error, true);
         });
 
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(this.window.location.search);
+        this._environment.set('zoom', params.has('zoom') ? params.get('zoom') : this._environment.get('zoom'));
 
-        this._zoom = params.get('zoom') || 'd3';
-
-        this._menu = new host.Dropdown(this.document, 'menu-button', 'menu-dropdown');
+        this._menu = new host.Dropdown(this, 'menu-button', 'menu-dropdown');
         this._menu.add({
             label: 'Properties...',
             accelerator: 'CmdOrCtrl+Enter',
@@ -250,10 +260,7 @@ host.BrowserHost = class {
     }
 
     environment(name) {
-        if (name == 'zoom') {
-            return this._zoom;
-        }
-        return null;
+        return this._environment.get(name);
     }
 
     error(message, detail) {
@@ -266,21 +273,21 @@ host.BrowserHost = class {
 
     require(id) {
         const url = this._url(id + '.js');
-        window.__modules__ = window.__modules__ || {};
-        if (window.__modules__[url]) {
-            return Promise.resolve(window.__exports__[url]);
+        this.window.__modules__ = this.window.__modules__ || {};
+        if (this.window.__modules__[url]) {
+            return Promise.resolve(this.window.__exports__[url]);
         }
         return new Promise((resolve, reject) => {
-            window.module = { exports: {} };
+            this.window.module = { exports: {} };
             const script = document.createElement('script');
             script.setAttribute('id', id);
             script.setAttribute('type', 'text/javascript');
             script.setAttribute('src', url);
             script.onload = (e) => {
-                if (window.module && window.module.exports) {
-                    const exports = window.module.exports;
-                    delete window.module;
-                    window.__modules__[id] = exports;
+                if (this.window.module && this.window.module.exports) {
+                    const exports = this.window.module.exports;
+                    delete this.window.module;
+                    this.window.__modules__[id] = exports;
                     resolve(exports);
                 }
                 else {
@@ -288,7 +295,7 @@ host.BrowserHost = class {
                 }
             };
             script.onerror = (e) => {
-                delete window.module;
+                delete this.window.module;
                 reject(new Error('The script \'' + e.target.src + '\' failed to load.'));
             };
             this.document.head.appendChild(script);
@@ -308,17 +315,17 @@ host.BrowserHost = class {
         this.document.body.removeChild(element);
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         const url = base ? (base + '/' + file) : this._url(file);
         return this._request(url, null, encoding);
     }
 
     openURL(url) {
-        window.location = url;
+        this.window.location = url;
     }
 
     exception(error, fatal) {
-        if (this._telemetry && window.ga && error.telemetry !== false) {
+        if (this._telemetry && this.window.ga && error.telemetry !== false) {
             const description = [];
             description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
             if (error.stack) {
@@ -330,7 +337,7 @@ host.BrowserHost = class {
                     description.push(error.stack.split('\n').shift());
                 }
             }
-            window.ga('send', 'exception', {
+            this.window.ga('send', 'exception', {
                 exDescription: description.join(' @ '),
                 exFatal: fatal,
                 appName: this.type,
@@ -340,8 +347,8 @@ host.BrowserHost = class {
     }
 
     screen(name) {
-        if (this._telemetry && window.ga) {
-            window.ga('send', 'screenview', {
+        if (this._telemetry && this.window.ga) {
+            this.window.ga('send', 'screenview', {
                 screenName: name,
                 appName: this.type,
                 appVersion: this.version
@@ -350,8 +357,8 @@ host.BrowserHost = class {
     }
 
     event(category, action, label, value) {
-        if (this._telemetry && window.ga) {
-            window.ga('send', 'event', {
+        if (this._telemetry && this.window.ga) {
+            this.window.ga('send', 'event', {
                 eventCategory: category,
                 eventAction: action,
                 eventLabel: label,
@@ -414,8 +421,8 @@ host.BrowserHost = class {
 
     _url(file) {
         let url = file;
-        if (window && window.location && window.location.href) {
-            let location = window.location.href.split('?').shift();
+        if (this.window && this.window.location && this.window.location.href) {
+            let location = this.window.location.href.split('?').shift();
             if (location.endsWith('.html')) {
                 location = location.split('/').slice(0, -1).join('/');
             }
@@ -447,7 +454,7 @@ host.BrowserHost = class {
 
     _open(file, files) {
         this._view.show('welcome spinner');
-        const context = new host.BrowserHost.BrowserFileContext(file, files);
+        const context = new host.BrowserHost.BrowserFileContext(this, file, files);
         context.open().then(() => {
             return this._view.open(context).then((model) => {
                 this._view.show(null);
@@ -505,13 +512,317 @@ host.BrowserHost = class {
     _about() {
         const self = this;
         const eventHandler = () => {
-            window.removeEventListener('keydown', eventHandler);
+            this.window.removeEventListener('keydown', eventHandler);
             self.document.body.removeEventListener('click', eventHandler);
             self._view.show('default');
         };
-        window.addEventListener('keydown', eventHandler);
+        this.window.addEventListener('keydown', eventHandler);
         this.document.body.addEventListener('click', eventHandler);
         this._view.show('about');
+    }
+};
+
+host.Dropdown = class {
+
+    constructor(host, button, dropdown) {
+        this._host = host;
+        this._dropdown = this._host.document.getElementById(dropdown);
+        this._button = this._host.document.getElementById(button);
+        this._items = [];
+        this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+        this._acceleratorMap = {};
+        this._host.window.addEventListener('keydown', (e) => {
+            let code = e.keyCode;
+            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
+            code |= e.altKey ? 0x0200 : 0;
+            code |= e.shiftKey ? 0x0100 : 0;
+            if (code == 0x001b) { // Escape
+                this.close();
+                return;
+            }
+            const item = this._acceleratorMap[code.toString()];
+            if (item) {
+                item.click();
+                e.preventDefault();
+            }
+        });
+        this._host.document.body.addEventListener('click', (e) => {
+            if (!this._button.contains(e.target)) {
+                this.close();
+            }
+        });
+    }
+
+    add(item) {
+        const accelerator = item.accelerator;
+        if (accelerator) {
+            let cmdOrCtrl = false;
+            let alt = false;
+            let shift = false;
+            let key = '';
+            for (const part of item.accelerator.split('+')) {
+                switch (part) {
+                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
+                    case 'Alt': alt = true; break;
+                    case 'Shift': shift = true; break;
+                    default: key = part; break;
+                }
+            }
+            if (key !== '') {
+                item.accelerator = {};
+                item.accelerator.text = '';
+                if (this._apple) {
+                    item.accelerator.text += alt ? '&#x2325;' : '';
+                    item.accelerator.text += shift ? '&#x21e7;' : '';
+                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
+                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
+                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
+                }
+                else {
+                    const list = [];
+                    if (cmdOrCtrl) {
+                        list.push('Ctrl');
+                    }
+                    if (alt) {
+                        list.push('Alt');
+                    }
+                    if (shift) {
+                        list.push('Shift');
+                    }
+                    list.push(key);
+                    item.accelerator.text = list.join('+');
+                }
+                let code = 0;
+                switch (key) {
+                    case 'Backspace': code = 0x08; break;
+                    case 'Enter': code = 0x0D; break;
+                    case 'Up': code = 0x26; break;
+                    case 'Down': code = 0x28; break;
+                    default: code = key.charCodeAt(0); break;
+                }
+                code |= cmdOrCtrl ? 0x0400 : 0;
+                code |= alt ? 0x0200 : 0;
+                code |= shift ? 0x0100 : 0;
+                this._acceleratorMap[code.toString()] = item;
+            }
+        }
+        this._items.push(item);
+    }
+
+    toggle() {
+
+        if (this._dropdown.style.display === 'block') {
+            this.close();
+            return;
+        }
+
+        while (this._dropdown.lastChild) {
+            this._dropdown.removeChild(this._dropdown.lastChild);
+        }
+
+        for (const item of this._items) {
+            if (Object.keys(item).length > 0) {
+                const button = this._host.document.createElement('button');
+                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
+                button.addEventListener('click', () => {
+                    this.close();
+                    setTimeout(() => {
+                        item.click();
+                    }, 10);
+                });
+                this._dropdown.appendChild(button);
+                if (item.accelerator) {
+                    const accelerator = this._host.document.createElement('span');
+                    accelerator.style.float = 'right';
+                    accelerator.innerHTML = item.accelerator.text;
+                    button.appendChild(accelerator);
+                }
+            }
+            else {
+                const separator = this._host.document.createElement('div');
+                separator.setAttribute('class', 'separator');
+                this._dropdown.appendChild(separator);
+            }
+        }
+
+        this._dropdown.style.display = 'block';
+    }
+
+    close() {
+        this._dropdown.style.display = 'none';
+    }
+};
+
+host.BrowserHost.BinaryStream = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+    }
+
+    get position() {
+        return this._position;
+    }
+
+    get length() {
+        return this._length;
+    }
+
+    stream(length) {
+        const buffer = this.read(length);
+        return new host.BrowserHost.BinaryStream(buffer.slice(0));
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    peek(length) {
+        if (this._position === 0 && length === undefined) {
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        const end = this._position;
+        this.seek(position);
+        return this._buffer.subarray(position, end);
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+};
+
+host.BrowserHost.BrowserFileContext = class {
+
+    constructor(host, file, blobs) {
+        this._host = host;
+        this._file = file;
+        this._blobs = {};
+        for (const blob of blobs) {
+            this._blobs[blob.name] = blob;
+        }
+    }
+
+    get identifier() {
+        return this._file.name;
+    }
+
+    get stream() {
+        return this._stream;
+    }
+
+    request(file, encoding, base) {
+        if (base !== undefined) {
+            return this._host.request(file, encoding, base);
+        }
+        const blob = this._blobs[file];
+        if (!blob) {
+            return Promise.reject(new Error("File not found '" + file + "'."));
+        }
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                resolve(encoding ? e.target.result : new host.BrowserHost.BinaryStream(new Uint8Array(e.target.result)));
+            };
+            reader.onerror = (e) => {
+                e = e || this.window.event;
+                let message = '';
+                const error = e.target.error;
+                switch(error.code) {
+                    case error.NOT_FOUND_ERR:
+                        message = "File not found '" + file + "'.";
+                        break;
+                    case error.NOT_READABLE_ERR:
+                        message = "File not readable '" + file + "'.";
+                        break;
+                    case error.SECURITY_ERR:
+                        message = "File access denied '" + file + "'.";
+                        break;
+                    default:
+                        message = error.message ? error.message : "File read '" + error.code.toString() + "' error '" + file + "'.";
+                        break;
+                }
+                reject(new Error(message));
+            };
+            if (encoding === 'utf-8') {
+                reader.readAsText(blob, encoding);
+            }
+            else {
+                reader.readAsArrayBuffer(blob);
+            }
+        });
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
+    }
+
+    open() {
+        return this.request(this._file.name, null).then((stream) => {
+            this._stream = stream;
+        });
+    }
+};
+
+host.BrowserHost.BrowserContext = class {
+
+    constructor(host, url, identifier, stream) {
+        this._host = host;
+        this._stream = stream;
+        if (identifier) {
+            this._identifier = identifier;
+            this._base = url;
+            if (this._base.endsWith('/')) {
+                this._base.substring(0, this._base.length - 1);
+            }
+        }
+        else {
+            const parts = url.split('?')[0].split('/');
+            this._identifier = parts.pop();
+            this._base = parts.join('/');
+        }
+    }
+
+    get identifier() {
+        return this._identifier;
+    }
+
+    get stream() {
+        return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._base : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 
@@ -678,289 +989,43 @@ if (!HTMLCanvasElement.prototype.toBlob) {
     };
 }
 
-host.Dropdown = class {
-
-    constructor(document, button, dropdown) {
-        this._document = document;
-        this._dropdown = document.getElementById(dropdown);
-        this._button = document.getElementById(button);
-        this._items = [];
-        this._apple = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
-        this._acceleratorMap = {};
-        window.addEventListener('keydown', (e) => {
-            let code = e.keyCode;
-            code |= ((e.ctrlKey && !this._apple) || (e.metaKey && this._apple)) ? 0x0400 : 0;
-            code |= e.altKey ? 0x0200 : 0;
-            code |= e.shiftKey ? 0x0100 : 0;
-            if (code == 0x001b) { // Escape
-                this.close();
-                return;
-            }
-            const item = this._acceleratorMap[code.toString()];
-            if (item) {
-                item.click();
-                e.preventDefault();
-            }
-        });
-        this._document.body.addEventListener('click', (e) => {
-            if (!this._button.contains(e.target)) {
-                this.close();
-            }
-        });
-    }
-
-    add(item) {
-        const accelerator = item.accelerator;
-        if (accelerator) {
-            let cmdOrCtrl = false;
-            let alt = false;
-            let shift = false;
-            let key = '';
-            for (const part of item.accelerator.split('+')) {
-                switch (part) {
-                    case 'CmdOrCtrl': cmdOrCtrl = true; break;
-                    case 'Alt': alt = true; break;
-                    case 'Shift': shift = true; break;
-                    default: key = part; break;
-                }
-            }
-            if (key !== '') {
-                item.accelerator = {};
-                item.accelerator.text = '';
-                if (this._apple) {
-                    item.accelerator.text += alt ? '&#x2325;' : '';
-                    item.accelerator.text += shift ? '&#x21e7;' : '';
-                    item.accelerator.text += cmdOrCtrl ? '&#x2318;' : '';
-                    const keyTable = { 'Enter': '&#x23ce;', 'Up': '&#x2191;', 'Down': '&#x2193;', 'Backspace': '&#x232B;' };
-                    item.accelerator.text += keyTable[key] ? keyTable[key] : key;
-                }
-                else {
-                    const list = [];
-                    if (cmdOrCtrl) {
-                        list.push('Ctrl');
-                    }
-                    if (alt) {
-                        list.push('Alt');
-                    }
-                    if (shift) {
-                        list.push('Shift');
-                    }
-                    list.push(key);
-                    item.accelerator.text = list.join('+');
-                }
-                let code = 0;
-                switch (key) {
-                    case 'Backspace': code = 0x08; break;
-                    case 'Enter': code = 0x0D; break;
-                    case 'Up': code = 0x26; break;
-                    case 'Down': code = 0x28; break;
-                    default: code = key.charCodeAt(0); break;
-                }
-                code |= cmdOrCtrl ? 0x0400 : 0;
-                code |= alt ? 0x0200 : 0;
-                code |= shift ? 0x0100 : 0;
-                this._acceleratorMap[code.toString()] = item;
-            }
-        }
-        this._items.push(item);
-    }
-
-    toggle() {
-
-        if (this._dropdown.style.display === 'block') {
-            this.close();
+if (!('scrollBehavior' in window.document.documentElement.style)) {
+    const __scrollTo__ = Element.prototype.scrollTo;
+    Element.prototype.scrollTo = function() {
+        if (arguments[0] === undefined) {
             return;
         }
-
-        while (this._dropdown.lastChild) {
-            this._dropdown.removeChild(this._dropdown.lastChild);
+        if (arguments[0] === null || typeof arguments[0] !== 'object' || arguments[0].behavior === undefined || arguments[0].behavior === 'auto' || arguments[0].behavior === 'instant') {
+            __scrollTo__.apply(this, arguments);
+            return;
         }
-
-        for (const item of this._items) {
-            if (Object.keys(item).length > 0) {
-                const button = this._document.createElement('button');
-                button.innerText = (typeof item.label == 'function') ? item.label() : item.label;
-                button.addEventListener('click', () => {
-                    this.close();
-                    setTimeout(() => {
-                        item.click();
-                    }, 10);
-                });
-                this._dropdown.appendChild(button);
-                if (item.accelerator) {
-                    const accelerator = this._document.createElement('span');
-                    accelerator.style.float = 'right';
-                    accelerator.innerHTML = item.accelerator.text;
-                    button.appendChild(accelerator);
-                }
+        const now = () => {
+            return window.performance && window.performance.now ? window.performance.now() : Date.now();
+        };
+        const ease = (k) => {
+            return 0.5 * (1 - Math.cos(Math.PI * k));
+        };
+        const step = (context) => {
+            const value = ease(Math.min((now() - context.startTime) / 468, 1));
+            const x = context.startX + (context.x - context.startX) * value;
+            const y = context.startY + (context.y - context.startY) * value;
+            context.element.scrollLeft = x;
+            context.element.scrollTop = y;
+            if (x !== context.x || y !== context.y) {
+                window.requestAnimationFrame(step.bind(window, context));
             }
-            else {
-                const separator = this._document.createElement('div');
-                separator.setAttribute('class', 'separator');
-                this._dropdown.appendChild(separator);
-            }
-        }
-
-        this._dropdown.style.display = 'block';
-    }
-
-    close() {
-        this._dropdown.style.display = 'none';
-    }
-};
-
-host.BrowserHost.BinaryStream = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-    }
-
-    get position() {
-        return this._position;
-    }
-
-    get length() {
-        return this._length;
-    }
-
-    stream(length) {
-        const buffer = this.read(length);
-        return new host.BrowserHost.BinaryStream(buffer.slice(0));
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-    }
-
-    peek(length) {
-        if (this._position === 0 && length === undefined) {
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        const end = this._position;
-        this.seek(position);
-        return this._buffer.subarray(position, end);
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
-};
-
-host.BrowserHost.BrowserFileContext = class {
-
-    constructor(file, blobs) {
-        this._file = file;
-        this._blobs = {};
-        for (const blob of blobs) {
-            this._blobs[blob.name] = blob;
-        }
-    }
-
-    get identifier() {
-        return this._file.name;
-    }
-
-    get stream() {
-        return this._stream;
-    }
-
-    open() {
-        return this.request(this._file.name, null).then((stream) => {
-            this._stream = stream;
-        });
-    }
-
-    request(file, encoding) {
-        const blob = this._blobs[file];
-        if (!blob) {
-            return Promise.reject(new Error("File not found '" + file + "'."));
-        }
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                resolve(encoding ? e.target.result : new host.BrowserHost.BinaryStream(new Uint8Array(e.target.result)));
-            };
-            reader.onerror = (e) => {
-                e = e || window.event;
-                let message = '';
-                const error = e.target.error;
-                switch(error.code) {
-                    case error.NOT_FOUND_ERR:
-                        message = "File not found '" + file + "'.";
-                        break;
-                    case error.NOT_READABLE_ERR:
-                        message = "File not readable '" + file + "'.";
-                        break;
-                    case error.SECURITY_ERR:
-                        message = "File access denied '" + file + "'.";
-                        break;
-                    default:
-                        message = error.message ? error.message : "File read '" + error.code.toString() + "' error '" + file + "'.";
-                        break;
-                }
-                reject(new Error(message));
-            };
-            if (encoding === 'utf-8') {
-                reader.readAsText(blob, encoding);
-            }
-            else {
-                reader.readAsArrayBuffer(blob);
-            }
-        });
-    }
-};
-
-host.BrowserHost.BrowserContext = class {
-
-    constructor(host, url, identifier, stream) {
-        this._host = host;
-        this._stream = stream;
-        if (identifier) {
-            this._identifier = identifier;
-            this._base = url;
-            if (this._base.endsWith('/')) {
-                this._base.substring(0, this._base.length - 1);
-            }
-        }
-        else {
-            const parts = url.split('?')[0].split('/');
-            this._identifier = parts.pop();
-            this._base = parts.join('/');
-        }
-    }
-
-    request(file, encoding) {
-        return this._host.request(this._base, file, encoding);
-    }
-
-    get identifier() {
-        return this._identifier;
-    }
-
-    get stream() {
-        return this._stream;
-    }
-};
+        };
+        const context = {
+            element: this,
+            x: typeof arguments[0].left === 'undefined' ? this.scrollLeft : ~~arguments[0].left,
+            y: typeof arguments[0].top === 'undefined' ? this.scrollTop : ~~arguments[0].top,
+            startX: this.scrollLeft,
+            startY: this.scrollTop,
+            startTime: now()
+        };
+        step(context);
+    };
+}
 
 window.addEventListener('load', () => {
     window.__view__ = new view.View(new host.BrowserHost());

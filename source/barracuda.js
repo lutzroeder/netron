@@ -16,7 +16,7 @@ barracuda.ModelFactory = class {
         return false;
     }
 
-    open(context /*, host */) {
+    open(context) {
         return barracuda.Metadata.open().then((metadata) => {
             const nn = new barracuda.NNModel(context.stream.peek());
             return new barracuda.Model(metadata, nn);
@@ -534,10 +534,9 @@ barracuda.BinaryReader = class {
     }
 
     int32s() {
-        const values = [];
-        const count = this.int32();
-        for (let i = 0; i < count; i++) {
-            values.push(this.int32());
+        const values = new Array(this.int32());
+        for (let i = 0; i < values.length; i++) {
+            values[i] = this.int32();
         }
         return values;
     }

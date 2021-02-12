@@ -15,7 +15,9 @@ $root.tflite.TensorType = {
     INT8: 9,
     FLOAT64: 10,
     COMPLEX128: 11,
-    UINT64: 12
+    UINT64: 12,
+    RESOURCE: 13,
+    VARIANT: 14
 };
 
 $root.tflite.CustomQuantization = class CustomQuantization {
@@ -347,7 +349,11 @@ $root.tflite.BuiltinOperator = {
     CUMSUM: 128,
     CALL_ONCE: 129,
     BROADCAST_TO: 130,
-    RFFT2D: 131
+    RFFT2D: 131,
+    CONV_3D: 132,
+    IMAG: 133,
+    REAL: 134,
+    COMPLEX_ABS: 135
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -459,6 +465,7 @@ $root.tflite.BuiltinOptions = class {
             case 103: return $root.tflite.CallOnceOptions.decode(reader, position);
             case 104: return $root.tflite.BroadcastToOptions.decode(reader, position);
             case 105: return $root.tflite.Rfft2dOptions.decode(reader, position);
+            case 106: return $root.tflite.Conv3DOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -570,6 +577,7 @@ $root.tflite.BuiltinOptions = class {
             case 'CallOnceOptions': return $root.tflite.CallOnceOptions.decodeText(reader, json);
             case 'BroadcastToOptions': return $root.tflite.BroadcastToOptions.decodeText(reader, json);
             case 'Rfft2dOptions': return $root.tflite.Rfft2dOptions.decodeText(reader, json);
+            case 'Conv3DOptions': return $root.tflite.Conv3DOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -608,6 +616,35 @@ $root.tflite.Conv2DOptions = class Conv2DOptions {
         $.stride_w = reader.value(json.stride_w, 0);
         $.stride_h = reader.value(json.stride_h, 0);
         $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
+        $.dilation_w_factor = reader.value(json.dilation_w_factor, 1);
+        $.dilation_h_factor = reader.value(json.dilation_h_factor, 1);
+        return $;
+    }
+};
+
+$root.tflite.Conv3DOptions = class Conv3DOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.Conv3DOptions();
+        $.padding = reader.int8_(position, 4, 0);
+        $.stride_d = reader.int32_(position, 6, 0);
+        $.stride_w = reader.int32_(position, 8, 0);
+        $.stride_h = reader.int32_(position, 10, 0);
+        $.fused_activation_function = reader.int8_(position, 12, 0);
+        $.dilation_d_factor = reader.int32_(position, 14, 1);
+        $.dilation_w_factor = reader.int32_(position, 16, 1);
+        $.dilation_h_factor = reader.int32_(position, 18, 1);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.Conv3DOptions();
+        $.padding = $root.tflite.Padding[json.padding];
+        $.stride_d = reader.value(json.stride_d, 0);
+        $.stride_w = reader.value(json.stride_w, 0);
+        $.stride_h = reader.value(json.stride_h, 0);
+        $.fused_activation_function = $root.tflite.ActivationFunctionType[json.fused_activation_function];
+        $.dilation_d_factor = reader.value(json.dilation_d_factor, 1);
         $.dilation_w_factor = reader.value(json.dilation_w_factor, 1);
         $.dilation_h_factor = reader.value(json.dilation_h_factor, 1);
         return $;
@@ -2383,7 +2420,7 @@ $root.tflite.SignatureDef = class SignatureDef {
 $root.tflite.Model = class Model {
 
     static identifier(reader) {
-        return reader.identifier('TFL3');
+        return reader.identifier === 'TFL3';
     }
 
     static create(reader) {
@@ -2698,7 +2735,7 @@ $root.tflite.SubGraphMetadata = class SubGraphMetadata {
 $root.tflite.ModelMetadata = class ModelMetadata {
 
     static identifier(reader) {
-        return reader.identifier('M001');
+        return reader.identifier === 'M001';
     }
 
     static create(reader) {

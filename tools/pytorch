@@ -8,10 +8,6 @@ case "${OSTYPE}" in
     *) python="python";;
 esac
 
-bold() {
-    echo "$(tty -s && tput bold)$1$(tty -s && tput sgr0)" 
-}
-
 venv() {
     env_dir=./third_party/env/pytorch
     [ -d "${env_dir}" ] || ${python} -m venv ${env_dir}
@@ -23,13 +19,13 @@ venv() {
 }
 
 clean() {
-    bold "pytorch clean"
+    echo "pytorch clean"
     rm -rf "./third_party/env/pytorch"
     rm -rf "./third_party/source/pytorch"
 }
 
 sync() {
-    bold "pytorch sync"
+    echo "pytorch sync"
     [ -d "./third_party/source/pytorch" ] || git clone --quiet --recursive https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
     pushd "./third_party/source/pytorch" > /dev/null
     git pull --quiet --prune
@@ -39,15 +35,39 @@ sync() {
 }
 
 install() {
-    bold "pytorch install"
+    echo "pytorch install"
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+    ${python} -m pip install --quiet --upgrade future protobuf
+        echo "- macos arm64 [skip]"
+        # pytorch/pytorch#51854
+        # [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+        # export OPENBLAS=$(brew --prefix openblas)
+        # venv
+        # ${python} -m pip install --quiet --upgrade future protobuf
+        # ${python} -m pip install --upgrade --quiet pybind11
+        # ${python} -m pip install --upgrade --quiet cython
+        # ${python} -m pip install --upgrade --quiet pyyaml
+        # ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
+        # rm -rf ./third_party/source/scipy
+        # git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
+        # export CFLAGS="-falign-functions=8 ${CFLAGS}"
+        # pushd ./third_party/source/scipy > /dev/null
+        # python setup.py install --quiet >/dev/null 2>&1
+        # popd > /dev/null
+        # rm -rf ./third_party/source/scipy
+        # ${python} -m pip install --quiet ./third_party/source/pytorch
+        # deactivate
+        return
+    fi
     venv
-    ${python} -m pip install --quiet --upgrade future protobuf scipy
+    ${python} -m pip install --quiet --upgrade future protobuf
+    ${python} -m pip install --quiet --upgrade scipy
     ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
 
 schema() {
-    bold "caffe2 schema"
+    echo "caffe2 schema"
     [[ $(grep -U $'\x0D' ./source/caffe2-proto.js) ]] && crlf=1
     node ./tools/protoc.js --text --root caffe2 --out ./source/caffe2-proto.js ./third_party/source/pytorch/caffe2/proto/caffe2.proto
     if [[ -n ${crlf} ]]; then
@@ -56,7 +76,11 @@ schema() {
 }
 
 metadata() {
-    bold "pytorch metadata"
+    echo "pytorch metadata"
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        echo "- macos arm64 [skip]" # pytorch/pytorch#51854
+        return
+    fi
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
@@ -65,7 +89,7 @@ metadata() {
         unix2dos --quiet --newfile ./source/pytorch-metadata.json ./source/pytorch-metadata.json
     fi
     deactivate
-    bold "caffe2 metadata"
+    echo "caffe2 metadata"
     venv
     if [[ $(grep -U $'\x0D' ./source/caffe2-metadata.json) ]]; then crlf=1; else crlf=; fi
     ${python} ./tools/caffe2-script.py metadata
@@ -76,7 +100,7 @@ metadata() {
 }
 
 zoo() {
-    bold "pytorch zoo"
+    echo "pytorch zoo"
     rm -rf "./third_party/env/pytorch"
     venv
     ${python} -m pip install --quiet --upgrade future protobuf scipy

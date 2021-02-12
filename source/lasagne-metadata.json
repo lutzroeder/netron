@@ -1,0 +1,20 @@
+[
+  {
+    "name": "lasagne.layers.conv.Conv2DLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "lasagne.layers.pool.MaxPool2DLayer",
+    "schema": {
+      "category": "Pool"
+    }
+  },
+  {
+    "name": "lasagne.layers.dense.DenseLayer",
+    "schema": {
+      "category": "Layer"
+    }
+  }
+]

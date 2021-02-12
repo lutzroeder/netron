@@ -599,11 +599,28 @@
       "operator": 28,
       "category": "Shape",
       "attributes": [
-        { "name": "axis", "default": 0 },
-        { "name": "num_axes", "default": 4 },
-        { "name": "top_blob_dim_size", "default": -233 },
-        { "name": "shape", "type": "int32[]", "size": 2, "default": 233 },
-        { "name": "reshape_type", "default": 0 }
+        {
+          "name": "axis",
+          "default": 0
+        },
+        {
+          "name": "num_axes",
+          "default": 4
+        },
+        {
+          "name": "top_blob_dim_size",
+          "default": -233
+        },
+        {
+          "name": "shape",
+          "type": "int32[]",
+          "size": 2,
+          "default": 233
+        },
+        {
+          "name": "reshape_type",
+          "default": 0
+        }
       ]
     }
   },
@@ -875,7 +892,19 @@
   {
     "name": "Squeeze",
     "schema": {
-      "operator": 44
+      "operator": 44,
+      "category": "Shape",
+      "attributes": [
+        {
+          "name": "axes_size",
+          "default": 0
+        },
+        {
+          "name": "axes",
+          "type": "int32[]",
+          "size": "0"
+        }
+      ]
     }
   },
   {
@@ -1184,7 +1213,13 @@
   {
     "name": "Cast",
     "schema": {
-      "operator": 64
+      "operator": 64,
+      "attributes": [
+        {
+          "name": "to",
+          "default": 0
+        }
+      ]
     }
   },
   {
@@ -1490,8 +1525,31 @@
       "category": "Layer",
       "attributes": [
         {
-          "name": "n1",
+          "name": "start_size",
           "default": 0
+        },
+        {
+          "name": "start",
+          "type": "int32[]",
+          "size": "0"
+        },
+        {
+          "name": "end_size",
+          "default": 0
+        },
+        {
+          "name": "end",
+          "type": "int32[]",
+          "size": "0"
+        },
+        {
+          "name": "step_size",
+          "default": 0
+        },
+        {
+          "name": "step",
+          "type": "int32[]",
+          "size": "0"
         }
       ]
     }
@@ -1621,6 +1679,120 @@
           "name": "axis",
           "type": "int32",
           "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Expand",
+    "schema": {
+      "operator": 83,
+      "category": "Shape",
+      "attributes": [
+        {
+          "name": "shape_size",
+          "default": 0
+        },
+        {
+          "name": "shape",
+          "type": "int32[]",
+          "size": "0"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Gather",
+    "schema": {
+      "operator": 84,
+      "category": "Shape",
+      "attributes": [
+        { 
+          "name": "axis", 
+          "default": 0 
+        },
+        {
+          "name": "has_data",
+          "default": 0
+        },
+        {
+          "name": "has_indices",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "Unsqueeze",
+    "schema": {
+      "operator": 85,
+      "category": "Shape",
+      "attributes": [
+        {
+          "name": "axes_size",
+          "default": 0
+        },
+        {
+          "name": "axes",
+          "type": "int32[]",
+          "size": "0"
+        }
+      ]
+    }
+  },
+  {
+    "name": "MatMul",
+    "schema": {
+      "operator": 86,
+      "attributes": [
+        {
+          "name": "weight_input_index",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "StridedSliceV2",
+    "schema": {
+      "operator": 87,
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "start_size",
+          "default": 0
+        },
+        {
+          "name": "start",
+          "type": "int32[]",
+          "size": "0"
+        },
+        {
+          "name": "end_size",
+          "default": 0
+        },
+        {
+          "name": "end",
+          "type": "int32[]",
+          "size": "0"
+        },
+        {
+          "name": "axes_size",
+          "default": 0
+        },
+        {
+          "name": "axes",
+          "type": "int32[]",
+          "size": "0"
+        },
+        {
+          "name": "step_size",
+          "default": 0
+        },
+        {
+          "name": "step",
+          "type": "int32[]",
+          "size": "0"
         }
       ]
     }

@@ -1,18 +1,21 @@
 /* jshint esversion: 6 */
-/* global pako */
 
 var gzip = gzip || {};
+var zip = zip || require('./zip');
 
 gzip.Archive = class {
 
-    constructor(buffer) {
-        this._entries = [];
+    static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
         const signature = [ 0x1f, 0x8b ];
-        if (stream.length < 18 || !stream.peek(2).every((value, index) => value === signature[index])) {
-            throw new gzip.Error('Invalid gzip archive.');
+        if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
+            return new gzip.Archive(stream);
         }
-        this._entries.push(new gzip.Entry(stream));
+        throw new gzip.Error('Invalid gzip archive.');
+    }
+
+    constructor(stream) {
+        this._entries = [ new gzip.Entry(stream) ];
         stream.seek(0);
     }
 
@@ -146,19 +149,8 @@ gzip.InflaterStream = class {
 
     _inflate() {
         if (this._buffer === undefined) {
-            const compressed = this._stream.peek();
-            if (typeof process === 'object' && typeof process.versions == 'object' && typeof process.versions.node !== 'undefined') {
-                this._buffer = require('zlib').inflateRawSync(compressed);
-            }
-            else if (typeof pako !== 'undefined') {
-                this._buffer = pako.inflateRaw(compressed);
-            }
-            else {
-                this._buffer = new require('./zip').Inflater().inflateRaw(compressed);
-            }
-            if (this._buffer.length !== this._length) {
-                throw new gzip.Error('Invalid size.');
-            }
+            const buffer = this._stream.peek();
+            this._buffer = new zip.Inflater().inflateRaw(buffer, this._length);
             delete this._stream;
         }
     }

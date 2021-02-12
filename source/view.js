@@ -8,6 +8,7 @@ var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
+var python = python || require('./python');
 
 var d3 = d3 || require('d3');
 var dagre = dagre || require('dagre');
@@ -36,36 +37,49 @@ view.View = class {
             this._getElementById('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
-            this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
-                this._preventZoom(e);
-            });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
             });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
-            if (this._host.environment('zoom') === 'scroll') {
-                this._getElementById('graph').addEventListener('mousewheel', (e) => {
-                    this._mouseWheelHandler(e);
-                });
-                this._getElementById('graph').addEventListener('scroll', (e) => {
-                    this._scrollHandler(e);
-                });
-                this._getElementById('graph').addEventListener('gesturestart', (e) => {
-                    e.preventDefault();
-                    this._gestureStartZoom = this._zoom;
-                }, false);
-                this._getElementById('graph').addEventListener('gesturechange', (e) => {
-                    e.preventDefault();
-                    this._updateZoom(this._gestureStartZoom * e.scale, e);
-                }, false);
-                this._getElementById('graph').addEventListener('gestureend', (e) => {
-                    e.preventDefault();
-                    this._updateZoom(this._gestureStartZoom * e.scale, e);
-                }, false);
-            }
             this._host.start();
+            switch (this._host.environment('zoom')) {
+                case 'scroll': {
+                    const elements = [ 'graph', 'toolbar' ];
+                    for (const id of elements) {
+                        const element = this._getElementById(id);
+                        element.addEventListener('mousewheel', (e) => {
+                            this._mouseWheelHandler(e);
+                        });
+                        element.addEventListener('scroll', (e) => {
+                            this._scrollHandler(e);
+                        });
+                        element.addEventListener('wheel', (e) => {
+                            this._mouseWheelHandler(e);
+                        });
+                        element.addEventListener('gesturestart', (e) => {
+                            e.preventDefault();
+                            this._gestureStartZoom = this._zoom;
+                        }, false);
+                        element.addEventListener('gesturechange', (e) => {
+                            e.preventDefault();
+                            this._updateZoom(this._gestureStartZoom * e.scale, e);
+                        }, false);
+                        element.addEventListener('gestureend', (e) => {
+                            e.preventDefault();
+                            this._updateZoom(this._gestureStartZoom * e.scale, e);
+                        }, false);
+                    }
+                    break;
+                }
+                case 'd3': {
+                    this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
+                        this._preventZoom(e);
+                    });
+                    break;
+                }
+            }
         }).catch((err) => {
             this.error(err, null, null);
         });
@@ -175,7 +189,7 @@ view.View = class {
     zoomIn() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                this._updateZoom(this._zoom * 1.05);
+                this._updateZoom(this._zoom * 1.1);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -188,7 +202,7 @@ view.View = class {
     zoomOut() {
         switch (this._host.environment('zoom')) {
             case 'scroll':
-                this._updateZoom(this._zoom * 0.95);
+                this._updateZoom(this._zoom * 0.9);
                 break;
             case 'd3':
                 if (this._zoom) {
@@ -219,29 +233,29 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        const container = this._getElementById('graph');
+        const graphElement = this._getElementById('graph');
 
-        const min = Math.min(Math.max(container.clientHeight / this._height, 0.2), 1);
+        const min = Math.min(Math.max(graphElement.clientHeight / this._height, 0.2), 1);
 
-        zoom = Math.min(zoom, 2);
+        zoom = Math.min(zoom, 1.0);
         zoom = Math.max(min, zoom);
 
-        const scrollLeft = this._scrollLeft || container.scrollLeft;
-        const scrollTop = this._scrollTop || container.scrollTop;
+        const scrollLeft = this._scrollLeft || graphElement.scrollLeft;
+        const scrollTop = this._scrollTop || graphElement.scrollTop;
 
-        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
+        const x = (e ? e.pageX : (graphElement.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (graphElement.clientHeight / 2)) + scrollTop;
 
-        const graph = this._getElementById('canvas');
-        graph.style.width = zoom * this._width;
-        graph.style.height = zoom * this._height;
+        const canvasElement = this._getElementById('canvas');
+        canvasElement.style.width = zoom * this._width;
+        canvasElement.style.height = zoom * this._height;
 
         this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
         this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
         this._scrollLeft = Math.max(0, this._scrollLeft);
         this._scrollTop = Math.max(0, this._scrollTop);
-        container.scrollLeft = this._scrollLeft;
-        container.scrollTop = this._scrollTop;
+        graphElement.scrollLeft = this._scrollLeft;
+        graphElement.scrollTop = this._scrollTop;
 
         this._zoom = zoom;
     }
@@ -266,23 +280,47 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const graphElement = this._getElementById('canvas');
-            const graphRect = graphElement.getBoundingClientRect();
-            let x = 0;
-            let y = 0;
-            for (const element of selection) {
-                element.classList.add('select');
-                this._selection.push(element);
-                const transform = element.transform.baseVal.consolidate();
-                const box = element.getBBox();
-                const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
-                const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
-                x += ex;
-                y += ey;
+            const graphElement = this._getElementById('graph');
+            switch (this._host.environment('zoom')) {
+                case 'd3': {
+                    let x = 0;
+                    let y = 0;
+                    for (const element of selection) {
+                        element.classList.add('select');
+                        this._selection.push(element);
+                        const transform = element.transform.baseVal.consolidate();
+                        const box = element.getBBox();
+                        const ex = transform ? transform.matrix.e : box.x + (box.width / 2);
+                        const ey = transform ? transform.matrix.f : box.y + (box.height / 2);
+                        x += ex;
+                        y += ey;
+                    }
+                    x = x / selection.length;
+                    y = y / selection.length;
+                    const canvasElement = this._getElementById('canvas');
+                    const canvasRect = canvasElement.getBoundingClientRect();
+                    this._zoom.transform(d3.select(canvasElement), d3.zoomIdentity.translate((canvasRect.width / 2) - x, (canvasRect.height / 2) - y));
+                    break;
+                }
+                case 'scroll': {
+                    let x = 0;
+                    let y = 0;
+                    for (const element of selection) {
+                        element.classList.add('select');
+                        this._selection.push(element);
+                        const rect = element.getBoundingClientRect();
+                        x += rect.left + (rect.width / 2);
+                        y += rect.top + (rect.height / 2);
+                    }
+                    x = x / selection.length;
+                    y = y / selection.length;
+                    const rect = graphElement.getBoundingClientRect();
+                    const left = (graphElement.scrollLeft + x - rect.left) - (rect.width / 2);
+                    const top = (graphElement.scrollTop + y - rect.top) - (rect.height / 2);
+                    graphElement.scrollTo({ left: left, top: top, behavior: 'smooth' });
+                    break;
+                }
             }
-            x = x / selection.length;
-            y = y / selection.length;
-            this._zoom.transform(d3.select(graphElement), d3.zoomIdentity.translate((graphRect.width / 2) - x, (graphRect.height / 2) - y));
         }
     }
 
@@ -319,6 +357,7 @@ view.View = class {
             { name: 'Error loading ONNX model.', message: /^File format is not onnx.ModelProto (Offset is outside the bounds of the DataView)/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' },
+            { name: 'RangeError', message: /^Maximum call stack size exceeded/, url: 'https://github.com/lutzroeder/netron/issues/589' },
             { name: 'Error loading model', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
             { name: 'Error loading model', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
             { name: 'Error loading model', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
@@ -405,9 +444,10 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
-            const graphElement = this._getElementById('canvas');
-            while (graphElement.lastChild) {
-                graphElement.removeChild(graphElement.lastChild);
+            const graphElement = this._getElementById('graph');
+            const canvasElement = this._getElementById('canvas');
+            while (canvasElement.lastChild) {
+                canvasElement.removeChild(canvasElement.lastChild);
             }
             if (!graph) {
                 return Promise.resolve();
@@ -415,14 +455,14 @@ view.View = class {
             else {
                 switch (this._host.environment('zoom')) {
                     case 'scroll':
-                        this._zoom = 0;
-                        graphElement.style.position = 'static';
-                        graphElement.style.margin = 'auto';
+                        this._zoom = 1;
+                        canvasElement.style.position = 'static';
+                        canvasElement.style.margin = 'auto';
                         break;
                     case 'd3':
                         this._zoom = null;
-                        graphElement.style.position = 'absolute';
-                        graphElement.style.margin = '0';
+                        canvasElement.style.position = 'absolute';
+                        canvasElement.style.margin = '0';
                         break;
                 }
 
@@ -484,7 +524,7 @@ view.View = class {
                         }
                         const type = node.type;
                         if (typeof type !== 'string' || !type.split) { // #416
-                            throw new view.ModelError("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
+                            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
                         }
                         const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
                         const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
@@ -544,7 +584,7 @@ view.View = class {
                                         separator = ' = ';
                                     }
                                 }
-                                block.add('initializer-' + argument.name, initializer.name, shape, type ? type.toString() : '', separator);
+                                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
                             }
                             if (hiddenInitializers) {
                                 block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
@@ -587,6 +627,9 @@ view.View = class {
                             }
                             for (const output of outputs) {
                                 for (const argument of output.arguments) {
+                                    if (!argument) {
+                                        throw new view.Error("Invalid null argument in '" + model.format + "'.");
+                                    }
                                     if (argument.name != '') {
                                         let tuple = edgeMap[argument.name];
                                         if (!tuple) {
@@ -633,10 +676,10 @@ view.View = class {
 
                     const nodeName = node.name;
                     if (nodeName) {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + nodeName, class: 'graph-node' });
+                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + nodeName, class: 'graph-node' });
                     }
                     else {
-                        g.setNode(nodeId, { label: element.format(graphElement), id: 'node-' + id.toString(), class: 'graph-node' });
+                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + id.toString(), class: 'graph-node' });
                         id++;
                     }
 
@@ -700,7 +743,7 @@ view.View = class {
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: inputElement.format(graphElement), class: 'graph-input' } );
+                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), class: 'graph-input' } );
                 }
 
                 for (const output of graph.outputs) {
@@ -723,7 +766,7 @@ view.View = class {
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: outputElement.format(graphElement) } );
+                    g.setNode(nodeId++, { label: outputElement.format(canvasElement) } );
                 }
 
                 for (const edge of Object.keys(edgeMap)) {
@@ -733,7 +776,7 @@ view.View = class {
                             let text = '';
                             const type = tuple.from.type;
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
-                                text = type.shape.dimensions.join('\u00D7');
+                                text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
                             }
 
                             if (this._showNames) {
@@ -760,22 +803,29 @@ view.View = class {
                 }
                 backgroundElement.setAttribute('fill', 'none');
                 backgroundElement.setAttribute('pointer-events', 'all');
-                graphElement.appendChild(backgroundElement);
+                canvasElement.appendChild(backgroundElement);
 
                 const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
-                graphElement.appendChild(originElement);
+                canvasElement.appendChild(originElement);
 
                 let svg = null;
-                if (this._host.environment('zoom') === 'd3') {
-                    svg = d3.select(graphElement);
-                    this._zoom = d3.zoom();
-                    this._zoom(svg);
-                    this._zoom.scaleExtent([0.1, 2]);
-                    this._zoom.on('zoom', (event) => {
-                        originElement.setAttribute('transform', event.transform.toString());
-                    });
-                    this._zoom.transform(svg, d3.zoomIdentity);
+                switch (this._host.environment('zoom')) {
+                    case 'd3': {
+                        svg = d3.select(canvasElement);
+                        this._zoom = d3.zoom();
+                        this._zoom(svg);
+                        this._zoom.scaleExtent([0.1, 2]);
+                        this._zoom.on('zoom', (event) => {
+                            originElement.setAttribute('transform', event.transform.toString());
+                        });
+                        this._zoom.transform(svg, d3.zoomIdentity);
+                        break;
+                    }
+                    case 'scroll': {
+                        this._zoom = 1;
+                        break;
+                    }
                 }
 
                 return this._timeout(20).then(() => {
@@ -783,51 +833,23 @@ view.View = class {
                     const graphRenderer = new grapher.Renderer(this._host.document, originElement);
                     graphRenderer.render(g);
 
-                    const originElements = Array.from(graphElement.getElementsByClassName('graph-input') || []);
-                    if (originElements.length === 0) {
-                        const nodeElements = Array.from(graphElement.getElementsByClassName('graph-node') || []);
+                    const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
+                    if (elements.length === 0) {
+                        const nodeElements = Array.from(canvasElement.getElementsByClassName('graph-node') || []);
                         if (nodeElements.length > 0) {
-                            originElements.push(nodeElements[0]);
+                            elements.push(nodeElements[0]);
                         }
                     }
 
                     switch (this._host.environment('zoom')) {
-                        case 'scroll': {
-                            const size = graphElement.getBBox();
-                            const margin = 100;
-                            const width = Math.ceil(margin + size.width + margin);
-                            const height = Math.ceil(margin + size.height + margin);
-                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                            backgroundElement.setAttribute('width', width);
-                            backgroundElement.setAttribute('height', height);
-                            this._width = width;
-                            this._height = height;
-                            this._zoom = 1;
-                            delete this._scrollLeft;
-                            delete this._scrollRight;
-                            graphElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                            graphElement.setAttribute('width', width);
-                            graphElement.setAttribute('height', height);
-                            if (originElements && originElements.length > 0) {
-                                // Center view based on input elements
-                                for (let j = 0; j < originElements.length; j++) {
-                                    originElements[j].scrollIntoView({ behavior: 'instant' });
-                                    break;
-                                }
-                            }
-                            else {
-                                // this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
-                            }
-                            break;
-                        }
                         case 'd3': {
-                            const svgSize = graphElement.getBoundingClientRect();
-                            if (originElements && originElements.length > 0) {
+                            const svgSize = canvasElement.getBoundingClientRect();
+                            if (elements && elements.length > 0) {
                                 // Center view based on input elements
                                 const xs = [];
                                 const ys = [];
-                                for (let i = 0; i < originElements.length; i++) {
-                                    const inputTransform = originElements[i].transform.baseVal.consolidate().matrix;
+                                for (let i = 0; i < elements.length; i++) {
+                                    const inputTransform = elements[i].transform.baseVal.consolidate().matrix;
                                     xs.push(inputTransform.e);
                                     ys.push(inputTransform.f);
                                 }
@@ -842,6 +864,57 @@ view.View = class {
                             }
                             else {
                                 this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                            }
+                            break;
+                        }
+                        case 'scroll': {
+                            const size = canvasElement.getBBox();
+                            const margin = 100;
+                            const width = Math.ceil(margin + size.width + margin);
+                            const height = Math.ceil(margin + size.height + margin);
+                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                            backgroundElement.setAttribute('width', width);
+                            backgroundElement.setAttribute('height', height);
+                            this._width = width;
+                            this._height = height;
+                            this._zoom = 1;
+                            delete this._scrollLeft;
+                            delete this._scrollRight;
+                            canvasElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                            canvasElement.setAttribute('width', width);
+                            canvasElement.setAttribute('height', height);
+
+                            this._updateZoom(this._zoom);
+
+                            if (elements && elements.length > 0) {
+                                // Center view based on input elements
+                                const xs = [];
+                                const ys = [];
+                                for (let i = 0; i < elements.length; i++) {
+                                    const element = elements[i];
+                                    const rect = element.getBoundingClientRect();
+                                    xs.push(rect.left + (rect.width / 2));
+                                    ys.push(rect.top + (rect.height / 2));
+                                }
+                                let x = xs[0];
+                                const y = ys[0];
+                                if (ys.every(y => y === ys[0])) {
+                                    x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                }
+                                // const canvasRect = graphElement.getBoundingClientRect();
+                                const graphRect = graphElement.getBoundingClientRect();
+                                // const sx = (canvasRect.width / (this._showHorizontal ? 4 : 2)) - x;
+                                // const sy = (canvasRect.height / (this._showHorizontal ? 2 : 4)) - y;
+                                const left = (graphElement.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                                const top = (graphElement.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
+                            }
+                            else {
+                                const canvasRect = graphElement.getBoundingClientRect();
+                                const graphRect = graphElement.getBoundingClientRect();
+                                const left = (graphElement.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                                const top = (graphElement.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
                             }
                             break;
                         }
@@ -946,7 +1019,7 @@ view.View = class {
                         }
                     }, 'image/png');
                 };
-                imageElement.src = 'data:image/svg+xml;base64,' + window.btoa(unescape(encodeURIComponent(data)));
+                imageElement.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
                 this._host.document.body.insertBefore(imageElement, this._host.document.body.firstChild);
             }
         }
@@ -1013,16 +1086,6 @@ view.View = class {
     }
 };
 
-view.ModelError = class extends Error {
-
-    constructor(message, telemetry) {
-        super(message);
-        this.name = 'Error loading model.';
-        this.telemetry = telemetry;
-        this.stack = undefined;
-    }
-};
-
 view.ModelContext = class {
 
     constructor(context, entries) {
@@ -1031,16 +1094,24 @@ view.ModelContext = class {
         this._entries = entries || new Map();
     }
 
-    request(file, encoding) {
-        return this._context.request(file, encoding);
-    }
-
     get identifier() {
         return this._context.identifier;
     }
 
     get stream() {
         return this._context.stream;
+    }
+
+    request(file, encoding, base) {
+        return this._context.request(file, encoding, base);
+    }
+
+    require(id) {
+        return this._context.require(id);
+    }
+
+    exception(error, fatal) {
+        this._context.exception(error, fatal);
     }
 
     entries(format) {
@@ -1110,6 +1181,7 @@ view.ModelContext = class {
                     case 'json': {
                         const reader = json.TextReader.create(this.stream.peek());
                         const obj = reader.read();
+                        tags.set('', obj);
                         if (!Array.isArray(obj)) {
                             for (const key in obj) {
                                 tags.set(key, key === 'format' && obj[key] === 'graph-model' ? obj[key] : true);
@@ -1122,11 +1194,43 @@ view.ModelContext = class {
                                 }
                             }
                         }
+                        break;
+                    }
+                    case 'pkl': {
+                        if (this.stream.length > 2) {
+                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
+                            const match = (stream) => {
+                                const head = stream.peek(2);
+                                if (head[0] === 0x80 && head[1] < 7) {
+                                    return true;
+                                }
+                                stream.seek(-1);
+                                const tail = stream.peek(1);
+                                stream.seek(0);
+                                if (tail[0] === 0x2e) {
+                                    return true;
+                                }
+                                return false;
+                            };
+                            if (match(stream)) {
+                                const unpickler = new python.Unpickler(stream);
+                                const execution = new python.Execution(null, (error, fatal) => {
+                                    const message = error && error.message ? error.message : error.toString();
+                                    this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                });
+                                const data = unpickler.load((name, args) => execution.invoke(name, args));
+                                const name = data && data.__module__ && data.__name__ ? data.__module__ + '.' + data.__name__ : '';
+                                tags.set(name, data);
+                                this.stream.seek(0);
+                            }
+                        }
+                        break;
                     }
                 }
             }
             catch (error) {
                 tags = new Map();
+                this.stream.seek(0);
             }
             this._tags.set(type, tags);
         }
@@ -1136,7 +1240,8 @@ view.ModelContext = class {
 
 view.ArchiveContext = class {
 
-    constructor(entries, rootFolder, identifier, stream) {
+    constructor(host, entries, rootFolder, identifier, stream) {
+        this._host = host;
         this._entries = {};
         if (entries) {
             for (const entry of entries) {
@@ -1152,20 +1257,31 @@ view.ArchiveContext = class {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        const entry = this._entries[file];
-        if (!entry) {
-            return Promise.reject(new Error('File not found.'));
-        }
-        return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        if (base === undefined) {
+            const entry = this._entries[file];
+            if (!entry) {
+                return Promise.reject(new Error('File not found.'));
+            }
+            return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
+        }
+        return this._host.request(file, encoding, base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 
@@ -1182,9 +1298,9 @@ view.ModelFactoryService = class {
     constructor(host) {
         this._host = host;
         this._extensions = [];
+        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.bin', '.pb', '.zip', '.nn' ]);
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt', '.model' ]);
         this.register('./mxnet', [ '.mar', '.model', '.json', '.params' ]);
-        this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.bin', '.pb', '.zip' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
@@ -1193,7 +1309,10 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
-        this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5' ]);
+        this.register('./npz', [ '.npz', '.pkl' ]);
+        this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
+        this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
+        this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
         this.register('./paddle', [ '.paddle', '.pdmodel', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
@@ -1201,7 +1320,7 @@ view.ModelFactoryService = class {
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn' ]);
         this.register('./dlc', [ '.dlc' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
@@ -1212,9 +1331,10 @@ view.ModelFactoryService = class {
         this.register('./dnn', [ '.dnn' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
-        this.register('./npz', [ '.npz', '.h5', '.hd5', '.hdf5' ]);
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
+        this.register('./acuity', [ '.json' ]);
+        this.register('./lightgbm', [ '.txt' ]);
     }
 
     register(id, extensions) {
@@ -1249,7 +1369,7 @@ view.ModelFactoryService = class {
         const extension = identifier.split('.').pop().toLowerCase();
         const format = [ 'Zip', 'tar' ].find((extension) => context.entries(extension.toLowerCase()).length > 0);
         if (format) {
-            throw new view.ModelError("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
+            throw new view.Error("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
         }
         const knownUnsupportedIdentifiers = new Set([
             'natives_blob.bin',
@@ -1284,9 +1404,11 @@ view.ModelFactoryService = class {
                 type: 'json',
                 name: 'JSON',
                 formats: [
+                    { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
-                    { name: 'keras-yolo2 configuation', tags: [ 'model', 'train', 'valid' ] },
-                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] }
+                    { name: 'keras-yolo2 configuration', tags: [ 'model', 'train', 'valid' ] },
+                    { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] },
+                    { name: 'DeepLearningExamples configuration', tags: [ 'attention_probs_dropout_prob', 'hidden_act', 'hidden_dropout_prob', 'hidden_size', ] }
                 ]
             }
         ];
@@ -1295,14 +1417,14 @@ view.ModelFactoryService = class {
             if (tags.size > 0) {
                 for (const format of encoding.formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new view.ModelError('Invalid file content. File contains ' + format.name + '.', true);
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new view.ModelError("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
             }
         }
         const stream = context.stream;
@@ -1310,7 +1432,7 @@ view.ModelFactoryService = class {
         const buffer = stream.peek(Math.min(16, stream.length));
         const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         const content = buffer.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-        throw new view.ModelError("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
+        throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
     }
 
     _openArchive(context) {
@@ -1322,7 +1444,7 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
-                const entries = new gzip.Archive(stream).entries;
+                const entries = gzip.Archive.open(stream).entries;
                 if (entries.length === 1) {
                     const entry = entries[0];
                     if (entry.name) {
@@ -1353,7 +1475,7 @@ view.ModelFactoryService = class {
         try {
             extension = identifier.split('.').pop().toLowerCase();
             if (extension === 'zip' || (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B)) {
-                entries.set('zip', new zip.Archive(stream).entries);
+                entries.set('zip', zip.Archive.open(stream).entries);
             }
             if (extension === 'tar' || (buffer.length >= 512)) {
                 let sum = 0;
@@ -1366,7 +1488,7 @@ view.ModelFactoryService = class {
                 }
                 checksum = parseInt(checksum, 8);
                 if (!isNaN(checksum) && sum === checksum) {
-                    entries.set('tar', new tar.Archive(stream).entries);
+                    entries.set('tar', tar.Archive.open(stream).entries);
                 }
             }
         }
@@ -1386,14 +1508,14 @@ view.ModelFactoryService = class {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
                     if (!module.ModelFactory) {
-                        throw new view.ModelError("Failed to load module '" + id + "'.");
+                        throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
                     if (!modelFactory.match(context)) {
                         return nextModule();
                     }
                     match = true;
-                    return modelFactory.open(context, this._host).then((model) => {
+                    return modelFactory.open(context).then((model) => {
                         return model;
                     }).catch((error) => {
                         const text = " in '" + context.identifier + "'.";
@@ -1410,7 +1532,7 @@ view.ModelFactoryService = class {
                     if (errors.length === 1) {
                         return Promise.reject(errors[0]);
                     }
-                    return Promise.reject(new view.ModelError(errors.map((err) => err.message).join('\n')));
+                    return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
                 }
                 return Promise.resolve(null);
             }
@@ -1439,7 +1561,7 @@ view.ModelFactoryService = class {
                     if (entry.name.startsWith(rootFolder)) {
                         const identifier = entry.name.substring(rootFolder.length);
                         if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            const context = new view.ModelContext(new view.ArchiveContext(null, rootFolder, entry.name, entry.stream));
+                            const context = new view.ModelContext(new view.ArchiveContext(this._host, null, rootFolder, entry.name, entry.stream));
                             let modules = this._filter(context);
                             const nextModule = () => {
                                 if (modules.length > 0) {
@@ -1484,7 +1606,7 @@ view.ModelFactoryService = class {
                         return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(entries, rootFolder, match.name, match.stream)));
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, rootFolder, match.name, match.stream)));
                 }
             };
             return nextEntry();
@@ -1495,7 +1617,7 @@ view.ModelFactoryService = class {
     }
 
     accept(identifier) {
-        const extension = identifier.split('.').pop().toLowerCase();
+        const extension = identifier.indexOf('.') === -1 ? '' : identifier.split('.').pop().toLowerCase();
         identifier = identifier.toLowerCase().split('/').pop();
         for (const entry of this._extensions) {
             if ((typeof entry.extension === 'string' && identifier.endsWith(entry.extension)) ||
@@ -1537,7 +1659,7 @@ view.ModelFactoryService = class {
         }
         stream.seek(0);
         if (empty) {
-            return Promise.reject(new view.ModelError('File has no content.', true));
+            return Promise.reject(new view.Error('File has no content.', true));
         }
         /* eslint-disable no-control-regex */
         const entries = [
@@ -1549,20 +1671,32 @@ view.ModelFactoryService = class {
             { name: 'HTML markup', value: /^\s*<!DOCTYPE html>/ },
             { name: 'HTML markup', value: /^\s*<!DOCTYPE HTML>/ },
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
-            { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch)(,|;|\s)/ },
+            { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
+            { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
+            { name: 'NumPy Array', value: /^\x93NUMPY/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
         const buffer = stream.peek(Math.min(4096, stream.length));
-        const text = new TextDecoder().decode(buffer);
+        const text = String.fromCharCode.apply(null, buffer);
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                return Promise.reject(new view.ModelError("Invalid file content. File contains " + entry.name + ".", true));
+                return Promise.reject(new view.Error("Invalid file content. File contains " + entry.name + ".", true));
             }
         }
         return Promise.resolve(context);
+    }
+};
+
+view.Error = class extends Error {
+
+    constructor(message, telemetry) {
+        super(message);
+        this.name = 'Error loading model.';
+        this.telemetry = telemetry;
+        this.stack = undefined;
     }
 };
 

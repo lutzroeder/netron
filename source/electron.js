@@ -16,10 +16,12 @@ host.ElectronHost = class {
         process.on('uncaughtException', (err) => {
             this.exception(err, true);
         });
-        window.eval = global.eval = () => {
+        this._document = window.document;
+        this._window = window;
+        this._window.eval = global.eval = () => {
             throw new Error('window.eval() not supported.');
         };
-        window.addEventListener('unload', () => {
+        this._window.addEventListener('unload', () => {
             if (typeof __coverage__ !== 'undefined') {
                 const file = path.join('.nyc_output', path.basename(window.location.pathname, '.html')) + '.json';
                 /* eslint-disable no-undef */
@@ -28,10 +30,18 @@ host.ElectronHost = class {
             }
         });
         this._version = electron.remote.app.getVersion();
+        this._environment = new Map();
+        this._environment.set('zoom', 'd3');
+        // this._environment.set('zoom', 'scroll');
+        this._openFileQueue = [];
+    }
+
+    get window() {
+        return this._window;
     }
 
     get document() {
-        return window.document;
+        return this._document;
     }
 
     get version() {
@@ -48,6 +58,9 @@ host.ElectronHost = class {
 
     initialize(view) {
         this._view = view;
+        electron.ipcRenderer.on('open', (_, data) => {
+            this._openFile(data.file);
+        });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
                 if (electron.remote.app.isPackaged) {
@@ -95,11 +108,15 @@ host.ElectronHost = class {
     start() {
         this._view.show('welcome');
 
-        electron.ipcRenderer.on('open', (_, data) => {
-            if (this._view.accept(data.file)) {
-                this._openFile(data.file);
+        if (this._openFileQueue !== null) {
+            const queue = this._openFileQueue;
+            this._openFileQueue = null;
+            if (queue.length > 0) {
+                const file = queue.pop();
+                this._openFile(file);
             }
-        });
+        }
+
         electron.ipcRenderer.on('export', (_, data) => {
             this._view.export(data.file);
         });
@@ -183,10 +200,7 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        if (name == 'zoom') {
-            return 'd3';
-        }
-        return null;
+        return this._environment.get(name);
     }
 
     error(message, detail) {
@@ -265,7 +279,7 @@ host.ElectronHost = class {
         }
     }
 
-    request(base, file, encoding) {
+    request(file, encoding, base) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(base || __dirname, file);
             fs.stat(pathname, (err, stats) => {
@@ -344,11 +358,15 @@ host.ElectronHost = class {
     }
 
     _openFile(file) {
-        if (file) {
+        if (this._openFileQueue) {
+            this._openFileQueue.push(file);
+            return;
+        }
+        if (file && this._view.accept(file)) {
             this._view.show('welcome spinner');
             const dirname = path.dirname(file);
             const basename = path.basename(file);
-            this.request(dirname, basename, null).then((stream) => {
+            this.request(basename, null, dirname).then((stream) => {
                 const context = new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
                 this._view.open(context).then((model) => {
                     this._view.show(null);
@@ -620,7 +638,7 @@ host.ElectronHost.FileStream = class {
 
     byte() {
         const position = this._fill(1);
-        return this.buffer[position];
+        return this._buffer[position];
     }
 
     _fill(length) {
@@ -661,16 +679,24 @@ host.ElectronHost.ElectonContext = class {
         this._stream = stream;
     }
 
-    request(file, encoding) {
-        return this._host.request(this._folder, file, encoding);
-    }
-
     get identifier() {
         return this._identifier;
     }
 
     get stream() {
         return this._stream;
+    }
+
+    request(file, encoding, base) {
+        return this._host.request(file, encoding, base === undefined ? this._folder : base);
+    }
+
+    require(id) {
+        return this._host.require(id);
+    }
+
+    exception(error, fatal) {
+        this._host.exception(error, fatal);
     }
 };
 

@@ -37,7 +37,7 @@ build_python: install
 	python ./setup.py build --version bdist_wheel
 
 build_electron: install
-	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --publish never
+	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never
 	npx electron-builder --win --publish never
 	npx electron-builder --linux appimage --publish never
 	npx electron-builder --linux snap --publish never
@@ -64,7 +64,7 @@ publish_python: build_python
 	python -m twine upload --non-interactive --skip-existing --verbose dist/dist/*
 
 publish_electron: install
-	npx electron-builder --mac --publish always
+	npx electron-builder --mac --universal --publish always
 	npx electron-builder --win --publish always
 	npx electron-builder --linux appimage --publish always
 	npx electron-builder --linux snap --publish always
@@ -80,17 +80,16 @@ build_web:
 	cp -R ./source/*.png ./dist/web
 	cp -R ./node_modules/d3/dist/d3.js ./dist/web
 	cp -R ./node_modules/dagre/dist/dagre.js ./dist/web
-	cp -R ./node_modules/pako/dist/pako.min.js ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
 	sed -i "s/0\.0\.0/$$(grep '"version":' package.json -m1 | cut -d\" -f4)/g" ./dist/web/index.html
 
 publish_web: build_web
-	rm -rf ./dist/release
-	git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch release ./dist/release 2>&1 > /dev/null
-	cp -R ./dist/web/* ./dist/release
-	git -C ./dist/release add --all
-	git -C ./dist/release commit --amend --no-edit
-	git -C ./dist/release push --force origin release
+	rm -rf ./dist/gh-pages
+	git clone --depth=1 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/netron.git --branch gh-pages ./dist/gh-pages 2>&1 > /dev/null
+	cp -R ./dist/web/* ./dist/gh-pages
+	git -C ./dist/gh-pages add --all
+	git -C ./dist/gh-pages commit --amend --no-edit
+	git -C ./dist/gh-pages push --force origin gh-pages
 
 publish_cask:
 	curl -s -H "Authorization: token $(GITHUB_TOKEN)" https://api.github.com/repos/Homebrew/homebrew-cask/forks -d '' 2>&1 > /dev/null
