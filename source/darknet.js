@@ -220,7 +220,7 @@ darknet.Graph = class {
                 break;
             }
             default: {
-                throw new darknet.Error("First section must be [net] or [network].");
+                throw new darknet.Error("Unexpected '[" + net.type + "]' section. First section must be [net] or [network].");
             }
         }
 

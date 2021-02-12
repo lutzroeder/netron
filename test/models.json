@@ -1851,7 +1851,7 @@
     "type":   "darknet",
     "target": "vgg_bn_ssd300.cfg",
     "source": "https://github.com/lutzroeder/netron/files/5287397/vgg_bn_ssd300.cfg.zip[vgg_bn_ssd300.cfg]",
-    "error":  "First section must be [net] or [network] in 'vgg_bn_ssd300.cfg'.",
+    "error":  "Unexpected '[convolutional]' section. First section must be [net] or [network] in 'vgg_bn_ssd300.cfg'.",
     "link":   "https://github.com/lutzroeder/netron/issues/277"
   },
   {
