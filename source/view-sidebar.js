@@ -229,6 +229,9 @@ sidebar.NodeSidebar = class {
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
+            view.on('error', (sender, tensor) => {
+                this._raise('error', tensor);
+            });
             const item = new sidebar.NameValueView(this._host, name, view);
             this._inputs.push(item);
             this._elements.push(item.render());
@@ -562,6 +565,9 @@ sidebar.ParameterView = class {
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
             });
+            item.on('error', (sender, tensor) => {
+                this._raise('error', tensor);
+            });
             this._items.push(item);
             this._elements.push(item.render());
         }
@@ -731,7 +737,14 @@ sidebar.ArgumentView = class {
                     }
                     catch (err) {
                         contentLine.innerHTML = err.toString();
-                        this._host.exception(err, false);
+                        let type = '?';
+                        try {
+                            type = initializer.type.toString();
+                        }
+                        catch (error) {
+                            // continue regardless of error
+                        }
+                        this._raise('error', new Error("Failed to render tensor of type '" + type + "' (" + err.message + ")."));
                     }
                     valueLine.appendChild(contentLine);
                     this._element.appendChild(valueLine);

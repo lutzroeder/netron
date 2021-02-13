@@ -358,12 +358,14 @@ view.View = class {
             { name: 'Error loading TensorFlow Lite model.', message: /^Offset is outside the bounds of the DataView/, url: 'https://github.com/lutzroeder/netron/issues/563' },
             { name: 'RangeError', message: /^start offset of Int32Array/, url: 'https://github.com/lutzroeder/netron/issues/565' },
             { name: 'RangeError', message: /^Maximum call stack size exceeded/, url: 'https://github.com/lutzroeder/netron/issues/589' },
-            { name: 'Error loading model', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
-            { name: 'Error loading model', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
-            { name: 'Error loading model', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
+            { name: 'Error loading model.', message: /^Unsupported Protocol Buffers content/, url: 'https://github.com/lutzroeder/netron/issues/593' },
+            { name: 'Error loading model.', message: /^Unsupported Protocol Buffers text content/, url: 'https://github.com/lutzroeder/netron/issues/594' },
+            { name: 'Error loading model.', message: /^Unsupported JSON content/, url: 'https://github.com/lutzroeder/netron/issues/595' },
             { name: 'TypeError', message: /^Cannot read property 'toString' of undefined/, url: 'https://github.com/lutzroeder/netron/issues/647' },
             { name: 'RangeError', message: /^Invalid string length/, url: 'https://github.com/lutzroeder/netron/issues/648' },
-            { name: 'Error loading UFF model', message: /^Unknown attribute/, url: 'https://github.com/lutzroeder/netron/issues/649' }
+            { name: 'Error loading UFF model.', message: /^Unknown attribute/, url: 'https://github.com/lutzroeder/netron/issues/649' },
+            { name: 'Error loading model.', message: /^Failed to render tensor/, url: 'https://github.com/lutzroeder/netron/issues/681' },
+            { name: 'Error', message: /^Failed to render tensor/, url: 'https://github.com/lutzroeder/netron/issues/681' },
         ];
         const known = knowns.find((known) => err.name === known.name && err.message.match(known.message));
         const message = err.message + (known ? '\n\nPlease provide information about this issue at ' + known.url + '.' : '');
@@ -577,11 +579,23 @@ view.View = class {
                                     Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
                                     shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
                                     if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
-                                        shape = argument.initializer.toString();
-                                        if (shape && shape.length > 10) {
-                                            shape = shape.substring(0, 10) + '\u2026';
+                                        try {
+                                            shape = argument.initializer.toString();
+                                            if (shape && shape.length > 10) {
+                                                shape = shape.substring(0, 10) + '\u2026';
+                                            }
+                                            separator = ' = ';
                                         }
-                                        separator = ' = ';
+                                        catch (err) {
+                                            let type = '?';
+                                            try {
+                                                type = argument.initializer.type.toString();
+                                            }
+                                            catch (error) {
+                                                // continue regardless of error
+                                            }
+                                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + model.format + "' (" + err.message + ").");
+                                        }
                                     }
                                 }
                                 block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
@@ -1066,6 +1080,9 @@ view.View = class {
                     });
                 }).catch(() => {
                 });
+            });
+            nodeSidebar.on('error', (sender, error) => {
+                this.error(error, null, null);
             });
             if (input) {
                 nodeSidebar.toggleInput(input.name);
