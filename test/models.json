@@ -2332,6 +2332,13 @@
   },
   {
     "type":   "lightgbm",
+    "target": "simple_example.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/5978325/simple_example.pkl.zip[simple_example.pkl]",
+    "format": "LightGBM Pickle v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/669"
+  },
+  {
+    "type":   "lightgbm",
     "target": "simple_example.txt",
     "source": "https://github.com/lutzroeder/netron/files/5832361/simple_example.txt.zip[simple_example.txt]",
     "format": "LightGBM v3",
