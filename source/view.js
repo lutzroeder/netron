@@ -46,6 +46,8 @@ view.View = class {
             this._host.start();
             switch (this._host.environment('zoom')) {
                 case 'scroll': {
+                    const userAgent = navigator.userAgent.toLowerCase();
+                    const safari = userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1;
                     const elements = [ 'graph', 'toolbar' ];
                     for (const id of elements) {
                         const element = this._getElementById(id);
@@ -58,18 +60,56 @@ view.View = class {
                         element.addEventListener('wheel', (e) => {
                             this._mouseWheelHandler(e);
                         });
-                        element.addEventListener('gesturestart', (e) => {
-                            e.preventDefault();
-                            this._gestureStartZoom = this._zoom;
-                        }, false);
-                        element.addEventListener('gesturechange', (e) => {
-                            e.preventDefault();
-                            this._updateZoom(this._gestureStartZoom * e.scale, e);
-                        }, false);
-                        element.addEventListener('gestureend', (e) => {
-                            e.preventDefault();
-                            this._updateZoom(this._gestureStartZoom * e.scale, e);
-                        }, false);
+                        if (safari) {
+                            element.addEventListener('gesturestart', (e) => {
+                                e.preventDefault();
+                                this._gestureZoom = this._zoom;
+                            }, false);
+                            element.addEventListener('gesturechange', (e) => {
+                                e.preventDefault();
+                                this._updateZoom(this._gestureZoom * e.scale, e);
+                            }, false);
+                            element.addEventListener('gestureend', (e) => {
+                                e.preventDefault();
+                                this._updateZoom(this._gestureZoom * e.scale, e);
+                            }, false);
+                        }
+                        else {
+                            element.addEventListener('touchstart', (e) => {
+                                if (e.touches.length === 2) {
+                                    this._touchPoints = Array.from(e.touches);
+                                    this._touchZoom = this._zoom;
+                                }
+                            }, { passive: true });
+                            element.addEventListener('touchmove', (e) => {
+                                if (Array.isArray(this._touchPoints) && this._touchPoints.length === 2 && e.touches.length === 2) {
+                                    const distance = (points) => {
+                                        const dx =(points[1].clientX - points[0].clientX);
+                                        const dy =(points[1].clientY - points[0].clientY);
+                                        return Math.sqrt(dx * dx + dy * dy);
+                                    };
+                                    const d1 = distance(Array.from(e.touches));
+                                    const d2 = distance(this._touchPoints);
+                                    if (d2 !== 0) {
+                                        const points = this._touchPoints;
+                                        const e = {
+                                            pageX: (points[1].pageX + points[0].pageX) / 2,
+                                            pageY: (points[1].pageY + points[0].pageY) / 2
+                                        };
+                                        const zoom = d2 === 0 ? d1 : d1 / d2;
+                                        this._updateZoom(this._touchZoom * zoom, e);
+                                    }
+                                }
+                            }, { passive: true });
+                            element.addEventListener('touchcancel', () => {
+                                delete this._touchPoints;
+                                delete this._touchZoom;
+                            }, { passive: true });
+                            element.addEventListener('touchend', () => {
+                                delete this._touchPoints;
+                                delete this._touchZoom;
+                            }, { passive: true });
+                        }
                     }
                     break;
                 }
@@ -237,7 +277,7 @@ view.View = class {
 
         const min = Math.min(Math.max(graphElement.clientHeight / this._height, 0.2), 1);
 
-        zoom = Math.min(zoom, 1.0);
+        zoom = Math.min(zoom, 1.4);
         zoom = Math.max(min, zoom);
 
         const scrollLeft = this._scrollLeft || graphElement.scrollLeft;
