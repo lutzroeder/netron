@@ -21253,6 +21253,11 @@
           "description": "Delimiter to separate fields in a line.",
           "name": "delimiter",
           "type": "string"
+        },
+        {
+          "default": 0,
+          "name": "offset",
+          "type": "int64"
         }
       ],
       "description": "It inserts one key-value pair into the table for each line of the file.\nThe key and value is extracted from the whole line content, elements from the\nsplit line based on `delimiter` or the line number (starting from zero).\nWhere to extract the key and value from a line is specified by `key_index` and\n`value_index`.\n\n- A value of -1 means use the line number(starting from zero), expects `int64`.\n- A value of -2 means use the whole line content, expects `string`.\n- A value >= 0 means use the index (starting at zero) of the split line based\n  on `delimiter`.",
@@ -21300,6 +21305,11 @@
           "description": "Delimiter to separate fields in a line.",
           "name": "delimiter",
           "type": "string"
+        },
+        {
+          "default": 0,
+          "name": "offset",
+          "type": "int64"
         }
       ],
       "description": "It inserts one key-value pair into the table for each line of the file.\nThe key and value is extracted from the whole line content, elements from the\nsplit line based on `delimiter` or the line number (starting from zero).\nWhere to extract the key and value from a line is specified by `key_index` and\n`value_index`.\n\n- A value of -1 means use the line number(starting from zero), expects `int64`.\n- A value of -2 means use the whole line content, expects `string`.\n- A value >= 0 means use the index (starting at zero) of the split line based\n  on `delimiter`.",
@@ -39237,7 +39247,7 @@
         }
       ],
       "category": "Activation",
-      "description": "See: https://en.wikipedia.org/wiki/Rectifier_(neural_networks)\nExample usage:\n>>> tf.nn.relu([-2., 0., -0., 3.]).numpy()\narray([ 0.,  0., -0.,  3.], dtype=float32)",
+      "description": "See: https://en.wikipedia.org/wiki/Rectifier_(neural_networks)\nExample usage:\n>>> tf.nn.relu([-2., 0., 3.]).numpy()\narray([0., 0., 3.], dtype=float32)",
       "inputs": [
         {
           "name": "features",
@@ -61278,7 +61288,7 @@
           "type": "type"
         }
       ],
-      "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\n# tensor 'x' is [1, 1, 2, 4, 4, 4, 7, 8, 8]\ny, idx, count = unique_with_counts(x)\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor an `2-D` tensor `x` with `axis = 0`:\n\n```\n# tensor 'x' is [[1, 0, 0],\n#                [1, 0, 0],\n#                [2, 0, 0]]\ny, idx, count = unique_with_counts(x, axis=0)\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor an `2-D` tensor `x` with `axis = 1`:\n\n```\n# tensor 'x' is [[1, 0, 0],\n#                [1, 0, 0],\n#                [2, 0, 0]]\ny, idx, count = unique_with_counts(x, axis=1)\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
+      "description": "This operation either returns a tensor `y` containing unique elements\nalong the `axis` of a tensor. The returned unique elements is sorted\nin the same order as they occur along `axis` in `x`.\nThis operation also returns a tensor `idx` and a tensor `count`\nthat are the same size as the number of the elements in `x` along the\n`axis` dimension. The `idx` contains the index in the unique output `y`\nand the `count` contains the count in the unique output `y`.\nIn other words, for an `1-D` tensor `x` with `axis = None:\n\n`y[idx[i]] = x[i] for i in [0, 1,...,rank(x) - 1]`\n\nFor example:\n\n```\nx = tf.constant([1, 1, 2, 4, 4, 4, 7, 8, 8])\ny, idx, count = UniqueWithCountsV2(x, axis = [0])\ny ==> [1, 2, 4, 7, 8]\nidx ==> [0, 0, 1, 2, 2, 2, 3, 4, 4]\ncount ==> [2, 1, 3, 1, 2]\n```\n\nFor a `2-D` tensor `x` with `axis = 0`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[0])\ny ==> [[1, 0, 0],\n       [2, 0, 0]]\nidx ==> [0, 0, 1]\ncount ==> [2, 1]\n```\n\nFor a `2-D` tensor `x` with `axis = 1`:\n\n```\nx = tf.constant([[1, 0, 0],\n                [1, 0, 0],\n                [2, 0, 0]])\ny, idx, count = UniqueWithCountsV2(x, axis=[1])\ny ==> [[1, 0],\n       [1, 0],\n       [2, 0]]\nidx ==> [0, 1, 1]\ncount ==> [1, 2]\n```",
       "inputs": [
         {
           "description": "A `Tensor`.",
