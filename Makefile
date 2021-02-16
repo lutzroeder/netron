@@ -37,8 +37,7 @@ build_python: install
 	python ./setup.py build --version bdist_wheel
 
 install_python: build_python
-	pip uninstall --yes netron
-	pip install dist/dist/*.whl
+	pip install --force-reinstall --quiet dist/dist/*.whl
 
 build_electron: install
 	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never
