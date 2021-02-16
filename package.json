@@ -14,7 +14,7 @@
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "[ -d node_modules ] || npm install && python setup.py --quiet build && PYTHONPATH=./dist/lib python -c 'import netron; netron.main()' $@"
+        "server": "[ -d node_modules ] || npm install && python setup.py --quiet build && python -c 'import sys, os; sys.path.append(os.path.join(\"dist\", \"lib\")); import netron; netron.main()' $@"
     },
     "dependencies": {
         "d3": "6.5.0",
