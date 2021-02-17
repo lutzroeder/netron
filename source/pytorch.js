@@ -1064,6 +1064,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerConstructor('torchvision.models.detection._utils.BalancedPositiveNegativeSampler', function() {});
         this.registerConstructor('torchvision.models.detection._utils.BoxCoder', function() {});
         this.registerConstructor('torchvision.models.detection._utils.Matcher', function() {});
+        this.registerConstructor('torchvision.models.detection.anchor_utils.AnchorGenerator', function() {});
         this.registerConstructor('torchvision.models.detection.backbone_utils.BackboneWithFPN', function() {});
         this.registerConstructor('torchvision.models.detection.faster_rcnn.FasterRCNN', function() {});
         this.registerConstructor('torchvision.models.detection.faster_rcnn.FastRCNNPredictor', function() {});
@@ -2164,6 +2165,8 @@ pytorch.Container.Zip = class {
                                     return 0;
                                 case 'float':
                                     return 0.0;
+                                case 'bool':
+                                    return false;
                                 case 'Optional':
                                     return undefined;
                             }
