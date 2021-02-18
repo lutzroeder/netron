@@ -631,6 +631,11 @@ tflite.Tensor = class {
                         context.index += 1;
                         context.count++;
                         break;
+                    case 'uint32':
+                        results.push(context.data.getUint32(context.index));
+                        context.index += 4;
+                        context.count++;
+                        break;
                     case 'int8':
                         results.push(context.data.getInt8(context.index));
                         context.index += 1;
