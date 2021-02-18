@@ -709,13 +709,6 @@ sidebar.ArgumentView = class {
                 }
 
                 if (initializer) {
-                    const reference = initializer.reference;
-                    if (reference) {
-                        const referenceLine = this._host.document.createElement('div');
-                        referenceLine.className = 'sidebar-view-item-value-line-border';
-                        referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
-                        this._element.appendChild(referenceLine);
-                    }
                     const state = initializer.state;
                     if (state === null && this._host.save &&
                         initializer.type.dataType && initializer.type.dataType != '?' &&
