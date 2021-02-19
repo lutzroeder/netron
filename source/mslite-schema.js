@@ -303,6 +303,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 215: return $root.mindspore.schema.BatchMatMul.decode(reader, position);
             case 216: return $root.mindspore.schema.LinSpace.decode(reader, position);
             case 217: return $root.mindspore.schema.UniformReal.decode(reader, position);
+            case 218: return $root.mindspore.schema.AbsGrad.decode(reader, position);
         }
         return undefined;
     }
@@ -526,6 +527,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'BatchMatMul': return $root.mindspore.schema.BatchMatMul.decodeText(reader, json);
             case 'LinSpace': return $root.mindspore.schema.LinSpace.decodeText(reader, json);
             case 'UniformReal': return $root.mindspore.schema.UniformReal.decodeText(reader, json);
+            case 'AbsGrad': return $root.mindspore.schema.AbsGrad.decodeText(reader, json);
         }
         return undefined;
     }
@@ -4567,6 +4569,21 @@ $root.mindspore.schema.UniformReal = class UniformReal {
         const $ = new $root.mindspore.schema.UniformReal();
         $.seed = reader.value(json.seed, 0);
         $.seed2 = reader.value(json.seed2, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.AbsGrad = class AbsGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.AbsGrad();
+        $.transpose_a = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.AbsGrad();
+        $.transpose_a = reader.value(json.transpose_a, false);
         return $;
     }
 };
