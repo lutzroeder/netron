@@ -8769,15 +8769,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 6\nnumber_of_gates = 3\nweight_scale = 0.2\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_gru_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
           "summary": "seq_length"
         }
       ],
@@ -8915,15 +8919,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 6\nnumber_of_gates = 3\nweight_scale = 0.2\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_gru_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
           "summary": "seq_length"
         }
       ],
@@ -9057,15 +9065,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 6\nnumber_of_gates = 3\nweight_scale = 0.2\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_gru_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
           "summary": "seq_length"
         }
       ],
@@ -9125,6 +9137,158 @@
       ],
       "outputs_range": "0 - 2",
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain seq_lens to integer tensor.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
+          "name": "activation_alpha",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
+          "name": "activation_beta",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "A list of 2 (or 4 if bidirectional) activation functions for update, reset, and hidden gates. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
+          "name": "activations",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
+          "name": "clip",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "default": "forward",
+          "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
+          "name": "direction",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Number of neurons in the hidden layer",
+          "name": "hidden_size",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The shape format of inputs X, initial_h and outputs Y, Y_h. If 0, the following shapes are expected: X.shape = [seq_length, batch_size, input_size], Y.shape = [seq_length, num_directions, batch_size, hidden_size], initial_h.shape = Y_h.shape = [num_directions, batch_size, hidden_size]. If 1, the following shapes are expected: X.shape = [batch_size, seq_length, input_size], Y.shape = [batch_size, seq_length, num_directions, hidden_size], initial_h.shape = Y_h.shape = [batch_size, num_directions, hidden_size].",
+          "name": "layout",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "When computing the output of the hidden gate, apply the linear transformation before multiplying by the output of the reset gate.",
+          "name": "linear_before_reset",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "description": "Computes an one-layer GRU. This operator is usually supported via some custom\nimplementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`z` - update gate\n\n`r` - reset gate\n\n`h` - hidden gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[zrh]` - W parameter weight matrix for update, reset, and hidden gates\n\n`R[zrh]` - R recurrence weight matrix for update, reset, and hidden gates\n\n`Wb[zrh]` - W bias vectors for update, reset, and hidden gates\n\n`Rb[zrh]` - R bias vectors for update, reset, and hidden gates\n\n`WB[zrh]` - W parameter weight matrix for backward update, reset, and hidden gates\n\n`RB[zrh]` - R recurrence weight matrix for backward update, reset, and hidden gates\n\n`WBb[zrh]` - W bias vectors for backward update, reset, and hidden gates\n\n`RBb[zrh]` - R bias vectors for backward update, reset, and hidden gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh):\n\n  - zt = f(Xt*(Wz^T) + Ht-1*(Rz^T) + Wbz + Rbz)\n\n  - rt = f(Xt*(Wr^T) + Ht-1*(Rr^T) + Wbr + Rbr)\n\n  - ht = g(Xt*(Wh^T) + (rt (.) Ht-1)*(Rh^T) + Rbh + Wbh) # default, when linear_before_reset = 0\n\n  - ht = g(Xt*(Wh^T) + (rt (.) (Ht-1*(Rh^T) + Rbh)) + Wbh) # when linear_before_reset != 0\n\n  - Ht = (1 - zt) (.) ht + zt (.) Ht-1\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 6\nnumber_of_gates = 3\nweight_scale = 0.2\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_gru_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 5\nweight_scale = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\ngru = GRU_Helper(X=input, W=W, R=R)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_gru_defaults')",
+          "summary": "defaults"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 3\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_with_initial_bias')",
+          "summary": "initial_bias"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\nnumber_of_gates = 3\n\nnode = onnx.helper.make_node(\n    'GRU',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, number_of_gates * hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, number_of_gates * hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nR_B = np.random.randn(1, number_of_gates * hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\ngru = GRU_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = gru.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_gru_seq_length')",
+          "summary": "seq_length"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor for the gates. Concatenation of `W[zrh]` and `WB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, input_size]`.",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "The recurrence weight tensor. Concatenation of `R[zrh]` and `RB[zrh]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 3*hidden_size, hidden_size]`.",
+          "name": "R",
+          "type": "T"
+        },
+        {
+          "description": "The bias tensor for the gates. Concatenation of `[Wb[zrh], Rb[zrh]]` and `[WBb[zrh], RBb[zrh]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 6*hidden_size]`. Optional: If not specified - assumed to be 0",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
+          "name": "sequence_lens",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "initial_h",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "3 - 6",
+      "max_input": 6,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 0,
+      "outputs": [
+        {
+          "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. ",
+          "name": "Y",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_h",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "outputs_range": "0 - 2",
+      "since_version": 14,
       "support_level": "common",
       "type_constraints": [
         {
@@ -12531,15 +12695,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_lstm_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 7\nweight_scale = 0.3\nnumber_of_gates = 4\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_lstm_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_lstm_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 4\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), 1)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_lstm_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 4\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), 1)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_lstm_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[Y_h.astype(np.float32)],\n       name='test_lstm_with_peepholes')",
+          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[Y_h.astype(np.float32)],\n       name='test_lstm_with_peepholes')",
           "summary": "peepholes"
         }
       ],
@@ -12691,15 +12859,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_lstm_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 7\nweight_scale = 0.3\nnumber_of_gates = 4\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_lstm_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_lstm_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 4\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), 1)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_lstm_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 4\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), 1)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_lstm_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[Y_h.astype(np.float32)],\n       name='test_lstm_with_peepholes')",
+          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[Y_h.astype(np.float32)],\n       name='test_lstm_with_peepholes')",
           "summary": "peepholes"
         }
       ],
@@ -12777,6 +12949,176 @@
       ],
       "outputs_range": "0 - 3",
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain seq_lens to integer tensor.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "LSTM",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
+          "name": "activation_alpha",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
+          "name": "activation_beta",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "A list of 3 (or 6 if bidirectional) activation functions for input, output, forget, cell, and hidden. The activation functions must be one of the activation functions specified above. Optional: See the equations for default if not specified.",
+          "name": "activations",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
+          "name": "clip",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "default": "forward",
+          "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
+          "name": "direction",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Number of neurons in the hidden layer",
+          "name": "hidden_size",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "Couple the input and forget gates if 1.",
+          "name": "input_forget",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The shape format of inputs X, initial_h, initial_c and outputs Y, Y_h, Y_c. If 0, the following shapes are expected: X.shape = [seq_length, batch_size, input_size], Y.shape = [seq_length, num_directions, batch_size, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [num_directions, batch_size, hidden_size]. If 1, the following shapes are expected: X.shape = [batch_size, seq_length, input_size], Y.shape = [batch_size, seq_length, num_directions, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [num_directions, batch_size, hidden_size].",
+          "name": "layout",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "description": "Computes an one-layer LSTM. This operator is usually supported via some\ncustom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`o` - output gate\n\n`f` - forget gate\n\n`c` - cell gate\n\n`t` - time step (t-1 means previous time step)\n\n`W[iofc]` - W parameter weight matrix for input, output, forget, and cell gates\n\n`R[iofc]` - R recurrence weight matrix for input, output, forget, and cell gates\n\n`Wb[iofc]` - W bias vectors for input, output, forget, and cell gates\n\n`Rb[iofc]` - R bias vectors for input, output, forget, and cell gates\n\n`P[iof]`  - P peephole weight vector for input, output, and forget gates\n\n`WB[iofc]` - W parameter weight matrix for backward input, output, forget, and cell gates\n\n`RB[iofc]` - R recurrence weight matrix for backward input, output, forget, and cell gates\n\n`WBb[iofc]` - W bias vectors for backward input, output, forget, and cell gates\n\n`RBb[iofc]` - R bias vectors for backward input, output, forget, and cell gates\n\n`PB[iof]`  - P peephole weight vector for backward input, output, and forget gates\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Sigmoid, g=Tanh, h=Tanh):\n\n  - it = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Pi (.) Ct-1 + Wbi + Rbi)\n\n  - ft = f(Xt*(Wf^T) + Ht-1*(Rf^T) + Pf (.) Ct-1 + Wbf + Rbf)\n\n  - ct = g(Xt*(Wc^T) + Ht-1*(Rc^T) + Wbc + Rbc)\n\n  - Ct = ft (.) Ct-1 + it (.) ct\n\n  - ot = f(Xt*(Wo^T) + Ht-1*(Ro^T) + Po (.) Ct + Wbo + Rbo)\n\n  - Ht = ot (.) h(Ct)\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 7\nweight_scale = 0.3\nnumber_of_gates = 4\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_lstm_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_lstm_defaults')",
+          "summary": "defaults"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 4\nweight_scale = 0.1\ncustom_bias = 0.1\nnumber_of_gates = 4\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, number_of_gates * hidden_size)).astype(np.float32)\nR_B = np.zeros((1, number_of_gates * hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), 1)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_lstm_with_initial_bias')",
+          "summary": "initial_bias"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3., 4.], [5., 6., 7., 8.]]]).astype(np.float32)\n\ninput_size = 4\nhidden_size = 3\nweight_scale = 0.1\nnumber_of_gates = 4\nnumber_of_peepholes = 3\n\nnode = onnx.helper.make_node(\n    'LSTM',\n    inputs=['X', 'W', 'R', 'B', 'sequence_lens', 'initial_h', 'initial_c', 'P'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\n# Initializing Inputs\nW = weight_scale * np.ones((1, number_of_gates * hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, number_of_gates * hidden_size, hidden_size)).astype(np.float32)\nB = np.zeros((1, 2 * number_of_gates * hidden_size)).astype(np.float32)\nseq_lens = np.repeat(input.shape[0], input.shape[1]).astype(np.int32)\ninit_h = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\ninit_c = np.zeros((1, input.shape[1], hidden_size)).astype(np.float32)\nP = weight_scale * np.ones((1, number_of_peepholes * hidden_size)).astype(np.float32)\n\nlstm = LSTM_Helper(X=input, W=W, R=R, B=B, P=P, initial_c=init_c, initial_h=init_h)\n_, Y_h = lstm.step()\nexpect(node, inputs=[input, W, R, B, seq_lens, init_h, init_c, P], outputs=[Y_h.astype(np.float32)],\n       name='test_lstm_with_peepholes')",
+          "summary": "peepholes"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor for the gates. Concatenation of `W[iofc]` and `WB[iofc]` (if bidirectional) along dimension 0. The tensor has shape `[num_directions, 4*hidden_size, input_size]`.",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "The recurrence weight tensor. Concatenation of `R[iofc]` and `RB[iofc]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 4*hidden_size, hidden_size]`.",
+          "name": "R",
+          "type": "T"
+        },
+        {
+          "description": "The bias tensor for input gate. Concatenation of `[Wb[iofc], Rb[iofc]]`, and `[WBb[iofc], RBb[iofc]]` (if bidirectional) along dimension 0. This tensor has shape `[num_directions, 8*hidden_size]`. Optional: If not specified - assumed to be 0.",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
+          "name": "sequence_lens",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "initial_h",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Optional initial value of the cell. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "initial_c",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor for peepholes. Concatenation of `P[iof]` and `PB[iof]` (if bidirectional) along dimension 0. It has shape `[num_directions, 3*hidde_size]`. Optional: If not specified - assumed to be 0.",
+          "name": "P",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "3 - 8",
+      "max_input": 8,
+      "max_output": 3,
+      "min_input": 3,
+      "min_output": 0,
+      "outputs": [
+        {
+          "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. ",
+          "name": "Y",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_h",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the cell. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_c",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "outputs_range": "0 - 3",
+      "since_version": 14,
       "support_level": "common",
       "type_constraints": [
         {
@@ -19769,15 +20111,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_simple_rnn_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.5\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_simple_rnn_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_simple_rnn_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\ncustom_bias = 0.1\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, hidden_size)).astype(np.float32)\nR_B = np.zeros((1, hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)],\n       name='test_simple_rnn_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\ncustom_bias = 0.1\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, hidden_size)).astype(np.float32)\nR_B = np.zeros((1, hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)],\n       name='test_simple_rnn_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, hidden_size).astype(np.float32)\nR_B = np.random.randn(1, hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_rnn_seq_length')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, hidden_size).astype(np.float32)\nR_B = np.random.randn(1, hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_rnn_seq_length')",
           "summary": "seq_length"
         }
       ],
@@ -19905,15 +20251,19 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_simple_rnn_defaults')",
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.5\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_simple_rnn_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_simple_rnn_defaults')",
           "summary": "defaults"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\ncustom_bias = 0.1\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, hidden_size)).astype(np.float32)\nR_B = np.zeros((1, hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)],\n       name='test_simple_rnn_with_initial_bias')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\ncustom_bias = 0.1\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, hidden_size)).astype(np.float32)\nR_B = np.zeros((1, hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)],\n       name='test_simple_rnn_with_initial_bias')",
           "summary": "initial_bias"
         },
         {
-          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, hidden_size).astype(np.float32)\nR_B = np.random.randn(1, hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_rnn_seq_length')",
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, hidden_size).astype(np.float32)\nR_B = np.random.randn(1, hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_rnn_seq_length')",
           "summary": "seq_length"
         }
       ],
@@ -19973,6 +20323,152 @@
       ],
       "outputs_range": "0 - 2",
       "since_version": 7,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)"
+          ],
+          "description": "Constrain input and output types to float tensors.",
+          "type_param_str": "T"
+        },
+        {
+          "allowed_type_strs": [
+            "tensor(int32)"
+          ],
+          "description": "Constrain seq_lens to integer tensor.",
+          "type_param_str": "T1"
+        }
+      ]
+    }
+  },
+  {
+    "name": "RNN",
+    "schema": {
+      "attributes": [
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.For example with LeakyRelu, the default alpha is 0.01.",
+          "name": "activation_alpha",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "Optional scaling values used by some activation functions. The values are consumed in the order of activation functions, for example (f, g, h) in LSTM. Default values are the same as of corresponding ONNX operators.",
+          "name": "activation_beta",
+          "required": false,
+          "type": "float32[]"
+        },
+        {
+          "description": "One (or two if bidirectional) activation function for input gate. The activation function must be one of the activation functions specified above. Optional: Default `Tanh` if not specified.",
+          "name": "activations",
+          "required": false,
+          "type": "string[]"
+        },
+        {
+          "description": "Cell clip threshold. Clipping bounds the elements of a tensor in the range of [-threshold, +threshold] and is applied to the input of activations. No clip if not specified.",
+          "name": "clip",
+          "required": false,
+          "type": "float32"
+        },
+        {
+          "default": "forward",
+          "description": "Specify if the RNN is forward, reverse, or bidirectional. Must be one of forward (default), reverse, or bidirectional.",
+          "name": "direction",
+          "required": false,
+          "type": "string"
+        },
+        {
+          "description": "Number of neurons in the hidden layer",
+          "name": "hidden_size",
+          "required": false,
+          "type": "int64"
+        },
+        {
+          "description": "The shape format of inputs X, initial_h and outputs Y, Y_h. If 0, the following shapes are expected: X.shape = [seq_length, batch_size, input_size], Y.shape = [seq_length, num_directions, batch_size, hidden_size], initial_h.shape = Y_h.shape = [num_directions, batch_size, hidden_size]. If 1, the following shapes are expected: X.shape = [batch_size, seq_length, input_size], Y.shape = [batch_size, seq_length, num_directions, hidden_size], initial_h.shape = Y_h.shape = [batch_size, num_directions, hidden_size].",
+          "name": "layout",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "category": "Layer",
+      "description": "Computes an one-layer simple RNN. This operator is usually supported\nvia some custom implementation such as CuDNN.\n\nNotations:\n\n`X` - input tensor\n\n`i` - input gate\n\n`t` - time step (t-1 means previous time step)\n\n`Wi` - W parameter weight matrix for input gate\n\n`Ri` - R recurrence weight matrix for input gate\n\n`Wbi` - W parameter bias vector for input gate\n\n`Rbi` - R parameter bias vector for input gate\n\n`WBi` - W parameter weight matrix for backward input gate\n\n`RBi` - R recurrence weight matrix for backward input gate\n\n`WBbi` - WR bias vectors for backward input gate\n\n`RBbi` - RR bias vectors for backward input gate\n\n`H` - Hidden state\n\n`num_directions` - 2 if direction == bidirectional else 1\n\nActivation functions:\n\n  Relu(x)                - max(0, x)\n\n  Tanh(x)                - (1 - e^{-2x})/(1 + e^{-2x})\n\n  Sigmoid(x)             - 1/(1 + e^{-x})\n\n  (NOTE: Below are optional)\n\n  Affine(x)              - alpha*x + beta\n\n  LeakyRelu(x)           - x if x >= 0 else alpha * x\n\n  ThresholdedRelu(x)     - x if x >= alpha else 0\n\n  ScaledTanh(x)          - alpha*Tanh(beta*x)\n\n  HardSigmoid(x)         - min(max(alpha*x + beta, 0), 1)\n\n  Elu(x)                 - x if x >= 0 else alpha*(e^x - 1)\n\n  Softsign(x)            - x/(1 + |x|)\n\n  Softplus(x)            - log(1 + e^x)\n\nEquations (Default: f=Tanh):\n\n  - Ht = f(Xt*(Wi^T) + Ht-1*(Ri^T) + Wbi + Rbi)\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "input = np.array([[[1., 2.]], [[3., 4.]], [[5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.5\nlayout = 1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['Y', 'Y_h'],\n    hidden_size=hidden_size,\n    layout=layout\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R, layout=layout)\nY, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y.astype(np.float32), Y_h.astype(np.float32)], name='test_simple_rnn_batchwise')",
+          "summary": "batchwise"
+        },
+        {
+          "code": "input = np.array([[[1., 2.], [3., 4.], [5., 6.]]]).astype(np.float32)\n\ninput_size = 2\nhidden_size = 4\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\nrnn = RNN_Helper(X=input, W=W, R=R)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R], outputs=[Y_h.astype(np.float32)], name='test_simple_rnn_defaults')",
+          "summary": "defaults"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\ncustom_bias = 0.1\nweight_scale = 0.1\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = weight_scale * np.ones((1, hidden_size, input_size)).astype(np.float32)\nR = weight_scale * np.ones((1, hidden_size, hidden_size)).astype(np.float32)\n\n# Adding custom bias\nW_B = custom_bias * np.ones((1, hidden_size)).astype(np.float32)\nR_B = np.zeros((1, hidden_size)).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)],\n       name='test_simple_rnn_with_initial_bias')",
+          "summary": "initial_bias"
+        },
+        {
+          "code": "input = np.array([[[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]],\n                  [[10., 11., 12.], [13., 14., 15.], [16., 17., 18.]]]).astype(np.float32)\n\ninput_size = 3\nhidden_size = 5\n\nnode = onnx.helper.make_node(\n    'RNN',\n    inputs=['X', 'W', 'R', 'B'],\n    outputs=['', 'Y_h'],\n    hidden_size=hidden_size\n)\n\nW = np.random.randn(1, hidden_size, input_size).astype(np.float32)\nR = np.random.randn(1, hidden_size, hidden_size).astype(np.float32)\n\n# Adding custom bias\nW_B = np.random.randn(1, hidden_size).astype(np.float32)\nR_B = np.random.randn(1, hidden_size).astype(np.float32)\nB = np.concatenate((W_B, R_B), axis=1)\n\nrnn = RNN_Helper(X=input, W=W, R=R, B=B)\n_, Y_h = rnn.step()\nexpect(node, inputs=[input, W, R, B], outputs=[Y_h.astype(np.float32)], name='test_rnn_seq_length')",
+          "summary": "seq_length"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "The input sequences packed (and potentially padded) into one 3-D tensor with the shape of `[seq_length, batch_size, input_size]`.",
+          "name": "X",
+          "type": "T"
+        },
+        {
+          "description": "The weight tensor for input gate. Concatenation of `Wi` and `WBi` (if bidirectional). The tensor has shape `[num_directions, hidden_size, input_size]`.",
+          "name": "W",
+          "type": "T"
+        },
+        {
+          "description": "The recurrence weight tensor. Concatenation of `Ri` and `RBi` (if bidirectional). The tensor has shape `[num_directions, hidden_size, hidden_size]`.",
+          "name": "R",
+          "type": "T"
+        },
+        {
+          "description": "The bias tensor for input gate. Concatenation of `[Wbi, Rbi]` and `[WBbi, RBbi]` (if bidirectional). The tensor has shape `[num_directions, 2*hidden_size]`. Optional: If not specified - assumed to be 0.",
+          "name": "B",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "Optional tensor specifying lengths of the sequences in a batch. If not specified - assumed all sequences in the batch to have length `seq_length`. It has shape `[batch_size]`.",
+          "name": "sequence_lens",
+          "option": "optional",
+          "type": "T1"
+        },
+        {
+          "description": "Optional initial value of the hidden. If not specified - assumed to be 0. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "initial_h",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "inputs_range": "3 - 6",
+      "max_input": 6,
+      "max_output": 2,
+      "min_input": 3,
+      "min_output": 0,
+      "outputs": [
+        {
+          "description": "A tensor that concats all the intermediate output values of the hidden. It has shape `[seq_length, num_directions, batch_size, hidden_size]`. ",
+          "name": "Y",
+          "option": "optional",
+          "type": "T"
+        },
+        {
+          "description": "The last output value of the hidden. It has shape `[num_directions, batch_size, hidden_size]`.",
+          "name": "Y_h",
+          "option": "optional",
+          "type": "T"
+        }
+      ],
+      "outputs_range": "0 - 2",
+      "since_version": 14,
       "support_level": "common",
       "type_constraints": [
         {
