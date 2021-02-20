@@ -734,6 +734,12 @@ $root.caffe2.AOTConfig = class AOTConfig {
                 case 3:
                     message.in_batch_broadcast = reader.bool();
                     break;
+                case 4:
+                    message.onnxifi_blacklist_ops = reader.string();
+                    break;
+                case 5:
+                    message.onnxifi_min_ops = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -766,6 +772,12 @@ $root.caffe2.AOTConfig = class AOTConfig {
                 case "in_batch_broadcast":
                     message.in_batch_broadcast = reader.boolean();
                     break;
+                case "onnxifi_blacklist_ops":
+                    message.onnxifi_blacklist_ops = reader.string();
+                    break;
+                case "onnxifi_min_ops":
+                    message.onnxifi_min_ops = reader.integer();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -784,6 +796,8 @@ $root.caffe2.AOTConfig = class AOTConfig {
 $root.caffe2.AOTConfig.prototype.max_batch_size = protobuf.Int64.create(0);
 $root.caffe2.AOTConfig.prototype.max_seq_size = protobuf.Int64.create(0);
 $root.caffe2.AOTConfig.prototype.in_batch_broadcast = false;
+$root.caffe2.AOTConfig.prototype.onnxifi_blacklist_ops = "";
+$root.caffe2.AOTConfig.prototype.onnxifi_min_ops = 0;
 
 $root.caffe2.Argument = class Argument {
 
