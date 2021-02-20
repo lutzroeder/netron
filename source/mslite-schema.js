@@ -300,10 +300,9 @@ $root.mindspore.schema.PrimitiveType = class {
             case 212: return $root.mindspore.schema.Erf.decode(reader, position);
             case 213: return $root.mindspore.schema.StridedSliceGrad.decode(reader, position);
             case 214: return $root.mindspore.schema.IsFinite.decode(reader, position);
-            case 215: return $root.mindspore.schema.BatchMatMul.decode(reader, position);
-            case 216: return $root.mindspore.schema.LinSpace.decode(reader, position);
-            case 217: return $root.mindspore.schema.UniformReal.decode(reader, position);
-            case 218: return $root.mindspore.schema.AbsGrad.decode(reader, position);
+            case 215: return $root.mindspore.schema.LinSpace.decode(reader, position);
+            case 216: return $root.mindspore.schema.UniformReal.decode(reader, position);
+            case 217: return $root.mindspore.schema.AbsGrad.decode(reader, position);
         }
         return undefined;
     }
@@ -524,7 +523,6 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Erf': return $root.mindspore.schema.Erf.decodeText(reader, json);
             case 'StridedSliceGrad': return $root.mindspore.schema.StridedSliceGrad.decodeText(reader, json);
             case 'IsFinite': return $root.mindspore.schema.IsFinite.decodeText(reader, json);
-            case 'BatchMatMul': return $root.mindspore.schema.BatchMatMul.decodeText(reader, json);
             case 'LinSpace': return $root.mindspore.schema.LinSpace.decodeText(reader, json);
             case 'UniformReal': return $root.mindspore.schema.UniformReal.decodeText(reader, json);
             case 'AbsGrad': return $root.mindspore.schema.AbsGrad.decodeText(reader, json);
@@ -4522,23 +4520,6 @@ $root.mindspore.schema.IsFinite = class IsFinite {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.IsFinite();
-        return $;
-    }
-};
-
-$root.mindspore.schema.BatchMatMul = class BatchMatMul {
-
-    static decode(reader, position) {
-        const $ = new $root.mindspore.schema.BatchMatMul();
-        $.transpose_a = reader.bool_(position, 4, false);
-        $.transpose_b = reader.bool_(position, 6, false);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new $root.mindspore.schema.BatchMatMul();
-        $.transpose_a = reader.value(json.transpose_a, false);
-        $.transpose_b = reader.value(json.transpose_b, false);
         return $;
     }
 };
