@@ -4072,27 +4072,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "alexnet.pkl.pth.zip",
-    "source": "https://github.com/lutzroeder/netron/files/5213453/alexnet.pkl.pth.zip",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://github.com/lutzroeder/netron/issues/133"
-  },
-  {
-    "type":   "pytorch",
-    "target": "alexnet.zip.pth",
-    "script": "./tools/pytorch zoo",
-    "format": "PyTorch v1.6",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "alexnet.pt",
-    "script": "./tools/pytorch zoo",
-    "format": "TorchScript v1.6",
-    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
     "target": "alexnet_traced.pt",
     "script": "./tools/pytorch zoo",
     "format": "TorchScript v1.6",
@@ -4104,6 +4083,27 @@
     "source": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
     "format": "PyTorch v0.1.1",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet.pkl.pth.zip",
+    "source": "https://github.com/lutzroeder/netron/files/5213453/alexnet.pkl.pth.zip",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/133"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet.pt",
+    "script": "./tools/pytorch zoo",
+    "format": "TorchScript v1.6",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
+  },
+  {
+    "type":   "pytorch",
+    "target": "alexnet.zip.pth",
+    "script": "./tools/pytorch zoo",
+    "format": "PyTorch v1.6",
+    "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
   },
   {
     "type":   "pytorch",

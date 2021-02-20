@@ -2354,10 +2354,12 @@ python.Execution = class {
                 }
                 return obj;
             }
+            else if (target.prototype && target.prototype.__class__ === this._context.scope.builtins.type) {
+                return Reflect.construct(target, args);
+            }
             else if (target.__class__ === this._context.scope.builtins.function) {
                 if (target.__call__) {
                     return target.__call__(args);
-                    // throw new pytorch.Error('Unexpected function __call__.');
                 }
                 else {
                     return target.apply(null, args);
@@ -2399,6 +2401,9 @@ python.Execution = class {
                 obj.__init__.apply(obj, args);
             }
             return obj;
+        }
+        else if (func.prototype && func.prototype.__class__ === this._context.scope.builtins.type) {
+            return Reflect.construct(func, args);
         }
         if (func.__class__ === this._context.scope.builtins.function) {
             if (func.__call__) {
@@ -2722,6 +2727,17 @@ python.Execution = class {
                 callback.apply(this, arguments);
             }
         };
+        this._context.setx(name, type);
+    }
+
+    registerClass(name, type) {
+        if (this._context.getx(name)) {
+            throw new python.Error("Class '" + name + "' is already registered.");
+        }
+        const parts = name.split('.');
+        type.prototype.__class__ = this._context.scope.builtins.type;
+        type.prototype.__name__ = parts.pop();
+        type.prototype.__module__ = parts.join('.');
         this._context.setx(name, type);
     }
 
