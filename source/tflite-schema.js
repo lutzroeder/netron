@@ -354,7 +354,11 @@ $root.tflite.BuiltinOperator = {
     CONV_3D: 132,
     IMAG: 133,
     REAL: 134,
-    COMPLEX_ABS: 135
+    COMPLEX_ABS: 135,
+    HASHTABLE: 136,
+    HASHTABLE_FIND: 137,
+    HASHTABLE_IMPORT: 138,
+    HASHTABLE_SIZE: 139
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -467,6 +471,10 @@ $root.tflite.BuiltinOptions = class {
             case 104: return $root.tflite.BroadcastToOptions.decode(reader, position);
             case 105: return $root.tflite.Rfft2dOptions.decode(reader, position);
             case 106: return $root.tflite.Conv3DOptions.decode(reader, position);
+            case 107: return $root.tflite.HashtableOptions.decode(reader, position);
+            case 108: return $root.tflite.HashtableFindOptions.decode(reader, position);
+            case 109: return $root.tflite.HashtableImportOptions.decode(reader, position);
+            case 110: return $root.tflite.HashtableSizeOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -579,6 +587,10 @@ $root.tflite.BuiltinOptions = class {
             case 'BroadcastToOptions': return $root.tflite.BroadcastToOptions.decodeText(reader, json);
             case 'Rfft2dOptions': return $root.tflite.Rfft2dOptions.decodeText(reader, json);
             case 'Conv3DOptions': return $root.tflite.Conv3DOptions.decodeText(reader, json);
+            case 'HashtableOptions': return $root.tflite.HashtableOptions.decodeText(reader, json);
+            case 'HashtableFindOptions': return $root.tflite.HashtableFindOptions.decodeText(reader, json);
+            case 'HashtableImportOptions': return $root.tflite.HashtableImportOptions.decodeText(reader, json);
+            case 'HashtableSizeOptions': return $root.tflite.HashtableSizeOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2267,6 +2279,64 @@ $root.tflite.Rfft2dOptions = class Rfft2dOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.Rfft2dOptions();
+        return $;
+    }
+};
+
+$root.tflite.HashtableOptions = class HashtableOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.HashtableOptions();
+        $.table_id = reader.int32_(position, 4, 0);
+        $.key_dtype = reader.int8_(position, 6, 0);
+        $.value_dtype = reader.int8_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.HashtableOptions();
+        $.table_id = reader.value(json.table_id, 0);
+        $.key_dtype = $root.tflite.TensorType[json.key_dtype];
+        $.value_dtype = $root.tflite.TensorType[json.value_dtype];
+        return $;
+    }
+};
+
+$root.tflite.HashtableFindOptions = class HashtableFindOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.HashtableFindOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.HashtableFindOptions();
+        return $;
+    }
+};
+
+$root.tflite.HashtableImportOptions = class HashtableImportOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.HashtableImportOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.HashtableImportOptions();
+        return $;
+    }
+};
+
+$root.tflite.HashtableSizeOptions = class HashtableSizeOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.HashtableSizeOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.HashtableSizeOptions();
         return $;
     }
 };
