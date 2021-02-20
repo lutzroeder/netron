@@ -4176,6 +4176,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "deeplabv3_scripted.pt",
+    "source": "https://github.com/lutzroeder/netron/files/5604999/deeplabv3_scripted.pt.zip[deeplabv3_scripted.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/630"
+  },
+  {
+    "type":   "pytorch",
     "target": "densenet161.zip.pth",
     "script": "./tools/pytorch zoo",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"

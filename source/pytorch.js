@@ -1351,6 +1351,16 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('torch.floordiv', function(/* left, right */) {
             return undefined;
         });
+        this.registerFunction('torch.format', function() {
+            const args = Array.from(arguments);
+            const list = args.shift().split(/({}D?)/);
+            return list.map((text) => {
+                if (text === '{}' || text === '{}D') {
+                    return args.shift().toString();
+                }
+                return text;
+            }).join('');
+        });
         this.registerFunction('torch.gt', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
                 if (!isNaN(left) && !isNaN(right)) {
@@ -1479,13 +1489,13 @@ pytorch.Execution = class extends python.Execution {
             if (step !== 1) {
                 throw new pytorch.Error('Slicing only supports step=1');
             }
-            start = Math.max(0, start);
+            start = Math.max(0, start >= 0 ? start : l.length + start);
             end = Math.min(l.length, end);
             return l.slice(start, end);
         });
         this.registerFunction('torch.sub', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
-                return left * right;
+                return left - right;
             }
             throw new pytorch.Error("Unknown 'torch.sub' expression type.");
         });
@@ -1597,6 +1607,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerClass('torch.Tensor', class {
             constructor() {
             }
+            get dtype() {
+                return this.storage().dtype;
+            }
             get shape() {
                 return this._shape;
             }
@@ -1604,6 +1617,10 @@ pytorch.Execution = class extends python.Execution {
                 return this._shape;
             }
             storage() {
+                if (!this._storage) {
+                    const name = this.__name__ == 'Tensor' ? 'FloatStorage' : this.__name__.replace('Tensor', 'Storage');
+                    this._storage = self.invoke(this.__module__ + '.' + name, []);
+                }
                 return this._storage;
             }
             storage_offset() {
@@ -1667,6 +1684,16 @@ pytorch.Execution = class extends python.Execution {
         torch.quint8 = new torch.dtype(pytorch.ScalarType.quint8);
         torch.qint32 = new torch.dtype(pytorch.ScalarType.qint32);
         torch.bfloat16 = new torch.dtype(pytorch.ScalarType.bfloat16);
+    }
+
+    debug(file) {
+        const buffer = this.source(file + '.debug_pkl');
+        if (buffer) {
+            return null;
+            // const unpickler = new python.Unpickler(buffer);
+            // return unpickler.load((name, args) => this.invoke(name, args), null);
+        }
+        return null;
     }
 };
 
@@ -2557,6 +2584,14 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         parameter.resize_([ NaN, NaN, NaN ]);
                                         break;
                                     }
+                                    case 'torch.batch_norm':
+                                    case 'torch.relu': {
+                                        const input = this.expression(args[0], context);
+                                        if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                            parameter.resize_(input.size());
+                                        }
+                                        break;
+                                    }
                                     case 'torch.ones':
                                     case 'torch.zeros':
                                     case 'torch.zeros_like': {
@@ -2657,6 +2692,19 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 }
             }
         }
+        for (let i = 0; i < statements.length; i++) {
+            // input_shape = torch.slice(torch.size(x), -2, 9223372036854775807, 1)
+            const assign = statements[i];
+            if (assign.type === '=' &&
+                pytorch.Utility.isCall(assign.expression, 'torch.slice', 4) &&
+                pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1)) {
+                const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+                if (tensor && tensor.__origin__ === 'graph-input') {
+                    tensor.resize_([1, 3, 299, 299]);
+                }
+            }
+        }
+
         return super.block(statements, context);
     }
 

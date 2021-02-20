@@ -6,8 +6,9 @@ var python = python || {};
 
 python.Parser = class {
 
-    constructor(text, file) {
+    constructor(text, file, debug) {
         this._tokenizer = new python.Tokenizer(text, file);
+        this._debug = debug;
         if (!python.Parser._precedence) {
             python.Parser._precedence = {
                 'or': 2, 'and': 3, 'not' : 4,
@@ -2289,11 +2290,19 @@ python.Execution = class {
         return this._context;
     }
 
+    source(file) {
+        return this._sources.has(file) ? this._sources.get(file) : null;
+    }
+
+    debug(/* file */) {
+    }
+
     parse(file) {
-        if (this._sources.has(file)) {
-            const buffer = this._sources.get(file);
+        const buffer = this.source(file);
+        if (buffer) {
+            const debug = this.debug(file);
             const code = this._utf8Decoder.decode(buffer);
-            const reader = new python.Parser(code, file);
+            const reader = new python.Parser(code, file, debug);
             const program = reader.parse();
             if (!program) {
                 throw new python.Error("Module '" + file + "' parse error.");
@@ -2303,9 +2312,13 @@ python.Execution = class {
         return null;
     }
 
-    package(name, file, raw) {
-        if (python && !this._packages.has(name)) {
-            file = file || 'code/' + name.split('.').join('/') + '.py';
+    package(name) {
+        const index = name.lastIndexOf('.');
+        if (index > 0) {
+            this.package(name.substring(0, index));
+        }
+        if (!this._packages.has(name)) {
+            const file = 'code/' + name.split('.').join('/') + '.py';
             const program = this.parse(file);
             if (program) {
                 let globals = this._context.getx(name);
@@ -2319,9 +2332,6 @@ python.Execution = class {
                 this._packages.set(name, globals);
                 const context = this._context.push(globals);
                 this.block(program.body, context);
-                if (raw) {
-                    return program;
-                }
             }
         }
         return this._packages.get(name);
