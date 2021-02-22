@@ -133,6 +133,7 @@ class Application {
                     'mlmodel',
                     'caffemodel',
                     'model', 'dnn', 'cmf', 'mar', 'params',
+                    'pdmodel', 'pdparams',
                     'meta',
                     'tflite', 'lite', 'tfl',
                     'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn',

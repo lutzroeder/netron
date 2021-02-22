@@ -3992,6 +3992,13 @@
   },
   {
     "type":   "paddle",
+    "target": "ch_ppocr_mobile_v2.0_det_infer.tar",
+    "source": "https://paddleocr.bj.bcebos.com/dygraph_v2.0/ch/ch_ppocr_mobile_v2.0_det_infer.tar",
+    "format": "PaddlePaddle",
+    "link":   "https://github.com/lutzroeder/netron/issues/552"
+  },
+  {
+    "type":   "paddle",
     "target": "PyramidBox_WiderFace.tar.gz",
     "source": "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
     "format": "PaddlePaddle",
@@ -4001,7 +4008,7 @@
     "type":   "paddle",
     "target": "recognize_digits_multilayer_perceptron_model.zip",
     "source": "https://github.com/lutzroeder/netron/files/4985730/recognize_digits_multilayer_perceptron_model.zip",
-    "format": "PaddlePaddle",
+    "format": "PaddlePaddle v1.8",
     "link":   "https://github.com/lutzroeder/netron/issues/552"
   },
   {
@@ -4015,8 +4022,15 @@
     "type":   "paddle",
     "target": "tranformer_base.zip",
     "source": "https://github.com/lutzroeder/netron/files/5160568/tranformer_base.zip",
-    "format": "PaddlePaddle",
+    "format": "PaddlePaddle v1.8.3",
     "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
+    "target": "resnet18.pdparams",
+    "source": "https://paddle-hapi.bj.bcebos.com/models/resnet18.pdparams",
+    "format": "PaddlePaddle Pickle",
+    "link":   "https://github.com/lutzroeder/netron/issues/552"
   },
   {
     "type":   "paddle",
