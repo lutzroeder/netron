@@ -100,6 +100,9 @@ rknn.Graph = class {
         for (const graph of model.graph) {
             const key = graph.right + ':' + graph.right_tensor_id.toString();
             const argument = args.get(key);
+            if (!argument) {
+                throw new rknn.Error("Invalid argument '" + key + "'.");
+            }
             const name = graph.left + ((graph.left_tensor_id === 0) ? '' : graph.left_tensor_id.toString());
             const parameter = new rknn.Parameter(name, [ argument ]);
             switch (graph.left) {
@@ -196,10 +199,20 @@ rknn.Node = class {
             const count = input.list ? node.input.length - i : 1;
             const list = node.input.slice(i, i + count).map((input) => {
                 if (input.right_tensor) {
-                    return args.get(input.right_tensor.type + ':' + input.right_tensor.tensor_id.toString());
+                    const key = input.right_tensor.type + ':' + input.right_tensor.tensor_id.toString();
+                    const argument = args.get(key);
+                    if (!argument) {
+                        throw new rknn.Error("Invalid input argument '" + key + "'.");
+                    }
+                    return argument;
                 }
                 if (input.right_node) {
-                    return args.get(input.right_node.node_id.toString() + ':' + input.right_node.tensor_id.toString());
+                    const key = input.right_node.node_id.toString() + ':' + input.right_node.tensor_id.toString();
+                    const argument = args.get(key);
+                    if (!argument) {
+                        throw new rknn.Error("Invalid input argument '" + key + "'.");
+                    }
+                    return argument;
                 }
                 throw new rknn.Error('Invalid input argument.');
             });
@@ -212,10 +225,20 @@ rknn.Node = class {
             const count = output.list ? node.output.length - i : 1;
             const list = node.output.slice(i, i + count).map((output) => {
                 if (output.right_tensor) {
-                    return args.get(output.right_tensor.type + ':' + output.right_tensor.tensor_id.toString());
+                    const key = output.right_tensor.type + ':' + output.right_tensor.tensor_id.toString();
+                    const argument = args.get(key);
+                    if (!argument) {
+                        throw new rknn.Error("Invalid output argument '" + key + "'.");
+                    }
+                    return argument;
                 }
                 if (output.right_node) {
-                    return args.get(output.right_node.node_id.toString() + ':' + output.right_node.tensor_id.toString());
+                    const key = output.right_node.node_id.toString() + ':' + output.right_node.tensor_id.toString();
+                    const argument = args.get(key);
+                    if (!argument) {
+                        throw new rknn.Error("Invalid output argument '" + key + "'.");
+                    }
+                    return argument;
                 }
                 throw new rknn.Error('Invalid output argument.');
             });
