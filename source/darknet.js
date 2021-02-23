@@ -365,8 +365,8 @@ darknet.Graph = class {
                         layer.out_w = params.w;
                         layer.out_c = params.c;
                         layer.out = layer.in;
-                        load_batch_normalize_weights(weights, section, '', layer.out);
-                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.ouputs ], 'batchnorm'));
+                        load_batch_normalize_weights(layer, '', layer.out_c);
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'batchnorm'));
                         break;
                     }
                     case 'activation': {
@@ -374,7 +374,7 @@ darknet.Graph = class {
                         layer.out_w = params.w;
                         layer.out_c = params.c;
                         layer.out = layer.in;
-                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.ouputs ], 'activation'));
+                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'activation'));
                         break;
                     }
                     case 'max':

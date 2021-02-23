@@ -1856,6 +1856,13 @@
   },
   {
     "type":   "darknet",
+    "target": "xyolo.test.cfg",
+    "source": "https://github.com/lutzroeder/netron/files/6026689/xyolo.test.cfg.zip[xyolo.test.cfg]",
+    "format": "Darknet",
+    "link":   "https://github.com/lutzroeder/netron/issues/277"
+  },
+  {
+    "type":   "darknet",
     "target": "yolo-coco.cfg",
     "source": "https://raw.githubusercontent.com/AlexeyAB/darknet/master/cfg/yolov1/yolo-coco.cfg",
     "format": "Darknet",
