@@ -34,6 +34,12 @@
     }
   },
   {
+    "name": "VSI_NN_OP_SIGMOID",
+    "schema": {
+      "category": "Activation"
+    }
+  },
+  {
     "name": "VSI_NN_OP_LEAKY_SIGMOID",
     "schema": {
       "category": "Activation"
