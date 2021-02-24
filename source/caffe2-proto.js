@@ -2,81 +2,6 @@ var $root = protobuf.get('caffe2');
 
 $root.caffe2 = {};
 
-$root.caffe2.ExternalDataProto = class ExternalDataProto {
-
-    constructor() {
-        this.strides = [];
-    }
-
-    static decode(reader, length) {
-        const message = new $root.caffe2.ExternalDataProto();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.source_type = reader.int32();
-                    break;
-                case 2:
-                    message.record_id = reader.string();
-                    break;
-                case 5:
-                    message.record_size = reader.uint64();
-                    break;
-                case 3:
-                    message.offset = reader.int64();
-                    break;
-                case 4:
-                    message.strides = reader.array(message.strides, () => reader.int64(), tag);
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.caffe2.ExternalDataProto();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "source_type":
-                    message.source_type = reader.enum($root.caffe2.ExternalDataProto.SourceType);
-                    break;
-                case "record_id":
-                    message.record_id = reader.string();
-                    break;
-                case "record_size":
-                    message.record_size = reader.integer();
-                    break;
-                case "offset":
-                    message.offset = reader.integer();
-                    break;
-                case "strides":
-                    reader.array(message.strides, () => reader.integer());
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.caffe2.ExternalDataProto.prototype.source_type = 0;
-$root.caffe2.ExternalDataProto.prototype.record_id = "";
-$root.caffe2.ExternalDataProto.prototype.record_size = protobuf.Uint64.create(0);
-$root.caffe2.ExternalDataProto.prototype.offset = protobuf.Int64.create(0);
-
-$root.caffe2.ExternalDataProto.SourceType = {
-    "INLINE_CONTAINER": 0,
-    "SIMPLE_FILE": 1
-};
-
 $root.caffe2.TensorProto = class TensorProto {
 
     constructor() {
@@ -100,9 +25,6 @@ $root.caffe2.TensorProto = class TensorProto {
                 case 2:
                     message.data_type = reader.int32();
                     break;
-                case 12:
-                    message.storage_type = reader.int32();
-                    break;
                 case 3:
                     message.float_data = reader.floats(message.float_data, tag);
                     break;
@@ -123,9 +45,6 @@ $root.caffe2.TensorProto = class TensorProto {
                     break;
                 case 13:
                     message.raw_data = reader.bytes();
-                    break;
-                case 14:
-                    message.external_data = $root.caffe2.ExternalDataProto.decode(reader, reader.uint32());
                     break;
                 case 7:
                     message.name = reader.string();
@@ -156,9 +75,6 @@ $root.caffe2.TensorProto = class TensorProto {
                 case "data_type":
                     message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                     break;
-                case "storage_type":
-                    message.storage_type = reader.enum($root.caffe2.TensorProto.StorageType);
-                    break;
                 case "float_data":
                     reader.array(message.float_data, () => reader.float());
                     break;
@@ -180,9 +96,6 @@ $root.caffe2.TensorProto = class TensorProto {
                 case "raw_data":
                     message.raw_data = reader.bytes();
                     break;
-                case "external_data":
-                    message.external_data = $root.caffe2.ExternalDataProto.decodeText(reader);
-                    break;
                 case "name":
                     message.name = reader.string();
                     break;
@@ -202,10 +115,8 @@ $root.caffe2.TensorProto = class TensorProto {
 };
 
 $root.caffe2.TensorProto.prototype.data_type = 1;
-$root.caffe2.TensorProto.prototype.storage_type = 1;
 $root.caffe2.TensorProto.prototype.byte_data = new Uint8Array([]);
 $root.caffe2.TensorProto.prototype.raw_data = new Uint8Array([]);
-$root.caffe2.TensorProto.prototype.external_data = null;
 $root.caffe2.TensorProto.prototype.name = "";
 $root.caffe2.TensorProto.prototype.device_detail = null;
 $root.caffe2.TensorProto.prototype.segment = null;
@@ -226,13 +137,6 @@ $root.caffe2.TensorProto.DataType = {
     "DOUBLE": 13,
     "ZERO_COLLISION_HASH": 14,
     "REBATCHING_BUFFER": 15
-};
-
-$root.caffe2.TensorProto.StorageType = {
-    "TYPED": 1,
-    "RAW": 2,
-    "EXTERNAL": 3,
-    "NO_CONTENT": 4
 };
 
 $root.caffe2.TensorProto.Segment = class Segment {
