@@ -1914,6 +1914,7 @@ python.Execution = class {
         this.registerConstructor('sklearn.impute.SimpleImputer', function() {});
         this.registerConstructor('sklearn.isotonic.IsotonicRegression', function() {});
         this.registerConstructor('sklearn.linear_model._base.LinearRegression', function() {});
+        this.registerConstructor('sklearn.linear_model._bayes.BayesianRidge', function() {});
         this.registerConstructor('sklearn.linear_model._coordinate_descent.ElasticNet', function() {});
         this.registerConstructor('sklearn.linear_model._logistic.LogisticRegression', function() {});
         this.registerConstructor('sklearn.linear_model._sgd_fast.ModifiedHuber', function() {});
