@@ -854,103 +854,69 @@ flexbuffers.Reader = class {
     }
 
     read() {
-        const length = this._reader.length;
-        if (length < 3) {
+        const end = this._reader.length;
+        if (end < 3) {
             throw 'Invalid buffer size.';
         }
-        const byteSize = this._reader.uint(length - 1, 0);
-        if (byteSize > 8) {
+        const byteWidth = this._reader.uint(end - 1, 1);
+        if (byteWidth > 8) {
             throw 'Invalid byte size.';
         }
-        const bitSize = byteSize >> 2;
-        const packedType = this._reader.uint(length - 2, 0);
-        const offset = length - 2 - byteSize;
-        return new flexbuffers.Reference(this._reader, offset, bitSize, packedType).read();
+        const packedType = this._reader.uint(end - 2, 1);
+        const reference = new flexbuffers.Reference(this._reader, end - 2 - byteWidth, byteWidth, 1 << (packedType & 3), packedType >> 2);
+        return reference.read();
     }
 };
 
 flexbuffers.Reference = class {
 
-    constructor(reader, offset, parentBitSize, packedType) {
+    constructor(reader, offset, parentWidth, byteWidth, type) {
         this._reader = reader;
         this._offset = offset;
-        this._parentBitSize = parentBitSize;
-        this._bitSize = packedType & 3;
-        this._byteSize = 1 << this._bitSize;
-        this._valueType = packedType >> 2;
+        this._parentWidth = parentWidth;
+        this._byteWidth = byteWidth;
+        this._type = type;
     }
 
     read() {
-        switch (this._valueType) {
+        switch (this._type) {
             case 0x00:   // null
                 return null;
             case 0x01:   // int
-                return this._reader.int(this._offset, this._parentBitSize);
+                return this._reader.int(this._offset, this._parentWidth);
             case 0x02:   // uint
-                return this._reader.uint(this._offset, this._parentBitSize);
+                return this._reader.uint(this._offset, this._parentWidth);
             case 0x03:   // float
-                return this._reader.float(this._offset, this._parentBitSize);
-            case 0x04: {
-                const offset = this._reader.indirect(this._offset, this._parentBitSize);
-                let size = 0;
-                while (this._reader.int(offset + size, 0) !== 0) {
-                    size++;
-                }
-                return this._reader.string(offset, size);
+                return this._reader.float(this._offset, this._parentWidth);
+            case 0x04: { // key
+                return this._reader.string(this._indirect());
             }
             case 0x05: { // string
-                const offset = this._reader.indirect(this._offset, this._parentBitSize);
-                let sizeByteSize = this._byteSize;
-                let size = this._reader.int(offset - sizeByteSize, this._bitSize);
-                while (this._reader.int(offset + size, 0) !== 0) {
-                    sizeByteSize <<= 1;
-                    size = this._reader.int(offset - sizeByteSize, this._bitSize);
-                }
+                const offset = this._indirect();
+                const size = this._reader.uint(offset - this._byteWidth, this._byteWidth);
                 return this._reader.string(offset, size);
             }
             case 0x06: // indirect int
-                return this._reader.int(this._offset, this._reader.indirect(this._offset, this._parentBitSize), this._bitSize);
+                return this._reader.int(this._indirect(), this._byteWidth);
             case 0x07: // indirect uint
-                return this._reader.uint(this._offset, this._reader.indirect(this._offset, this._parentBitSize), this._bitSize);
+                return this._reader.uint(this._indirect(), this._byteWidth);
             case 0x08:   // indirect float
-                return this._reader.float(this._reader.indirect(this._offset, this._parentBitSize), this._bitSize);
+                return this._reader.float(this._indirect(), this._byteWidth);
             case 0x09: { // map
-                const length = this._reader.int(this._reader.indirect(this._offset, this._parentBitSize) - this._byteSize, this._bitSize);
-                const keysOffset = this._reader.indirect(this._offset, this._parentBitSize) - (this._byteSize * 3);
-                const keysVectorOffset = this._reader.indirect(keysOffset, this._bitSize);
-                const keyByteSize = this._reader.int(keysOffset + this._byteSize, this._bitSize);
-                let keyBitSize;
-                switch (keyByteSize) {
-                    case 1: keyBitSize = 0; break;
-                    case 2: keyBitSize = 1; break;
-                    case 4: keyBitSize = 2; break;
-                    case 8: keyBitSize = 3; break;
+                const offset = this._indirect();
+                const keysOffset = offset - (this._byteWidth * 3);
+                const keysVectorOffset = keysOffset - this._reader.uint(keysOffset, this._byteWidth);
+                const keysByteWidth = this._reader.uint(keysOffset + this._byteWidth, this._byteWidth);
+                const keys = this._typedVector(keysVectorOffset, keysByteWidth, 0x04);
+                const values = this._vector(offset, this._byteWidth);
+                const map = {};
+                for (let i = 0; i < keys.length; i++) {
+                    map[keys[i]] = values[i];
                 }
-                const valuesOffset = this._reader.indirect(this._offset, this._parentBitSize);
-                const obj = {};
-                for (let i = 0; i < length; i++) {
-                    const keyOffset = keysVectorOffset + (i * keyByteSize);
-                    const keyReference = new flexbuffers.Reference(this._reader, keyOffset, keyBitSize, (0x04 << 2) | keyBitSize);
-                    const key = keyReference.read();
-                    const valueOffset = valuesOffset + (i * this._byteSize);
-                    const packedType = this._reader.uint(valuesOffset + (length * this._byteSize) + i, 0);
-                    const valueReference = new flexbuffers.Reference(this._reader, valueOffset, this._bitSize, packedType);
-                    const value = valueReference.read();
-                    obj[key] = value;
-                }
-                return obj;
+                return map;
             }
             case 0x0a: { // vector
-                const length = this._reader.int(this._reader.indirect(this._offset, this._parentBitSize) - this._byteSize, this._bitSize);
-                const arr = new Array(length);
-                for (let i = 0; i < length; i++) {
-                    const itemsOffset = this._reader.indirect(this._offset, this._parentBitSize);
-                    const itemOffset = itemsOffset + (i * this._byteSize);
-                    const packedType = this._reader.uint(itemsOffset + (length * this._byteSize) + i, 0);
-                    const itemReference = new flexbuffers.Reference(this._reader, itemOffset, this._bitSize, packedType);
-                    arr[i] = itemReference.read();
-                }
-                return arr;
+                return this._vector(this._indirect(), this._byteWidth);
             }
             case 0x0b:   // vector int
             case 0x0c:   // vector uint
@@ -958,17 +924,7 @@ flexbuffers.Reference = class {
             case 0x0e:   // vector key
             case 0x0f:   // vector string deprecated
             case 0x24: { // vector bool
-                const length = this._reader.int(this._reader.indirect(this._offset, this._parentBitSize) - this._byteSize, this._bitSize);
-                const valueType = this._valueType - 0x0b + 0x01;
-                const packedType = valueType << 2 | 0;
-                const arr = new Array(length);
-                for (let i = 0; i < length; i++) {
-                    const itemsOffset = this._reader.indirect(this._offset, this._parentBitSize);
-                    const itemOffset = itemsOffset + (i * this._byteSize);
-                    const itemReference = new flexbuffers.Reference(this._reader, itemOffset, this._bitSize, packedType);
-                    arr[i] = itemReference.read();
-                }
-                return arr;
+                return this._typedVector(this._indirect(), this._byteWidth, this._type - 0x0b + 0x01);
             }
             case 0x10:   // vector int2
             case 0x11:   // vector uint2
@@ -979,29 +935,47 @@ flexbuffers.Reference = class {
             case 0x16:   // vector int4
             case 0x17:   // vector uint4
             case 0x18: { // vector float4
-                const length = (((this._valueType - 0x10) / 3) >> 0) + 2;
-                const valueType = ((this._valueType - 0x10) % 3) + 0x01;
-                const packedType = valueType << 2 | 0;
-                const arr = new Array(length);
-                for (let i = 0; i < length; i++) {
-                    const itemsOffset = this._reader.indirect(this._offset, this._parentBitSize);
-                    const itemOffset = itemsOffset + (i * this._byteSize);
-                    const itemReference = new flexbuffers.Reference(this._reader, itemOffset, this._bitSize, packedType);
-                    arr[i] = itemReference.read();
-                }
-                return arr;
+                const offset = this._indirect();
+                const size = (((this._type - 0x10) / 3) >> 0) + 2;
+                const type = ((this._type - 0x10) % 3) + 0x01;
+                return this._typedVector(offset, this._byteWidth, type, size);
             }
             case 0x19: { // blob
-                const sizeOffset = this._reader.indirect(this._offset, this._parentBitSize) - this._byteSize;
-                const size = this._reader.int(sizeOffset, this._bitSize);
-                const offset = this._reader.indirect(this._offset, this._parentBitSize);
+                const offset = this._indirect();
+                const size = this._reader.uint(offset - this._byteWidth, this._byteWidth);
                 return this._reader.bytes(offset, size);
             }
-            case 0x1A: { // bool
-                return this._reader.int(this._offset, this._parentBitSize) > 0;
+            case 0x1a: { // bool
+                return this._reader.uint(this._offset, this._parentWidth) !== 0;
             }
         }
         return undefined;
+    }
+
+    _indirect() {
+        return this._offset - this._reader.uint(this._offset, this._parentWidth);
+    }
+
+    _vector(offset, byteWidth) {
+        const size = this._reader.uint(offset - byteWidth, byteWidth);
+        const packedTypeOffset = offset + (size * byteWidth);
+        const vector = new Array(size);
+        for (let i = 0; i < size; i++) {
+            const packedType = this._reader.uint(packedTypeOffset + i, 1);
+            const reference = new flexbuffers.Reference(this._reader, offset + (i * byteWidth), byteWidth, 1 << (packedType & 3), packedType >> 2);
+            vector[i] = reference.read();
+        }
+        return vector;
+    }
+
+    _typedVector(offset, byteWidth, type, size) {
+        size = size === undefined ? this._reader.uint(offset - byteWidth, byteWidth) : size;
+        const vector = new Array(size);
+        for (let i = 0; i < size; i++) {
+            const reference = new flexbuffers.Reference(this._reader, offset + (i * byteWidth), byteWidth, 1, type);
+            vector[i] = reference.read();
+        }
+        return vector;
     }
 };
 
@@ -1020,45 +994,41 @@ flexbuffers.BinaryReader = class {
 
     int(offset, size) {
         switch (size) {
-            case 0: return this._view.getInt8(offset);
-            case 1: return this._view.getInt16(offset, true);
-            case 2: return this._view.getInt32(offset, true);
-            case 3: return this._view.getInt64(offset, true);
+            case 1: return this._view.getInt8(offset);
+            case 2: return this._view.getInt16(offset, true);
+            case 4: return this._view.getInt32(offset, true);
+            case 8: return this._view.getInt64(offset, true);
         }
-        throw new flexbuffers.Error('Invalid int size.');
+        throw new flexbuffers.Error("Invalid int size '" + size + "'.");
     }
 
     uint(offset, size) {
         switch (size) {
-            case 0: return this._view.getUint8(offset);
-            case 1: return this._view.getUint16(offset, true);
-            case 2: return this._view.getUint32(offset, true);
-            case 3: return this._view.getUint64(offset, true);
+            case 1: return this._view.getUint8(offset);
+            case 2: return this._view.getUint16(offset, true);
+            case 4: return this._view.getUint32(offset, true);
+            case 8: return this._view.getUint64(offset, true);
         }
-        throw new flexbuffers.Error('Invalid uint size.');
+        throw new flexbuffers.Error("Invalid uint size '" + size + "'.");
     }
 
     float(offset, size) {
         switch (size) {
-            case 2:
-                return this._view.getFloat32(offset, true);
-            case 3:
-                return this._view.getFloat64(offset, true);
+            case 4: return this._view.getFloat32(offset, true);
+            case 8: return this._view.getFloat64(offset, true);
         }
-        throw new flexbuffers.Error('Invalid float size.');
+        throw new flexbuffers.Error("Invalid float size '" + size + "'.");
     }
 
     string(offset, size) {
-        const bytes = this._buffer.subarray(offset, offset + size);
+        let end = size === undefined ? this._buffer.indexOf(0, offset) : offset + size;
+        end = end === -1 ? this._buffer.length : end;
+        const bytes = this._buffer.subarray(offset, end);
         return this._utf8Decoder.decode(bytes);
     }
 
     bytes(offset, size) {
         return this._buffer.slice(offset, offset + size);
-    }
-
-    indirect(offset, size) {
-        return offset - this.uint(offset, size);
     }
 };
 
