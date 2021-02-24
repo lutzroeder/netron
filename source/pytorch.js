@@ -869,6 +869,8 @@ pytorch.Execution = class extends python.Execution {
         });
         this.registerConstructor('torch.autograd.variable.Variable', function() {});
         this.registerConstructor('torch.backends.cudnn.rnn.Unserializable', function() {});
+        this.registerConstructor('torch.distributions.constraints._LowerCholesky', {});
+        this.registerConstructor('torch.distributions.constraints._Real', {});
         this.registerConstructor('torch.distributions.multivariate_normal.MultivariateNormal', function() {});
         this.registerConstructor('torch.distributions.transforms.LowerCholeskyTransform', function() {});
         this.registerConstructor('torch.nn.backends.thnn._get_thnn_function_backend', function() {});
