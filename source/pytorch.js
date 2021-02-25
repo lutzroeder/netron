@@ -1147,7 +1147,7 @@ pytorch.Execution = class extends python.Execution {
             return tensor.device;
         });
         this.registerFunction('ops.prim.dtype', function(tensor) {
-            return tensor.stoarge.dtype.scalar_type();
+            return tensor.dtype.scalar_type();
         });
         this.registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
             return value;
@@ -1358,7 +1358,8 @@ pytorch.Execution = class extends python.Execution {
             const list = args.shift().split(/({}D?)/);
             return list.map((text) => {
                 if (text === '{}' || text === '{}D') {
-                    return args.shift().toString();
+                    const arg = args.shift();
+                    return Array.isArray(arg) ? '[' + arg.map((item) => item.toString()).join(', ') + ']' : arg.toString();
                 }
                 return text;
             }).join('');
@@ -2271,19 +2272,19 @@ pytorch.Container.Zip = class {
             const args = [ this.data ]; // self
             if (this.data.forward.__code__ && this.data.forward.__code__.parameters) {
                 for (const parameter of this.data.forward.__code__.parameters) {
-                    const defaultValue = (type) => {
+                    const defaultValue = (type, name) => {
                         if (type.type === 'type' && type.name.type) {
                             switch (type.name.value) {
                                 case 'Tensor': {
                                     const tensor = this.execution.invoke('torch.Tensor', []);
-                                    tensor.__variable__ = parameter.name;
+                                    tensor.__variable__ = name;
                                     tensor.__origin__ = 'graph-input';
                                     return tensor;
                                 }
                                 case 'Tuple':
-                                    return type.arguments.map((type) => defaultValue(type));
+                                    return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']'));
                                 case 'List':
-                                    return type.arguments.map((type) => defaultValue(type));
+                                    return type.arguments.map((type, index) => defaultValue(type, name + '[' + index.toString() + ']' ));
                                 case 'Dict':
                                     return {};
                                 case 'int':
@@ -2300,7 +2301,7 @@ pytorch.Container.Zip = class {
                     };
                     if (parameter.name !== 'self') {
                         const type = parameter.parameterType;
-                        const value = defaultValue(type);
+                        const value = defaultValue(type, parameter.name);
                         if (pytorch.Utility.isTensor(value)) {
                             value.__variable__ = parameter.name;
                             value.__origin__ = 'graph-input';
@@ -2667,47 +2668,51 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
     }
 
     block(statements, context) {
-        for (let i = 0; i < statements.length - 1; i++) {
-            const assign = statements[i];
-            const condition = statements[i + 1];
-            // _x = torch.ne(torch.len(torch.size(input)), 5)
-            // if _x:
-            //   ops.prim.RaiseException(...)
-            if (assign.type === '=' &&
-                condition.type === 'if' &&
-                pytorch.Utility.isEqual(assign.target, condition.condition) &&
-                pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
-                pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
-                pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
-                condition.then.statements.length == 1 &&
-                pytorch.Utility.isCall(condition.then.statements[0], 'ops.prim.RaiseException', 1)) {
-                const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
-                if (tensor && tensor.size) {
-                    const number = this.expression(assign.expression.arguments[1], context);
-                    const size = tensor.size();
-                    if (size && size.length && size.length !== number &&
-                        size.every((item) => isNaN(item)) && number >= 3 && number <= 5) {
-                        if (tensor.__origin__ === 'torch.quantize_per_tensor') {
-                            tensor.resize_(Array(number).fill(NaN));
+        statements = Array.prototype.slice.call(statements);
+        while (statements.length > 0) {
+            if (statements.length > 1) {
+                const assign = statements[0];
+                const condition = statements[1];
+                // _x = torch.ne(torch.len(torch.size(input)), 5)
+                // if _x:
+                //   ops.prim.RaiseException(...)
+                if (assign.type === '=' &&
+                    condition.type === 'if' &&
+                    pytorch.Utility.isEqual(assign.target, condition.condition) &&
+                    pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
+                    condition.then.statements.length == 1 &&
+                    pytorch.Utility.isCall(condition.then.statements[0], 'ops.prim.RaiseException', 1)) {
+                    const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
+                    if (tensor && tensor.size) {
+                        const number = this.expression(assign.expression.arguments[1], context);
+                        const size = tensor.size();
+                        if (size && size.length && size.length !== number &&
+                            size.every((item) => isNaN(item)) && number >= 3 && number <= 5) {
+                            if (tensor.__origin__ === 'torch.quantize_per_tensor') {
+                                tensor.resize_(Array(number).fill(NaN));
+                            }
                         }
                     }
                 }
             }
-        }
-        for (let i = 0; i < statements.length; i++) {
             // input_shape = torch.slice(torch.size(x), -2, 9223372036854775807, 1)
-            const assign = statements[i];
+            const assign = statements[0];
             if (assign.type === '=' &&
                 pytorch.Utility.isCall(assign.expression, 'torch.slice', 4) &&
                 pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1)) {
                 const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
                 if (tensor && tensor.__origin__ === 'graph-input') {
-                    tensor.resize_([1, 3, 299, 299]);
+                    tensor.resize_([ 1, 3, 299, 299 ]);
                 }
             }
+            const statement = statements.shift();
+            const value = this.statement(statement, context);
+            if (value !== undefined) {
+                return value;
+            }
         }
-
-        return super.block(statements, context);
     }
 
     push(node) {

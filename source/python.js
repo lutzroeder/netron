@@ -2436,7 +2436,11 @@ python.Execution = class {
         const locals = Array.prototype.slice.call(args);
         context = context.push();
         for (const parameter of method.parameters) {
-            context.set(parameter.name, locals.shift());
+            let value = locals.shift();
+            if (value === undefined && parameter.initializer) {
+                value = this.expression(parameter.initializer, context);
+            }
+            context.set(parameter.name, value);
         }
         return this.block(method.body.statements, context);
     }
@@ -2445,114 +2449,126 @@ python.Execution = class {
         statements = Array.prototype.slice.call(statements);
         while (statements.length > 0) {
             const statement = statements.shift();
-            switch (statement.type) {
-                case 'pass': {
-                    break;
-                }
-                case 'return': {
-                    return this.expression(statement.expression, context);
-                }
-                case 'def': {
-                    const module = context.get('__name__');
-                    const self = this;
-                    const parent = context.get('__class__');
-                    let type = null;
-                    if (parent === this._context.scope.builtins.type) {
-                        type = this._context.scope.builtins.method;
-                    }
-                    else if (parent === this._context.scope.builtins.module) {
-                        type = this._context.scope.builtins.function;
-                    }
-                    else {
-                        throw new python.Error('Invalid function scope.');
-                    }
-                    const func = {
-                        __class__: type,
-                        __globals__: context,
-                        __module__: module,
-                        __name__: statement.name,
-                        __code__: statement,
-                        __call__: function(args) {
-                            return self.apply(this.__code__, args, this.__globals__);
-                        }
-                    };
-                    context.set(statement.name, func);
-                    break;
-                }
-                case 'class': {
-                    const scope = {
-                        __class__:this._context.scope.builtins.type,
-                        __module__: context.get('__name__'),
-                        __name__: statement.name,
-                    };
-                    context.set(statement.name, scope);
-                    context = context.push(scope);
-                    this.block(statement.body.statements, context);
-                    context = context.pop();
-                    break;
-                }
-                case 'var': {
-                    context.set(statement.name, undefined);
-                    break;
-                }
-                case '=': {
-                    this.expression(statement, context);
-                    break;
-                }
-                case 'if': {
-                    const condition = this.expression(statement.condition, context);
-                    if (condition === true || condition) {
-                        statements = statement.then.statements.concat(statements);
-                        break;
-                    }
-                    else if (condition === false) {
-                        statements = statement.else.statements.concat(statements);
-                        break;
-                    }
-                    throw new python.Error("Unknown condition.");
-                }
-                case 'for': {
-                    if (statement.target.length == 1 &&
-                        statement.variable.length === 1 && statement.variable[0].type === 'id') {
-                        const range = this.expression(statement.target[0], context);
-                        const variable = statement.variable[0];
-                        const loop = [];
-                        for (const value of range) {
-                            loop.push({ type: '=', target: variable, expression: { type: 'number', value: value }});
-                            loop.push(...statement.body.statements);
-                        }
-                        statements = loop.concat(statements);
-                        break;
-                    }
-                    throw new python.Error("Unsupported 'for' statement.");
-                }
-                case 'while': {
-                    const condition = this.expression(statement.condition, context);
-                    if (condition) {
-                        throw new python.Error("Unsupported 'while' statement.");
-                    }
-                    break;
-                }
-                case 'call': {
-                    this.expression(statement, context);
-                    break;
-                }
-                case 'import': {
-                    for (const module of statement.modules) {
-                        const moduleName = python.Utility.target(module.name);
-                        const globals = this.package(moduleName);
-                        if (module.as) {
-                            context.set(module.as, globals);
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    throw new python.Error("Unknown statement '" + statement.type + "'.");
-                }
+            const value = this.statement(statement, context);
+            if (value !== undefined) {
+                return value;
             }
         }
     }
+
+    statement(statement, context) {
+        switch (statement.type) {
+            case 'pass': {
+                break;
+            }
+            case 'return': {
+                return this.expression(statement.expression, context);
+            }
+            case 'def': {
+                const module = context.get('__name__');
+                const self = this;
+                const parent = context.get('__class__');
+                let type = null;
+                if (parent === this._context.scope.builtins.type) {
+                    type = this._context.scope.builtins.method;
+                }
+                else if (parent === this._context.scope.builtins.module) {
+                    type = this._context.scope.builtins.function;
+                }
+                else {
+                    throw new python.Error('Invalid function scope.');
+                }
+                const func = {
+                    __class__: type,
+                    __globals__: context,
+                    __module__: module,
+                    __name__: statement.name,
+                    __code__: statement,
+                    __call__: function(args) {
+                        return self.apply(this.__code__, args, this.__globals__);
+                    }
+                };
+                context.set(statement.name, func);
+                break;
+            }
+            case 'class': {
+                const scope = {
+                    __class__:this._context.scope.builtins.type,
+                    __module__: context.get('__name__'),
+                    __name__: statement.name,
+                };
+                context.set(statement.name, scope);
+                context = context.push(scope);
+                this.block(statement.body.statements, context);
+                context = context.pop();
+                break;
+            }
+            case 'var': {
+                context.set(statement.name, undefined);
+                break;
+            }
+            case '=': {
+                this.expression(statement, context);
+                break;
+            }
+            case 'if': {
+                const condition = this.expression(statement.condition, context);
+                if (condition === true || condition) {
+                    const value = this.block(statement.then.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    break;
+                }
+                else if (condition === false) {
+                    const value = this.block(statement.else.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    break;
+                }
+                throw new python.Error("Unknown condition.");
+            }
+            case 'for': {
+                if (statement.target.length == 1 &&
+                    statement.variable.length === 1 && statement.variable[0].type === 'id') {
+                    const range = this.expression(statement.target[0], context);
+                    const variable = statement.variable[0];
+                    for (const value of range) {
+                        this.statement({ type: '=', target: variable, expression: { type: 'number', value: value }}, context);
+                        this.block(statement.body.statements, context);
+                    }
+                    break;
+                }
+                throw new python.Error("Unsupported 'for' statement.");
+            }
+            case 'while': {
+                const condition = this.expression(statement.condition, context);
+                if (condition) {
+                    throw new python.Error("Unsupported 'while' statement.");
+                }
+                break;
+            }
+            case 'call': {
+                this.expression(statement, context);
+                break;
+            }
+            case 'import': {
+                for (const module of statement.modules) {
+                    const moduleName = python.Utility.target(module.name);
+                    const globals = this.package(moduleName);
+                    if (module.as) {
+                        context.set(module.as, globals);
+                    }
+                }
+                break;
+            }
+            default: {
+                throw new python.Error("Unknown statement '" + statement.type + "'.");
+            }
+        }
+    }
+
 
     expression(expression, context) {
         const self = context.getx('self');
@@ -2826,7 +2842,7 @@ python.Execution.Context = class {
     getx(name) {
         const parts = name.split('.');
         let value = this.get(parts[0]);
-        if (value) {
+        if (value !== undefined) {
             parts.shift();
             while (parts.length > 0 && value[parts[0]]) {
                 value = value[parts[0]];
