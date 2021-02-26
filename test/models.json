@@ -4077,6 +4077,13 @@
   },
   {
     "type":   "pickle",
+    "target": "myModel.model",
+    "source": "https://github.com/lutzroeder/netron/files/6047227/myModel.model.zip[myModel.model]",
+    "format": "cuML",
+    "link":   "https://github.com/lutzroeder/netron/issues/550"
+  },
+  {
+    "type":   "pickle",
     "target": "svm.pkl",
     "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
     "format": "Pickle",
@@ -4246,7 +4253,7 @@
     "type":   "pytorch",
     "target": "fasterrcnn_resnet50_fpn.pt",
     "source": "https://github.com/lutzroeder/netron/files/6040364/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":  "Unsupported function 'torch.as_tensor' in 'fasterrcnn_resnet50_fpn.pt'.",
+    "error":  "images is expected to be a list of 3d tensors of shape [C, H, W], got [1, 3, 299, 299] in 'fasterrcnn_resnet50_fpn.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/689"
   },
   {
