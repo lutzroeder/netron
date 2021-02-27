@@ -462,7 +462,7 @@ npz.TensorShape = class {
 npz.Utility = class {
 
     static isTensor(obj) {
-        return obj && obj.__module__ === 'numpy' && obj.__name__ === 'ndarray';
+        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
     }
 
     static weights(obj) {

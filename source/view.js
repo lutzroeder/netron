@@ -1276,7 +1276,7 @@ view.ModelContext = class {
                                     this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
                                 });
                                 const data = unpickler.load((name, args) => execution.invoke(name, args));
-                                const name = data && data.__module__ && data.__name__ ? data.__module__ + '.' + data.__name__ : '';
+                                const name = data && data.__class__ ? data.__class__.__module__ + '.' + data.__class__.__name__ : '';
                                 tags.set(name, data);
                                 this.stream.seek(0);
                             }

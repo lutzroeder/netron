@@ -53,7 +53,8 @@ sklearn.Graph = class {
     }
 
     _process(group, name, obj, inputs) {
-        switch ([ obj.__module__, obj.__name__].join('.')) {
+        const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+        switch (type) {
             case 'sklearn.pipeline.Pipeline': {
                 this._groups = true;
                 name = name || 'pipeline';
@@ -194,7 +195,7 @@ sklearn.Node = class {
         this._metadata = metadata;
         this._group = group || '';
         this._name = name || '';
-        this._type = (obj.__module__ && obj.__name__) ? (obj.__module__ + '.' + obj.__name__) : (obj.__name__ ? obj.__name__ : 'Object');
+        this._type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -260,6 +261,9 @@ sklearn.Attribute = class {
                 }
             }
         }
+        if (value && value.__class__) {
+            this._type = value.__class__.__module__ + '.' + value.__class__.__name__;
+        }
     }
 
     get name() {
@@ -268,6 +272,10 @@ sklearn.Attribute = class {
 
     get value() {
         return this._value;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get visible() {
@@ -345,7 +353,7 @@ sklearn.Tensor = class {
             this._data = value.data;
         }
         else {
-            const type = [ value.__module__, value.__name__ ].join('.');
+            const type = value.__class__.__module__ + '.' + value.__class__.__name__;
             throw new sklearn.Error("Unknown tensor type '" + type + "'.");
         }
     }
@@ -585,7 +593,7 @@ sklearn.Metadata = class {
 sklearn.Utility = class {
 
     static isTensor(obj) {
-        return obj && obj.__module__ === 'numpy' && obj.__name__ === 'ndarray';
+        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
     }
 
     static findWeights(obj) {

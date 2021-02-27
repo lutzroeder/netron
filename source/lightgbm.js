@@ -146,7 +146,7 @@ lightgbm.Argument = class {
 lightgbm.Node = class {
 
     constructor(model, args) {
-        this._type = model.__module__ + '.' + model.__name__;
+        this._type = model.__class__.__module__ + '.' + model.__class__.__name__;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -201,8 +201,10 @@ lightgbm.basic.Booster = class {
 
     constructor(reader) {
 
-        this.__module__ = 'lightgbm.basic';
-        this.__name__ = 'Booster';
+        this.__class__ = {
+            __module__: 'lightgbm.basic',
+            __name__: 'Booster'
+        };
 
         this.params = {};
         this.feature_importances = {};
