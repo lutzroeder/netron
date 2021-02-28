@@ -2459,7 +2459,7 @@
           "name": "unroll"
         },
         {
-          "description": "A RNN cell instance or a list of RNN cell instances.\n    A RNN cell is a class that has:\n    - A `call(input_at_t, states_at_t)` method, returning\n      `(output_at_t, states_at_t_plus_1)`. The call method of the\n      cell can also take the optional argument `constants`, see\n      section \"Note on passing external constants\" below.\n    - A `state_size` attribute. This can be a single integer\n      (single state) in which case it is the size of the recurrent\n      state. This can also be a list/tuple of integers (one size per state).\n      The `state_size` can also be TensorShape or tuple/list of\n      TensorShape, to represent high dimension state.\n    - A `output_size` attribute. This can be a single integer or a\n      TensorShape, which represent the shape of the output. For backward\n      compatible reason, if this attribute is not available for the\n      cell, the value will be inferred by the first element of the\n      `state_size`.\n    - A `get_initial_state(inputs=None, batch_size=None, dtype=None)`\n      method that creates a tensor meant to be fed to `call()` as the\n      initial state, if the user didn't specify any initial state via other\n      means. The returned initial state should have a shape of\n      [batch_size, cell.state_size]. The cell might choose to create a\n      tensor full of zeros, or full of other values based on the cell's\n      implementation.\n      `inputs` is the input tensor to the RNN layer, which should\n      contain the batch size as its shape[0], and also dtype. Note that\n      the shape[0] might be `None` during the graph construction. Either\n      the `inputs` or the pair of `batch_size` and `dtype` are provided.\n      `batch_size` is a scalar tensor that represents the batch size\n      of the inputs. `dtype` is `tf.DType` that represents the dtype of\n      the inputs.\n      For backward compatible reason, if this method is not implemented\n      by the cell, the RNN layer will create a zero filled tensor with the\n      size of [batch_size, cell.state_size].\n    In the case that `cell` is a list of RNN cell instances, the cells\n    will be stacked on top of each other in the RNN, resulting in an\n    efficient stacked RNN.",
+          "description": "A RNN cell instance or a list of RNN cell instances.\n    A RNN cell is a class that has:\n    - A `call(input_at_t, states_at_t)` method, returning\n      `(output_at_t, states_at_t_plus_1)`. The call method of the\n      cell can also take the optional argument `constants`, see\n      section \"Note on passing external constants\" below.\n    - A `state_size` attribute. This can be a single integer\n      (single state) in which case it is the size of the recurrent\n      state. This can also be a list/tuple of integers (one size per state).\n      The `state_size` can also be TensorShape or tuple/list of\n      TensorShape, to represent high dimension state.\n    - A `output_size` attribute. This can be a single integer or a\n      TensorShape, which represent the shape of the output. For backward\n      compatible reason, if this attribute is not available for the\n      cell, the value will be inferred by the first element of the\n      `state_size`.\n    - A `get_initial_state(inputs=None, batch_size=None, dtype=None)`\n      method that creates a tensor meant to be fed to `call()` as the\n      initial state, if the user didn't specify any initial state via other\n      means. The returned initial state should have a shape of\n      [batch_size, cell.state_size]. The cell might choose to create a\n      tensor full of zeros, or full of other values based on the cell's\n      implementation.\n      `inputs` is the input tensor to the RNN layer, which should\n      contain the batch size as its shape[0], and also dtype. Note that\n      the shape[0] might be `None` during the graph construction. Either\n      the `inputs` or the pair of `batch_size` and `dtype` are provided.\n      `batch_size` is a scalar tensor that represents the batch size\n      of the inputs. `dtype` is `tf.DType` that represents the dtype of\n      the inputs.\n      For backward compatibility, if this method is not implemented\n      by the cell, the RNN layer will create a zero filled tensor with the\n      size of [batch_size, cell.state_size].\n    In the case that `cell` is a list of RNN cell instances, the cells\n    will be stacked on top of each other in the RNN, resulting in an\n    efficient stacked RNN.",
           "name": "cell"
         },
         {
@@ -2821,7 +2821,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "Initializer for the bias vector (\n    see `keras.initializers`). Defaults to 'zeros'.",
           "name": "bias_initializer",
           "visible": false
         },
@@ -2835,7 +2835,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`). Defaults to 'glorot_uniform'.",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -2953,7 +2953,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`). Defaults to 'zeros'.",
           "name": "bias_initializer",
           "visible": false
         },
@@ -2967,7 +2967,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`). Defaults to 'glorot_uniform'.",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -3085,12 +3085,12 @@
           "visible": false
         },
         {
-          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`). Defaults to 'glorot_uniform'.",
           "name": "kernel_initializer",
           "visible": false
         },
         {
-          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`). Defaults to 'zeros'.",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3196,7 +3196,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`). Defaults to 'glorot_uniform'.",
           "name": "kernel_initializer",
           "visible": false
         },
@@ -3205,7 +3205,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "Initializer for the bias vector (\n    see `keras.initializers`). Defaults to 'zeros'.",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3405,15 +3405,15 @@
           "name": "use_bias"
         },
         {
-          "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`).",
+          "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer (\n    'glorot_uniform') will be used.",
           "name": "depthwise_initializer"
         },
         {
-          "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`).",
+          "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer \n    ('glorot_uniform') will be used.",
           "name": "pointwise_initializer"
         },
         {
-          "description": "An initializer for the bias vector. If None, the default\n    initializer will be used (see `keras.initializers`).",
+          "description": "An initializer for the bias vector. If None, the default\n    initializer ('zeros') will be used (see `keras.initializers`).",
           "name": "bias_initializer"
         },
         {
@@ -3522,7 +3522,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the pointwise kernel matrix (\n    see `keras.initializers`).",
+          "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer \n    ('glorot_uniform') will be used.",
           "name": "pointwise_initializer",
           "visible": false
         },
@@ -3536,7 +3536,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the depthwise kernel matrix (\n    see `keras.initializers`).",
+          "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer (\n    'glorot_uniform') will be used.",
           "name": "depthwise_initializer",
           "visible": false
         },
@@ -3545,7 +3545,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (\n    see `keras.initializers`).",
+          "description": "An initializer for the bias vector. If None, the default\n    initializer ('zeros') will be used (see `keras.initializers`).",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3677,7 +3677,7 @@
             "class_name": "Zeros",
             "config": {}
           },
-          "description": "Initializer for the bias vector (see\n    `keras.initializers`).",
+          "description": "Initializer for the bias vector (see\n    `keras.initializers`). Defaults to 'zeros'.",
           "name": "bias_initializer",
           "visible": false
         },
@@ -3691,7 +3691,7 @@
               "seed": null
             }
           },
-          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`).",
+          "description": "Initializer for the `kernel` weights matrix (see\n    `keras.initializers`). Defaults to 'glorot_uniform'.",
           "name": "kernel_initializer",
           "visible": false
         },
