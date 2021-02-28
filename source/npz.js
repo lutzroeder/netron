@@ -12,23 +12,21 @@ npz.ModelFactory = class {
         if (entries.length > 0 && entries.every((entry) => entry.name.endsWith('.npy'))) {
             return true;
         }
-        const tags = context.tags('pkl');
-        if (tags.size === 1 && tags.keys().next().value === '') {
-            if (npz.Utility.weights(tags.values().next().value)) {
-                return true;
-            }
+        const obj = context.open('pkl');
+        if (obj && npz.Utility.weights(obj)) {
+            return true;
         }
         return false;
     }
 
     open(context) {
         return context.require('./numpy').then((numpy) => {
-            const tags = context.tags('pkl');
-            const groups = new Map();
             let format = '';
-            if (tags.size === 1) {
+            const groups = new Map();
+            const obj = context.open('pkl');
+            if (obj) {
                 format = 'NumPy Weights';
-                const weights = npz.Utility.weights(tags.values().next().value);
+                const weights = npz.Utility.weights(obj);
                 let separator = '_';
                 if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) &&
                     !Array.from(weights.keys()).every((key) => key.indexOf('_') !== -1)) {

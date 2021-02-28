@@ -7,8 +7,8 @@ var lasagne = lasagne || {};
 lasagne.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('pkl');
-        if (tags.size === 1 && tags.keys().next().value === 'nolearn.lasagne.base.NeuralNet') {
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ === 'nolearn.lasagne.base' && obj.__class__.__name__ == 'NeuralNet') {
             return true;
         }
         return false;
@@ -16,8 +16,8 @@ lasagne.ModelFactory = class {
 
     open(context) {
         return lasagne.Metadata.open(context).then((metadata) => {
-            const model = context.tags('pkl').values().next().value;
-            return new lasagne.Model(metadata, model);
+            const obj = context.open('pkl');
+            return new lasagne.Model(metadata, obj);
         });
     }
 };

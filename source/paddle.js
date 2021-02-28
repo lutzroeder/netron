@@ -735,12 +735,9 @@ paddle.Container = class {
                 return new paddle.Container('entries', entries);
             }
         }
-        const tags = context.tags('pkl');
-        if (tags.size === 1 && tags.keys().next().value === '') {
-            const data = tags.values().next().value;
-            if (data && !Array.isArray(data) && Object(data) === data) {
-                return new paddle.Container('pdparams', data);
-            }
+        const obj = context.open('pkl');
+        if (obj && !Array.isArray(obj) && Object(obj) === obj) {
+            return new paddle.Container('pdparams', obj);
         }
         return null;
     }

@@ -7,9 +7,9 @@ var sklearn = sklearn || {};
 sklearn.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('pkl');
-        if (tags.size === 1) {
-            const key = tags.keys().next().value;
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+            const key = obj.__class__.__module__ + '.' + obj.__class__.__name__;
             if (key.startsWith('sklearn.') || key.startsWith('xgboost.sklearn.') || key.startsWith('lightgbm.sklearn.')) {
                 return true;
             }
@@ -19,8 +19,7 @@ sklearn.ModelFactory = class {
 
     open(context) {
         return sklearn.Metadata.open(context).then((metadata) => {
-            const tags = context.tags('pkl');
-            const obj = tags.values().next().value;
+            const obj = context.open('pkl');
             return new sklearn.Model(metadata, obj);
         });
     }

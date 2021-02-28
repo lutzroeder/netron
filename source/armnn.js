@@ -11,8 +11,8 @@ armnn.ModelFactory = class {
                 return true;
             }
             case 'json': {
-                const tags = context.tags('json');
-                if (tags.has('layers') && tags.has('inputIds') && tags.has('outputIds')) {
+                const obj = context.open('json');
+                if (obj && obj.layers && obj.inputIds && obj.outputIds) {
                     return true;
                 }
             }
@@ -34,7 +34,8 @@ armnn.ModelFactory = class {
                         break;
                     }
                     case 'json': {
-                        const reader = new flatbuffers.TextReader(context.stream.peek());
+                        const obj = context.open('json');
+                        const reader = new flatbuffers.TextReader(obj);
                         model = armnn.schema.SerializedGraph.createText(reader);
                         break;
                     }

@@ -57,8 +57,8 @@ tf.ModelFactory = class {
             }
         }
         if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('format') && tags.get('format') === 'graph-model' && tags.has('modelTopology')) {
+            const obj = context.open('json');
+            if (obj && obj.format && obj.format === 'graph-model' && obj.modelTopology) {
                 return true;
             }
         }
@@ -133,7 +133,7 @@ tf.ModelFactory = class {
             }
             else if (extension === 'json') {
                 try {
-                    const root = context.tags('json').get('');
+                    const root = context.open('json');
                     const graph_def = new tf.proto.GraphDef();
                     const meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = graph_def;

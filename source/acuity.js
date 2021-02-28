@@ -9,8 +9,8 @@ acuity.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('MetaData') && tags.has('Layers')) {
+            const obj = context.open('json');
+            if (obj && obj.MetaData && obj.Layers) {
                 return true;
             }
         }
@@ -22,7 +22,7 @@ acuity.ModelFactory = class {
             const extension = context.identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'json': {
-                    const model = context.tags('json').get('');
+                    const model = context.open('json');
                     if (model && model.MetaData && model.Layers) {
                         return new acuity.Model(metadata, model);
                     }

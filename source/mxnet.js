@@ -16,8 +16,8 @@ mxnet.ModelFactory = class {
             }
         }
         else if (extension == 'json') {
-            const tags = context.tags('json');
-            if (tags.has('nodes') && tags.has('arg_nodes') && tags.has('heads')) {
+            const obj = context.open('json');
+            if (obj.nodes && obj.arg_nodes && obj.heads) {
                 return true;
             }
         }
@@ -42,7 +42,7 @@ mxnet.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        symbol = context.tags('json').get('');
+                        symbol = context.open('json');
                         if (symbol && symbol.nodes && symbol.nodes.some((node) => node && node.op == 'tvm_op')) {
                             format  = 'TVM';
                         }

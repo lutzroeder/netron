@@ -17,7 +17,6 @@ zip.Archive = class {
         throw new zip.Error('Invalid Zip archive.');
     }
 
-
     constructor(stream) {
         this._entries = [];
         const lookup = (stream, signature) => {

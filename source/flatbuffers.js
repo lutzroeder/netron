@@ -298,9 +298,8 @@ flatbuffers.Reader = class {
 
 flatbuffers.TextReader = class {
 
-    constructor(buffer) {
-        const reader = json.TextReader.create(buffer);
-        this._root = reader.read();
+    constructor(obj) {
+        this._root = obj;
     }
 
     get root() {

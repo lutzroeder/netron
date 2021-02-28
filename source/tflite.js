@@ -27,8 +27,8 @@ tflite.ModelFactory = class {
         }
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('subgraphs') && tags.has('operator_codes')) {
+            const obj = context.open('json');
+            if (obj && obj.subgraphs && obj.operator_codes) {
                 return true;
             }
         }
@@ -44,8 +44,8 @@ tflite.ModelFactory = class {
             switch (extension) {
                 case 'json':
                     try {
-                        const buffer = context.stream.peek();
-                        const reader = new flatbuffers.TextReader(buffer);
+                        const obj = context.open('json');
+                        const reader = new flatbuffers.TextReader(obj);
                         model = tflite.schema.Model.createText(reader);
                     }
                     catch (error) {

@@ -1148,6 +1148,7 @@ view.ModelContext = class {
     constructor(context, entries) {
         this._context = context;
         this._tags = new Map();
+        this._content = new Map();
         this._entries = entries || new Map();
     }
 
@@ -1173,6 +1174,58 @@ view.ModelContext = class {
 
     entries(format) {
         return this._entries.get(format) || [];
+    }
+
+    open(type) {
+        if (!this._content.has(type)) {
+            this._content.set(type, undefined);
+            switch (type) {
+                case 'json': {
+                    try {
+                        const reader = json.TextReader.create(this.stream.peek());
+                        const obj = reader.read();
+                        this._content.set(type, obj);
+                    }
+                    catch (err) {
+                        this.stream.seek(0);
+                    }
+                    break;
+                }
+                case 'pkl': {
+                    try {
+                        if (this.stream.length > 2) {
+                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
+                            const match = (stream) => {
+                                const head = stream.peek(2);
+                                if (head[0] === 0x80 && head[1] < 7) {
+                                    return true;
+                                }
+                                stream.seek(-1);
+                                const tail = stream.peek(1);
+                                stream.seek(0);
+                                if (tail[0] === 0x2e) {
+                                    return true;
+                                }
+                                return false;
+                            };
+                            if (match(stream)) {
+                                const unpickler = new python.Unpickler(stream);
+                                const execution = new python.Execution(null, (error, fatal) => {
+                                    const message = error && error.message ? error.message : error.toString();
+                                    this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                });
+                                const obj = unpickler.load((name, args) => execution.invoke(name, args));
+                                this._content.set(type, obj);
+                            }
+                        }
+                    }
+                    catch (err) {
+                        this.stream.seek(0);
+                    }
+                }
+            }
+        }
+        return this._content.get(type);
     }
 
     tags(type) {
@@ -1231,54 +1284,6 @@ view.ModelContext = class {
                             catch (err) {
                                 tags = new Map();
                                 break;
-                            }
-                        }
-                        break;
-                    }
-                    case 'json': {
-                        const reader = json.TextReader.create(this.stream.peek());
-                        const obj = reader.read();
-                        tags.set('', obj);
-                        if (!Array.isArray(obj)) {
-                            for (const key in obj) {
-                                tags.set(key, key === 'format' && obj[key] === 'graph-model' ? obj[key] : true);
-                            }
-                        }
-                        else {
-                            for (const item of obj) {
-                                for (const key in item) {
-                                    tags.set('[].' + key, true);
-                                }
-                            }
-                        }
-                        break;
-                    }
-                    case 'pkl': {
-                        if (this.stream.length > 2) {
-                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
-                            const match = (stream) => {
-                                const head = stream.peek(2);
-                                if (head[0] === 0x80 && head[1] < 7) {
-                                    return true;
-                                }
-                                stream.seek(-1);
-                                const tail = stream.peek(1);
-                                stream.seek(0);
-                                if (tail[0] === 0x2e) {
-                                    return true;
-                                }
-                                return false;
-                            };
-                            if (match(stream)) {
-                                const unpickler = new python.Unpickler(stream);
-                                const execution = new python.Execution(null, (error, fatal) => {
-                                    const message = error && error.message ? error.message : error.toString();
-                                    this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
-                                });
-                                const data = unpickler.load((name, args) => execution.invoke(name, args));
-                                const name = data && data.__class__ ? data.__class__.__module__ + '.' + data.__class__.__name__ : '';
-                                tags.set(name, data);
-                                this.stream.seek(0);
                             }
                         }
                         break;
@@ -1474,10 +1479,18 @@ view.ModelFactoryService = class {
         ];
         for (const encoding of encodings) {
             const tags = context.tags(encoding.type);
-            if (tags.size > 0) {
+            const obj = context.open(encoding.type);
+            if (tags.size > 0 || obj) {
                 for (const format of encoding.formats) {
-                    if (format.tags.every((tag) => tags.has(tag))) {
-                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    if (tags.size > 0) {
+                        if (format.tags.every((tag) => tags.has(tag))) {
+                            throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        }
+                    }
+                    if (obj) {
+                        if (format.tags.every((tag) => Object.prototype.hasOwnProperty.call(obj, tag))) {
+                            throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                        }
                     }
                 }
                 const entries = [];

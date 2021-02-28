@@ -15,8 +15,8 @@ pickle.ModelFactory = class {
             // Reject PyTorch models with .pkl file extension.
             return false;
         }
-        const tags = context.tags('pkl');
-        if (tags.size === 1) {
+        const obj = context.open('pkl');
+        if (obj !== undefined) {
             return true;
         }
         return false;
@@ -25,7 +25,7 @@ pickle.ModelFactory = class {
     open(context) {
         return new Promise((resolve) => {
             let format = 'Pickle';
-            const obj = context.tags('pkl').values().next().value;
+            const obj = context.open('pkl');
             if (obj === null || obj === undefined) {
                 context.exception(new pickle.Error('Unknown Pickle null object.'));
             }

@@ -17,8 +17,8 @@ lightgbm.ModelFactory = class {
         catch (err) {
             // continue regardless of error
         }
-        const tags = context.tags('pkl');
-        if (tags.size === 1 && tags.keys().next().value.startsWith('lightgbm.')) {
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
             return true;
         }
         return false;
@@ -27,12 +27,12 @@ lightgbm.ModelFactory = class {
     open(context) {
         return new Promise((resolve, reject) => {
             try {
-                const tags = context.tags('pkl');
                 let model;
                 let format;
-                if (tags.size === 1) {
+                const obj = context.open('pkl');
+                if (obj) {
                     format = 'LightGBM Pickle';
-                    model = tags.values().next().value;
+                    model = obj;
                     if (model && model.handle && typeof model.handle === 'string') {
                         const reader = base.TextReader.create(model.handle);
                         model = new lightgbm.basic.Booster(reader);
