@@ -1563,11 +1563,38 @@ pytorch.Execution = class extends python.Execution {
             get dtype() {
                 return this._dtype;
             }
+            get data() {
+                return this._cdata;
+            }
             element_size() {
                 return this._dtype.element_size;
             }
             size() {
                 return this._size;
+            }
+            _set_cdata(data) {
+                const length = this.size() * this.dtype.itemsize();
+                if (length !== data.length) {
+                    throw new pytorch.Error('Storage data size mismatch.');
+                }
+                this._cdata = data;
+            }
+            _set_from_file(file) {
+                const size = pytorch.Utility.readInt64(file.read(8));
+                if (size !== this.size()) {
+                    throw new pytorch.Error('Storage size mismatch.');
+                }
+                const itemsize = this.dtype.itemsize();
+                const data = file.stream(itemsize * size);
+                this._set_cdata(data);
+            }
+            static _new_with_file(file) {
+                const size = pytorch.Utility.readInt64(file.read(8));
+                const storage = new this(size);
+                const itemsize = storage.dtype.itemsize();
+                const data = file.stream(itemsize * size);
+                storage._set_cdata(data);
+                return storage;
             }
         });
         this.registerType('torch.BoolStorage', class extends torch.storage._StorageBase {
@@ -1618,6 +1645,11 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.QInt8Storage', class extends torch.storage._StorageBase {
             constructor(size) {
                 super(size, torch.qint8);
+            }
+        });
+        this.registerType('torch.QUInt8Storage', class extends torch.storage._StorageBase {
+            constructor(size) {
+                super(size, torch.quint8);
             }
         });
         this.registerType('torch.Tensor', class {
@@ -1682,6 +1714,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.DoubleTensor', class extends torch.Tensor {});
         this.registerType('torch.QInt8Tensor', class extends torch.Tensor {});
+        this.registerType('torch.QUInt8Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
         torch.uint8 = new torch.dtype(pytorch.ScalarType.uint8);
@@ -1800,13 +1833,11 @@ pytorch.Container.Tar = class {
             const unpickler = new python.Unpickler(entries.storages);
             const num_storages = unpickler.load((name, args) => execution.invoke(name, args));
             for (let i = 0; i < num_storages; i++) {
-                const storage_args = unpickler.load();
-                const storage_key = storage_args[0];
-                const storage_type = storage_args[2];
-                const size = pytorch.Utility.readInt64(unpickler.read(8));
-                const storage = execution.invoke(storage_type, [ size ]);
-                storage.data = unpickler.read(storage.dtype.itemsize() * storage.size());
-                deserialized_objects[storage_key] = storage;
+                const args = unpickler.load();
+                const key = args[0];
+                const storage_type = execution.type(args[2]);
+                const obj = storage_type._new_with_file(unpickler);
+                deserialized_objects[key] = obj;
             }
             /*
             let storage_views = unpickler.load();
@@ -1921,14 +1952,14 @@ pytorch.Container.Pickle = class {
                     return data[0];
                 }
                 case 'storage': {
-                    const data_type = data.shift();
+                    const data_type = execution.type(data.shift());
                     const root_key = data.shift();
                     data.shift(); // location
                     const size = data.shift();
                     const view_metadata = data.shift();
                     if (!deserialized_objects.has(root_key)) {
-                        const storage = execution.invoke(data_type, [ size ]);
-                        deserialized_objects.set(root_key, storage);
+                        const obj = new data_type(size);
+                        deserialized_objects.set(root_key, obj);
                     }
                     if (view_metadata) {
                         const view_key = view_metadata.shift();
@@ -1957,11 +1988,7 @@ pytorch.Container.Pickle = class {
         const deserialized_storage_keys = unpickler.load();
         for (const deserialized_storage_key of deserialized_storage_keys) {
             const storage = deserialized_objects.get(deserialized_storage_key);
-            const size = pytorch.Utility.readInt64(unpickler.read(8));
-            if (size != storage.size()) {
-                throw new pytorch.Error('Storage size mismatch.');
-            }
-            storage.data = unpickler.stream(storage.dtype.itemsize() * storage.size());
+            storage._set_from_file(unpickler);
         }
 
         const root = pytorch.Utility.findModule(obj);
@@ -2125,11 +2152,19 @@ pytorch.Container.Zip = class {
                             throw new pytorch.Error("Unknown tensor data type '" + constant.dataType + "'.");
                         }
                         const type = tensorTypeMap.get(constant.dataType);
-                        const tensor = this.execution.invoke('torch.' + type + 'Tensor', []);
-                        tensor.name = constant.data.key;
                         const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
-                        const storage = this.execution.invoke('torch.' + type + 'Storage', [ 0 ]);
-                        storage.data = entries.get(key);
+                        const storage_type = this.execution.type('torch.' + type + 'Storage');
+                        const size = shape && shape.length > 0 ? shape.reduce((a, b) => a * b) : 1;
+                        const offset = parseInt(constant.offset, 10) || 0;
+                        const storage = new storage_type([ size ]);
+                        const itemsize = storage.dtype.itemsize();
+                        const buffer = entries.get(key);
+                        const length = size * itemsize;
+                        const data = buffer.slice(offset, offset + length);
+                        storage._set_cdata(data);
+                        const tensor_type = this.execution.type('torch.' + type + 'Tensor');
+                        const tensor = new tensor_type();
+                        tensor.name = constant.data.key;
                         tensor.__setstate__([ storage, 0, shape, 0 ]);
                         return tensor;
                     });
@@ -2212,37 +2247,34 @@ pytorch.Container.Zip = class {
     }
 
     _unpickle(data, storage_map) {
-        const deserialized_objects = new Map();
+        const loaded_storages = new Map();
         const persistent_load = (saved_id) => {
             const typename = saved_id.shift();
             if (typename !== 'storage') {
                 throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
             }
-            const data_type = saved_id.shift();
+            const data_type = this.execution.type(saved_id.shift());
             const root_key = saved_id.shift();
-            saved_id.shift(); // location
+            /* const location = */ saved_id.shift();
             const size = saved_id.shift();
-            let storage = null;
-            if (deserialized_objects.has(root_key)) {
-                storage = deserialized_objects.get(root_key);
+            if (!loaded_storages.has(root_key)) {
+                const storage = new data_type(size);
+                storage._set_cdata(storage_map.get(root_key));
+                loaded_storages.set(root_key, storage);
             }
-            else {
-                storage = this.execution.invoke(data_type, [ size ]);
-                storage.data = storage_map.get(root_key);
-                deserialized_objects.set(root_key, storage);
-            }
+            const storage = loaded_storages.get(root_key);
             const view_metadata = saved_id.shift();
             if (view_metadata) {
                 const view_key = view_metadata.shift();
                 view_metadata.shift(); // view_offset
                 view_metadata.shift(); // view_size
                 let view = null;
-                if (deserialized_objects.has(view_key)) {
-                    view = deserialized_objects.get(root_key);
+                if (loaded_storages.has(view_key)) {
+                    view = loaded_storages.get(root_key);
                 }
                 else {
                     view = null; // storage.slice(view_offset, view_offset + view_size);
-                    deserialized_objects.set(view_key, view);
+                    loaded_storages.set(view_key, view);
                 }
                 return view;
             }
