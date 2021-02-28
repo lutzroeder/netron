@@ -924,12 +924,6 @@
   },
   {
     "type":   "cntk",
-    "target": "AlexNet.model",
-    "source": "https://www.cntk.ai/Models/AlexNet/AlexNet.model",
-    "format": "CNTK v1.14"
-  },
-  {
-    "type":   "cntk",
     "target": "cifar10.pretrained.cmf",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tutorials/ImageHandsOn/cifar10.pretrained.cmf",
     "format": "CNTK v1.14",
@@ -1174,13 +1168,6 @@
     "source": "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/files/1526806/faces_model.mlmodel.zip[faces_model.mlmodel]",
     "format": "Core ML v1",
     "link":   "https://github.com/NovaTecConsulting/FaceRecognition-in-ARKit/issues/3"
-  },
-  {
-    "type":   "coreml",
-    "target": "FCRNFP16.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/DepthEstimation/FCRN/FCRNFP16.mlmodel",
-    "format": "Core ML v2",
-    "link":   "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":   "coreml",
@@ -1702,8 +1689,8 @@
   },
   {
     "type":   "darknet",
-    "target": "alexnet.cfg,alexnet.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg,https://pjreddie.com/media/files/alexnet.weights",
+    "target": "alexnet.cfg",
+    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/alexnet.cfg",
     "format": "Darknet",
     "link":   "https://pjreddie.com/darknet/imagenet"
   },
@@ -3456,7 +3443,7 @@
     "type":   "onnx",
     "target": "test_lstm_with_peepholes.onnx",
     "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
-    "format": "ONNX v3",
+    "format": "ONNX v7",
     "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
   },
   {
@@ -4104,13 +4091,6 @@
     "script": "./tools/pytorch zoo",
     "format": "TorchScript v1.6",
     "link":   "https://pytorch.org/docs/stable/torchvision/models.html"
-  },
-  {
-    "type":   "pytorch",
-    "target": "alexnet-owt-4df8aa71.pth",
-    "source": "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
-    "format": "PyTorch v0.1.1",
-    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/alexnet.py"
   },
   {
     "type":   "pytorch",
@@ -4836,12 +4816,6 @@
     "link":   "https://github.com/chengyangfu/pytorch-vgg-cifar10"
   },
   {
-    "type":   "pytorch",
-    "target": "vgg11-bbd30ac9.pth",
-    "source": "https://download.pytorch.org/models/vgg11-bbd30ac9.pth",
-    "format": "PyTorch v0.1.10"
-  },
-  {
     "type":   "rknn",
     "target": "autopilot.rknn",
     "source": "https://github.com/lutzroeder/netron/files/5621074/autopilot.rknn.zip[autopilot.rknn]",
@@ -5226,20 +5200,6 @@
   },
   {
     "type":   "tf",
-    "target": "inception_v1_2016_08_28_frozen.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_resnet_v2_2016_08_30_frozen.pb.tar.gz[inception_resnet_v2_2016_08_30_frozen.pb]",
-    "format": "TensorFlow Graph",
-    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
-  },
-  {
-    "type":   "tf",
-    "target": "inception_v1_2016_08_28_frozen.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v1_2016_08_28_frozen.pb.tar.gz[inception_v1_2016_08_28_frozen.pb]",
-    "format": "TensorFlow Graph",
-    "link":   "https://github.com/onnx/tensorflow-onnx/blob/master/tests/run_pretrained_models.yaml"
-  },
-  {
-    "type":   "tf",
     "target": "inception_v2_2016_08_28_frozen.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception_v2_2016_08_28_frozen.pb.tar.gz[inception_v2_2016_08_28_frozen.pb]",
     "format": "TensorFlow Graph",
@@ -5266,11 +5226,6 @@
     "type":   "tf",
     "target": "inception5h.pb",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/inception5h.zip[tensorflow_inception_graph.pb]"
-  },
-  {
-    "type":   "tf",
-    "target": "inception_resnet_v2.pb",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.pb]"
   },
   {
     "type":   "tf",
@@ -5450,20 +5405,6 @@
   },
   {
     "type":   "tf",
-    "target": "resnet_v1_101.pb",
-    "source": "https://deepdetect.com/models/tf/resnet_v1_101/resnet_v1_101.pb",
-    "format": "TensorFlow Graph",
-    "link":   "https://deepdetect.com/models/tf"
-  },
-  {
-    "type":   "tf",
-    "target": "resnet_v1_152.pb",
-    "source": "https://deepdetect.com/models/tf/resnet_v1_152/resnet_v1_152.pb",
-    "format": "TensorFlow Graph",
-    "link":   "https://deepdetect.com/models/tf"
-  },
-  {
-    "type":   "tf",
     "target": "resnet_v2_fp16_savedmodel_NHWC_saved_model.pb",
     "source": "http://download.tensorflow.org/models/official/20181001_resnet/savedmodels/resnet_v2_fp16_savedmodel_NHWC.tar.gz[./resnet_v2_fp16_savedmodel_NHWC/1538686978/saved_model.pb]",
     "format": "TensorFlow Saved Model v1",
@@ -5526,12 +5467,6 @@
     "source": "https://github.com/tensorflow/tensorflow/files/917065/sample.zip[sample/load/saved_model.pbtxt]",
     "format": "TensorFlow Saved Model v1",
     "link":   "https://github.com/tensorflow/tensorflow/issues/9169"
-  },
-  {
-    "type":   "tf",
-    "target": "vgg_16.ckpt",
-    "source": "http://download.tensorflow.org/models/vgg_16_2016_08_28.tar.gz[vgg_16.ckpt]",
-    "format": "TensorFlow Tensor Bundle v1"
   },
   {
     "type":   "tf",
