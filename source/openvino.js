@@ -476,17 +476,20 @@ openvino.Node = class {
         this._outputs = [];
         this._attributes = [];
         const precision = layer.precision;
-        let inputIndex = 0;
-        for (const input of inputs) {
-            const inputName = (inputIndex == 0) ? 'input' : inputIndex.toString();
-            this._inputs.push(new openvino.Parameter(inputName, [ input ]));
-            inputIndex++;
+        const schema = metadata.type(layer.type);
+        for (let i = 0; i < inputs.length; ) {
+            const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
+            const count = input.list ? inputs.length - i : 1;
+            const list = inputs.slice(i, i + count);
+            this._inputs.push(new openvino.Parameter(input.name, list));
+            i += count;
         }
-        let outputIndex = 0;
-        for (const output of outputs) {
-            const outputName = (outputIndex == 0) ? 'output' : outputIndex.toString();
-            this._outputs.push(new openvino.Parameter(outputName, [ output ]));
-            outputIndex++;
+        for (let i = 0; i < outputs.length; ) {
+            const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
+            const count = output.list ? outputs.length - i : 1;
+            const list = outputs.slice(i, i + count);
+            this._outputs.push(new openvino.Parameter(output.name, list));
+            i += count;
         }
         const attributes = {};
         for (const attribute of layer.data) {
@@ -944,6 +947,7 @@ openvino.TensorType = class {
             case 'u64':     this._dataType = 'uint64'; break;
             case 'bool':    this._dataType = 'boolean'; break;
             case 'boolean': this._dataType = 'boolean'; break;
+            case 'bin':     this._dataType = 'bit'; break;
             case '':        this._dataType = '?'; break;
             case null:      this._dataType = '?'; break;
             default:        throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
