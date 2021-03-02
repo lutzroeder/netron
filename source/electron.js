@@ -29,11 +29,8 @@ host.ElectronHost = class {
                 /* eslint-enable no-undef */
             }
         });
-        this._version = electron.remote.app.getVersion();
-        this._environment = new Map();
-        this._environment.set('zoom', 'd3');
-        // this._environment.set('zoom', 'scroll');
-        this._openFileQueue = [];
+        this._environment = electron.ipcRenderer.sendSync('get-environment', {});
+        this._queue = [];
     }
 
     get window() {
@@ -45,7 +42,7 @@ host.ElectronHost = class {
     }
 
     get version() {
-        return this._version;
+        return this._environment.version;
     }
 
     get type() {
@@ -63,7 +60,7 @@ host.ElectronHost = class {
         });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
-                if (electron.remote.app.isPackaged) {
+                if (this._environment.package) {
                     this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
                 }
                 resolve();
@@ -108,9 +105,9 @@ host.ElectronHost = class {
     start() {
         this._view.show('welcome');
 
-        if (this._openFileQueue !== null) {
-            const queue = this._openFileQueue;
-            this._openFileQueue = null;
+        if (this._queue) {
+            const queue = this._queue;
+            delete this._queue;
             if (queue.length > 0) {
                 const file = queue.pop();
                 this._openFile(file);
@@ -200,31 +197,27 @@ host.ElectronHost = class {
     }
 
     environment(name) {
-        return this._environment.get(name);
+        return this._environment[name];
     }
 
     error(message, detail) {
-        const owner = electron.remote.getCurrentWindow();
-        const options = {
+        electron.ipcRenderer.sendSync('show-message-box', {
             type: 'error',
             message: message,
             detail: detail,
-        };
-        electron.remote.dialog.showMessageBoxSync(owner, options);
+        });
     }
 
     confirm(message, detail) {
-        const owner = electron.remote.getCurrentWindow();
-        const options = {
+        const result = electron.ipcRenderer.sendSync('show-message-box', {
             type: 'question',
             message: message,
             detail: detail,
             buttons: ['Yes', 'No'],
             defaultId: 0,
             cancelId: 1
-        };
-        const result = electron.remote.dialog.showMessageBoxSync(owner, options);
-        return result == 0;
+        });
+        return result === 0;
     }
 
     require(id) {
@@ -237,14 +230,12 @@ host.ElectronHost = class {
     }
 
     save(name, extension, defaultPath, callback) {
-        const owner = electron.remote.BrowserWindow.getFocusedWindow();
-        const showSaveDialogOptions = {
+        const selectedFile = electron.ipcRenderer.sendSync('show-save-dialog', {
             title: 'Export Tensor',
             defaultPath: defaultPath,
             buttonLabel: 'Export',
             filters: [ { name: name, extensions: [ extension ] } ]
-        };
-        const selectedFile = electron.remote.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+        });
         if (selectedFile) {
             callback(selectedFile);
         }
@@ -358,8 +349,8 @@ host.ElectronHost = class {
     }
 
     _openFile(file) {
-        if (this._openFileQueue) {
-            this._openFileQueue.push(file);
+        if (this._queue) {
+            this._queue.push(file);
             return;
         }
         if (file && this._view.accept(file)) {
@@ -434,15 +425,11 @@ host.ElectronHost = class {
     }
 
     _getConfiguration(name) {
-        const configuration = electron.remote.getGlobal('global').application.service('configuration');
-        return configuration && configuration.has(name) ? configuration.get(name) : undefined;
+        return electron.ipcRenderer.sendSync('get-configuration', { name: name });
     }
 
     _setConfiguration(name, value) {
-        const configuration = electron.remote.getGlobal('global').application.service('configuration');
-        if (configuration) {
-            configuration.set(name, value);
-        }
+        electron.ipcRenderer.sendSync('get-configuration', { name: name, value: value });
     }
 
     _update(name, value) {

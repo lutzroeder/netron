@@ -44,13 +44,35 @@ class Application {
             this._openFileDialog();
         });
 
-        electron.ipcMain.on('drop-files', (e, data) => {
+        electron.ipcMain.on('get-environment', (event) => {
+            event.returnValue = {
+                version: electron.app.getVersion(),
+                package: electron.app.isPackaged,
+                zoom: 'd3'
+                // zoom: 'scroll'
+            };
+        });
+        electron.ipcMain.on('get-configuration', (event, obj) => {
+            event.returnValue = this._configuration.has(obj.name) ? this._configuration.get(obj.name) : undefined;
+        });
+        electron.ipcMain.on('set-configuration', (event, obj) => {
+            this._configuration.set(obj.name, obj.value);
+        });
+        electron.ipcMain.on('drop-files', (event, data) => {
             const files = data.files.filter((file) => fs.statSync(file).isFile());
-            this._dropFiles(e.sender, files);
+            this._dropFiles(event.sender, files);
+        });
+        electron.ipcMain.on('show-message-box', (event, options) => {
+            const owner = event.sender.getOwnerBrowserWindow();
+            event.returnValue = electron.dialog.showMessageBoxSync(owner, options);
+        });
+        electron.ipcMain.on('show-save-dialog', (event, options) => {
+            const owner = event.sender.getOwnerBrowserWindow();
+            event.returnValue = electron.dialog.showSaveDialogSync(owner, options);
         });
 
         electron.app.on('will-finish-launching', () => {
-            electron.app.on('open-file', (e, path) => {
+            electron.app.on('open-file', (event, path) => {
                 this._openFile(path);
             });
         });
@@ -287,7 +309,6 @@ class Application {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
-                worldSafeExecuteJavaScript: true
             }
         };
         if (process.platform === 'darwin') {
@@ -650,9 +671,7 @@ class View {
             webPreferences: {
                 preload: path.join(__dirname, 'electron.js'),
                 nodeIntegration: true,
-                contextIsolation: true,
-                worldSafeExecuteJavaScript: true,
-                enableRemoteModule: true
+                contextIsolation: true
             }
         };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
@@ -667,8 +686,8 @@ class View {
         }
         this._window = new electron.BrowserWindow(options);
         View._position = this._window.getPosition();
-        this._updateCallback = (e, data) => {
-            if (e.sender == this._window.webContents) {
+        this._updateCallback = (event, data) => {
+            if (event.sender == this._window.webContents) {
                 this.update(data.name, data.value);
                 this._raise('updated');
             }
