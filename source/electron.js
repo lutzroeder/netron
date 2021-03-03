@@ -140,6 +140,9 @@ host.ElectronHost = class {
             this._view.toggleInitializers();
             this._update('show-initializers', this._view.showInitializers);
         });
+        electron.ipcRenderer.on('load-color-map', (_, data) => {
+            this._view.loadColorMap(data.file);
+        });
         electron.ipcRenderer.on('toggle-names', () => {
             this._view.toggleNames();
             this._update('show-names', this._view.showNames);
@@ -248,6 +251,10 @@ host.ElectronHost = class {
         if (selectedFile) {
             callback(selectedFile);
         }
+    }
+
+    loadColorMap(file) {
+        return JSON.parse(fs.readFileSync(file, 'utf-8'));
     }
 
     export(file, blob) {

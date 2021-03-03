@@ -13,7 +13,7 @@
 .node-item-type path { fill: #000; }
 .node-item-type text { fill: #fff; }
 .node-item-type:hover { cursor: hand; }
-.node-item-type:hover path { fill: #fff; }
+.node-item-type:hover path { fill: #fff !important; }
 .node-item-type:hover text { fill: #000; }
 
 .node-item-type-constant path { fill: #eee; }

@@ -940,15 +940,38 @@ view.View = class {
         const nodes = element.getElementsByTagName('*');
         for (let j = 0; j < nodes.length; j++) {
             const node = nodes[j];
+            const stylesFromCss = {};
             for (let k = 0; k < rules.length; k++) {
                 const rule = rules[k];
                 if (node.matches(rule.selectorText)) {
                     for (let l = 0; l < rule.style.length; l++) {
                         const item = rule.style.item(l);
-                        node.style[item] = rule.style[item];
+                        if (!node.style[item] || stylesFromCss[item]) {
+                            node.style[item] = rule.style[item];
+                            stylesFromCss[item] = true;
+                        }
                     }
                 }
             }
+        }
+    }
+
+    loadColorMap(file) {
+        const map = {};
+        for (let i = 0; i < file.length; i++) {
+            map["node-" + file[i].node] = file[i];
+        }
+
+        const graphElement = this._getElementById('canvas');
+        const nodesElement = graphElement.getElementById('nodes');
+        let nodeElement = nodesElement.firstChild;
+        while (nodeElement) {
+            const entry = map[nodeElement.id]
+            if (entry) {
+                const path = nodeElement.getElementsByClassName("node-item")[0].getElementsByTagName("path")[0];
+                path.style.fill = entry.color;
+            }
+            nodeElement = nodeElement.nextSibling;
         }
     }
 

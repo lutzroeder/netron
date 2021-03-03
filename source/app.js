@@ -195,6 +195,24 @@ class Application {
         }
     }
 
+    _loadColorMap() {
+        const view = this._views.activeView;
+        if (view) {
+            const showOpenDialogOptions = {
+                properties: [ 'openFile' ],
+                filters: [
+                    { name: 'Netron Color Map',  extensions: ['json'] }
+                ]
+            };
+            const selectedFiles = electron.dialog.showOpenDialogSync(showOpenDialogOptions);
+            if (selectedFiles) {
+                const path = selectedFiles[0]
+                const colorMap = JSON.parse(fs.readFileSync(path, 'utf-8'));
+                view.execute('load-color-map', { 'file': colorMap });
+            }
+        }
+    }
+
     _export() {
         const view = this._views.activeView;
         if (view && view.path) {
@@ -405,6 +423,11 @@ class Application {
                     label: '&Export...',
                     accelerator: 'CmdOrCtrl+Shift+E',
                     click: () => this._export(),
+                },
+                {
+                    label: '&Load Color Map',
+                    accelerator: 'CmdOrCtrl+M',
+                    click: () => { this._loadColorMap(); }
                 },
                 { type: 'separator' },
                 { role: 'close' },
