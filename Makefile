@@ -41,9 +41,9 @@ install_python: build_python
 
 build_electron: install
 	CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never
-	npx electron-builder --win --publish never
-	npx electron-builder --linux appimage --publish never
-	npx electron-builder --linux snap --publish never
+	npx electron-builder --win --x64 --arm64 --publish never
+	npx electron-builder --linux appimage --x64 --publish never
+	npx electron-builder --linux snap --x64 --publish never
 
 start: install
 	npx electron .
@@ -68,9 +68,9 @@ publish_python: build_python
 
 publish_electron: install
 	npx electron-builder --mac --universal --publish always
-	npx electron-builder --win --publish always
-	npx electron-builder --linux appimage --publish always
-	npx electron-builder --linux snap --publish always
+	npx electron-builder --win --x64 --arm64 --publish always
+	npx electron-builder --linux appimage --x64 --publish always
+	npx electron-builder --linux snap --x64 --publish always
 
 build_web:
 	mkdir -p ./dist/web

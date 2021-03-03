@@ -61,13 +61,13 @@ jobs:
               mkdir -p ~/.private_keys
               echo '${{ secrets.SNAPCRAFT_TOKEN }}' > ~/.private_keys/snapcraft_token.txt
               snapcraft login --with ~/.private_keys/snapcraft_token.txt
-              npx electron-builder --linux appimage --publish always
-              npx electron-builder --linux snap --publish always
+              npx electron-builder --linux appimage --x64 --publish always
+              npx electron-builder --linux snap --x64 --publish always
               ;;
             windows*)
               unset CSC_LINK;
               unset CSC_KEY_PASSWORD;
-              npx electron-builder --win --publish always
+              npx electron-builder --win --x64 --arm64 --publish always
               ;;
           esac
 
