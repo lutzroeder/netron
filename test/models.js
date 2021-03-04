@@ -61,7 +61,7 @@ global.TextDecoder = class {
 };
 
 const filter = process.argv.length > 2 ? new RegExp('^' + process.argv[2].replace(/\./, '\\.').replace(/\*/, '.*')) : null;
-const dataFolder = __dirname + '/data';
+const dataFolder = path.normalize(__dirname + '/../third_party/test');
 const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {

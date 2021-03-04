@@ -198,14 +198,14 @@ def zoo():
             model = model_type(weights=None)
             model.save(file)
     if not os.environ.get('test'):
-        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
-    download_model('tensorflow.keras.applications.DenseNet121', '${test}/data/keras/DenseNet121.h5')
-    download_model('tensorflow.keras.applications.InceptionResNetV2', '${test}/data/keras/InceptionResNetV2.h5')
-    download_model('tensorflow.keras.applications.InceptionV3', '${test}/data/keras/InceptionV3.h5')
-    download_model('tensorflow.keras.applications.MobileNetV2', '${test}/data/keras/MobileNetV2.h5')
-    download_model('tensorflow.keras.applications.NASNetMobile', '${test}/data/keras/NASNetMobile.h5')
-    download_model('tensorflow.keras.applications.ResNet50', '${test}/data/keras/ResNet50.h5')
-    download_model('tensorflow.keras.applications.VGG19', '${test}/data/keras/VGG19.h5')
+        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../third_party/test'))
+    download_model('tensorflow.keras.applications.DenseNet121', '${test}/keras/DenseNet121.h5')
+    download_model('tensorflow.keras.applications.InceptionResNetV2', '${test}/keras/InceptionResNetV2.h5')
+    download_model('tensorflow.keras.applications.InceptionV3', '${test}/keras/InceptionV3.h5')
+    download_model('tensorflow.keras.applications.MobileNetV2', '${test}/keras/MobileNetV2.h5')
+    download_model('tensorflow.keras.applications.NASNetMobile', '${test}/keras/NASNetMobile.h5')
+    download_model('tensorflow.keras.applications.ResNet50', '${test}/keras/ResNet50.h5')
+    download_model('tensorflow.keras.applications.VGG19', '${test}/keras/VGG19.h5')
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata, 'zoo': zoo }

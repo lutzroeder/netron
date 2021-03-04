@@ -66,7 +66,7 @@ def rezip(zip_file_path):
     shutil.rmtree(zip_dir)
 
 def download_torchvision_model(zip_format, jit_format, traced_format, pretrained, name, input):
-    folder = os.path.expandvars('${test}/data/pytorch')
+    folder = os.path.expandvars('${test}/pytorch')
     if not os.path.exists(folder):
         os.makedirs(folder)
     base = folder + '/' + name.split('.')[-1]
@@ -92,7 +92,7 @@ def download_torchvision_model(zip_format, jit_format, traced_format, pretrained
 
 def zoo():
     if not os.environ.get('test'):
-        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
+        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../third_party/test'))
     download_torchvision_model(True , True , True , False, 'torchvision.models.alexnet', [ 1, 3, 299, 299 ])
     download_torchvision_model(True , True , True , False, 'torchvision.models.densenet161', [ 1, 3, 224, 224 ])
     download_torchvision_model(True , True , True , True,  'torchvision.models.inception_v3', [ 1, 3, 299, 299 ])

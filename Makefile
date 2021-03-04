@@ -14,7 +14,8 @@ clean:
 	rm -rf ./package-lock.json
 
 reset: clean
-	rm -rf ./third_party
+	rm -rf ./third_party/env
+	rm -rf ./third_party/source
 
 update: install
 	@./tools/armnn sync schema
