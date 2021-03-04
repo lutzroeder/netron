@@ -539,6 +539,7 @@ $root.MNN.Convolution2DCommon = class Convolution2DCommon {
         $.relu6 = reader.bool_(position, 30, false);
         $.pads = reader.typedArray(position, 32, Int32Array);
         $.outPads = reader.typedArray(position, 34, Int32Array);
+        $.hasOutputShape = reader.bool_(position, 36, false);
         return $;
     }
 };
