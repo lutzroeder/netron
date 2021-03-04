@@ -3108,6 +3108,13 @@
   },
   {
     "type":   "onnx",
+    "target": "coo_normal_sparse.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/6080534/coo_normal_sparse.onnx.zip[coo_normal_sparse.onnx]",
+    "format": "ONNX v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/693"
+  },
+  {
+    "type":   "onnx",
     "target": "denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2587943/onnx_denotation_models.zip[denotation_Add_ImageNet1920WithImageMetadataBgr8_SRGB_0_255.onnx]",
     "format": "ONNX v3",
