@@ -70,6 +70,13 @@
   },
   {
     "type":   "_",
+    "target": "onnx-metadata.json",
+    "source": "https://raw.githubusercontent.com/lutzroeder/netron/main/source/onnx-metadata.json",
+    "error":  "Unsupported JSON content '[{\"name\":\"Abs\",\"schema\":{\"attributes\":[{\"descrip...' for extension '.json' in 'onnx-metadata.json'.",
+    "link":   "https://github.com/lutzroeder/netron/blob/main/source/onnx-metadata.json"
+  },
+  {
+    "type":   "_",
     "target": "ops.pbtxt",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
     "error":  "Invalid file content. File contains TensorFlow OpList data.",

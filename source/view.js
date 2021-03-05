@@ -1479,24 +1479,26 @@ view.ModelFactoryService = class {
         ];
         for (const encoding of encodings) {
             const tags = context.tags(encoding.type);
-            const obj = context.open(encoding.type);
-            if (tags.size > 0 || obj) {
+            if (tags.size > 0) {
                 for (const format of encoding.formats) {
-                    if (tags.size > 0) {
-                        if (format.tags.every((tag) => tags.has(tag))) {
-                            throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
-                        }
-                    }
-                    if (obj) {
-                        if (format.tags.every((tag) => Object.prototype.hasOwnProperty.call(obj, tag))) {
-                            throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
-                        }
+                    if (format.tags.every((tag) => tags.has(tag))) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
                 const entries = [];
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
+                throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+            }
+            const obj = context.open(encoding.type);
+            if (obj) {
+                for (const format of encoding.formats) {
+                    if (format.tags.every((tag) => Object.prototype.hasOwnProperty.call(obj, tag))) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substr(0, 48) + '...';
                 throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
             }
         }
