@@ -6248,5 +6248,30 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch._weight_norm",
+    "schema": {
+      "inputs": [
+        { "name": "v", "type": "Tensor" },
+        { "name": "g", "type": "Tensor" },
+        { "name": "dim", "type": "int64", "default": 0 }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.requires_grad_",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "requires_grad", "type": "boolean" }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
