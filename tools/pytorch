@@ -99,18 +99,6 @@ metadata() {
     deactivate
 }
 
-zoo() {
-    echo "pytorch zoo"
-    rm -rf "./third_party/env/pytorch"
-    venv
-    ${python} -m pip install --quiet --upgrade future protobuf scipy
-    ${python} -m pip install --quiet --upgrade --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/pytorch-script.py zoo
-    deactivate
-    rm -rf "./third_party/env/pytorch"
-}
-
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -119,6 +107,5 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
-        "zoo") zoo;;
     esac
 done
