@@ -10,7 +10,7 @@ mslite.ModelFactory = class {
         if (stream.length >= 8) {
             const buffer = stream.peek(8);
             const reader = new flatbuffers.Reader(buffer);
-            if (reader.identifier === 'MSL1') {
+            if (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2') {
                 return true;
             }
         }
@@ -19,11 +19,20 @@ mslite.ModelFactory = class {
 
     open(context) {
         return context.require('./mslite-schema').then(() => {
+            const buffer = context.stream.peek();
+            const reader = new flatbuffers.Reader(buffer);
+            switch (reader.identifier) {
+                case 'MSL2':
+                    throw new mslite.Error('MSL2 format is not supported.');
+                case 'MSL1':
+                    throw new mslite.Error('MSL1 format is deprecated.', false);
+                case '':
+                    throw new mslite.Error('MSL0 format is deprecated.', false);
+            }
+            /*
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
-                const buffer = context.stream.peek();
-                const reader = new flatbuffers.Reader(buffer);
                 model = mslite.schema.MetaGraph.create(reader);
             }
             catch (error) {
@@ -33,6 +42,7 @@ mslite.ModelFactory = class {
             return mslite.Metadata.open(context).then((metadata) => {
                 return new mslite.Model(metadata, model);
             });
+            */
         });
     }
 };
@@ -620,9 +630,10 @@ mslite.Utility = class {
 
 mslite.Error = class extends Error {
 
-    constructor(message) {
+    constructor(message, context) {
         super(message);
         this.name = 'Error loading MindSpore Lite model.';
+        this.context = context === false ? false : true;
     }
 };
 

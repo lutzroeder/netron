@@ -2640,87 +2640,17 @@
   },
   {
     "type":   "mslite",
-    "target": "conv_autopad.onnx.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/conv_autopad.onnx.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "deeplab_mobilenetv2_513.tflite.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/deeplab_mobilenetv2_513.tflite.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "densenet.tflite.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/densenet.tflite.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "inception_resnet_v2.tflite.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/inception_resnet_v2.tflite.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "mobilenet_v1_1.0_224.tflite.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/mobilenet_v1_1.0_224.tflite.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "squeezenet1.1.onnx.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/squeezenet1.1.onnx.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "ssd.onnx.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/ssd.onnx.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "super-resolution-10.onnx.r1.1.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/super-resolution-10.onnx.r1.1.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "deeplabv3.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/deeplabv3.ms",
-    "format": "MindSpore Lite v1.0.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "residual_distill_res18_cifar10_bs_1_update.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/residual_distill_res18_cifar10_bs_1_update.ms",
-    "format": "MindSpore Lite v1.0.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
-  },
-  {
-    "type":   "mslite",
-    "target": "ssd.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/ssd.ms",
-    "format": "MindSpore Lite v1.0.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
+    "target": "blazeface_quant.ms",
+    "source": "https://github.com/lutzroeder/netron/files/6097966/blazeface_quant.ms.zip[blazeface_quant.ms]",
+    "error":  "MSL0 format is deprecated.",
+    "link":   "https://github.com/lutzroeder/netron/issues/600"
   },
   {
     "type":   "mslite",
     "target": "control_flow_ut_while_0122.ms",
-    "source": "https://github.com/YvetteLaw/test/releases/download/v1.0/control_flow_ut_while_0122.ms",
-    "format": "MindSpore Lite v1.1.0",
-    "link":   "https://github.com/mindspore-ai/mindspore"
+    "source": "https://github.com/lutzroeder/netron/files/6097971/control_flow_ut_while_0122.ms.zip[control_flow_ut_while_0122.ms]",
+    "error":  "MSL1 format is deprecated.",
+    "link":   "https://github.com/lutzroeder/netron/issues/600"
   },
   {
     "type":   "mxnet",

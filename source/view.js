@@ -1594,7 +1594,7 @@ view.ModelFactoryService = class {
                         return model;
                     }).catch((error) => {
                         const text = " in '" + context.identifier + "'.";
-                        if (error && !error.message.endsWith(text)) {
+                        if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
                             error.message = error.message.replace(/\.$/, '') + text;
                         }
                         errors.push(error);
