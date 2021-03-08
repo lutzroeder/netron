@@ -2067,9 +2067,10 @@
   },
   {
     "type":   "keras",
-    "target": "DenseNet121.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "DenseNet121.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098149/DenseNet121.h5.zip",
+    "format": "Keras v2.4.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "keras",
@@ -2101,15 +2102,17 @@
   },
   {
     "type":   "keras",
-    "target": "InceptionResNetV2.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "InceptionResNetV2.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098150/InceptionResNetV2.h5.zip",
+    "format": "Keras v2.4.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "keras",
-    "target": "InceptionV3.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "InceptionV3.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098151/InceptionV3.h5.zip",
+    "format": "Keras v2.4.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "keras",
@@ -2183,15 +2186,16 @@
   },
   {
     "type":   "keras",
-    "target": "MobileNetV2.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "MobileNetV2.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098152/MobileNetV2.h5.zip",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "keras",
-    "target": "NASNetMobile.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "NASNetMobile.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098153/NASNetMobile.h5.zip",
+    "format": "Keras v2.4.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "keras",
@@ -2320,9 +2324,9 @@
   },
   {
     "type":   "keras",
-    "target": "VGG19.h5",
-    "script": "./tools/tf sync install zoo",
-    "link":   "https://www.tensorflow.org/api_docs/python/tf/keras/applications"
+    "target": "VGG19.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6098155/VGG19.h5.zip",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "lasagne",

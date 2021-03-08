@@ -48,6 +48,6 @@ def metadata():
     #         fout.write('\n')
 
 if __name__ == '__main__':
-    command_table = { 'metadata': metadata, 'zoo': zoo }
+    command_table = { 'metadata': metadata }
     command = sys.argv[1]
     command_table[command]()

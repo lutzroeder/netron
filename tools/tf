@@ -104,14 +104,6 @@ metadata() {
     deactivate
 }
 
-zoo() {
-    echo "keras zoo"
-    venv
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/keras-script.py zoo
-    deactivate
-}
-
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -120,6 +112,5 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
-        "zoo") zoo;;
     esac
 done
