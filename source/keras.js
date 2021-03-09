@@ -39,18 +39,149 @@ keras.ModelFactory = class {
             let backend = '';
             let model_config = null;
             let rootGroup = null;
-            const identifier = context.identifier;
             const weights = new keras.Weights();
             const manifests = [];
-            const extension = identifier.split('.').pop().toLowerCase();
-            const buffer = context.stream.peek();
-            if (extension === 'json') {
-                const reader = json.TextReader.create(buffer);
-                const root = reader.read();
-                if (root && Array.isArray(root) && root.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
+            const stream = context.stream;
+            const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
+            if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                return context.require('./hdf5').then((hdf5) => {
+                    const buffer = stream.peek();
+                    const file = new hdf5.File(buffer);
+                    rootGroup = file.rootGroup;
+                    if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
+                        const model_config_json = rootGroup.attribute('model_config');
+                        if (model_config_json) {
+                            const reader = json.TextReader.create(model_config_json);
+                            model_config = reader.read();
+                        }
+                        backend = rootGroup.attribute('backend') || '';
+                        const version = rootGroup.attribute('keras_version') || '';
+                        format = format + (version ? ' v' + version : '');
+                        let model_weights_group = rootGroup.group('model_weights');
+                        if (!model_weights_group && rootGroup.attribute('layer_names')) {
+                            model_weights_group = rootGroup;
+                        }
+                        if (model_weights_group) {
+                            model_weights_group = new keras.Group(model_weights_group);
+                            for (const layer_name of model_weights_group.attribute('layer_names')) {
+                                const layer_weights = model_weights_group.group(layer_name);
+                                if (layer_weights) {
+                                    const weight_names = layer_weights.attribute('weight_names');
+                                    if (weight_names && weight_names.length > 0) {
+                                        for (const weight_name of weight_names) {
+                                            const weight = layer_weights.group(weight_name);
+                                            if (weight && weight.value) {
+                                                const variable = weight.value;
+                                                const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian, variable.data);
+                                                if (model_config) {
+                                                    weights.add(layer_name, tensor);
+                                                }
+                                                else {
+                                                    const components = weight_name.split('/');
+                                                    components.pop();
+                                                    const name = (components.length == 0 || components[0] !== layer_name) ? [ layer_name ].concat(components).join('/') : components.join('/');
+                                                    weights.add(name, tensor);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        const attributes = new Set([ 'nb_layers' ]);
+                        if (Object.keys(rootGroup.attributes).filter((name) => !attributes.has(name)).length !== 0 || rootGroup.value !== null) {
+                            throw new keras.Error('File format is not HDF5 Weights');
+                        }
+                        format = 'HDF5 Weights';
+                        if (Object.keys(rootGroup.attributes).length === 0 && rootGroup.value === null &&
+                            rootGroup.groups.length == 1 && rootGroup.groups[0] &&
+                            Object.keys(rootGroup.groups[0].attributes).length === 0 && rootGroup.groups[0].value === null) {
+                            rootGroup = rootGroup.groups[0];
+                        }
+                        if (rootGroup.groups.every((group) => Object.keys(group.attributes).length === 0 && group.groups.length == 0 && group.value !== null)) {
+                            for (const group of rootGroup.groups) {
+                                const variable = group.value;
+                                const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                                weights.add('', tensor);
+                            }
+                        }
+                        else if (rootGroup.groups.every((group) => Object.keys(group.attributes).length === 0 && group.value === null)) {
+                            for (const group of rootGroup.groups) {
+                                const moduleName = group.attributes.name || group.name;
+                                for (const variableGroup of group.groups) {
+                                    if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
+                                        throw new keras.Error('Group is not HDF5 tensor variable.');
+                                    }
+                                    const variable = variableGroup.value;
+                                    if (!variable) {
+                                        throw new keras.Error('Variable value is not HDF5 tensor.');
+                                    }
+                                    const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
+                                    const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                                    weights.add(moduleName, tensor);
+                                }
+                            }
+                        }
+                        else if (rootGroup.groups.every((group) => group.value === null && group.groups.every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
+                            for (const group of rootGroup.groups) {
+                                const moduleName = group.attributes.name || group.name;
+                                for (const variableGroup of group.groups) {
+                                    if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
+                                        throw new keras.Error('Variable format is not HDF5 Weights');
+                                    }
+                                    const variable = variableGroup.value;
+                                    if (!variable) {
+                                        throw new keras.Error('Variable value is not HDF5 Weights');
+                                    }
+                                    const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
+                                    const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                                    weights.add(moduleName, tensor);
+                                }
+                            }
+                        }
+                        else {
+                            const walk = function(group) {
+                                if (Object.keys(group.attributes).length === 0 && group.value === null && group.groups.length > 0) {
+                                    for (const subGroup of group.groups) {
+                                        walk(subGroup);
+                                    }
+                                }
+                                else if (Object.keys(group.attributes).length === 0 && group.value !== null && group.groups.length === 0) {
+                                    const variable = group.value;
+                                    const variableName = group.path;
+                                    let moduleName = variableName;
+                                    const parts = variableName.split('/');
+                                    if (parts.length > 1) {
+                                        parts.pop();
+                                        moduleName = parts.join('/');
+                                    }
+                                    const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
+                                    weights.add(moduleName, tensor);
+                                }
+                                else {
+                                    throw new keras.Error('Module group format is not HDF5 Weights');
+                                }
+                            };
+                            walk(rootGroup);
+                        }
+                    }
+                    if (!rootGroup && !model_config) {
+                        throw new keras.Error('\'model_config\' is not present.');
+                    }
+                    if (!rootGroup && !model_config.class_name) {
+                        throw new keras.Error('\'class_name\' is not present.');
+                    }
+                    return new keras.Model(metadata, format, producer, backend, model_config, weights);
+                });
+            }
+            const obj = context.open('json');
+            if (obj) {
+                if (obj && Array.isArray(obj) && obj.every((manifest) => Array.isArray(manifest.weights) && Array.isArray(manifest.paths))) {
                     format = 'TensorFlow.js Weights';
                     rootGroup = {};
-                    manifests.push(...root);
+                    manifests.push(...obj);
                     for (const manifest of manifests) {
                         for (const weight of manifest.weights) {
                             const parts = weight.name.split('/');
@@ -60,14 +191,14 @@ keras.ModelFactory = class {
                     }
                 }
                 else {
-                    if (root.keras_version) {
-                        const version = root.keras_version;
+                    if (obj.keras_version) {
+                        const version = obj.keras_version;
                         format = format + (version ? (' v' + version) : '');
                     }
-                    if (root.backend) {
-                        backend = root.backend;
+                    if (obj.backend) {
+                        backend = obj.backend;
                     }
-                    model_config = root;
+                    model_config = obj;
                     if (model_config && model_config.modelTopology) {
                         backend = model_config.modelTopology.backend;
                         const version = model_config.modelTopology.keras_version;
@@ -140,136 +271,7 @@ keras.ModelFactory = class {
                     return create_model(shards);
                 });
             }
-            return context.require('./hdf5').then((hdf5) => {
-                const file = new hdf5.File(buffer);
-                rootGroup = file.rootGroup;
-                if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
-                    const model_config_json = rootGroup.attribute('model_config');
-                    if (model_config_json) {
-                        const reader = json.TextReader.create(model_config_json);
-                        model_config = reader.read();
-                    }
-                    backend = rootGroup.attribute('backend') || '';
-                    const version = rootGroup.attribute('keras_version') || '';
-                    format = format + (version ? ' v' + version : '');
-                    let model_weights_group = rootGroup.group('model_weights');
-                    if (!model_weights_group && rootGroup.attribute('layer_names')) {
-                        model_weights_group = rootGroup;
-                    }
-                    if (model_weights_group) {
-                        model_weights_group = new keras.Group(model_weights_group);
-                        for (const layer_name of model_weights_group.attribute('layer_names')) {
-                            const layer_weights = model_weights_group.group(layer_name);
-                            if (layer_weights) {
-                                const weight_names = layer_weights.attribute('weight_names');
-                                if (weight_names && weight_names.length > 0) {
-                                    for (const weight_name of weight_names) {
-                                        const weight = layer_weights.group(weight_name);
-                                        if (weight && weight.value) {
-                                            const variable = weight.value;
-                                            const tensor = new keras.Tensor(weight_name, variable.shape, variable.type, null, variable.littleEndian, variable.data);
-                                            if (model_config) {
-                                                weights.add(layer_name, tensor);
-                                            }
-                                            else {
-                                                const components = weight_name.split('/');
-                                                components.pop();
-                                                const name = (components.length == 0 || components[0] !== layer_name) ? [ layer_name ].concat(components).join('/') : components.join('/');
-                                                weights.add(name, tensor);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else {
-                    const attributes = new Set([ 'nb_layers' ]);
-                    if (Object.keys(rootGroup.attributes).filter((name) => !attributes.has(name)).length !== 0 || rootGroup.value !== null) {
-                        throw new keras.Error('File format is not HDF5 Weights');
-                    }
-                    format = 'HDF5 Weights';
-                    if (Object.keys(rootGroup.attributes).length === 0 && rootGroup.value === null &&
-                        rootGroup.groups.length == 1 && rootGroup.groups[0] &&
-                        Object.keys(rootGroup.groups[0].attributes).length === 0 && rootGroup.groups[0].value === null) {
-                        rootGroup = rootGroup.groups[0];
-                    }
-                    if (rootGroup.groups.every((group) => Object.keys(group.attributes).length === 0 && group.groups.length == 0 && group.value !== null)) {
-                        for (const group of rootGroup.groups) {
-                            const variable = group.value;
-                            const tensor = new keras.Tensor(group.name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
-                            weights.add('', tensor);
-                        }
-                    }
-                    else if (rootGroup.groups.every((group) => Object.keys(group.attributes).length === 0 && group.value === null)) {
-                        for (const group of rootGroup.groups) {
-                            const moduleName = group.attributes.name || group.name;
-                            for (const variableGroup of group.groups) {
-                                if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
-                                    throw new keras.Error('Group is not HDF5 tensor variable.');
-                                }
-                                const variable = variableGroup.value;
-                                if (!variable) {
-                                    throw new keras.Error('Variable value is not HDF5 tensor.');
-                                }
-                                const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
-                                const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
-                                weights.add(moduleName, tensor);
-                            }
-                        }
-                    }
-                    else if (rootGroup.groups.every((group) => group.value === null && group.groups.every((variable) => Object.keys(variable.attributes).length === 0 && variable.value !== null))) {
-                        for (const group of rootGroup.groups) {
-                            const moduleName = group.attributes.name || group.name;
-                            for (const variableGroup of group.groups) {
-                                if (Object.keys(variableGroup.attributes).length !== 0 || variableGroup.groups.length !== 0) {
-                                    throw new keras.Error('Variable format is not HDF5 Weights');
-                                }
-                                const variable = variableGroup.value;
-                                if (!variable) {
-                                    throw new keras.Error('Variable value is not HDF5 Weights');
-                                }
-                                const name = moduleName ? [ moduleName, variableGroup.name ].join('/') : moduleName.name;
-                                const tensor = new keras.Tensor(name, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
-                                weights.add(moduleName, tensor);
-                            }
-                        }
-                    }
-                    else {
-                        const walk = function(group) {
-                            if (Object.keys(group.attributes).length === 0 && group.value === null && group.groups.length > 0) {
-                                for (const subGroup of group.groups) {
-                                    walk(subGroup);
-                                }
-                            }
-                            else if (Object.keys(group.attributes).length === 0 && group.value !== null && group.groups.length === 0) {
-                                const variable = group.value;
-                                const variableName = group.path;
-                                let moduleName = variableName;
-                                const parts = variableName.split('/');
-                                if (parts.length > 1) {
-                                    parts.pop();
-                                    moduleName = parts.join('/');
-                                }
-                                const tensor = new keras.Tensor(variableName, variable.shape, variable.type, null, variable.littleEndian, variable.type === 'string' ? variable.value : variable.data);
-                                weights.add(moduleName, tensor);
-                            }
-                            else {
-                                throw new keras.Error('Module group format is not HDF5 Weights');
-                            }
-                        };
-                        walk(rootGroup);
-                    }
-                }
-                if (!rootGroup && !model_config) {
-                    throw new keras.Error('\'model_config\' is not present.');
-                }
-                if (!rootGroup && !model_config.class_name) {
-                    throw new keras.Error('\'class_name\' is not present.');
-                }
-                return new keras.Model(metadata, format, producer, backend, model_config, weights);
-            });
+            throw new keras.Error('Unsupported Keras format.');
         });
     }
 };
