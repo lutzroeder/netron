@@ -3463,8 +3463,8 @@ $root.mindspore.schema.RandomStandardNormal = class RandomStandardNormal {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.RandomStandardNormal();
-        $.seed = reader.int32_(position, 4, 0);
-        $.seed2 = reader.int32_(position, 6, 0);
+        $.seed = reader.int64_(position, 4, 0);
+        $.seed2 = reader.int64_(position, 6, 0);
         return $;
     }
 
@@ -3493,19 +3493,28 @@ $root.mindspore.schema.CropAndResize = class CropAndResize {
     }
 };
 
+$root.mindspore.schema.Erf = class Erf {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Erf();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Erf();
+        return $;
+    }
+};
+
 $root.mindspore.schema.StridedSliceGrad = class StridedSliceGrad {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.StridedSliceGrad();
-        $.begin_mask = reader.int32_(position, 4, 0);
-        $.end_mask = reader.int32_(position, 6, 0);
-        $.ellipsis_mask = reader.int32_(position, 8, 0);
-        $.new_axis_mask = reader.int32_(position, 10, 0);
-        $.shrink_axis_mask = reader.int32_(position, 12, 0);
-        $.begin = reader.typedArray(position, 14, Int32Array);
-        $.end = reader.typedArray(position, 16, Int32Array);
-        $.stride = reader.typedArray(position, 18, Int32Array);
-        $.isScale = reader.typedArray(position, 20, Int32Array);
+        $.begin_mask = reader.int64_(position, 4, 0);
+        $.end_mask = reader.int64_(position, 6, 0);
+        $.ellipsis_mask = reader.int64_(position, 8, 0);
+        $.new_axis_mask = reader.int64_(position, 10, 0);
+        $.shrink_axis_mask = reader.int64_(position, 12, 0);
         return $;
     }
 
@@ -3516,23 +3525,6 @@ $root.mindspore.schema.StridedSliceGrad = class StridedSliceGrad {
         $.ellipsis_mask = reader.value(json.ellipsis_mask, 0);
         $.new_axis_mask = reader.value(json.new_axis_mask, 0);
         $.shrink_axis_mask = reader.value(json.shrink_axis_mask, 0);
-        $.begin = reader.typedArray(json.begin, Int32Array);
-        $.end = reader.typedArray(json.end, Int32Array);
-        $.stride = reader.typedArray(json.stride, Int32Array);
-        $.isScale = reader.typedArray(json.isScale, Int32Array);
-        return $;
-    }
-};
-
-$root.mindspore.schema.Erf = class Erf {
-
-    static decode(/* reader, position */) {
-        const $ = new $root.mindspore.schema.Erf();
-        return $;
-    }
-
-    static decodeText(/* reader, json */) {
-        const $ = new $root.mindspore.schema.Erf();
         return $;
     }
 };
@@ -3567,8 +3559,8 @@ $root.mindspore.schema.UniformReal = class UniformReal {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.UniformReal();
-        $.seed = reader.int32_(position, 4, 0);
-        $.seed2 = reader.int32_(position, 6, 0);
+        $.seed = reader.int64_(position, 4, 0);
+        $.seed2 = reader.int64_(position, 6, 0);
         return $;
     }
 
