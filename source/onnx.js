@@ -714,7 +714,7 @@ onnx.Tensor = class {
                 case onnx.proto.TensorProto.DataType.FLOAT16:
                     if (tensor.int32_data && tensor.int32_data.length > 0) {
                         const buffer = new Uint8Array(tensor.int32_data.length << 1);
-                        const view = new DataView(buffer, buffer.byteOffset, buffer.byteLength);
+                        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                         const array = tensor.int32_data;
                         for (let i = 0; i < array.length; i++) {
                             view.setUint16(i << 1, array[i], true);
