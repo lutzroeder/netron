@@ -18231,7 +18231,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'NonZero',\n    inputs=['condition'],\n    outputs=['result'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nresult = np.array((np.nonzero(condition)))  # expected output [[0, 1, 1], [0, 0, 1]]\nexpect(node, inputs=[condition], outputs=[result],\n       name='test_nonzero_example')",
+          "code": "node = onnx.helper.make_node(\n    'NonZero',\n    inputs=['condition'],\n    outputs=['result'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nresult = np.array(np.nonzero(condition), dtype=np.int64)  # expected output [[0, 1, 1], [0, 0, 1]]\nexpect(node, inputs=[condition], outputs=[result],\n       name='test_nonzero_example')",
           "summary": "nonzero"
         }
       ],
@@ -18287,7 +18287,7 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node = onnx.helper.make_node(\n    'NonZero',\n    inputs=['condition'],\n    outputs=['result'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nresult = np.array((np.nonzero(condition)))  # expected output [[0, 1, 1], [0, 0, 1]]\nexpect(node, inputs=[condition], outputs=[result],\n       name='test_nonzero_example')",
+          "code": "node = onnx.helper.make_node(\n    'NonZero',\n    inputs=['condition'],\n    outputs=['result'],\n)\n\ncondition = np.array([[1, 0], [1, 1]], dtype=np.bool)\nresult = np.array(np.nonzero(condition), dtype=np.int64)  # expected output [[0, 1, 1], [0, 0, 1]]\nexpect(node, inputs=[condition], outputs=[result],\n       name='test_nonzero_example')",
           "summary": "nonzero"
         }
       ],
@@ -30861,6 +30861,147 @@
     }
   },
   {
+    "name": "Trilu",
+    "schema": {
+      "attributes": [
+        {
+          "default": 1,
+          "description": "Boolean. Indicates whether upper or lower part of matrix is retained. Default is true.",
+          "name": "upper",
+          "required": false,
+          "type": "int64"
+        }
+      ],
+      "description": "Given a 2-D matrix or batches of 2-D matrices, returns the upper or lower triangular part of the tensor(s).\nThe attribute \"upper\" determines whether the upper or lower part is retained. If set to true,\nthe upper triangular matrix is retained. Lower triangular matrix is retained otherwise.\nDefault value for the \"upper\" attribute is true.\nTrilu takes one input tensor of shape [*, N, M], where * is zero or more batch dimensions. The upper triangular part consists\nof the elements on and above the given diagonal (k). The lower triangular part consists of elements on and below the diagonal.\nAll other elements in the matrix are set to zero.\nIf k = 0, the triangular part on and above/below the main diagonal is retained.\nIf upper is set to true, a positive k retains the upper triangular matrix excluding the main diagonal and (k-1) diagonals above it.\nA negative k value retains the main diagonal and |k| diagonals below it.\nIf upper is set to false, a positive k retains the lower triangular matrix including the main diagonal and k diagonals above it.\nA negative k value excludes the main diagonal and (|k|-1) diagonals below it.\n",
+      "domain": "ai.onnx",
+      "examples": [
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 0, 0, 0, 0],\n#   [1, 2, 0, 0, 0],\n#   [9, 4, 1, 0, 0],\n#   [4, 3, 4, 2, 0]]\ny = tril_reference_implementation(x)\nexpect(node, inputs=[x], outputs=[y], name='test_tril')",
+          "summary": "tril"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(-1).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[0, 0, 0, 0, 0],\n#   [1, 0, 0, 0, 0],\n#   [9, 4, 0, 0, 0],\n#   [4, 3, 4, 0, 0]]\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_neg')",
+          "summary": "tril_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(3, 1, 5)).astype(np.int64)\n# X:\n# [[[6, 2, 4, 1, 6]],\n#\n#  [[8, 3, 8, 7, 0]],\n#\n#  [[2, 2, 9, 5, 9]]]\n# expect result:\n# [[[6, 0, 0, 0, 0]],\n#\n#  [[8, 0, 0, 0, 0]],\n#\n#  [[2, 0, 0, 0, 0]]]\ny = tril_reference_implementation(x)\nexpect(node, inputs=[x], outputs=[y], name='test_tril_one_row_neg')",
+          "summary": "tril_one_row"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(-7).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0]]\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_out_neg')",
+          "summary": "tril_out_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(6).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_out_pos')",
+          "summary": "tril_out_pos"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(2).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 7, 3, 0, 0],\n#   [1, 2, 8, 6, 0],\n#   [9, 4, 1, 8, 7],\n#   [4, 3, 4, 2, 4]]\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_pos')",
+          "summary": "tril_pos"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(2, 3, 3)).astype(np.int64)\n# X:\n# [[[0, 4, 3],\n#   [2, 0, 9],\n#   [8, 2, 5]],\n#\n#  [[2, 7, 2],\n#   [2, 6, 0],\n#   [2, 6, 5]]]\n# expect result:\n# [[[0, 0, 0],\n#   [2, 0, 0],\n#   [8, 2, 5]],\n#\n#  [[2, 0, 0],\n#   [2, 6, 0],\n#   [2, 6, 5]]]\ny = tril_reference_implementation(x)\nexpect(node, inputs=[x], outputs=[y], name='test_tril_square')",
+          "summary": "tril_square"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(2, 3, 3)).astype(np.int64)\nk = np.array(-1).astype(np.int64)\n# X:\n# [[[0, 4, 3],\n#   [2, 0, 9],\n#   [8, 2, 5]],\n#\n#  [[2, 7, 2],\n#   [2, 6, 0],\n#   [2, 6, 5]]]\n# expect result:\n# [[[0, 0, 0],\n#   [2, 0, 0],\n#   [8, 2, 0]],\n#\n#  [[0, 0, 0],\n#   [2, 0, 0],\n#   [2, 6, 0]]]\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_square_neg')",
+          "summary": "tril_square_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n    upper=0,\n)\n\nx = np.random.randint(10, size=(3, 0, 5)).astype(np.int64)\nk = np.array(6).astype(np.int64)\n# X:\n# []\n# expect result:\n# []\ny = tril_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_tril_zero')",
+          "summary": "tril_zero"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 7, 3, 7, 9],\n#   [0, 2, 8, 6, 9],\n#   [0, 0, 0, 8, 7],\n#   [0, 0, 0, 2, 4]]\ny = triu_reference_implementation(x)\nexpect(node, inputs=[x], outputs=[y], name='test_triu')",
+          "summary": "triu"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(-1).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [0, 4, 0, 8, 7],\n#   [0, 0, 4, 2, 4]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_neg')",
+          "summary": "triu_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(3, 1, 5)).astype(np.int64)\nk = np.array(1).astype(np.int64)\n# X:\n# [[[1, 4, 9, 7, 1]],\n#\n#  [[9, 2, 8, 8, 4]],\n#\n#  [[3, 9, 7, 4, 2]]]\n# expect result:\n# [[[0, 4, 9, 7, 1]],\n#\n#  [[0, 2, 8, 8, 4]],\n#\n#  [[0, 9, 7, 4, 2]]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_one_row')",
+          "summary": "triu_one_row"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(-7).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_out_neg_out')",
+          "summary": "triu_out_neg_out"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(6).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0],\n#   [0, 0, 0, 0, 0]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_out_pos')",
+          "summary": "triu_out_pos"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(4, 5)).astype(np.int64)\nk = np.array(2).astype(np.int64)\n# X:\n#  [[4, 7, 3, 7, 9],\n#   [1, 2, 8, 6, 9],\n#   [9, 4, 0, 8, 7],\n#   [4, 3, 4, 2, 4]]\n# expect result:\n#  [[0, 0, 3, 7, 9],\n#   [0, 0, 0, 6, 9],\n#   [0, 0, 0, 0, 7],\n#   [0, 0, 0, 0, 0]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_pos')",
+          "summary": "triu_pos"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(2, 3, 3)).astype(np.int64)\ny = triu_reference_implementation(x)\n# X:\n# [[[4, 6, 9],\n#   [7, 5, 4],\n#   [8, 1, 2]],\n#\n#  [[1, 4, 9],\n#   [9, 6, 3],\n#   [8, 9, 8]]]\n# expect result:\n# [[[4, 6, 9],\n#   [0, 5, 4],\n#   [0, 0, 2]],\n#\n#  [[1, 4, 9],\n#   [0, 6, 3],\n#   [0, 0, 8]]]\nexpect(node, inputs=[x], outputs=[y], name='test_triu_square')",
+          "summary": "triu_square"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(2, 3, 3)).astype(np.int64)\nk = np.array(-1).astype(np.int64)\n# X:\n# [[[4, 6, 9],\n#   [7, 5, 4],\n#   [8, 1, 2]],\n#\n#  [[1, 4, 9],\n#   [9, 6, 3],\n#   [8, 9, 8]]]\n# expect result:\n# [[[4, 6, 9],\n#   [7, 5, 4],\n#   [0, 1, 2]],\n#\n#  [[1, 4, 9],\n#   [9, 6, 3],\n#   [0, 9, 8]]]\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_square_neg')",
+          "summary": "triu_square_neg"
+        },
+        {
+          "code": "node = onnx.helper.make_node(\n    'Trilu',\n    inputs=['x', 'k'],\n    outputs=['y'],\n)\n\nx = np.random.randint(10, size=(0, 5)).astype(np.int64)\nk = np.array(6).astype(np.int64)\n# X:\n# []\n# expect result:\n# []\ny = triu_reference_implementation(x, int(k))\nexpect(node, inputs=[x, k], outputs=[y], name='test_triu_zero')",
+          "summary": "triu_zero"
+        }
+      ],
+      "inputs": [
+        {
+          "description": "Input tensor of rank 2 or higher.",
+          "name": "input",
+          "type": "T"
+        },
+        {
+          "description": "A 0-D tensor containing a single value corresponding to the number diagonals above or below the main diagonal to exclude or include. Default value is 0 if it's not specified.",
+          "name": "k",
+          "option": "optional",
+          "type": "tensor(int64)"
+        }
+      ],
+      "inputs_range": "1 - 2",
+      "max_input": 2,
+      "max_output": 1,
+      "min_input": 1,
+      "min_output": 1,
+      "outputs": [
+        {
+          "description": "Output tensor of the same type and shape as the input tensor.",
+          "name": "output",
+          "type": "T"
+        }
+      ],
+      "since_version": 14,
+      "support_level": "common",
+      "type_constraints": [
+        {
+          "allowed_type_strs": [
+            "tensor(uint8)",
+            "tensor(uint16)",
+            "tensor(uint32)",
+            "tensor(uint64)",
+            "tensor(int8)",
+            "tensor(int16)",
+            "tensor(int32)",
+            "tensor(int64)",
+            "tensor(bfloat16)",
+            "tensor(float16)",
+            "tensor(float)",
+            "tensor(double)",
+            "tensor(string)",
+            "tensor(bool)",
+            "tensor(complex64)",
+            "tensor(complex128)"
+          ],
+          "description": "Constrain input and output types to all tensor types.",
+          "type_param_str": "T"
+        }
+      ]
+    }
+  },
+  {
     "name": "Unique",
     "schema": {
       "attributes": [
@@ -30882,23 +31023,23 @@
       "domain": "ai.onnx",
       "examples": [
         {
-          "code": "node_not_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=0\n)\n# numpy unique does not retain original order (it sorts the output unique values)\n# https://github.com/numpy/numpy/issues/8621\n# we need to recover unsorted output and indices\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\n\n# prepare index mapping from sorted to unsorted\nargsorted_indices = np.argsort(indices)\ninverse_indices_map = {i: si for i, si in zip(argsorted_indices, np.arange(len(argsorted_indices)))}\n\nindices = indices[argsorted_indices]\ny = np.take(x, indices, axis=0)\ninverse_indices = np.asarray([inverse_indices_map[i] for i in inverse_indices], dtype=np.int64)\ncounts = counts[argsorted_indices]\n# print(y)\n# [2.0, 1.0, 3.0, 4.0]\n# print(indices)\n# [0 1 3 4]\n# print(inverse_indices)\n# [0, 1, 1, 2, 3, 2]\n# print(counts)\n# [1, 2, 2, 1]\n\nexpect(node_not_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_not_sorted_without_axis')",
+          "code": "node_not_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=0\n)\n# numpy unique does not retain original order (it sorts the output unique values)\n# https://github.com/numpy/numpy/issues/8621\n# we need to recover unsorted output and indices\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\n\n# prepare index mapping from sorted to unsorted\nargsorted_indices = np.argsort(indices)\ninverse_indices_map = {i: si for i, si in zip(argsorted_indices, np.arange(len(argsorted_indices)))}\n\nindices = indices[argsorted_indices]\ny = np.take(x, indices, axis=0)\ninverse_indices = np.asarray([inverse_indices_map[i] for i in inverse_indices], dtype=np.int64)\ncounts = counts[argsorted_indices]\nindices, inverse_indices, counts = specify_int64(indices, inverse_indices, counts)\n# print(y)\n# [2.0, 1.0, 3.0, 4.0]\n# print(indices)\n# [0 1 3 4]\n# print(inverse_indices)\n# [0, 1, 1, 2, 3, 2]\n# print(counts)\n# [1, 2, 2, 1]\n\nexpect(node_not_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_not_sorted_without_axis')",
           "summary": "not_sorted_without_axis"
         },
         {
-          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=0\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 4]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=0)\n# print(y)\n# [[1. 0. 0.]\n#  [2. 3. 4.]]\n# print(indices)\n# [0 2]\n# print(inverse_indices)\n# [0 0 1]\n# print(counts)\n# [2 1]\n\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis')",
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=0\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 4]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=0)\nindices, inverse_indices, counts = specify_int64(indices, inverse_indices, counts)\n# print(y)\n# [[1. 0. 0.]\n#  [2. 3. 4.]]\n# print(indices)\n# [0 2]\n# print(inverse_indices)\n# [0 0 1]\n# print(counts)\n# [2 1]\n\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis')",
           "summary": "sorted_with_axis"
         },
         {
-          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=1\n)\n\nx = np.array([[[1., 1.], [0., 1.], [2., 1.], [0., 1.]],\n              [[1., 1.], [0., 1.], [2., 1.], [0., 1.]]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=1)\n# print(y)\n# [[[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]\n# [[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]]\n# print(indices)\n# [1 0 2]\n# print(inverse_indices)\n# [1 0 2 0]\n# print(counts)\n# [2 1 1]\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis_3d')",
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=1\n)\n\nx = np.array([[[1., 1.], [0., 1.], [2., 1.], [0., 1.]],\n              [[1., 1.], [0., 1.], [2., 1.], [0., 1.]]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=1)\nindices, inverse_indices, counts = specify_int64(indices, inverse_indices, counts)\n# print(y)\n# [[[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]\n# [[0. 1.]\n#  [1. 1.]\n#  [2. 1.]]]\n# print(indices)\n# [1 0 2]\n# print(inverse_indices)\n# [1 0 2 0]\n# print(counts)\n# [2 1 1]\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_axis_3d')",
           "summary": "sorted_with_axis_3d"
         },
         {
-          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=-1\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 3]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=-1)\n# print(y)\n# [[0. 1.]\n#  [0. 1.]\n#  [3. 2.]]\n# print(indices)\n# [1 0]\n# print(inverse_indices)\n# [1 0 0]\n# print(counts)\n# [2 1]\n\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_negative_axis')",
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts'],\n    sorted=1,\n    axis=-1\n)\n\nx = np.array([[1, 0, 0], [1, 0, 0], [2, 3, 3]], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True, axis=-1)\nindices, inverse_indices, counts = specify_int64(indices, inverse_indices, counts)\n# print(y)\n# [[0. 1.]\n#  [0. 1.]\n#  [3. 2.]]\n# print(indices)\n# [1 0]\n# print(inverse_indices)\n# [1 0 0]\n# print(counts)\n# [2 1]\n\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_with_negative_axis')",
           "summary": "sorted_with_negative_axis"
         },
         {
-          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts']\n)\n\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_without_axis')",
+          "code": "node_sorted = onnx.helper.make_node(\n    'Unique',\n    inputs=['X'],\n    outputs=['Y', 'indices', 'inverse_indices', 'counts']\n)\n\nx = np.array([2.0, 1.0, 1.0, 3.0, 4.0, 3.0], dtype=np.float32)\ny, indices, inverse_indices, counts = np.unique(x, True, True, True)\nindices, inverse_indices, counts = specify_int64(indices, inverse_indices, counts)\nexpect(node_sorted, inputs=[x], outputs=[y, indices, inverse_indices, counts], name='test_unique_sorted_without_axis')",
           "summary": "sorted_without_axis"
         }
       ],
