@@ -6273,5 +6273,43 @@
         { "name": "output", "type": "Tensor" }
       ]
     }
+  },
+  {
+    "name": "torch.stft",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "n_fft", "type": "int64" },
+        { "name": "hop_length", "type": "int64", "optional": true, "default": null },
+        { "name": "win_length", "type": "int64", "optional": true, "default": null },
+        { "name": "window", "type": "Tensor", "optional": true, "default": null },
+        { "name": "normalized", "type": "boolean", "default": false },
+        { "name": "onesided", "type": "boolean", "optional": true, "default": null },
+        { "name": "return_complex", "type": "boolean", "optional": true, "default": null }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
+  },
+  {
+    "name": "torch.istft",
+    "schema": {
+      "inputs": [
+        { "name": "self", "type": "Tensor" },
+        { "name": "n_fft", "type": "int64" },
+        { "name": "hop_length", "type": "int64", "optional": true, "default": null },
+        { "name": "win_length", "type": "int64", "optional": true, "default": null },
+        { "name": "window", "type": "Tensor", "optional": true, "default": null },
+        { "name": "center", "type": "boolean", "default": true },
+        { "name": "normalized", "type": "boolean", "default": false },
+        { "name": "onesided", "type": "boolean", "optional": true, "default": null },
+        { "name": "length", "type": "boolean", "optional": true, "default": null },
+        { "name": "return_complex", "type": "boolean", "default": false }
+      ],
+      "outputs": [
+        { "name": "output", "type": "Tensor" }
+      ]
+    }
   }
 ]
