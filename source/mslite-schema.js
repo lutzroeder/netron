@@ -341,7 +341,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 140: return $root.mindspore.schema.SpaceToBatch.decode(reader, position);
             case 141: return $root.mindspore.schema.SpaceToBatchND.decode(reader, position);
             case 142: return $root.mindspore.schema.SpaceToDepth.decode(reader, position);
-            case 143: return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decode(reader, position);
+            case 143: return $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits.decode(reader, position);
             case 144: return $root.mindspore.schema.SparseToDense.decode(reader, position);
             case 145: return $root.mindspore.schema.Split.decode(reader, position);
             case 146: return $root.mindspore.schema.Sqrt.decode(reader, position);
@@ -382,6 +382,10 @@ $root.mindspore.schema.PrimitiveType = class {
             case 181: return $root.mindspore.schema.LinSpace.decode(reader, position);
             case 182: return $root.mindspore.schema.UniformReal.decode(reader, position);
             case 183: return $root.mindspore.schema.AbsGrad.decode(reader, position);
+            case 184: return $root.mindspore.schema.RsqrtGrad.decode(reader, position);
+            case 185: return $root.mindspore.schema.SqrtGrad.decode(reader, position);
+            case 186: return $root.mindspore.schema.LayerNormGrad.decode(reader, position);
+            case 187: return $root.mindspore.schema.ResizeGrad.decode(reader, position);
         }
         return undefined;
     }
@@ -530,7 +534,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'SpaceToBatch': return $root.mindspore.schema.SpaceToBatch.decodeText(reader, json);
             case 'SpaceToBatchND': return $root.mindspore.schema.SpaceToBatchND.decodeText(reader, json);
             case 'SpaceToDepth': return $root.mindspore.schema.SpaceToDepth.decodeText(reader, json);
-            case 'SparseSoftmaxCrossEntropy': return $root.mindspore.schema.SparseSoftmaxCrossEntropy.decodeText(reader, json);
+            case 'SparseSoftmaxCrossEntropyWithLogits': return $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits.decodeText(reader, json);
             case 'SparseToDense': return $root.mindspore.schema.SparseToDense.decodeText(reader, json);
             case 'Split': return $root.mindspore.schema.Split.decodeText(reader, json);
             case 'Sqrt': return $root.mindspore.schema.Sqrt.decodeText(reader, json);
@@ -571,6 +575,10 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'LinSpace': return $root.mindspore.schema.LinSpace.decodeText(reader, json);
             case 'UniformReal': return $root.mindspore.schema.UniformReal.decodeText(reader, json);
             case 'AbsGrad': return $root.mindspore.schema.AbsGrad.decodeText(reader, json);
+            case 'RsqrtGrad': return $root.mindspore.schema.RsqrtGrad.decodeText(reader, json);
+            case 'SqrtGrad': return $root.mindspore.schema.SqrtGrad.decodeText(reader, json);
+            case 'LayerNormGrad': return $root.mindspore.schema.LayerNormGrad.decodeText(reader, json);
+            case 'ResizeGrad': return $root.mindspore.schema.ResizeGrad.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2972,16 +2980,16 @@ $root.mindspore.schema.SpaceToDepth = class SpaceToDepth {
     }
 };
 
-$root.mindspore.schema.SparseSoftmaxCrossEntropy = class SparseSoftmaxCrossEntropy {
+$root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits = class SparseSoftmaxCrossEntropyWithLogits {
 
     static decode(reader, position) {
-        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
+        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits();
         $.grad = reader.bool_(position, 4, false);
         return $;
     }
 
     static decodeText(reader, json) {
-        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropy();
+        const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits();
         $.grad = reader.value(json.grad, false);
         return $;
     }
@@ -3585,6 +3593,66 @@ $root.mindspore.schema.AbsGrad = class AbsGrad {
     }
 };
 
+$root.mindspore.schema.RsqrtGrad = class RsqrtGrad {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.RsqrtGrad();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.RsqrtGrad();
+        return $;
+    }
+};
+
+$root.mindspore.schema.SqrtGrad = class SqrtGrad {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.SqrtGrad();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.SqrtGrad();
+        return $;
+    }
+};
+
+$root.mindspore.schema.LayerNormGrad = class LayerNormGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.LayerNormGrad();
+        $.begin_norm_axis = reader.int64_(position, 4, 0);
+        $.begin_params_axis = reader.int64_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.LayerNormGrad();
+        $.begin_norm_axis = reader.value(json.begin_norm_axis, 0);
+        $.begin_params_axis = reader.value(json.begin_params_axis, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.ResizeGrad = class ResizeGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.ResizeGrad();
+        $.method = reader.int8_(position, 4, undefined);
+        $.align_corners = reader.bool_(position, 6, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.ResizeGrad();
+        $.method = $root.mindspore.schema.ResizeMethod[json.method];
+        $.align_corners = reader.value(json.align_corners, false);
+        return $;
+    }
+};
+
 $root.mindspore.schema.ResizeMethod = {
     UNKNOWN: -1,
     LINEAR: 0,
@@ -3621,7 +3689,8 @@ $root.mindspore.schema.Format = {
     NC: 11,
     NC4: 12,
     NC4HW4: 13,
-    NUM_OF_FORMAT: 14
+    NCDHW: 14,
+    NUM_OF_FORMAT: 15
 };
 
 $root.mindspore.schema.ActivationType = {
