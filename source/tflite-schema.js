@@ -1274,12 +1274,14 @@ $root.tflite.GatherOptions = class GatherOptions {
     static decode(reader, position) {
         const $ = new $root.tflite.GatherOptions();
         $.axis = reader.int32_(position, 4, 0);
+        $.batch_dims = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.tflite.GatherOptions();
         $.axis = reader.value(json.axis, 0);
+        $.batch_dims = reader.value(json.batch_dims, 0);
         return $;
     }
 };
