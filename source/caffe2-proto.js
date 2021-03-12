@@ -1640,3 +1640,93 @@ $root.caffe2.DBReaderProto.prototype.name = "";
 $root.caffe2.DBReaderProto.prototype.source = "";
 $root.caffe2.DBReaderProto.prototype.db_type = "";
 $root.caffe2.DBReaderProto.prototype.key = "";
+
+$root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.caffe2.BlobSerializationOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.blob_name_regex = reader.string();
+                    break;
+                case 2:
+                    message.chunk_size = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.caffe2.BlobSerializationOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "blob_name_regex":
+                    message.blob_name_regex = reader.string();
+                    break;
+                case "chunk_size":
+                    message.chunk_size = reader.integer();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.caffe2.BlobSerializationOptions.prototype.blob_name_regex = "";
+$root.caffe2.BlobSerializationOptions.prototype.chunk_size = protobuf.Int64.create(0);
+
+$root.caffe2.SerializationOptions = class SerializationOptions {
+
+    constructor() {
+        this.options = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.caffe2.SerializationOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.options.push($root.caffe2.BlobSerializationOptions.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.caffe2.SerializationOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "options":
+                    message.options.push($root.caffe2.BlobSerializationOptions.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
