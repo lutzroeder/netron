@@ -149,7 +149,6 @@ protoc.Root = class extends protoc.Namespace {
             new protoc.Field(type, 'type_url', 1, 'string');
             new protoc.Field(type, 'value', 2, 'bytes');
         });
-
         this.load(paths, files);
     }
 
@@ -1558,4 +1557,13 @@ const main = (args) => {
     return 0;
 };
 
-process.exit(main(process.argv.slice(2)));
+if (typeof process === 'object' && Array.isArray(process.argv) &&
+    process.argv.length > 1 && process.argv[1] === __filename) {
+    const args = process.argv.slice(2);
+    const code = main(args);
+    process.exit(code);
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Root = protoc.Root;
+}
