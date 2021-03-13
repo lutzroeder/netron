@@ -869,7 +869,7 @@ view.View = class {
                         svg = d3.select(canvasElement);
                         this._zoom = d3.zoom();
                         this._zoom(svg);
-                        this._zoom.scaleExtent([0.1, 2]);
+                        this._zoom.scaleExtent([ 0.1, 1.4 ]);
                         this._zoom.on('zoom', (event) => {
                             originElement.setAttribute('transform', event.transform.toString());
                         });
