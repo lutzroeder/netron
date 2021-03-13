@@ -8,7 +8,6 @@ const file = path.join(__dirname, '..', 'source', 'mslite-metadata.json');
 
 const input = fs.readFileSync(file, 'utf-8');
 const json = JSON.parse(input);
-json.sort((a, b) => a.name.localeCompare(b.name));
 
 const operators = new Map();
 const attributes = new Map();
