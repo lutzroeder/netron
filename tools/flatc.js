@@ -119,6 +119,7 @@ flatc.Enum = class extends flatc.Type {
                 }
                 index = this.values.get(key) + 1;
             }
+            this.keys = new Map(Array.from(this.values).map((pair) => [ pair[1], pair[0] ]));
             super.resolve();
         }
     }
@@ -222,7 +223,10 @@ flatc.Field = class extends flatc.Object {
                 }
                 this.type = this.type.resolve(this);
                 if (this.defaultValue === undefined) {
-                    const type = this.type instanceof flatc.Enum ? this.type.base : this.type;
+                    let type = this.type instanceof flatc.Enum ? this.type.base : this.type;
+                    if (type instanceof flatc.TypeReference) {
+                        type = type.resolve(this);
+                    }
                     if (type instanceof flatc.PrimitiveType) {
                         this.defaultValue = type.defaultValue;
                     }
@@ -742,7 +746,7 @@ flatc.Root = class extends flatc.Object {
 
     constructor(root, paths, files) {
         super(null, root);
-        this.namespaces = new Map();
+        this._namespaces = new Map();
         this._files = new Set();
         for (const file of files) {
             this._parseFile(paths, file);
@@ -752,7 +756,7 @@ flatc.Root = class extends flatc.Object {
 
     resolve() {
         if (!this.resolved) {
-            for (const namespace of this.namespaces.values()) {
+            for (const namespace of this._namespaces.values()) {
                 namespace.resolve();
             }
             super.resolve();
@@ -761,6 +765,10 @@ flatc.Root = class extends flatc.Object {
 
     get root() {
         return this;
+    }
+
+    get namespaces() {
+        return this._namespaces;
     }
 
     set(name, value) {
@@ -772,16 +780,16 @@ flatc.Root = class extends flatc.Object {
     }
 
     defineNamespace(name) {
-        if (!this.namespaces.has(name)) {
-            this.namespaces.set(name, new flatc.Namespace(this, name));
+        if (!this._namespaces.has(name)) {
+            this._namespaces.set(name, new flatc.Namespace(this, name));
         }
-        return this.namespaces.get(name);
+        return this._namespaces.get(name);
     }
 
     find(name, type) {
         if (type === flatc.Namespace) {
-            if (this.namespaces.has(name)) {
-                return this.namespaces.get(name);
+            if (this._namespaces.has(name)) {
+                return this._namespaces.get(name);
             }
         }
         return super.find(name, type);
@@ -1255,4 +1263,16 @@ const main = (args) => {
     return 0;
 };
 
-process.exit(main(process.argv.slice(2)));
+if (typeof process === 'object' && Array.isArray(process.argv) &&
+    process.argv.length > 1 && process.argv[1] === __filename) {
+    const args = process.argv.slice(2);
+    const code = main(args);
+    process.exit(code);
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Root = flatc.Root;
+    module.exports.Namespace = flatc.Namespace;
+    module.exports.Type = flatc.Type;
+    module.exports.Enum = flatc.Enum;
+}

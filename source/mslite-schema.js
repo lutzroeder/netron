@@ -54,7 +54,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.nodeType = reader.int32_(position, 4, 0);
         $.dataType = reader.int32_(position, 6, 0);
         $.dims = reader.typedArray(position, 8, Int32Array);
-        $.format = reader.int32_(position, 10, undefined);
+        $.format = reader.int32_(position, 10, 0);
         $.refCount = reader.int32_(position, 12, 0);
         $.offset = reader.int32_(position, 14, 0);
         $.data = reader.typedArray(position, 16, Uint8Array);
@@ -675,7 +675,7 @@ $root.mindspore.schema.AdderFusion = class AdderFusion {
         $.kernel_size = reader.int64s_(position, 6);
         $.stride = reader.int64s_(position, 8);
         $.dilation = reader.int64s_(position, 10);
-        $.pad_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 12, 0);
         $.pad_list = reader.int64s_(position, 14);
         $.group = reader.int64_(position, 16, 0);
         $.in_channel = reader.int64_(position, 18, 0);
@@ -869,8 +869,8 @@ $root.mindspore.schema.AvgPoolFusion = class AvgPoolFusion {
         $.kernel_size = reader.int64s_(position, 4);
         $.strides = reader.int64s_(position, 6);
         $.pad = reader.int64s_(position, 8);
-        $.pad_mode = reader.int8_(position, 10, undefined);
-        $.round_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 10, 0);
+        $.round_mode = reader.int8_(position, 12, 0);
         $.format = reader.int32_(position, 14, 0);
         $.global = reader.bool_(position, 16, false);
         $.activation_type = reader.int8_(position, 18, 0);
@@ -897,7 +897,7 @@ $root.mindspore.schema.AvgPoolGrad = class AvgPoolGrad {
         const $ = new $root.mindspore.schema.AvgPoolGrad();
         $.kernel_size = reader.int64s_(position, 4);
         $.strides = reader.int64s_(position, 6);
-        $.pad_mode = reader.int8_(position, 8, undefined);
+        $.pad_mode = reader.int8_(position, 8, 0);
         $.format = reader.int32_(position, 10, 0);
         return $;
     }
@@ -999,7 +999,7 @@ $root.mindspore.schema.BinaryCrossEntropy = class BinaryCrossEntropy {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.BinaryCrossEntropy();
-        $.reduction = reader.int8_(position, 4, undefined);
+        $.reduction = reader.int8_(position, 4, 0);
         return $;
     }
 
@@ -1134,7 +1134,7 @@ $root.mindspore.schema.Conv2DBackpropFilterFusion = class Conv2DBackpropFilterFu
         $.kernel_size = reader.int64s_(position, 6);
         $.stride = reader.int64s_(position, 8);
         $.dilation = reader.int64s_(position, 10);
-        $.pad_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 12, 0);
         $.pad_list = reader.int64s_(position, 14);
         $.mode = reader.int64_(position, 16, 0);
         $.group = reader.int64_(position, 18, 0);
@@ -1169,7 +1169,7 @@ $root.mindspore.schema.Conv2DBackpropInputFusion = class Conv2DBackpropInputFusi
         $.kernel_size = reader.int64s_(position, 6);
         $.stride = reader.int64s_(position, 8);
         $.dilation = reader.int64s_(position, 10);
-        $.pad_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 12, 0);
         $.pad = reader.int64s_(position, 14);
         $.pad_list = reader.int64s_(position, 16);
         $.mode = reader.int64_(position, 18, 0);
@@ -1206,7 +1206,7 @@ $root.mindspore.schema.Conv2DFusion = class Conv2DFusion {
         $.kernel_size = reader.int64s_(position, 6);
         $.stride = reader.int64s_(position, 8);
         $.dilation = reader.int64s_(position, 10);
-        $.pad_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 12, 0);
         $.pad_list = reader.int64s_(position, 14);
         $.mode = reader.int64_(position, 16, 0);
         $.group = reader.int64_(position, 18, 0);
@@ -1241,7 +1241,7 @@ $root.mindspore.schema.Conv2dTransposeFusion = class Conv2dTransposeFusion {
         $.kernel_size = reader.int64s_(position, 6);
         $.stride = reader.int64s_(position, 8);
         $.dilation = reader.int64s_(position, 10);
-        $.pad_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 12, 0);
         $.pad = reader.int64s_(position, 14);
         $.pad_list = reader.int64s_(position, 16);
         $.mode = reader.int64_(position, 18, 0);
@@ -1249,6 +1249,7 @@ $root.mindspore.schema.Conv2dTransposeFusion = class Conv2dTransposeFusion {
         $.in_channel = reader.int64_(position, 22, 0);
         $.out_channel = reader.int64_(position, 24, 0);
         $.activation_type = reader.int8_(position, 26, 0);
+        $.output_paddings = reader.int64s_(position, 28);
         return $;
     }
 
@@ -1266,6 +1267,7 @@ $root.mindspore.schema.Conv2dTransposeFusion = class Conv2dTransposeFusion {
         $.in_channel = reader.value(json.in_channel, 0);
         $.out_channel = reader.value(json.out_channel, 0);
         $.activation_type = $root.mindspore.schema.ActivationType[json.activation_type];
+        $.output_paddings = reader.array(json.output_paddings);
         return $;
     }
 };
@@ -1367,7 +1369,7 @@ $root.mindspore.schema.DeConv2DGradFilter = class DeConv2DGradFilter {
         $.in_channel = reader.int64_(position, 4, 0);
         $.out_channel = reader.int64_(position, 6, 0);
         $.kernel_size = reader.int64s_(position, 8);
-        $.pad_mode = reader.int8_(position, 10, undefined);
+        $.pad_mode = reader.int8_(position, 10, 0);
         $.pad_list = reader.int64s_(position, 12);
         $.stride = reader.int64s_(position, 14);
         $.dilation = reader.int64s_(position, 16);
@@ -1535,7 +1537,7 @@ $root.mindspore.schema.Eltwise = class Eltwise {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.Eltwise();
-        $.mode = reader.int8_(position, 4, undefined);
+        $.mode = reader.int8_(position, 4, 0);
         return $;
     }
 
@@ -2035,7 +2037,7 @@ $root.mindspore.schema.LshProjection = class LshProjection {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.LshProjection();
-        $.type = reader.int8_(position, 4, undefined);
+        $.type = reader.int8_(position, 4, 0);
         return $;
     }
 
@@ -2150,8 +2152,8 @@ $root.mindspore.schema.MaxPoolFusion = class MaxPoolFusion {
         $.kernel_size = reader.int64s_(position, 4);
         $.strides = reader.int64s_(position, 6);
         $.pad = reader.int64s_(position, 8);
-        $.pad_mode = reader.int8_(position, 10, undefined);
-        $.round_mode = reader.int8_(position, 12, undefined);
+        $.pad_mode = reader.int8_(position, 10, 0);
+        $.round_mode = reader.int8_(position, 12, 0);
         $.format = reader.int32_(position, 14, 0);
         $.global = reader.bool_(position, 16, false);
         $.activation_type = reader.int8_(position, 18, 0);
@@ -2178,7 +2180,7 @@ $root.mindspore.schema.MaxPoolGrad = class MaxPoolGrad {
         const $ = new $root.mindspore.schema.MaxPoolGrad();
         $.kernel_size = reader.int64s_(position, 4);
         $.strides = reader.int64s_(position, 6);
-        $.pad_mode = reader.int8_(position, 8, undefined);
+        $.pad_mode = reader.int8_(position, 8, 0);
         $.format = reader.int32_(position, 10, 0);
         return $;
     }
@@ -2385,7 +2387,7 @@ $root.mindspore.schema.PadFusion = class PadFusion {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.PadFusion();
         $.paddings = reader.table(position, 4, $root.mindspore.schema.Vec2D.decode);
-        $.padding_mode = reader.int8_(position, 6, undefined);
+        $.padding_mode = reader.int8_(position, 6, 0);
         $.constant_value = reader.float32_(position, 8, 0);
         return $;
     }
@@ -2565,7 +2567,7 @@ $root.mindspore.schema.ReduceFusion = class ReduceFusion {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.ReduceFusion();
         $.keep_dims = reader.bool_(position, 4, false);
-        $.mode = reader.int8_(position, 6, undefined);
+        $.mode = reader.int8_(position, 6, 0);
         $.reduce_to_end = reader.bool_(position, 8, false);
         $.coeff = reader.float32_(position, 10, 0);
         return $;
@@ -2599,15 +2601,15 @@ $root.mindspore.schema.Resize = class Resize {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.Resize();
         $.format = reader.int32_(position, 4, 0);
-        $.method = reader.int8_(position, 6, undefined);
+        $.method = reader.int8_(position, 6, 0);
         $.new_height = reader.int64_(position, 8, 0);
         $.new_width = reader.int64_(position, 10, 0);
         $.preserve_aspect_ratio = reader.bool_(position, 12, false);
-        $.coordinate_transform_mode = reader.int8_(position, 14, undefined);
+        $.coordinate_transform_mode = reader.int8_(position, 14, 0);
         $.cubic_coeff = reader.float32_(position, 16, 0);
         $.exclude_outside = reader.int64_(position, 18, 0);
         $.extrapolation_value = reader.float32_(position, 20, 0);
-        $.nearest_mode = reader.int8_(position, 22, undefined);
+        $.nearest_mode = reader.int8_(position, 22, 0);
         return $;
     }
 
@@ -3488,7 +3490,7 @@ $root.mindspore.schema.CropAndResize = class CropAndResize {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.CropAndResize();
-        $.method = reader.int8_(position, 4, undefined);
+        $.method = reader.int8_(position, 4, 0);
         $.extrapolation_value = reader.float32_(position, 6, 0);
         return $;
     }
@@ -3640,7 +3642,7 @@ $root.mindspore.schema.ResizeGrad = class ResizeGrad {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.ResizeGrad();
-        $.method = reader.int8_(position, 4, undefined);
+        $.method = reader.int8_(position, 4, 0);
         $.align_corners = reader.bool_(position, 6, false);
         return $;
     }
@@ -3689,8 +3691,8 @@ $root.mindspore.schema.Format = {
     NC: 11,
     NC4: 12,
     NC4HW4: 13,
-    NCDHW: 14,
-    NUM_OF_FORMAT: 15
+    NUM_OF_FORMAT: 14,
+    NCDHW: 15
 };
 
 $root.mindspore.schema.ActivationType = {
