@@ -771,34 +771,23 @@ cntk.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
+        this._typeMap = new Map();
         this._attributeCache = {};
-        this._typeMap = {};
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        const name = item.name;
-                        const schema = item.schema;
-                        schema.name = name;
-                        this._map[name] = schema;
-                        if (Object.prototype.hasOwnProperty.call(schema, 'operator')) {
-                            this._typeMap[schema.operator.toString()] = name;
-                        }
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
+            this._typeMap = new Map(metadata.map((item) => [ item.operator, item ]));
         }
     }
 
     name(code) {
         // cntk/Source/CNTKv2LibraryDll/API/Internals/PrimitiveOpType.h
-        return this._typeMap[code] || null;
+        return this._typeMap.get(code);
     }
 
     type(name) {
-        return this._map[name] || null;
+        return this._map.get(name);
     }
 
     attribute(type, name) {
