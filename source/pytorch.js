@@ -3498,20 +3498,15 @@ pytorch.Metadata = class {
         this._attributeCache = new Map();
         if (data) {
             const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
+            for (const item of items) {
+                this._map.set(item.name, item);
+                const index = item.name.indexOf(':');
+                if (index !== -1) {
+                    const name = item.name.substring(0, index);
+                    if (!this._map.has(name)) {
+                        this._map.set(name, []);
                     }
-                    const index = item.name.indexOf(':');
-                    if (index !== -1) {
-                        const name = item.name.substring(0, index);
-                        if (!this._map.has(name)) {
-                            this._map.set(name, []);
-                        }
-                        this._map.get(name).push(item.name);
-                    }
+                    this._map.get(name).push(item.name);
                 }
             }
         }
