@@ -1,178 +1,140 @@
 [
   {
-    "name": "Activation",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
-  },
-  {
-    "name": "Binary",
-    "schema": {
-      "inputs": [
-        { "name": "x" },
-        { "name": "y" }
-      ]
-    }
-  },
-  {
-    "name": "Unary",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
-  },
-  {
-    "name": "Conv",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "kernel" }
-      ]
-    }
-  },
-  {
-    "name": "FullyConnected",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "weights" }
-      ]
-    }
-  },
-  {
-    "name": "Reshape",
-    "schema": {
-      "category": "Shape",
-      "inputs": [
-        { "name": "input" },
-        { "name": "shape" }
-      ]
-    }
-  },
-  {
-    "name": "StridedSlice",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "input" },
-        { "name": "begin" },
-        { "name": "end" },
-        { "name": "strides" }
-      ]
-    }
-  },
-  {
-    "name": "Squeeze",
-    "schema": {
-      "category": "Transform"
-    }
-  },
-  {
-    "name": "BatchNorm",
-    "schema": {
-      "category": "Normalization",
-      "inputs": [
-        { "name": "input" },
-        { "name": "gamma" },
-        { "name": "beta" },
-        { "name": "moving_mean" },
-        { "name": "moving_variance" }
-      ]
-    }
-  },
-  {
-    "name": "Pool",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
-  },
-  {
-    "name": "_MaxPool",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
-  },
-  {
-    "name": "Concat",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "inputs", "list": true }
-      ]
-    }
-  },
-  {
-    "name": "Flatten",
-    "schema": {
-      "category": "Shape"
-    }
-  },
-  {
-    "name": "GatherV2",
-    "schema": {
-      "category": "Data",
-      "inputs": [
-        { "name": "input" },
-        { "name": "indices" }
-      ]
-    }
-  },
-  {
-    "name": "Stack",
-    "schema": {
-      "inputs": [
-        { "name": "input" },
-        { "name": "?" },
-        { "name": "?" },
-        { "name": "?" }
-      ]
-    }
-  },
-  {
-    "name": "Shape",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
-  },
-  {
     "name": "_FlattenConcat_TRT",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "inputs", "list": true }
-      ]
-    }
-  },
-  {
-    "name": "_NMS_TRT",
-    "schema": {
-      "inputs": [
-        { "name": "input" },
-        { "name": "?" },
-        { "name": "?" }
-      ]
-    }
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ]
   },
   {
     "name": "_GridAnchor_TRT",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ]
-    }
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "_MaxPool",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "_NMS_TRT",
+    "inputs": [
+      { "name": "input" },
+      { "name": "?" },
+      { "name": "?" }
+    ]
+  },
+  {
+    "name": "Activation",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "BatchNorm",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" },
+      { "name": "gamma" },
+      { "name": "beta" },
+      { "name": "moving_mean" },
+      { "name": "moving_variance" }
+    ]
+  },
+  {
+    "name": "Binary",
+    "inputs": [
+      { "name": "x" },
+      { "name": "y" }
+    ]
+  },
+  {
+    "name": "Concat",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ]
+  },
+  {
+    "name": "Conv",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "kernel" }
+    ]
+  },
+  {
+    "name": "Flatten",
+    "category": "Shape"
+  },
+  {
+    "name": "FullyConnected",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "GatherV2",
+    "category": "Data",
+    "inputs": [
+      { "name": "input" },
+      { "name": "indices" }
+    ]
+  },
+  {
+    "name": "Pool",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape",
+    "inputs": [
+      { "name": "input" },
+      { "name": "shape" }
+    ]
+  },
+  {
+    "name": "Shape",
+    "inputs": [
+      { "name": "input" }
+    ]
+  },
+  {
+    "name": "Squeeze",
+    "category": "Transform"
+  },
+  {
+    "name": "Stack",
+    "inputs": [
+      { "name": "input" },
+      { "name": "?" },
+      { "name": "?" },
+      { "name": "?" }
+    ]
+  },
+  {
+    "name": "StridedSlice",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "begin" },
+      { "name": "end" },
+      { "name": "strides" }
+    ]
+  },
+  {
+    "name": "Unary",
+    "inputs": [
+      { "name": "input" }
+    ]
   }
 ]
