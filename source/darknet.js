@@ -1160,18 +1160,8 @@ darknet.Metadata = class {
         this._map = new Map();
         this._attributeMap = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item && item.name && item.schema) {
-                        if (this._map.has(item.name)) {
-                            throw new darknet.Error("Duplicate metadata key '" + item.name + "'.");
-                        }
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
