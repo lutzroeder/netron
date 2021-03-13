@@ -626,11 +626,8 @@ torch.Metadata = class {
         this._attributeCache = {};
         if (data) {
             const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map[item.name] = item.schema;
-                }
+            for (const item of items) {
+                this._map[item.name] = item;
             }
         }
     }
