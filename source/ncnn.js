@@ -677,14 +677,11 @@ ncnn.Metadata = class {
         this._attributeCache = new Map();
         if (data) {
             const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                        if (Object.prototype.hasOwnProperty.call(item.schema, 'operator')) {
-                            this._operatorMap.set(item.schema.operator, item.name);
-                        }
+            for (const item of items) {
+                if (item.name) {
+                    this._map.set(item.name, item);
+                    if (Object.prototype.hasOwnProperty.call(item, 'operator')) {
+                        this._operatorMap.set(item.operator, item.name);
                     }
                 }
             }
