@@ -57,7 +57,7 @@ for (const op of builtOperator.values.keys()) {
                 }
                 defaultValue = type.keys.get(defaultValue);
             }
-            attribute.type = type.name === 'bool' ? 'boolean' : type.name;
+            attribute.type = type.name === 'bool' ? 'boolean' : type.name + (field.repeated ? '[]' : '');
             attribute.default = defaultValue;
         }
     }

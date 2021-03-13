@@ -53,6 +53,7 @@
   },
   {
     "name": "BidirectionalSequenceLSTM",
+    "category": "Layer",
     "attributes": [
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
       { "name": "cell_clip", "type": "float32", "default": 0 },
@@ -100,8 +101,8 @@
     "name": "ConcatEmbeddings",
     "attributes": [
       { "name": "num_channels", "type": "int32", "default": 0 },
-      { "name": "num_columns_per_channel", "type": "int32", "default": 0 },
-      { "name": "embedding_dim_per_channel", "type": "int32", "default": 0 }
+      { "name": "num_columns_per_channel", "type": "int32[]", "default": 0 },
+      { "name": "embedding_dim_per_channel", "type": "int32[]", "default": 0 }
     ]
   },
   {
@@ -576,7 +577,7 @@
     "name": "Reshape",
     "category": "Shape",
     "attributes": [
-      { "name": "new_shape", "type": "int32", "default": 0 }
+      { "name": "new_shape", "type": "int32[]", "default": 0 }
     ],
     "inputs": [
       { "name": "data", "type": "T" },
@@ -730,7 +731,7 @@
       { "name": "output" }
     ],
     "attributes": [
-      { "name": "squeeze_dims", "type": "int32", "default": 0 }
+      { "name": "squeeze_dims", "type": "int32[]", "default": 0 }
     ]
   },
   {
@@ -839,6 +840,7 @@
   },
   {
     "name": "UnidirectionalSequenceLSTM",
+    "category": "Layer",
     "attributes": [
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
       { "name": "cell_clip", "type": "float32", "default": 0 },
