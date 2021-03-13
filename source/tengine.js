@@ -467,15 +467,12 @@ tengine.Metadata = class {
     constructor(data) {
         this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        const version = item.version || 0;
-                        const name = item.name + ':' + version.toString();
-                        this._map.set(name, item.schema);
-                    }
+            const metadata = JSON.parse(data);
+            for (const item of metadata) {
+                if (item.name) {
+                    const version = item.version || 0;
+                    const name = item.name + ':' + version.toString();
+                    this._map.set(name, item);
                 }
             }
         }
