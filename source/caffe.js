@@ -766,23 +766,16 @@ caffe.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         this._attributeCache = {};
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map[name] || null;
+        return this._map.get(name);
     }
 
     attribute(type, name) {
