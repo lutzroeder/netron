@@ -42,6 +42,7 @@ install() {
         export OPENBLAS=$(brew --prefix openblas)
         ${python} -m pip install --upgrade --quiet pybind11
         ${python} -m pip install --upgrade --quiet cython
+        ${python} -m pip install --upgrade --quiet pythran
         ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
         rm -rf ./third_party/source/scipy
         git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
