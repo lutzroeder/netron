@@ -827,13 +827,8 @@ paddle.Metadata = class {
         this._map = {};
         this._attributeCache = {};
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map[item.name] = item.schema;
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
