@@ -77,6 +77,12 @@ schema() {
 }
 
 metadata() {
+    echo "tflite metadata"
+    if [[ $(grep -U $'\x0D' ./source/tflite-metadata.json) ]]; then crlf=1; else crlf=; fi
+    node ./tools/tf-script.js
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
+    fi
     echo "tf metadata"
     if [ "$(${python} -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')" = "3.9" ]; then
         echo "- python 3.9 [skip]"

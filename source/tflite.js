@@ -763,8 +763,7 @@ tflite.Metadata = class {
             const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map.set(item.name, item.schema);
+                    this._map.set(item.name, item);
                 }
             }
         }
