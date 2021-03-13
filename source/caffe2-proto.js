@@ -25,6 +25,9 @@ $root.caffe2.TensorProto = class TensorProto {
                 case 2:
                     message.data_type = reader.int32();
                     break;
+                case 15:
+                    message.data_format = reader.uint32();
+                    break;
                 case 3:
                     message.float_data = reader.floats(message.float_data, tag);
                     break;
@@ -75,6 +78,9 @@ $root.caffe2.TensorProto = class TensorProto {
                 case "data_type":
                     message.data_type = reader.enum($root.caffe2.TensorProto.DataType);
                     break;
+                case "data_format":
+                    message.data_format = reader.integer();
+                    break;
                 case "float_data":
                     reader.array(message.float_data, () => reader.float());
                     break;
@@ -115,6 +121,7 @@ $root.caffe2.TensorProto = class TensorProto {
 };
 
 $root.caffe2.TensorProto.prototype.data_type = 1;
+$root.caffe2.TensorProto.prototype.data_format = 0;
 $root.caffe2.TensorProto.prototype.byte_data = new Uint8Array([]);
 $root.caffe2.TensorProto.prototype.raw_data = new Uint8Array([]);
 $root.caffe2.TensorProto.prototype.name = "";
@@ -137,6 +144,10 @@ $root.caffe2.TensorProto.DataType = {
     "DOUBLE": 13,
     "ZERO_COLLISION_HASH": 14,
     "REBATCHING_BUFFER": 15
+};
+
+$root.caffe2.TensorProto.SerializationFormat = {
+    "FMT_PROTOBUF": 0
 };
 
 $root.caffe2.TensorProto.Segment = class Segment {
