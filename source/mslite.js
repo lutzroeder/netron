@@ -22,14 +22,13 @@ mslite.ModelFactory = class {
             const buffer = context.stream.peek();
             const reader = new flatbuffers.Reader(buffer);
             switch (reader.identifier) {
-                case 'MSL2':
-                    throw new mslite.Error('MSL2 format is not supported.');
-                case 'MSL1':
-                    throw new mslite.Error('MSL1 format is deprecated.', false);
                 case '':
                     throw new mslite.Error('MSL0 format is deprecated.', false);
+                case 'MSL1':
+                    throw new mslite.Error('MSL1 format is deprecated.', false);
+                case 'MSL2':
+                    break;
             }
-            /*
             let model = null;
             try {
                 mslite.schema = flatbuffers.get('mslite').mindspore.schema;
@@ -42,7 +41,6 @@ mslite.ModelFactory = class {
             return mslite.Metadata.open(context).then((metadata) => {
                 return new mslite.Model(metadata, model);
             });
-            */
         });
     }
 };
@@ -571,10 +569,7 @@ mslite.Metadata = class {
             const items = JSON.parse(data);
             if (items) {
                 for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                    }
+                    this._map.set(item.name, item);
                 }
             }
         }

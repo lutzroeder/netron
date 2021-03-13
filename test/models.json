@@ -2657,6 +2657,20 @@
     "link":   "https://github.com/lutzroeder/netron/issues/600"
   },
   {
+    "type":   "mslite",
+    "target": "mnist.ms",
+    "source": "https://github.com/lutzroeder/netron/files/6128484/mnist.ms.zip[mnist.ms]",
+    "format": "MindSpore Lite v1.2.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/600"
+  },
+  {
+    "type":   "mslite",
+    "target": "squeezenet1.1.ms",
+    "source": "https://github.com/lutzroeder/netron/files/6128485/squeezenet1.1.ms.zip[squeezenet1.1.ms]",
+    "format": "MindSpore Lite v1.2.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/600"
+  },
+  {
     "type":   "mxnet",
     "target": "bvlc_alexnet-symbol.json,bvlc_alexnet-0000.params",
     "source": "http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-symbol.json,http://s3.amazonaws.com/store.carml.org/models/mxnet/bvlc_alexnet/bvlc_alexnet-0000.params",
