@@ -580,8 +580,6 @@ host.ElectronHost.FileStream = class {
         const file = new host.ElectronHost.FileStream(this._file, this._position, length, this._mtime);
         this.skip(length);
         return file;
-        // const buffer = this.read(length);
-        // return new host.ElectronHost.BinaryStream(buffer);
     }
 
     seek(position) {
