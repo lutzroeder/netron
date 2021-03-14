@@ -3139,10 +3139,10 @@ pytorch.Utility = class {
                     if (key === '_metadata') {
                         continue;
                     }
-                    if (!key) {
+                    if (!key || key.indexOf('.') !== -1) {
                         return null;
                     }
-                    if (value && !pytorch.Utility.isTensor(value)) {
+                    if (!pytorch.Utility.isTensor(value)) {
                         return null;
                     }
                     const argument = { id: state_group_name + '.' + key, value: value };

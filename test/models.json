@@ -4362,6 +4362,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "mtcnn.pt",
+    "source": "https://raw.githubusercontent.com/deepware/dFace/master/models/mtcnn.pt",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/deepware/dface/tree/master/dface"
+  },
+  {
+    "type":   "pytorch",
     "target": "netron_issue_313_v1.pt",
     "source": "https://github.com/lutzroeder/netron/files/3721266/netron_issue_313.zip[netron_issue_313_v1.pt]",
     "format": "TorchScript v1.0",
