@@ -87,6 +87,12 @@ base.Int64 = class Int64 {
     }
 
     toNumber() {
+        if (this.high === 0) {
+            return this.low >>> 0;
+        }
+        if (this.high === -1) {
+            return this.low;
+        }
         return (this.high * 4294967296) + (this.low >>> 0);
     }
 
@@ -199,6 +205,9 @@ base.Uint64 = class Uint64 {
     }
 
     toNumber() {
+        if (this.high === 0) {
+            return this.low >>> 0;
+        }
         return ((this.high >>> 0) * 4294967296) + (this.low >>> 0);
     }
 
