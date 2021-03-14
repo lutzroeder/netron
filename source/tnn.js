@@ -600,18 +600,9 @@ tnn.Metadata = class {
         this._map = new Map();
         this._attributeCache = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                        if (Object.prototype.hasOwnProperty.call(item.schema, 'operator')) {
-                            this._operatorMap.set(item.schema.operator, item.name);
-                        }
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
+            this._operatorMap = new Map(metadata.map((item) => [ item.operator, item ]));
         }
     }
 
