@@ -3192,6 +3192,14 @@ python.Unpickler = class {
         return this._reader.stream(size);
     }
 
+    int32() {
+        return this._reader.int32();
+    }
+
+    int64() {
+        return this._reader.int64();
+    }
+
     unescape(token, size) {
         const length = token.length;
         const a = new Uint8Array(length);
@@ -3424,12 +3432,9 @@ python.Unpickler.BinaryReader = class {
     }
 
     int64() {
-        const low = this.uint32();
-        const high = this.uint32();
-        if (high !== 0) {
-            throw new python.Error('Unsupported 64-bit integer value.');
-        }
-        return low;
+        const position = this._position;
+        this.skip(8);
+        return this._dataView.getInt64(position, true).toNumber();
     }
 
     float32() {
@@ -3521,12 +3526,8 @@ python.Unpickler.StreamReader = class {
     }
 
     int64() {
-        const low = this.uint32();
-        const high = this.uint32();
-        if (high !== 0) {
-            throw new python.Error('Unsupported 64-bit integer value.');
-        }
-        return low;
+        const position = this._fill(8);
+        return this._dataView.getInt64(position, true).toNumber();
     }
 
     float32() {
