@@ -2947,44 +2947,29 @@ pytorch.Utility = class {
         ]);
         for (const key of keys) {
             const obj = key === '' ? root : root[key];
-            let layers = null;
-            layers = layers || pytorch.Utility._convertTensor(obj);
-            layers = layers || pytorch.Utility._convertStateDictList(obj);
-            layers = layers || pytorch.Utility._convertStateDictMap(obj);
-            layers = layers || pytorch.Utility._convertStateDictGroupMap(obj);
-            if (layers) {
-                return [ { layers: layers } ];
-            }
-            if (obj) {
-                const models = [];
-                for (const key of Object.keys(obj)) {
-                    const value = obj[key];
-                    layers = layers || pytorch.Utility._convertTensor(value);
-                    layers = layers || pytorch.Utility._convertStateDictList(value);
-                    layers = layers || pytorch.Utility._convertStateDictMap(value);
-                    layers = layers || pytorch.Utility._convertStateDictGroupMap(value);
-                    if (layers) {
-                        models.push({ name: key.toString(), layers: layers });
-                    }
-                }
-                if (models.length > 1) {
-                    return models;
-                }
+            let graphs = null;
+            graphs = graphs || pytorch.Utility._convertTensor(obj);
+            graphs = graphs || pytorch.Utility._convertObjectList(obj);
+            graphs = graphs || pytorch.Utility._convertStateDict(obj);
+            if (graphs) {
+                return graphs;
             }
         }
         return null;
     }
 
-    static _convertTensor(tensor) {
-        if (tensor && pytorch.Utility.isTensor(tensor)) {
-            const argument = { id: '', value: tensor };
+    static _convertTensor(obj) {
+        if (obj && pytorch.Utility.isTensor(obj)) {
+            const layers = [];
+            const argument = { id: '', value: obj };
             const parameter = { name: 'value', arguments: [ argument ] };
-            return [ { states: [ parameter ] } ];
+            layers.push({ states: [ parameter ] });
+            return [ { layers: layers } ];
         }
         return null;
     }
 
-    static _convertStateDictList(list) {
+    static _convertObjectList(list) {
         if (list && Array.isArray(list) && list.every((obj) => obj.__class__ && Object.keys(obj).filter((key) => pytorch.Utility.isTensor(obj[key]).length > 0))) {
             const layers = [];
             for (const obj of list) {
@@ -3000,185 +2985,146 @@ pytorch.Utility = class {
                 }
                 layers.push(layer);
             }
-            return layers;
-        }
-        if (list && !Array.isArray(list) && !(list instanceof Map)) {
-            list = new Map(Object.keys(list).filter((key) => key !== '_metadata').map((key) => [ key, list[key] ]));
-        }
-        if (list && list instanceof Map) {
-            for (const item of list) {
-                const key = item[0];
-                const value = item[1];
-                if (!key || !value) {
-                    return null;
-                }
-                if (key === '_metadata') {
-                    continue;
-                }
-                if (pytorch.Utility.isTensor(value)) {
-                    continue;
-                }
-                if (key.endsWith('._packed_params.dtype')) {
-                    continue;
-                }
-                if (key.endsWith('._packed_params._packed_params') && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
-                    continue;
-                }
-                return null;
-            }
-            const layers = new Map();
-            for (const item of list) {
-                const key = item[0];
-                const value = item[1];
-                if (key === '_metadata') {
-                    continue;
-                }
-                if (value !== null) {
-                    let layerName = '';
-                    let parameter = '';
-                    if (key.endsWith('_packed_params.dtype')) {
-                        parameter = '_packed_params.dtype';
-                        layerName = key.substring(0, key.length - parameter.length - 1);
-                    }
-                    else if (key.endsWith('_packed_params._packed_params') && Array.isArray(value)) {
-                        parameter = '_packed_params._packed_params';
-                        layerName = key.substring(0, key.length - parameter.length - 1);
-                    }
-                    else {
-                        let split = key.split('.');
-                        if (split.length < 2) {
-                            split = [ '', split[0] ];
-                        }
-                        parameter = split.pop();
-                        layerName = split.join('.');
-                    }
-                    if (!layers.has(layerName)) {
-                        layers.set(layerName, { name: layerName, states: [], attributes: [] });
-                    }
-                    const layer = layers.get(layerName);
-                    switch (parameter) {
-                        case '_packed_params.dtype':
-                            layer.attributes.push({ name: parameter, value: value });
-                            break;
-                        case '_packed_params._packed_params':
-                            layer.states.push({ name: parameter, arguments: value.map((item) => { return { id: '', value: item }; }) });
-                            break;
-                        default:
-                            layer.states.push({ name: parameter, arguments: [ { id: key, value: value } ] });
-                            if (layer.name == '' && layer.states.length > 4) {
-                                return null;
-                            }
-                            break;
-                    }
-                }
-            }
-            return Array.from(layers.values());
+            return [ { layers: layers } ];
         }
         return null;
     }
 
-    static _convertStateDictMap(obj) {
-        if (!obj || Array.isArray(obj)) {
-            return null;
-        }
-        const state_dict = [];
-        const state_map = {};
-        for (const key in obj) {
-            if (key === '_metadata') {
-                continue;
-            }
-            const split = key.split('.');
-            if (split.length < 1) {
-                return null;
-            }
-            const state = {};
-            state.id = key;
-            state.name = split.pop();
-            state.value = pytorch.Utility.toTensor(obj[key]);
-            if (!pytorch.Utility.isTensor(state.value)) {
-                return null;
-            }
-            const state_group_name = split.join('.');
-            let state_group = state_map[state_group_name];
-            if (!state_group) {
-                state_group = {};
-                state_group.name = state_group_name;
-                state_group.states = [];
-                state_map[state_group_name] = state_group;
-                state_dict.push(state_group);
-            }
-            state_group.states.push({ name: state.name, arguments: [ state ] });
-        }
-        return state_dict;
-    }
-
-    static _convertStateDictGroupMap(obj) {
-        if (!obj || Array.isArray(obj)) {
-            return null;
-        }
-        const state_dict = [];
-        const state_map = {};
-        for (const state_group_name in obj) {
-            let state_group = state_map[state_group_name];
-            if (!state_group) {
-                state_group = {};
-                state_group.name = state_group_name;
-                state_group.states = [];
-                state_group.attributes = [];
-                state_map[state_group_name] = state_group;
-                state_dict.push(state_group);
-            }
-            const item = obj[state_group_name];
-            if (!item) {
-                return null;
-            }
-            if (item instanceof Map) {
-                for (const pair of item) {
+    static _convertStateDict(obj) {
+        const validate = (map) => {
+            let tensor = false;
+            if (map && map instanceof Map) {
+                for (const pair of map) {
                     const key = pair[0];
                     const value = pair[1];
-                    if (key === '_metadata') {
+                    if (key.split('.').pop() === '_metadata') {
                         continue;
                     }
-                    if (!key || key.indexOf('.') !== -1) {
-                        return null;
-                    }
-                    if (!pytorch.Utility.isTensor(value)) {
-                        return null;
-                    }
-                    const argument = { id: state_group_name + '.' + key, value: value };
-                    state_group.states.push({ name: key, arguments: [ argument ] });
-                }
-            }
-            else if (item instanceof Uint8Array) {
-                return null;
-            }
-            else if (Object(item) === item) {
-                let hasTensors = false;
-                for (const key in item) {
-                    const value = pytorch.Utility.toTensor(item[key]);
                     if (pytorch.Utility.isTensor(value)) {
-                        const argument = { id: state_group_name + '.' + key, value: value };
-                        state_group.states.push({ name: key, arguments: [ argument ] });
-                        hasTensors = true;
+                        tensor = true;
+                        continue;
                     }
-                    else if (value !== Object(value)) {
-                        state_group.attributes.push({ name: key, value: value });
+                    else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
+                        tensor = true;
+                        continue;
                     }
-                    else {
-                        return null;
+                    else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                        continue;
                     }
-                }
-                if (!hasTensors) {
-                    return null;
+                    return false;
                 }
             }
-            else {
+            return tensor;
+        };
+        const flatten = (obj) => {
+            if (!obj || Array.isArray(obj)) {
                 return null;
+            }
+            if (obj instanceof Map) {
+                if (validate(obj)) {
+                    return obj;
+                }
+                return null;
+            }
+            if (Object(obj) !== obj) {
+                return null;
+            }
+            const map = new Map(Object.keys(obj).map((key) => [ key, obj[key] ]));
+            if (validate(map)) {
+                return map;
+            }
+            map.clear();
+            for (const key of Object.keys(obj)) {
+                const value = flatten(obj[key]);
+                if (value && value instanceof Map) {
+                    for (const pair of value) {
+                        map.set(key + '.' + pair[0], pair[1]);
+                    }
+                    continue;
+                }
+                return null;
+            }
+            return map;
+        };
+        if (!obj) {
+            return null;
+        }
+        const map = new Map();
+        if (Array.isArray(obj) && obj.every((item) => validate(item))) {
+            for (let i = 0; i < obj.length; i++) {
+                map.set(i.toString(), flatten(obj[i]));
             }
         }
-        return state_dict;
+        else if (obj instanceof Map && validate(obj)) {
+            map.set('', flatten(obj));
+        }
+        else if (Object(obj) === obj && Object.keys(obj).every((key) => validate(obj[key]))) {
+            for (const key of Object.keys(obj)) {
+                map.set(key, obj[key]);
+            }
+        }
+        else if (Object(obj) === obj && Object.keys(obj).every((key) => pytorch.Utility.isTensor(obj[key]))) {
+            map.set('', new Map(Object.keys(obj).map((key) => [ key, obj[key] ])));
+        }
+        else {
+            const value = flatten(obj);
+            if (value) {
+                map.set('', value);
+            }
+        }
+        if (map.size > 0) {
+            const graphs = [];
+            for (const pair of map) {
+                const graph_key = pair[0];
+                const layer_map = pair[1];
+                const layers = new Map();
+                for (const item of layer_map) {
+                    const key = item[0];
+                    const value = item[1];
+                    let layerName = '';
+                    let parameter = '';
+                    const keys = key.split('.');
+                    if (keys[keys.length - 1] === '_metadata') {
+                        continue;
+                    }
+                    if (keys.length >= 2 && keys[keys.length - 2] === '_packed_params') {
+                        parameter = keys.slice(-2).join('.');
+                        keys.pop();
+                        keys.pop();
+                    }
+                    else {
+                        parameter = keys.pop();
+                        if (keys.length < 0) {
+                            keys.push('');
+                        }
+                    }
+                    layerName = keys.join('.');
+                    if (!layers.has(layerName)) {
+                        layers.set(layerName, { name: layerName, states: [], attributes: [] });
+                    }
+                    const layer = layers.get(layerName);
+                    if (pytorch.Utility.isTensor(value)) {
+                        layer.states.push({ name: parameter, arguments: [ { id: key, value: value } ] });
+                        if (layer.name == '' && layer.states.length > 4) {
+                            return null;
+                        }
+                    }
+                    else if (value && Array.isArray(value) && value.every((item) => pytorch.Utility.isTensor(item))) {
+                        layer.states.push({ name: parameter, arguments: value.map((item) => { return { id: '', value: item }; }) });
+                    }
+                    else if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
+                        layer.attributes.push({ name: parameter, value: value });
+                    }
+                }
+                graphs.push({
+                    name: graph_key,
+                    layers: layers.values()
+                });
+            }
+            return graphs;
+        }
+        return null;
     }
-
 };
 
 pytorch.nnapi = {};
