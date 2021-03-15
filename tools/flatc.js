@@ -309,16 +309,17 @@ flatc.Parser = class {
         this._context = root.defineNamespace('');
     }
 
-    parse() {
-
+    getInclude() {
         const includes = [];
-        const attributes = [];
-
         while (!this._tokenizer.match('eof') && this._tokenizer.eat('id', 'include')) {
             includes.push(this._tokenizer.string());
             this._tokenizer.expect(';');
         }
+        return includes;
+    }
 
+    parse() {
+        const attributes = [];
         while (!this._tokenizer.match('eof')) {
 
             if (this._tokenizer.eat('id', 'namespace')) {
@@ -432,7 +433,6 @@ flatc.Parser = class {
             }
             throw new flatc.Error("Unexpected token '" + this._tokenizer.peek().token + "'" + this._tokenizer.location());
         }
-        return includes;
     }
 
     _parseTypeReference() {
@@ -800,7 +800,7 @@ flatc.Root = class extends flatc.Object {
             this._files.add(file);
             const text = fs.readFileSync(file, 'utf-8');
             const parser = new flatc.Parser(text, file, this);
-            const includes = parser.parse();
+            const includes = parser.getInclude();
             for (const include of includes) {
                 const includeFile = this._resolvePath(paths, file, include);
                 if (includeFile) {
@@ -809,6 +809,7 @@ flatc.Root = class extends flatc.Object {
                 }
                 throw new flatc.Error("Include '" + include + "' not found.");
             }
+            parser.parse();
         }
     }
 

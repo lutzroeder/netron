@@ -1,2876 +1,3598 @@
 [
   {
     "name": "Abs",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
-  },
-  {
-    "name": "AbsGrad"
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Activation",
-    "category": "Activation",
-    "attributes": [
-      { "name": "type", "type": "ActivationType" },
-      { "name": "alpha", "type": "float32", "default": 0.2 },
-      { "name": "min_val", "type": "float32", "default": -1 },
-      { "name": "max_val", "type": "float32", "default": 1 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        },
+        {
+          "name": "alpha",
+          "type": "float32"
+        },
+        {
+          "name": "min_val",
+          "type": "float32"
+        },
+        {
+          "name": "max_val",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "ActivationGrad",
-    "attributes": [
-      { "name": "type", "type": "ActivationType" },
-      { "name": "alpha", "type": "float32", "default": 0.2 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "yt" },
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType"
+        },
+        {
+          "name": "alpha",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Adam",
-    "attributes": [
-      { "name": "useNesterov", "type": "boolean", "default": false },
-      { "name": "use_locking", "type": "boolean", "default": false },
-      { "name": "use_nesterov", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "weight" },
-      { "name": "m" },
-      { "name": "v" },
-      { "name": "beta1_power" },
-      { "name": "beta22_power" },
-      { "name": "learning_rate" },
-      { "name": "beta1" },
-      { "name": "beta2" },
-      { "name": "eps" },
-      { "name": "gradient" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Add",
-    "attributes": [
-      { "name": "ActivationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "AdderFusion",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
-  },
-  {
-    "name": "AddFold"
+    "schema": {
+      "attributes": [
+        {
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "name": "use_nesterov",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "AddFusion",
-    "attributes": [
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "A" },
-      { "name": "B" }
-    ],
-    "outputs": [
-      { "name": "C" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "AddGrad",
-    "inputs": [
-      { "name": "x1" },
-      { "name": "x2" }
-    ],
-    "outputs": [
-      { "name": "dx1" },
-      { "name": "dx2" }
-    ]
+    "name": "AdderFusion",
+    "schema": {
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
+  },
+  {
+    "name": "AddGrad"
   },
   {
     "name": "AddN",
-    "attributes": [
-      { "name": "N", "type": "int32", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "sums" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "inputs"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "sum"
+        }
+      ]
+    }
   },
   {
     "name": "All",
-    "attributes": [
-      { "name": "keepDims", "type": "int32", "default": 0 },
-      { "name": "keep_dims", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "keep_dims",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "ApplyMomentum",
-    "attributes": [
-      { "name": "gradientScale", "type": "float32", "default": 0 },
-      { "name": "useNesterov", "type": "boolean", "default": false },
-      { "name": "use_nesterov", "type": "boolean", "default": false },
-      { "name": "use_locking", "type": "boolean", "default": false },
-      { "name": "gradient_scale", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "weight" },
-      { "name": "accumulate" },
-      { "name": "learning_rate" },
-      { "name": "gradient" },
-      { "name": "moment" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "ArgMax",
-    "attributes": [
-      { "name": "axis", "type": "int32", "default": 0 },
-      { "name": "outMaxValue", "type": "boolean", "default": false },
-      { "name": "topK", "type": "int32", "default": 1 },
-      { "name": "keepDims", "type": "boolean", "default": false },
-      { "name": "axisType", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "variable"
+        },
+        {
+          "name": "accumulation"
+        },
+        {
+          "name": "learning_rate"
+        },
+        {
+          "name": "gradient"
+        },
+        {
+          "name": "momentum"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "use_nesterov",
+          "type": "boolean"
+        },
+        {
+          "name": "use_locking",
+          "type": "boolean"
+        },
+        {
+          "name": "gradient_scale",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "ArgMaxFusion",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "top_k", "type": "int64", "default": 1 },
-      { "name": "keep_dims", "type": "boolean", "default": false },
-      { "name": "out_max_value", "type": "boolean", "default": false }
-    ]
-  },
-  {
-    "name": "ArgMin",
-    "attributes": [
-      { "name": "axis", "type": "int32", "default": 0 },
-      { "name": "outMaxValue", "type": "boolean", "default": false },
-      { "name": "topK", "type": "int32", "default": 1 },
-      { "name": "keepDims", "type": "boolean", "default": false },
-      { "name": "axisType", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "top_k",
+          "type": "int64",
+          "default": 1
+        },
+        {
+          "name": "keep_dims",
+          "type": "boolean"
+        },
+        {
+          "name": "out_max_value",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "ArgMinFusion",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "top_k", "type": "int64", "default": 0 },
-      { "name": "keep_dims", "type": "boolean", "default": false },
-      { "name": "out_max_value", "type": "boolean", "default": false }
-    ]
-  },
-  {
-    "name": "Asin",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "top_k",
+          "type": "int64"
+        },
+        {
+          "name": "keep_dims",
+          "type": "boolean"
+        },
+        {
+          "name": "out_max_value",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "Assert",
-    "attributes": [
-      { "name": "summarize", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "summarize",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Assign",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "ref"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
-    "name": "AssignAdd"
-  },
-  {
-    "name": "Atan",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "name": "AssignAdd",
+    "schema": {
+      "inputs": [
+        {
+          "name": "ref"
+        },
+        {
+          "name": "value"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "AudioSpectrogram",
-    "attributes": [
-      { "name": "windowSize", "type": "int32", "default": 0 },
-      { "name": "stride", "type": "int64", "default": 0 },
-      { "name": "magSquare", "type": "boolean", "default": false },
-      { "name": "window_size", "type": "int64", "default": 0 },
-      { "name": "mag_square", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "spectrogram" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "window_size",
+          "type": "int64"
+        },
+        {
+          "name": "stride",
+          "type": "int64"
+        },
+        {
+          "name": "mag_square",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "AvgPoolFusion",
-    "category": "Pool",
-    "attributes": [
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "strides", "type": "int64[]", "default": 0 },
-      { "name": "pad", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "round_mode", "type": "RoundMode", "default": "FLOOR" },
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "global", "type": "boolean", "default": false },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "strides",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "round_mode",
+          "type": "RoundMode"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        },
+        {
+          "name": "global",
+          "type": "boolean"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "AvgPoolGrad",
-    "attributes": [
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "strides", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "format", "type": "Format", "default": "NCHW" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x_origin"
+        },
+        {
+          "name": "out_origin"
+        },
+        {
+          "name": "grad"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "strides",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        }
+      ]
+    }
   },
   {
     "name": "BatchNorm",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "epsilon", "type": "float32", "default": 0.00001 },
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "is_training", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "mean" },
-      { "name": "variance" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "BatchNormFold"
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "scale"
+        },
+        {
+          "name": "offset"
+        },
+        {
+          "name": "mean"
+        },
+        {
+          "name": "variance"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "\ny"
+        },
+        {
+          "name": "batch_mean"
+        },
+        {
+          "name": "batch_variance"
+        },
+        {
+          "name": "reserve_space_1"
+        },
+        {
+          "name": "reserve_space_2"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "epsilon",
+          "type": "float32"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        },
+        {
+          "name": "is_training",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "BatchNormGrad",
-    "attributes": [
-      { "name": "epsilon", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "epsilon",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "BatchToSpace",
-    "attributes": [
-      { "name": "blockShape", "type": "int32[]" },
-      { "name": "crops", "type": "Vec2D" },
-      { "name": "block_size", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "block_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "crops",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "BatchToSpaceND",
-    "attributes": [
-      { "name": "blockShape", "type": "int32[]" },
-      { "name": "crops", "type": "Vec2D" },
-      { "name": "block_shape", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "block_shape",
+          "type": "int64[]"
+        },
+        {
+          "name": "crops",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "BiasAdd",
-    "category": "Layer",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" },
-      { "name": "format", "type": "Format", "default": "NCHW" }
-    ],
-    "inputs": [
-      { "name": "value" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BinaryCrossEntropy",
+    "schema": {
+      "attributes": [
+        {
+          "name": "reduction",
+          "type": "Reduction"
+        }
+      ]
+    }
+  },
+  {
+    "name": "BinaryCrossEntropyGrad",
+    "schema": {
+      "attributes": [
+        {
+          "name": "reduction",
+          "type": "Reduction",
+          "default": 1
+        }
+      ]
+    }
   },
   {
     "name": "BiasAddGrad"
   },
   {
-    "name": "BiasGrad",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "BinaryCrossEntropy",
-    "attributes": [
-      { "name": "reduction", "type": "Reduction", "default": 1 }
-    ]
-  },
-  {
-    "name": "BinaryCrossEntropyGrad",
-    "attributes": [
-      { "name": "reduction", "type": "Reduction", "default": 1 }
-    ]
-  },
-  {
-    "name": "BlackBox",
-    "attributes": [
-      { "name": "id", "type": "string" },
-      { "name": "size", "type": "int32", "default": 0 },
-      { "name": "address", "type": "ubyte[]" }
-    ]
-  },
-  {
-    "name": "BNGrad",
-    "attributes": [
-      { "name": "eps", "type": "float32", "default": 0 },
-      { "name": "momentum", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "yt" },
-      { "name": "x" },
-      { "name": "scale" }
-    ],
-    "outputs": [
-      { "name": "dx" },
-      { "name": "scale" },
-      { "name": "bias" }
-    ]
-  },
-  {
-    "name": "Broadcast",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
     "name": "BroadcastTo",
-    "attributes": [
-      { "name": "dst_shape", "type": "int32[]" },
-      { "name": "shape", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "shape",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "Cast",
-    "attributes": [
-      { "name": "srcT", "type": "int32", "default": 0 },
-      { "name": "dstT", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "dst_type"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Ceil",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
     "name": "Clip",
-    "attributes": [
-      { "name": "max", "type": "float32", "default": 0 },
-      { "name": "min", "type": "float32", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "max",
+          "type": "float32"
+        },
+        {
+          "name": "min",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Concat",
-    "category": "Tensor",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "n", "type": "int32", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Constant",
-    "category": "Constant",
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "ConstantOfShape",
-    "attributes": [
-      { "name": "dataType", "type": "int32", "default": 0 },
-      { "name": "value", "type": "float32[]", "default": 0 },
-      { "name": "data_type", "type": "int64", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "ControlDepend",
-    "attributes": [
-      { "name": "depend_mode", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "Conv2D",
-    "category": "Layer",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "group", "type": "int32", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "depend_mode",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Conv2DBackpropFilterFusion",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "mode", "type": "int64", "default": 0 },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "out_backprop"
+        },
+        {
+          "name": "input"
+        },
+        {
+          "name": "filter_sizes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "mode",
+          "type": "int64"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "Conv2DBackpropInputFusion",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad", "type": "int64[]", "default": 0 },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "mode", "type": "int64", "default": 0 },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "out_backprop"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "input_sizes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "mode",
+          "type": "int64"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "Conv2DFusion",
-    "category": "Layer",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "mode", "type": "int64", "default": 0 },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Conv2DGradFilter",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "group", "type": "int32", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "dy" },
-      { "name": "x" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "dw" }
-    ]
-  },
-  {
-    "name": "Conv2DGradInput",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "group", "type": "int32", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "dy" },
-      { "name": "weight" }
-    ],
-    "outputs": [
-      { "name": "dx" }
-    ]
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "w"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "mode",
+          "type": "int64"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "Conv2dTransposeFusion",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad", "type": "int64[]", "default": 0 },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "mode", "type": "int64", "default": 0 },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
-      { "name": "output_paddings", "type": "int64[]", "default": 0 }
-    ]
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "out_backprop"
+        },
+        {
+          "name": "filter"
+        },
+        {
+          "name": "input_sizes"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "mode",
+          "type": "int64"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "Cos",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "name": "Cos"
+  },
+  {
+    "name": "ConstantOfShape",
+    "schema": {
+      "attributes": [
+        {
+          "name": "data_type",
+          "type": "int64"
+        },
+        {
+          "name": "value",
+          "type": "float32[]"
+        }
+      ]
+    }
   },
   {
     "name": "Crop",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "offsets", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "offsets",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
-    "name": "CropAndResize",
-    "attributes": [
-      { "name": "method", "type": "ResizeMethod", "default": "LINEAR" },
-      { "name": "extrapolation_value", "type": "float32", "default": 0 }
-    ]
+    "name": "CustomExtractFeatures"
   },
   {
-    "name": "Custom",
-    "attributes": [
-      { "name": "custom", "type": "ubyte[]" }
-    ]
-  },
-  {
-    "name": "CustomExtractFeatures",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "label" },
-      { "name": "weight" }
-    ]
-  },
-  {
-    "name": "CustomNormalize",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "CustomNormalize"
   },
   {
     "name": "CustomPredict",
-    "attributes": [
-      { "name": "outputNum", "type": "int32", "default": 0 },
-      { "name": "weightThreshold", "type": "float32", "default": 0 },
-      { "name": "output_num", "type": "int64", "default": 0 },
-      { "name": "weight_threshold", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "key" },
-      { "name": "label" },
-      { "name": "weight" }
-    ],
-    "outputs": [
-      { "name": "label" },
-      { "name": "weight" }
-    ]
-  },
-  {
-    "name": "DeConv2D",
-    "category": "Layer",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "group", "type": "int32", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "output_num",
+          "type": "int64"
+        },
+        {
+          "name": "weight_threshold",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "DeConv2DGradFilter",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "group", "type": "int64", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" },
-      { "name": "in_channel", "type": "int64", "default": 0 },
-      { "name": "out_channel", "type": "int64", "default": 0 },
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "pad_list", "type": "int64[]", "default": 0 },
-      { "name": "stride", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "dy" },
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "dw" }
-    ]
-  },
-  {
-    "name": "DeDepthwiseConv2D",
-    "category": "Layer",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelMultipiler", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "in_channel",
+          "type": "int64"
+        },
+        {
+          "name": "out_channel",
+          "type": "int64"
+        },
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "pad_list",
+          "type": "int64[]"
+        },
+        {
+          "name": "stride",
+          "type": "int64[]"
+        },
+        {
+          "name": "dilation",
+          "type": "int64[]"
+        },
+        {
+          "name": "group",
+          "type": "int64"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType"
+        }
+      ]
+    }
   },
   {
     "name": "Depend"
   },
   {
     "name": "DepthToSpace",
-    "attributes": [
-      { "name": "blockSize", "type": "int32", "default": 0 },
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "block_size", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "DepthwiseConv2D",
-    "category": "Layer",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelMultipiler", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "block_size",
+          "type": "int64"
+        },
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "DetectionPostProcess",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "inputSize", "type": "int32", "default": 0 },
-      { "name": "hScale", "type": "float32", "default": 0 },
-      { "name": "wScale", "type": "float32", "default": 0 },
-      { "name": "xScale", "type": "float32", "default": 0 },
-      { "name": "yScale", "type": "float32", "default": 0 },
-      { "name": "NmsIouThreshold", "type": "float32", "default": 0 },
-      { "name": "NmsScoreThreshold", "type": "float32", "default": 0 },
-      { "name": "MaxDetections", "type": "int64", "default": 0 },
-      { "name": "DetectionsPerClass", "type": "int64", "default": 0 },
-      { "name": "MaxClassesPerDetection", "type": "int64", "default": 0 },
-      { "name": "NumClasses", "type": "int64", "default": 0 },
-      { "name": "UseRegularNms", "type": "boolean", "default": false },
-      { "name": "OutQuantized", "type": "boolean", "default": false },
-      { "name": "input_size", "type": "int64", "default": 0 },
-      { "name": "scale", "type": "float32[]", "default": 0 },
-      { "name": "nms_iou_threshold", "type": "float32", "default": 0 },
-      { "name": "nms_score_threshold", "type": "float32", "default": 0 },
-      { "name": "max_detections", "type": "int64", "default": 0 },
-      { "name": "detections_per_class", "type": "int64", "default": 0 },
-      { "name": "max_classes_per_detection", "type": "int64", "default": 0 },
-      { "name": "num_classes", "type": "int64", "default": 0 },
-      { "name": "use_regular_nms", "type": "boolean", "default": false },
-      { "name": "out_quantized", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "box" },
-      { "name": "score" },
-      { "name": "anchor" }
-    ],
-    "outputs": [
-      { "name": "box" },
-      { "name": "class" },
-      { "name": "score" },
-      { "name": "num" }
-    ]
-  },
-  {
-    "name": "Div",
-    "attributes": [
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "input_size",
+          "type": "int64"
+        },
+        {
+          "name": "scale",
+          "type": "float32[]"
+        },
+        {
+          "name": "nms_iou_threshold",
+          "type": "float32"
+        },
+        {
+          "name": "nms_score_threshold",
+          "type": "float32"
+        },
+        {
+          "name": "max_detections",
+          "type": "int64"
+        },
+        {
+          "name": "detections_per_class",
+          "type": "int64"
+        },
+        {
+          "name": "max_classes_per_detection",
+          "type": "int64"
+        },
+        {
+          "name": "num_classes",
+          "type": "int64"
+        },
+        {
+          "name": "use_regular_nms",
+          "type": "boolean"
+        },
+        {
+          "name": "out_quantized",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "DivFusion",
-    "attributes": [
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "DivGrad",
-    "inputs": [
-      { "name": "x1" },
-      { "name": "x2" }
-    ],
-    "outputs": [
-      { "name": "dx1" },
-      { "name": "dx2" }
-    ]
+    "name": "DivGrad"
   },
   {
     "name": "Dropout",
-    "category": "Layer",
-    "attributes": [
-      { "name": "ratio", "type": "float32", "default": 0.5 },
-      { "name": "keep_prob", "type": "float32", "default": 0.5 }
-    ]
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "keep_prob",
+          "type": "float32",
+          "default": 0.5
+        }
+      ]
+    }
   },
   {
     "name": "DropoutGrad",
-    "attributes": [
-      { "name": "ratio", "type": "float32", "default": 0.5 },
-      { "name": "keep_prob", "type": "float32", "default": 0 }
-    ]
-  },
-  {
-    "name": "Eltwise",
-    "attributes": [
-      { "name": "mode", "type": "EltwiseMode", "default": "PROD" }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "keep_prob",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Elu",
-    "category": "Activation",
-    "attributes": [
-      { "name": "alpha", "type": "float32", "default": 1 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "alpha",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
-    "name": "EmbeddingLookup",
-    "attributes": [
-      { "name": "maxNorm", "type": "float32", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "EmbeddingLookupFusion",
-    "attributes": [
-      { "name": "max_norm", "type": "float32", "default": 0 }
-    ]
-  },
-  {
-    "name": "EmbeddingLookupSparse",
-    "attributes": [
-      { "name": "spIds", "type": "int32[]" },
-      { "name": "spWeights", "type": "float32[]" },
-      { "name": "maxNortm", "type": "float32", "default": 0 }
-    ]
+    "name": "Eltwise",
+    "schema": {
+      "attributes": [
+        {
+          "name": "mode",
+          "type": "EltwiseMode"
+        }
+      ]
+    }
   },
   {
     "name": "Equal",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
-    "name": "Erf"
-  },
-  {
-    "name": "Exp",
-    "attributes": [
-      { "name": "base", "type": "float32", "default": -1 },
-      { "name": "scale", "type": "float32", "default": 1 },
-      { "name": "shift", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
-  },
-  {
-    "name": "ExpandDims",
-    "attributes": [
-      { "name": "dim", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "EmbeddingLookupFusion",
+    "schema": {
+      "inputs": [
+        {
+          "name": "params"
+        },
+        {
+          "name": "indices"
+        },
+        {
+          "name": "offset"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "max_norm",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "ExpFusion",
-    "attributes": [
-      { "name": "base", "type": "float32", "default": -1 },
-      { "name": "scale", "type": "float32", "default": 1 },
-      { "name": "shift", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "base",
+          "type": "float32",
+          "default": -1.0
+        },
+        {
+          "name": "scale",
+          "type": "float32",
+          "default": 1.0
+        },
+        {
+          "name": "shift",
+          "type": "float32",
+          "default": 0.0
+        }
+      ]
+    }
   },
   {
-    "name": "FakeQuantWithMinMax",
-    "category": "Activation",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "FakeQuantWithMinMaxPerChannel",
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "ExpandDims",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "axis"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "FakeQuantWithMinMaxVars",
-    "attributes": [
-      { "name": "narrowRange", "type": "boolean", "default": false },
-      { "name": "numBits", "type": "int32", "default": 0 },
-      { "name": "num_bits", "type": "int64", "default": 0 },
-      { "name": "narrow_range", "type": "boolean", "default": false }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "num_bits",
+          "type": "int64"
+        },
+        {
+          "name": "narrow_range",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "FakeQuantWithMinMaxVarsPerChannel",
-    "attributes": [
-      { "name": "num_bits", "type": "int64", "default": 0 },
-      { "name": "narrow_range", "type": "boolean", "default": false }
-    ]
-  },
-  {
-    "name": "FftImag"
+    "schema": {
+      "attributes": [
+        {
+          "name": "num_bits",
+          "type": "int64"
+        },
+        {
+          "name": "narrow_range",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "FftReal"
   },
   {
-    "name": "Fill",
-    "attributes": [
-      { "name": "dims", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "FftImag"
   },
   {
-    "name": "Flatten",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "Flatten"
   },
   {
-    "name": "FlattenGrad"
+    "name": "FlattenGrad",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "shape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Floor",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
     "name": "FloorDiv",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "FloorMod",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Fill"
   },
   {
     "name": "FullConnection",
-    "category": "Layer",
-    "attributes": [
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "useAxis", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" },
-      { "name": "has_bias", "type": "boolean", "default": false },
-      { "name": "use_axis", "type": "boolean", "default": false },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Layer",
+      "inputs": [
+        {
+          "name": "x1"
+        },
+        {
+          "name": "x2"
+        },
+        {
+          "name": "b"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "has_bias",
+          "type": "boolean"
+        },
+        {
+          "name": "use_axis",
+          "type": "boolean"
+        },
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "FusedBatchNorm",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "epsilon", "type": "float32", "default": 0.00001 },
-      { "name": "momentum", "type": "float32", "default": 0.9 },
-      { "name": "spatial", "type": "int32", "default": 1 },
-      { "name": "mode", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "scale" },
-      { "name": "bias" },
-      { "name": "mean" },
-      { "name": "var" }
-    ],
-    "outputs": [
-      { "name": "output" },
-      { "name": "scale" },
-      { "name": "bias" },
-      { "name": "mean" },
-      { "name": "var" }
-    ]
+    "schema": {
+      "category": "Normalization",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "scale"
+        },
+        {
+          "name": "b"
+        },
+        {
+          "name": "mean"
+        },
+        {
+          "name": "variance"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "\ny"
+        },
+        {
+          "name": "running_mean"
+        },
+        {
+          "name": "running_variance"
+        },
+        {
+          "name": "save_mean"
+        },
+        {
+          "name": "save_inv_variance"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "epsilon",
+          "type": "float32",
+          "default": 0.0001
+        },
+        {
+          "name": "momentum",
+          "type": "float32",
+          "default": 0.9
+        },
+        {
+          "name": "mode",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Gather",
-    "attributes": [
-      { "name": "axis", "type": "int32", "default": 0 },
-      { "name": "batchDims", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "indices" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "dim"
+        },
+        {
+          "name": "index"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "GatherNd",
-    "attributes": [
-      { "name": "batchDims", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "indices" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_x"
+        },
+        {
+          "name": "indices"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
     "name": "Greater",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
-    "name": "GreaterEqual",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "name": "GreaterEqual"
   },
   {
-    "name": "GroupConv2DGradInput",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "group", "type": "int32", "default": 0 },
-      { "name": "channelIn", "type": "int32", "default": 0 },
-      { "name": "channelOut", "type": "int32", "default": 0 },
-      { "name": "kernelW", "type": "int32", "default": 0 },
-      { "name": "kernelH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "dilateW", "type": "int32", "default": 0 },
-      { "name": "dilateH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "hasBias", "type": "boolean", "default": false },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "dy" },
-      { "name": "weight" }
-    ],
-    "outputs": [
-      { "name": "dx" }
-    ]
-  },
-  {
-    "name": "GRU",
-    "attributes": [
-      { "name": "bidirectional", "type": "boolean", "default": false }
-    ]
-  },
-  {
-    "name": "HashtableLookup",
-    "inputs": [
-      { "name": "input" },
-      { "name": "key" },
-      { "name": "value" }
-    ],
-    "outputs": [
-      { "name": "output" },
-      { "name": "hit" }
-    ]
-  },
-  {
-    "name": "Identity"
-  },
-  {
-    "name": "If"
+    "name": "HashtableLookup"
   },
   {
     "name": "InstanceNorm",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "epsilon", "type": "float32", "default": 0.00001 }
-    ],
-    "inputs": [
-      { "name": "src" },
-      { "name": "scale" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "InvertPermutation"
-  },
-  {
-    "name": "IsFinite"
-  },
-  {
-    "name": "L2Norm",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" },
-      { "name": "epsilon", "type": "float32", "default": 0 },
-      { "name": "ActivationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "L2NormalizeFusion",
-    "attributes": [
-      { "name": "axis", "type": "int64[]", "default": 0 },
-      { "name": "epsilon", "type": "float32", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
-  },
-  {
-    "name": "LayerNorm",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "normalizedShape", "type": "int32[]" },
-      { "name": "epsilon", "type": "float32", "default": 0.00001 },
-      { "name": "elementwiseAffine", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "src" },
-      { "name": "gamma" },
-      { "name": "beta" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        {
+          "name": "epsilon",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "LayerNormFusion",
-    "attributes": [
-      { "name": "begin_norm_axis", "type": "int64", "default": 0 },
-      { "name": "epsilon", "type": "float32", "default": 0.00001 },
-      { "name": "elementwise_affine", "type": "boolean", "default": false },
-      { "name": "begin_params_axis", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "LayerNormGrad",
-    "attributes": [
-      { "name": "begin_norm_axis", "type": "int64", "default": 0 },
-      { "name": "begin_params_axis", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        {
+          "name": "begin_norm_axis",
+          "type": "int64"
+        },
+        {
+          "name": "epsilon",
+          "type": "float32",
+          "default": 1e-05
+        },
+        {
+          "name": "elementwise_affine",
+          "type": "boolean"
+        },
+        {
+          "name": "begin_params_axis",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "LeakyRelu",
-    "attributes": [
-      { "name": "negative_slope", "type": "float32", "default": 0 }
-    ]
-  },
-  {
-    "name": "LeakyReLU",
-    "category": "Activation",
-    "attributes": [
-      { "name": "negativeSlope", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Activation",
+      "attributes": [
+        {
+          "name": "negative_slope",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Less",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "LessEqual",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "LinSpace"
-  },
-  {
-    "name": "LocalResponseNormalization",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "depth_radius", "type": "int32", "default": 0 },
-      { "name": "bias", "type": "float32", "default": 0 },
-      { "name": "alpha", "type": "float32", "default": 0 },
-      { "name": "beta", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Log",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
-    "name": "LogGrad",
-    "inputs": [
-      { "name": "dy" },
-      { "name": "in_x" }
-    ],
-    "outputs": [
-      { "name": "dx" }
-    ]
+    "name": "LogGrad"
   },
   {
     "name": "LogicalAnd",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "LogicalNot",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "LogicalOr",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "LogicalXor",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "Loop",
-    "attributes": [
-      { "name": "subGraphIndex", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "LpNormalization",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "p", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "Lrn",
-    "category": "Normalization",
-    "attributes": [
-      { "name": "alpha", "type": "float32", "default": 0.0001 },
-      { "name": "beta", "type": "float32", "default": 0.75 },
-      { "name": "bias", "type": "float32", "default": 1 },
-      { "name": "size", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "p",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "LRN",
-    "attributes": [
-      { "name": "depth_radius", "type": "int64", "default": 0 },
-      { "name": "bias", "type": "float32", "default": 0 },
-      { "name": "alpha", "type": "float32", "default": 0 },
-      { "name": "beta", "type": "float32", "default": 0 },
-      { "name": "norm_region", "type": "string", "default": null }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "depth_radius",
+          "type": "int64"
+        },
+        {
+          "name": "bias",
+          "type": "float32"
+        },
+        {
+          "name": "alpha",
+          "type": "float32"
+        },
+        {
+          "name": "beta",
+          "type": "float32"
+        },
+        {
+          "name": "norm_region",
+          "type": "string"
+        }
+      ]
+    }
   },
   {
     "name": "LshProjection",
-    "attributes": [
-      { "name": "type", "type": "LshProjectionType", "default": "UNKNOWN" }
-    ],
-    "inputs": [
-      { "name": "hash" },
-      { "name": "in_data" },
-      { "name": "weight" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Lstm",
-    "category": "Layer",
-    "attributes": [
-      { "name": "bidirection", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "weight_i" },
-      { "name": "weight_h" },
-      { "name": "bias" },
-      { "name": "hidden_state" },
-      { "name": "cell_state" }
-    ],
-    "outputs": [
-      { "name": "output" },
-      { "name": "hidden_state" },
-      { "name": "cell_state" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "type",
+          "type": "LshProjectionType"
+        }
+      ]
+    }
   },
   {
     "name": "LSTM",
-    "attributes": [
-      { "name": "bidirectional", "type": "boolean", "default": false },
-      { "name": "has_bias", "type": "boolean", "default": false },
-      { "name": "input_size", "type": "int64", "default": 0 },
-      { "name": "hidden_size", "type": "int64", "default": 0 },
-      { "name": "num_layers", "type": "int64", "default": 0 },
-      { "name": "num_directions", "type": "int64", "default": 0 },
-      { "name": "dropout", "type": "float32", "default": 0 },
-      { "name": "zoneout_cell", "type": "float32", "default": 0 },
-      { "name": "zoneout_hidden", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        {
+          "name": "bidirectional",
+          "type": "boolean"
+        },
+        {
+          "name": "has_bias",
+          "type": "boolean"
+        },
+        {
+          "name": "input_size",
+          "type": "int64"
+        },
+        {
+          "name": "hidden_size",
+          "type": "int64"
+        },
+        {
+          "name": "num_layers",
+          "type": "int64"
+        },
+        {
+          "name": "num_directions",
+          "type": "int64"
+        },
+        {
+          "name": "dropout",
+          "type": "float32"
+        },
+        {
+          "name": "zoneout_cell",
+          "type": "float32",
+          "default": 0.0
+        },
+        {
+          "name": "zoneout_hidden",
+          "type": "float32",
+          "default": 0.0
+        }
+      ]
+    }
   },
   {
-    "name": "make_tuple"
-  },
-  {
-    "name": "MakeTuple"
+    "name": "L2NormalizeFusion",
+    "schema": {
+      "category": "Normalization",
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64[]"
+        },
+        {
+          "name": "epsilon",
+          "type": "float32"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "MatMul",
-    "attributes": [
-      { "name": "broadcast", "type": "boolean", "default": false },
-      { "name": "transposeA", "type": "boolean", "default": false },
-      { "name": "transposeB", "type": "boolean", "default": false },
-      { "name": "transpose_a", "type": "boolean", "default": false },
-      { "name": "transpose_b", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "A" },
-      { "name": "B" },
-      { "name": "bias" }
-    ],
-    "outputs": [
-      { "name": "C" }
-    ]
-  },
-  {
-    "name": "MatrixDiag",
-    "attributes": [
-      { "name": "k", "type": "int32", "default": 0 },
-      { "name": "numRows", "type": "int32", "default": 0 },
-      { "name": "numCols", "type": "int32", "default": 0 },
-      { "name": "paddingValue", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x1"
+        },
+        {
+          "name": "x2"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "transpose_a",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "name": "transpose_b",
+          "type": "boolean",
+          "default": true
+        }
+      ]
+    }
   },
   {
     "name": "Maximum",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "MaximumGrad",
-    "attributes": [
-      { "name": "grad_x", "type": "boolean", "default": false },
-      { "name": "grad_y", "type": "boolean", "default": false }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "grad_x",
+          "type": "boolean"
+        },
+        {
+          "name": "grad_y",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "MaxPoolFusion",
-    "category": "Pool",
-    "attributes": [
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "strides", "type": "int64[]", "default": 0 },
-      { "name": "pad", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "round_mode", "type": "RoundMode", "default": "FLOOR" },
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "global", "type": "boolean", "default": false },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Pool",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "strides",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "round_mode",
+          "type": "RoundMode"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        },
+        {
+          "name": "global",
+          "type": "boolean"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "MaxPoolGrad",
-    "attributes": [
-      { "name": "kernel_size", "type": "int64[]", "default": 0 },
-      { "name": "strides", "type": "int64[]", "default": 0 },
-      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
-      { "name": "format", "type": "Format", "default": "NCHW" }
-    ]
-  },
-  {
-    "name": "Mean",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" },
-      { "name": "keepDims", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x_origin"
+        },
+        {
+          "name": "out_origin"
+        },
+        {
+          "name": "grad"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "kernel_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "strides",
+          "type": "int64[]"
+        },
+        {
+          "name": "pad_mode",
+          "type": "PadMode"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        }
+      ]
+    }
   },
   {
     "name": "Merge"
   },
   {
     "name": "Mfcc",
-    "attributes": [
-      { "name": "freqUpperLimit", "type": "float32", "default": 0 },
-      { "name": "freqLowerLimit", "type": "float32", "default": 0 },
-      { "name": "filterBankChannelNum", "type": "int32", "default": 0 },
-      { "name": "dctCoeffNum", "type": "int32", "default": 0 },
-      { "name": "freq_upper_limit", "type": "float32", "default": 0 },
-      { "name": "freq_lower_limit", "type": "float32", "default": 0 },
-      { "name": "filter_bank_channel_num", "type": "int64", "default": 0 },
-      { "name": "dct_coeff_num", "type": "int64", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Min",
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "freq_upper_limit",
+          "type": "float32"
+        },
+        {
+          "name": "freq_lower_limit",
+          "type": "float32"
+        },
+        {
+          "name": "filter_bank_channel_num",
+          "type": "int64"
+        },
+        {
+          "name": "dct_coeff_num",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Minimum",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "MinimumGrad",
-    "attributes": [
-      { "name": "grad_x", "type": "boolean", "default": false },
-      { "name": "grad_y", "type": "boolean", "default": false }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "grad_x",
+          "type": "boolean"
+        },
+        {
+          "name": "grad_y",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
-    "name": "Mod"
-  },
-  {
-    "name": "Mul",
-    "attributes": [
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "MulFold"
+    "name": "Mod",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "MulFusion",
-    "attributes": [
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "MulGrad",
-    "inputs": [
-      { "name": "x1" },
-      { "name": "x2" }
-    ],
-    "outputs": [
-      { "name": "dx1" },
-      { "name": "dx2" }
-    ]
-  },
-  {
-    "name": "Nchw2Nhwc",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "MulGrad"
   },
   {
     "name": "Neg",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
-    "name": "NegGrad",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "NetOutput"
-  },
-  {
-    "name": "Nhwc2Nchw",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "NonMaxSuppression",
-    "attributes": [
-      { "name": "centerPointBox", "type": "int32", "default": 0 },
-      { "name": "center_point_box", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "box" },
-      { "name": "score" },
-      { "name": "max_output" },
-      { "name": "iou_threshold" },
-      { "name": "core_threshold" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "NonZero"
+    "name": "NegGrad"
   },
   {
     "name": "NotEqual",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "NonMaxSuppression",
+    "schema": {
+      "attributes": [
+        {
+          "name": "center_point_box",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "OneHot",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "indices" },
-      { "name": "depth" },
-      { "name": "on_value" },
-      { "name": "off_value" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "indices"
+        },
+        {
+          "name": "depth"
+        },
+        {
+          "name": "on_value"
+        },
+        {
+          "name": "off_value"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "OnesLike"
   },
   {
-    "name": "OnnxInt8Dequantize"
-  },
-  {
-    "name": "OnnxInt8Quantize"
-  },
-  {
-    "name": "Pad",
-    "category": "Tensor",
-    "attributes": [
-      { "name": "paddings", "type": "int32[]" },
-      { "name": "paddingMode", "type": "PaddingMode" },
-      { "name": "constantValue", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "paddings" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
     "name": "PadFusion",
-    "attributes": [
-      { "name": "paddings", "type": "Vec2D" },
-      { "name": "padding_mode", "type": "PaddingMode", "default": "CONSTANT" },
-      { "name": "constant_value", "type": "float32", "default": 0 }
-    ]
-  },
-  {
-    "name": "Partial",
-    "attributes": [
-      { "name": "subGraphIndex", "type": "int32", "default": 0 }
-    ]
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "paddings",
+          "type": "int64[]"
+        },
+        {
+          "name": "padding_mode",
+          "type": "PaddingMode"
+        },
+        {
+          "name": "constant_value",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "PartialFusion",
-    "attributes": [
-      { "name": "sub_graph_index", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "Permute",
-    "attributes": [
-      { "name": "order", "type": "int64[]" }
-    ]
-  },
-  {
-    "name": "Pooling",
-    "category": "Pool",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "poolingMode", "type": "PoolMode" },
-      { "name": "global", "type": "boolean", "default": false },
-      { "name": "windowW", "type": "int32", "default": 0 },
-      { "name": "windowH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "roundMode", "type": "RoundMode" },
-      { "name": "activationType", "type": "ActivationType" },
-      { "name": "avgMode", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "PoolingGrad",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "poolingMode", "type": "PoolMode" },
-      { "name": "global", "type": "boolean", "default": false },
-      { "name": "windowW", "type": "int32", "default": 0 },
-      { "name": "windowH", "type": "int32", "default": 0 },
-      { "name": "strideW", "type": "int32", "default": 0 },
-      { "name": "strideH", "type": "int32", "default": 0 },
-      { "name": "padMode", "type": "PadMode" },
-      { "name": "padUp", "type": "int32", "default": 0 },
-      { "name": "padDown", "type": "int32", "default": 0 },
-      { "name": "padLeft", "type": "int32", "default": 0 },
-      { "name": "padRight", "type": "int32", "default": 0 },
-      { "name": "roundMode", "type": "RoundMode" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "dx" },
-      { "name": "dy" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Power",
-    "attributes": [
-      { "name": "base", "type": "float32", "default": 0 },
-      { "name": "scale", "type": "float32", "default": 0 },
-      { "name": "shift", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "sub_graph_index",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "PowerGrad",
-    "attributes": [
-      { "name": "power", "type": "float32", "default": 0 },
-      { "name": "scale", "type": "float32", "default": 0 },
-      { "name": "shift", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "dy" },
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "dx" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "power",
+          "type": "float32"
+        },
+        {
+          "name": "scale",
+          "type": "float32"
+        },
+        {
+          "name": "shift",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "PowFusion",
-    "attributes": [
-      { "name": "scale", "type": "float32", "default": 1 },
-      { "name": "shift", "type": "float32", "default": 0 }
-    ]
-  },
-  {
-    "name": "Prelu",
-    "category": "Activation",
-    "attributes": [
-      { "name": "channelShared", "type": "boolean", "default": false },
-      { "name": "slope", "type": "float32[]" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "negative_slope" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "PReLUFusion",
-    "attributes": [
-      { "name": "channel_shared", "type": "boolean", "default": false }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "scale",
+          "type": "float32",
+          "default": 1.0
+        },
+        {
+          "name": "shift",
+          "type": "float32",
+          "default": 0.0
+        }
+      ]
+    }
   },
   {
     "name": "PriorBox",
-    "attributes": [
-      { "name": "min_sizes", "type": "int64[]", "default": 0 },
-      { "name": "max_sizes", "type": "int64[]", "default": 0 },
-      { "name": "aspect_ratios", "type": "float32[]", "default": 0 },
-      { "name": "variances", "type": "float32[]", "default": 0 },
-      { "name": "image_size_w", "type": "int64", "default": 0 },
-      { "name": "image_size_h", "type": "int64", "default": 0 },
-      { "name": "step_w", "type": "float32", "default": 0 },
-      { "name": "step_h", "type": "float32", "default": 0 },
-      { "name": "clip", "type": "boolean", "default": true },
-      { "name": "flip", "type": "boolean", "default": true },
-      { "name": "offset", "type": "float32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "fmap" },
-      { "name": "image" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "min_sizes",
+          "type": "int64[]"
+        },
+        {
+          "name": "max_sizes",
+          "type": "int64[]"
+        },
+        {
+          "name": "aspect_ratios",
+          "type": "float32[]"
+        },
+        {
+          "name": "variances",
+          "type": "float32[]"
+        },
+        {
+          "name": "image_size_w",
+          "type": "int64"
+        },
+        {
+          "name": "image_size_h",
+          "type": "int64"
+        },
+        {
+          "name": "step_w",
+          "type": "float32"
+        },
+        {
+          "name": "step_h",
+          "type": "float32"
+        },
+        {
+          "name": "clip",
+          "type": "boolean"
+        },
+        {
+          "name": "flip",
+          "type": "boolean"
+        },
+        {
+          "name": "offset",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
-    "name": "Proposal",
-    "attributes": [
-      { "name": "feat_stride", "type": "float32", "default": 0 },
-      { "name": "base_size", "type": "float32", "default": 0 },
-      { "name": "min_size", "type": "float32", "default": 0 },
-      { "name": "ratio", "type": "float32[]" },
-      { "name": "scale", "type": "float32[]" },
-      { "name": "pre_nms_topn", "type": "int32", "default": 0 },
-      { "name": "post_nms_topn", "type": "int32", "default": 0 },
-      { "name": "nms_thresh", "type": "float32", "default": 0 }
-    ]
+    "name": "PReLUFusion",
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "channel_shared",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
-    "name": "QuantDTypeCast",
-    "attributes": [
-      { "name": "srcT", "type": "int32", "default": 0 },
-      { "name": "dstT", "type": "int32", "default": 0 },
-      { "name": "src_t", "type": "int64", "default": 0 },
-      { "name": "dst_t", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "RandomStandardNormal",
-    "attributes": [
-      { "name": "seed", "type": "int64", "default": 0 },
-      { "name": "seed2", "type": "int64", "default": 0 }
-    ]
+    "name": "Rank"
   },
   {
     "name": "Range",
-    "attributes": [
-      { "name": "dType", "type": "int32", "default": 0 },
-      { "name": "start", "type": "int64", "default": 0 },
-      { "name": "limit", "type": "int64", "default": 0 },
-      { "name": "delta", "type": "int64", "default": 0 },
-      { "name": "d_type", "type": "int64", "default": 0 }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "d_type",
+          "type": "int64"
+        },
+        {
+          "name": "start",
+          "type": "int64"
+        },
+        {
+          "name": "limit",
+          "type": "int64"
+        },
+        {
+          "name": "delta",
+          "type": "int64",
+          "default": 1
+        }
+      ]
+    }
   },
   {
-    "name": "Rank",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "Reciprocal",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
     "name": "RealDiv",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
-  },
-  {
-    "name": "Reciprocal"
-  },
-  {
-    "name": "Reduce",
-    "attributes": [
-      { "name": "axes", "type": "int32[]" },
-      { "name": "keepDims", "type": "int32", "default": 0 },
-      { "name": "mode", "type": "ReduceMode" },
-      { "name": "reduceToEnd", "type": "boolean", "default": false },
-      { "name": "coeff", "type": "float32", "default": 1 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "ReduceFusion",
-    "attributes": [
-      { "name": "keep_dims", "type": "boolean", "default": false },
-      { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" },
-      { "name": "reduce_to_end", "type": "boolean", "default": false },
-      { "name": "coeff", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_x"
+        },
+        {
+          "name": "axis"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "keep_dims",
+          "type": "boolean"
+        },
+        {
+          "name": "mode",
+          "type": "ReduceMode"
+        },
+        {
+          "name": "reduce_to_end",
+          "type": "boolean"
+        },
+        {
+          "name": "coeff",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Reshape",
-    "category": "Shape",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "shape", "type": "int64[]" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "shape" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Shape",
+      "inputs": [
+        {
+          "name": "tensor"
+        },
+        {
+          "name": "shape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Resize",
-    "attributes": [
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "method", "type": "ResizeMethod", "default": 0 },
-      { "name": "newHeight", "type": "int64", "default": 0 },
-      { "name": "newWidth", "type": "int64", "default": 0 },
-      { "name": "alignCorners", "type": "boolean", "default": false },
-      { "name": "preserveAspectRatio", "type": "boolean", "default": false },
-      { "name": "coordinateTransformMode", "type": "CoordinateTransformMode" },
-      { "name": "cubicCoeff", "type": "float32", "default": 0 },
-      { "name": "excludeOutside", "type": "int32", "default": 0 },
-      { "name": "extrapolationValue", "float32": "float32", "default": 0 },
-      { "name": "nearestMode", "type": "NearestMode" },
-      { "name": "new_height", "type": "int64", "default": 0 },
-      { "name": "new_width", "type": "int64", "default": 0 },
-      { "name": "preserve_aspect_ratio", "type": "boolean", "default": false },
-      { "name": "coordinate_transform_mode", "type": "CoordinateTransformMode", "default": "ASYMMETRIC" },
-      { "name": "cubic_coeff", "type": "float32", "default": 0 },
-      { "name": "exclude_outside", "type": "int64", "default": 0 },
-      { "name": "extrapolation_value", "type": "float32", "default": 0 },
-      { "name": "nearest_mode", "type": "NearestMode", "default": "NORMAL" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "shape" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "ResizeGrad",
-    "attributes": [
-      { "name": "method", "type": "ResizeMethod", "default": "LINEAR" },
-      { "name": "align_corners", "type": "boolean", "default": false }
-    ]
-  },
-  {
-    "name": "Return"
-  },
-  {
-    "name": "Reverse",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "format",
+          "type": "Format",
+          "default": 0
+        },
+        {
+          "name": "method",
+          "type": "ResizeMethod"
+        },
+        {
+          "name": "new_height",
+          "type": "int64"
+        },
+        {
+          "name": "new_width",
+          "type": "int64"
+        },
+        {
+          "name": "preserve_aspect_ratio",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "name": "coordinate_transform_mode",
+          "type": "CoordinateTransformMode"
+        },
+        {
+          "name": "cubic_coeff",
+          "type": "float32"
+        },
+        {
+          "name": "exclude_outside",
+          "type": "int64"
+        },
+        {
+          "name": "extrapolation_value",
+          "type": "float32"
+        },
+        {
+          "name": "nearest_mode",
+          "type": "NearestMode"
+        }
+      ]
+    }
   },
   {
     "name": "ReverseSequence",
-    "attributes": [
-      { "name": "seqAxis", "type": "int32", "default": 0 },
-      { "name": "batchAxis", "type": "int32", "default": 0 },
-      { "name": "seq_dim", "type": "int64", "default": 0 },
-      { "name": "batch_dim", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "seq_lengths" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "seq_lengths"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "seq_dim",
+          "type": "int64"
+        },
+        {
+          "name": "batch_dim",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "ReverseV2",
-    "attributes": [
-      { "name": "axis", "type": "int64[]", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "Rfft",
-    "attributes": [
-      { "name": "fftLength", "type": "int32", "default": 0 },
-      { "name": "fft_length", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "fft_length",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "ROIPooling",
-    "attributes": [
-      { "name": "pooledH", "type": "int32", "default": 0 },
-      { "name": "pooledW", "type": "int32", "default": 0 },
-      { "name": "scale", "type": "float32", "default": 0 },
-      { "name": "pooled_h", "type": "int64", "default": 0 },
-      { "name": "pooled_w", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "roi" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Pool",
+      "attributes": [
+        {
+          "name": "pooled_h",
+          "type": "int64"
+        },
+        {
+          "name": "pooled_w",
+          "type": "int64"
+        },
+        {
+          "name": "scale",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Round",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Rsqrt",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
-    "name": "RsqrtGrad"
-  },
-  {
-    "name": "Scale",
-    "category": "Layer",
-    "attributes": [
-      { "name": "axis", "type": "int32", "default": 0 },
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "scale" },
-      { "name": "offset" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "QuantDTypeCast",
+    "schema": {
+      "attributes": [
+        {
+          "name": "src_t",
+          "type": "int64"
+        },
+        {
+          "name": "dst_t",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "ScaleFusion",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "Scatter",
-    "inputs": [
-      { "name": "shape" },
-      { "name": "indices" },
-      { "name": "update" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "ScatterNd"
-  },
-  {
-    "name": "ScatterND",
-    "inputs": [
-      { "name": "shape" },
-      { "name": "indices" },
-      { "name": "update" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Select",
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Sgd",
-    "attributes": [
-      { "name": "weightDecay", "type": "float32", "default": 0 },
-      { "name": "dampening", "type": "float32", "default": 0 },
-      { "name": "useNesterov", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "weight" },
-      { "name": "gradient" },
-      { "name": "learning_rate" },
-      { "name": "accumulate" },
-      { "name": "moment" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "ScatterNd",
+    "schema": {
+      "inputs": [
+        {
+          "name": "indices"
+        },
+        {
+          "name": "update"
+        },
+        {
+          "name": "shape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "SGD",
-    "attributes": [
-      { "name": "nesterov", "type": "boolean", "default": false },
-      { "name": "dampening", "type": "float32", "default": 0 },
-      { "name": "weight_decay", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "nesterov",
+          "type": "boolean"
+        },
+        {
+          "name": "dampening",
+          "type": "float32"
+        },
+        {
+          "name": "weight_decay",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
-    "name": "Shape",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "name": "Shape"
   },
   {
-    "name": "SigmoidCrossEntropyWithLogits"
+    "name": "SigmoidCrossEntropyWithLogits",
+    "schema": {
+      "inputs": [
+        {
+          "name": "predict"
+        },
+        {
+          "name": "target"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "loss"
+        }
+      ]
+    }
   },
   {
-    "name": "SigmoidCrossEntropyWithLogitsGrad"
+    "name": "SigmoidCrossEntropyWithLogitsGrad",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        },
+        {
+          "name": "dout"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "x_grad"
+        }
+      ]
+    }
   },
   {
-    "name": "Sin",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
-  },
-  {
-    "name": "Size"
+    "name": "Sin"
   },
   {
     "name": "SkipGram",
-    "attributes": [
-      { "name": "includeAllGrams", "type": "boolean", "default": false },
-      { "name": "maxSkipSize", "type": "int32", "default": 0 },
-      { "name": "ngramSize", "type": "int32", "default": 0 },
-      { "name": "include_all_grams", "type": "boolean", "default": false },
-      { "name": "max_skip_size", "type": "int64", "default": 0 },
-      { "name": "ngram_size", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "Slice",
-    "category": "Tensor",
-    "attributes": [
-      { "name": "format", "type": "Format" },
-      { "name": "axes", "type": "int32[]" },
-      { "name": "begin", "type": "int32[]" },
-      { "name": "size", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "include_all_grams",
+          "type": "boolean"
+        },
+        {
+          "name": "max_skip_size",
+          "type": "int64"
+        },
+        {
+          "name": "ngram_size",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "SliceFusion",
-    "attributes": [
-      { "name": "axes", "type": "int64[]", "default": 0 }
-    ]
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "begin"
+        },
+        {
+          "name": "size"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axes",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "SmoothL1Loss",
-    "attributes": [
-      { "name": "beta", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "prediction"
+        },
+        {
+          "name": "target"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "beta",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "SmoothL1LossGrad",
-    "attributes": [
-      { "name": "beta", "type": "float32", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "beta",
+          "type": "float32"
+        }
+      ]
+    }
   },
   {
     "name": "Softmax",
-    "attributes": [
-      { "name": "axis", "type": "int64[]", "default": 0 }
-    ]
-  },
-  {
-    "name": "SoftMax",
-    "category": "Activation",
-    "attributes": [
-      { "name": "axis", "type": "int32", "default": -1 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "SoftmaxCrossEntropy",
-    "attributes": [
-      { "name": "axis", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "labels" }
-    ],
-    "outputs": [
-      { "name": "output" },
-      { "name": "grads" }
-    ]
+    "schema": {
+      "category": "Activation",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "SoftmaxCrossEntropyWithLogits"
   },
   {
     "name": "SpaceToBatch",
-    "attributes": [
-      { "name": "blockShape", "type": "int32[]" },
-      { "name": "paddings", "type": "Vec2D" },
-      { "name": "block_size", "type": "int64[]", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "block_size",
+          "type": "int64[]"
+        },
+        {
+          "name": "paddings",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "SpaceToBatchND",
-    "attributes": [
-      { "name": "blockShape", "type": "int32[]" },
-      { "name": "paddings", "type": "Vec2D" },
-      { "name": "block_shape", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "block_shape",
+          "type": "int64[]"
+        },
+        {
+          "name": "paddings",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "SpaceToDepth",
-    "attributes": [
-      { "name": "blockSize", "type": "int32", "default": 0 },
-      { "name": "format", "type": "Format", "default": "NCHW" },
-      { "name": "block_size", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "block_size",
+          "type": "int64"
+        },
+        {
+          "name": "format",
+          "type": "Format"
+        }
+      ]
+    }
   },
   {
-    "name": "SparseSoftmaxCrossEntropyWithLogits",
-    "attributes": [
-      { "name": "grad", "type": "boolean", "default": false }
-    ]
+    "name": "SparseSoftmaxCrossEntropy",
+    "schema": {
+      "attributes": [
+        {
+          "name": "grad",
+          "type": "boolean"
+        }
+      ]
+    }
   },
   {
     "name": "SparseToDense",
-    "attributes": [
-      { "name": "validateIndices", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "sparse_indices" },
-      { "name": "out_shape" },
-      { "name": "sparse_values" },
-      { "name": "default_value" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "indices"
+        },
+        {
+          "name": "values"
+        },
+        {
+          "name": "dense_shape"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Split",
-    "category": "Tensor",
-    "attributes": [
-      { "name": "numberSplit", "type": "int32", "default": 0 },
-      { "name": "sizeSplits", "type": "int32[]" },
-      { "name": "splitDim", "type": "int32", "default": 0 },
-      { "name": "output_num", "type": "int64", "default": 0 },
-      { "name": "size_splits", "type": "int64[]", "default": 0 },
-      { "name": "axis", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ]
+    "schema": {
+      "category": "Tensor",
+      "attributes": [
+        {
+          "name": "output_num",
+          "type": "int64"
+        },
+        {
+          "name": "size_splits",
+          "type": "int64[]"
+        },
+        {
+          "name": "axis",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Sqrt",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "SqrtGrad"
-  },
-  {
-    "name": "Square",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
-  },
-  {
-    "name": "SquaredDifference",
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Squeeze",
-    "category": "Transform",
-    "attributes": [
-      { "name": "axis", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64[]"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Square",
+    "schema": {
+      "inputs": [
+        {
+          "name": "input_x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
+  },
+  {
+    "name": "SquaredDifference",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Stack",
-    "attributes": [
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "n", "type": "int32", "default": 0 },
-      { "name": "isScale", "type": "int32[]" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "StridedSlice",
-    "category": "Tensor",
-    "attributes": [
-      { "name": "beginMask", "type": "int32", "default": 0 },
-      { "name": "endMask", "type": "int32", "default": 0 },
-      { "name": "ellipsisMask", "type": "int32", "default": 0 },
-      { "name": "newAxisMask", "type": "int32", "default": 0 },
-      { "name": "shrinkAxisMask", "type": "int32", "default": 0 },
-      { "name": "begin", "type": "int32[]" },
-      { "name": "end", "type": "int32[]" },
-      { "name": "stride", "type": "int32[]" },
-      { "name": "isScale", "type": "int32[]" },
-      { "name": "begin_mask", "type": "int64", "default": 0 },
-      { "name": "end_mask", "type": "int64", "default": 0 },
-      { "name": "ellipsis_mask", "type": "int64", "default": 0 },
-      { "name": "new_axis_mask", "type": "int64", "default": 0 },
-      { "name": "shrink_axis_mask", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "begins" },
-      { "name": "ends" },
-      { "name": "strides" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "StridedSliceGrad",
-    "attributes": [
-      { "name": "begin_mask", "type": "int64", "default": 0 },
-      { "name": "end_mask", "type": "int64", "default": 0 },
-      { "name": "ellipsis_mask", "type": "int64", "default": 0 },
-      { "name": "new_axis_mask", "type": "int64", "default": 0 },
-      { "name": "shrink_axis_mask", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "Sub",
-    "attributes": [
-      { "name": "activationType", "type": "ActivationType" }
-    ],
-    "inputs": [
-      { "name": "x" },
-      { "name": "y" }
-    ],
-    "outputs": [
-      { "name": "z" }
-    ]
+    "schema": {
+      "category": "Tensor",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "begin"
+        },
+        {
+          "name": "end"
+        },
+        {
+          "name": "strides"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "begin_mask",
+          "type": "int64"
+        },
+        {
+          "name": "end_mask",
+          "type": "int64"
+        },
+        {
+          "name": "ellipsis_mask",
+          "type": "int64"
+        },
+        {
+          "name": "new_axis_mask",
+          "type": "int64"
+        },
+        {
+          "name": "shrink_axis_mask",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "SubFusion",
-    "attributes": [
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "activation_type",
+          "type": "ActivationType",
+          "default": 0
+        }
+      ]
+    }
   },
   {
-    "name": "SubGrad",
-    "inputs": [
-      { "name": "x1" },
-      { "name": "x2" }
-    ],
-    "outputs": [
-      { "name": "dx1" },
-      { "name": "dx2" }
-    ]
+    "name": "SubGrad"
   },
   {
     "name": "Switch"
   },
   {
-    "name": "Tan",
-    "inputs": [
-      { "name": "x" }
-    ],
-    "outputs": [
-      { "name": "y" }
-    ]
-  },
-  {
     "name": "TensorListFromTensor",
-    "attributes": [
-      { "name": "element_dtype", "type": "int64", "default": 0 },
-      { "name": "shape_type", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "int64"
+        },
+        {
+          "name": "shape_type",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "TensorListGetItem",
-    "attributes": [
-      { "name": "elementDType", "type": "int32", "default": 0 },
-      { "name": "element_dtype", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "TensorListReserve",
-    "attributes": [
-      { "name": "elementDType", "type": "int32", "default": 0 },
-      { "name": "element_dtype", "type": "int64", "default": 0 },
-      { "name": "shape_type", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "int64"
+        },
+        {
+          "name": "shape_type",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "TensorListSetItem",
-    "attributes": [
-      { "name": "element_dtype", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "element_dtype",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "TensorListStack",
-    "attributes": [
-      { "name": "numElements", "type": "int32", "default": 0 },
-      { "name": "elementDType", "type": "int32", "default": 0 },
-      { "name": "num_elements", "type": "int64", "default": 0 },
-      { "name": "element_dtype", "type": "int64", "default": 0 }
-    ]
-  },
-  {
-    "name": "TfReduce",
-    "attributes": [
-      { "name": "type", "type": "ReduceType" }
-    ]
-  },
-  {
-    "name": "Tile",
-    "attributes": [
-      { "name": "multiples", "type": "int32[]" },
-      { "name": "dims", "type": "int32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "num_elements",
+          "type": "int64"
+        },
+        {
+          "name": "element_dtype",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "TileFusion",
-    "attributes": [
-      { "name": "dims", "type": "int64[]", "default": 0 }
-    ]
-  },
-  {
-    "name": "ToFormat",
-    "attributes": [
-      { "name": "srcT", "type": "int32", "default": 0 },
-      { "name": "dstT", "type": "int32", "default": 0 }
-    ]
-  },
-  {
-    "name": "TopK",
-    "attributes": [
-      { "name": "k", "type": "int32", "default": 0 },
-      { "name": "sorted", "type": "boolean", "default": true }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output_data" },
-      { "name": "output_index" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "multiples"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "dims",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "TopKFusion",
-    "attributes": [
-      { "name": "sorted", "type": "boolean", "default": true },
-      { "name": "axis", "type": "int64", "default": 0 },
-      { "name": "largest", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "input"
+        },
+        {
+          "name": "k"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "values"
+        },
+        {
+          "name": "indices"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "sorted",
+          "type": "boolean",
+          "default": true
+        },
+        {
+          "name": "axis",
+          "type": "int64"
+        },
+        {
+          "name": "largest",
+          "type": "int64"
+        }
+      ]
+    }
   },
   {
     "name": "Transpose",
-    "category": "Transform",
-    "attributes": [
-      { "name": "perm", "type": "int32[]" },
-      { "name": "conjugate", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "perm" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "TupleGetItem",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
-  },
-  {
-    "name": "UniformReal",
-    "attributes": [
-      { "name": "seed", "type": "int64", "default": 0 },
-      { "name": "seed2", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "category": "Transform",
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "perm"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "Unique",
-    "attributes": [
-      { "name": "outType", "type": "int32", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output0" },
-      { "name": "output1" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "UnsortedSegmentSum",
-    "attributes": [
-      { "name": "numSegments", "type": "int32", "default": 0 }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "segment_ids"
+        },
+        {
+          "name": "num_segments"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
   },
   {
     "name": "Unsqueeze",
-    "category": "Transform",
-    "attributes": [
-      { "name": "axis", "type": "int64[]", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64[]"
+        }
+      ]
+    }
   },
   {
     "name": "Unstack",
-    "attributes": [
-      { "name": "num", "type": "int32", "default": 0 },
-      { "name": "axis", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ]
-  },
-  {
-    "name": "Upsample",
-    "attributes": [
-      { "name": "mode", "type": "string" },
-      { "name": "scales", "type": "float32[]" }
-    ],
-    "inputs": [
-      { "name": "input" }
-    ]
-  },
-  {
-    "name": "Where",
-    "attributes": [
-      { "name": "condition", "type": "boolean[]" }
-    ],
-    "inputs": [
-      { "name": "input" },
-      { "name": "input1" },
-      { "name": "input2" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "axis",
+          "type": "int64",
+          "default": 0
+        }
+      ]
+    }
   },
   {
     "name": "While",
-    "attributes": [
-      { "name": "condSubgraphIndex", "type": "int32", "default": 0 },
-      { "name": "bodySubgraphIndex", "type": "int32", "default": 0 },
-      { "name": "cond_subgraph_index", "type": "int64", "default": 0 },
-      { "name": "body_subgraph_index", "type": "int64", "default": 0 }
-    ]
+    "schema": {
+      "attributes": [
+        {
+          "name": "cond_subgraph_index",
+          "type": "int64"
+        },
+        {
+          "name": "body_subgraph_index",
+          "type": "int64"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Where",
+    "schema": {
+      "inputs": [
+        {
+          "name": "condition"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
   },
   {
     "name": "ZerosLike",
-    "inputs": [
-      { "name": "input" }
-    ],
-    "outputs": [
-      { "name": "output" }
-    ]
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Select",
+    "schema": {
+      "inputs": [
+        {
+          "name": "condition"
+        },
+        {
+          "name": "x"
+        },
+        {
+          "name": "y"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "If"
+  },
+  {
+    "name": "GRU",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "weight_input"
+        },
+        {
+          "name": "weight_hidden"
+        },
+        {
+          "name": "bias_input"
+        },
+        {
+          "name": "bias_hidden"
+        },
+        {
+          "name": "seq_length"
+        },
+        {
+          "name": "init_h"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "\noutput"
+        },
+        {
+          "name": "output_h"
+        },
+        {
+          "name": "update"
+        },
+        {
+          "name": "reset"
+        },
+        {
+          "name": "new"
+        },
+        {
+          "name": "hidden_new"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "bidirectional",
+          "type": "boolean",
+          "default": true
+        }
+      ]
+    }
+  },
+  {
+    "name": "NonZero"
+  },
+  {
+    "name": "InvertPermutation"
+  },
+  {
+    "name": "Size"
+  },
+  {
+    "name": "RandomStandardNormal",
+    "schema": {
+      "attributes": [
+        {
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "name": "seed2",
+          "type": "int64"
+        }
+      ]
+    }
+  },
+  {
+    "name": "CropAndResize",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        },
+        {
+          "name": "boxes"
+        },
+        {
+          "name": "box_index"
+        },
+        {
+          "name": "crop_size"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ],
+      "attributes": [
+        {
+          "name": "method",
+          "type": "ResizeMethod"
+        },
+        {
+          "name": "extrapolation_value",
+          "type": "float32"
+        }
+      ]
+    }
+  },
+  {
+    "name": "Erf",
+    "schema": {
+      "inputs": [
+        {
+          "name": "x"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "y"
+        }
+      ]
+    }
+  },
+  {
+    "name": "StridedSliceGrad",
+    "schema": {
+      "attributes": [
+        {
+          "name": "begin_mask",
+          "type": "int64"
+        },
+        {
+          "name": "end_mask",
+          "type": "int64"
+        },
+        {
+          "name": "ellipsis_mask",
+          "type": "int64"
+        },
+        {
+          "name": "new_axis_mask",
+          "type": "int64"
+        },
+        {
+          "name": "shrink_axis_mask",
+          "type": "int64"
+        }
+      ]
+    }
+  },
+  {
+    "name": "IsFinite"
+  },
+  {
+    "name": "LinSpace",
+    "schema": {
+      "inputs": [
+        {
+          "name": "start"
+        },
+        {
+          "name": "stop"
+        },
+        {
+          "name": "num"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output"
+        }
+      ]
+    }
+  },
+  {
+    "name": "UniformReal",
+    "schema": {
+      "attributes": [
+        {
+          "name": "seed",
+          "type": "int64"
+        },
+        {
+          "name": "seed2",
+          "type": "int64"
+        }
+      ]
+    }
+  },
+  {
+    "name": "AbsGrad"
   }
 ]
