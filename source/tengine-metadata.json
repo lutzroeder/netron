@@ -363,6 +363,14 @@
     ]
   },
   {
+    "name": "L2Normalization",
+    "category": "Layer"
+  },
+  {
+    "name": "L2Pool",
+    "category": "Layer"
+  },
+  {
     "name": "Logical",
     "category": "Layer",
     "attributes": [
@@ -372,6 +380,10 @@
   {
     "name": "Logistic",
     "category": "Activation"
+  },
+  {
+    "name": "LogSoftmax",
+    "category": "Layer"
   },
   {
     "name": "LRN",
@@ -451,6 +463,19 @@
   {
     "name": "Num",
     "category": "Layer"
+  },
+
+  {
+    "name": "PackModel",
+    "category": "Layer",
+    "attributes": [
+      { "name": "buffer size", "type": "int32", "default": 1 },
+      { "name": "model version", "type": "int32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "Source Model" }
+    ]
   },
   {
     "name": "Pad",
@@ -576,6 +601,10 @@
     ]
   },
   {
+    "name": "Relu1",
+    "category": "Layer"
+  },
+  {
     "name": "ReLU6",
     "category": "Activation"
   },
@@ -584,6 +613,19 @@
     "category": "Shape",
     "attributes": [
       { "name": "stride", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape",
+    "attributes": [
+      { "name": "is_mxnet", "type": "int32", "default": 0 },
+      { "name": "reverse", "type": "int32", "default": 0 },
+      { "name": "shape", "type": "int32[]", "default": [] }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "shape" }
     ]
   },
   {
