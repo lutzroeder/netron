@@ -1467,6 +1467,7 @@ view.ModelFactoryService = class {
                 name: 'JSON',
                 formats: [
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
+                    { name: 'Netron metadata', tags: [ '[].name', '[].attributes' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
                     { name: 'keras-yolo2 configuration', tags: [ 'model', 'train', 'valid' ] },
                     { name: 'Vulkan SwiftShader ICD manifest', tags: [ 'file_format_version', 'ICD' ] },
@@ -1493,8 +1494,15 @@ view.ModelFactoryService = class {
             }
             const obj = context.open(encoding.type);
             if (obj) {
+                const match = (obj, tag) => {
+                    if (tag.startsWith('[].')) {
+                        tag = tag.substring(3);
+                        return (Array.isArray(obj) && obj.some((item) => Object.prototype.hasOwnProperty.call(item, tag)));
+                    }
+                    return Object.prototype.hasOwnProperty.call(obj, tag);
+                };
                 for (const format of encoding.formats) {
-                    if (format.tags.every((tag) => Object.prototype.hasOwnProperty.call(obj, tag))) {
+                    if (format.tags.every((tag) => match(obj, tag))) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
