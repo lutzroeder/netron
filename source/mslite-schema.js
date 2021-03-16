@@ -2942,13 +2942,13 @@ $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits = class SparseSoftmax
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits();
-        $.grad = reader.bool_(position, 4, false);
+        $.is_grad = reader.bool_(position, 4, false);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.SparseSoftmaxCrossEntropyWithLogits();
-        $.grad = reader.value(json.grad, false);
+        $.is_grad = reader.value(json.is_grad, false);
         return $;
     }
 };

@@ -2498,7 +2498,8 @@
   {
     "name": "SparseSoftmaxCrossEntropyWithLogits",
     "attributes": [
-      { "name": "grad", "type": "boolean", "default": false }
+      { "name": "grad", "type": "boolean", "default": false },
+      { "name": "is_grad", "type": "boolean", "default": false }
     ]
   },
   {
