@@ -923,6 +923,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.dropout.Dropout3d', class {});
         this.registerType('torch.nn.modules.fold.Unfold', class {});
         this.registerType('torch.nn.modules.flatten.Flatten', class {});
+        this.registerType('torch.nn.modules.flatten.Unflatten', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm1d', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm2d', class {});
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm3d', class {});
