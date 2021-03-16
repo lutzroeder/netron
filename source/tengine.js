@@ -548,8 +548,8 @@ tengine.ModelFileReader = class {
         register(20, 0, 'ReLU', [ 'f' ]);
         register(21, 0, 'ReLU6', []);
         register(22, 0, 'Reorg', [ 'i' ]);
-        register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(23, 2, 'Reshape', [ 'i', 'i', 'i[]' ]);
+        // register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
+        register(23, 0, 'Reshape', [ 'i', 'i', 'i[]' ]);
         register(24, 0, 'RoiPooling', [ 'i', 'i', 'f' ]);
         register(25, 0, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
         register(26, 0, 'Scale', [ 'i', 'i', 'i' ]);
@@ -624,7 +624,12 @@ tengine.ModelFileReader = class {
         register(95, 0, 'Where', []);
         register(96, 0, 'Tile', ['i','i']);
         register(97, 0, 'Mish', []);
-        register(98, 0, 'Num', []);
+        register(98, 0, 'L2Pool', []);
+        register(99, 0, 'LogSoftmax', []);
+        register(100, 0, 'ReLU1', []);
+        register(101, 0, 'L2Normalization', []);
+        register(102, 0, 'PackModel', ['i','i']);
+        register(103, 0, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
@@ -637,6 +642,7 @@ tengine.ModelFileReader = class {
         this._graphs = [];
         const subgraphOffsets = reader.uint32s();
         for (const subgraphOffset of subgraphOffsets) {
+            subgraphOffsets.length =1 ;
             reader.seek(subgraphOffset);
 
             const subgraph = {};
@@ -801,6 +807,8 @@ tengine.ModelFileReader = class {
             case 9: return 'ncnn';
             case 10: return 'MegEngine';
             case 11: return 'OneFlow';
+            case 12: return 'Horizon';
+            case 13: return 'Bitman';
             default: throw new tengine.Error("Unknown source '" + this._originalFormat.toString() + "'.");
         }
     }

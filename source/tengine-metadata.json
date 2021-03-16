@@ -219,6 +219,21 @@
     ]
   },
   {
+    "name": "Reshape",
+    "schema": {
+      "category": "Shape",
+      "attributes": [
+        { "name": "is_mxnet", "type": "int32", "default": 0 },
+        { "name": "reverse", "type": "int32", "default": 0 },
+        { "name": "shape", "type": "int32[]", "default": [] }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "shape" }
+      ]
+    }
+  },
+  {
     "name": "DropOut",
     "category": "Dropout"
   },
@@ -867,6 +882,16 @@
     ]
   },
   {
+    "name": "Scatter",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "axis", "type": "int32", "default": 0 },
+        { "name": "is_onnx", "type": "boolean", "default": false }
+      ]
+    }
+  },
+  {
     "name": "Unsqueeze",
     "category": "Transform",
     "attributes": [
@@ -885,7 +910,51 @@
     "category": "Layer"
   },
   {
+    "name": "L2Pool",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "LogSoftmax",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "Relu1",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "L2Normalization",
+    "schema": {
+      "category": "Layer"
+    }
+  },
+  {
+    "name": "PackModel",
+    "schema": {
+      "category": "Layer",
+      "attributes": [
+        { "name": "buffer size", "type": "int32", "default": 1 },
+        { "name": "model version", "type": "int32", "default": 1 }
+      ],
+      "inputs": [
+        { "name": "input" },
+        { "name": "Source Model" }
+      ]
+    }
+  },
+  {
     "name": "ZerosLike",
     "category": "Layer"
+  },
+  {
+    "name": "Num",
+    "schema": {
+      "category": "Layer"
+    }
   }
 ]
