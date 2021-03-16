@@ -800,6 +800,7 @@ tengine.ModelFileReader = class {
             case 8: return 'DLA v' + this._subFormat;
             case 9: return 'ncnn';
             case 10: return 'MegEngine';
+            case 11: return 'OneFlow';
             default: throw new tengine.Error("Unknown source '" + this._originalFormat.toString() + "'.");
         }
     }
