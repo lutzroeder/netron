@@ -3161,12 +3161,21 @@
   },
   {
     "name": "torch.clamp",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "min", "type": "Scalar", "optional": true, "default": null },
       { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.clamp_",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "max", "type": "Scalar", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
