@@ -3306,6 +3306,9 @@ pytorch.nnapi.SerializedModel = class {
                         case 'int32':
                             operand.value = reader.int32();
                             break;
+                        case 'float32':
+                            operand.value = reader.float32();
+                            break;
                         case 'int32*':
                             operand.value = reader.read(value.source_length);
                             break;
