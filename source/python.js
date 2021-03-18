@@ -1657,6 +1657,15 @@ python.Execution = class {
                 this.args = args;
             }
         });
+        this.registerType('collections.deque', class {
+            constructor(iterable) {
+                let i = 0;
+                for (const value of iterable) {
+                    this[i++] = value;
+                }
+                this.length = i;
+            }
+        });
         this.registerType('numpy.core._multiarray_umath.scalar', class {
             constructor(dtype, rawData) {
                 let data = rawData;
@@ -1867,6 +1876,7 @@ python.Execution = class {
         this.registerType('sklearn.decomposition._truncated_svd.TruncatedSVD', class {});
         this.registerType('sklearn.decomposition.truncated_svd.TruncatedSVD', class {});
         this.registerType('sklearn.discriminant_analysis.LinearDiscriminantAnalysis', class {});
+        this.registerType('sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis', class {});
         this.registerType('sklearn.dummy.DummyClassifier', class {});
         this.registerType('sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper', class {
             constructor(/* subtype, shape, dtype */) {
@@ -1921,6 +1931,10 @@ python.Execution = class {
         this.registerType('sklearn.feature_selection._variance_threshold.VarianceThreshold', class {});
         this.registerType('sklearn.feature_selection.univariate_selection.SelectKBest', class {});
         this.registerType('sklearn.feature_selection.variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.gaussian_process.gpc.GaussianProcessClassifier', class {});
+        this.registerType('sklearn.gaussian_process.kernels.ConstantKernel', class {});
+        this.registerType('sklearn.gaussian_process.kernels.Product', class {});
+        this.registerType('sklearn.gaussian_process.kernels.RBF', class {});
         this.registerType('sklearn.impute._base.SimpleImputer', class {});
         this.registerType('sklearn.impute.SimpleImputer', class {});
         this.registerType('sklearn.isotonic.IsotonicRegression', class {});
