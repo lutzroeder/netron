@@ -3611,12 +3611,6 @@ $root.mindspore.schema.ResizeGrad = class ResizeGrad {
     }
 };
 
-$root.mindspore.schema.NodeType = {
-    ValueNode: 0,
-    Parameter: 1,
-    CNode: 2
-};
-
 $root.mindspore.schema.QuantParam = class QuantParam {
 
     static decode(reader, position) {
@@ -3674,7 +3668,7 @@ $root.mindspore.schema.Tensor = class Tensor {
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Tensor();
-        $.nodeType = $root.mindspore.schema.NodeType[json.nodeType];
+        $.nodeType = reader.value(json.nodeType, 0);
         $.dataType = reader.value(json.dataType, 0);
         $.dims = reader.typedArray(json.dims, Int32Array);
         $.format = $root.mindspore.schema.Format[json.format];
@@ -3716,7 +3710,7 @@ $root.mindspore.schema.CNode = class CNode {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.CNode();
         $.name = reader.string_(position, 4, null);
-        $.nodeType = reader.int32_(position, 6, 2);
+        $.nodeType = reader.int32_(position, 6, 0);
         $.primitive = reader.table(position, 8, $root.mindspore.schema.Primitive.decode);
         $.inputIndex = reader.typedArray(position, 10, Uint32Array);
         $.outputIndex = reader.typedArray(position, 12, Uint32Array);
@@ -3727,7 +3721,7 @@ $root.mindspore.schema.CNode = class CNode {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.CNode();
         $.name = reader.value(json.name, null);
-        $.nodeType = $root.mindspore.schema.NodeType[json.nodeType];
+        $.nodeType = reader.value(json.nodeType, 0);
         $.primitive = reader.object(json.primitive, $root.mindspore.schema.Primitive.decodeText);
         $.inputIndex = reader.typedArray(json.inputIndex, Uint32Array);
         $.outputIndex = reader.typedArray(json.outputIndex, Uint32Array);
