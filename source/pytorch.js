@@ -1076,6 +1076,10 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.mobilenet.ConvBNReLU', class {});
         this.registerType('torchvision.models.mobilenet.MobileNetV2', class {});
         this.registerType('torchvision.models.mobilenet.InvertedResidual', class {});
+        this.registerType('torchvision.models.mobilenetv2.ConvBNActivation', class {});
+        this.registerType('torchvision.models.mobilenetv3.InvertedResidual', class {});
+        this.registerType('torchvision.models.mobilenetv3.MobileNetV3', class {});
+        this.registerType('torchvision.models.mobilenetv3.SqueezeExcitation', class {});
         this.registerType('torchvision.models.resnet.Bottleneck', class {});
         this.registerType('torchvision.models.resnet.BasicBlock', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableBottleneck', class {});
