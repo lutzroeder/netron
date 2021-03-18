@@ -1428,12 +1428,22 @@
   {
     "name": "torch.softmax:int",
     "category": "Activation",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.softmax:Dimname",
+    "category": "Activation",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -4099,6 +4109,42 @@
     ]
   },
   {
+    "name": "torch.tan",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tan_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tanh",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tanh_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.narrow:",
     "attributes": [
       { "name": "dim", "type": "int64" },
@@ -5405,6 +5451,26 @@
       { "name": "onesided", "type": "boolean", "optional": true, "default": null },
       { "name": "length", "type": "boolean", "optional": true, "default": null },
       { "name": "return_complex", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unbind:int",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unbind:Dimname",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
