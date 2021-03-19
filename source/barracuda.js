@@ -9,7 +9,7 @@ barracuda.ModelFactory = class {
         const stream = context.stream;
         if (stream.length > 12) {
             const buffer = stream.peek(12);
-            if (buffer[0] <= 0x10 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
+            if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
                 return true;
             }
         }
@@ -409,36 +409,32 @@ barracuda.NNModel = class {
 
     constructor(buffer) {
 
-        // https://github.com/Unity-Technologies/ml-agents/blob/master/ml-agents/mlagents/trainers/barracuda.py
-        // https://github.com/Unity-Technologies/ml-agents/blob/master/ml-agents/mlagents/trainers/tensorflow_to_barracuda.py
+        // https://github.com/Unity-Technologies/barracuda-release/blob/release/1.3.2/Barracuda/Runtime/Core/Model.cs
 
         const reader = new barracuda.BinaryReader(buffer);
         this._version = reader.int32();
         reader.int32();
 
-        this._inputs = [];
-        const modelInputsLength = reader.int32();
-        for (let i = 0; i < modelInputsLength; i++) {
-            this._inputs.push({
+        this._inputs = new Array(reader.int32());
+        for (let i = 0; i < this._inputs.length; i++) {
+            this._inputs[i] = {
                 name: reader.string(),
                 shape: reader.shape()
-            });
+            };
         }
         this._outputs = reader.strings();
 
-        this._memories = [];
-        const memoriesLength = reader.int32();
-        for (let i = 0; i < memoriesLength; i++) {
-            this._memories.push({
+        this._memories = new Array(reader.int32());
+        for (let i = 0; i < this._memories.length; i++) {
+            this._memories[i] = {
                 shape: reader.shape(),
                 in: reader.string(),
                 out: reader.string()
-            });
+            };
         }
 
-        this._layers = [];
-        const layersLength = reader.int32();
-        for (let i = 0; i < layersLength; i++) {
+        this._layers = new Array(reader.int32());
+        for (let i = 0; i < this._layers.length; i++) {
             const layer = {};
             layer.name = reader.string();
             layer.type = reader.int32();
@@ -464,7 +460,7 @@ barracuda.NNModel = class {
                     length: reader.int32()
                 });
             }
-            this._layers.push(layer);
+            this._layers[i] = layer;
         }
         for (const layer of this._layers) {
             for (const tensor of layer.tensors) {
@@ -663,6 +659,10 @@ barracuda.Metadata = class {
         this._register(210, 'Concat', 'Tensor', [ 'inputs' ]);
         this._register(211, 'StridedSlice', 'Shape');
         this._register(212, 'Tile', '');
+        this._register(213, 'Shape', '');
+        this._register(214, 'NonMaxSuppression', '');
+        this._register(215, 'LSTM', '');
+        this._register(255, 'Load', '');
     }
 
     _register(id, name, category, inputs) {
