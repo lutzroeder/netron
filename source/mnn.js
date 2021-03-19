@@ -12,7 +12,7 @@ mnn.ModelFactory = class {
             if (extension == 'mnn') {
                 const buffer = stream.peek(4);
                 const reader = new flatbuffers.Reader(buffer);
-                if (reader.root === 0x00000018 || reader.root === 0x0000001C) {
+                if (reader.root === 0x00000018 || reader.root === 0x0000001C || reader.root === 0x00000020) {
                     return true;
                 }
             }
