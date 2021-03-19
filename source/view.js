@@ -1059,7 +1059,6 @@ view.View = class {
                     const context = canvas.getContext('2d');
                     context.scale(scale, scale);
                     context.drawImage(imageElement, 0, 0);
-                    this._host.document.body.removeChild(imageElement);
                     canvas.toBlob((blob) => {
                         if (blob) {
                             this._host.export(file, blob);
@@ -1074,7 +1073,6 @@ view.View = class {
                     }, 'image/png');
                 };
                 imageElement.src = 'data:image/svg+xml;base64,' + this._host.window.btoa(unescape(encodeURIComponent(data)));
-                this._host.document.body.insertBefore(imageElement, this._host.document.body.firstChild);
             }
         }
     }
