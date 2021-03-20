@@ -977,9 +977,9 @@ sidebar.DocumentationSidebar = class {
                 }
             }
 
-            if (documentation.domain && documentation.since_version && documentation.support_level) {
+            if (documentation.domain && documentation.version && documentation.support_level) {
                 this._append(element, 'h2', 'Support');
-                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.since_version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
+                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
             }
 
             if (!this._host.browser) {

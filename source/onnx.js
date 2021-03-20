@@ -1177,17 +1177,16 @@ onnx.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        const name = item.name;
-                        item.schema.name = name;
-                        this._map[name] = this._map[name] || [];
-                        this._map[name].push(item.schema);
-                    }
+            const metadata = JSON.parse(data);
+            for (const item of metadata) {
+                const name = item.name;
+                if (this._map.has(name)) {
+                    this._map.get(name).push(item);
+                }
+                else {
+                    this._map.set(name, [ item ]);
                 }
             }
         }
@@ -1195,13 +1194,13 @@ onnx.Metadata = class {
 
     type(operator, imports) {
         let result = null;
-        const schemas = this._map[operator];
+        const schemas = this._map.get(operator);
         if (schemas) {
             let version = -1;
             for (const schema of schemas) {
                 const domain = schema.domain === 'ai.onnx' ? '' : schema.domain;
                 const importVersion = imports[domain];
-                const sinceVersion = schema.since_version;
+                const sinceVersion = schema.version;
                 if (importVersion >= sinceVersion && version < sinceVersion) {
                     version = sinceVersion;
                     result = schema;
