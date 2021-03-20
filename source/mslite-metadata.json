@@ -2518,6 +2518,14 @@
     ]
   },
   {
+    "name": "Splice",
+    "attributes": [
+      { "name": "context", "type": "int64[]", "default": 0 },
+      { "name": "forward_indexes", "type": "int64[]", "default": 0 },
+      { "name": "output_dim", "type": "int64", "default": 0 }
+    ]
+  },
+  {
     "name": "Split",
     "category": "Tensor",
     "attributes": [

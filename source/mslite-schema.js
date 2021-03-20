@@ -342,6 +342,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 185: return $root.mindspore.schema.SqrtGrad.decode(reader, position);
             case 186: return $root.mindspore.schema.LayerNormGrad.decode(reader, position);
             case 187: return $root.mindspore.schema.ResizeGrad.decode(reader, position);
+            case 188: return $root.mindspore.schema.Splice.decode(reader, position);
         }
         return undefined;
     }
@@ -535,6 +536,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'SqrtGrad': return $root.mindspore.schema.SqrtGrad.decodeText(reader, json);
             case 'LayerNormGrad': return $root.mindspore.schema.LayerNormGrad.decodeText(reader, json);
             case 'ResizeGrad': return $root.mindspore.schema.ResizeGrad.decodeText(reader, json);
+            case 'Splice': return $root.mindspore.schema.Splice.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3607,6 +3609,25 @@ $root.mindspore.schema.ResizeGrad = class ResizeGrad {
         const $ = new $root.mindspore.schema.ResizeGrad();
         $.method = $root.mindspore.schema.ResizeMethod[json.method];
         $.align_corners = reader.value(json.align_corners, false);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Splice = class Splice {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Splice();
+        $.context = reader.int64s_(position, 4);
+        $.forward_indexes = reader.int64s_(position, 6);
+        $.output_dim = reader.int64_(position, 8, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Splice();
+        $.context = reader.array(json.context);
+        $.forward_indexes = reader.array(json.forward_indexes);
+        $.output_dim = reader.value(json.output_dim, 0);
         return $;
     }
 };
