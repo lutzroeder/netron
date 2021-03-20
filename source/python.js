@@ -1935,6 +1935,8 @@ python.Execution = class {
         this.registerType('sklearn.gaussian_process.kernels.ConstantKernel', class {});
         this.registerType('sklearn.gaussian_process.kernels.Product', class {});
         this.registerType('sklearn.gaussian_process.kernels.RBF', class {});
+        this.registerType('sklearn.grid_search._CVScoreTuple', class {});
+        this.registerType('sklearn.grid_search.GridSearchCV', class {});
         this.registerType('sklearn.impute._base.SimpleImputer', class {});
         this.registerType('sklearn.impute.SimpleImputer', class {});
         this.registerType('sklearn.isotonic.IsotonicRegression', class {});
@@ -2225,9 +2227,19 @@ python.Execution = class {
         this.registerFunction('collections.defaultdict', function(/* default_factory */) {
             return {};
         });
-        this.registerFunction('copy_reg._reconstructor', function(cls, base /* , state */) {
-            if (base == '__builtin__.object') {
-                return self.invoke(cls, []);
+        this.registerFunction('copy_reg._reconstructor', function(cls, base, state) {
+            // copyreg._reconstructor in Python 3
+            switch (base) {
+                case '__builtin__.object': {
+                    return self.invoke(cls, []);
+                }
+                case '__builtin__.tuple': {
+                    const obj = self.invoke(cls, []);
+                    for (let i = 0; i < state.length; i++) {
+                        obj[i] = state[i];
+                    }
+                    return obj;
+                }
             }
             throw new python.Error("Unknown copy_reg._reconstructor base type '" + base + "'.");
         });

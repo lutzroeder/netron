@@ -4842,6 +4842,13 @@
   },
   {
     "type":   "sklearn",
+    "target": "celeb-classifier.nn4.small2.v1.pkl.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6176216/celeb-classifier.nn4.small2.v1.pkl.zip",
+    "format": "scikit-learn",
+    "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
     "target": "column_pipeline.pkl",
     "source": "https://github.com/lutzroeder/netron/files/4672437/column_pipeline.zip[column_pipeline.pkl]",
     "format": "scikit-learn v0.22.1",
