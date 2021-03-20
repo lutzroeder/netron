@@ -2018,6 +2018,13 @@
   },
   {
     "type":   "keras",
+    "target": "5_model_fold_0.h5",
+    "source": "https://github.com/lutzroeder/netron/files/6174822/5_model_fold_0.h5.zip[5_model_fold_0.h5]",
+    "format": "Keras v2.4.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
     "target": "babi_rnn.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[babi_rnn.h5]",
     "format": "Keras v2.1.2",

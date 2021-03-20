@@ -710,7 +710,13 @@ keras.Node = class {
             }
             const input = !variadic ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
             const inputArguments = input.map((id) => {
-                return new keras.Argument(id, null, initializers[id]);
+                if (typeof id === 'string') {
+                    return new keras.Argument(id, null, initializers[id]);
+                }
+                if (Array.isArray(id) && id.every((item) => Array.isArray(item) && item.length === 4 && item[0] === '_CONSTANT_VALUE' && item[1] === -1)) {
+                    return new keras.Argument('', null, new keras.Tensor());
+                }
+                throw new keras.Error("Invalid argument '" + JSON.stringify(id) + "'.");
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
                 if (names.length === 1 && names[0] === '') {
