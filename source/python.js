@@ -2572,9 +2572,12 @@ python.Execution = class {
                     statement.variable.length === 1 && statement.variable[0].type === 'id') {
                     const range = this.expression(statement.target[0], context);
                     const variable = statement.variable[0];
-                    for (const value of range) {
-                        this.statement({ type: '=', target: variable, expression: { type: 'number', value: value }}, context);
-                        this.block(statement.body.statements, context);
+                    for (const current of range) {
+                        this.statement({ type: '=', target: variable, expression: { type: 'number', value: current }}, context);
+                        const value = this.block(statement.body.statements, context);
+                        if (value !== undefined) {
+                            return value;
+                        }
                     }
                     break;
                 }
@@ -2583,7 +2586,10 @@ python.Execution = class {
             case 'while': {
                 const condition = this.expression(statement.condition, context);
                 if (condition) {
-                    throw new python.Error("Unsupported 'while' statement.");
+                    const value = this.block(statement.body.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
                 }
                 break;
             }

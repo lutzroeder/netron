@@ -1289,6 +1289,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('torch._set_item', function(dict, key, value) {
             dict[key] = value;
         });
+        this.registerFunction('torch.__and__', function(left, right) {
+            return left && right;
+        });
         this.registerFunction('torch.__contains__', function(dict, key) {
             return dict[key] !== undefined;
         });
@@ -1367,6 +1370,9 @@ pytorch.Execution = class extends python.Execution {
                 return left === right;
             }
             throw new pytorch.Error("Unknown 'torch.eq' expression type.");
+        });
+        this.registerFunction('torch.floor', function(value) {
+            return Math.floor(value);
         });
         this.registerFunction('torch.floordiv', function(/* left, right */) {
             return undefined;
