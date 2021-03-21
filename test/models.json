@@ -4202,7 +4202,7 @@
     "type":   "pytorch",
     "target": "fasterrcnn_resnet50_fpn.pt",
     "source": "https://github.com/lutzroeder/netron/files/6040364/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":  "images is expected to be a list of 3d tensors of shape [C, H, W], got [1, 3, 299, 299] in 'fasterrcnn_resnet50_fpn.pt'.",
+    "error":  "size shape must match input shape. Input is -2, size is 2 in 'fasterrcnn_resnet50_fpn.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/689"
   },
   {

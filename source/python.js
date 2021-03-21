@@ -2764,7 +2764,10 @@ python.Execution = class {
             if (!target) {
                 target = this.package(packageName);
                 if (!target) {
-                    throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    target = context.getx(packageName);
+                    if (!target) {
+                        throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    }
                 }
             }
             return target;

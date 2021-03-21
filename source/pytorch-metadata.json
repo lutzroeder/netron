@@ -5475,5 +5475,28 @@
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
+  },
+  {
+    "name": "torch.as_tensor",
+    "inputs": [
+      { "name": "data" },
+      { "name": "dtype" },
+      { "name": "device" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tensor",
+    "inputs": [
+      { "name": "data" },
+      { "name": "dtype" },
+      { "name": "device" },
+      { "name": "requires_grad", "type": "boolean" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
   }
 ]

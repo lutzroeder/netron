@@ -1121,25 +1121,34 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('annotate', function(type, value) {
             return value;
         });
-        this.registerFunction('int', function(tensor) {
-            if (tensor) {
-                const storage = tensor.storage();
+        this.registerFunction('int', function(value) {
+            if (pytorch.Utility.isTensor(value)) {
+                const storage = value.storage();
                 if (storage && storage.dtype.__reduce__() === 'int64' && storage.data.length === 8) {
                     const buffer = storage.data;
                     const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
                     return view.getInt64(0, true);
                 }
             }
+            if (Number.isInteger(value)) {
+                return value;
+            }
             return NaN;
         });
-        this.registerFunction('float', function(tensor) {
-            if (tensor) {
-                const storage = tensor.storage();
-                if (storage && storage.dtype.__reduce__() === 'float32' && storage.data.length === 4) {
-                    const buffer = storage.data;
-                    const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-                    return view.getFloat32(0, true);
+        this.registerFunction('float', function(value) {
+            if (pytorch.Utility.isTensor(value)) {
+                const storage = value.storage();
+                if (storage && storage.dtype.__reduce__() === 'float32') {
+                    if (storage.size() !== undefined && storage.data.length === 4) {
+                        const buffer = storage.data;
+                        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                        return view.getFloat32(0, true);
+                    }
+                    return NaN;
                 }
+            }
+            if (Number(value) === value) {
+                return value;
             }
             return NaN;
         });
@@ -1341,6 +1350,9 @@ pytorch.Execution = class extends python.Execution {
             if (typeof left === 'number' && typeof right === 'number') {
                 return left * right;
             }
+            if (Array.isArray(left) && Array.isArray(right)) {
+                return left.concat(right);
+            }
             throw new pytorch.Error('Unknown torch.add expression type.');
         });
         this.registerFunction('torch.append', function(tensors, tensor) {
@@ -1373,6 +1385,9 @@ pytorch.Execution = class extends python.Execution {
         });
         this.registerFunction('torch.floor', function(value) {
             return Math.floor(value);
+        });
+        this.registerFunction('torch.ceil', function(value) {
+            return Math.ceil(value);
         });
         this.registerFunction('torch.floordiv', function(/* left, right */) {
             return undefined;
@@ -1433,8 +1448,11 @@ pytorch.Execution = class extends python.Execution {
             return Object.keys(dict);
         });
         this.registerFunction('torch.len', function(value) {
-            if (value) {
+            if (Array.isArray(value)) {
                 return value.length;
+            }
+            if (value && value.__len__) {
+                return value.__len__();
             }
             return NaN;
         });
@@ -1467,6 +1485,15 @@ pytorch.Execution = class extends python.Execution {
                 return NaN;
             }
             throw new pytorch.Error("Unknown 'torch.mul' expression type.");
+        });
+        this.registerFunction('torch.div', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return left / right;
+            }
+            if (isNaN(left) || isNaN(right)) {
+                return NaN;
+            }
+            throw new pytorch.Error("Unknown 'torch.div' expression type.");
         });
         this.registerFunction('torch.ne', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
@@ -1690,6 +1717,9 @@ pytorch.Execution = class extends python.Execution {
             }
             resize_(shape) {
                 this._shape = shape;
+            }
+            __len__() {
+                return this._shape[0];
             }
             __setstate__(state) {
                 this._storage = state[0];
@@ -2615,56 +2645,64 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         continue;
                     }
                     const result = [];
-                    for (const paramter of schema.outputs) {
-                        switch (paramter.type) {
+                    for (let i = 0; i < schema.outputs.length; i++) {
+                        const parameter = schema.outputs[i];
+                        switch (parameter.type) {
                             case 'Tensor': {
                                 const parameter = this.invoke('torch.Tensor', []);
                                 parameter.__origin__ = type;
-                                switch (type) {
-                                    case 'torch.cat':
-                                    case 'torch.conv2d':
-                                    case 'torch.dropout':
-                                    case 'torch.flatten':
-                                    case 'torch.max_pool2d':
-                                    case 'torch.adaptive_avg_pool2d':
-                                    case 'torch.avg_pool2d':
-                                    case 'torch.quantize_per_tensor':
-                                    case 'torch.relu_':
-                                    case 'torch.hardtanh_':
-                                    case 'torch.slice': {
-                                        parameter.resize_([ NaN, NaN, NaN, NaN ]);
-                                        break;
-                                    }
-                                    case 'torch.conv3d': {
-                                        parameter.resize_([ NaN, NaN, NaN, NaN, NaN ]);
-                                        break;
-                                    }
-                                    case 'torch.embedding': {
-                                        parameter.resize_([ NaN, NaN, NaN ]);
-                                        break;
-                                    }
-                                    case 'torch.batch_norm':
-                                    case 'torch.relu': {
-                                        const input = this.expression(args[0], context);
-                                        if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
-                                            parameter.resize_(input.size());
+                                if (i === 0) {
+                                    switch (type) {
+                                        case 'torch.cat':
+                                        case 'torch.conv2d':
+                                        case 'torch.dropout':
+                                        case 'torch.flatten':
+                                        case 'torch.max_pool2d':
+                                        case 'torch.adaptive_avg_pool2d':
+                                        case 'torch.avg_pool2d':
+                                        case 'torch.quantize_per_tensor':
+                                        case 'torch.relu_':
+                                        case 'torch.hardtanh_':
+                                        case 'torch.unsqueeze':
+                                        case 'torch.slice': {
+                                            parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            break;
                                         }
-                                        break;
+                                        case 'torch.conv3d': {
+                                            parameter.resize_([ NaN, NaN, NaN, NaN, NaN ]);
+                                            break;
+                                        }
+                                        case 'torch.embedding': {
+                                            parameter.resize_([ NaN, NaN, NaN ]);
+                                            break;
+                                        }
+                                        case 'torch.batch_norm':
+                                        case 'torch.relu': {
+                                            const input = this.expression(args[0], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                parameter.resize_(input.size());
+                                            }
+                                            break;
+                                        }
+                                        case 'torch.ones':
+                                        case 'torch.zeros':
+                                        case 'torch.zeros_like': {
+                                            parameter.resize_(this.expression(args[0], context));
+                                            break;
+                                        }
+                                        case 'torch.new_full': {
+                                            parameter.resize_(this.expression(args[1], context));
+                                            break;
+                                        }
+                                        case 'ops.quantized.cat':
+                                        case 'ops.quantized.cat_relu':
+                                        case 'ops.quantized.linear':
+                                        case 'ops.quantized.conv2d':
+                                        case 'ops.quantized.conv2d_relu':
+                                        case 'ops.quantized.add_relu':
+                                            parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            break;
                                     }
-                                    case 'torch.ones':
-                                    case 'torch.zeros':
-                                    case 'torch.zeros_like': {
-                                        parameter.resize_(this.expression(args[0], context));
-                                        break;
-                                    }
-                                    case 'ops.quantized.cat':
-                                    case 'ops.quantized.cat_relu':
-                                    case 'ops.quantized.linear':
-                                    case 'ops.quantized.conv2d':
-                                    case 'ops.quantized.conv2d_relu':
-                                    case 'ops.quantized.add_relu':
-                                        parameter.resize_([ NaN, NaN, NaN, NaN ]);
-                                        break;
                                 }
                                 parameter.__variable__ = this.variable();
                                 result.push(parameter);
@@ -2759,11 +2797,25 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 pytorch.Utility.isCall(assign.expression, 'torch.slice', 4) &&
                 pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1)) {
                 const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
-                if (tensor && tensor.__origin__ === 'graph-input') {
+                if (tensor && tensor.shape === undefined) {
                     tensor.resize_([ 1, 3, 299, 299 ]);
                 }
             }
             const statement = statements.shift();
+            // if torch.ne(torch.dim(image), 3):
+            //   xxxx
+            //   ops.prim.RaiseException(_7)
+            if (statement.type === 'if' &&
+                pytorch.Utility.isCall(statement.condition, 'torch.ne', 2) &&
+                pytorch.Utility.isCall(statement.condition.arguments[0], 'torch.dim', 1) &&
+                statement.then.statements.length > 0 &&
+                pytorch.Utility.isCall(statement.then.statements.slice(-1).pop(), 'ops.prim.RaiseException', 1)) {
+                const tensor = this.expression(statement.condition.arguments[0].arguments[0], context);
+                const size = this.expression(statement.condition.arguments[1], context);
+                if (tensor && Number.isInteger(size) && size < 10) {
+                    tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
+                }
+            }
             const value = this.statement(statement, context);
             if (value !== undefined) {
                 return value;
