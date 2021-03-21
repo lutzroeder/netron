@@ -4040,14 +4040,6 @@
   },
   {
     "type":   "pickle",
-    "target": "svm.pkl",
-    "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
-    "format": "Pickle",
-    "error":  "Unknown Pickle array object.",
-    "link":   "https://github.com/dfridovi/imagelib/blob/master/svm.pkl"
-  },
-  {
-    "type":   "pickle",
     "target": "robinhood-portfolio_data_user.pkl.pkl",
     "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format": "Pickle",
@@ -4930,6 +4922,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2592359/svc.zip[svc.pkl]",
     "format": "scikit-learn v0.19.1",
     "link":   "https://github.com/lutzroeder/netron/issues/182"
+  },
+  {
+    "type":   "sklearn",
+    "target": "svm.pkl",
+    "source": "https://raw.githubusercontent.com/dfridovi/imagelib/master/svm.pkl",
+    "format": "scikit-learn",
+    "link":   "https://github.com/dfridovi/imagelib/blob/master/svm.pkl"
   },
   {
     "type":   "sklearn",
