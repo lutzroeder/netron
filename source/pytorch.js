@@ -1077,6 +1077,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.mobilenet.MobileNetV2', class {});
         this.registerType('torchvision.models.mobilenet.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv2.ConvBNActivation', class {});
+        this.registerType('torchvision.models.mobilenetv2.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv3.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv3.MobileNetV3', class {});
         this.registerType('torchvision.models.mobilenetv3.SqueezeExcitation', class {});
@@ -1151,6 +1152,9 @@ pytorch.Execution = class extends python.Execution {
                 return value;
             }
             return NaN;
+        });
+        this.registerFunction('str', function(value) {
+            return JSON.stringify(value);
         });
         this.registerFunction('unchecked_cast', function(type, value) {
             return value;
@@ -1353,17 +1357,41 @@ pytorch.Execution = class extends python.Execution {
             if (Array.isArray(left) && Array.isArray(right)) {
                 return left.concat(right);
             }
+            if (typeof left === 'string' && typeof right === 'string') {
+                return left + right;
+            }
             throw new pytorch.Error('Unknown torch.add expression type.');
         });
-        this.registerFunction('torch.append', function(tensors, tensor) {
-            tensors.push(tensor);
-            return tensor;
+        this.registerFunction('torch.append', function(list, value) {
+            list.push(value);
+            return value;
+        });
+        this.registerFunction('torch.insert', function(list, index, value) {
+            list.splice(index, 0, value);
+            return value;
+        });
+        this.registerFunction('torch.clear', function(value) {
+            if (Object(value) === value) {
+                for (const key of Object.keys(value)) {
+                    delete value[key];
+                }
+            }
         });
         this.registerFunction('torch.dict', function(args) {
+            const obj = {};
             if (args) {
-                throw new pytorch.Error("'torch.dict' arguments not supported.");
+                if (Array.isArray(args)) {
+                    for (const pair of args) {
+                        const key = pair[0];
+                        const value = pair[1];
+                        obj[key] = value;
+                    }
+                }
+                else {
+                    throw new pytorch.Error("'torch.dict' arguments not supported.");
+                }
             }
-            return {};
+            return obj;
         });
         this.registerFunction('torch.dim', function(tensor) {
             if (tensor && tensor.size) {
@@ -2676,6 +2704,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             parameter.resize_([ NaN, NaN, NaN ]);
                                             break;
                                         }
+                                        case 'torch.add':
                                         case 'torch.batch_norm':
                                         case 'torch.relu': {
                                             const input = this.expression(args[0], context);
@@ -2714,6 +2743,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 switch (type) {
                                     case 'torch.chunk':
                                         count = node.attributes.filter((attribute) => attribute.name == 'chunks')[0].value;
+                                        break;
+                                    case 'torch.meshgrid':
+                                        count = node.inputs[0].length;
                                         break;
                                 }
                                 const tensors = [];

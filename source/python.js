@@ -2666,7 +2666,8 @@ python.Execution = class {
                     expression.arguments.value.length === 1) {
                     if (context.get(expression.target.value)) {
                         const index = this.expression(expression.arguments.value[0], context);
-                        return context.get(expression.target.value)[index];
+                        const target = context.get(expression.target.value);
+                        return target[index < 0 ? target.length + index : index];
                     }
                 }
                 const target = this.expression(expression.target, context);
@@ -2680,7 +2681,7 @@ python.Execution = class {
                 }
                 if (expression.arguments.type === 'list' && expression.arguments.value.length === 1) {
                     const index = this.expression(expression.arguments.value[0], context);
-                    return target[index];
+                    return target[index < 0 ? target.length + index : index];
                 }
                 break;
             }
