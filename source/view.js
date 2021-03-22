@@ -1230,67 +1230,70 @@ view.ModelContext = class {
         let tags = this._tags.get(type);
         if (!tags) {
             tags = new Map();
-            try {
-                switch (type) {
-                    case 'pbtxt': {
-                        const decoder = base.TextDecoder.create(this.stream.peek());
-                        let count = 0;
-                        for (let i = 0; i < 0x100; i++) {
-                            const c = decoder.decode();
-                            switch (c) {
-                                case '\n': case '\r': case '\t': case '\0': break;
-                                case undefined: i = 0x100; break;
-                                default: count += c < ' ' ? 1 : 0; break;
+            const signature = [ 0x50, 0x4B, 0x03, 0x04 ];
+            if (this.stream.length < 4 || !this.stream.peek(4).every((value, index) => value === signature[index])) {
+                try {
+                    switch (type) {
+                        case 'pbtxt': {
+                            const decoder = base.TextDecoder.create(this.stream.peek());
+                            let count = 0;
+                            for (let i = 0; i < 0x100; i++) {
+                                const c = decoder.decode();
+                                switch (c) {
+                                    case '\n': case '\r': case '\t': case '\0': break;
+                                    case undefined: i = 0x100; break;
+                                    default: count += c < ' ' ? 1 : 0; break;
+                                }
                             }
-                        }
-                        if (count < 4) {
-                            const reader = protobuf.TextReader.create(this.stream.peek());
-                            reader.start(false);
-                            while (!reader.end(false)) {
-                                const tag = reader.tag();
-                                tags.set(tag, true);
-                                if (reader.token() === '{') {
-                                    reader.start();
-                                    while (!reader.end()) {
-                                        const subtag = reader.tag();
-                                        tags.set(tag + '.' + subtag, true);
+                            if (count < 4) {
+                                const reader = protobuf.TextReader.create(this.stream.peek());
+                                reader.start(false);
+                                while (!reader.end(false)) {
+                                    const tag = reader.tag();
+                                    tags.set(tag, true);
+                                    if (reader.token() === '{') {
+                                        reader.start();
+                                        while (!reader.end()) {
+                                            const subtag = reader.tag();
+                                            tags.set(tag + '.' + subtag, true);
+                                            reader.skip();
+                                        }
+                                    }
+                                    else {
                                         reader.skip();
                                     }
                                 }
-                                else {
-                                    reader.skip();
+                            }
+                            break;
+                        }
+                        case 'pb': {
+                            const reader = protobuf.Reader.create(this.stream.peek());
+                            const length = reader.length;
+                            while (reader.position < length) {
+                                const tag = reader.uint32();
+                                const number = tag >>> 3;
+                                const type = tag & 7;
+                                if (type > 5 || number === 0) {
+                                    tags = new Map();
+                                    break;
+                                }
+                                tags.set(number, type);
+                                try {
+                                    reader.skipType(type);
+                                }
+                                catch (err) {
+                                    tags = new Map();
+                                    break;
                                 }
                             }
+                            break;
                         }
-                        break;
-                    }
-                    case 'pb': {
-                        const reader = protobuf.Reader.create(this.stream.peek());
-                        const length = reader.length;
-                        while (reader.position < length) {
-                            const tag = reader.uint32();
-                            const number = tag >>> 3;
-                            const type = tag & 7;
-                            if (type > 5 || number === 0) {
-                                tags = new Map();
-                                break;
-                            }
-                            tags.set(number, type);
-                            try {
-                                reader.skipType(type);
-                            }
-                            catch (err) {
-                                tags = new Map();
-                                break;
-                            }
-                        }
-                        break;
                     }
                 }
-            }
-            catch (error) {
-                tags = new Map();
-                this.stream.seek(0);
+                catch (error) {
+                    tags = new Map();
+                    this.stream.seek(0);
+                }
             }
             this._tags.set(type, tags);
         }
