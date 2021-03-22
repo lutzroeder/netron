@@ -140,9 +140,8 @@ def metadata():
     json_root = json.loads(json_file.read())
     json_file.close()
 
-    for entry in json_root:
-        name = entry['name']
-        schema = entry['schema']
+    for schema in json_root:
+        name = schema['name']
         if 'package' in schema:
             class_name = schema['package'] + '.' + name
             class_definition = pydoc.locate(class_name)
@@ -182,7 +181,7 @@ def metadata():
                     raise Exception('')
 
     json_file = open(json_path, 'w')
-    json_data = json.dumps(json_root, sort_keys=True, indent=2)
+    json_data = json.dumps(json_root, sort_keys=False, indent=2)
     for line in json_data.splitlines():
         json_file.write(line.rstrip() + '\n')
     json_file.close()
