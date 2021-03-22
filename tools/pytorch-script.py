@@ -19,14 +19,12 @@ def metadata():
 
     schema_map = {}
 
-    for entry in json_root:
-        name = entry['name']
-        schema = entry['schema']
+    for schema in json_root:
+        name = schema['name']
         schema_map[name] = schema
 
-    for entry in json_root:
-        name = entry['name']
-        schema = entry['schema']
+    for schema in json_root:
+        name = schema['name']
         if 'package' in schema:
             class_name = schema['package'] + '.' + name
             # print(class_name)
