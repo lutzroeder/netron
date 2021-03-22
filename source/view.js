@@ -797,7 +797,14 @@ view.View = class {
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), class: 'graph-input' } );
+
+                    if (inputName) {
+                        g.setNode(nodeId++, { label: inputElement.format(canvasElement), id: 'node-' + inputName, class: 'graph-input' } );
+                    }
+                    else {
+                        g.setNode(nodeId, { label: inputElement.format(canvasElement), id: 'node-' + id.toString(), class: 'graph-input' });
+                        id++;
+                    }
                 }
 
                 for (const output of graph.outputs) {
