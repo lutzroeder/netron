@@ -153,24 +153,10 @@
   },
   {
     "type":   "barracuda",
-    "target": "continuous2vis8vec2action_deprecated.nn",
-    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/com.unity.ml-agents/Tests/Editor/TestModels/continuous2vis8vec2action_deprecated.nn",
-    "format": "Barracuda v16",
-    "link":   "https://github.com/Unity-Technologies/ml-agents"
-  },
-  {
-    "type":   "barracuda",
     "target": "mobilenet_v2.nn",
     "source": "https://raw.githubusercontent.com/Syn-McJ/TFClassify-Unity-Barracuda/master/Assets/Resources/mobilenet_v2.nn",
     "format": "Barracuda v16",
     "link":   "https://github.com/Syn-McJ/TFClassify-Unity-Barracuda"
-  },
-  {
-    "type":   "barracuda",
-    "target": "SoccerTwos.nn",
-    "source": "https://raw.githubusercontent.com/Unity-Technologies/ml-agents/master/Project/Assets/ML-Agents/Examples/Soccer/TFModels/SoccerTwos.nn",
-    "format": "Barracuda v16",
-    "link":   "https://github.com/Unity-Technologies/ml-agents"
   },
   {
     "type":   "barracuda",
@@ -2815,17 +2801,10 @@
   },
   {
     "type":   "mxnet",
-    "target": "resnet50_ssd_model.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnet50_ssd/resnet50_ssd_model.model",
-    "format": "MXNet Model Server v0.1",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
     "target": "resnext-101-64x4d.model",
-    "source": "https://s3.amazonaws.com/model-server/models/resnext-101-64x4d/resnext-101-64x4d.model",
+    "source": "https://github.com/lutzroeder/netron/files/6179250/resnext-101-64x4d.model.zip[resnext-101-64x4d.model]",
     "format": "MXNet Model Server v0.1", "runtime": "MXNet v0.12",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
+    "link":   "https://github.com/lutzroeder/netron/issues/286"
   },
   {
     "type":   "mxnet",
@@ -2849,7 +2828,9 @@
   {
     "type":   "mxnet",
     "target": "vgg16.mar",
-    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/vgg16.mar"
+    "source": "https://github.com/lutzroeder/netron/files/6179223/vgg16.mar.zip[vgg16.mar]",
+    "format": "MXNet Model Archive v1.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/286"
   },
   {
     "type":   "ncnn",
