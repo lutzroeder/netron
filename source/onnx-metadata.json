@@ -11244,6 +11244,48 @@
     "category": "Activation"
   },
   {
+    "name": "HardSwish",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "HardSwish takes one input data (Tensor<T>) and produces one output data (Tensor<T>) where\nthe HardSwish function, y = x * max(0, min(1, alpha * x + beta)) = x * HardSigmoid<alpha, beta>(x),\nwhere alpha = 1/6 and beta = 0.5, is applied to the tensor elementwise.\n",
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "Output tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "hardswish",
+        "code": "node = onnx.helper.make_node(\n    'HardSwish',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = hardswish(x)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_hardswish')"
+      }
+    ]
+  },
+  {
     "name": "Hardmax",
     "domain": "ai.onnx",
     "version": 1,

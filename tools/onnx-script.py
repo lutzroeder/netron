@@ -211,6 +211,7 @@ def generate_json(schemas, json_file):
         if schema.name in categories:
             json_schema['category'] = categories[schema.name]
         json_root.append(json_schema);
+    json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
     with io.open(json_file, 'w', newline='') as fout:
         json_root = json.dumps(json_root, indent=2)
         for line in json_root.splitlines():
@@ -221,10 +222,9 @@ def generate_json(schemas, json_file):
             fout.write('\n')
 
 def metadata():
-    schemas = onnx.defs.get_all_schemas_with_history()
-    schemas = sorted(schemas, key=lambda schema: schema.name)
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
-    generate_json(schemas, json_file)
+    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
+    generate_json(all_schemas_with_history, json_file)
 
 def optimize():
     import onnx
