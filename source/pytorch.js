@@ -1417,8 +1417,8 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('torch.ceil', function(value) {
             return Math.ceil(value);
         });
-        this.registerFunction('torch.floordiv', function(/* left, right */) {
-            return undefined;
+        this.registerFunction('torch.floordiv', function(left, right) {
+            return Math.floor(left / right);
         });
         this.registerFunction('torch.format', function() {
             const args = Array.from(arguments);
@@ -1523,6 +1523,15 @@ pytorch.Execution = class extends python.Execution {
             }
             throw new pytorch.Error("Unknown 'torch.div' expression type.");
         });
+        this.registerFunction('torch.remainder', function(left, right) {
+            if (typeof left === 'number' && typeof right === 'number') {
+                return left % right;
+            }
+            if (isNaN(left) || isNaN(right)) {
+                return NaN;
+            }
+            throw new pytorch.Error("Unknown 'torch.remainder' expression type.");
+        });
         this.registerFunction('torch.ne', function(left, right) {
             if (typeof left === 'number' && typeof right === 'number') {
                 if (isNaN(left) || isNaN(right)) {
@@ -1532,6 +1541,9 @@ pytorch.Execution = class extends python.Execution {
             }
             if (Array.isArray(left) && Array.isArray(right) && left.length === right.length) {
                 return false;
+            }
+            if (typeof left === 'string' && typeof right === 'string') {
+                return left !== right;
             }
             throw new pytorch.Error("Unknown 'torch.ne' expression type.");
         });
@@ -2823,17 +2835,34 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     }
                 }
             }
+            const statement = statements.shift();
             // input_shape = torch.slice(torch.size(x), -2, 9223372036854775807, 1)
-            const assign = statements[0];
-            if (assign.type === '=' &&
-                pytorch.Utility.isCall(assign.expression, 'torch.slice', 4) &&
-                pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1)) {
-                const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+            if (statement.type === '=' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.slice', 4) &&
+                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.size', 1)) {
+                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
                 if (tensor && tensor.shape === undefined) {
                     tensor.resize_([ 1, 3, 299, 299 ]);
                 }
             }
-            const statement = statements.shift();
+            // torch.slice(ops.prim.shape(input), 0, 2, 1)
+            if (statement.type === '=' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.slice', 4) &&
+                pytorch.Utility.isCall(statement.expression.arguments[0], 'ops.prim.shape', 1)) {
+                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                if (tensor && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
+                    tensor.resize_([ NaN, NaN, NaN, NaN ]);
+                }
+            }
+            // _3 = torch.le(xxxx, torch.dim(f0))
+            if (statement.type === '=' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.le', 2) &&
+                pytorch.Utility.isCall(statement.expression.arguments[1], 'torch.dim', 1)) {
+                const tensor = this.expression(statement.expression.arguments[1].arguments[0], context);
+                if (tensor && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
+                    tensor.resize_([ NaN, NaN, NaN, NaN ]);
+                }
+            }
             // if torch.ne(torch.dim(image), 3):
             //   xxxx
             //   ops.prim.RaiseException(_7)

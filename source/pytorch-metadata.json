@@ -2213,13 +2213,64 @@
     ]
   },
   {
-    "name": "torch.squeeze",
+    "name": "torch.squeeze:",
     "category": "Transform",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.squeeze:dim",
+    "category": "Transform",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.squeeze:dimname",
+    "category": "Transform",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.squeeze_:",
+    "category": "Transform",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.squeeze_:dim",
+    "category": "Transform",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.squeeze_:dimname",
+    "category": "Transform",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2228,11 +2279,20 @@
   {
     "name": "torch.unsqueeze",
     "category": "Transform",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unsqueeze_",
+    "category": "Transform",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -5494,6 +5554,34 @@
       { "name": "dtype" },
       { "name": "device" },
       { "name": "requires_grad", "type": "boolean" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.__upsample:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "size", "type": "int64", "optional": true, "default": null },
+      { "name": "scale_factor", "type": "int64", "optional": true, "default": null },
+      { "name": "mode", "type": "string", "default": "nearest" },
+      { "name": "align_corners", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.__upsample:size_list",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "size", "type": "int64[]", "optional": true, "default": null },
+      { "name": "scale_factor", "type": "int64", "optional": true, "default": null },
+      { "name": "mode", "type": "string", "default": "nearest" },
+      { "name": "align_corners", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

@@ -9,7 +9,6 @@ const process = require('process');
 const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
-const url = require('url');
 const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
@@ -376,7 +375,9 @@ function decompress(buffer, identifier) {
 function request(location, cookie) {
     const options = { rejectUnauthorized: false };
     let httpRequest = null;
-    switch (url.parse(location).protocol) {
+    const url = new URL(location);
+    const protocol = url.protocol;
+    switch (protocol) {
         case 'http:':
             httpRequest = http.request(location, options);
             break;
@@ -384,10 +385,13 @@ function request(location, cookie) {
             httpRequest = https.request(location, options);
             break;
     }
-    if (cookie && cookie.length > 0) {
-        httpRequest.setHeader('Cookie', cookie);
-    }
     return new Promise((resolve, reject) => {
+        if (!httpRequest) {
+            reject(new Error("Unknown HTTP request."));
+        }
+        if (cookie && cookie.length > 0) {
+            httpRequest.setHeader('Cookie', cookie);
+        }
         httpRequest.on('response', (response) => {
             resolve(response);
         });
@@ -400,8 +404,9 @@ function request(location, cookie) {
 
 function downloadFile(location, cookie) {
     return request(location, cookie).then((response) => {
+        const url = new URL(location);
         if (response.statusCode == 200 &&
-            url.parse(location).hostname == 'drive.google.com' &&
+            url.hostname == 'drive.google.com' &&
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
             const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
@@ -410,9 +415,12 @@ function downloadFile(location, cookie) {
             return downloadFile(location, cookie);
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
-            location = url.parse(response.headers.location).hostname ?
-                response.headers.location :
-                url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
+            if (response.headers.location.startsWith('http://') || response.headers.location.startsWith('https://')) {
+                location = response.headers.location;
+            }
+            else {
+                location = url.protocol + '//' + url.hostname + response.headers.location;
+            }
             return downloadFile(location, cookie);
         }
         if (response.statusCode != 200) {

@@ -4239,6 +4239,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "mask_depthwise_conv.pt",
+    "source": "https://github.com/lutzroeder/netron/files/6186157/mask_depthwise_conv.pt.zip[mask_depthwise_conv.pt]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
     "target": "mask_r_cnn.pth",
     "source": "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/mask_r_cnn.pth",
     "format": "PyTorch v0.1.10",
@@ -4500,6 +4507,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "refine_model.pt",
+    "source": "https://github.com/lutzroeder/netron/files/6186158/refine_model.pt.zip[refine_model.pt]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet18-5c106cde.pth",
     "source": "https://download.pytorch.org/models/resnet18-5c106cde.pth",
     "format": "PyTorch v0.1.1",
@@ -4586,6 +4600,13 @@
     "source": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
     "format": "PyTorch v0.1.1",
     "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
+  },
+  {
+    "type":   "pytorch",
+    "target": "rpn_model.pt",
+    "source": "https://github.com/lutzroeder/netron/files/6186159/rpn_model.pt.zip[rpn_model.pt]",
+    "format": "TorchScript v1.3",
+    "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
     "type":   "pytorch",
