@@ -210,6 +210,9 @@ tflite.Graph = class {
                     else if (contentProperties instanceof tflite.schema.BoundingBoxProperties) {
                         denotation = 'BoundingBox';
                     }
+                    else if (contentProperties instanceof tflite.schema.AudioProperties) {
+                        denotation = 'Audio(' + contentProperties.sample_rate.toString() + ',' + contentProperties.channels.toString() + ')';
+                    }
                     if (denotation) {
                         argument.type.denotation = denotation;
                     }
@@ -477,10 +480,14 @@ tflite.Parameter = class {
 tflite.Argument = class {
 
     constructor(index, tensor, initializer) {
+        const name = tensor.name;
+        if (typeof name !== 'string') {
+            throw new tflite.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+        }
+        this._name = name;
         this._location = index.toString();
         this._type = new tflite.TensorType(tensor);
         this._initializer = initializer;
-        this._name = tensor.name;
         const quantization = tensor.quantization;
         if (quantization) {
             let value = 'q';

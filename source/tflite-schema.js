@@ -2596,6 +2596,17 @@ $root.tflite.BoundingBoxType = {
     CENTER: 3
 };
 
+$root.tflite.AudioProperties = class AudioProperties {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.AudioProperties();
+        $.sample_rate = reader.uint32_(position, 4, 0);
+        $.channels = reader.uint32_(position, 6, 0);
+        $.min_required_samples = reader.uint32_(position, 8, 0);
+        return $;
+    }
+};
+
 $root.tflite.CoordinateType = {
     RATIO: 0,
     PIXEL: 1
@@ -2619,6 +2630,7 @@ $root.tflite.ContentProperties = class {
             case 1: return $root.tflite.FeatureProperties.decode(reader, position);
             case 2: return $root.tflite.ImageProperties.decode(reader, position);
             case 3: return $root.tflite.BoundingBoxProperties.decode(reader, position);
+            case 4: return $root.tflite.AudioProperties.decode(reader, position);
         }
         return undefined;
     }
@@ -2628,6 +2640,7 @@ $root.tflite.ContentProperties = class {
             case 'FeatureProperties': return $root.tflite.FeatureProperties.decodeText(reader, json);
             case 'ImageProperties': return $root.tflite.ImageProperties.decodeText(reader, json);
             case 'BoundingBoxProperties': return $root.tflite.BoundingBoxProperties.decodeText(reader, json);
+            case 'AudioProperties': return $root.tflite.AudioProperties.decodeText(reader, json);
         }
         return undefined;
     }
