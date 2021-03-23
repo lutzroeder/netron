@@ -429,7 +429,7 @@ host.ElectronHost = class {
     }
 
     _setConfiguration(name, value) {
-        electron.ipcRenderer.sendSync('get-configuration', { name: name, value: value });
+        electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
     _update(name, value) {
