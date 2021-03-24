@@ -4114,12 +4114,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "densenet161-8d451a50.pth",
-    "source": "https://download.pytorch.org/models/densenet161-8d451a50.pth",
-    "format": "PyTorch v0.1.10"
-  },
-  {
-    "type":   "pytorch",
     "target": "DRNL4x_dual_model.pth",
     "source": "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
     "format": "PyTorch v0.1.10",
@@ -4211,13 +4205,6 @@
     "source": "https://raw.githubusercontent.com/facebookresearch/kill-the-bits/master/src/models/compressed/mask_r_cnn.pth",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/facebookresearch/kill-the-bits/tree/master/src/models/compressed"
-  },
-  {
-    "type":   "pytorch",
-    "target": "mask_rcnn_r50_fpn_1x_20181010-069fa190.pth",
-    "source": "https://s3.ap-northeast-2.amazonaws.com/open-mmlab/mmdetection/models/mask_rcnn_r50_fpn_1x_20181010-069fa190.pth",
-    "format": "PyTorch v0.1.10",
-    "link":   "https://github.com/open-mmlab/mmdetection/blob/master/docs/MODEL_ZOO.md"
   },
   {
     "type":   "pytorch",
@@ -4554,13 +4541,6 @@
     "source": "https://raw.githubusercontent.com/larry0123du/Decompose-CNN/master/models/resnet50_tucker_state.pth",
     "format": "PyTorch v0.1.10",
     "link":   "https://github.com/larry0123du/Decompose-CNN"
-  },
-  {
-    "type":   "pytorch",
-    "target": "resnet101-5d3b4d8f.pth",
-    "source": "https://download.pytorch.org/models/resnet101-5d3b4d8f.pth",
-    "format": "PyTorch v0.1.1",
-    "link":   "https://github.com/pytorch/vision/blob/master/torchvision/models/resnet.py"
   },
   {
     "type":   "pytorch",
