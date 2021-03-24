@@ -1651,22 +1651,10 @@
   },
   {
     "type":   "coreml",
-    "target": "VGG16.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/VGG16.mlmodel"
-  },
-  {
-    "type":   "coreml",
     "target": "wave.mlmodel",
     "source": "https://raw.githubusercontent.com/UnusualWolf/coreML/master/StyleArt-master/StyleArt/CoreMLModels/wave.mlmodel",
     "format": "Core ML v1",
     "link":   "https://github.com/UnusualWolf/coreML"
-  },
-  {
-    "type":   "coreml",
-    "target": "YOLOv3.mlmodel",
-    "source": "https://docs-assets.developer.apple.com/coreml/models/Image/ObjectDetection/YOLOv3/YOLOv3.mlmodel",
-    "format": "Core ML v3",
-    "link":   "https://developer.apple.com/machine-learning/models"
   },
   {
     "type":   "coreml",
