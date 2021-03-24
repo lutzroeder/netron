@@ -526,7 +526,7 @@ view.View = class {
                 const edgeMap = {};
                 const clusterMap = {};
                 const clusterParentMap = {};
-                let id = new Date().getTime();
+                let counter = 0;
                 const nodes = graph.nodes;
 
                 if (nodes.length > 1500) {
@@ -727,13 +727,8 @@ view.View = class {
                     }
 
                     const nodeName = node.name;
-                    if (nodeName) {
-                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + nodeName, class: 'graph-node' });
-                    }
-                    else {
-                        g.setNode(nodeId, { label: element.format(canvasElement), id: 'node-' + id.toString(), class: 'graph-node' });
-                        id++;
-                    }
+                    const id = 'node-' + (nodeName ? 'name-' + nodeName : 'id-' + (counter++).toString());
+                    g.setNode(nodeId, { label: element.format(canvasElement), id: id, class: 'graph-node' });
 
                     const createCluster = function(name) {
                         if (!clusterMap[name]) {
@@ -795,7 +790,8 @@ view.View = class {
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), class: 'graph-input' } );
+                    const id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
+                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), id: id, class: 'graph-input' } );
                 }
 
                 for (const output of graph.outputs) {
