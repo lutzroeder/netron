@@ -435,6 +435,7 @@ host.BrowserHost = class {
     }
 
     _openModel(url, identifier) {
+        url = url + ((/\?/).test(url) ? "&" : "?") + "netronBypassCache=" + (new Date()).getTime();
         this._view.show('welcome spinner');
         this._request(url).then((buffer) => {
             const context = new host.BrowserHost.BrowserContext(this, url, identifier, buffer);
