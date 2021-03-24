@@ -5373,13 +5373,6 @@
     "link":   "https://github.com/tensorflow/tensorflow/issues/9169"
   },
   {
-    "type":   "tf",
-    "target": "vgg_19.pb",
-    "source": "https://deepdetect.com/models/tf/vgg_19/vgg_19.pb",
-    "format": "TensorFlow Graph",
-    "link":   "https://deepdetect.com/models/tf"
-  },
-  {
     "type":   "tfjs",
     "target": "air-time-model/air-time-model.json",
     "source": "https://github.com/lutzroeder/netron/files/3170424/air-time-model.json.zip[air-time-model.json]",
