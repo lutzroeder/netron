@@ -1096,11 +1096,6 @@
   },
   {
     "type":   "cntk",
-    "target": "VGG16_ImageNet_Caffe.model",
-    "source": "https://www.cntk.ai/Models/Caffe_Converted/VGG16_ImageNet_Caffe.model"
-  },
-  {
-    "type":   "cntk",
     "target": "VDSR.model",
     "source": "https://www.cntk.ai/Models/SuperResolution/VDSR.model",
     "format": "CNTK v2",
