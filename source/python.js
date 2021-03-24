@@ -1962,6 +1962,7 @@ python.Execution = class {
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
         this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
         this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
+        this.registerType('sklearn.model_selection._split.KFold', class {});
         this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
         this.registerType('sklearn.multioutput.MultiOutputRegressor', class {});
         this.registerType('sklearn.naive_bayes.BernoulliNB', class {});
