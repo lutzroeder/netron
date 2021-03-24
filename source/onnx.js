@@ -378,48 +378,32 @@ onnx.Graph = class {
                 tensor.description = valueInfo.doc_string;
                 return tensor;
             });
+            const inputMap = new Map();
+            const outputMap = new Map();
+            for (const node of graph.node) {
+                node.input.every((input) => inputMap.set(input.name, (inputMap.get(input) || 0) + 1));
+                node.output.every((output) => outputMap.set(output.name, (outputMap.get(output) || 0) + 1));
+            }
+            graph.input.every((input) => inputMap.delete(input));
+            graph.output.every((output) => outputMap.delete(output));
+            const AttributeType = onnx.proto.AttributeProto.AttributeType;
             const nodes = [];
-            const inputCountMap = new Map();
-            const outputCountMap = new Map();
             for (const node of graph.node) {
-                for (const input of node.input) {
-                    inputCountMap.set(input.name, inputCountMap.has(input.name) ? inputCountMap.get(input.name) + 1 : 1);
+                const constant = node &&
+                    node.op_type === 'Constant' &&
+                    node.attribute.length === 1 && node.attribute[0] &&
+                    node.input.length === 0 &&
+                    node.output.length === 1 && node.output[0] && inputMap.get(node.output[0].name) === 1 && outputMap.get(node.output[0].name) === 1;
+                const attribute = constant ? node.attribute[0] : null;
+                if (attribute && attribute.name === 'value' && attribute.type === AttributeType.TENSOR && attribute.t) {
+                    const tensor = tensors.map(node.output[0].name);
+                    tensor.initializer = new onnx.Tensor(attribute.t, 'Constant');
                 }
-                for (const output of node.output) {
-                    outputCountMap.set(output.name, inputCountMap.has(output.name) ? inputCountMap.get(output.name) + 1 : 1);
+                else if (attribute && attribute.name === 'sparse_value' && attribute.type === AttributeType.SPARSE_TENSOR && attribute.sparse_tensor) {
+                    const tensor = tensors.map(node.output[0].name);
+                    tensor.initializer = new onnx.Tensor(attribute.sparse_tensor, 'Sparse Constant');
                 }
-            }
-            for (const input of graph.input) {
-                inputCountMap.delete(input);
-            }
-            for (const output of graph.output) {
-                outputCountMap.delete(output);
-            }
-            for (const node of graph.node) {
-                let initializerNode = false;
-                if (node.op_type == 'Constant' && node.input.length == 0 && node.output.length == 1) {
-                    const name = node.output[0].name;
-                    if (inputCountMap.has(name) && inputCountMap.get(name) == 1 &&
-                        outputCountMap.has(name) && outputCountMap.get(name) == 1 &&
-                        node.attribute.length == 1) {
-                        const attribute = node.attribute[0];
-                        if (attribute) {
-                            const tensor = tensors.map(name);
-                            switch (attribute.name) {
-                                case 'value': {
-                                    tensor.initializer = new onnx.Tensor(attribute.t, 'Constant');
-                                    initializerNode = true;
-                                    break;
-                                }
-                                case 'sparse_value':
-                                    tensor.initializer = new onnx.Tensor(attribute.sparse_tensor, 'Sparse Constant');
-                                    initializerNode = true;
-                                    break;
-                            }
-                        }
-                    }
-                }
-                if (!initializerNode) {
+                else {
                     nodes.push(node);
                 }
             }

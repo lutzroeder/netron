@@ -3303,6 +3303,13 @@
   },
   {
     "type":   "onnx",
+    "target": "s2.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/6191354/s2.onnx.zip[s2.onnx]",
+    "format": "ONNX v6",
+    "link":   "https://github.com/lutzroeder/netron/issues/647"
+  },
+  {
+    "type":   "onnx",
     "target": "shufflenet_float16.onnx",
     "source": "https://github.com/lutzroeder/netron/files/2592368/shufflenet_float16.onnx.zip[shufflenet_float16.onnx]",
     "format": "ONNX v3",
