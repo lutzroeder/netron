@@ -1755,13 +1755,6 @@
   },
   {
     "type":   "darknet",
-    "target": "resnet152.cfg,resnet152.weights",
-    "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/resnet152.cfg,https://pjreddie.com/media/files/resnet152.weights",
-    "format": "Darknet",
-    "link":   "https://pjreddie.com/darknet/imagenet"
-  },
-  {
-    "type":   "darknet",
     "target": "tiny.cfg,tiny.weights",
     "source": "https://raw.githubusercontent.com/pjreddie/darknet/master/cfg/tiny.cfg,https://pjreddie.com/media/files/tiny.weights",
     "format": "Darknet",
