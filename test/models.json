@@ -244,13 +244,6 @@
   },
   {
     "type":   "caffe",
-    "target": "bvlc_reference_caffenet.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/bvlc_reference_caffenet.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet"
-  },
-  {
-    "type":   "caffe",
     "target": "caffe_array.prototxt",
     "source": "https://github.com/lutzroeder/netron/files/3288816/caffe_examples.zip[caffe_array.prototxt]",
     "format": "Caffe v2",
@@ -381,13 +374,6 @@
     "source": "https://github.com/lutzroeder/netron/files/5534696/feat_ext_C3D_examples_imagenet_alexnet_train.prototxt.zip[feat_ext_C3D_examples_imagenet_alexnet_train.prototxt]",
     "format": "Caffe v1",
     "link":   "https://github.com/lutzroeder/netron/issues/276"
-  },
-  {
-    "type":   "caffe",
-    "target": "finetune_flickr_style.caffemodel",
-    "source": "http://dl.caffe.berkeleyvision.org/finetune_flickr_style.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/BVLC/caffe/tree/master/models/finetune_flickr_style"
   },
   {
     "type":   "caffe",
@@ -600,13 +586,6 @@
   },
   {
     "type":   "caffe",
-    "target": "ResNet-152-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-152-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "type":   "caffe",
     "target": "ResNet-152-deploy.prototxt",
     "source": "https://deepdetect.com/models/resnet/ResNet-152-deploy.prototxt",
     "format": "Caffe v2",
@@ -618,14 +597,6 @@
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/resnet-152.prototxt",
     "format": "Caffe v2",
     "link":   "https://github.com/cwlacewe/netscope"
-  },
-  {
-    "type":   "caffe",
-    "target": "s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
-    "source": "https://www.dropbox.com/s/raw/wn6k2oqurxzt6e2/s2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel",
-    "error":  "File format is not caffe.NetParameter (Invalid type 6 at offset 124546861) in 's2s_vgg_pstream_allvocab_fac2_iter_16000.caffemodel'.",
-    "format": "Caffe v1",
-    "link":   "https://github.com/truongthanhdat/Video2Text"
   },
   {
     "type":   "caffe",
