@@ -147,7 +147,8 @@ $root.caffe2.TensorProto.DataType = {
 };
 
 $root.caffe2.TensorProto.SerializationFormat = {
-    "FMT_PROTOBUF": 0
+    "FMT_PROTOBUF": 0,
+    "FMT_BFLOAT16": 1
 };
 
 $root.caffe2.TensorProto.Segment = class Segment {
@@ -1669,6 +1670,9 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
                 case 2:
                     message.chunk_size = reader.int64();
                     break;
+                case 3:
+                    message.float_format = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1689,6 +1693,9 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
                 case "chunk_size":
                     message.chunk_size = reader.integer();
                     break;
+                case "float_format":
+                    message.float_format = reader.enum($root.caffe2.BlobSerializationOptions.FloatFormat);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -1700,6 +1707,13 @@ $root.caffe2.BlobSerializationOptions = class BlobSerializationOptions {
 
 $root.caffe2.BlobSerializationOptions.prototype.blob_name_regex = "";
 $root.caffe2.BlobSerializationOptions.prototype.chunk_size = protobuf.Int64.create(0);
+$root.caffe2.BlobSerializationOptions.prototype.float_format = 0;
+
+$root.caffe2.BlobSerializationOptions.FloatFormat = {
+    "FLOAT_DEFAULT": 0,
+    "FLOAT_PROTOBUF": 1,
+    "FLOAT_BFLOAT16": 2
+};
 
 $root.caffe2.SerializationOptions = class SerializationOptions {
 
