@@ -1083,6 +1083,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.mobilenetv3.SqueezeExcitation', class {});
         this.registerType('torchvision.models.resnet.Bottleneck', class {});
         this.registerType('torchvision.models.resnet.BasicBlock', class {});
+        this.registerType('torchvision.models.quantization.mobilenet.QuantizableInvertedResidual', class {});
+        this.registerType('torchvision.models.quantization.mobilenet.QuantizableMobileNetV2', class {});
+        this.registerType('torchvision.models.quantization.resnet.QuantizableBasicBlock', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableBottleneck', class {});
         this.registerType('torchvision.models.quantization.resnet.QuantizableResNet', class {});
         this.registerType('torchvision.models.segmentation.deeplabv3.ASPP', class {});
