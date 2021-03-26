@@ -614,7 +614,8 @@ sidebar.ArgumentView = class {
 
         const quantization = argument.quantization;
         const type = argument.type;
-        if (type || initializer || quantization) {
+        const location = this._argument.location !== undefined;
+        if (type || initializer || quantization || location) {
             this._expander = this._host.document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -665,7 +666,7 @@ sidebar.ArgumentView = class {
                     }
                 }
 
-                let type = '?';
+                let type = null;
                 let denotation = null;
                 if (this._argument.type) {
                     type = this._argument.type.toString();
@@ -701,7 +702,7 @@ sidebar.ArgumentView = class {
                     this._element.appendChild(quantizationLine);
                 }
 
-                if (this._argument.location) {
+                if (this._argument.location !== undefined) {
                     const location = this._host.document.createElement('div');
                     location.className = 'sidebar-view-item-value-line-border';
                     location.innerHTML = 'location: ' + '<b>' + this._argument.location + '</b>';

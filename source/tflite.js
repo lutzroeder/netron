@@ -169,17 +169,26 @@ tflite.Graph = class {
         this._inputs = [];
         this._outputs = [];
         this._name = subgraph.name || name;
-        const args = [];
-        const tensorNames = [];
-        for (let i = 0; i < subgraph.tensors.length; i++) {
-            const tensor = subgraph.tensors[i];
-            const buffer = model.buffers[tensor.buffer];
-            const is_variable = tensor.is_variable;
-            const data = buffer ? buffer.data : null;
-            const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(i, tensor, buffer, is_variable) : null;
-            args.push(new tflite.Argument(i, tensor, initializer));
-            tensorNames.push(tensor.name);
-        }
+        const tensors = new Map();
+        const args = (index) => {
+            if (index === -1) {
+                return null;
+            }
+            if (!tensors.has(index)) {
+                if (index < subgraph.tensors.length) {
+                    const tensor = subgraph.tensors[index];
+                    const buffer = model.buffers[tensor.buffer];
+                    const is_variable = tensor.is_variable;
+                    const data = buffer ? buffer.data : null;
+                    const initializer = (data && data.length > 0) || is_variable ? new tflite.Tensor(index, tensor, buffer, is_variable) : null;
+                    tensors.set(index, new tflite.Argument(index, tensor, initializer));
+                }
+                else {
+                    tensors.set(index, new tflite.Argument(index, { name: '' }, null));
+                }
+            }
+            return tensors.get(index);
+        };
         const operators = subgraph.operators;
         for (let i = 0; i < subgraph.operators.length; i++) {
             const node = operators[i];
@@ -222,20 +231,20 @@ tflite.Graph = class {
         const inputs = subgraph.inputs;
         for (let i = 0; i < inputs.length; i++) {
             const input = inputs[i];
-            const argument = args[input];
+            const argument = args(input);
             if (subgraphMetadata && i < subgraphMetadata.input_tensor_metadata.length) {
                 applyTensorMetadata(argument, subgraphMetadata.input_tensor_metadata[i]);
             }
-            this._inputs.push(new tflite.Parameter(tensorNames[input], true, [ argument ]));
+            this._inputs.push(new tflite.Parameter(argument ? argument.name : '?', true, argument ? [ argument ] : []));
         }
         const outputs = subgraph.outputs;
         for (let i = 0; i < outputs.length; i++) {
             const output = outputs[i];
-            const argument = args[output];
+            const argument = args(output);
             if (subgraphMetadata && i < subgraphMetadata.output_tensor_metadata.length) {
                 applyTensorMetadata(argument, subgraphMetadata.output_tensor_metadata[i]);
             }
-            this._outputs.push(new tflite.Parameter(tensorNames[output], true, [ argument ]));
+            this._outputs.push(new tflite.Parameter(argument ? argument.name : '?', true, argument ? [ argument ] : []));
         }
     }
 
@@ -292,9 +301,10 @@ tflite.Node = class {
                     }
                 }
                 const inputArray = inputs.slice(inputIndex, inputIndex + count);
-                for (let j = 0; j < inputArray.length; j++) {
-                    if (inputArray[j] != -1) {
-                        inputArguments.push(args[inputArray[j]]);
+                for (const index of inputArray) {
+                    const argument = args(index);
+                    if (argument) {
+                        inputArguments.push(argument);
                     }
                 }
                 inputIndex += count;
@@ -302,8 +312,12 @@ tflite.Node = class {
                 this._inputs.push(new tflite.Parameter(inputName, inputVisible, inputArguments));
             }
             for (let k = 0; k < outputs.length; k++) {
-                const outputIndex = outputs[k];
-                const argument = args[outputIndex];
+                const index = outputs[k];
+                const outputArguments = [];
+                const argument = args(index);
+                if (argument) {
+                    outputArguments.push(argument);
+                }
                 let outputName = k.toString();
                 if (schema && schema.outputs && k < schema.outputs.length) {
                     const output = schema.outputs[k];
@@ -311,7 +325,7 @@ tflite.Node = class {
                         outputName = output.name;
                     }
                 }
-                this._outputs.push(new tflite.Parameter(outputName, true, [ argument ]));
+                this._outputs.push(new tflite.Parameter(outputName, true, outputArguments));
             }
             if (type.custom && node.custom_options.length > 0) {
                 let decoded = false;
@@ -486,7 +500,7 @@ tflite.Argument = class {
         }
         this._name = name;
         this._location = index.toString();
-        this._type = new tflite.TensorType(tensor);
+        this._type = tensor.type !== undefined && tensor.shape !== undefined ? new tflite.TensorType(tensor) : null;
         this._initializer = initializer;
         const quantization = tensor.quantization;
         if (quantization) {

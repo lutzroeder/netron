@@ -5536,6 +5536,13 @@
   },
   {
     "type":   "tflite",
+    "target": "model_pyramid_0_0_63_31.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/6209444/model_pyramid_0_0_63_31.tflite.zip[model_pyramid_0_0_63_31.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/710"
+  },
+  {
+    "type":   "tflite",
     "target": "mnasnet_0.5_224.tflite",
     "source": "http://download.tensorflow.org/models/tflite/mnasnet_0.5_224_09_07_2018.tgz[mnasnet_0.5_224/mnasnet_0.5_224.tflite]",
     "format": "TensorFlow Lite v3",
