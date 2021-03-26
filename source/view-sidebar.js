@@ -709,35 +709,28 @@ sidebar.ArgumentView = class {
                 }
 
                 if (initializer) {
-                    const state = initializer.state;
-                    if (state === null && this._host.save &&
-                        initializer.type.dataType && initializer.type.dataType != '?' &&
-                        initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
-                        this._saveButton = this._host.document.createElement('div');
-                        this._saveButton.className = 'sidebar-view-item-value-expander';
-                        this._saveButton.innerHTML = '&#x1F4BE;';
-                        this._saveButton.addEventListener('click', () => {
-                            this._raise('export-tensor', initializer);
-                        });
-                        this._element.appendChild(this._saveButton);
-                    }
-
-                    const valueLine = this._host.document.createElement('div');
-                    valueLine.className = 'sidebar-view-item-value-line-border';
                     const contentLine = this._host.document.createElement('pre');
+                    const valueLine = this._host.document.createElement('div');
                     try {
+                        const state = initializer.state;
+                        if (state === null && this._host.save &&
+                            initializer.type.dataType && initializer.type.dataType != '?' &&
+                            initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
+                            this._saveButton = this._host.document.createElement('div');
+                            this._saveButton.className = 'sidebar-view-item-value-expander';
+                            this._saveButton.innerHTML = '&#x1F4BE;';
+                            this._saveButton.addEventListener('click', () => {
+                                this._raise('export-tensor', initializer);
+                            });
+                            this._element.appendChild(this._saveButton);
+                        }
+
+                        valueLine.className = 'sidebar-view-item-value-line-border';
                         contentLine.innerHTML = state || initializer.toString();
                     }
                     catch (err) {
                         contentLine.innerHTML = err.toString();
-                        let type = '?';
-                        try {
-                            type = initializer.type.toString();
-                        }
-                        catch (error) {
-                            // continue regardless of error
-                        }
-                        this._raise('error', new Error("Failed to render tensor of type '" + type + "' (" + err.message + ")."));
+                        this._raise('error', err);
                     }
                     valueLine.appendChild(contentLine);
                     this._element.appendChild(valueLine);

@@ -1114,6 +1114,9 @@ view.View = class {
                 });
             });
             nodeSidebar.on('error', (sender, error) => {
+                if (this._model) {
+                    error.message = error.message.replace(/\.$/, '') + " in format '" + this._model.format + "'.";
+                }
                 this.error(error, null, null);
             });
             if (input) {

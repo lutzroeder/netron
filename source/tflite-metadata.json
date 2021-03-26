@@ -147,6 +147,15 @@
     ]
   },
   {
+    "name": "Densify",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "DepthToSpace",
     "attributes": [
       { "name": "block_size", "type": "int32", "default": 0 }

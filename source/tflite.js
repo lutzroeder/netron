@@ -597,17 +597,20 @@ tflite.Tensor = class {
             return context;
         }
 
-        context.dataType = this._type.dataType;
-        context.shape = this._type.shape.dimensions;
-        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+        const dataType = this.type.dataType;
+        const shape = this.type.shape.dimensions;
 
-        if (this._type.dataType == 'string') {
+        context.dataType = dataType;
+        context.shape = shape;
+
+        if (dataType === 'string') {
             let offset = 0;
-            const count = context.data.getInt32(0, true);
+            const data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+            const count = data.getInt32(0, true);
             offset += 4;
             const offsetTable = [];
             for (let j = 0; j < count; j++) {
-                offsetTable.push(context.data.getInt32(offset, true));
+                offsetTable.push(data.getInt32(offset, true));
                 offset += 4;
             }
             offsetTable.push(this._data.length);
@@ -618,6 +621,22 @@ tflite.Tensor = class {
                 stringTable.push(utf8Decoder.decode(textArray));
             }
             context.data = stringTable;
+        }
+        else {
+            const itemsize = new Map([
+                [ 'uint8', 1 ], [ 'uint32', 4],
+                [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
+                [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ]
+            ]);
+            if (!itemsize.has(dataType)) {
+                throw new tflite.Error("Tensor data type '" + this.type.dataType + "' is not implemented.");
+            }
+            const size = shape.length > 0 ? shape.reduce((a, b) => a * b) : 1;
+            if (this._data.length < itemsize.get(dataType) * size) {
+                context.state = "Invalid tensor data size.";
+                return context;
+            }
+            context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
         }
         return context;
     }
