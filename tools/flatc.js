@@ -1,6 +1,7 @@
 
 const flatc = {};
 const fs = require('fs');
+const path = require('path');
 
 flatc.Object = class {
 
@@ -801,7 +802,7 @@ flatc.Root = class extends flatc.Object {
             const parser = new flatc.Parser(text, file, this);
             const includes = parser.include();
             for (const include of includes) {
-                const includeFile = this._resolvePath(paths, file, include);
+                const includeFile = this._resolve(paths, file, include);
                 if (includeFile) {
                     this._parseFile(paths, includeFile);
                     continue;
@@ -812,19 +813,15 @@ flatc.Root = class extends flatc.Object {
         }
     }
 
-    _resolvePath(paths, origin, target) {
-        const originParts = origin.split('/');
-        originParts[originParts.length - 1] = target;
-        const originIncludeFile = originParts.join('/');
-        if (fs.existsSync(originIncludeFile)) {
-            return originIncludeFile;
+    _resolve(paths, origin, target) {
+        const file = path.join(path.dirname(origin), target);
+        if (fs.existsSync(file)) {
+            return file;
         }
-        for (const path of paths) {
-            const pathParts = path.split('/');
-            pathParts.push(target);
-            const pathIncludeFile = pathParts.join('/');
-            if (fs.existsSync(pathIncludeFile)) {
-                return pathIncludeFile;
+        for (const current of paths) {
+            const file = path.join(current, target);
+            if (fs.existsSync(file)) {
+                return file;
             }
         }
         return null;
