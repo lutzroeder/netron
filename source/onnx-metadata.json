@@ -506,6 +506,10 @@
       {
         "summary": "add_broadcast",
         "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')"
+      },
+      {
+        "summary": "add_uint8",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_uint8')"
       }
     ]
   },
@@ -575,6 +579,10 @@
       {
         "summary": "add_broadcast",
         "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')"
+      },
+      {
+        "summary": "add_uint8",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_uint8')"
       }
     ]
   },
@@ -630,6 +638,10 @@
       {
         "summary": "add_broadcast",
         "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')"
+      },
+      {
+        "summary": "add_uint8",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_uint8')"
       }
     ]
   },
@@ -686,6 +698,74 @@
       {
         "summary": "add_broadcast",
         "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')"
+      },
+      {
+        "summary": "add_uint8",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_uint8')"
+      }
+    ]
+  },
+  {
+    "name": "Add",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Performs element-wise binary addition (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "First operand."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Second operand."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "C",
+        "type": "T",
+        "description": "Result, has same element type as two inputs"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all numeric tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "add",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add')"
+      },
+      {
+        "summary": "add_broadcast",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_bcast')"
+      },
+      {
+        "summary": "add_uint8",
+        "code": "node = onnx.helper.make_node(\n    'Add',\n    inputs=['x', 'y'],\n    outputs=['sum'],\n)\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nexpect(node, inputs=[x, y], outputs=[x + y],\n       name='test_add_uint8')"
       }
     ]
   },
@@ -2418,7 +2498,11 @@
     "examples": [
       {
         "summary": "batchnormalization",
-        "code": "def _batchnorm_test_mode(x, s, bias, mean, var, epsilon=1e-5):  # type: ignore\n    dims_x = len(x.shape)\n    dim_ones = (1,) * (dims_x - 2)\n    s = s.reshape(-1, *dim_ones)\n    bias = bias.reshape(-1, *dim_ones)\n    mean = mean.reshape(-1, *dim_ones)\n    var = var.reshape(-1, *dim_ones)\n    return s * (x - mean) / np.sqrt(var + epsilon) + bias\n\n# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    training_mode=training_mode\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                                            epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_epsilon_training_mode')"
       }
     ],
     "category": "Normalization"
@@ -2535,7 +2619,11 @@
     "examples": [
       {
         "summary": "batchnormalization",
-        "code": "def _batchnorm_test_mode(x, s, bias, mean, var, epsilon=1e-5):  # type: ignore\n    dims_x = len(x.shape)\n    dim_ones = (1,) * (dims_x - 2)\n    s = s.reshape(-1, *dim_ones)\n    bias = bias.reshape(-1, *dim_ones)\n    mean = mean.reshape(-1, *dim_ones)\n    var = var.reshape(-1, *dim_ones)\n    return s * (x - mean) / np.sqrt(var + epsilon) + bias\n\n# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    training_mode=training_mode\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                                            epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_epsilon_training_mode')"
       }
     ],
     "category": "Normalization"
@@ -2646,7 +2734,11 @@
     "examples": [
       {
         "summary": "batchnormalization",
-        "code": "def _batchnorm_test_mode(x, s, bias, mean, var, epsilon=1e-5):  # type: ignore\n    dims_x = len(x.shape)\n    dim_ones = (1,) * (dims_x - 2)\n    s = s.reshape(-1, *dim_ones)\n    bias = bias.reshape(-1, *dim_ones)\n    mean = mean.reshape(-1, *dim_ones)\n    var = var.reshape(-1, *dim_ones)\n    return s * (x - mean) / np.sqrt(var + epsilon) + bias\n\n# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    training_mode=training_mode\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                                            epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_epsilon_training_mode')"
       }
     ],
     "category": "Normalization"
@@ -2750,7 +2842,125 @@
     "examples": [
       {
         "summary": "batchnormalization",
-        "code": "def _batchnorm_test_mode(x, s, bias, mean, var, epsilon=1e-5):  # type: ignore\n    dims_x = len(x.shape)\n    dim_ones = (1,) * (dims_x - 2)\n    s = s.reshape(-1, *dim_ones)\n    bias = bias.reshape(-1, *dim_ones)\n    mean = mean.reshape(-1, *dim_ones)\n    var = var.reshape(-1, *dim_ones)\n    return s * (x - mean) / np.sqrt(var + epsilon) + bias\n\n# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    training_mode=training_mode\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                                            epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_epsilon_training_mode')"
+      }
+    ],
+    "category": "Normalization"
+  },
+  {
+    "name": "BatchNormalization",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nThere are five required inputs 'X', 'scale', 'B', 'input_mean' and\n'input_var'.\nNote that 'input_mean' and 'input_var' are expected to be the estimated\nstatistics in inference mode (training_mode=False, default),\nand the running statistics in training mode (training_mode=True).\nThere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, running_mean, running_var, current_mean, current_var (training_mode=True)\nOutput case #2: Y (training_mode=False)\n\nWhen training_mode=False, extra outputs are invalid.\nThe outputs are updated as follows when training_mode=True:\n```\ncurrent_mean = ReduceMean(X, axis=all_except_channel_index)\ncurrent_var =  ReduceVar(X, axis=all_except_channel_index)\n\nrunning_mean = input_mean * momentum + current_mean * (1 - momentum)\nrunning_var = input_var * momentum + current_var * (1 - momentum)\n\nY = (X - current_mean) / sqrt(current_var + epsilon) * scale + B\n```\n\nWhen training_mode=False:\n```\nY = (X - input_mean) / sqrt(input_var + epsilon) * scale + B\n```\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C * D1 * D2 * ... * Dn) before a BatchNormalization Op.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "The epsilon value to use to avoid division by zero."
+      },
+      {
+        "name": "momentum",
+        "type": "float32",
+        "required": false,
+        "default": 0.8999999761581421,
+        "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
+      },
+      {
+        "name": "training_mode",
+        "type": "int64",
+        "required": false,
+        "description": "If set to true, it indicates BatchNormalization is being used for training, and outputs 1, 2, 3, and 4 would be populated."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input data tensor from the previous operator; dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size, C is the number of channels. Statistics are computed for every channel of C over N and D1 to Dn dimensions. For image data, input dimensions become (N x C x H x W). The op also accepts single dimension input of size N in which case C is assumed to be 1"
+      },
+      {
+        "name": "scale",
+        "type": "T",
+        "description": "Scale tensor of shape (C)."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Bias tensor of shape (C)."
+      },
+      {
+        "name": "input_mean",
+        "type": "T",
+        "description": "running (training) or estimated (testing) mean tensor of shape (C)."
+      },
+      {
+        "name": "input_var",
+        "type": "T",
+        "description": "running (training) or estimated (testing) variance tensor of shape (C)."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "The output tensor of the same shape as X"
+      },
+      {
+        "name": "running_mean",
+        "type": "T",
+        "option": "optional",
+        "description": "The running mean after the BatchNormalization operator."
+      },
+      {
+        "name": "running_var",
+        "type": "T",
+        "option": "optional",
+        "description": "The running variance after the BatchNormalization operator."
+      },
+      {
+        "name": "current_mean",
+        "type": "T",
+        "option": "optional",
+        "description": "Current mean used during training to speed up gradient computation."
+      },
+      {
+        "name": "current_var",
+        "type": "T",
+        "option": "optional",
+        "description": "Current variance used during training to speed up gradient computation."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 5,
+    "outputs_range": "1 - 5",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "batchnormalization",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (1, 2, 1, 3)\nx = np.array([[[[-1, 0, 1]], [[2, 3, 4]]]]).astype(np.float32)\ns = np.array([1.0, 1.5]).astype(np.float32)\nbias = np.array([0, 1]).astype(np.float32)\nmean = np.array([0, 3]).astype(np.float32)\nvar = np.array([1, 1.5]).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    training_mode=training_mode\n)\n\n# output size: (1, 2, 1, 3)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, saved_mean, saved_var, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                                            epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var', 'saved_mean', 'saved_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var, saved_mean, saved_var],\n       name='test_batchnorm_epsilon_training_mode')"
       }
     ],
     "category": "Normalization"
@@ -6171,7 +6381,7 @@
     "examples": [
       {
         "summary": "div",
-        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')"
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8) + 1\nz = x // y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_uint8')"
       },
       {
         "summary": "div_broadcast",
@@ -6240,7 +6450,7 @@
     "examples": [
       {
         "summary": "div",
-        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')"
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8) + 1\nz = x // y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_uint8')"
       },
       {
         "summary": "div_broadcast",
@@ -6295,7 +6505,7 @@
     "examples": [
       {
         "summary": "div",
-        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')"
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8) + 1\nz = x // y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_uint8')"
       },
       {
         "summary": "div_broadcast",
@@ -6351,7 +6561,67 @@
     "examples": [
       {
         "summary": "div",
-        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')"
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8) + 1\nz = x // y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_uint8')"
+      },
+      {
+        "summary": "div_broadcast",
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_bcast')"
+      }
+    ]
+  },
+  {
+    "name": "Div",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Performs element-wise binary division (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "First operand."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Second operand."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "C",
+        "type": "T",
+        "description": "Result, has same element type as two inputs"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all numeric tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "div",
+        "code": "node = onnx.helper.make_node(\n    'Div',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([3, 4]).astype(np.float32)\ny = np.array([1, 2]).astype(np.float32)\nz = x / y  # expected output [3., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.rand(3, 4, 5).astype(np.float32) + 1.0\nz = x / y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div')\n\nx = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8) + 1\nz = x // y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_div_uint8')"
       },
       {
         "summary": "div_broadcast",
@@ -16933,7 +17203,7 @@
     "examples": [
       {
         "summary": "mul",
-        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')"
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')\n\nx = np.random.randint(4, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_uint8')"
       },
       {
         "summary": "mul_broadcast",
@@ -17002,7 +17272,7 @@
     "examples": [
       {
         "summary": "mul",
-        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')"
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')\n\nx = np.random.randint(4, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_uint8')"
       },
       {
         "summary": "mul_broadcast",
@@ -17057,7 +17327,7 @@
     "examples": [
       {
         "summary": "mul",
-        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')"
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')\n\nx = np.random.randint(4, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_uint8')"
       },
       {
         "summary": "mul_broadcast",
@@ -17113,7 +17383,67 @@
     "examples": [
       {
         "summary": "mul",
-        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')"
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')\n\nx = np.random.randint(4, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_uint8')"
+      },
+      {
+        "summary": "mul_broadcast",
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_bcast')"
+      }
+    ]
+  },
+  {
+    "name": "Mul",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Performs element-wise binary multiplication (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "First operand."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Second operand."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "C",
+        "type": "T",
+        "description": "Result, has same element type as two inputs"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all numeric tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "mul",
+        "code": "node = onnx.helper.make_node(\n    'Mul',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([4, 5, 6]).astype(np.float32)\nz = x * y  # expected output [4., 10., 18.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul')\n\nx = np.random.randint(4, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(24, size=(3, 4, 5), dtype=np.uint8)\nz = x * y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_mul_uint8')"
       },
       {
         "summary": "mul_broadcast",
@@ -28491,7 +28821,7 @@
     "examples": [
       {
         "summary": "sub",
-        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')"
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')\n\nx = np.random.randint(12, 24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(12, size=(3, 4, 5), dtype=np.uint8)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_uint8')"
       },
       {
         "summary": "sub_broadcast",
@@ -28560,7 +28890,7 @@
     "examples": [
       {
         "summary": "sub",
-        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')"
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')\n\nx = np.random.randint(12, 24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(12, size=(3, 4, 5), dtype=np.uint8)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_uint8')"
       },
       {
         "summary": "sub_broadcast",
@@ -28615,7 +28945,7 @@
     "examples": [
       {
         "summary": "sub",
-        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')"
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')\n\nx = np.random.randint(12, 24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(12, size=(3, 4, 5), dtype=np.uint8)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_uint8')"
       },
       {
         "summary": "sub_broadcast",
@@ -28671,7 +29001,67 @@
     "examples": [
       {
         "summary": "sub",
-        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')"
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')\n\nx = np.random.randint(12, 24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(12, size=(3, 4, 5), dtype=np.uint8)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_uint8')"
+      },
+      {
+        "summary": "sub_broadcast",
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_bcast')"
+      }
+    ]
+  },
+  {
+    "name": "Sub",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Performs element-wise binary subtraction (with Numpy-style broadcasting support).\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\n(Opset 14 change): Extend supported types to include uint8, int8, uint16, and int16.\n",
+    "inputs": [
+      {
+        "name": "A",
+        "type": "T",
+        "description": "First operand."
+      },
+      {
+        "name": "B",
+        "type": "T",
+        "description": "Second operand."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "C",
+        "type": "T",
+        "description": "Result, has same element type as two inputs"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all numeric tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "sub",
+        "code": "node = onnx.helper.make_node(\n    'Sub',\n    inputs=['x', 'y'],\n    outputs=['z'],\n)\n\nx = np.array([1, 2, 3]).astype(np.float32)\ny = np.array([3, 2, 1]).astype(np.float32)\nz = x - y  # expected output [-2., 0., 2.]\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.random.randn(3, 4, 5).astype(np.float32)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub')\n\nx = np.random.randint(12, 24, size=(3, 4, 5), dtype=np.uint8)\ny = np.random.randint(12, size=(3, 4, 5), dtype=np.uint8)\nz = x - y\nexpect(node, inputs=[x, y], outputs=[z],\n       name='test_sub_uint8')"
       },
       {
         "summary": "sub_broadcast",
