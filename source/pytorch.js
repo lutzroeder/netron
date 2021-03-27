@@ -3069,7 +3069,7 @@ pytorch.Utility = class {
             keys.splice(0, keys.length);
         }
         keys.push(...[
-            'state_dict', 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'net_dict', 'params', 'generator',
+            'state_dict', 'state', 'model_state', 'model', 'model_state_dict', 'model_dict', 'model_b', 'net_dict', 'params', 'generator',
             'discriminator', 'g_state', 'network', 'net', 'netG', 'net_states', 'state_dict_stylepredictor', 'state_dict_ghiasi', ''
         ]);
         for (const key of keys) {
