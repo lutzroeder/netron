@@ -1191,7 +1191,7 @@ sidebar.FindSidebar = class {
                 (operator && operator.toLowerCase().indexOf(text) != -1))) {
                 const nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
-                nameItem.id = 'node-' + node.name;
+                nameItem.id = 'node-name-' + node.name;
                 this._resultElement.appendChild(nameItem);
                 nodeMatches.add(node.name);
             }
