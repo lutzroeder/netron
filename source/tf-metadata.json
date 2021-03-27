@@ -13594,8 +13594,8 @@
   {
     "name": "Elu",
     "category": "Activation",
-    "summary": "Computes exponential linear: `exp(features) - 1` if < 0, `features` otherwise.",
-    "description": "See [Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)\n](http://arxiv.org/abs/1511.07289)",
+    "summary": "Computes the exponential linear function.",
+    "description": "The ELU function is defined as:\n\n * $ e ^ x - 1 $ if $ x < 0 $\n * $ x $ if $ x >= 0 $\n\nExamples:\n\n>>> tf.nn.elu(1.0)\n<tf.Tensor: shape=(), dtype=float32, numpy=1.0>\n>>> tf.nn.elu(0.0)\n<tf.Tensor: shape=(), dtype=float32, numpy=0.0>\n>>> tf.nn.elu(-1000.0)\n<tf.Tensor: shape=(), dtype=float32, numpy=-1.0>\n\nSee [Fast and Accurate Deep Network Learning by Exponential Linear Units (ELUs)\n](http://arxiv.org/abs/1511.07289)",
     "attributes": [
       {
         "name": "T",
@@ -37732,42 +37732,6 @@
         "name": "output",
         "description": "A list of return values.",
         "typeListAttr": "Tout"
-      }
-    ]
-  },
-  {
-    "name": "RemoteFusedGraphExecute",
-    "summary": "Execute a sub graph on a remote processor.",
-    "description": "The graph specifications(such as graph itself, input tensors and output names)\nare stored as a serialized protocol buffer of RemoteFusedGraphExecuteInfo\nas serialized_remote_fused_graph_execute_info.\nThe specifications will be passed to a dedicated registered\nremote fused graph executor.  The executor will send the graph specifications\nto a remote processor and execute that graph.  The execution results\nwill be passed to consumer nodes as outputs of this node.",
-    "attributes": [
-      {
-        "name": "Tinputs",
-        "type": "type[]",
-        "minimum": 0
-      },
-      {
-        "name": "Toutputs",
-        "type": "type[]",
-        "minimum": 0
-      },
-      {
-        "name": "serialized_remote_fused_graph_execute_info",
-        "type": "string",
-        "description": "Serialized protocol buffer\nof RemoteFusedGraphExecuteInfo which contains graph specifications."
-      }
-    ],
-    "inputs": [
-      {
-        "name": "inputs",
-        "description": "Arbitrary number of tensors with arbitrary data types",
-        "typeListAttr": "Tinputs"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "outputs",
-        "description": "Arbitrary number of tensors with arbitrary data types",
-        "typeListAttr": "Toutputs"
       }
     ]
   },
