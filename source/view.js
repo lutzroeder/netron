@@ -1754,6 +1754,7 @@ view.ModelFactoryService = class {
             { name: 'Unity metadata', value: /^fileFormatVersion:/ },
             { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
             { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
+            { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
             { name: 'NumPy Array', value: /^\x93NUMPY/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
