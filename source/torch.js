@@ -773,6 +773,7 @@ torch.T7Reader = class {
         this._registry['nn.SpatialFullConvolution'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialLPPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialMaxUnpooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReflectionPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReplicationPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialSoftMax'] = function(reader) { reader.nn(this); };
