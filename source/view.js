@@ -1174,15 +1174,17 @@ view.ModelContext = class {
     open(type) {
         if (!this._content.has(type)) {
             this._content.set(type, undefined);
+            let reset = false;
             switch (type) {
                 case 'json': {
                     try {
+                        reset = true;
                         const reader = json.TextReader.create(this.stream.peek());
                         const obj = reader.read();
                         this._content.set(type, obj);
                     }
                     catch (err) {
-                        this.stream.seek(0);
+                        // continue regardless of error
                     }
                     break;
                 }
@@ -1204,6 +1206,7 @@ view.ModelContext = class {
                                 return false;
                             };
                             if (match(stream)) {
+                                reset = true;
                                 const unpickler = new python.Unpickler(stream);
                                 const execution = new python.Execution(null, (error, fatal) => {
                                     const message = error && error.message ? error.message : error.toString();
@@ -1215,9 +1218,13 @@ view.ModelContext = class {
                         }
                     }
                     catch (err) {
-                        this.stream.seek(0);
+                        // continue regardless of error
                     }
+                    break;
                 }
+            }
+            if (reset) {
+                this.stream.seek(0);
             }
         }
         return this._content.get(type);
@@ -1227,11 +1234,13 @@ view.ModelContext = class {
         let tags = this._tags.get(type);
         if (!tags) {
             tags = new Map();
+            let reset = false;
             const signature = [ 0x50, 0x4B, 0x03, 0x04 ];
             if (this.stream.length < 4 || !this.stream.peek(4).every((value, index) => value === signature[index])) {
                 try {
                     switch (type) {
                         case 'pbtxt': {
+                            reset = true;
                             const decoder = base.TextDecoder.create(this.stream.peek());
                             let count = 0;
                             for (let i = 0; i < 0x100; i++) {
@@ -1264,6 +1273,7 @@ view.ModelContext = class {
                             break;
                         }
                         case 'pb': {
+                            reset = true;
                             const reader = protobuf.Reader.create(this.stream.peek());
                             const length = reader.length;
                             while (reader.position < length) {
@@ -1289,8 +1299,10 @@ view.ModelContext = class {
                 }
                 catch (error) {
                     tags = new Map();
-                    this.stream.seek(0);
                 }
+            }
+            if (reset) {
+                this.stream.seek(0);
             }
             this._tags.set(type, tags);
         }

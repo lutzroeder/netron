@@ -3128,7 +3128,7 @@ pytorch.Utility = class {
             if (obj && Object(obj) === obj) {
                 const value = {};
                 for (const key of Object.keys(obj)) {
-                    if (key === 'optimiser' || key === 'optimizer') {
+                    if (key.indexOf('optim') !== -1) {
                         const optimizer = obj[key];
                         if (optimizer.state && optimizer.param_groups) {
                             continue;
