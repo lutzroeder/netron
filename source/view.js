@@ -1757,6 +1757,7 @@ view.ModelFactoryService = class {
         /* eslint-disable no-control-regex */
         const entries = [
             { name: 'ELF executable', value: /^\x7FELF/ },
+            { name: 'PNG image', value: /^\x89PNG/ },
             { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
             { name: 'Git LFS header', value: /^\s*oid sha256:/ },
             { name: 'HTML markup', value: /^\s*<html>/ },
