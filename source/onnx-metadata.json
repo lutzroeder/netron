@@ -11792,6 +11792,65 @@
     "inputs": [
       {
         "name": "input",
+        "type": "T",
+        "description": "Input tensor"
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T",
+        "description": "Tensor to copy input into."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to all tensor types.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "identity",
+        "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = np.array([[[\n    [1, 2],\n    [3, 4],\n]]], dtype=np.float32)\n\nexpect(node, inputs=[data], outputs=[data],\n       name='test_identity')"
+      },
+      {
+        "summary": "sequence",
+        "code": "node = onnx.helper.make_node(\n    'Identity',\n    inputs=['x'],\n    outputs=['y'],\n)\n\ndata = [\n    np.array([[[\n        [1, 2],\n        [3, 4],\n    ]]], dtype=np.float32),\n    np.array([[[\n        [2, 3],\n        [1, 5],\n    ]]], dtype=np.float32)]\n\nexpect(node, inputs=[data], outputs=[data], name='test_identity_sequence',\n    opset_imports=[onnx.helper.make_opsetid(\"\", 13)])"
+      }
+    ]
+  },
+  {
+    "name": "Identity",
+    "domain": "ai.onnx",
+    "version": 14,
+    "support_level": "common",
+    "description": "Identity operator",
+    "inputs": [
+      {
+        "name": "input",
         "type": "V",
         "description": "Input tensor"
       }
