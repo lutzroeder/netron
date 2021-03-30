@@ -41,7 +41,9 @@ $root.mindspore.schema.Format = {
     NC4: 12,
     NC4HW4: 13,
     NUM_OF_FORMAT: 14,
-    NCDHW: 15
+    NCDHW: 15,
+    NWC: 16,
+    NCW: 17
 };
 
 $root.mindspore.schema.ActivationType = {
