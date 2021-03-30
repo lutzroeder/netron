@@ -1381,7 +1381,7 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
-        this.register('./npz', [ '.npz', '.pkl' ]);
+        this.register('./npz', [ '.npz', '.npy', '.pkl' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
@@ -1768,7 +1768,6 @@ view.ModelFactoryService = class {
             { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
             { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
             { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
-            { name: 'NumPy Array', value: /^\x93NUMPY/ },
             { name: 'undocumented TensorRT engine data', value: /^ptrt/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }

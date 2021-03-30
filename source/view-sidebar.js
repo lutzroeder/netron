@@ -627,13 +627,8 @@ sidebar.ArgumentView = class {
 
         let name = this._argument.name || '';
         this._hasId = name ? true : false;
-        if (initializer && !this._hasId) {
-            const kindLine = this._host.document.createElement('div');
-            kindLine.className = 'sidebar-view-item-value-line';
-            kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
-            this._element.appendChild(kindLine);
-        }
-        else {
+        this._hasKind = initializer && initializer.kind ? true : false;
+        if (this._hasId) {
             const nameLine = this._host.document.createElement('div');
             nameLine.className = 'sidebar-view-item-value-line';
             if (typeof name !== 'string') {
@@ -643,6 +638,18 @@ sidebar.ArgumentView = class {
             name = name || ' ';
             nameLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>name: <b>' + name + '</b></span>';
             this._element.appendChild(nameLine);
+        }
+        else if (this._hasKind) {
+            const kindLine = this._host.document.createElement('div');
+            kindLine.className = 'sidebar-view-item-value-line';
+            kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
+            this._element.appendChild(kindLine);
+        }
+        else if (type) {
+            const typeLine = this._host.document.createElement('div');
+            typeLine.className = 'sidebar-view-item-value-line-border';
+            typeLine.innerHTML = 'type: <code><b>' + type.toString().split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
+            this._element.appendChild(typeLine);
         }
     }
 
@@ -656,24 +663,19 @@ sidebar.ArgumentView = class {
                 this._expander.innerText = '-';
 
                 const initializer = this._argument.initializer;
-                if (initializer && this._hasId) {
-                    const kind = initializer.kind;
-                    if (kind) {
-                        const kindLine = this._host.document.createElement('div');
-                        kindLine.className = 'sidebar-view-item-value-line-border';
-                        kindLine.innerHTML = 'kind: ' + '<b>' + kind + '</b>';
-                        this._element.appendChild(kindLine);
-                    }
+                if (this._hasId && this._hasKind) {
+                    const kindLine = this._host.document.createElement('div');
+                    kindLine.className = 'sidebar-view-item-value-line-border';
+                    kindLine.innerHTML = 'kind: ' + '<b>' + initializer.kind + '</b>';
+                    this._element.appendChild(kindLine);
                 }
-
                 let type = null;
                 let denotation = null;
                 if (this._argument.type) {
                     type = this._argument.type.toString();
                     denotation = this._argument.type.denotation || null;
                 }
-
-                if (type) {
+                if (type && (this._hasId || this._hasKind)) {
                     const typeLine = this._host.document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
                     typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
