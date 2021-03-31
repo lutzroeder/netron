@@ -2921,6 +2921,13 @@
   },
   {
     "type":   "npz",
+    "target": "numpy.array.pkl",
+    "source": "https://github.com/lutzroeder/netron/files/6233588/numpy.array.pkl.zip[numpy.array.pkl]",
+    "format": "NumPy NDArray",
+    "link":   "https://github.com/lutzroeder/netron/issues/711"
+  },
+  {
+    "type":   "npz",
     "target": "R-50.pkl",
     "source": "https://dl.fbaipublicfiles.com/detectron/ImageNetPretrained/MSRA/R-50.pkl",
     "format": "NumPy Weights",

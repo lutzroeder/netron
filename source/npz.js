@@ -11,7 +11,8 @@ npz.ModelFactory = class {
         switch (npz.Utility.format(context)) {
             case 'npy':
             case 'npz':
-            case 'pkl':
+            case 'pickle':
+            case 'numpy.ndarray':
                 return true;
         }
         return false;
@@ -80,7 +81,7 @@ npz.ModelFactory = class {
                     }
                     break;
                 }
-                case 'pkl': {
+                case 'pickle': {
                     format = 'NumPy Weights';
                     const obj = context.open('pkl');
                     const weights = npz.Utility.weights(obj);
@@ -110,6 +111,23 @@ npz.ModelFactory = class {
                             }
                         });
                     }
+                    break;
+                }
+                case 'numpy.ndarray': {
+                    format = 'NumPy NDArray';
+                    const obj = context.open('pkl');
+                    const group = { type: 'numpy.ndarray', parameters: [] };
+                    group.parameters.push({
+                        name: 'data',
+                        tensor: {
+                            name: '',
+                            byteOrder: obj.dtype.byteorder,
+                            dataType: obj.dtype.name,
+                            shape: obj.shape,
+                            data: obj.data
+                        }
+                    });
+                    groups.set('', group);
                     break;
                 }
             }
@@ -484,8 +502,13 @@ npz.Utility = class {
             return 'npz';
         }
         const obj = context.open('pkl');
-        if (obj && npz.Utility.weights(obj)) {
-            return 'pkl';
+        if (obj) {
+            if (npz.Utility.isTensor(obj)) {
+                return 'numpy.ndarray';
+            }
+            if (npz.Utility.weights(obj)) {
+                return 'pickle';
+            }
         }
         return null;
     }
@@ -534,7 +557,7 @@ npz.Utility = class {
                 const weights = new Map();
                 for (let i = 0; i < list.length; i++) {
                     const value = list[i];
-                    if (!npz.Utility.isTensor(value, 'numpy.ndarray')) {
+                    if (!npz.Utility.isTensor(value)) {
                         return null;
                     }
                     weights.set(i.toString(), value);
