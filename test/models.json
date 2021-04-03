@@ -1987,7 +1987,7 @@
   {
     "type":   "keras",
     "target": "DenseNet121.h5.zip",
-    "source": "https://github.com/lutzroeder/netron/files/6098149/DenseNet121.h5.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6251712/DenseNet121.h5.zip",
     "format": "Keras v2.4.0",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },

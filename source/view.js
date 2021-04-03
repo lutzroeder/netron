@@ -1641,17 +1641,14 @@ view.ModelFactoryService = class {
 
     _openEntries(entries) {
         try {
-            entries = entries.filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
-            let rootFolder = null;
-            for (const entry of entries) {
-                const name = entry.name;
-                if (name.startsWith('PaxHeader/') || (name.startsWith('.') && !name.startsWith('./'))) {
-                    continue;
-                }
-                const parts = name.split('/');
-                const folder = ((parts.length > 2 && parts[0] === '.') ? ('./' + parts[1] + '/') : (parts.length > 1 ? parts[0] + '/' : ''));
-                rootFolder = (rootFolder === null) ? folder : (rootFolder !== '' && folder !== rootFolder) ? '' : folder;
-            }
+            const files = entries.map((entry) => entry.name).filter((file) => !file.endsWith('/') && !file.split('/').pop().startsWith('.')).slice();
+            const values = files.filter((file) => !file.startsWith('PaxHeader/') && (!file.startsWith('.') || file.startsWith('./')));
+            const map = values.map((file) => file.split('/').slice(0, -1));
+            const at = index => list => list[index];
+            const rotate = list => list[0].map((item, index) => list.map(at(index)));
+            const equals = list => list.every((item) => item === list[0]);
+            const folder = rotate(map).filter(equals).map(at(0)).join('/');
+            const rootFolder = folder.length === 0 ? folder : folder + '/';
             let matches = [];
             const queue = entries.slice(0);
             const nextEntry = () => {
