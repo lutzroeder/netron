@@ -17557,5 +17557,98 @@
     "name": "ZeroGradient",
     "description": "\nZeroGradient operators doesn't produce any output blobs. One can use\nthis operator to produce 0 gradient for the input blob.\n",
     "support_level": "default"
+  },
+  {
+    "name": "DecayAdagrad",
+    "description": "\n\nComputes the DecayAdagrad update for an\ninput gradient and momentum parameters. Concretely, given inputs\n(param, m1, m2, c, grad, lr, iters),\n\n    t = iters + 1\n    m1_o = (beta1 * m1) + (1 - beta1) * grad\n    m2_o = m2 + np.square(grad)\n    c = 1.0 or (1 - power(beta1, t))\n    grad_o = m1_o / c / (sqrt(m2_o) + epsilon)\n    param_o = param + lr * (grad_o + weight_decay * param)\n\nand returns (param_o, m1_o, m2_o)\n\n",
+    "attributes": [
+      {
+        "name": "beta1",
+        "description": "Default 0.9",
+        "option": "optional"
+      },
+      {
+        "name": "beta2",
+        "description": "Default 0.999",
+        "option": "optional"
+      },
+      {
+        "name": "epsilon",
+        "description": "Default 1e-5",
+        "option": "optional"
+      },
+      {
+        "name": "weight_decay",
+        "description": "Default 0.0",
+        "option": "optional"
+      },
+      {
+        "name": "bias_correction_first",
+        "description": "Default True",
+        "option": "optional"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "param",
+        "description": "Parameters to be updated"
+      },
+      {
+        "name": "moment_1",
+        "description": "First moment history"
+      },
+      {
+        "name": "moment_2",
+        "description": "Second moment history"
+      },
+      {
+        "name": "grad",
+        "description": "Gradient computed"
+      },
+      {
+        "name": "lr",
+        "description": "learning rate"
+      },
+      {
+        "name": "iter",
+        "description": "iteration number"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output_param",
+        "description": "Updated parameters"
+      },
+      {
+        "name": "output_moment_1",
+        "description": "Updated first moment"
+      },
+      {
+        "name": "output_moment_2",
+        "description": "Updated second moment"
+      }
+    ],
+    "support_level": "default"
+  },
+  {
+    "name": "Log1p",
+    "description": "\nCalculates Log1p of the given input tensor element-wise. This\noperation can be done in an in-place fashion too, by providing the same input\nand output blobs.\n\nGithub Link:\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/log1p_op.cc\n",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input data blob to be operated on."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Output data blob with same shape as input"
+      }
+    ],
+    "support_level": "default"
+  },
+  {
+    "name": "Log1pGradient",
+    "support_level": "default"
   }
 ]
