@@ -67,29 +67,29 @@ const url = 'https://github.com/' + repository + '/releases/download/v' + versio
 request(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
     const lines = [
-        'Id: ' + publisher.replace(' ', '') + '.' + productName,
-        'Version: ' + version,
-        'Name: ' + productName,
+        'PackageIdentifier: ' + publisher.replace(' ', '') + '.' + productName,
+        'PackageVersion: ' + version,
+        'PackageName: ' + productName,
         'Publisher: ' + publisher,
-        'AppMoniker: ' + name,
-        'Description: ' + packageManifest.description,
+        'Moniker: ' + name,
+        'ShortDescription: ' + packageManifest.description,
         'License: Copyright (c) ' + publisher,
-        'Homepage: ' + 'https://github.com/' + repository,
+        'PackageUrl: ' + 'https://github.com/' + repository,
         'Installers:',
-        '  - Arch: x86',
-        '    InstallerType: nullsoft',
-        '    Url: ' + url,
-        '    Sha256: ' + sha256,
+        '- Architecture: x86',
+        '  InstallerType: nullsoft',
+        '  InstallerUrl: ' + url,
+        '  InstallerSha256: ' + sha256,
+        'PackageLocale: en-US',
+        'ManifestType: singleton',
+        'ManifestVersion: 1.0.0',
         ''
     ];
-    const productDir = path.join(manifestDir, publisher.replace(' ', ''), productName);
-    for (const file of fs.readdirSync(productDir)) {
-        const versionFile = path.join(productDir, file);
-        if (fs.lstatSync(versionFile).isFile()) {
-            fs.unlinkSync(versionFile);
-        }
+    const versionDir = path.join(manifestDir, publisher[0].toLowerCase(), publisher.replace(' ', ''), productName, version);
+    if (!fs.existsSync(versionDir)){
+        fs.mkdirSync(versionDir);
     }
-    const manifestFile = path.join(productDir, version + '.yaml');
+    const manifestFile = path.join(versionDir, productName + '.yaml');
     fs.writeFileSync(manifestFile, lines.join('\n'));
 }).catch((err) => {
     console.log(err.message);
