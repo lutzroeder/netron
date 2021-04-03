@@ -1888,7 +1888,7 @@
     ],
     "outputs": [
       {
-        "description": "3D tensor with shape: `(batch_size, input_length, output_dim)`.",
+        "description": "3D tensor with shape: `(batch_size, input_length, output_dim)`.\n\n**Note on variable placement:**\nBy default, if a GPU is available, the embedding matrix will be placed on\nthe GPU. This achieves the best performance, but it might cause issues:\n\n- You may be using an optimizer that does not support sparse GPU kernels.\nIn this case you will see an error upon training your model.\n- Your embedding matrix may be too large to fit on your GPU. In this case\nyou will see an Out Of Memory (OOM) error.\n\nIn such cases, you should place the embedding matrix on the CPU memory.\nYou can do so with a device scope, as such:\n\n```python\nwith tf.device('cpu:0'):\n  embedding_layer = Embedding(...)\n  embedding_layer.build()\n```\n\nThe pre-built `embedding_layer` instance can then be added to a `Sequential`\nmodel (e.g. `model.add(embedding_layer)`), called in a Functional model\n(e.g. `x = embedding_layer(x)`), or used in a subclassed model.",
         "name": "output"
       }
     ],
