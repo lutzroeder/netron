@@ -126,7 +126,16 @@ openvino.Graph = class {
         this._arguments = {};
 
         for (const layer of this._const(net.layers, net.edges)) {
-            const inputs = layer.inputs.map((input) => this._argument(layer.id, layer.precision, input, net.edges));
+            const inputs = layer.inputs.map((input) => {
+                const to = layer.id + ':' + input.id;
+                const [outputLayerId, outputId] = net.edges[to].split(':');
+                const outputLayer = net.layers.find((layer) => layer.id === outputLayerId);
+                if (outputLayer) {
+                    const output = outputLayer.outputs.find((output) => output.id === outputId);
+                    input.precision = output.precision;
+                }
+                return this._argument(layer.id, layer.precision, input, net.edges);
+            });
             const outputs = layer.outputs.map((output) => this._argument(layer.id, output.precision || layer.precision, output, null));
             switch (layer.type) {
                 case 'Input': {
@@ -936,11 +945,13 @@ openvino.TensorType = class {
             case 'f32':     this._dataType = 'float32'; break;
             case 'fp32':    this._dataType = 'float32'; break;
             case 'bf16':    this._dataType = 'bfloat16'; break;
+            case 'i4':      this._dataType = 'int4'; break;
             case 'i8':      this._dataType = 'int8'; break;
             case 'i16':     this._dataType = 'int16'; break;
             case 'i32':     this._dataType = 'int32'; break;
             case 'i64':     this._dataType = 'int64'; break;
             case 'u1':      this._dataType = 'boolean'; break;
+            case 'u4':      this._dataType = 'uint4'; break;
             case 'u8':      this._dataType = 'uint8'; break;
             case 'u16':     this._dataType = 'uint16'; break;
             case 'u32':     this._dataType = 'uint32'; break;
@@ -948,9 +959,7 @@ openvino.TensorType = class {
             case 'bool':    this._dataType = 'boolean'; break;
             case 'boolean': this._dataType = 'boolean'; break;
             case 'bin':     this._dataType = 'bit'; break;
-            case '':        this._dataType = '?'; break;
-            case null:      this._dataType = '?'; break;
-            default:        throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
+            default:        this._dataType = '?'; break;
         }
         this._shape = shape;
     }
