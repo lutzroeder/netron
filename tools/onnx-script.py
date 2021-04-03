@@ -202,11 +202,19 @@ def generate_json(schemas, json_file):
                     'allowed_type_strs': type_constraint.allowed_type_strs
                 })
         if schema.name in snippets:
+            def update_code(code):
+                lines = code.splitlines()
+                while len(lines) > 0 and re.search("\\s*#", lines[-1]):
+                    print(lines[-1])
+                    lines.pop()
+                    if len(lines) > 0 and len(lines[-1]) == 0:
+                        lines.pop()
+                return '\n'.join(lines)
             json_schema['examples'] = []
             for summary, code in sorted(snippets[schema.name]):
                 json_schema['examples'].append({
                     'summary': summary,
-                    'code': code
+                    'code': update_code(code)
                 })
         if schema.name in categories:
             json_schema['category'] = categories[schema.name]

@@ -9419,7 +9419,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')\n\n# print(y)\n# [0. 1. 0.]"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -9507,7 +9507,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')\n\n# print(y)\n# [0. 1. 0.]"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -9596,7 +9596,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')\n\n# print(y)\n# [0. 1. 0.]"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -18494,7 +18494,7 @@
       },
       {
         "summary": "with_negative_indices",
-        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')\n\n# print(y)\n# [[3. 1. 1. 1. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 1. 3. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 3. 1. 1. 1. 1. 1. 1. 1.]]"
+        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
       },
       {
         "summary": "without_axis",
@@ -18613,7 +18613,7 @@
       },
       {
         "summary": "with_negative_indices",
-        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')\n\n# print(y)\n# [[3. 1. 1. 1. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 1. 3. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 3. 1. 1. 1. 1. 1. 1. 1.]]"
+        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
       },
       {
         "summary": "without_axis",
