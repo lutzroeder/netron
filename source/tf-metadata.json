@@ -3651,6 +3651,59 @@
     ]
   },
   {
+    "name": "BatchMatMulV3",
+    "summary": "Multiplies slices of two tensors in batches.",
+    "description": "Multiplies all slices of `Tensor` `x` and `y` (each slice can be\nviewed as an element of a batch), and arranges the individual results\nin a single output tensor of the same batch size. Each of the\nindividual slices can optionally be adjointed (to adjoint a matrix\nmeans to transpose and conjugate it) before multiplication by setting\nthe `adj_x` or `adj_y` flag to `True`, which are by default `False`.\n\nThe input tensors `x` and `y` are 2-D or higher with shape `[..., r_x, c_x]`\nand `[..., r_y, c_y]`.\n\nThe output tensor is 2-D or higher with shape `[..., r_o, c_o]`, where:\n\n    r_o = c_x if adj_x else r_x\n    c_o = r_y if adj_y else c_y\n\nIt is computed as:\n\n    output[..., :, :] = matrix(x[..., :, :]) * matrix(y[..., :, :])\n\n*NOTE*: `BatchMatMulV3` supports broadcasting in the batch dimensions. More\nabout broadcasting\n[here](http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html).\n",
+    "attributes": [
+      {
+        "name": "Ta",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+      },
+      {
+        "name": "Tb",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+      },
+      {
+        "name": "Tout",
+        "type": "type",
+        "description": "If not spcified, Tout is the same type to input type. Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+      },
+      {
+        "name": "adj_x",
+        "type": "boolean",
+        "description": "If `True`, adjoint the slices of `x`. Defaults to `False`.",
+        "default": false
+      },
+      {
+        "name": "adj_y",
+        "type": "boolean",
+        "description": "If `True`, adjoint the slices of `y`. Defaults to `False`.",
+        "default": false
+      }
+    ],
+    "inputs": [
+      {
+        "name": "x",
+        "description": "2-D or higher with shape `[..., r_x, c_x]`.",
+        "typeAttr": "Ta"
+      },
+      {
+        "name": "y",
+        "description": "2-D or higher with shape `[..., r_y, c_y]`.",
+        "typeAttr": "Tb"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "3-D or higher with shape `[..., r_o, c_o]`",
+        "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
     "name": "BatchMatrixBandPart",
     "attributes": [
       {
@@ -8154,37 +8207,6 @@
         "name": "valid_detections",
         "description": "A [batch_size] int32 tensor indicating the number of\nvalid detections per batch item. Only the top num_detections[i] entries in\nnms_boxes[i], nms_scores[i] and nms_class[i] are valid. The rest of the\nentries are zero paddings.",
         "type": 3
-      }
-    ]
-  },
-  {
-    "name": "CompareAndBitpack",
-    "summary": "Compare values of `input` to `threshold` and pack resulting bits into a `uint8`.",
-    "description": "Each comparison returns a boolean `true` (if `input_value > threshold`)\nor and `false` otherwise.\n\nThis operation is useful for Locality-Sensitive-Hashing (LSH) and other\nalgorithms that use hashing approximations of cosine and `L2` distances;\ncodes can be generated from an input via:\n\n```python\ncodebook_size = 50\ncodebook_bits = codebook_size * 32\ncodebook = tf.get_variable('codebook', [x.shape[-1].value, codebook_bits],\n                           dtype=x.dtype,\n                           initializer=tf.orthogonal_initializer())\ncodes = compare_and_threshold(tf.matmul(x, codebook), threshold=0.)\ncodes = tf.bitcast(codes, tf.int32)  # go from uint8 to int32\n# now codes has shape x.shape[:-1] + [codebook_size]\n```\n\n**NOTE**: Currently, the innermost dimension of the tensor must be divisible\nby 8.\n\nGiven an `input` shaped `[s0, s1, ..., s_n]`, the output is\na `uint8` tensor shaped `[s0, s1, ..., s_n / 8]`.",
-    "attributes": [
-      {
-        "name": "T",
-        "type": "type",
-        "description": "The type of the input and threshold. Must be one of the following: `bool`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`."
-      }
-    ],
-    "inputs": [
-      {
-        "name": "input",
-        "description": "Values to compare against `threshold` and bitpack.",
-        "typeAttr": "T"
-      },
-      {
-        "name": "threshold",
-        "description": "Threshold to compare against.",
-        "typeAttr": "T"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "output",
-        "description": "The bitpacked comparisons.",
-        "type": 4
       }
     ]
   },
@@ -28836,6 +28858,11 @@
     "name": "ParallelBatchDataset",
     "attributes": [
       {
+        "name": "parallel_copy",
+        "type": "boolean",
+        "default": false
+      },
+      {
         "name": "output_types",
         "type": "type[]",
         "minimum": 1
@@ -47158,7 +47185,7 @@
   {
     "name": "SpaceToBatch",
     "summary": "SpaceToBatch for 4-D tensors of type T.",
-    "description": "This is a legacy version of the more general SpaceToBatchND.\n\nZero-pads and then rearranges (permutes) blocks of spatial data into batch.\nMore specifically, this op outputs a copy of the input tensor where values from\nthe `height` and `width` dimensions are moved to the `batch` dimension. After\nthe zero-padding, both `height` and `width` of the input must be divisible by the\nblock size.",
+    "description": "This is a legacy version of the more general SpaceToBatchND.\n\nZero-pads and then rearranges (permutes) blocks of spatial data into batch.\nMore specifically, this op outputs a copy of the input tensor where values from\nthe `height` and `width` dimensions are moved to the `batch` dimension. After\nthe zero-padding, both `height` and `width` of the input must be divisible by the\nblock size.\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\n  * Non-overlapping blocks of size `block_size x block size` in the height and\n    width dimensions are rearranged into the batch dimension at each location.\n  * The batch of the output tensor is `batch * block_size * block_size`.\n  * Both height_pad and width_pad must be divisible by block_size.\n\nThe shape of the output will be:\n\n    [batch*block_size*block_size, height_pad/block_size, width_pad/block_size,\n     depth]\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]` and block_size of 2:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 2, 1]` and value:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
     "attributes": [
       {
         "name": "T",
@@ -47187,7 +47214,7 @@
       },
       {
         "name": "paddings",
-        "description": "2-D tensor of non-negative integers with shape `[2, 2]`. It specifies\n  the padding of the input with zeros across the spatial dimensions as follows:\n\n      paddings = [[pad_top, pad_bottom], [pad_left, pad_right]]\n\n  The effective spatial dimensions of the zero-padded input tensor will be:\n\n      height_pad = pad_top + height + pad_bottom\n      width_pad = pad_left + width + pad_right\n\nThe attr `block_size` must be greater than one. It indicates the block size.\n\n  * Non-overlapping blocks of size `block_size x block size` in the height and\n    width dimensions are rearranged into the batch dimension at each location.\n  * The batch of the output tensor is `batch * block_size * block_size`.\n  * Both height_pad and width_pad must be divisible by block_size.\n\nThe shape of the output will be:\n\n    [batch*block_size*block_size, height_pad/block_size, width_pad/block_size,\n     depth]\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]` and block_size of 2:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]` and block_size of 2:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]` and block_size of 2:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 2, 1]` and value:\n\n```\nx = [[[[1], [3]]], [[[9], [11]]], [[[2], [4]]], [[[10], [12]]],\n     [[[5], [7]]], [[[13], [15]]], [[[6], [8]]], [[[14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
+        "description": "2-D tensor of non-negative integers with shape `[2, 2]`. It specifies\n  the padding of the input with zeros across the spatial dimensions as follows:\n\n      paddings = [[pad_top, pad_bottom], [pad_left, pad_right]]\n\n  The effective spatial dimensions of the zero-padded input tensor will be:\n\n      height_pad = pad_top + height + pad_bottom\n      width_pad = pad_left + width + pad_right",
         "typeAttr": "Tpaddings"
       }
     ],
@@ -47201,7 +47228,7 @@
   {
     "name": "SpaceToBatchND",
     "summary": "SpaceToBatch for N-D tensors of type T.",
-    "description": "This operation divides \"spatial\" dimensions `[1, ..., M]` of the input into a\ngrid of blocks of shape `block_shape`, and interleaves these blocks with the\n\"batch\" dimension (0) such that in the output, the spatial dimensions\n`[1, ..., M]` correspond to the position within the grid, and the batch\ndimension combines both the position within a spatial block and the original\nbatch position.  Prior to division into blocks, the spatial dimensions of the\ninput are optionally zero padded according to `paddings`.  See below for a\nprecise description.",
+    "description": "This operation divides \"spatial\" dimensions `[1, ..., M]` of the input into a\ngrid of blocks of shape `block_shape`, and interleaves these blocks with the\n\"batch\" dimension (0) such that in the output, the spatial dimensions\n`[1, ..., M]` correspond to the position within the grid, and the batch\ndimension combines both the position within a spatial block and the original\nbatch position.  Prior to division into blocks, the spatial dimensions of the\ninput are optionally zero padded according to `paddings`. See below for a\nprecise description.\n\nThis operation is equivalent to the following steps:\n\n1. Zero-pad the start and end of dimensions `[1, ..., M]` of the\n   input according to `paddings` to produce `padded` of shape `padded_shape`.\n\n2. Reshape `padded` to `reshaped_padded` of shape:\n\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n       block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1],\n      block_shape[M-1]] +\n     remaining_shape\n\n3. Permute dimensions of `reshaped_padded` to produce\n   `permuted_reshaped_padded` of shape:\n\n     block_shape +\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\n4. Reshape `permuted_reshaped_padded` to flatten `block_shape` into the batch\n   dimension, producing an output tensor of shape:\n\n     [batch * prod(block_shape)] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]`, block_shape = `[2, 2]`, and\n    paddings = `[[0, 0], [2, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 3, 1]` and value:\n\n```\nx = [[[[0], [1], [3]]], [[[0], [9], [11]]],\n     [[[0], [2], [4]]], [[[0], [10], [12]]],\n     [[[0], [5], [7]]], [[[0], [13], [15]]],\n     [[[0], [6], [8]]], [[[0], [14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
     "attributes": [
       {
         "name": "T",
@@ -47239,7 +47266,7 @@
       },
       {
         "name": "paddings",
-        "description": "2-D with shape `[M, 2]`, all values must be >= 0.\n  `paddings[i] = [pad_start, pad_end]` specifies the padding for input dimension\n  `i + 1`, which corresponds to spatial dimension `i`.  It is required that\n  `block_shape[i]` divides `input_shape[i + 1] + pad_start + pad_end`.\n\nThis operation is equivalent to the following steps:\n\n1. Zero-pad the start and end of dimensions `[1, ..., M]` of the\n   input according to `paddings` to produce `padded` of shape `padded_shape`.\n\n2. Reshape `padded` to `reshaped_padded` of shape:\n\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n       block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1],\n      block_shape[M-1]] +\n     remaining_shape\n\n3. Permute dimensions of `reshaped_padded` to produce\n   `permuted_reshaped_padded` of shape:\n\n     block_shape +\n     [batch] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\n4. Reshape `permuted_reshaped_padded` to flatten `block_shape` into the batch\n   dimension, producing an output tensor of shape:\n\n     [batch * prod(block_shape)] +\n     [padded_shape[1] / block_shape[0],\n      ...,\n      padded_shape[M] / block_shape[M-1]] +\n     remaining_shape\n\nSome examples:\n\n(1) For the following input of shape `[1, 2, 2, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1], [2]], [[3], [4]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 1]` and value:\n\n```\n[[[[1]]], [[[2]]], [[[3]]], [[[4]]]]\n```\n\n(2) For the following input of shape `[1, 2, 2, 3]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1, 2, 3], [4, 5, 6]],\n      [[7, 8, 9], [10, 11, 12]]]]\n```\n\nThe output tensor has shape `[4, 1, 1, 3]` and value:\n\n```\n[[[[1, 2, 3]]], [[[4, 5, 6]]], [[[7, 8, 9]]], [[[10, 11, 12]]]]\n```\n\n(3) For the following input of shape `[1, 4, 4, 1]`, `block_shape = [2, 2]`, and\n    `paddings = [[0, 0], [0, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]],\n      [[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[4, 2, 2, 1]` and value:\n\n```\nx = [[[[1], [3]], [[9], [11]]],\n     [[[2], [4]], [[10], [12]]],\n     [[[5], [7]], [[13], [15]]],\n     [[[6], [8]], [[14], [16]]]]\n```\n\n(4) For the following input of shape `[2, 2, 4, 1]`, block_shape = `[2, 2]`, and\n    paddings = `[[0, 0], [2, 0]]`:\n\n```\nx = [[[[1],   [2],  [3],  [4]],\n      [[5],   [6],  [7],  [8]]],\n     [[[9],  [10], [11],  [12]],\n      [[13], [14], [15],  [16]]]]\n```\n\nThe output tensor has shape `[8, 1, 3, 1]` and value:\n\n```\nx = [[[[0], [1], [3]]], [[[0], [9], [11]]],\n     [[[0], [2], [4]]], [[[0], [10], [12]]],\n     [[[0], [5], [7]]], [[[0], [13], [15]]],\n     [[[0], [6], [8]]], [[[0], [14], [16]]]]\n```\n\nAmong others, this operation is useful for reducing atrous convolution into\nregular convolution.",
+        "description": "2-D with shape `[M, 2]`, all values must be >= 0.\n  `paddings[i] = [pad_start, pad_end]` specifies the padding for input dimension\n  `i + 1`, which corresponds to spatial dimension `i`.  It is required that\n  `block_shape[i]` divides `input_shape[i + 1] + pad_start + pad_end`.",
         "typeAttr": "Tpaddings"
       }
     ],
@@ -54245,8 +54272,8 @@
   },
   {
     "name": "TPUCompileSucceededAssert",
-    "summary": "Asserts that compilation succeeded. This op produces no output and closes the",
-    "description": "device during failure to ensure all pending device interactions fail.\n\n'compilation_status' is a serialized CompilationResultProto.",
+    "summary": "Asserts that compilation succeeded.",
+    "description": "This op produces no output and closes the device during failure to ensure all\npending device interactions fail.\n\n'compilation_status' is a serialized CompilationResultProto.",
     "inputs": [
       {
         "name": "compilation_status",
