@@ -1078,6 +1078,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.mobilenet.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv2.ConvBNActivation', class {});
         this.registerType('torchvision.models.mobilenetv2.InvertedResidual', class {});
+        this.registerType('torchvision.models.mobilenetv2.MobileNetV2', class {});
         this.registerType('torchvision.models.mobilenetv3.InvertedResidual', class {});
         this.registerType('torchvision.models.mobilenetv3.MobileNetV3', class {});
         this.registerType('torchvision.models.mobilenetv3.SqueezeExcitation', class {});
@@ -3126,17 +3127,24 @@ pytorch.Utility = class {
                 return obj;
             }
             if (obj && Object(obj) === obj) {
-                const value = {};
+                const integer = new Set([ 'epoch', 'i_batch', 'num_vid' ]);
+                const target = {};
                 for (const key of Object.keys(obj)) {
+                    const value = obj[key];
                     if (key.indexOf('optim') !== -1) {
-                        const optimizer = obj[key];
-                        if (optimizer.state && optimizer.param_groups) {
+                        if (value.state && value.param_groups) {
                             continue;
                         }
                     }
-                    value[key] = obj[key];
+                    if (key.indexOf('loss') !== -1 && Array.isArray(value)) {
+                        continue;
+                    }
+                    if (integer.has(key) && Number.isInteger(value)) {
+                        continue;
+                    }
+                    target[key] = value;
                 }
-                return value;
+                return target;
             }
             return obj;
         };
