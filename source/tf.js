@@ -854,15 +854,16 @@ tf.Node = class {
         }
 
         if (node) {
-            if (Object.prototype.hasOwnProperty.call(node, 'device')) {
+            if (node.device !== undefined) {
                 this._device = node.device;
             }
             if (node.attr) {
-                for (const attributeName of Object.keys(node.attr)) {
-                    const schema = metadata.attribute(this._type, attributeName);
-                    const visible = metadata.getAttributeVisibleMap(this._type)[attributeName] ? false : true;
-                    this._attributes.push(new tf.Attribute(schema, attributeName, node.attr[attributeName], visible));
-                }
+                this._attributes = Object.keys(node.attr).map((name) => {
+                    const schema = metadata.attribute(this._type, name);
+                    const visible = metadata.visible(this._type, name);
+                    const value = node.attr[name];
+                    return new tf.Attribute(schema, name, value, visible);
+                });
             }
             const schema = metadata.type(this._type);
             let inputIndex = 0;
@@ -1849,70 +1850,61 @@ tf.GraphMetadata = class {
 
     constructor(metadata) {
         this._metadata = metadata;
-        this._map = {};
-        this._attributeCache = {};
+        this._attributeCache = new Map();
+        this._visibleCache = new Map();
     }
 
     type(operator) {
-        var schema = this._metadata.type(operator);
-        if (!schema) {
-            schema = this._map[operator];
-        }
-        return schema;
+        return this._metadata.type(operator);
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
-            const schema = this.type(operator);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
+    attribute(type, name) {
+        const key = type + '::' + name;
+        if (!this._attributeCache.has(key)) {
+            const schema = this.type(type);
+            if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    const key = type + '::'  + attribute.name;
+                    this._attributeCache.set(key, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 
-    getAttributeVisibleMap(operator) {
-        const schema = this.type(operator);
-        if (schema) {
-            let map = schema.__visisbleAttributeMap__;
-            if (!map) {
-                map = {};
-                if (schema.inputs) {
-                    for (const input of schema.inputs) {
-                        if (input.typeAttr) {
-                            map[input.typeAttr] = true;
-                        }
-                        else if (input.typeListAttr) {
-                            map[input.typeListAttr] = true;
-                        }
-                        if (input.numberAttr) {
-                            map[input.numberAttr] = true;
-                        }
+    visible(type, name) {
+        if (!this._visibleCache.has(type)) {
+            const set = new Set();
+            const schema = this.type(type);
+            if (schema && schema.inputs) {
+                for (const input of schema.inputs) {
+                    if (input.typeAttr) {
+                        set.add(input.typeAttr);
+                    }
+                    else if (input.typeListAttr) {
+                        set.add(input.typeListAttr);
+                    }
+                    if (input.numberAttr) {
+                        set.add(input.numberAttr);
                     }
                 }
-                if (schema.outputs) {
-                    for (const output of schema.outputs) {
-                        if (output.typeAttr) {
-                            map[output.typeAttr] = true;
-                        }
-                        else if (output.typeListAttr) {
-                            map[output.typeListAttr] = true;
-                        }
-                        if (output.numberAttr) {
-                            map[output.numberAttr] = true;
-                        }
-                    }
-                }
-                schema.__visisbleAttributeMap__ = map;
             }
-            return map;
+            if (schema && schema.outputs) {
+                for (const output of schema.outputs) {
+                    if (output.typeAttr) {
+                        set.add(output.typeAttr);
+                    }
+                    else if (output.typeListAttr) {
+                        set.add(output.typeListAttr);
+                    }
+                    if (output.numberAttr) {
+                        set.add(output.numberAttr);
+                    }
+                }
+            }
+            this._visibleCache.set(type, set);
         }
-        return {};
+        return !this._visibleCache.get(type).has(name);
     }
 };
 
