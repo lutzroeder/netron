@@ -205,7 +205,6 @@ def generate_json(schemas, json_file):
             def update_code(code):
                 lines = code.splitlines()
                 while len(lines) > 0 and re.search("\\s*#", lines[-1]):
-                    print(lines[-1])
                     lines.pop()
                     if len(lines) > 0 and len(lines[-1]) == 0:
                         lines.pop()
