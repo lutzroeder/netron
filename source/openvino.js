@@ -125,16 +125,18 @@ openvino.Graph = class {
         this._outputs = [];
         this._arguments = {};
 
+        const layers = new Map(net.layers.map((entry) => [ entry.id, entry ]));
+
         for (const layer of this._const(net.layers, net.edges)) {
             const inputs = layer.inputs.map((input) => {
                 const to = layer.id + ':' + input.id;
-                const [outputLayerId, outputId] = net.edges[to].split(':');
-                const outputLayer = net.layers.find((layer) => layer.id === outputLayerId);
-                if (outputLayer) {
+                const [outputLayerId, outputId] = net.edges[to] ? net.edges[to].split(':') : [];
+                const outputLayer = layers.get(outputLayerId);
+                if (outputLayer && outputId) {
                     const output = outputLayer.outputs.find((output) => output.id === outputId);
                     input.precision = output.precision;
                 }
-                return this._argument(layer.id, layer.precision, input, net.edges);
+                return this._argument(layer.id, input.precision || layer.precision, input, net.edges);
             });
             const outputs = layer.outputs.map((output) => this._argument(layer.id, output.precision || layer.precision, output, null));
             switch (layer.type) {
@@ -959,7 +961,9 @@ openvino.TensorType = class {
             case 'bool':    this._dataType = 'boolean'; break;
             case 'boolean': this._dataType = 'boolean'; break;
             case 'bin':     this._dataType = 'bit'; break;
-            default:        this._dataType = '?'; break;
+            case '':        this._dataType = '?'; break;
+            case null:      this._dataType = '?'; break;
+            default:        throw new openvino.Error("Unknown precision '" + JSON.stringify(precision) + "'.");
         }
         this._shape = shape;
     }
