@@ -3875,6 +3875,13 @@
     "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32"
   },
   {
+    "type":   "openvino",
+    "target": "int4-model.xml, int4-model.bin",
+    "source": "https://github.com/lutzroeder/netron/files/6259225/int4-model.zip[int4-model.xmlm int4-model.bin]",
+    "format": "OpenVINO IR",
+    "link":   "https://github.com/lutzroeder/netron/pull/715"
+  },
+  {
     "type":   "paddle",
     "target": "assign.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/5485296/assign.pbtxt.zip[assign.pbtxt]",
