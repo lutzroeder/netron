@@ -3877,7 +3877,7 @@
   {
     "type":   "openvino",
     "target": "int4-model.xml, int4-model.bin",
-    "source": "https://github.com/lutzroeder/netron/files/6259225/int4-model.zip[int4-model.xmlm int4-model.bin]",
+    "source": "https://github.com/lutzroeder/netron/files/6259225/int4-model.zip[int4-model.xml,int4-model.bin]",
     "format": "OpenVINO IR",
     "link":   "https://github.com/lutzroeder/netron/pull/715"
   },
