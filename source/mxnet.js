@@ -17,7 +17,7 @@ mxnet.ModelFactory = class {
         }
         else if (extension == 'json') {
             const obj = context.open('json');
-            if (obj.nodes && obj.arg_nodes && obj.heads) {
+            if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
                 return true;
             }
         }
