@@ -89,7 +89,7 @@ request(url).then((data) => {
     if (!fs.existsSync(versionDir)){
         fs.mkdirSync(versionDir);
     }
-    const manifestFile = path.join(versionDir, productName + '.yaml');
+    const manifestFile = path.join(versionDir, publisher.replace(' ', '') + '.' + productName + '.yaml');
     fs.writeFileSync(manifestFile, lines.join('\n'));
 }).catch((err) => {
     console.log(err.message);
