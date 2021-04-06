@@ -80,9 +80,11 @@ caffe2.ModelFactory = class {
                         }
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            init_net = initTextFormat ?
-                                caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(initBuffer)) :
-                                caffe2.proto.NetDef.decode(protobuf.Reader.create(initBuffer));
+                            if (initBuffer) {
+                                init_net = initTextFormat ?
+                                    caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(initBuffer)) :
+                                    caffe2.proto.NetDef.decode(protobuf.Reader.create(initBuffer));
+                            }
                         }
                         catch (error) {
                             // continue regardless of error
