@@ -5053,6 +5053,13 @@
   },
   {
     "type":   "tf",
+    "target": "events.out.tfevents.1617485839.39aaee5846c1.58.0",
+    "source": "https://github.com/lutzroeder/netron/files/6261502/events.out.tfevents.1617485839.39aaee5846c1.58.0.zip[events.out.tfevents.1617485839.39aaee5846c1.58.0]",
+    "format": "TensorFlow Event File v2",
+    "link":   "https://github.com/lutzroeder/netron/issues/638"
+  },
+  {
+    "type":   "tf",
     "target": "exDeepFM-criteo.meta",
     "source": "https://raw.githubusercontent.com/Leavingseason/xDeepFM/master/exdeepfm/checkpoint/epoch_0.meta",
     "format": "TensorFlow MetaGraph",
