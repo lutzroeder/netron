@@ -22,9 +22,9 @@ acuity.ModelFactory = class {
             const extension = context.identifier.split('.').pop().toLowerCase();
             switch (extension) {
                 case 'json': {
-                    const model = context.open('json');
-                    if (model && model.MetaData && model.Layers) {
-                        return new acuity.Model(metadata, model);
+                    const obj = context.open('json');
+                    if (obj && obj.MetaData && obj.Layers) {
+                        return new acuity.Model(metadata, obj);
                     }
                 }
             }
