@@ -822,9 +822,26 @@ openvino.Tensor = class {
             return context;
         }
 
-        context.index = 0;
-        context.count = 0;
-        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+        switch(this._type.dataType) {
+            case 'float16':
+            case 'float32':
+            case 'int8':
+            case 'int16':
+            case 'int32':
+            case 'int64':
+            case 'uint8':
+            case 'uint16':
+            case 'uint32':
+            case 'uint64':
+                context.index = 0;
+                context.count = 0;
+                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            default:
+                context.state = 'Tensor data type is not implemented.';
+                break;
+        }
+
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
 
