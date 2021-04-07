@@ -177,7 +177,7 @@ mediapipe.Node = class {
         const options = new Map();
         if (node.options) {
             for (const key of Object.keys(node.options)) {
-                options.set(key, options[key]);
+                options.set(key, node.options[key]);
             }
         }
         const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [ node.node_options ] : [];
@@ -386,6 +386,7 @@ mediapipe.Object = class {
                 }
                 this[tag] = obj;
             }
+            reader.match(',');
         }
     }
 };

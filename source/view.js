@@ -1269,6 +1269,7 @@ view.ModelContext = class {
                                             const subtag = reader.tag();
                                             tags.set(tag + '.' + subtag, true);
                                             reader.skip();
+                                            reader.match(',');
                                         }
                                     }
                                     else {

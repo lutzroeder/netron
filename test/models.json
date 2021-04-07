@@ -2291,10 +2291,24 @@
   },
   {
     "type":   "mediapipe",
+    "target": "face_landmarks_from_pose_cpu.pbtxt",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/modules/holistic_landmark/face_landmarks_from_pose_cpu.pbtxt",
+    "format": "MediaPipe",
+    "link":   "https://github.com/lutzroeder/netron/issues/550"
+  },
+  {
+    "type":   "mediapipe",
     "target": "hand_detection_mobile.pbtxt",
     "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/graphs/hand_tracking/hand_detection_mobile.pbtxt",
     "format": "MediaPipe",
     "link":   "https://github.com/google/mediapipe"
+  },
+  {
+    "type":   "mediapipe",
+    "target": "hand_tracking.pbtxt",
+    "source": "https://raw.githubusercontent.com/google/mediapipe/master/mediapipe/modules/holistic_landmark/hand_tracking.pbtxt",
+    "format": "MediaPipe",
+    "link":   "https://github.com/lutzroeder/netron/issues/550"
   },
   {
     "type":   "mediapipe",
