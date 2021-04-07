@@ -125,8 +125,22 @@ openvino.Graph = class {
         this._outputs = [];
         this._arguments = {};
 
+        const layers = new Map(net.layers.map((entry) => [ entry.id, entry ]));
         for (const layer of this._const(net.layers, net.edges)) {
-            const inputs = layer.inputs.map((input) => this._argument(layer.id, layer.precision, input, net.edges));
+            const inputs = layer.inputs.map((input) => {
+                const to = layer.id + ':' + input.id;
+                if (net.edges[to]) {
+                    const output = net.edges[to] ? net.edges[to].split(':') : [];
+                    const outputLayerId = output[0];
+                    const outputId = output[1];
+                    const outputLayer = layers.get(outputLayerId);
+                    if (outputLayer && outputId) {
+                        const output = outputLayer.outputs.find((output) => output.id === outputId);
+                        input.precision = output.precision;
+                    }
+                }
+                return this._argument(layer.id, input.precision || layer.precision, input, net.edges);
+            });
             const outputs = layer.outputs.map((output) => this._argument(layer.id, output.precision || layer.precision, output, null));
             switch (layer.type) {
                 case 'Input': {
@@ -137,6 +151,11 @@ openvino.Graph = class {
                     // in order not to break compatibility with the overall approach
                     // with openvino.Parameter for inputs and openvino.Node for outputs
                     // input openvino.Node would be stored as an optional attribute of openvino.Parameter
+                    this._inputs.push(new openvino.Parameter(name, outputs));
+                    break;
+                }
+                case 'Parameter': {
+                    const name = layer.name || '';
                     this._inputs.push(new openvino.Parameter(name, outputs));
                     break;
                 }
@@ -478,14 +497,14 @@ openvino.Node = class {
         const precision = layer.precision;
         const schema = metadata.type(layer.type);
         for (let i = 0; i < inputs.length; ) {
-            const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i.toString() };
+            const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
             const count = input.list ? inputs.length - i : 1;
             const list = inputs.slice(i, i + count);
             this._inputs.push(new openvino.Parameter(input.name, list));
             i += count;
         }
         for (let i = 0; i < outputs.length; ) {
-            const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i.toString() };
+            const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
             const count = output.list ? outputs.length - i : 1;
             const list = outputs.slice(i, i + count);
             this._outputs.push(new openvino.Parameter(output.name, list));
@@ -660,10 +679,12 @@ openvino.Attribute = class {
                         switch (value) {
                             case '1':
                             case 'true':
+                            case 'True':
                                 this._value = true;
                                 break;
                             case '0':
                             case 'false':
+                            case 'False':
                                 this._value = false;
                                 break;
                         }
@@ -811,9 +832,26 @@ openvino.Tensor = class {
             return context;
         }
 
-        context.index = 0;
-        context.count = 0;
-        context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+        switch(this._type.dataType) {
+            case 'float16':
+            case 'float32':
+            case 'int8':
+            case 'int16':
+            case 'int32':
+            case 'int64':
+            case 'uint8':
+            case 'uint16':
+            case 'uint32':
+            case 'uint64':
+                context.index = 0;
+                context.count = 0;
+                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            default:
+                context.state = 'Tensor data type is not implemented.';
+                break;
+        }
+
         context.dataType = this._type.dataType;
         context.shape = this._type.shape.dimensions;
 
@@ -936,11 +974,13 @@ openvino.TensorType = class {
             case 'f32':     this._dataType = 'float32'; break;
             case 'fp32':    this._dataType = 'float32'; break;
             case 'bf16':    this._dataType = 'bfloat16'; break;
+            case 'i4':      this._dataType = 'int4'; break;
             case 'i8':      this._dataType = 'int8'; break;
             case 'i16':     this._dataType = 'int16'; break;
             case 'i32':     this._dataType = 'int32'; break;
             case 'i64':     this._dataType = 'int64'; break;
             case 'u1':      this._dataType = 'boolean'; break;
+            case 'u4':      this._dataType = 'uint4'; break;
             case 'u8':      this._dataType = 'uint8'; break;
             case 'u16':     this._dataType = 'uint16'; break;
             case 'u32':     this._dataType = 'uint32'; break;

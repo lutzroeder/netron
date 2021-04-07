@@ -3827,6 +3827,13 @@
   },
   {
     "type":   "openvino",
+    "target": "int4-model.xml,int4-model.bin",
+    "source": "https://github.com/lutzroeder/netron/files/6273773/int4-model.zip[int4-model.xml,int4-model.bin]",
+    "format": "OpenVINO IR",
+    "link":   "https://github.com/lutzroeder/netron/pull/715"
+  },
+  {
+    "type":   "openvino",
     "target": "netron_issue_372.xml",
     "source": "https://github.com/lutzroeder/netron/files/4447843/netron_issue_372.zip[netron_issue_372.xml]",
     "format": "OpenVINO IR",
@@ -3848,15 +3855,22 @@
   },
   {
     "type":   "openvino",
-    "target": "with_pad_simple.xml",
-    "source": "https://github.com/lutzroeder/netron/files/2871673/with_pad_simple.xml.zip[with_pad_simple.xml]",
+    "target": "text-recognition-0012.xml,text-recognition-0012.bin",
+    "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.bin",
     "format": "OpenVINO IR",
-    "link":   "https://download.01.org/openvinotoolkit"
+    "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8"
   },
   {
     "type":   "openvino",
-    "target": "with_nd_conv_simple.xml",
-    "source": "https://github.com/lutzroeder/netron/files/2871696/with_nd_conv_simple.xml.zip[with_nd_conv_simple.xml]",
+    "target": "text-spotting-0002-recognizer-decoder.xml,text-spotting-0002-recognizer-decoder.bin",
+    "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.bin",
+    "format": "OpenVINO IR",
+    "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32"
+  },
+  {
+    "type":   "openvino",
+    "target": "ti_with_large_body.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871678/ti_with_large_body.xml.zip[ti_with_large_body.xml]",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
@@ -3869,24 +3883,17 @@
   },
   {
     "type":   "openvino",
-    "target": "ti_with_large_body.xml",
-    "source": "https://github.com/lutzroeder/netron/files/2871678/ti_with_large_body.xml.zip[ti_with_large_body.xml]",
+    "target": "with_nd_conv_simple.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871696/with_nd_conv_simple.xml.zip[with_nd_conv_simple.xml]",
     "format": "OpenVINO IR",
     "link":   "https://download.01.org/openvinotoolkit"
   },
   {
     "type":   "openvino",
-    "target": "text-recognition-0012.xml,text-recognition-0012.bin",
-    "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8/text-recognition-0012.bin",
+    "target": "with_pad_simple.xml",
+    "source": "https://github.com/lutzroeder/netron/files/2871673/with_pad_simple.xml.zip[with_pad_simple.xml]",
     "format": "OpenVINO IR",
-    "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-recognition-0012/FP16-INT8"
-  },
-  {
-    "type":   "openvino",
-    "target": "text-spotting-0002-recognizer-decoder.xml,text-spotting-0002-recognizer-decoder.bin",
-    "source": "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.xml,https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32/text-spotting-0002-recognizer-decoder.bin",
-    "format": "OpenVINO IR",
-    "link":   "https://download.01.org/opencv/2020/openvinotoolkit/2020.2/open_model_zoo/models_bin/3/text-spotting-0002-recognizer-decoder/FP32"
+    "link":   "https://download.01.org/openvinotoolkit"
   },
   {
     "type":   "paddle",

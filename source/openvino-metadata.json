@@ -530,6 +530,17 @@
         "type": "string"
       }
     ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "list": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ],
     "support_level": "default"
   },
   {
@@ -1306,6 +1317,10 @@
         "name": "num_axes",
         "required": true,
         "type": "int32"
+      },
+      {
+        "name": "special_zero",
+        "type": "boolean"
       }
     ],
     "support_level": "default"
