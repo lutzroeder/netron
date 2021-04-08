@@ -1695,9 +1695,6 @@ python.Execution = class {
                 throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
             }
         });
-        this.registerFunction('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-            return self.invoke(subtype, [ shape, dtype ]);
-        });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
                 this.align = align;
@@ -2265,6 +2262,16 @@ python.Execution = class {
             }
             return undefined;
         });
+        this.registerFunction('dill._dill._import_module', function(import_name, safe) {
+            try {
+                return self.context.getx(import_name);
+            }
+            catch (err) {
+                if (safe) {
+                    return null;
+                }
+            }
+        });
         this.registerFunction('dill._dill._load_type', function(name) {
             return self.conext.getx('types.' + name);
         });
@@ -2273,6 +2280,12 @@ python.Execution = class {
                 return obj[name];
             }
             return defaultValue;
+        });
+        this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
+            return self.invoke(subtype, [ shape, dtype ]);
+        });
+        this.registerFunction('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
+            return self.invoke(subtype, [ shape, dtype ]);
         });
         this.registerFunction('numpy.core.multiarray.scalar', function(dtype, rawData) {
             let data = rawData;
@@ -2329,6 +2342,13 @@ python.Execution = class {
         this.registerType('cuml.raft.common.handle.Handle', class {
             __setstate__(state) {
                 this._handle = state;
+            }
+        });
+        this.registerType('haiku._src.data_structures.FlatMapping', class {
+            constructor(dict) {
+                for (const key of Object.keys(dict)) {
+                    this[key] = dict[key];
+                }
             }
         });
     }
@@ -2400,7 +2420,7 @@ python.Execution = class {
     }
 
     invoke(name, args) {
-        const target = this.type(name);
+        const target = name.__class__ ? name : this.type(name);
         if (target) {
             if (target.__class__ === this._context.scope.builtins.type) {
                 if (target.prototype && target.prototype.__class__ === target) {

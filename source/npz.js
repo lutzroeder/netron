@@ -532,15 +532,24 @@ npz.Utility = class {
                     return weights;
                 }
                 else if (!Array.isArray(dict)) {
-                    const set = new Set([ 'weight_order', 'lr', 'model_iter' ]);
+                    const set = new Set([ 'weight_order', 'lr', 'model_iter', '__class__' ]);
                     for (const key in dict) {
-                        const value = dict[key];
                         if (key) {
+                            const value = dict[key];
                             if (npz.Utility.isTensor(value)) {
                                 weights.set(key, value);
                                 continue;
                             }
                             if (set.has(key)) {
+                                continue;
+                            }
+                            if (!Array.isArray(value) && Object.keys(value).every((key) => npz.Utility.isTensor(value[key]))) {
+                                const name = key;
+                                const dict = value;
+                                for (const key of Object.keys(dict)) {
+                                    const value = dict[key];
+                                    weights.set(name + '.' + key, value);
+                                }
                                 continue;
                             }
                         }
