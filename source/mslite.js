@@ -58,12 +58,12 @@ mslite.Model = class {
         }
         const subgraphs = model.subGraph;
         if (Array.isArray(subgraphs)) {
-            this._graphs.push(new mslite.Graph(metadata, model, model));
-        }
-        else {
             for (const subgraph of subgraphs) {
                 this._graphs.push(new mslite.Graph(metadata, subgraph, model));
             }
+        }
+        else {
+            this._graphs.push(new mslite.Graph(metadata, model, model));
         }
     }
 
