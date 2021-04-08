@@ -32,6 +32,7 @@ update: install
 	@./tools/sklearn sync install metadata
 	@./tools/tf sync install schema metadata
 	@./tools/uff schema
+	@./tools/xmodel sync schema
 
 build_python: install
 	python -m pip install --user wheel

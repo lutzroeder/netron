@@ -1409,6 +1409,7 @@ view.ModelFactoryService = class {
         this.register('./mslite', [ '.ms']);
         this.register('./barracuda', [ '.nn' ]);
         this.register('./dnn', [ '.dnn' ]);
+        this.register('./xmodel', [ '.xmodel' ]);
         this.register('./openvino', [ '.xml', '.bin' ]);
         this.register('./flux', [ '.bson' ]);
         this.register('./dl4j', [ '.zip' ]);
