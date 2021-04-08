@@ -898,7 +898,7 @@ onnx.Tensor = class {
                 case onnx.proto.TensorProto.DataType.INT64:
                     data = new Array(buffer.length >> 3);
                     for (let i = 0; i < data.length; i++) {
-                        data[i] = view.getUint64(i << 3, true);
+                        data[i] = view.getInt64(i << 3, true);
                     }
                     break;
                 case onnx.proto.TensorProto.DataType.UINT64:
