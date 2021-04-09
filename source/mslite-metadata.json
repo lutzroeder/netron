@@ -1205,6 +1205,7 @@
   },
   {
     "name": "Gather",
+    "category": "Transform",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
       { "name": "batchDims", "type": "int32", "default": 0 }
