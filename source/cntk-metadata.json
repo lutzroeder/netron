@@ -392,7 +392,8 @@
   },
   {
     "name": "Gather",
-    "operator": 74
+    "operator": 74,
+    "category": "Transform"
   },
   {
     "name": "GatherPacked",
