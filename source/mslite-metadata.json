@@ -1497,6 +1497,12 @@
     ]
   },
   {
+    "name": "LogSoftmax",
+    "attributes": [
+      { "name": "axis", "type": "int64", "default": 0 }
+    ]
+  },
+  {
     "name": "Loop",
     "attributes": [
       { "name": "subGraphIndex", "type": "int32", "default": 0 }

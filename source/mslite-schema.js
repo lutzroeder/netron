@@ -345,6 +345,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 186: return $root.mindspore.schema.LayerNormGrad.decode(reader, position);
             case 187: return $root.mindspore.schema.ResizeGrad.decode(reader, position);
             case 188: return $root.mindspore.schema.Splice.decode(reader, position);
+            case 189: return $root.mindspore.schema.LogSoftmax.decode(reader, position);
         }
         return undefined;
     }
@@ -539,6 +540,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'LayerNormGrad': return $root.mindspore.schema.LayerNormGrad.decodeText(reader, json);
             case 'ResizeGrad': return $root.mindspore.schema.ResizeGrad.decodeText(reader, json);
             case 'Splice': return $root.mindspore.schema.Splice.decodeText(reader, json);
+            case 'LogSoftmax': return $root.mindspore.schema.LogSoftmax.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3634,6 +3636,21 @@ $root.mindspore.schema.Splice = class Splice {
     }
 };
 
+$root.mindspore.schema.LogSoftmax = class LogSoftmax {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.LogSoftmax();
+        $.axis = reader.int64_(position, 4, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.LogSoftmax();
+        $.axis = reader.value(json.axis, 0);
+        return $;
+    }
+};
+
 $root.mindspore.schema.QuantParam = class QuantParam {
 
     static decode(reader, position) {
@@ -3710,7 +3727,9 @@ $root.mindspore.schema.QuantType = {
     QUANT_NONE: 0,
     AwareTraining: 1,
     WeightQuant: 2,
-    PostTraining: 3
+    PostTraining: 3,
+    QUANT_WEIGHT: 4,
+    QUANT_ALL: 5
 };
 
 $root.mindspore.schema.Primitive = class Primitive {
