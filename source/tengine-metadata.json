@@ -289,7 +289,7 @@
   },
   {
     "name": "Gather",
-    "category": "Data",
+    "category": "Transform",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
       { "name": "indices_num", "type": "int32", "default": 0 }
