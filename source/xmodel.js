@@ -75,15 +75,22 @@ xmodel.Graph = class {
         const nodes = [];
         for (const op_node of graph.op_node) {
             if (op_node.op_type === 'const-fix' && op_node.args.length === 0 && count.get(op_node.op_name) === 1) {
-                // const data_type = op_node.op_attr.data_type.string_value;
-                // const shape = op_node.op_attr.shape.int32_vec_value.value
-                initializers.set(op_node.op_name, op_node);
+                const type = xmodel.Utility.type(op_node.op_attr);
+                initializers.set(op_node.op_name, new xmodel.Tensor(type, op_node.op_type));
+                continue;
+            }
+            if (op_node.op_type === 'data-fix' && op_node.args.length === 0) {
+                const type = xmodel.Utility.type(op_node.op_attr);
+                const quantization = xmodel.Utility.quantization(op_node.op_attr);
+                this._inputs.push(new xmodel.Parameter(op_node.op_name, [
+                    new xmodel.Argument(op_node.op_name, type, quantization.out, null)
+                ]));
                 continue;
             }
             nodes.push(op_node);
         }
         for (const op_node of nodes) {
-            this._nodes.push(new xmodel.Node(metadata, op_node));
+            this._nodes.push(new xmodel.Node(metadata, op_node, initializers));
         }
     }
 
@@ -109,6 +116,10 @@ xmodel.Parameter = class {
 
     get name() {
         return this._name;
+    }
+
+    get visible() {
+        return true;
     }
 
     get arguments() {
@@ -141,7 +152,20 @@ xmodel.Argument = class {
 
     get quantization() {
         if (this._quantization) {
-            return 'bitwidth: ' + this._quantization.bit_width + ', pos: ' + this._quantization.pos + ', signed: ' + this._quantization.signed;
+            const list = [];
+            if (this._quantization.bit_width !== undefined) {
+                list.push('bit_width: ' + this._quantization.bit_width);
+            }
+            if (this._quantization.pos !== undefined) {
+                list.push('pos: ' + this._quantization.pos);
+            }
+            if (this._quantization.signed !== undefined) {
+                list.push('signed: ' + this._quantization.signed);
+            }
+            if (this._quantization.round_mode !== undefined) {
+                list.push('round_mode: ' + this._quantization.round_mode);
+            }
+            return list.join(', ');
         }
         return null;
     }
@@ -153,47 +177,26 @@ xmodel.Argument = class {
 
 xmodel.Node = class {
 
-    constructor(metadata, op_node) {
+    constructor(metadata, op_node, initializers) {
         this._type = op_node.op_type;
         this._name = op_node.op_name || '';
         this._metadata = metadata.type(this._type);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
-        const in_quant = {};
-        const out_quant = {};
         for (const name of Object.keys(op_node.op_attr)) {
-            const attribute = xmodel.Utility.attribute(op_node.op_attr[name]);
-            switch (name) {
-                case 'quant_in_bit_width':
-                    in_quant.bit_width = attribute.value;
-                    continue;
-                case 'quant_in_quantize_pos':
-                    in_quant.pos = attribute.value;
-                    continue;
-                case 'quant_in_signed':
-                    in_quant.signed = attribute.value;
-                    continue;
-                case 'quant_out_bit_width':
-                    out_quant.bit_width = attribute.value;
-                    continue;
-                case 'quant_out_quantize_pos':
-                    out_quant.pos = attribute.value;
-                    continue;
-                case 'quant_out_signed':
-                    out_quant.signed = attribute.value;
-                    continue;
+            if (!name.startsWith('quant_in_') && !name.startsWith('quant_out_') && name !== 'workload') {
+                const attribute = xmodel.Utility.attribute(op_node.op_attr[name]);
+                this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, attribute.type, attribute.value));
             }
-            this._attributes.push(new xmodel.Attribute(metadata.attribute(this._type, name), name, attribute.type, attribute.value));
         }
-
+        const quantization = xmodel.Utility.quantization(op_node.op_attr);
         for (const arg of op_node.args) {
-            const args = arg.arg_ops.map((arg_op) => new xmodel.Argument(arg_op, null, in_quant, null));
+            const args = arg.arg_ops.map((arg_op) => new xmodel.Argument(arg_op, null, quantization.in, initializers.get(arg_op)));
             this._inputs.push(new xmodel.Parameter(arg.arg_name, args));
         }
         this._outputs.push(new xmodel.Parameter('output', [
-            new xmodel.Argument(op_node.op_name, null, out_quant, null)
+            new xmodel.Argument(op_node.op_name, null, quantization.out, null)
         ]));
     }
 
@@ -258,6 +261,95 @@ xmodel.Attribute = class {
     }
 };
 
+xmodel.TensorType = class {
+
+    constructor(dataType, shape) {
+        this._dataType = dataType || '?';
+        this._shape = shape;
+    }
+
+    get dataType() {
+        return this._dataType;
+    }
+
+    get shape() {
+        return this._shape;
+    }
+
+    toString() {
+        return (this.dataType || '?') + this._shape.toString();
+    }
+};
+
+xmodel.TensorShape = class {
+
+    constructor(dimensions) {
+        this._dimensions = Array.from(dimensions);
+    }
+
+    get dimensions() {
+        return this._dimensions;
+    }
+
+    toString() {
+        if (!this._dimensions || this._dimensions.length == 0) {
+            return '';
+        }
+        return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
+    }
+};
+
+xmodel.Tensor = class {
+
+    constructor(type, kind) {
+        this._type = type;
+        this._kind = kind;
+    }
+
+    get kind() {
+        return this._kind;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get state() {
+        return this._context().state || null;
+    }
+
+    get value() {
+        const context = this._context();
+        if (context.state) {
+            return null;
+        }
+        context.limit = Number.MAX_SAFE_INTEGER;
+        return this._decode(context, 0);
+    }
+
+    toString() {
+        const context = this._context();
+        if (context.state) {
+            return '';
+        }
+        context.limit = 10000;
+        const value = this._decode(context, 0);
+        return JSON.stringify(value, null, 4);
+    }
+
+    _context() {
+        const context = {};
+        context.index = 0;
+        context.count = 0;
+        context.state = 'Tensor data not implemented.';
+        return context;
+    }
+
+    _decode(/* context, dimension */) {
+        return [];
+    }
+};
+
 xmodel.Utility = class {
 
     static attribute(attr) {
@@ -279,6 +371,51 @@ xmodel.Utility = class {
         }
         return value;
     }
+
+    static type(attr) {
+        let dataType = '?';
+        const data_type = attr.data_type.string_value;
+        switch (data_type) {
+            case 'XINT8': dataType = 'int8'; break;
+            default: throw new xmodel.Error("Unknown data_type '" + data_type + "'.");
+        }
+        const shape = attr.shape.int32_vec_value.value;
+        return new xmodel.TensorType(dataType, new xmodel.TensorShape(shape));
+    }
+
+    static quantization(attr) {
+        const quant = { in: {}, out: {} };
+        for (const name of Object.keys(attr)) {
+            const attribute = xmodel.Utility.attribute(attr[name]);
+            switch (name) {
+                case 'quant_in_bit_width':
+                    quant.in.bit_width = attribute.value;
+                    break;
+                case 'quant_in_quantize_pos':
+                    quant.in.pos = attribute.value;
+                    break;
+                case 'quant_in_signed':
+                    quant.in.signed = attribute.value;
+                    break;
+                case 'quant_in_round_mode':
+                    quant.in.round_mode = attribute.value;
+                    break;
+                case 'quant_out_bit_width':
+                    quant.out.bit_width = attribute.value;
+                    break;
+                case 'quant_out_quantize_pos':
+                    quant.out.pos = attribute.value;
+                    break;
+                case 'quant_out_signed':
+                    quant.out.signed = attribute.value;
+                    break;
+                case 'quant_out_round_mode':
+                    quant.out.round_mode = attribute.value;
+                    break;
+            }
+            return quant;
+        }
+    }
 };
 
 xmodel.GraphMetadata = class {
@@ -288,6 +425,7 @@ xmodel.GraphMetadata = class {
         this._attributeCache = new Map();
         const categories = new Map([
             [ 'conv2d-fix', 'Layer' ],
+            [ 'depthwise-conv2d-fix', 'Layer' ],
             [ 'upsample-fix', 'Layer' ],
             [ 'pool-fix', 'Pool' ],
             [ 'batchnorm', 'Normalization' ],

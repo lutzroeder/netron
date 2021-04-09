@@ -341,33 +341,31 @@ function makeDir(dir) {
     }
 }
 
-function decompress(buffer, identifier) {
+function decompress(buffer) {
     let archive = null;
-    const extension = identifier.split('.').pop().toLowerCase();
-    if (extension == 'gz' || extension == 'tgz') {
+    if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
         archive = gzip.Archive.open(buffer);
         if (archive.entries.length == 1) {
             const entry = archive.entries[0];
-            if (entry.name) {
-                identifier = entry.name;
-            }
-            else {
-                identifier = identifier.substring(0, identifier.lastIndexOf('.'));
-                if (extension == 'tgz') {
-                    identifier += '.tar';
-                }
-            }
             buffer = entry.data;
         }
     }
-
-    switch (identifier.split('.').pop().toLowerCase()) {
-        case 'tar':
-            archive = tar.Archive.open(buffer);
-            break;
-        case 'zip':
-            archive = zip.Archive.open(buffer);
-            break;
+    if (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
+        return zip.Archive.open(buffer);
+    }
+    if (buffer.length >= 512) {
+        let sum = 0;
+        for (let i = 0; i < 512; i++) {
+            sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+        }
+        let checksum = '';
+        for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
+            checksum += String.fromCharCode(buffer[i]);
+        }
+        checksum = parseInt(checksum, 8);
+        if (!isNaN(checksum) && sum === checksum) {
+            return tar.Archive.open(buffer);
+        }
     }
     return archive;
 }
