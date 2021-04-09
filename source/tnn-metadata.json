@@ -246,7 +246,7 @@
   {
     "name": "Gather",
     "operator": 84,
-    "category": "Shape",
+    "category": "Transform",
     "attributes": [
       { "name": "axis", "default": 0 },
       { "name": "has_data", "default": 0 },
