@@ -186,7 +186,7 @@
   {
     "name": "Gather",
     "operator": 30,
-    "category": "Data"
+    "category": "Transform"
   },
   {
     "name": "GatherV2",
