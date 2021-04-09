@@ -4557,6 +4557,7 @@
   },
   {
     "name": "Gather",
+    "category": "Transform",
     "description": "\n\nThe *Gather* op accepts a *DATA* tensor of rank $r >= 1$ and *INDICES* tensor of rank $q$ as inputs. It then gathers entries of the outer-most dimension of *DATA*, indexed by *INDICES*, and concatenate them in an output tensor of rank $q + (r - 1)$.\n\nGithub Links:\n\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/gather_op.cc\n- https://github.com/caffe2/caffe2/blob/master/caffe2/operators/gather_op.h\n\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\n\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Gather\",\n    [\"DATA\", \"INDICES\"],\n    [\"OUTPUT\"]\n)\ndata = np.array([[1., 1.2],[2.3, 3.4],[4.5, 5.7]])\nprint(\"DATA:\\n\",data)\n\ninds = np.array([[0, 1],[1, 2]])\nprint(\"INDICES:\\n\",inds)\n\n// Feed X into workspace\nworkspace.FeedBlob(\"DATA\", data.astype(np.float32))\nworkspace.FeedBlob(\"INDICES\", inds.astype(np.int32))\n\nworkspace.RunOperatorOnce(op)\nprint(\"OUTPUT:\\n\", workspace.FetchBlob(\"OUTPUT\"))\n\n```\n\n**Result**\n\n```\n\nDATA:\n [[1.  1.2]\n [2.3 3.4]\n [4.5 5.7]]\nINDICES:\n [[0 1]\n [1 2]]\nOUTPUT:\n [[[1.  1.2]\n  [2.3 3.4]]\n\n [[2.3 3.4]\n  [4.5 5.7]]]\n\n```\n\n</details>\n\n",
     "inputs": [
       {
