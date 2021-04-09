@@ -638,6 +638,7 @@ tflite.Tensor = class {
         }
         else {
             const itemsize = new Map([
+                [ 'boolean' ],
                 [ 'uint8', 1 ], [ 'uint32', 4],
                 [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ],
                 [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ]
@@ -666,6 +667,11 @@ tflite.Tensor = class {
                     return results;
                 }
                 switch (context.dataType) {
+                    case 'boolean':
+                        results.push(context.data.getUint8(context.index) === 0 ? false : true);
+                        context.index += 1;
+                        context.count++;
+                        break;
                     case 'uint8':
                         results.push(context.data.getUint8(context.index));
                         context.index += 1;
