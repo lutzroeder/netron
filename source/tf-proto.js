@@ -2075,6 +2075,9 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
                 case 16:
                     message.is_ref = reader.bool();
                     break;
+                case 17:
+                    message.experimental_full_type = $root.tensorflow.FullTypeDef.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2113,6 +2116,9 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
                 case "is_ref":
                     message.is_ref = reader.boolean();
                     break;
+                case "experimental_full_type":
+                    message.experimental_full_type = $root.tensorflow.FullTypeDef.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2129,6 +2135,7 @@ $root.tensorflow.OpDef.ArgDef.prototype.type_attr = "";
 $root.tensorflow.OpDef.ArgDef.prototype.number_attr = "";
 $root.tensorflow.OpDef.ArgDef.prototype.type_list_attr = "";
 $root.tensorflow.OpDef.ArgDef.prototype.is_ref = false;
+$root.tensorflow.OpDef.ArgDef.prototype.experimental_full_type = null;
 
 $root.tensorflow.OpDef.AttrDef = class AttrDef {
 
@@ -2303,6 +2310,92 @@ $root.tensorflow.OpList = class OpList {
         return message;
     }
 };
+
+$root.tensorflow.FullTypeId = {
+    "FT_UNSET": 0,
+    "FT_VAR": 1,
+    "FT_ANY": 2,
+    "FT_PRODUCT": 3,
+    "FT_CALLABLE": 100,
+    "FT_TENSOR": 1000,
+    "FT_ARRAY": 1001,
+    "FT_DATASET": 10102,
+    "FT_BOOL": 200,
+    "FT_UINT8": 201,
+    "FT_UINT16": 202,
+    "FT_UINT32": 203,
+    "FT_UINT64": 204,
+    "FT_INT8": 205,
+    "FT_INT16": 206,
+    "FT_INT32": 207,
+    "FT_INT64": 208,
+    "FT_HALF": 209,
+    "FT_FLOAT": 210,
+    "FT_DOUBLE": 211,
+    "FT_COMPLEX64": 212,
+    "FT_COMPLEX128": 213,
+    "FT_STRING": 214
+};
+
+$root.tensorflow.FullTypeDef = class FullTypeDef {
+
+    constructor() {
+        this.args = [];
+    }
+
+    get attr() {
+        $root.tensorflow.FullTypeDef.attrSet = $root.tensorflow.FullTypeDef.attrSet || new Set([ "s"]);
+        return Object.keys(this).find((key) => $root.tensorflow.FullTypeDef.attrSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.FullTypeDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type_id = reader.int32();
+                    break;
+                case 2:
+                    message.args.push($root.tensorflow.FullTypeDef.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.s = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.FullTypeDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "type_id":
+                    message.type_id = reader.enum($root.tensorflow.FullTypeId);
+                    break;
+                case "args":
+                    message.args.push($root.tensorflow.FullTypeDef.decodeText(reader));
+                    break;
+                case "s":
+                    message.s = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.FullTypeDef.prototype.type_id = 0;
 
 $root.tensorflow.VersionDef = class VersionDef {
 
