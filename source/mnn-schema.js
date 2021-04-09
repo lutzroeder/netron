@@ -784,7 +784,8 @@ $root.MNN.UnaryOpOperation = {
     ERFINV: 27,
     EXPM1: 28,
     SIGMOID: 29,
-    TANH: 30
+    TANH: 30,
+    HARDSWISH: 31
 };
 
 $root.MNN.UnaryOp = class UnaryOp {
@@ -1405,6 +1406,28 @@ $root.MNN.TensorConvertInfo = class TensorConvertInfo {
     }
 };
 
+$root.MNN.SampleMode = {
+    BILINEAR: 0,
+    NEAREST: 1
+};
+
+$root.MNN.BorderMode = {
+    ZEROS: 0,
+    CLAMP: 1,
+    REFLECTION: 2
+};
+
+$root.MNN.GridSample = class GridSample {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.GridSample();
+        $.mode = reader.int8_(position, 4, 0);
+        $.paddingMode = reader.int8_(position, 6, 0);
+        $.alignCorners = reader.bool_(position, 8, false);
+        return $;
+    }
+};
+
 $root.MNN.OpType = {
     AbsVal: 0,
     QuantizedAdd: 1,
@@ -1542,6 +1565,7 @@ $root.MNN.OpType = {
     TensorArraySplit: 139,
     TensorArrayConcat: 140,
     LSTMBlockCell: 141,
+    Reverse: 142,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1564,7 +1588,8 @@ $root.MNN.OpType = {
     EltwiseInt8: 518,
     While: 600,
     If: 601,
-    LayerNorm: 603
+    LayerNorm: 603,
+    GridSample: 604
 };
 
 $root.MNN.Plugin = class Plugin {
@@ -1717,6 +1742,7 @@ $root.MNN.OpParameter = class {
             case 88: return $root.MNN.LayerNorm.decode(reader, position);
             case 89: return $root.MNN.TensorArray.decode(reader, position);
             case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
+            case 91: return $root.MNN.GridSample.decode(reader, position);
         }
         return undefined;
     }
@@ -1813,6 +1839,7 @@ $root.MNN.OpParameter = class {
             case 'LayerNorm': return $root.MNN.LayerNorm.decodeText(reader, json);
             case 'TensorArray': return $root.MNN.TensorArray.decodeText(reader, json);
             case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
+            case 'GridSample': return $root.MNN.GridSample.decodeText(reader, json);
         }
         return undefined;
     }
@@ -1862,6 +1889,7 @@ $root.MNN.TensorDescribe = class TensorDescribe {
         $.index = reader.int32_(position, 6, 0);
         $.name = reader.string_(position, 8, null);
         $.regions = reader.tableArray(position, 10, $root.MNN.Region.decode);
+        $.quantInfo = reader.table(position, 12, $root.MNN.TensorQuantInfo.decode);
         return $;
     }
 };
@@ -1889,6 +1917,20 @@ $root.MNN.SubGraphProto = class SubGraphProto {
         $.outputs = reader.typedArray(position, 8, Int32Array);
         $.tensors = reader.strings_(position, 10);
         $.nodes = reader.tableArray(position, 12, $root.MNN.Op.decode);
+        $.extraTensorDescribe = reader.tableArray(position, 14, $root.MNN.TensorDescribe.decode);
+        return $;
+    }
+};
+
+$root.MNN.TensorQuantInfo = class TensorQuantInfo {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.TensorQuantInfo();
+        $.scale = reader.float32_(position, 4, 0);
+        $.zero = reader.float32_(position, 6, 0);
+        $.min = reader.float32_(position, 8, -128);
+        $.max = reader.float32_(position, 10, 127);
+        $.type = reader.int32_(position, 12, 0);
         return $;
     }
 };
