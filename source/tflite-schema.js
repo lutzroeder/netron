@@ -2603,7 +2603,6 @@ $root.tflite.AudioProperties = class AudioProperties {
         const $ = new $root.tflite.AudioProperties();
         $.sample_rate = reader.uint32_(position, 4, 0);
         $.channels = reader.uint32_(position, 6, 0);
-        $.min_required_samples = reader.uint32_(position, 8, 0);
         return $;
     }
 };
