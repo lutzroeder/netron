@@ -220,6 +220,16 @@
     ]
   },
   {
+    "name": "ExpandDims",
+    "inputs": [
+      { "name": "input" },
+      { "name": "axis_param" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "ExtractFeatures",
     "inputs": [
       { "name": "ngrams" }
@@ -236,6 +246,16 @@
       { "name": "max", "type": "float32", "default": 0 },
       { "name": "num_bits", "type": "int32", "default": 0 },
       { "name": "narrow_range", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "Fill",
+    "inputs": [
+      { "name": "dims", "type": "T" },
+      { "name": "value", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
     ]
   },
   {
@@ -258,6 +278,7 @@
   },
   {
     "name": "Gather",
+    "category": "Transform",
     "attributes": [
       { "name": "axis", "default": 0, "type": "int32" },
       { "name": "batch_dims", "type": "int32", "default": 0 }
@@ -327,6 +348,16 @@
     ],
     "outputs": [
       { "name": "output" }
+    ]
+  },
+  {
+    "name": "LogicalOr",
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
     ]
   },
   {
@@ -480,6 +511,16 @@
     ]
   },
   {
+    "name": "NotEqual",
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
     "name": "OneHot",
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 }
@@ -534,6 +575,20 @@
     ],
     "outputs": [
       { "name": "output" }
+    ]
+  },
+  {
+    "name": "Range",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "start", "type": "T" },
+      { "name": "limit", "type": "T" },
+      { "name": "delta", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
     ]
   },
   {
@@ -641,6 +696,15 @@
     ],
     "outputs": [
       { "name": "hidden", "type": "T" },
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Rsqrt",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
       { "name": "output", "type": "T" }
     ]
   },
@@ -817,6 +881,16 @@
     ],
     "outputs": [
       { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Tile",
+    "inputs": [
+      { "name": "input" },
+      { "name": "multipliers" }
+    ],
+    "outputs": [
+      { "name": "output" }
     ]
   },
   {
