@@ -8382,6 +8382,7 @@
   },
   {
     "name": "Concat",
+    "category": "Tensor",
     "summary": "Concatenates tensors along one dimension.",
     "attributes": [
       {

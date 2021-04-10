@@ -17,6 +17,7 @@ def metadata():
         'AvgPool': 'Pool',
         'BatchNormWithGlobalNormalization': 'Normalization',
         'BiasAdd': 'Layer',
+        'Concat': 'Tensor',
         'ConcatV2': 'Tensor',
         'Const': 'Constant',
         'Conv2D': 'Layer',
