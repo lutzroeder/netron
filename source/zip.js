@@ -86,7 +86,7 @@ zip.Archive = class {
                 const reader = new zip.BinaryReader(extraData);
                 while (reader.position < reader.length) {
                     const type = reader.uint16();
-                    reader.uint16(); // length
+                    const length = reader.uint16();
                     switch (type) {
                         case 0x0001:
                             if (entry.size === 0xffffffff) {
@@ -110,6 +110,9 @@ zip.Archive = class {
                             if (entry.disk === 0xffff) {
                                 entry.disk = reader.uint32();
                             }
+                            break;
+                        default:
+                            reader.skip(length);
                             break;
                     }
                 }
