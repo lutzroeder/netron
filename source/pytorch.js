@@ -1124,6 +1124,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerFunction('annotate', function(type, value) {
+            if (type === self.context.scope.builtins.int) {
+                return Number.isInteger(value) ? value : NaN;
+            }
             return value;
         });
         this.registerFunction('int', function(value) {
@@ -3008,9 +3011,9 @@ pytorch.Utility = class {
             case 'boolean':
                 return obj === true || obj === false;
             case 'int64':
-                return Number.isInteger(obj) || isNaN(obj) || obj instanceof base.Int64;
+                return Number.isInteger(obj) || obj instanceof base.Int64 || (typeof obj === 'number' && isNaN(obj));
             case 'int64[]':
-                return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || Number.isNaN(item) || item === undefined);
+                return Array.isArray(obj) && obj.every((item) => Number.isInteger(item) || (typeof item === 'number' && isNaN(item)) || item === undefined);
             case 'int64[1]':
                 return pytorch.Utility.isType(obj, 'int64') || pytorch.Utility.isType(obj, 'int64[]');
             case 'float32':

@@ -1646,6 +1646,7 @@ python.Execution = class {
         this.registerType('typing._Final', class {});
         this.registerType('typing._SpecialForm', class extends typing._Final {});
         this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
+        this.registerType('typing._GenericAlias', class extends typing._BaseGenericAlias {});
         this.registerType('typing._SpecialGenericAlias', class extends typing._BaseGenericAlias {});
         this.registerType('typing._TupleType', class extends typing._SpecialGenericAlias {});
         typing.Optional = self.invoke('typing._SpecialForm', []);
@@ -2716,9 +2717,6 @@ python.Execution = class {
                 throw new python.Error("Unsupported field expression.");
             }
             case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'annotate' && expression.arguments.length === 2) {
-                    return this.expression(expression.arguments[1], context);
-                }
                 if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast' && expression.arguments.length === 2) {
                     return this.expression(expression.arguments[1], context);
                 }

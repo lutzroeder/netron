@@ -1503,14 +1503,12 @@
   {
     "name": "torch.slice",
     "category": "Tensor",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
       { "name": "start", "type": "int64", "default": 0 },
       { "name": "end", "type": "int64", "default": 9223372036854776000 },
       { "name": "step", "type": "int64", "default": 1 }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2041,13 +2039,22 @@
     ]
   },
   {
-    "name": "torch.select",
-    "attributes": [
+    "name": "torch.select:int",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64" },
       { "name": "index", "type": "int64" }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.select:Dimname",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "index", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
