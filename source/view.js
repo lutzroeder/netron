@@ -1326,7 +1326,7 @@ view.ArchiveContext = class {
             for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
                     const name = entry.name.substring(rootFolder.length);
-                    if (name.length > 0 && name.indexOf('/') === -1) {
+                    if (name.length > 0 && (name.indexOf('/') === -1 || name.startsWith('MAR-INF/'))) {
                         this._entries[name] = entry;
                     }
                 }
@@ -1379,7 +1379,7 @@ view.ModelFactoryService = class {
         this._extensions = [];
         this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn' ]);
         this.register('./onnx', [ '.onnx', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl' ]);
-        this.register('./mxnet', [ '.mar', '.model', '.json', '.params' ]);
+        this.register('./mxnet', [ '.json', '.params' ]);
         this.register('./coreml', [ '.mlmodel' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
@@ -1727,7 +1727,9 @@ view.ModelFactoryService = class {
         if (identifier.endsWith('.zip') ||
             identifier.endsWith('.tar') ||
             identifier.endsWith('.tar.gz') ||
-            identifier.endsWith('.tgz')) {
+            identifier.endsWith('.tgz') ||
+            identifier.endsWith('.mar') ||
+            identifier.endsWith('.model')) {
             this._host.event('File', 'Accept', extension, 1);
             return true;
         }

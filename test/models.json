@@ -2701,7 +2701,7 @@
     "type":   "mxnet",
     "target": "mobilenet-v1-tvm.json",
     "source": "https://github.com/lutzroeder/netron/files/2636924/mobilenet-v1-tvm.json.zip[mobilenet-v1-tvm.json]",
-    "format": "TVM",
+    "format": "MXNet", "producer": "TVM",
     "link":   "https://github.com/lutzroeder/netron/issues/199"
   },
   {
@@ -2756,13 +2756,6 @@
     "target": "squeezenet_v1.1.mar",
     "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar",
     "format": "MXNet Model Archive v1.0",
-    "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
-  },
-  {
-    "type":   "mxnet",
-    "target": "squeezenet_v1.1.zip",
-    "source": "https://s3.amazonaws.com/model-server/model_archive_1.0/squeezenet_v1.1.mar",
-    "format": "MXNet",
     "link":   "https://github.com/awslabs/mxnet-model-server/blob/master/docs/model_zoo.md"
   },
   {
@@ -4121,6 +4114,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "densenet161.mar",
+    "source": "https://torchserve.pytorch.org/mar_files/densenet161.mar",
+    "format": "PyTorch v0.1.10",
+    "link":   "https://github.com/lutzroeder/netron/issues/286"
+  },
+  {
+    "type":   "pytorch",
     "target": "DRNL4x_dual_model.pth",
     "source": "https://github.com/lutzroeder/netron/files/5505677/DRNL4x_dual_model.pth.zip[DRNL4x_dual_model.pth]",
     "format": "PyTorch v0.1.10",
@@ -4171,12 +4171,6 @@
     "target": "inception_v3.zip.pth",
     "source": "https://github.com/lutzroeder/netron/files/6096630/inception_v3.zip.pth.zip[inception_v3.zip.pth]",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
-  },
-  {
-    "type":   "pytorch",
-    "target": "inception_v3_google-1a9a5a14.pth",
-    "format": "PyTorch v0.1.10",
-    "source": "https://download.pytorch.org/models/inception_v3_google-1a9a5a14.pth"
   },
   {
     "type":   "pytorch",
