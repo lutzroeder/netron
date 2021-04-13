@@ -10,10 +10,16 @@ weka.ModelFactory = class {
 
     match(context) {
         try {
-            const reader = new java.io.InputObjectStream(context.stream);
-            const obj = reader.read();
-            if (obj && obj.$class && obj.$class.name) {
-                return true;
+            const stream = context.stream;
+            if (stream.length >= 5) {
+                const signature = [ 0xac, 0xed ];
+                if (stream.peek(2).every((value, index) => value === signature[index])) {
+                    const reader = new java.io.InputObjectStream(stream);
+                    const obj = reader.read();
+                    if (obj && obj.$class && obj.$class.name) {
+                        return true;
+                    }
+                }
             }
         }
         catch (err) {
@@ -51,7 +57,7 @@ java.io.InputObjectStream = class {
         }
         const signature = [ 0xac, 0xed ];
         if (!stream.peek(2).every((value, index) => value === signature[index])) {
-            throw new java.io.Error('Invalid stream size');
+            throw new java.io.Error('Invalid stream signature');
         }
         this._reader = new java.io.InputObjectStream.BinaryReader(stream.peek());
         this._references = [];
