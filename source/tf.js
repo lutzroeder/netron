@@ -881,7 +881,8 @@ tf.Function = class {
                 }
             }
             for (const node of node_map.values()) {
-                if (node.op === 'ReadVariableOp' && node.input.length === 1 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                if (node.op === 'ReadVariableOp' && node.input.length === 1 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0 &&
+                    node.attr && node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
                     const tensor = new tf.proto.TensorProto();
                     tensor.dtype = node.attr.dtype.type;
                     tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
