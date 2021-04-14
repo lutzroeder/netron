@@ -28,6 +28,11 @@
   },
   {
     "type":   "_",
+    "target": "knift_index.pb",
+    "source": "https://github.com/lutzroeder/netron/files/6308301/knift_index.pb.zip[knift_index.pb]"
+  },
+  {
+    "type":   "_",
     "target": "labelmap.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/5398649/labelmap.zip[labelmap.pbtxt]",
     "error":  "Invalid file content. File contains StringIntLabelMapProto data.",
