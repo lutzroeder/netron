@@ -2732,18 +2732,29 @@ python.Execution = class {
                     case 'True': return true;
                     case 'False': return false;
                 }
-                const type =
-                    this._context.scope.builtins[expression.value] ||
-                    this._context.scope.typing[expression.value] ||
-                    this._context.scope.torch[expression.value];
-                if (type &&
-                    (type.__class__ === this._context.scope.builtins.type ||
-                     type.__class__ === this._context.scope.typing._TupleType ||
-                     type.__class__ === this._context.scope.typing._SpecialGenericAlias ||
-                     type.__class__ === this._context.scope.typing._SpecialForm)) {
-                    return type;
+                const type = (value) => {
+                    return value &&
+                        (value.__class__ === this._context.scope.builtins.type ||
+                         value.__class__ === this._context.scope.typing._TupleType ||
+                         value.__class__ === this._context.scope.typing._SpecialGenericAlias ||
+                         value.__class__ === this._context.scope.typing._SpecialForm);
+                };
+                const builtin = this._context.scope.builtins[expression.value];
+                if (type(builtin)) {
+                    return builtin;
                 }
-                return context.get(expression.value);
+                const value = context.get(expression.value);
+                if (value === undefined) {
+                    const typing = this._context.scope.typing[expression.value];
+                    if (type(typing)) {
+                        return typing;
+                    }
+                    const torch = this._context.scope.torch[expression.value];
+                    if (type(torch)) {
+                        return torch;
+                    }
+                }
+                return value;
             }
             case 'tuple': {
                 return expression.value.map((expression) => this.expression(expression, context));
