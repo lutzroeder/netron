@@ -3428,7 +3428,7 @@ python.Unpickler.BinaryReader = class {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._utf8Decoder = new TextDecoder('utf-8');
         this._asciiDecoder = new TextDecoder('ascii');
     }
@@ -3478,43 +3478,43 @@ python.Unpickler.BinaryReader = class {
     byte() {
         const position = this._position;
         this.skip(1);
-        return this._dataView.getUint8(position);
+        return this._view.getUint8(position);
     }
 
     uint16() {
         const position = this._position;
         this.skip(2);
-        return this._dataView.getUint16(position, true);
+        return this._view.getUint16(position, true);
     }
 
     int32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getInt32(position, true);
+        return this._view.getInt32(position, true);
     }
 
     uint32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getUint32(position, true);
+        return this._view.getUint32(position, true);
     }
 
     int64() {
         const position = this._position;
         this.skip(8);
-        return this._dataView.getInt64(position, true).toNumber();
+        return this._view.getInt64(position, true).toNumber();
     }
 
     float32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getFloat32(position, true);
+        return this._view.getFloat32(position, true);
     }
 
     float64() {
         const position = this._position;
         this.skip(8);
-        return this._dataView.getFloat64(position, true);
+        return this._view.getFloat64(position, true);
     }
 
     string(size, encoding) {
@@ -3575,37 +3575,37 @@ python.Unpickler.StreamReader = class {
 
     byte() {
         const position = this._fill(1);
-        return this._dataView.getUint8(position);
+        return this._view.getUint8(position);
     }
 
     uint16() {
         const position = this._fill(2);
-        return this._dataView.getUint16(position, true);
+        return this._view.getUint16(position, true);
     }
 
     int32() {
         const position = this._fill(4);
-        return this._dataView.getInt32(position, true);
+        return this._view.getInt32(position, true);
     }
 
     uint32() {
         const position = this._fill(4);
-        return this._dataView.getUint32(position, true);
+        return this._view.getUint32(position, true);
     }
 
     int64() {
         const position = this._fill(8);
-        return this._dataView.getInt64(position, true).toNumber();
+        return this._view.getInt64(position, true).toNumber();
     }
 
     float32() {
         const position = this._fill(4);
-        return this._dataView.getFloat32(position, true);
+        return this._view.getFloat32(position, true);
     }
 
     float64() {
         const position = this._fill(8);
-        return this._dataView.getFloat64(position, true);
+        return this._view.getFloat64(position, true);
     }
 
     string(size, encoding) {
@@ -3634,7 +3634,7 @@ python.Unpickler.StreamReader = class {
             this._offset = this._position;
             this._stream.seek(this._offset);
             this._buffer = this._stream.read(Math.min(0x10000000, this._length - this._offset));
-            this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+            this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
         }
         const position = this._position;
         this._position += length;
