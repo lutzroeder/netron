@@ -27,6 +27,7 @@ def metadata():
         'FusedBatchNorm': 'Normalization',
         'FusedBatchNormV2': 'Normalization',
         'FusedBatchNormV3': 'Normalization',
+        'Gather': 'Transform',
         'Identity': 'Control',
         'LeakyRelu': 'Activation',
         'LRN': 'Normalization',
