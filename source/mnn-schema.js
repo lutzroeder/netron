@@ -277,6 +277,7 @@ $root.MNN.Pool3D = class Pool3D {
         $.pads = reader.typedArray(position, 8, Int32Array);
         $.type = reader.int8_(position, 10, 0);
         $.padType = reader.int8_(position, 12, 0);
+        $.isGlobal = reader.bool_(position, 14, false);
         return $;
     }
 };
@@ -953,15 +954,18 @@ $root.MNN.RNNParam = class RNNParam {
         const $ = new $root.MNN.RNNParam();
         $.numUnits = reader.int32_(position, 4, 0);
         $.isBidirectionalRNN = reader.bool_(position, 6, false);
-        $.keepAllOutputs = reader.bool_(position, 8, false);
-        $.fwGateWeight = reader.table(position, 10, $root.MNN.Blob.decode);
-        $.fwGateBias = reader.table(position, 12, $root.MNN.Blob.decode);
-        $.fwCandidateWeight = reader.table(position, 14, $root.MNN.Blob.decode);
-        $.fwCandidateBias = reader.table(position, 16, $root.MNN.Blob.decode);
-        $.bwGateWeight = reader.table(position, 18, $root.MNN.Blob.decode);
-        $.bwGateBias = reader.table(position, 20, $root.MNN.Blob.decode);
-        $.bwCandidateWeight = reader.table(position, 22, $root.MNN.Blob.decode);
-        $.bwCandidateBias = reader.table(position, 24, $root.MNN.Blob.decode);
+        $.linearBeforeReset = reader.bool_(position, 8, false);
+        $.keepAllOutputs = reader.bool_(position, 10, false);
+        $.fwGateWeight = reader.table(position, 12, $root.MNN.Blob.decode);
+        $.fwGateBias = reader.table(position, 14, $root.MNN.Blob.decode);
+        $.fwCandidateWeight = reader.table(position, 16, $root.MNN.Blob.decode);
+        $.fwCandidateBias = reader.table(position, 18, $root.MNN.Blob.decode);
+        $.fwRecurrentBias = reader.table(position, 20, $root.MNN.Blob.decode);
+        $.bwGateWeight = reader.table(position, 22, $root.MNN.Blob.decode);
+        $.bwGateBias = reader.table(position, 24, $root.MNN.Blob.decode);
+        $.bwCandidateWeight = reader.table(position, 26, $root.MNN.Blob.decode);
+        $.bwCandidateBias = reader.table(position, 28, $root.MNN.Blob.decode);
+        $.bwRecurrentBias = reader.table(position, 30, $root.MNN.Blob.decode);
         return $;
     }
 };
