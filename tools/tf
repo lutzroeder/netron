@@ -41,10 +41,6 @@ sync() {
 
 install() {
     echo "tf install"
-    if [ "$(${python} -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')" = "3.9" ]; then
-        echo "- python 3.9 [skip]"
-        return
-    fi
     if [ "$(uname -sm)" = "Darwin arm64" ]; then
         echo "- arm64 [skip]"
         return
@@ -84,10 +80,6 @@ metadata() {
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi
     echo "tf metadata"
-    if [ "$(${python} -c 'import sys; print(".".join(map(str, sys.version_info[:2])))')" = "3.9" ]; then
-        echo "- python 3.9 [skip]"
-        return
-    fi
     if [ "$(uname -sm)" = "Darwin arm64" ]; then
         echo "- arm64 [skip]"
         return
