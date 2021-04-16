@@ -628,7 +628,8 @@ sidebar.ArgumentView = class {
         let name = this._argument.name || '';
         this._hasId = name ? true : false;
         this._hasKind = initializer && initializer.kind ? true : false;
-        if (this._hasId) {
+        if (this._hasId || (!this._hasKind && !type)) {
+            this._hasId = true;
             const nameLine = this._host.document.createElement('div');
             nameLine.className = 'sidebar-view-item-value-line';
             if (typeof name !== 'string') {
