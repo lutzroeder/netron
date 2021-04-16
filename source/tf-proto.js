@@ -3908,7 +3908,8 @@ $root.tensorflow.TypeSpecProto.TypeSpecClass = {
     "OPTIONAL_SPEC": 7,
     "PER_REPLICA_SPEC": 8,
     "VARIABLE_SPEC": 9,
-    "ROW_PARTITION_SPEC": 10
+    "ROW_PARTITION_SPEC": 10,
+    "REGISTERED_TYPE_SPEC": 12
 };
 
 $root.tensorflow.TrackableObjectGraph = class TrackableObjectGraph {
