@@ -9,6 +9,9 @@ const process = require('process');
 const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
+const util = require('util');
+const xmldom = require('xmldom');
+
 const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
@@ -18,26 +21,27 @@ const zip = require('../source/zip');
 const gzip = require('../source/gzip');
 const tar = require('../source/tar');
 const base = require('../source/base');
-const xmldom = require('xmldom');
 
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
+
 global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
+
 global.DOMParser = xmldom.DOMParser;
+
 global.TextDecoder = class {
 
     constructor(encoding) {
-        global.TextDecoder._TextDecoder = global.TextDecoder._TextDecoder || require('util').TextDecoder;
         if (encoding !== 'ascii') {
-            this._textDecoder = new global.TextDecoder._TextDecoder(encoding);
+            this._decoder = new util.TextDecoder(encoding);
         }
     }
 
     decode(data) {
-        if (this._textDecoder) {
-            return this._textDecoder.decode(data);
+        if (this._decoder) {
+            return this._decoder.decode(data);
         }
 
         if (data.length < 32) {
