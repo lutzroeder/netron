@@ -413,8 +413,8 @@ xmodel.Utility = class {
                     quant.out.round_mode = attribute.value;
                     break;
             }
-            return quant;
         }
+        return quant;
     }
 };
 
