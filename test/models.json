@@ -2261,6 +2261,13 @@
   },
   {
     "type":   "lightgbm",
+    "target": "rf_classifier.model",
+    "source": "https://github.com/lutzroeder/netron/files/6329766/rf_classifier.model.zip[rf_classifier.model]",
+    "format": "LightGBM v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/669"
+  },
+  {
+    "type":   "lightgbm",
     "target": "simple_example.pkl",
     "source": "https://github.com/lutzroeder/netron/files/5978325/simple_example.pkl.zip[simple_example.pkl]",
     "format": "LightGBM Pickle v2",

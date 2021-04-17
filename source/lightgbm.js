@@ -40,7 +40,9 @@ lightgbm.ModelFactory = class {
                 }
                 else {
                     format = 'LightGBM';
-                    const reader = base.TextReader.create(context.stream.peek());
+                    const stream = context.stream;
+                    const buffer = stream.peek();
+                    const reader = base.TextReader.create(buffer);
                     model = new lightgbm.basic.Booster(reader);
                 }
                 resolve(new lightgbm.Model(model, format));
@@ -81,7 +83,9 @@ lightgbm.Graph = class {
             for (const feature_name of feature_names) {
                 const arg = new lightgbm.Argument(feature_name);
                 args.push(arg);
-                this._inputs.push(new lightgbm.Parameter(feature_name, [ arg ]));
+                if (feature_names.length < 1000) {
+                    this._inputs.push(new lightgbm.Parameter(feature_name, [ arg ]));
+                }
             }
         }
 
@@ -254,11 +258,11 @@ lightgbm.basic.Booster = class {
             switch (state) {
                 case '': {
                     const param = line.split('=');
-                    if (param.length !== 2) {
+                    if (param.length !== 2 && !/^[A-Za-z0-9_]/.exec(param[0].trim())) {
                         throw new lightgbm.Error("Invalid property '" + line + "'.");
                     }
                     const name = param[0].trim();
-                    const value = param[1].trim();
+                    const value = param.length > 1 ? param[1].trim() : undefined;
                     this.meta[name] = value;
                     break;
                 }
