@@ -5068,14 +5068,14 @@
     "type":   "tf",
     "target": "events.out.tfevents.1606692323.b5c8f88cc7ee.58.2",
     "source": "https://github.com/lutzroeder/netron/files/5613448/events.out.tfevents.1606692323.b5c8f88cc7ee.58.2.zip[events.out.tfevents.1606692323.b5c8f88cc7ee.58.2]",
-    "format": "TensorFlow Event File v2",
+    "format": "TensorFlow Event File v2", "producer": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/638"
   },
   {
     "type":   "tf",
     "target": "events.out.tfevents.1606696207.eba7c8084653.55.0",
     "source": "https://github.com/lutzroeder/netron/files/5613451/events.out.tfevents.1606696207.eba7c8084653.55.0.zip[events.out.tfevents.1606696207.eba7c8084653.55.0]",
-    "format": "TensorFlow Event File v2",
+    "format": "TensorFlow Event File v2", "producer": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/638"
   },
   {
@@ -5089,7 +5089,7 @@
     "type":   "tf",
     "target": "events.out.tfevents.1617485839.39aaee5846c1.58.0",
     "source": "https://github.com/lutzroeder/netron/files/6261502/events.out.tfevents.1617485839.39aaee5846c1.58.0.zip[events.out.tfevents.1617485839.39aaee5846c1.58.0]",
-    "format": "TensorFlow Event File v2",
+    "format": "TensorFlow Event File v2", "producer": "PyTorch",
     "link":   "https://github.com/lutzroeder/netron/issues/638"
   },
   {
