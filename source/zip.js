@@ -36,7 +36,7 @@ zip.Archive = class {
             return false;
         };
         if (!lookup(stream, [ 0x50, 0x4B, 0x05, 0x06 ])) {
-            throw new zip.Error('End of central directory not found.');
+            throw new zip.Error('End of Zip central directory not found.');
         }
         let reader = new zip.BinaryReader(stream.read(16));
         reader.skip(12);
@@ -53,7 +53,7 @@ zip.Archive = class {
             }
         }
         if (offset > stream.length) {
-            throw new zip.Error('Invalid central directory offset.');
+            throw new zip.Error('Invalid Zip central directory offset.');
         }
         stream.seek(offset); // central directory offset
 
@@ -66,7 +66,7 @@ zip.Archive = class {
             reader.skip(2); // version needed to extract
             const flags = reader.uint16();
             if ((flags & 1) == 1) {
-                throw new zip.Error('Encrypted entries not supported.');
+                throw new zip.Error('Encrypted Zip entries not supported.');
             }
             entry.compressionMethod = reader.uint16();
             reader.uint32(); // date
@@ -137,7 +137,7 @@ zip.Entry = class {
         stream.seek(entry.localHeaderOffset);
         const signature = [ 0x50, 0x4B, 0x03, 0x04 ];
         if (stream.position + 4 > stream.length || !stream.read(4).every((value, index) => value === signature[index])) {
-            throw new zip.Error('Invalid local file header signature.');
+            throw new zip.Error('Invalid Zip local file header signature.');
         }
         const reader = new zip.BinaryReader(stream.read(26));
         reader.skip(22);
