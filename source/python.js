@@ -3616,11 +3616,19 @@ python.Unpickler.StreamReader = class {
     }
 
     line() {
-        const index = this._buffer.indexOf(0x0A, this._position);
+        let position = this._fill(0);
+        let index = this._buffer.indexOf(0x0A, position);
         if (index == -1) {
-            throw new python.Error("Could not find end of line.");
+            const size = Math.min(0x1000000, this._stream.length - this._position);
+            this._fill(size);
+            this.skip(-size);
+            position = this._fill(0);
+            index = this._buffer.indexOf(0x0A, position);
+            if (index == -1) {
+                throw new python.Error("Could not find end of line.");
+            }
         }
-        const size = index - this._position;
+        const size = index - position;
         const text = this.string(size, 'ascii');
         this.skip(1);
         return text;
