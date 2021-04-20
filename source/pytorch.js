@@ -79,8 +79,29 @@ pytorch.Graph = class {
                 const initializers = new Map();
                 if (container.constants) {
                     for (const constant of container.constants) {
-                        constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
-                        initializers.set(constant.__variable__, constant);
+                        if (pytorch.Utility.isTensor(constant)) {
+                            constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
+                            initializers.set(constant.__variable__, constant);
+                        }
+                        else if (constant && constant.__class__ && constant.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
+                            switch (constant.__class__.__name__) {
+                                case 'LinearOpContext':
+                                case 'Conv2dOpContext':
+                                    for (const key of Object.keys(constant)) {
+                                        const value = constant[key];
+                                        if (pytorch.Utility.isTensor(value)) {
+                                            value.initializer = new pytorch.Tensor(value.__variable__, value, this._littleEndian);
+                                            initializers.set(value.__variable__, value);
+                                        }
+                                    }
+                                    break;
+                                default:
+                                    throw new pytorch.Error("Unsupported constant context '" + constant.__class__.__name__ + "'.");
+                            }
+                        }
+                        else {
+                            throw new pytorch.Error('Unsupported constant.');
+                        }
                     }
                 }
                 if (data) {
@@ -2168,7 +2189,29 @@ pytorch.Container.Zip = class {
             if (entry && entry.data) {
                 this._constants = this._unpickle(entry.data, this._storage('constants'));
                 for (let i = 0; i < this._constants.length; i++) {
-                    this._constants[i].__variable__ = 'CONSTANTS.c' + i.toString();
+                    const constant = this._constants[i];
+                    const variable = 'CONSTANTS.c' + i.toString();
+                    if (pytorch.Utility.isTensor(constant)) {
+                        constant.__variable__ = variable;
+                    }
+                    else if (constant && constant.__class__ && constant.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
+                        switch (constant.__class__.__name__) {
+                            case 'LinearOpContext':
+                            case 'Conv2dOpContext':
+                                if (pytorch.Utility.isTensor(constant[0])) {
+                                    constant[0].__variable__ = variable + '.weight';
+                                }
+                                if (pytorch.Utility.isTensor(constant[1])) {
+                                    constant[1].__variable__ = variable + '.bias';
+                                }
+                                break;
+                            default:
+                                throw new pytorch.Error("Unsupported constant context '" + constant.__class__.__name__ + "'.");
+                        }
+                    }
+                    else {
+                        throw new pytorch.Error('Unsupported constant.');
+                    }
                 }
             }
         }

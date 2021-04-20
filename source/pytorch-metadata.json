@@ -531,18 +531,16 @@
   {
     "name": "ops.prepacked.conv2d_clamp_run",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "orig_weight_", "type": "Tensor" },
+      { "name": "orig_bias_", "type": "Tensor", "optional": true },
       { "name": "stride_", "type": "int64[]" },
       { "name": "padding_", "type": "int64[]" },
       { "name": "dilation_", "type": "int64[]" },
       { "name": "groups_", "type": "int64" },
       { "name": "output_min_", "type": "Scalar", "optional": true },
       { "name": "output_max_", "type": "Scalar", "optional": true }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "orig_weight_", "type": "Tensor" },
-      { "name": "orig_bias_", "type": "Tensor", "optional": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

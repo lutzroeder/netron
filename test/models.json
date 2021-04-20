@@ -4747,6 +4747,16 @@
     "link":   "https://github.com/chengyangfu/pytorch-vgg-cifar10"
   },
   {
+    "type":   "pytorch",
+    "target": "video_classification.pt",
+    "source": "https://github.com/lutzroeder/netron/files/6341327/video_classification.pt.zip[video_classification.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/728"
+  },
+
+
+
+  {
     "type":   "rknn",
     "target": "autopilot.rknn",
     "source": "https://github.com/lutzroeder/netron/files/5621074/autopilot.rknn.zip[autopilot.rknn]",
