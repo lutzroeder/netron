@@ -7,8 +7,7 @@ rknn.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+        if (rknn.Container.open(stream)) {
             return true;
         }
         return false;
@@ -263,7 +262,7 @@ rknn.Node = class {
 
     get type() {
         const prefix = 'VSI_NN_OP_';
-        return this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this.type;
+        return this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this._type;
     }
 
     get metadata() {
