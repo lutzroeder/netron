@@ -1081,6 +1081,11 @@ hdf5.DataLayout = class {
             case 3: {
                 this.layoutClass = reader.byte();
                 switch (this.layoutClass) {
+                    case 0: // Compact
+                        this.size = reader.uint16();
+                        reader.skip(2);
+                        this.address = reader.position;
+                        break;
                     case 1: // Contiguous
                         this.address = reader.offset();
                         this.size = reader.length();
@@ -1094,7 +1099,6 @@ hdf5.DataLayout = class {
                         }
                         this.datasetElementSize = reader.int32();
                         break;
-                    case 0: // Compact
                     default:
                         throw new hdf5.Error('Unsupported data layout class \'' + this.layoutClass + '\'.');
                 }
