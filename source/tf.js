@@ -53,7 +53,38 @@ tf.ModelFactory = class {
                 }
             }
             else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
-                return true;
+                if (tags.get(1) !== 2) {
+                    return true;
+                }
+                const decode = (buffer, value) => {
+                    const reader = protobuf.Reader.create(buffer);
+                    const length = reader.length;
+                    while (reader.position < length) {
+                        const tag = reader.uint32();
+                        const number = tag >>> 3;
+                        const type = tag & 7;
+                        if (value === number) {
+                            return type === 2 ? reader.bytes() : null;
+                        }
+                        else {
+                            reader.skipType(type);
+                        }
+                    }
+                    return null;
+                };
+                const stream = context.stream;
+                const buffer = stream.peek();
+                const nodeBuffer = decode(buffer, 1);
+                if (nodeBuffer) {
+                    const nameBuffer = decode(nodeBuffer, 1);
+                    if (nameBuffer) {
+                        const decoder = new TextDecoder('utf-8');
+                        const name = decoder.decode(nameBuffer);
+                        if (Array.from(name).filter((c) => c <= ' ').length < 256) {
+                            return true;
+                        }
+                    }
+                }
             }
         }
         if (extension === 'json') {
@@ -703,7 +734,6 @@ tf.Graph = class {
                                             break;
                                         }
                                         default:
-                                            console.log(parameter.type);
                                             break;
                                     }
                                 }

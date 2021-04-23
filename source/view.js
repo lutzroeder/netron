@@ -1247,7 +1247,8 @@ view.ModelContext = class {
                     switch (type) {
                         case 'pbtxt': {
                             reset = true;
-                            const decoder = base.TextDecoder.create(stream.peek());
+                            const buffer = stream.peek();
+                            const decoder = base.TextDecoder.create(buffer);
                             let count = 0;
                             for (let i = 0; i < 0x100; i++) {
                                 const c = decoder.decode();
@@ -1258,7 +1259,8 @@ view.ModelContext = class {
                                 }
                             }
                             if (count < 4) {
-                                const reader = protobuf.TextReader.create(stream.peek());
+                                const buffer = stream.peek();
+                                const reader = protobuf.TextReader.create(buffer);
                                 reader.start(false);
                                 while (!reader.end(false)) {
                                     const tag = reader.tag();
@@ -1281,7 +1283,8 @@ view.ModelContext = class {
                         }
                         case 'pb': {
                             reset = true;
-                            const reader = protobuf.Reader.create(stream.peek());
+                            const buffer = stream.peek();
+                            const reader = protobuf.Reader.create(buffer);
                             const length = reader.length;
                             while (reader.position < length) {
                                 const tag = reader.uint32();

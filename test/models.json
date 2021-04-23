@@ -29,6 +29,7 @@
   {
     "type":   "_",
     "target": "knift_index.pb",
+    "error":  "Unsupported Protocol Buffers content '1:2' for extension '.pb' in 'knift_index.pb'.",
     "source": "https://github.com/lutzroeder/netron/files/6308301/knift_index.pb.zip[knift_index.pb]"
   },
   {
