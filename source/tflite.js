@@ -79,23 +79,25 @@ tflite.Model = class {
         this._format = 'TensorFlow Lite';
         this._format = this._format + ' v' + model.version.toString();
         this._description = model.description || '';
-        const operatorList = [];
-        const builtinOperatorMap = new Map();
+        const builtinOperators = new Map();
+        const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
         for (const key of Object.keys(tflite.schema.BuiltinOperator)) {
+            const value = key === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : key;
+            const name = value.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');
             const index = tflite.schema.BuiltinOperator[key];
-            builtinOperatorMap.set(index, tflite.Utility.type(key));
+            builtinOperators.set(index, name);
         }
-        for (let i = 0; i < model.operator_codes.length; i++) {
-            const operatorCode = model.operator_codes[i];
-            const code = operatorCode.deprecated_builtin_code < tflite.schema.BuiltinOperator.PLACEHOLDER_FOR_GREATER_OP_CODES ? operatorCode.deprecated_builtin_code : operatorCode.builtin_code;
-            const version = operatorCode.version;
+        const operators = model.operator_codes.map((operator, index) => {
+            const code = operator.deprecated_builtin_code < tflite.schema.BuiltinOperator.PLACEHOLDER_FOR_GREATER_OP_CODES ? operator.deprecated_builtin_code : operator.builtin_code;
+            const version = operator.version;
             const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
-            const name = custom ? operatorCode.custom_code : builtinOperatorMap.get(code);
+            const name = custom ? operator.custom_code : builtinOperators.get(code);
             if (!name) {
-                throw new tflite.Error("Invalid built-in code '" + code.toString() + "' at '" + i.toString() + "'.");
+                const text = JSON.stringify(Object.keys(operator).map((key) => operator[key])).slice(1, -1);
+                throw new tflite.Error("Invalid built-in code '" + text + "' at '" + index.toString() + "'.");
             }
-            operatorList.push(custom ? { name: name, version: version, custom: true } : { name: name, version: version });
-        }
+            return custom ? { name: name, version: version, custom: true } : { name: name, version: version };
+        });
         let modelMetadata = null;
         for (const metadata of model.metadata) {
             switch (metadata.name) {
@@ -125,7 +127,7 @@ tflite.Model = class {
             const subgraph = subgraphs[i];
             const name = subgraphs.length > 1 ? i.toString() : '';
             const subgraphMetadata = subgraphsMetadata && i < subgraphsMetadata.length ? subgraphsMetadata[i] : null;
-            this._graphs.push(new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operatorList, model));
+            this._graphs.push(new tflite.Graph(metadata, subgraph, subgraphMetadata, name, operators, model));
         }
     }
 
@@ -164,7 +166,7 @@ tflite.Model = class {
 
 tflite.Graph = class {
 
-    constructor(metadata, subgraph, subgraphMetadata, name, operatorList, model) {
+    constructor(metadata, subgraph, subgraphMetadata, name, operators, model) {
         this._nodes = [];
         this._inputs = [];
         this._outputs = [];
@@ -189,11 +191,10 @@ tflite.Graph = class {
             }
             return tensors.get(index);
         };
-        const operators = subgraph.operators;
         for (let i = 0; i < subgraph.operators.length; i++) {
-            const node = operators[i];
+            const node = subgraph.operators[i];
             const index = node.opcode_index;
-            const operator = index < operatorList.length ? operatorList[index] : { name: '(' + index.toString() + ')' };
+            const operator = index < operators.length ? operators[index] : { name: '(' + index.toString() + ')' };
             this._nodes.push(new tflite.Node(metadata, node, operator, i.toString(), args));
         }
         const applyTensorMetadata = (argument, tensorMetadata) => {
@@ -845,10 +846,7 @@ tflite.Utility = class {
 
     static dataType(type) {
         if (!tflite.Utility._tensorTypeMap) {
-            tflite.Utility._tensorTypeMap = new Map();
-            for (const name of Object.keys(tflite.schema.TensorType)) {
-                tflite.Utility._tensorTypeMap.set(tflite.schema.TensorType[name], name.toLowerCase());
-            }
+            tflite.Utility._tensorTypeMap = new Map(Object.keys(tflite.schema.TensorType).map((key) => [ tflite.schema.TensorType[key], key.toLowerCase() ]));
             tflite.Utility._tensorTypeMap.set(6, 'boolean');
         }
         return tflite.Utility._tensorTypeMap.has(type) ? tflite.Utility._tensorTypeMap.get(type) : '?';
@@ -859,10 +857,7 @@ tflite.Utility = class {
         if (type) {
             tflite.Utility._enumKeyMap = tflite.Utility._enumKeyMap || new Map();
             if (!tflite.Utility._enumKeyMap.has(name)) {
-                const map = new Map();
-                for (const key of Object.keys(type)) {
-                    map.set(type[key], key);
-                }
+                const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
                 tflite.Utility._enumKeyMap.set(name, map);
             }
             const map = tflite.Utility._enumKeyMap.get(name);
@@ -871,12 +866,6 @@ tflite.Utility = class {
             }
         }
         return value;
-    }
-
-    static type(name) {
-        const upperCase = new Set([ '2D', 'LSH', 'SVDF', 'RNN', 'L2', 'LSTM' ]);
-        name === 'BATCH_MATMUL' ? 'BATCH_MAT_MUL' : name;
-        return name.split('_').map((s) => (s.length < 1 || upperCase.has(s)) ? s : s[0] + s.substring(1).toLowerCase()).join('');
     }
 };
 
