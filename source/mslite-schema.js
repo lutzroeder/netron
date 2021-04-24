@@ -346,6 +346,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 187: return $root.mindspore.schema.ResizeGrad.decode(reader, position);
             case 188: return $root.mindspore.schema.Splice.decode(reader, position);
             case 189: return $root.mindspore.schema.LogSoftmax.decode(reader, position);
+            case 190: return $root.mindspore.schema.Call.decode(reader, position);
         }
         return undefined;
     }
@@ -541,6 +542,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'ResizeGrad': return $root.mindspore.schema.ResizeGrad.decodeText(reader, json);
             case 'Splice': return $root.mindspore.schema.Splice.decodeText(reader, json);
             case 'LogSoftmax': return $root.mindspore.schema.LogSoftmax.decodeText(reader, json);
+            case 'Call': return $root.mindspore.schema.Call.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3647,6 +3649,19 @@ $root.mindspore.schema.LogSoftmax = class LogSoftmax {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.LogSoftmax();
         $.axis = reader.value(json.axis, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Call = class Call {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Call();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Call();
         return $;
     }
 };
