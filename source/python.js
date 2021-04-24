@@ -2666,7 +2666,13 @@ python.Execution = class {
                 }
                 else if (target.type === 'tuple') {
                     const value = this.expression(expression.expression, context);
-                    if  (target.value.length == value.length && target.value.every((item) => item.type === 'id')) {
+                    if  (target.value.every((item) => item.type === 'id')) {
+                        if (target.value.length < value.length) {
+                            throw new python.Error('ValueError: too many values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
+                        }
+                        if (target.value.length > value.length) {
+                            throw new python.Error('ValueError: not enough values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
+                        }
                         for (let i = 0; i < value.length; i++) {
                             context.set(target.value[i].value, value[i]);
                         }

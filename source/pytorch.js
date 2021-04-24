@@ -860,6 +860,7 @@ pytorch.Execution = class extends python.Execution {
         this.context.scope.ops._caffe2 = { __name__: 'torch', __class__: this.context.scope.builtins.module };
         const self = this;
         const torch = this.context.scope.torch;
+        this.registerType('builtins.number', class {});
         this.registerType('__torch__.torch.classes._nnapi.Compilation', class {
             constructor() {
                 this.__hide__ = true;
@@ -1148,6 +1149,11 @@ pytorch.Execution = class extends python.Execution {
             if (type === self.context.scope.builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
             }
+            if (type === self.context.scope.builtins.number) {
+                if (pytorch.Utility.isTensor(value)) {
+                    value.resize_([]);
+                }
+            }
             return value;
         });
         this.registerFunction('int', function(value) {
@@ -1205,7 +1211,10 @@ pytorch.Execution = class extends python.Execution {
             return tensor;
         });
         this.registerFunction('ops.prim.min', function(value) {
-            return Math.min.apply(null, value);
+            if (Array.isArray(value)) {
+                return Math.min.apply(null, value);
+            }
+            return Math.min.apply(null, arguments);
         });
         this.registerFunction('ops.prim.shape', function(tensor) {
             return tensor && tensor.size ? tensor.size() : undefined;
@@ -1429,6 +1438,15 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
             return 0; // TODO
+        });
+        this.registerFunction('torch.numel', function(tensor) {
+            if (tensor && tensor.size) {
+                const size = tensor.size();
+                if (size) {
+                    return size.length === 0 ? 1 : size.reduce((a, b) => a * b);
+                }
+            }
+            return NaN;
         });
         this.registerFunction('torch.eq', function(left, right) {
             if (typeof left === 'string' && typeof right === 'string') {
@@ -2766,6 +2784,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             parameter.resize_([ NaN, NaN, NaN ]);
                                             break;
                                         }
+                                        case 'torch.mul':
                                         case 'torch.add':
                                         case 'torch.batch_norm':
                                         case 'torch.relu': {
@@ -2808,6 +2827,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         break;
                                     case 'torch.meshgrid':
                                         count = node.inputs[0].length;
+                                        break;
+                                    case 'torch.unbind':
+                                        count = args[0].__tuple__ || count;
                                         break;
                                 }
                                 const tensors = [];
@@ -2926,6 +2948,22 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 if (tensor && Number.isInteger(size) && size < 10) {
                     tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
                 }
+            }
+            // dim = torch.sub(torch.dim(input), 2)
+            if (statement.type === '=' &&
+                statement.target.type === 'id' && statement.target.value === 'dim' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.sub', 2) &&
+                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.dim', 1)) {
+                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                if (tensor && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
+                    tensor.resize_([ NaN, NaN, NaN, NaN ]);
+                }
+            }
+            // a, b = torch.unbind(size, 0)
+            if (statement.type === '=' &&
+                statement.target.type === 'tuple' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.unbind', 2)) {
+                statement.expression.arguments[0].__tuple__ = statement.target.value.length;
             }
             const value = this.statement(statement, context);
             if (value !== undefined) {

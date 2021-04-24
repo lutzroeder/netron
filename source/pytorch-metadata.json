@@ -3258,11 +3258,9 @@
   },
   {
     "name": "torch.clamp_min",
-    "attributes": [
-      { "name": "min", "type": "Scalar" }
-    ],
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3270,11 +3268,9 @@
   },
   {
     "name": "torch.clamp_min_",
-    "attributes": [
-      { "name": "min", "type": "Scalar" }
-    ],
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "min", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3282,11 +3278,9 @@
   },
   {
     "name": "torch.clamp_max",
-    "attributes": [
-      { "name": "max", "type": "Scalar" }
-    ],
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3294,11 +3288,9 @@
   },
   {
     "name": "torch.clamp_max_",
-    "attributes": [
-      { "name": "max", "type": "Scalar" }
-    ],
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "max", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -5528,7 +5520,7 @@
       { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -5538,7 +5530,7 @@
       { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
