@@ -371,11 +371,11 @@ keras.Graph = class {
         const nodeMap = new Map();
         if (config.layers) {
             for (const layer of config.layers) {
+                layer._inputs = [];
+                layer._outputs = [];
                 if (layer.name) {
                     if (!nodeMap.has(layer.name)) {
                         nodeMap.set(layer.name, layer);
-                        layer._inputs = [];
-                        layer._outputs = [];
                     }
                 }
             }
@@ -622,7 +622,7 @@ keras.Node = class {
     constructor(metadata, type, config, inputs, outputs, group, weights) {
         this._group = group || '';
         this._metadata = metadata;
-        this._type = type;
+        this._type = type || '?';
         const name = config && config.name ? config.name : '';
         this._name = (this._group ? this._group + '/' : '') + name;
         this._inputs = [];
