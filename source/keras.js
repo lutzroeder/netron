@@ -621,7 +621,6 @@ keras.Node = class {
 
     constructor(metadata, type, config, inputs, outputs, group, weights) {
         this._group = group || '';
-        this._metadata = metadata;
         this._type = type || '?';
         const name = config && config.name ? config.name : '';
         this._name = (this._group ? this._group + '/' : '') + name;
@@ -629,11 +628,12 @@ keras.Node = class {
         this._outputs = [];
         this._attributes = [];
 
+
         let names = [ name ];
         if ((type == 'Bidirectional' || type == 'TimeDistributed') && (config && config.layer)) {
             const inner = config.layer;
             delete config.layer;
-            this._inner = new keras.Node(this._metadata, inner.class_name, inner.config, [], [], null, null);
+            this._inner = new keras.Node(metadata, inner.class_name, inner.config, [], [], null, null);
             if (type == 'Bidirectional' && inner.config.name) {
                 names = [ name + '/forward_' + inner.config.name, name + '/backward_' + inner.config.name ];
                 if (!group) {
@@ -661,24 +661,24 @@ keras.Node = class {
             }
         }
 
-        const schema = this._metadata.type(this.type);
+        this._metadata = metadata.type(this.type);
         const innerType = this.inner ? this.inner.type : null;
-        const innerSchema = innerType ? this._metadata.type(innerType) : null;
+        const innerSchema = innerType ? metadata.type(innerType) : null;
         let inputIndex = 0;
         while (inputs.length > 0) {
             let variadic = false;
             let inputName = null;
             let visible = true;
             if (!innerSchema || inputIndex == 0) {
-                if (schema && schema.inputs && inputIndex < schema.inputs.length) {
-                    const input = schema.inputs[inputIndex];
+                if (this._metadata && this._metadata.inputs && inputIndex < this._metadata.inputs.length) {
+                    const input = this._metadata.inputs[inputIndex];
                     inputName = input.name;
                     if (type === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
                         inputIndex++;
                         continue;
                     }
                     visible = input.visible == false ? false : true;
-                    if (schema.inputs[inputIndex].option == 'variadic') {
+                    if (this._metadata.inputs[inputIndex].option == 'variadic') {
                         variadic = true;
                     }
                 }
@@ -736,8 +736,8 @@ keras.Node = class {
 
         this._outputs = outputs.map((output, outputIndex) => {
             const outputName =
-                (schema && schema.outputs && outputIndex < schema.outputs.length && schema.outputs[outputIndex] && schema.outputs[outputIndex].name) ?
-                    schema.outputs[outputIndex].name :
+                (this._metadata && this._metadata.outputs && outputIndex < this._metadata.outputs.length && this._metadata.outputs[outputIndex] && this._metadata.outputs[outputIndex].name) ?
+                    this._metadata.outputs[outputIndex].name :
                     outputIndex.toString();
             return new keras.Parameter(outputName, true, [ new keras.Argument(output, null, null) ]);
         });
@@ -748,7 +748,7 @@ keras.Node = class {
     }
 
     get metadata() {
-        return this._metadata.type(this._type);
+        return this._metadata;
     }
 
     get name() {
