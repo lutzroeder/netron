@@ -85,7 +85,7 @@ install() {
     ${python} -m pip install --quiet --upgrade numpy ${pep517}
     export ONNX_ML=1
     export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517}
+    ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517} --use-feature=in-tree-build
     deactivate
 }
 
