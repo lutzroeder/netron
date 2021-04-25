@@ -5319,8 +5319,8 @@
   {
     "name": "ops.quantized.mul:Scalar2",
     "inputs": [
-      { "name": "a", "type": "Scalar" },
-      { "name": "qb", "type": "Tensor" }
+      { "name": "b", "type": "Scalar" },
+      { "name": "qa", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "qc", "type": "Tensor" }
@@ -5330,7 +5330,7 @@
     "name": "ops.quantized.relu6",
     "category": "Activation",
     "inputs": [
-      { "name": "qx", "type": "Scalar" },
+      { "name": "qx", "type": "Tensor" },
       { "name": "inplace", "type": "boolean", "default": false }
     ],
     "outputs": [
@@ -5341,7 +5341,7 @@
     "name": "ops.quantized.leaky_relu",
     "category": "Activation",
     "inputs": [
-      { "name": "qx", "type": "Scalar" },
+      { "name": "qx", "type": "Tensor" },
       { "name": "negative_slope", "type": "Scalar", "default": false },
       { "name": "inplace", "type": "boolean" },
       { "name": "output_scale", "type": "float32" },
@@ -5355,7 +5355,7 @@
     "name": "ops.quantized.sigmoid",
     "category": "Activation",
     "inputs": [
-      { "name": "qx", "type": "Scalar" },
+      { "name": "qx", "type": "Tensor" },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -5579,6 +5579,28 @@
       { "name": "scale_factor", "type": "int64", "optional": true, "default": null },
       { "name": "mode", "type": "string", "default": "nearest" },
       { "name": "align_corners", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.triu_",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "diagonal", "type": "int64", "default": 0 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.triu:out",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "diagonal", "type": "int64", "default": 0 }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
