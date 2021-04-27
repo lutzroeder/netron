@@ -518,9 +518,20 @@ view.View = class {
                     graphOptions.rankdir = "LR";
                 }
 
-                const g = new dagre.graphlib.Graph({ compound: groups });
-                g.setGraph(graphOptions);
-                g.setDefaultEdgeLabel(() => { return {}; });
+                const graphlib = true;
+
+                let g = null;
+                if (graphlib) {
+                    const options = { compound: groups };
+                    g = new dagre.graphlib.Graph(options);
+                    g.setGraph(graphOptions);
+                    g.setDefaultEdgeLabel(() => { return {}; });
+                }
+                else {
+                    g = new grapher.Graph(canvasElement, groups);
+                    g.setGraph(graphOptions);
+                    g.setDefaultEdgeLabel(() => { return {}; });
+                }
 
                 let nodeId = 0;
                 const edgeMap = {};
@@ -551,7 +562,7 @@ view.View = class {
                 const self = this;
                 for (const node of nodes) {
 
-                    const element = new grapher.NodeElement(this._host.document);
+                    const element = new grapher.Node(this._host.document);
 
                     const addNode = function(element, node, edges) {
 
@@ -727,12 +738,18 @@ view.View = class {
                     }
 
                     const nodeName = node.name;
-                    const id = 'node-' + (nodeName ? 'name-' + nodeName : 'id-' + (counter++).toString());
-                    g.setNode(nodeId, { label: element.format(canvasElement), id: id, class: 'graph-node' });
+                    element.id = 'node-' + (nodeName ? 'name-' + nodeName : 'id-' + (counter++).toString());
+                    if (graphlib) {
+                        g.setNode(nodeId, { label: element.format(canvasElement), id: element.id, class: 'graph-node' });
+                    }
+                    else {
+                        element.name = nodeId;
+                        g.setNode(element);
+                    }
 
                     const createCluster = function(name) {
                         if (!clusterMap[name]) {
-                            g.setNode(name, { rx: 5, ry: 5});
+                            g.setNode({ name: name, rx: 5, ry: 5});
                             clusterMap[name] = true;
                             const parent = clusterParentMap[name];
                             if (parent) {
@@ -785,13 +802,19 @@ view.View = class {
                         inputName = inputName.split('/').pop();
                     }
 
-                    const inputElement = new grapher.NodeElement(this._host.document);
+                    const inputElement = new grapher.Input(this._host.document);
                     const inputHeader = inputElement.block('header');
                     inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
                         this.showModelProperties();
                     });
-                    const id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
-                    g.setNode(nodeId++, { label: inputElement.format(canvasElement), id: id, class: 'graph-input' } );
+                    inputElement.id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
+                    if (graphlib) {
+                        g.setNode(nodeId++, { label: inputElement.format(canvasElement), id: inputElement.id, class: 'graph-input' } );
+                    }
+                    else {
+                        inputElement.name = nodeId++;
+                        g.setNode(inputElement);
+                    }
                 }
 
                 for (const output of graph.outputs) {
@@ -809,16 +832,22 @@ view.View = class {
                         outputName = outputName.split('/').pop();
                     }
 
-                    const outputElement = new grapher.NodeElement(this._host.document);
+                    const outputElement = new grapher.Output(this._host.document);
                     const outputHeader = outputElement.block('header');
                     outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
                         this.showModelProperties();
                     });
-                    g.setNode(nodeId++, { label: outputElement.format(canvasElement) } );
+                    if (graphlib) {
+                        g.setNode(nodeId++, { label: outputElement.format(canvasElement) } );
+                    }
+                    else {
+                        outputElement.name = nodeId++;
+                        g.setNode(outputElement);
+                    }
                 }
 
-                for (const edge of Object.keys(edgeMap)) {
-                    const tuple = edgeMap[edge];
+                for (const edgeKey of Object.keys(edgeMap)) {
+                    const tuple = edgeMap[edgeKey];
                     if (tuple.from != null) {
                         for (const to of tuple.to) {
                             let text = '';
@@ -828,14 +857,26 @@ view.View = class {
                             }
 
                             if (this._showNames) {
-                                text = edge.split('\n').shift(); // custom argument id
+                                text = edgeKey.split('\n').shift(); // custom argument id
                             }
 
-                            if (to.controlDependency) {
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee', class: 'edge-path-control-dependency' } );
+                            if (graphlib) {
+                                const edge = { label: text, id: 'edge-' + edgeKey, arrowhead: 'vee' };
+                                if (to.controlDependency) {
+                                    edge.class = 'edge-path-control-dependency';
+                                }
+                                g.setEdge(tuple.from.node, to.node, edge);
                             }
                             else {
-                                g.setEdge(tuple.from.node, to.node, { label: text, id: 'edge-' + edge, arrowhead: 'vee' } );
+                                const edge = new grapher.Edge();
+                                edge.v = tuple.from.node;
+                                edge.w = to.node;
+                                edge.label = text;
+                                edge.id = 'edge-' + edgeKey;
+                                if (to.controlDependency) {
+                                    edge.class = 'edge-path-control-dependency';
+                                }
+                                g.setEdge(edge);
                             }
                         }
                     }

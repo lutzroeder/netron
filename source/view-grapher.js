@@ -3,6 +3,475 @@
 var grapher = grapher || {};
 var dagre = dagre || require('dagre');
 
+grapher.Graph = class {
+
+    constructor(canvas, compound) {
+        this._canvas = canvas;
+        this._nodes = new Map();
+        this._edges = new Map();
+        this._children = {};
+        this._children['\x00'] = {};
+        this._parent = {};
+        this._isCompound = compound;
+    }
+
+    setGraph(label) {
+        this._label = label;
+        return this;
+    }
+
+    graph() {
+        return this._label;
+    }
+
+    setDefaultEdgeLabel(/* callback */) {
+        // TODO
+        return this;
+    }
+
+    setNode(node) {
+        node.label = node.format ? node.format(this._canvas) : null;
+        this._nodes.set(node.name, node);
+        if (this._isCompound) {
+            this._parent[node.name] = '\x00';
+            this._children[node.name] = {};
+            this._children['\x00'][node.name] = true;
+        }
+        return this;
+    }
+
+    setEdge(edge) {
+        if (!this._nodes.has(edge.v)) {
+            throw new grapher.Error();
+        }
+        if (!this._nodes.has(edge.w)) {
+            throw new grapher.Error();
+        }
+        const key = edge.v + ' ' + edge.w + ' ';
+        if (this._edges.has(key)) {
+            throw new grapher.Error();
+        }
+        this._edges.set(key, edge);
+        this._edgeCount++;
+        return this;
+    }
+
+    setParent(node, parent) {
+        if (!this._isCompound) {
+            throw new Error("Cannot set parent in a non-compound graph");
+        }
+        parent += "";
+        for (var ancestor = parent; ancestor; ancestor = this.parent(ancestor)) {
+            if (ancestor === node) {
+                throw new Error("Setting " + parent + " as parent of " + node + " would create a cycle");
+            }
+        }
+        delete this._children[this._parent[node]][node];
+        this._parent[node] = parent;
+        this._children[parent][node] = true;
+        return this;
+    }
+
+    nodes() {
+        return Array.from(this._nodes.keys());
+    }
+
+    hasNode(key) {
+        return this._nodes.has(key);
+    }
+
+    node(key) {
+        return this._nodes.get(key);
+    }
+
+    edges() {
+        return Array.from(this._edges.values());
+    }
+
+    edge(key) {
+        return key;
+    }
+
+    parent(key) {
+        if (this._isCompound) {
+            var parent = this._parent[key];
+            if (parent !== '\x00') {
+                return parent;
+            }
+        }
+    }
+
+    children(key) {
+        key = key === undefined ? '\x00' : key;
+        if (this._isCompound) {
+            const children = this._children[key];
+            if (children) {
+                return Object.keys(children);
+            }
+        }
+        else if (key === '\x00') {
+            return this.nodes();
+        }
+        else if (this.hasNode(key)) {
+            return [];
+        }
+    }
+
+
+};
+
+grapher.Element = class {
+
+    constructor(document) {
+        this._document = document;
+        this._blocks = [];
+    }
+
+    block(type) {
+        this._block = null;
+        switch (type) {
+            case 'header':
+                this._block = new grapher.Element.Header(this._document);
+                break;
+            case 'list':
+                this._block = new grapher.Element.List(this._document);
+                break;
+        }
+        this._blocks.push(this._block);
+        return this._block;
+    }
+
+    format(contextElement) {
+        const rootElement = this.createElement('g');
+        contextElement.appendChild(rootElement);
+
+        let width = 0;
+        let height = 0;
+        const tops = [];
+
+        for (const block of this._blocks) {
+            tops.push(height);
+            block.layout(rootElement);
+            if (width < block.width) {
+                width = block.width;
+            }
+            height = height + block.height;
+        }
+
+        for (let i = 0; i < this._blocks.length; i++) {
+            const top = tops.shift();
+            this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
+        }
+
+        const borderElement = this.createElement('path');
+        borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
+        borderElement.setAttribute('d', grapher.Element.roundedRect(0, 0, width, height, true, true, true, true));
+        rootElement.appendChild(borderElement);
+
+        contextElement.innerHTML = '';
+        return rootElement;
+    }
+
+    static roundedRect(x, y, width, height, r1, r2, r3, r4) {
+        const radius = 5;
+        r1 = r1 ? radius : 0;
+        r2 = r2 ? radius : 0;
+        r3 = r3 ? radius : 0;
+        r4 = r4 ? radius : 0;
+        return "M" + (x + r1) + "," + y +
+            "h" + (width - r1 - r2) +
+            "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2 +
+            "v" + (height - r2 - r3) +
+            "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3 +
+            "h" + (r3 + r4 - width) +
+            "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4 +
+            'v' + (-height + r4 + r1) +
+            "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
+            "z";
+    }
+
+    createElement(name) {
+        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+};
+
+grapher.Element.Header = class {
+
+    constructor(document) {
+        this._document = document;
+        this._items = [];
+    }
+
+    add(id, classList, content, tooltip, handler) {
+        this._items.push({
+            id: id,
+            classList: classList,
+            content: content,
+            tooltip: tooltip,
+            handler: handler
+        });
+    }
+
+    layout(parentElement) {
+        this._width = 0;
+        this._height = 0;
+        this._elements = [];
+        let x = 0;
+        const y = 0;
+        for (const item of this._items) {
+            const yPadding = 4;
+            const xPadding = 7;
+            const element = this.createElement('g');
+            const classList = [ 'node-item' ];
+            parentElement.appendChild(element);
+            const pathElement = this.createElement('path');
+            const textElement = this.createElement('text');
+            element.appendChild(pathElement);
+            element.appendChild(textElement);
+            if (item.classList) {
+                classList.push(...item.classList);
+            }
+            element.setAttribute('class', classList.join(' '));
+            if (item.id) {
+                element.setAttribute('id', item.id);
+            }
+            if (item.handler) {
+                element.addEventListener('click', item.handler);
+            }
+            if (item.tooltip) {
+                const titleElement = this.createElement('title');
+                titleElement.textContent = item.tooltip;
+                element.appendChild(titleElement);
+            }
+            if (item.content) {
+                textElement.textContent = item.content;
+            }
+            const boundingBox = textElement.getBBox();
+            const width = boundingBox.width + xPadding + xPadding;
+            const height = boundingBox.height + yPadding + yPadding;
+            this._elements.push({
+                'group': element,
+                'text': textElement,
+                'path': pathElement,
+                'x': x, 'y': y,
+                'width': width, 'height': height,
+                'tx': xPadding, 'ty': yPadding - boundingBox.y,
+            });
+            x += width;
+            if (this._height < height) {
+                this._height = height;
+            }
+            if (x > this._width) {
+                this._width = x;
+            }
+        }
+    }
+
+    get width() {
+        return this._width;
+    }
+
+    get height() {
+        return this._height;
+    }
+
+    update(parentElement, top, width, first, last) {
+
+        const dx = width - this._width;
+        let i;
+        let element;
+
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
+            if (i == 0) {
+                element.width = element.width + dx;
+            }
+            else {
+                element.x = element.x + dx;
+                element.tx = element.tx + dx;
+            }
+            element.y = element.y + top;
+        }
+
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
+            element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
+            const r1 = i == 0 && first;
+            const r2 = i == this._elements.length - 1 && first;
+            const r3 = i == this._elements.length - 1 && last;
+            const r4 = i == 0 && last;
+            element.path.setAttribute('d', grapher.Element.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
+            element.text.setAttribute('x', 6);
+            element.text.setAttribute('y', element.ty);
+        }
+
+        let lineElement;
+        for (i = 0; i < this._elements.length; i++) {
+            element = this._elements[i];
+            if (i != 0) {
+                lineElement = this.createElement('line');
+                lineElement.setAttribute('class', 'node');
+                lineElement.setAttribute('x1', element.x);
+                lineElement.setAttribute('x2', element.x);
+                lineElement.setAttribute('y1', top);
+                lineElement.setAttribute('y2', top + this._height);
+                parentElement.appendChild(lineElement);
+            }
+        }
+
+        if (!first) {
+            lineElement = this.createElement('line');
+            lineElement.setAttribute('class', 'node');
+            lineElement.setAttribute('x1', 0);
+            lineElement.setAttribute('x2', width);
+            lineElement.setAttribute('y1', top);
+            lineElement.setAttribute('y2', top);
+            parentElement.appendChild(lineElement);
+        }
+    }
+
+    createElement(name) {
+        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+};
+
+grapher.Element.List = class {
+
+    constructor(document) {
+        this._document = document;
+        this._items = [];
+    }
+
+    add(id, name, value, tooltip, separator) {
+        this._items.push({ id: id, name: name, value: value, tooltip: tooltip, separator: separator });
+    }
+
+    get handler() {
+        return this._handler;
+    }
+
+    set handler(handler) {
+        this._handler = handler;
+    }
+
+    layout(parentElement) {
+        this._width = 0;
+        this._height = 0;
+        const x = 0;
+        const y = 0;
+        this._element = this.createElement('g');
+        this._element.setAttribute('class', 'node-attribute');
+        parentElement.appendChild(this._element);
+        if (this._handler) {
+            this._element.addEventListener('click', this._handler);
+        }
+        this._backgroundElement = this.createElement('path');
+        this._element.appendChild(this._backgroundElement);
+        this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
+        this._height += 3;
+        for (const item of this._items) {
+            const yPadding = 1;
+            const xPadding = 6;
+            const textElement = this.createElement('text');
+            if (item.id) {
+                textElement.setAttribute('id', item.id);
+            }
+            textElement.setAttribute('xml:space', 'preserve');
+            this._element.appendChild(textElement);
+            if (item.tooltip) {
+                const titleElement = this.createElement('title');
+                titleElement.textContent = item.tooltip;
+                textElement.appendChild(titleElement);
+            }
+            const textNameElement = this.createElement('tspan');
+            textNameElement.textContent = item.name;
+            if (item.separator.trim() != '=') {
+                textNameElement.style.fontWeight = 'bold';
+            }
+            textElement.appendChild(textNameElement);
+            const textValueElement = this.createElement('tspan');
+            textValueElement.textContent = item.separator + item.value;
+            textElement.appendChild(textValueElement);
+            const size = textElement.getBBox();
+            const width = xPadding + size.width + xPadding;
+            if (this._width < width) {
+                this._width = width;
+            }
+            textElement.setAttribute('x', x + xPadding);
+            textElement.setAttribute('y', this._height + yPadding - size.y);
+            this._height += yPadding + size.height + yPadding;
+        }
+        this._height += 3;
+
+        if (this._width < 100) {
+            this._width = 100;
+        }
+    }
+
+    get width() {
+        return this._width;
+    }
+
+    get height() {
+        return this._height;
+    }
+
+    update(parentElement, top, width , first, last) {
+
+        this._element.setAttribute('transform', 'translate(0,' + top + ')');
+
+        const r1 = first;
+        const r2 = first;
+        const r3 = last;
+        const r4 = last;
+        this._backgroundElement.setAttribute('d', grapher.Element.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
+
+        if (!first) {
+            const lineElement = this.createElement('line');
+            lineElement.setAttribute('class', 'node');
+            lineElement.setAttribute('x1', 0);
+            lineElement.setAttribute('x2', width);
+            lineElement.setAttribute('y1', 0);
+            lineElement.setAttribute('y2', 0);
+            this._element.appendChild(lineElement);
+        }
+    }
+
+    createElement(name) {
+        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
+    }
+};
+
+grapher.Node = class extends grapher.Element {
+
+    constructor(document) {
+        super(document);
+        this.class = 'graph-node';
+    }
+};
+
+grapher.Input = class extends grapher.Element {
+
+    constructor(document) {
+        super(document);
+        this.class = 'graph-input';
+    }
+};
+
+grapher.Output = class extends grapher.Element {
+
+    constructor(document) {
+        super(document);
+    }
+};
+
+grapher.Edge = class {
+
+    get arrowhead() {
+        return 'vee';
+    }
+};
+
 grapher.Renderer = class {
 
     constructor(document, svgElement) {
@@ -213,329 +682,6 @@ grapher.Renderer = class {
     }
 };
 
-grapher.NodeElement = class {
-
-    constructor(document) {
-        this._document = document;
-        this._blocks = [];
-    }
-
-    block(type) {
-        this._block = null;
-        switch (type) {
-            case 'header':
-                this._block = new grapher.NodeElement.Header(this._document);
-                break;
-            case 'list':
-                this._block = new grapher.NodeElement.List(this._document);
-                break;
-        }
-        this._blocks.push(this._block);
-        return this._block;
-    }
-
-    format(contextElement) {
-        const rootElement = this.createElement('g');
-        contextElement.appendChild(rootElement);
-
-        let width = 0;
-        let height = 0;
-        const tops = [];
-
-        for (const block of this._blocks) {
-            tops.push(height);
-            block.layout(rootElement);
-            if (width < block.width) {
-                width = block.width;
-            }
-            height = height + block.height;
-        }
-
-        for (let i = 0; i < this._blocks.length; i++) {
-            const top = tops.shift();
-            this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
-        }
-
-        const borderElement = this.createElement('path');
-        borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
-        borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
-        rootElement.appendChild(borderElement);
-
-        contextElement.innerHTML = '';
-        return rootElement;
-    }
-
-    static roundedRect(x, y, width, height, r1, r2, r3, r4) {
-        const radius = 5;
-        r1 = r1 ? radius : 0;
-        r2 = r2 ? radius : 0;
-        r3 = r3 ? radius : 0;
-        r4 = r4 ? radius : 0;
-        return "M" + (x + r1) + "," + y +
-            "h" + (width - r1 - r2) +
-            "a" + r2 + "," + r2 + " 0 0 1 " + r2 + "," + r2 +
-            "v" + (height - r2 - r3) +
-            "a" + r3 + "," + r3 + " 0 0 1 " + -r3 + "," + r3 +
-            "h" + (r3 + r4 - width) +
-            "a" + r4 + "," + r4 + " 0 0 1 " + -r4 + "," + -r4 +
-            'v' + (-height + r4 + r1) +
-            "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
-            "z";
-    }
-
-    createElement(name) {
-        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
-};
-
-grapher.NodeElement.Header = class {
-
-    constructor(document) {
-        this._document = document;
-        this._items = [];
-    }
-
-    add(id, classList, content, tooltip, handler) {
-        this._items.push({
-            id: id,
-            classList: classList,
-            content: content,
-            tooltip: tooltip,
-            handler: handler
-        });
-    }
-
-    layout(parentElement) {
-        this._width = 0;
-        this._height = 0;
-        this._elements = [];
-        let x = 0;
-        const y = 0;
-        for (const item of this._items) {
-            const yPadding = 4;
-            const xPadding = 7;
-            const element = this.createElement('g');
-            const classList = [ 'node-item' ];
-            parentElement.appendChild(element);
-            const pathElement = this.createElement('path');
-            const textElement = this.createElement('text');
-            element.appendChild(pathElement);
-            element.appendChild(textElement);
-            if (item.classList) {
-                classList.push(...item.classList);
-            }
-            element.setAttribute('class', classList.join(' '));
-            if (item.id) {
-                element.setAttribute('id', item.id);
-            }
-            if (item.handler) {
-                element.addEventListener('click', item.handler);
-            }
-            if (item.tooltip) {
-                const titleElement = this.createElement('title');
-                titleElement.textContent = item.tooltip;
-                element.appendChild(titleElement);
-            }
-            if (item.content) {
-                textElement.textContent = item.content;
-            }
-            const boundingBox = textElement.getBBox();
-            const width = boundingBox.width + xPadding + xPadding;
-            const height = boundingBox.height + yPadding + yPadding;
-            this._elements.push({
-                'group': element,
-                'text': textElement,
-                'path': pathElement,
-                'x': x, 'y': y,
-                'width': width, 'height': height,
-                'tx': xPadding, 'ty': yPadding - boundingBox.y,
-            });
-            x += width;
-            if (this._height < height) {
-                this._height = height;
-            }
-            if (x > this._width) {
-                this._width = x;
-            }
-        }
-    }
-
-    get width() {
-        return this._width;
-    }
-
-    get height() {
-        return this._height;
-    }
-
-    update(parentElement, top, width, first, last) {
-
-        const dx = width - this._width;
-        let i;
-        let element;
-
-        for (i = 0; i < this._elements.length; i++) {
-            element = this._elements[i];
-            if (i == 0) {
-                element.width = element.width + dx;
-            }
-            else {
-                element.x = element.x + dx;
-                element.tx = element.tx + dx;
-            }
-            element.y = element.y + top;
-        }
-
-        for (i = 0; i < this._elements.length; i++) {
-            element = this._elements[i];
-            element.group.setAttribute('transform', 'translate(' + element.x + ',' + element.y + ')');
-            const r1 = i == 0 && first;
-            const r2 = i == this._elements.length - 1 && first;
-            const r3 = i == this._elements.length - 1 && last;
-            const r4 = i == 0 && last;
-            element.path.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
-            element.text.setAttribute('x', 6);
-            element.text.setAttribute('y', element.ty);
-        }
-
-        let lineElement;
-        for (i = 0; i < this._elements.length; i++) {
-            element = this._elements[i];
-            if (i != 0) {
-                lineElement = this.createElement('line');
-                lineElement.setAttribute('class', 'node');
-                lineElement.setAttribute('x1', element.x);
-                lineElement.setAttribute('x2', element.x);
-                lineElement.setAttribute('y1', top);
-                lineElement.setAttribute('y2', top + this._height);
-                parentElement.appendChild(lineElement);
-            }
-        }
-
-        if (!first) {
-            lineElement = this.createElement('line');
-            lineElement.setAttribute('class', 'node');
-            lineElement.setAttribute('x1', 0);
-            lineElement.setAttribute('x2', width);
-            lineElement.setAttribute('y1', top);
-            lineElement.setAttribute('y2', top);
-            parentElement.appendChild(lineElement);
-        }
-    }
-
-    createElement(name) {
-        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
-};
-
-grapher.NodeElement.List = class {
-
-    constructor(document) {
-        this._document = document;
-        this._items = [];
-    }
-
-    add(id, name, value, tooltip, separator) {
-        this._items.push({ id: id, name: name, value: value, tooltip: tooltip, separator: separator });
-    }
-
-    get handler() {
-        return this._handler;
-    }
-
-    set handler(handler) {
-        this._handler = handler;
-    }
-
-    layout(parentElement) {
-        this._width = 0;
-        this._height = 0;
-        const x = 0;
-        const y = 0;
-        this._element = this.createElement('g');
-        this._element.setAttribute('class', 'node-attribute');
-        parentElement.appendChild(this._element);
-        if (this._handler) {
-            this._element.addEventListener('click', this._handler);
-        }
-        this._backgroundElement = this.createElement('path');
-        this._element.appendChild(this._backgroundElement);
-        this._element.setAttribute('transform', 'translate(' + x + ',' + y + ')');
-        this._height += 3;
-        for (const item of this._items) {
-            const yPadding = 1;
-            const xPadding = 6;
-            const textElement = this.createElement('text');
-            if (item.id) {
-                textElement.setAttribute('id', item.id);
-            }
-            textElement.setAttribute('xml:space', 'preserve');
-            this._element.appendChild(textElement);
-            if (item.tooltip) {
-                const titleElement = this.createElement('title');
-                titleElement.textContent = item.tooltip;
-                textElement.appendChild(titleElement);
-            }
-            const textNameElement = this.createElement('tspan');
-            textNameElement.textContent = item.name;
-            if (item.separator.trim() != '=') {
-                textNameElement.style.fontWeight = 'bold';
-            }
-            textElement.appendChild(textNameElement);
-            const textValueElement = this.createElement('tspan');
-            textValueElement.textContent = item.separator + item.value;
-            textElement.appendChild(textValueElement);
-            const size = textElement.getBBox();
-            const width = xPadding + size.width + xPadding;
-            if (this._width < width) {
-                this._width = width;
-            }
-            textElement.setAttribute('x', x + xPadding);
-            textElement.setAttribute('y', this._height + yPadding - size.y);
-            this._height += yPadding + size.height + yPadding;
-        }
-        this._height += 3;
-
-        if (this._width < 100) {
-            this._width = 100;
-        }
-    }
-
-    get width() {
-        return this._width;
-    }
-
-    get height() {
-        return this._height;
-    }
-
-    update(parentElement, top, width , first, last) {
-
-        this._element.setAttribute('transform', 'translate(0,' + top + ')');
-
-        const r1 = first;
-        const r2 = first;
-        const r3 = last;
-        const r4 = last;
-        this._backgroundElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
-
-        if (!first) {
-            const lineElement = this.createElement('line');
-            lineElement.setAttribute('class', 'node');
-            lineElement.setAttribute('x1', 0);
-            lineElement.setAttribute('x2', width);
-            lineElement.setAttribute('y1', 0);
-            lineElement.setAttribute('y2', 0);
-            this._element.appendChild(lineElement);
-        }
-    }
-
-    createElement(name) {
-        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
-};
-
-
 class Path {
 
     constructor() {
@@ -645,6 +791,10 @@ class Curve {
 }
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Graph = grapher.Graph;
+    module.exports.Node = grapher.Node;
+    module.exports.Input = grapher.Input;
+    module.exports.Output = grapher.Output;
+    module.exports.Edge = grapher.Edge;
     module.exports.Renderer = grapher.Renderer;
-    module.exports.NodeElement = grapher.NodeElement;
 }
