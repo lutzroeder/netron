@@ -262,7 +262,9 @@ rknn.Node = class {
 
     get type() {
         const prefix = 'VSI_NN_OP_';
-        return this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this._type;
+        const prefix_rknn = 'RKNN_OP_';
+        let sub_type =  this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this._type;
+        return sub_type.startsWith(prefix_rknn) ? sub_type.substring(prefix_rknn.length) : sub_type;
     }
 
     get metadata() {
@@ -428,6 +430,13 @@ rknn.TensorType = class {
             case 'VSI_NN_TYPE_INT64': this._dataType = 'int64'; break;
             case 'VSI_NN_TYPE_FLOAT16': this._dataType = 'float16'; break;
             case 'VSI_NN_TYPE_FLOAT32': this._dataType = 'float32'; break;
+            case 'uint8': this._dataType = 'uint8'; break;
+            case 'int8': this._dataType = 'int8'; break;
+            case 'int16': this._dataType = 'int16'; break;
+            case 'int32': this._dataType = 'int32'; break;
+            case 'int16': this._dataType = 'int64'; break;
+            case 'float16': this._dataType = 'float16'; break;
+            case 'float32': this._dataType = 'float32'; break;
             default:
                 throw new rknn.Error("Invalid data type '" + JSON.stringify(dataType) + "'.");
         }
