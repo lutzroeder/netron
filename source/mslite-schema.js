@@ -153,6 +153,23 @@ $root.mindspore.schema.Vec2D = class Vec2D {
     }
 };
 
+$root.mindspore.schema.Attribute = class Attribute {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Attribute();
+        $.name = reader.string_(position, 4, null);
+        $.data = reader.typedArray(position, 6, Uint8Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Attribute();
+        $.name = reader.value(json.name, null);
+        $.data = reader.typedArray(json.data, Uint8Array);
+        return $;
+    }
+};
+
 $root.mindspore.schema.PrimitiveType = class {
 
     static decode(reader, position, type) {
@@ -347,6 +364,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 188: return $root.mindspore.schema.Splice.decode(reader, position);
             case 189: return $root.mindspore.schema.LogSoftmax.decode(reader, position);
             case 190: return $root.mindspore.schema.Call.decode(reader, position);
+            case 191: return $root.mindspore.schema.Custom.decode(reader, position);
         }
         return undefined;
     }
@@ -543,6 +561,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Splice': return $root.mindspore.schema.Splice.decodeText(reader, json);
             case 'LogSoftmax': return $root.mindspore.schema.LogSoftmax.decodeText(reader, json);
             case 'Call': return $root.mindspore.schema.Call.decodeText(reader, json);
+            case 'Custom': return $root.mindspore.schema.Custom.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3662,6 +3681,23 @@ $root.mindspore.schema.Call = class Call {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Call();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Custom = class Custom {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Custom();
+        $.type = reader.string_(position, 4, null);
+        $.attr = reader.tableArray(position, 6, $root.mindspore.schema.Attribute.decode);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Custom();
+        $.type = reader.value(json.type, null);
+        $.attr = reader.objectArray(json.attr, $root.mindspore.schema.Attribute.decodeText);
         return $;
     }
 };

@@ -700,7 +700,9 @@
   {
     "name": "Custom",
     "attributes": [
-      { "name": "custom", "type": "ubyte[]" }
+      { "name": "custom", "type": "ubyte[]" },
+      { "name": "type", "type": "string", "default": null },
+      { "name": "attr", "type": "Attribute[]" }
     ]
   },
   {
