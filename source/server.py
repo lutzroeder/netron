@@ -53,7 +53,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         buffer = None
         data = '/data/'
         if status_code == 0:
-            if pathname[-1] == '/':
+            if pathname == '/' or pathname == self.prefix:
                 meta = []
                 meta.append('<meta name="type" content="Python">')
                 meta.append('<meta name="version" content="' + __version__ + '">')
@@ -128,6 +128,8 @@ class HTTPServerThread(threading.Thread):
         else:
             self.server.RequestHandlerClass.folder = ''
             self.server.RequestHandlerClass.file = ''
+        if len(prefix) > 0 and not prefix[-1] == '/':
+            prefix = prefix + '/'
         self.server.RequestHandlerClass.prefix = prefix
         self.server.RequestHandlerClass.data = data
         self.server.RequestHandlerClass.log = log
