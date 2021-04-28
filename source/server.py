@@ -53,12 +53,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         buffer = None
         data = '/data/'
         if status_code == 0:
-            if pathname == '/':
+            if pathname[-1] == '/':
                 meta = []
                 meta.append('<meta name="type" content="Python">')
                 meta.append('<meta name="version" content="' + __version__ + '">')
                 if self.file:
-                    meta.append('<meta name="file" content="/data/' + self.file + '">')
+                    meta.append('<meta name="file" content="' + self.prefix + '/data/' + self.file + '">')
                 with codecs.open(location + 'index.html', mode="r", encoding="utf-8") as open_file:
                     buffer = open_file.read()
                 buffer = re.sub(r'<meta name="version" content="\d+.\d+.\d+">', '\n'.join(meta), buffer)
@@ -115,7 +115,7 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass
 
 class HTTPServerThread(threading.Thread):
-    def __init__(self, data, file, address, log):
+    def __init__(self, data, file, address, log, prefix):
         threading.Thread.__init__(self)
         self.address = address
         self.url = 'http://' + address[0] + ':' + str(address[1])
@@ -128,6 +128,7 @@ class HTTPServerThread(threading.Thread):
         else:
             self.server.RequestHandlerClass.folder = ''
             self.server.RequestHandlerClass.file = ''
+        self.server.RequestHandlerClass.prefix = prefix
         self.server.RequestHandlerClass.data = data
         self.server.RequestHandlerClass.log = log
         self.terminate_event = threading.Event()
@@ -233,7 +234,7 @@ def wait():
         sys.stdout.flush()
         stop()
 
-def serve(file, data, address=None, browse=False, log=False):
+def serve(file, data, address=None, browse=False, log=False, prefix=''):
     '''Start serving model from file or data buffer at address and open in web browser.
 
     Args:
@@ -242,6 +243,7 @@ def serve(file, data, address=None, browse=False, log=False):
         log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser. Default: True
         address (tuple, optional): A (host, port) tuple, or a port number.
+        prefix (string, optional): String prefix before base path of server (ex. behind proxy)
 
     Returns:
         A (host, port) address tuple.
@@ -257,7 +259,7 @@ def serve(file, data, address=None, browse=False, log=False):
         address = _make_port(address)
     _update_thread_list()
 
-    thread = HTTPServerThread(data, file, address, log)
+    thread = HTTPServerThread(data, file, address, log, prefix)
     thread.start()
     while not thread.alive():
         time.sleep(10)
@@ -273,7 +275,7 @@ def serve(file, data, address=None, browse=False, log=False):
 
     return address
 
-def start(file=None, address=None, browse=True, log=False):
+def start(file=None, address=None, browse=True, log=False, prefix=''):
     '''Start serving model file at address and open in web browser.
 
     Args:
@@ -281,8 +283,9 @@ def start(file=None, address=None, browse=True, log=False):
         log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
         address (tuple, optional): A (host, port) tuple, or a port number.
+        prefix (string, optional): String prefix before base path of server (ex. behind proxy)
 
     Returns:
         A (host, port) address tuple.
     '''
-    return serve(file, None, browse=browse, address=address, log=log)
+    return serve(file, None, browse=browse, address=address, log=log, prefix=prefix)
