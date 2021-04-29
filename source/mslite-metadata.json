@@ -698,6 +698,13 @@
     ]
   },
   {
+    "name": "CumSum",
+    "attributes": [
+      { "name": "exclusive", "type": "boolean", "default": false },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "Custom",
     "attributes": [
       { "name": "custom", "type": "ubyte[]" },

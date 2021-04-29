@@ -365,6 +365,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 189: return $root.mindspore.schema.LogSoftmax.decode(reader, position);
             case 190: return $root.mindspore.schema.Call.decode(reader, position);
             case 191: return $root.mindspore.schema.Custom.decode(reader, position);
+            case 192: return $root.mindspore.schema.CumSum.decode(reader, position);
         }
         return undefined;
     }
@@ -562,6 +563,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'LogSoftmax': return $root.mindspore.schema.LogSoftmax.decodeText(reader, json);
             case 'Call': return $root.mindspore.schema.Call.decodeText(reader, json);
             case 'Custom': return $root.mindspore.schema.Custom.decodeText(reader, json);
+            case 'CumSum': return $root.mindspore.schema.CumSum.decodeText(reader, json);
         }
         return undefined;
     }
@@ -1298,6 +1300,23 @@ $root.mindspore.schema.Crop = class Crop {
         const $ = new $root.mindspore.schema.Crop();
         $.axis = reader.value(json.axis, 0);
         $.offsets = reader.array(json.offsets);
+        return $;
+    }
+};
+
+$root.mindspore.schema.CumSum = class CumSum {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.CumSum();
+        $.exclusive = reader.bool_(position, 4, false);
+        $.reverse = reader.bool_(position, 6, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.CumSum();
+        $.exclusive = reader.value(json.exclusive, false);
+        $.reverse = reader.value(json.reverse, false);
         return $;
     }
 };
@@ -3808,6 +3827,7 @@ $root.mindspore.schema.CNode = class CNode {
         $.inputIndex = reader.typedArray(position, 10, Uint32Array);
         $.outputIndex = reader.typedArray(position, 12, Uint32Array);
         $.quantType = reader.int32_(position, 14, 0);
+        $.deviceType = reader.int32_(position, 16, -1);
         return $;
     }
 
@@ -3819,6 +3839,7 @@ $root.mindspore.schema.CNode = class CNode {
         $.inputIndex = reader.typedArray(json.inputIndex, Uint32Array);
         $.outputIndex = reader.typedArray(json.outputIndex, Uint32Array);
         $.quantType = $root.mindspore.schema.QuantType[json.quantType];
+        $.deviceType = reader.value(json.deviceType, -1);
         return $;
     }
 };
