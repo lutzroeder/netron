@@ -207,6 +207,7 @@ ncnn.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        this._chain = [];
         this._type = layer.type;
         this._name = layer.name;
 
@@ -274,6 +275,12 @@ ncnn.Node = class {
                 break;
             }
             case 'InnerProduct': {
+                const activation_names = ["", "ReLU", "Leaky ReLU", "Clip", "Sigmoid", "Mish"];
+                const activation_type = parseInt(layer.attr['9'] || 0, 10);
+                if (activation_type > 0 && activation_type < activation_names.length)
+                    this._chain.push(new ncnn.Node(metadata, blobReader, {attributes: [], inputs: [], outputs: [],
+                        type: activation_names[activation_type], name: this._name
+                    }));
                 const num_output = parseInt(layer.attr['0'] || 0, 10);
                 const weight_data_size = parseInt(layer.attr['2'] || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
@@ -286,6 +293,27 @@ ncnn.Node = class {
                 const bias_data_size = parseInt(layer.attr['0'] || 0, 10);
                 this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 break;
+            }
+            case 'BinaryOp': {
+                const op_names = ["ADD", "SUB", "MUL", "DIV", "MAX", "MIN", "POW", "RSUB", "RDIV"];
+                const op_type = parseInt(layer.attr['0'] || 0, 10);
+                if (op_type < op_names.length)
+                    this._type += ' (' + op_names[op_type] + ')';
+                break;
+            }
+            case 'Eltwise' : {
+                const op_names = ["PROD", "SUM", "MAX"];
+                const op_type = parseInt(layer.attr['0'] || 0, 10);
+                if (op_type < op_names.length)
+                    this._type += ' (' + op_names[op_type] + ')';
+                break;  
+            }
+            case 'Pooling' : {
+                const pooling_names = ["MAX", "AVE"];
+                const pooling_type = parseInt(layer.attr['0'] || 0, 10);
+                if (pooling_type < pooling_names.length)
+                    this._type += ' (' + pooling_names[pooling_type] + ')';
+                break;  
             }
             case 'Embed': {
                 const num_output = parseInt(layer.attr['0'] || 0, 10);
@@ -300,6 +328,12 @@ ncnn.Node = class {
             case 'ConvolutionDepthWise':
             case 'Deconvolution':
             case 'DeconvolutionDepthWise': {
+                const activation_names = ["", "ReLU", "Leaky ReLU", "Clip", "Sigmoid", "Mish"];
+                const activation_type = parseInt(layer.attr['9'] || 0, 10);
+                if (activation_type > 0 && activation_type < activation_names.length)
+                    this._chain.push(new ncnn.Node(metadata, blobReader, {attributes: [], inputs: [], outputs: [],
+                        type: activation_names[activation_type], name: this._name
+                    }));
                 const num_output = parseInt(layer.attr['0'] || 0, 10);
                 const kernel_w = parseInt(layer.attr['1'] || 0, 10);
                 const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
@@ -446,6 +480,10 @@ ncnn.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get chain() {
+        return this._chain;
     }
 
     _weight(blobReader, name, dimensions, dataType) {
