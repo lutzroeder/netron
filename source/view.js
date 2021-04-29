@@ -11,7 +11,6 @@ var protobuf = protobuf || require('./protobuf');
 var python = python || require('./python');
 
 var d3 = d3 || require('d3');
-var dagre = dagre || require('dagre');
 
 var sidebar = sidebar || require('./view-sidebar');
 var grapher = grapher || require('./view-grapher');
@@ -507,44 +506,27 @@ view.View = class {
                 }
 
                 const groups = graph.groups;
+                const nodes = graph.nodes;
+                this._host.event('Graph', 'Render', 'Size', nodes.length);
 
-                const graphOptions = {};
-                graphOptions.nodesep = 25;
-                graphOptions.ranksep = 20;
-
+                const options = {};
+                options.nodesep = 25;
+                options.ranksep = 20;
                 const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
                 const showHorizontal = rotate ? !this._showHorizontal : this._showHorizontal;
                 if (showHorizontal) {
-                    graphOptions.rankdir = "LR";
+                    options.rankdir = "LR";
+                }
+                if (nodes.length > 1500) {
+                    options.ranker = 'longest-path';
                 }
 
-                const graphlib = true;
+                const viewGraph = new view.Graph(groups, options);
 
-                let g = null;
-                if (graphlib) {
-                    const options = { compound: groups };
-                    g = new dagre.graphlib.Graph(options);
-                    g.setGraph(graphOptions);
-                    g.setDefaultEdgeLabel(() => { return {}; });
-                }
-                else {
-                    g = new grapher.Graph(canvasElement, groups);
-                    g.setGraph(graphOptions);
-                    g.setDefaultEdgeLabel(() => { return {}; });
-                }
-
-                let nodeId = 0;
                 const edgeMap = {};
                 const clusterMap = {};
                 const clusterParentMap = {};
                 let counter = 0;
-                const nodes = graph.nodes;
-
-                if (nodes.length > 1500) {
-                    graphOptions.ranker = 'longest-path';
-                }
-
-                this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 if (groups) {
                     for (const node of nodes) {
@@ -562,11 +544,11 @@ view.View = class {
                 const self = this;
                 for (const node of nodes) {
 
-                    const element = new grapher.Node(this._host.document);
+                    const viewNode = viewGraph.createNode(node);
+                    viewNode.id = 'node-' + (node.name ? 'name-' + node.name : 'id-' + (counter++).toString());
+                    const addNode = function(viewNode, node, edges) {
 
-                    const addNode = function(element, node, edges) {
-
-                        const header =  element.block('header');
+                        const header =  viewNode.header();
                         const styles = [ 'node-item-type' ];
                         const metadata = node.metadata;
                         const category = metadata && metadata.category ? metadata.category : '';
@@ -613,7 +595,7 @@ view.View = class {
                             });
                         }
                         if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
-                            const block = element.block('list');
+                            const block = viewNode.list();
                             block.handler = () => {
                                 self.showNodeProperties(node);
                             };
@@ -675,7 +657,7 @@ view.View = class {
                                             edgeMap[argument.name] = tuple;
                                         }
                                         tuple.to.push({
-                                            node: nodeId,
+                                            node: viewNode.name,
                                             name: input.name
                                         });
                                     }
@@ -700,7 +682,7 @@ view.View = class {
                                             edgeMap[argument.name] = tuple;
                                         }
                                         tuple.from = {
-                                            node: nodeId,
+                                            node: viewNode.name,
                                             name: output.name,
                                             type: argument.type
                                         };
@@ -711,16 +693,16 @@ view.View = class {
 
                         if (node.chain && node.chain.length > 0) {
                             for (const innerNode of node.chain) {
-                                addNode(element, innerNode, false);
+                                addNode(viewNode, innerNode, false);
                             }
                         }
 
                         if (node.inner) {
-                            addNode(element, node.inner, false);
+                            addNode(viewNode, node.inner, false);
                         }
                     };
 
-                    addNode(element, node, true);
+                    addNode(viewNode, node, true);
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
                         for (const controlDependency of node.controlDependencies) {
@@ -730,31 +712,21 @@ view.View = class {
                                 edgeMap[controlDependency] = tuple;
                             }
                             tuple.to.push({
-                                node: nodeId,
+                                node: viewNode.name,
                                 name: controlDependency,
                                 controlDependency: true
                             });
                         }
                     }
 
-                    const nodeName = node.name;
-                    element.id = 'node-' + (nodeName ? 'name-' + nodeName : 'id-' + (counter++).toString());
-                    if (graphlib) {
-                        g.setNode(nodeId, { label: element.format(canvasElement), id: element.id, class: 'graph-node' });
-                    }
-                    else {
-                        element.name = nodeId;
-                        g.setNode(element);
-                    }
-
                     const createCluster = function(name) {
                         if (!clusterMap[name]) {
-                            g.setNode({ name: name, rx: 5, ry: 5});
+                            viewGraph.setNode({ name: name, rx: 5, ry: 5});
                             clusterMap[name] = true;
                             const parent = clusterParentMap[name];
                             if (parent) {
                                 createCluster(parent);
-                                g.setParent(name, parent);
+                                viewGraph.setParent(name, parent);
                             }
                         }
                     };
@@ -776,15 +748,27 @@ view.View = class {
                             }
                             if (groupName) {
                                 createCluster(groupName);
-                                g.setParent(nodeId, groupName);
+                                viewGraph.setParent(viewNode.name, groupName);
                             }
                         }
                     }
-
-                    nodeId++;
                 }
 
                 for (const input of graph.inputs) {
+                    const viewInput = viewGraph.createInput(input);
+
+                    const types = input.arguments.map((argument) => argument.type || '').join('\n');
+                    let inputName = input.name || '';
+                    if (inputName.length > 16) {
+                        inputName = inputName.split('/').pop();
+                    }
+
+                    const inputHeader = viewInput.header();
+                    inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
+                        this.showModelProperties();
+                    });
+                    viewInput.id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
+
                     for (const argument of input.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
@@ -792,57 +776,32 @@ view.View = class {
                             edgeMap[argument.name] = tuple;
                         }
                         tuple.from = {
-                            node: nodeId,
+                            node: viewInput.name,
                             type: argument.type
                         };
-                    }
-                    const types = input.arguments.map((argument) => argument.type || '').join('\n');
-                    let inputName = input.name || '';
-                    if (inputName.length > 16) {
-                        inputName = inputName.split('/').pop();
-                    }
-
-                    const inputElement = new grapher.Input(this._host.document);
-                    const inputHeader = inputElement.block('header');
-                    inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
-                        this.showModelProperties();
-                    });
-                    inputElement.id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
-                    if (graphlib) {
-                        g.setNode(nodeId++, { label: inputElement.format(canvasElement), id: inputElement.id, class: 'graph-input' } );
-                    }
-                    else {
-                        inputElement.name = nodeId++;
-                        g.setNode(inputElement);
                     }
                 }
 
                 for (const output of graph.outputs) {
+                    const viewOutput = viewGraph.createOutput(output);
+
+                    const outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
+                    let outputName = output.name || '';
+                    if (outputName.length > 16) {
+                        outputName = outputName.split('/').pop();
+                    }
+                    const header = viewOutput.header();
+                    header.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
+                        this.showModelProperties();
+                    });
+
                     for (const argument of output.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
                             tuple = { from: null, to: [] };
                             edgeMap[argument.name] = tuple;
                         }
-                        tuple.to.push({ node: nodeId });
-                    }
-                    const outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
-                    let outputName = output.name || '';
-                    if (outputName.length > 16) {
-                        outputName = outputName.split('/').pop();
-                    }
-
-                    const outputElement = new grapher.Output(this._host.document);
-                    const outputHeader = outputElement.block('header');
-                    outputHeader.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
-                        this.showModelProperties();
-                    });
-                    if (graphlib) {
-                        g.setNode(nodeId++, { label: outputElement.format(canvasElement) } );
-                    }
-                    else {
-                        outputElement.name = nodeId++;
-                        g.setNode(outputElement);
+                        tuple.to.push({ node: viewOutput.name });
                     }
                 }
 
@@ -860,27 +819,20 @@ view.View = class {
                                 text = edgeKey.split('\n').shift(); // custom argument id
                             }
 
-                            if (graphlib) {
-                                const edge = { label: text, id: 'edge-' + edgeKey, arrowhead: 'vee' };
-                                if (to.controlDependency) {
-                                    edge.class = 'edge-path-control-dependency';
-                                }
-                                g.setEdge(tuple.from.node, to.node, edge);
+                            const edge = viewGraph.createEdge();
+                            edge.v = tuple.from.node;
+                            edge.w = to.node;
+                            edge.label = text;
+                            edge.id = 'edge-' + edgeKey;
+                            if (to.controlDependency) {
+                                edge.class = 'edge-path-control-dependency';
                             }
-                            else {
-                                const edge = new grapher.Edge();
-                                edge.v = tuple.from.node;
-                                edge.w = to.node;
-                                edge.label = text;
-                                edge.id = 'edge-' + edgeKey;
-                                if (to.controlDependency) {
-                                    edge.class = 'edge-path-control-dependency';
-                                }
-                                g.setEdge(edge);
-                            }
+                            viewGraph.setEdge(edge);
                         }
                     }
                 }
+
+                viewGraph.build(this._host.document, canvasElement);
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -919,8 +871,7 @@ view.View = class {
 
                 return this._timeout(20).then(() => {
 
-                    const graphRenderer = new grapher.Renderer(this._host.document, originElement);
-                    graphRenderer.render(g);
+                    viewGraph.render(this._host.document, originElement);
 
                     const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
                     if (elements.length === 0) {
@@ -952,7 +903,7 @@ view.View = class {
                                 this._zoom.transform(svg, d3.zoomIdentity.translate(sx, sy));
                             }
                             else {
-                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - g.graph().width) / 2, (svgSize.height - g.graph().height) / 2));
+                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - viewGraph.graph().width) / 2, (svgSize.height - viewGraph.graph().height) / 2));
                             }
                             break;
                         }
@@ -1177,6 +1128,86 @@ view.View = class {
             this._sidebar.push(documentationSidebar.render(), 'Documentation');
         }
     }
+};
+
+view.Graph = class extends grapher.Graph {
+
+    constructor(compound, options) {
+        super(compound);
+        this._nodeKey = 0;
+        this.setGraph(options);
+    }
+
+    createNode(node) {
+        const value = new view.Node(node);
+        value.name = this._nodeKey++;
+        this.setNode(value);
+        return value;
+    }
+
+    createInput(input) {
+        const value = new view.Input(input);
+        value.name = this._nodeKey++;
+        this.setNode(value);
+        return value;
+    }
+
+    createOutput(output) {
+        const value = new view.Output(output);
+        value.name = this._nodeKey++;
+        this.setNode(value);
+        return value;
+    }
+
+    createEdge() {
+        const value = new view.Edge();
+        return value;
+    }
+
+    build(document, canvas) {
+        for (const key of this.nodes()) {
+            const node = this.node(key);
+            node.label = node.build ? node.build(document, canvas) : null;
+        }
+    }
+};
+
+view.Node = class extends grapher.Node {
+
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+
+    get class() {
+        return 'graph-node';
+    }
+};
+
+view.Input = class extends grapher.Node {
+
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+
+    get class() {
+        return 'graph-input';
+    }
+};
+
+console.log(grapher.Node);
+
+view.Output = class extends grapher.Node {
+
+    constructor(value) {
+        super();
+        this.value = value;
+    }
+};
+
+view.Edge = class extends grapher.Edge {
+
 };
 
 view.ModelContext = class {
