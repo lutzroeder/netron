@@ -1304,23 +1304,6 @@ $root.mindspore.schema.Crop = class Crop {
     }
 };
 
-$root.mindspore.schema.CumSum = class CumSum {
-
-    static decode(reader, position) {
-        const $ = new $root.mindspore.schema.CumSum();
-        $.exclusive = reader.bool_(position, 4, false);
-        $.reverse = reader.bool_(position, 6, false);
-        return $;
-    }
-
-    static decodeText(reader, json) {
-        const $ = new $root.mindspore.schema.CumSum();
-        $.exclusive = reader.value(json.exclusive, false);
-        $.reverse = reader.value(json.reverse, false);
-        return $;
-    }
-};
-
 $root.mindspore.schema.CustomExtractFeatures = class CustomExtractFeatures {
 
     static decode(/* reader, position */) {
@@ -3704,6 +3687,23 @@ $root.mindspore.schema.Call = class Call {
     }
 };
 
+$root.mindspore.schema.CumSum = class CumSum {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.CumSum();
+        $.exclusive = reader.bool_(position, 4, false);
+        $.reverse = reader.bool_(position, 6, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.CumSum();
+        $.exclusive = reader.value(json.exclusive, false);
+        $.reverse = reader.value(json.reverse, false);
+        return $;
+    }
+};
+
 $root.mindspore.schema.Custom = class Custom {
 
     static decode(reader, position) {
@@ -3758,6 +3758,12 @@ $root.mindspore.schema.QuantParam = class QuantParam {
     }
 };
 
+$root.mindspore.schema.WeightQunatCompressType = {
+    NONE: 0,
+    INDEXING: 1,
+    SPARSE: 2
+};
+
 $root.mindspore.schema.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -3773,6 +3779,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantClusters = reader.typedArray(position, 20, Float32Array);
         $.name = reader.string_(position, 22, null);
         $.enableHuffmanCode = reader.bool_(position, 24, false);
+        $.weightQunatCompressType = reader.int32_(position, 26, 0);
         return $;
     }
 
@@ -3789,6 +3796,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.quantClusters = reader.typedArray(json.quantClusters, Float32Array);
         $.name = reader.value(json.name, null);
         $.enableHuffmanCode = reader.value(json.enableHuffmanCode, false);
+        $.weightQunatCompressType = $root.mindspore.schema.WeightQunatCompressType[json.weightQunatCompressType];
         return $;
     }
 };
