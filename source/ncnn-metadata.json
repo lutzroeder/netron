@@ -28,7 +28,7 @@
     "name": "BinaryOp",
     "operator": 40,
     "attributes": [
-      { "name": "op_type", "type": "int32", "default": 0 },
+      { "name": "op_type", "type": "BinaryOpType", "default": 0 },
       { "name": "with_scalar", "type": "int32", "default": 0 },
       { "name": "b", "type": "float32", "default": 0 }
     ]
@@ -205,7 +205,7 @@
     "name": "Eltwise",
     "operator": 10,
     "attributes": [
-      { "name": "op_type", "default": 0 },
+      { "name": "op_type", "type": "EltwiseType", "default": 0 },
       { "name": "coeffs", "default": [] }
     ],
     "inputs": [
@@ -444,7 +444,7 @@
     "operator": 21,
     "category": "Pool",
     "attributes": [
-      { "name": "pooling_type", "default": 0 },
+      { "name": "pooling_type", "type": "PoolingType", "default": 0 },
       { "name": "kernel_w", "default": 0 },
       { "name": "stride_w", "default": 1 },
       { "name": "pad_left", "default": 0 },
