@@ -201,13 +201,6 @@
   },
   {
     "type":   "caffe",
-    "target": "AlexNet_SalObjSub.caffemodel",
-    "source": "http://www.cs.bu.edu/groups/ivc/data/SOS/AlexNet_SalObjSub.caffemodel",
-    "format": "Caffe v1",
-    "link":   "https://github.com/natanielruiz/net-archive/tree/master/salient-object-alexnet"
-  },
-  {
-    "type":   "caffe",
     "target": "AlexNet_SalObjSub_deploy.prototxt",
     "source": "https://raw.githubusercontent.com/natanielruiz/net-archive/master/salient-object-alexnet/deploy.prototxt",
     "format": "Caffe v1",
