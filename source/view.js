@@ -526,7 +526,6 @@ view.View = class {
                 const edgeMap = {};
                 const clusterMap = {};
                 const clusterParentMap = {};
-                let counter = 0;
 
                 if (groups) {
                     for (const node of nodes) {
@@ -545,8 +544,7 @@ view.View = class {
                 for (const node of nodes) {
 
                     const viewNode = viewGraph.createNode(node);
-                    viewNode.id = 'node-' + (node.name ? 'name-' + node.name : 'id-' + (counter++).toString());
-                    const addNode = function(viewNode, node, edges) {
+                    const addNode = function(viewNode, node) {
 
                         const header =  viewNode.header();
                         const styles = [ 'node-item-type' ];
@@ -645,64 +643,60 @@ view.View = class {
                                 }
                             }
                         }
-
-                        if (edges) {
-                            const inputs = node.inputs;
-                            for (const input of inputs) {
-                                for (const argument of input.arguments) {
-                                    if (argument.name != '' && !argument.initializer) {
-                                        let tuple = edgeMap[argument.name];
-                                        if (!tuple) {
-                                            tuple = { from: null, to: [] };
-                                            edgeMap[argument.name] = tuple;
-                                        }
-                                        tuple.to.push({
-                                            node: viewNode.name,
-                                            name: input.name
-                                        });
-                                    }
-                                }
-                            }
-                            let outputs = node.outputs;
-                            if (node.chain && node.chain.length > 0) {
-                                const chainOutputs = node.chain[node.chain.length - 1].outputs;
-                                if (chainOutputs.length > 0) {
-                                    outputs = chainOutputs;
-                                }
-                            }
-                            for (const output of outputs) {
-                                for (const argument of output.arguments) {
-                                    if (!argument) {
-                                        throw new view.Error("Invalid null argument in '" + model.format + "'.");
-                                    }
-                                    if (argument.name != '') {
-                                        let tuple = edgeMap[argument.name];
-                                        if (!tuple) {
-                                            tuple = { from: null, to: [] };
-                                            edgeMap[argument.name] = tuple;
-                                        }
-                                        tuple.from = {
-                                            node: viewNode.name,
-                                            name: output.name,
-                                            type: argument.type
-                                        };
-                                    }
-                                }
-                            }
-                        }
-
                         if (node.chain && node.chain.length > 0) {
                             for (const innerNode of node.chain) {
-                                addNode(viewNode, innerNode, false);
+                                addNode(viewNode, innerNode);
                             }
                         }
-
                         if (node.inner) {
-                            addNode(viewNode, node.inner, false);
+                            addNode(viewNode, node.inner);
                         }
                     };
 
-                    addNode(viewNode, node, true);
+                    addNode(viewNode, node);
+
+                    const inputs = node.inputs;
+                    for (const input of inputs) {
+                        for (const argument of input.arguments) {
+                            if (argument.name != '' && !argument.initializer) {
+                                let tuple = edgeMap[argument.name];
+                                if (!tuple) {
+                                    tuple = { from: null, to: [] };
+                                    edgeMap[argument.name] = tuple;
+                                }
+                                tuple.to.push({
+                                    node: viewNode.name,
+                                    name: input.name
+                                });
+                            }
+                        }
+                    }
+                    let outputs = node.outputs;
+                    if (node.chain && node.chain.length > 0) {
+                        const chainOutputs = node.chain[node.chain.length - 1].outputs;
+                        if (chainOutputs.length > 0) {
+                            outputs = chainOutputs;
+                        }
+                    }
+                    for (const output of outputs) {
+                        for (const argument of output.arguments) {
+                            if (!argument) {
+                                throw new view.Error("Invalid null argument in '" + model.format + "'.");
+                            }
+                            if (argument.name != '') {
+                                let tuple = edgeMap[argument.name];
+                                if (!tuple) {
+                                    tuple = { from: null, to: [] };
+                                    edgeMap[argument.name] = tuple;
+                                }
+                                tuple.from = {
+                                    node: viewNode.name,
+                                    name: output.name,
+                                    type: argument.type
+                                };
+                            }
+                        }
+                    }
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
                         for (const controlDependency of node.controlDependencies) {
@@ -755,20 +749,7 @@ view.View = class {
                 }
 
                 for (const input of graph.inputs) {
-                    const viewInput = viewGraph.createInput(input);
-
-                    const types = input.arguments.map((argument) => argument.type || '').join('\n');
-                    let inputName = input.name || '';
-                    if (inputName.length > 16) {
-                        inputName = inputName.split('/').pop();
-                    }
-
-                    const inputHeader = viewInput.header();
-                    inputHeader.add(null, [ 'graph-item-input' ], inputName, types, () => {
-                        this.showModelProperties();
-                    });
-                    viewInput.id = 'input-' + (inputName ? 'name-' + inputName : 'id-' + (counter++).toString());
-
+                    const viewInput = viewGraph.createInput(input, () => this.showModelProperties());
                     for (const argument of input.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
@@ -783,18 +764,7 @@ view.View = class {
                 }
 
                 for (const output of graph.outputs) {
-                    const viewOutput = viewGraph.createOutput(output);
-
-                    const outputTypes = output.arguments.map((argument) => argument.type || '').join('\n');
-                    let outputName = output.name || '';
-                    if (outputName.length > 16) {
-                        outputName = outputName.split('/').pop();
-                    }
-                    const header = viewOutput.header();
-                    header.add(null, [ 'graph-item-output' ], outputName, outputTypes, () => {
-                        this.showModelProperties();
-                    });
-
+                    const viewOutput = viewGraph.createOutput(output, () => this.showModelProperties());
                     for (const argument of output.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
@@ -1145,15 +1115,15 @@ view.Graph = class extends grapher.Graph {
         return value;
     }
 
-    createInput(input) {
-        const value = new view.Input(input);
+    createInput(input, click) {
+        const value = new view.Input(input, click);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
     }
 
-    createOutput(output) {
-        const value = new view.Output(output);
+    createOutput(output, click) {
+        const value = new view.Output(output, click);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
@@ -1176,6 +1146,8 @@ view.Node = class extends grapher.Node {
 
     constructor(value) {
         super();
+        view.Node.counter = view.Node.counter || 0;
+        this.id = 'node-' + (value.name ? 'name-' + value.name : 'id-' + (view.Node.counter++).toString());
         this.value = value;
     }
 
@@ -1186,8 +1158,17 @@ view.Node = class extends grapher.Node {
 
 view.Input = class extends grapher.Node {
 
-    constructor(value) {
+    constructor(value, click) {
         super();
+        view.Input.counter = view.Input.counter || 0;
+        const types = value.arguments.map((argument) => argument.type || '').join('\n');
+        let name = value.name || '';
+        if (name.length > 16) {
+            name = name.split('/').pop();
+        }
+        const header = this.header();
+        header.add(null, [ 'graph-item-input' ], name, types, click);
+        this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
         this.value = value;
     }
 
@@ -1198,8 +1179,15 @@ view.Input = class extends grapher.Node {
 
 view.Output = class extends grapher.Node {
 
-    constructor(value) {
+    constructor(value, click) {
         super();
+        const types = value.arguments.map((argument) => argument.type || '').join('\n');
+        let name = value.name || '';
+        if (name.length > 16) {
+            name = name.split('/').pop();
+        }
+        const header = this.header();
+        header.add(null, [ 'graph-item-output' ], name, types, click);
         this.value = value;
     }
 };
