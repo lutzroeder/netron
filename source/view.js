@@ -168,6 +168,10 @@ view.View = class {
         }
     }
 
+    get model() {
+        return this._model;
+    }
+
     toggleAttributes() {
         this._showAttributes = !this._showAttributes;
         this._reload();
@@ -521,7 +525,7 @@ view.View = class {
                     options.ranker = 'longest-path';
                 }
 
-                const viewGraph = new view.Graph(groups, options);
+                const viewGraph = new view.Graph(this, groups, options);
 
                 const edgeMap = {};
                 const clusterMap = {};
@@ -540,120 +544,9 @@ view.View = class {
                     }
                 }
 
-                const self = this;
                 for (const node of nodes) {
 
                     const viewNode = viewGraph.createNode(node);
-                    const addNode = function(viewNode, node) {
-
-                        const header =  viewNode.header();
-                        const styles = [ 'node-item-type' ];
-                        const metadata = node.metadata;
-                        const category = metadata && metadata.category ? metadata.category : '';
-                        if (category) {
-                            styles.push('node-item-type-' + category.toLowerCase());
-                        }
-                        const type = node.type;
-                        if (typeof type !== 'string' || !type.split) { // #416
-                            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + model.format + "'.");
-                        }
-                        const content = self.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
-                        const tooltip = self.showNames && (node.name || node.location) ? type : (node.name || node.location);
-                        header.add(null, styles, content, tooltip, () => {
-                            self.showNodeProperties(node, null);
-                        });
-
-                        if (node.function) {
-                            header.add(null, [ 'node-item-function' ], '+', null, () => {
-                                // debugger;
-                            });
-                        }
-
-                        const initializers = [];
-                        let hiddenInitializers = false;
-                        if (self._showInitializers) {
-                            for (const input of node.inputs) {
-                                if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
-                                    initializers.push(input);
-                                }
-                                if ((!input.visible || input.arguments.length > 1) &&
-                                    input.arguments.some((argument) => argument.initializer != null)) {
-                                    hiddenInitializers = true;
-                                }
-                            }
-                        }
-                        let sortedAttributes = [];
-                        const attributes = node.attributes;
-                        if (self.showAttributes && attributes) {
-                            sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
-                            sortedAttributes.sort((a, b) => {
-                                const au = a.name.toUpperCase();
-                                const bu = b.name.toUpperCase();
-                                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
-                            });
-                        }
-                        if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
-                            const block = viewNode.list();
-                            block.handler = () => {
-                                self.showNodeProperties(node);
-                            };
-                            for (const initializer of initializers) {
-                                const argument = initializer.arguments[0];
-                                const type = argument.type;
-                                let shape = '';
-                                let separator = '';
-                                if (type &&
-                                    type.shape &&
-                                    type.shape.dimensions &&
-                                    Object.prototype.hasOwnProperty.call(type.shape.dimensions, 'length')) {
-                                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
-                                    if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
-                                        try {
-                                            shape = argument.initializer.toString();
-                                            if (shape && shape.length > 10) {
-                                                shape = shape.substring(0, 10) + '\u2026';
-                                            }
-                                            separator = ' = ';
-                                        }
-                                        catch (err) {
-                                            let type = '?';
-                                            try {
-                                                type = argument.initializer.type.toString();
-                                            }
-                                            catch (error) {
-                                                // continue regardless of error
-                                            }
-                                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + model.format + "' (" + err.message + ").");
-                                        }
-                                    }
-                                }
-                                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
-                            }
-                            if (hiddenInitializers) {
-                                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
-                            }
-
-                            for (const attribute of sortedAttributes) {
-                                if (attribute.visible) {
-                                    let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
-                                    if (attributeValue && attributeValue.length > 25) {
-                                        attributeValue = attributeValue.substring(0, 25) + '\u2026';
-                                    }
-                                    block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
-                                }
-                            }
-                        }
-                        if (node.chain && node.chain.length > 0) {
-                            for (const innerNode of node.chain) {
-                                addNode(viewNode, innerNode);
-                            }
-                        }
-                        if (node.inner) {
-                            addNode(viewNode, node.inner);
-                        }
-                    };
-
-                    addNode(viewNode, node);
 
                     const inputs = node.inputs;
                     for (const input of inputs) {
@@ -749,7 +642,7 @@ view.View = class {
                 }
 
                 for (const input of graph.inputs) {
-                    const viewInput = viewGraph.createInput(input, () => this.showModelProperties());
+                    const viewInput = viewGraph.createInput(input);
                     for (const argument of input.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
@@ -764,7 +657,7 @@ view.View = class {
                 }
 
                 for (const output of graph.outputs) {
-                    const viewOutput = viewGraph.createOutput(output, () => this.showModelProperties());
+                    const viewOutput = viewGraph.createOutput(output);
                     for (const argument of output.arguments) {
                         let tuple = edgeMap[argument.name];
                         if (!tuple) {
@@ -784,11 +677,9 @@ view.View = class {
                             if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
                                 text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
                             }
-
-                            if (this._showNames) {
+                            if (this.showNames) {
                                 text = edgeKey.split('\n').shift(); // custom argument id
                             }
-
                             const edge = viewGraph.createEdge();
                             edge.v = tuple.from.node;
                             edge.w = to.node;
@@ -940,21 +831,17 @@ view.View = class {
 
     applyStyleSheet(element, name) {
         let rules = [];
-        for (let i = 0; i < this._host.document.styleSheets.length; i++) {
-            const styleSheet = this._host.document.styleSheets[i];
+        for (const styleSheet of this._host.document.styleSheets) {
             if (styleSheet && styleSheet.href && styleSheet.href.endsWith('/' + name)) {
                 rules = styleSheet.cssRules;
                 break;
             }
         }
         const nodes = element.getElementsByTagName('*');
-        for (let j = 0; j < nodes.length; j++) {
-            const node = nodes[j];
-            for (let k = 0; k < rules.length; k++) {
-                const rule = rules[k];
+        for (const node of nodes) {
+            for (const rule of rules) {
                 if (node.matches(rule.selectorText)) {
-                    for (let l = 0; l < rule.style.length; l++) {
-                        const item = rule.style.item(l);
+                    for (const item of rule.style) {
                         node.style[item] = rule.style[item];
                     }
                 }
@@ -1102,28 +989,29 @@ view.View = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(compound, options) {
+    constructor(context, compound, options) {
         super(compound);
+        this.context = context;
         this._nodeKey = 0;
         this.setGraph(options);
     }
 
     createNode(node) {
-        const value = new view.Node(node);
+        const value = new view.Node(node, this.context);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
     }
 
-    createInput(input, click) {
-        const value = new view.Input(input, click);
+    createInput(input) {
+        const value = new view.Input(input, this.context);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
     }
 
-    createOutput(output, click) {
-        const value = new view.Output(output, click);
+    createOutput(output) {
+        const value = new view.Output(output, this.context);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
@@ -1144,30 +1032,137 @@ view.Graph = class extends grapher.Graph {
 
 view.Node = class extends grapher.Node {
 
-    constructor(value) {
+    constructor(value, context) {
         super();
         view.Node.counter = view.Node.counter || 0;
+        this.context = context;
         this.id = 'node-' + (value.name ? 'name-' + value.name : 'id-' + (view.Node.counter++).toString());
         this.value = value;
+        this._add(this.value);
     }
 
     get class() {
         return 'graph-node';
     }
+
+    _add(node) {
+
+        const header =  this.header();
+        const styles = [ 'node-item-type' ];
+        const metadata = node.metadata;
+        const category = metadata && metadata.category ? metadata.category : '';
+        if (category) {
+            styles.push('node-item-type-' + category.toLowerCase());
+        }
+        const type = node.type;
+        if (typeof type !== 'string' || !type.split) { // #416
+            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + this.context.model.format + "'.");
+        }
+        const content = this.context.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
+        const tooltip = this.context.showNames && (node.name || node.location) ? type : (node.name || node.location);
+        header.add(null, styles, content, tooltip, () => {
+            this.context.showNodeProperties(node, null);
+        });
+        if (node.function) {
+            header.add(null, [ 'node-item-function' ], '+', null, () => {
+                // debugger;
+            });
+        }
+        const initializers = [];
+        let hiddenInitializers = false;
+        if (this.context.showInitializers) {
+            for (const input of node.inputs) {
+                if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
+                    initializers.push(input);
+                }
+                if ((!input.visible || input.arguments.length > 1) &&
+                    input.arguments.some((argument) => argument.initializer != null)) {
+                    hiddenInitializers = true;
+                }
+            }
+        }
+        let sortedAttributes = [];
+        const attributes = node.attributes;
+        if (this.context.showAttributes && attributes) {
+            sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
+            sortedAttributes.sort((a, b) => {
+                const au = a.name.toUpperCase();
+                const bu = b.name.toUpperCase();
+                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+            });
+        }
+        if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
+            const block = this.list();
+            block.handler = () => {
+                this.context.showNodeProperties(node);
+            };
+            for (const initializer of initializers) {
+                const argument = initializer.arguments[0];
+                const type = argument.type;
+                let shape = '';
+                let separator = '';
+                if (type && type.shape && type.shape.dimensions && Array.isArray(type.shape.dimensions)) {
+                    shape = '\u3008' + type.shape.dimensions.map((d) => d ? d : '?').join('\u00D7') + '\u3009';
+                    if (type.shape.dimensions.length === 0 && argument.initializer && !argument.initializer.state) {
+                        try {
+                            shape = argument.initializer.toString();
+                            if (shape && shape.length > 10) {
+                                shape = shape.substring(0, 10) + '\u2026';
+                            }
+                            separator = ' = ';
+                        }
+                        catch (err) {
+                            let type = '?';
+                            try {
+                                type = argument.initializer.type.toString();
+                            }
+                            catch (error) {
+                                // continue regardless of error
+                            }
+                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + this.context.model.format + "' (" + err.message + ").");
+                        }
+                    }
+                }
+                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
+            }
+            if (hiddenInitializers) {
+                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
+            }
+
+            for (const attribute of sortedAttributes) {
+                if (attribute.visible) {
+                    let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
+                    if (attributeValue && attributeValue.length > 25) {
+                        attributeValue = attributeValue.substring(0, 25) + '\u2026';
+                    }
+                    block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
+                }
+            }
+        }
+        if (Array.isArray(node.chain) && node.chain.length > 0) {
+            for (const innerNode of node.chain) {
+                this._add(innerNode);
+            }
+        }
+        if (node.inner) {
+            this._add(node.inner);
+        }
+    }
 };
 
 view.Input = class extends grapher.Node {
 
-    constructor(value, click) {
+    constructor(value, context) {
         super();
         view.Input.counter = view.Input.counter || 0;
+        this.context = context;
         const types = value.arguments.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
         if (name.length > 16) {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-input' ], name, types, click);
+        header.add(null, [ 'graph-item-input' ], name, types, () => this.context.showModelProperties());
         this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
         this.value = value;
     }
@@ -1179,7 +1174,7 @@ view.Input = class extends grapher.Node {
 
 view.Output = class extends grapher.Node {
 
-    constructor(value, click) {
+    constructor(value, context) {
         super();
         const types = value.arguments.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
@@ -1187,7 +1182,8 @@ view.Output = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-output' ], name, types, click);
+        header.add(null, [ 'graph-item-output' ], name, types, () => this.context.showModelProperties());
+        this.context = context;
         this.value = value;
     }
 };
@@ -1449,7 +1445,7 @@ view.ModelFactoryService = class {
         this.register('./tf', [ '.pb', '.meta', '.pbtxt', '.prototxt', '.pt', '.json', '.index', '.ckpt', '.graphdef', /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/, /^events.out.tfevents./ ]);
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
-        this.register('./tensorrt', [ '.trt', '.engine' ]);
+        this.register('./tensorrt', [ '.trt', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile' ]);
         this.register('./npz', [ '.npz', '.npy', '.pkl' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
