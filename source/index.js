@@ -194,7 +194,7 @@ host.BrowserHost = class {
         if (this._meta.file) {
             const url = this._meta.file[0];
             if (this._view.accept(url)) {
-                this._openModel(url, null);
+                this._openModel(this._url(url), null);
                 return;
             }
         }
@@ -429,7 +429,7 @@ host.BrowserHost = class {
             if (location.endsWith('/')) {
                 location = location.slice(0, -1);
             }
-            url = location + '/' + file;
+            url = location + '/' + (file.startsWith('/') ? file.substring(1) : file);
         }
         return url;
     }
