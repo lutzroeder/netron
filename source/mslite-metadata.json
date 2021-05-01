@@ -2560,6 +2560,19 @@
     ]
   },
   {
+    "name": "SplitWithOverlap",
+    "attributes": [
+      { "name": "number_split", "type": "int64", "default": 0 },
+      { "name": "ratio", "type": "int64[]", "default": 0 },
+      { "name": "extend_top", "type": "int64[]", "default": 0 },
+      { "name": "extend_bottom", "type": "int64[]", "default": 0 },
+      { "name": "split_dim", "type": "int64", "default": 0 },
+      { "name": "stride", "type": "int64", "default": 0 },
+      { "name": "pad_top", "type": "int64", "default": 0 },
+      { "name": "trans_format", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "Sqrt",
     "inputs": [
       { "name": "input" }

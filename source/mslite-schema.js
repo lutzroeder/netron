@@ -366,6 +366,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 190: return $root.mindspore.schema.Call.decode(reader, position);
             case 191: return $root.mindspore.schema.Custom.decode(reader, position);
             case 192: return $root.mindspore.schema.CumSum.decode(reader, position);
+            case 193: return $root.mindspore.schema.SplitWithOverlap.decode(reader, position);
         }
         return undefined;
     }
@@ -564,6 +565,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'Call': return $root.mindspore.schema.Call.decodeText(reader, json);
             case 'Custom': return $root.mindspore.schema.Custom.decodeText(reader, json);
             case 'CumSum': return $root.mindspore.schema.CumSum.decodeText(reader, json);
+            case 'SplitWithOverlap': return $root.mindspore.schema.SplitWithOverlap.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3717,6 +3719,35 @@ $root.mindspore.schema.Custom = class Custom {
         const $ = new $root.mindspore.schema.Custom();
         $.type = reader.value(json.type, null);
         $.attr = reader.objectArray(json.attr, $root.mindspore.schema.Attribute.decodeText);
+        return $;
+    }
+};
+
+$root.mindspore.schema.SplitWithOverlap = class SplitWithOverlap {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.SplitWithOverlap();
+        $.number_split = reader.int64_(position, 4, 0);
+        $.ratio = reader.int64s_(position, 6);
+        $.extend_top = reader.int64s_(position, 8);
+        $.extend_bottom = reader.int64s_(position, 10);
+        $.split_dim = reader.int64_(position, 12, 0);
+        $.stride = reader.int64_(position, 14, 0);
+        $.pad_top = reader.int64_(position, 16, 0);
+        $.trans_format = reader.bool_(position, 18, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.SplitWithOverlap();
+        $.number_split = reader.value(json.number_split, 0);
+        $.ratio = reader.array(json.ratio);
+        $.extend_top = reader.array(json.extend_top);
+        $.extend_bottom = reader.array(json.extend_bottom);
+        $.split_dim = reader.value(json.split_dim, 0);
+        $.stride = reader.value(json.stride, 0);
+        $.pad_top = reader.value(json.pad_top, 0);
+        $.trans_format = reader.value(json.trans_format, false);
         return $;
     }
 };
