@@ -527,9 +527,8 @@ view.View = class {
 
                 const viewGraph = new view.Graph(this, groups, options);
 
-                const edgeMap = {};
-                const clusterMap = {};
-                const clusterParentMap = {};
+                const clusters = new Set();
+                const clusterParentMap = new Map();
 
                 if (groups) {
                     for (const node of nodes) {
@@ -538,7 +537,7 @@ view.View = class {
                             while (path.length > 0) {
                                 const name = path.join('/');
                                 path.pop();
-                                clusterParentMap[name] = path.join('/');
+                                clusterParentMap.set(name, path.join('/'));
                             }
                         }
                     }
@@ -552,15 +551,7 @@ view.View = class {
                     for (const input of inputs) {
                         for (const argument of input.arguments) {
                             if (argument.name != '' && !argument.initializer) {
-                                let tuple = edgeMap[argument.name];
-                                if (!tuple) {
-                                    tuple = { from: null, to: [] };
-                                    edgeMap[argument.name] = tuple;
-                                }
-                                tuple.to.push({
-                                    node: viewNode.name,
-                                    name: input.name
-                                });
+                                viewGraph.createArgument(argument).to(viewNode);
                             }
                         }
                     }
@@ -577,40 +568,22 @@ view.View = class {
                                 throw new view.Error("Invalid null argument in '" + model.format + "'.");
                             }
                             if (argument.name != '') {
-                                let tuple = edgeMap[argument.name];
-                                if (!tuple) {
-                                    tuple = { from: null, to: [] };
-                                    edgeMap[argument.name] = tuple;
-                                }
-                                tuple.from = {
-                                    node: viewNode.name,
-                                    name: output.name,
-                                    type: argument.type
-                                };
+                                viewGraph.createArgument(argument).from(viewNode);
                             }
                         }
                     }
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (const controlDependency of node.controlDependencies) {
-                            let tuple = edgeMap[controlDependency];
-                            if (!tuple) {
-                                tuple = { from: null, to: [] };
-                                edgeMap[controlDependency] = tuple;
-                            }
-                            tuple.to.push({
-                                node: viewNode.name,
-                                name: controlDependency,
-                                controlDependency: true
-                            });
+                        for (const name of node.controlDependencies) {
+                            viewGraph.createArgument({ name: name, controlDependency: true }).to(viewNode);
                         }
                     }
 
                     const createCluster = function(name) {
-                        if (!clusterMap[name]) {
+                        if (!clusters.has(name)) {
                             viewGraph.setNode({ name: name, rx: 5, ry: 5});
-                            clusterMap[name] = true;
-                            const parent = clusterParentMap[name];
+                            clusters.add(name);
+                            const parent = clusterParentMap.get(name);
                             if (parent) {
                                 createCluster(parent);
                                 viewGraph.setParent(name, parent);
@@ -621,11 +594,11 @@ view.View = class {
                     if (groups) {
                         let groupName = node.group;
                         if (groupName && groupName.length > 0) {
-                            if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
+                            if (!clusterParentMap.has(groupName)) {
                                 const lastIndex = groupName.lastIndexOf('/');
                                 if (lastIndex != -1) {
                                     groupName = groupName.substring(0, lastIndex);
-                                    if (!Object.prototype.hasOwnProperty.call(clusterParentMap, groupName)) {
+                                    if (!clusterParentMap.has(groupName)) {
                                         groupName = null;
                                     }
                                 }
@@ -644,52 +617,14 @@ view.View = class {
                 for (const input of graph.inputs) {
                     const viewInput = viewGraph.createInput(input);
                     for (const argument of input.arguments) {
-                        let tuple = edgeMap[argument.name];
-                        if (!tuple) {
-                            tuple = { from: null, to: [] };
-                            edgeMap[argument.name] = tuple;
-                        }
-                        tuple.from = {
-                            node: viewInput.name,
-                            type: argument.type
-                        };
+                        viewGraph.createArgument(argument).from(viewInput);
                     }
                 }
 
                 for (const output of graph.outputs) {
                     const viewOutput = viewGraph.createOutput(output);
                     for (const argument of output.arguments) {
-                        let tuple = edgeMap[argument.name];
-                        if (!tuple) {
-                            tuple = { from: null, to: [] };
-                            edgeMap[argument.name] = tuple;
-                        }
-                        tuple.to.push({ node: viewOutput.name });
-                    }
-                }
-
-                for (const edgeKey of Object.keys(edgeMap)) {
-                    const tuple = edgeMap[edgeKey];
-                    if (tuple.from != null) {
-                        for (const to of tuple.to) {
-                            let text = '';
-                            const type = tuple.from.type;
-                            if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
-                                text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
-                            }
-                            if (this.showNames) {
-                                text = edgeKey.split('\n').shift(); // custom argument id
-                            }
-                            const edge = viewGraph.createEdge();
-                            edge.v = tuple.from.node;
-                            edge.w = to.node;
-                            edge.label = text;
-                            edge.id = 'edge-' + edgeKey;
-                            if (to.controlDependency) {
-                                edge.class = 'edge-path-control-dependency';
-                            }
-                            viewGraph.setEdge(edge);
-                        }
+                        viewGraph.createArgument(argument).to(viewOutput);
                     }
                 }
 
@@ -989,32 +924,41 @@ view.View = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(context, compound, options) {
+    constructor(view, compound, options) {
         super(compound);
-        this.context = context;
+        this.view = view;
+        this._arguments = new Map();
         this._nodeKey = 0;
         this.setGraph(options);
     }
 
     createNode(node) {
-        const value = new view.Node(node, this.context);
+        const value = new view.Node(this, node);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
     }
 
     createInput(input) {
-        const value = new view.Input(input, this.context);
+        const value = new view.Input(this, input);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
     }
 
     createOutput(output) {
-        const value = new view.Output(output, this.context);
+        const value = new view.Output(this, output);
         value.name = this._nodeKey++;
         this.setNode(value);
         return value;
+    }
+
+    createArgument(argument) {
+        const name = argument.name;
+        if (!this._arguments.has(name)) {
+            this._arguments.set(name, new view.Argument(this, argument));
+        }
+        return this._arguments.get(name);
     }
 
     createEdge() {
@@ -1023,6 +967,11 @@ view.Graph = class extends grapher.Graph {
     }
 
     build(document, canvas) {
+
+        for (const argument of this._arguments.values()) {
+            argument.build();
+        }
+
         for (const key of this.nodes()) {
             const node = this.node(key);
             node.label = node.build ? node.build(document, canvas) : null;
@@ -1032,12 +981,12 @@ view.Graph = class extends grapher.Graph {
 
 view.Node = class extends grapher.Node {
 
-    constructor(value, context) {
+    constructor(context, value) {
         super();
-        view.Node.counter = view.Node.counter || 0;
         this.context = context;
-        this.id = 'node-' + (value.name ? 'name-' + value.name : 'id-' + (view.Node.counter++).toString());
         this.value = value;
+        view.Node.counter = view.Node.counter || 0;
+        this.id = 'node-' + (value.name ? 'name-' + value.name : 'id-' + (view.Node.counter++).toString());
         this._add(this.value);
     }
 
@@ -1056,12 +1005,12 @@ view.Node = class extends grapher.Node {
         }
         const type = node.type;
         if (typeof type !== 'string' || !type.split) { // #416
-            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + this.context.model.format + "'.");
+            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + this.context.view.model.format + "'.");
         }
-        const content = this.context.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
-        const tooltip = this.context.showNames && (node.name || node.location) ? type : (node.name || node.location);
+        const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
+        const tooltip = this.context.view.showNames && (node.name || node.location) ? type : (node.name || node.location);
         header.add(null, styles, content, tooltip, () => {
-            this.context.showNodeProperties(node, null);
+            this.context.view.showNodeProperties(node, null);
         });
         if (node.function) {
             header.add(null, [ 'node-item-function' ], '+', null, () => {
@@ -1070,7 +1019,7 @@ view.Node = class extends grapher.Node {
         }
         const initializers = [];
         let hiddenInitializers = false;
-        if (this.context.showInitializers) {
+        if (this.context.view.showInitializers) {
             for (const input of node.inputs) {
                 if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
                     initializers.push(input);
@@ -1082,19 +1031,19 @@ view.Node = class extends grapher.Node {
             }
         }
         let sortedAttributes = [];
-        const attributes = node.attributes;
-        if (this.context.showAttributes && attributes) {
+        const attributes = node.attributes || [];
+        if (this.context.view.showAttributes) {
             sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
-            sortedAttributes.sort((a, b) => {
-                const au = a.name.toUpperCase();
-                const bu = b.name.toUpperCase();
-                return (au < bu) ? -1 : (au > bu) ? 1 : 0;
-            });
         }
+        sortedAttributes.sort((a, b) => {
+            const au = a.name.toUpperCase();
+            const bu = b.name.toUpperCase();
+            return (au < bu) ? -1 : (au > bu) ? 1 : 0;
+        });
         if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
             const block = this.list();
             block.handler = () => {
-                this.context.showNodeProperties(node);
+                this.context.view.showNodeProperties(node);
             };
             for (const initializer of initializers) {
                 const argument = initializer.arguments[0];
@@ -1119,7 +1068,7 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + this.context.model.format + "' (" + err.message + ").");
+                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + this.context.view.model.format + "' (" + err.message + ").");
                         }
                     }
                 }
@@ -1131,11 +1080,11 @@ view.Node = class extends grapher.Node {
 
             for (const attribute of sortedAttributes) {
                 if (attribute.visible) {
-                    let attributeValue = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
-                    if (attributeValue && attributeValue.length > 25) {
-                        attributeValue = attributeValue.substring(0, 25) + '\u2026';
+                    let value = sidebar.NodeSidebar.formatAttributeValue(attribute.value, attribute.type);
+                    if (value && value.length > 25) {
+                        value = value.substring(0, 25) + '\u2026';
                     }
-                    block.add(null, attribute.name, attributeValue, attribute.type, ' = ');
+                    block.add(null, attribute.name, value, attribute.type, ' = ');
                 }
             }
         }
@@ -1152,19 +1101,19 @@ view.Node = class extends grapher.Node {
 
 view.Input = class extends grapher.Node {
 
-    constructor(value, context) {
+    constructor(context, value) {
         super();
-        view.Input.counter = view.Input.counter || 0;
         this.context = context;
+        this.value = value;
+        view.Input.counter = view.Input.counter || 0;
         const types = value.arguments.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
         if (name.length > 16) {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-input' ], name, types, () => this.context.showModelProperties());
+        header.add(null, [ 'graph-item-input' ], name, types, () => this.context.view.showModelProperties());
         this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
-        this.value = value;
     }
 
     get class() {
@@ -1174,17 +1123,58 @@ view.Input = class extends grapher.Node {
 
 view.Output = class extends grapher.Node {
 
-    constructor(value, context) {
+    constructor(context, value) {
         super();
+        this.context = context;
+        this.value = value;
         const types = value.arguments.map((argument) => argument.type || '').join('\n');
         let name = value.name || '';
         if (name.length > 16) {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-output' ], name, types, () => this.context.showModelProperties());
+        header.add(null, [ 'graph-item-output' ], name, types, () => this.context.view.showModelProperties());
+    }
+};
+
+view.Argument = class {
+
+    constructor(context, argument) {
         this.context = context;
-        this.value = value;
+        this._argument = argument;
+    }
+
+    from(node) {
+        this._from = node;
+    }
+
+    to(node) {
+        this._to = this._to || [];
+        this._to.push(node);
+    }
+
+    build() {
+        if (this._from && this._to) {
+            for (const to of this._to) {
+                let text = '';
+                const type = this._argument.type;
+                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
+                    text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
+                }
+                if (this.context.view.showNames) {
+                    text = this._name.split('\n').shift(); // custom argument id
+                }
+                const edge = this.context.createEdge();
+                edge.v = this._from.name;
+                edge.w = to.name;
+                edge.label = text;
+                edge.id = 'edge-' + this._argument.name;
+                if (this._argument.controlDependency) {
+                    edge.class = 'edge-path-control-dependency';
+                }
+                this.context.setEdge(edge);
+            }
+        }
     }
 };
 
