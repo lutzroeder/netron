@@ -1908,6 +1908,7 @@ python.Execution = class {
         this.registerType('sklearn.ensemble._gb.GradientBoostingClassifier', class {});
         this.registerType('sklearn.ensemble._gb.GradientBoostingRegressor', class {});
         this.registerType('sklearn.ensemble._iforest.IsolationForest', class {});
+        this.registerType('sklearn.ensemble._stacking.StackingClassifier', class {});
         this.registerType('sklearn.ensemble._voting.VotingClassifier', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestClassifier', class {});
         this.registerType('sklearn.ensemble.forest.RandomForestRegressor', class {});
