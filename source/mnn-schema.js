@@ -1065,7 +1065,8 @@ $root.MNN.RandomUniform = class RandomUniform {
         $.seed = reader.int32_(position, 4, 0);
         $.seed2 = reader.int32_(position, 6, 0);
         $.type = reader.int32_(position, 8, 1);
-        $.T = reader.int32_(position, 10, 3);
+        $.low = reader.float32_(position, 10, 0);
+        $.high = reader.float32_(position, 12, 1);
         return $;
     }
 };
