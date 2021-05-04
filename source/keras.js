@@ -627,7 +627,7 @@ keras.Node = class {
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
+        this._chain = [];
 
         let names = [ name ];
         if ((type == 'Bidirectional' || type == 'TimeDistributed') && (config && config.layer)) {
@@ -655,7 +655,12 @@ keras.Node = class {
         if (config) {
             for (const name of Object.keys(config)) {
                 const value = config[name];
-                if (name != 'name' && value != null) {
+                if (name === 'activation' && value !== 'linear') {
+                    const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
+                    const type = set.has(value) ? set.get(value) : value;
+                    this.chain.push(new keras.Node(metadata, type, {}, [], [], null, null));
+                }
+                if (name !== 'name' && value !== null) {
                     this._attributes.push(new keras.Attribute(metadata.attribute(this.type, name), name, value));
                 }
             }
@@ -771,6 +776,10 @@ keras.Node = class {
         return this._attributes;
     }
 
+    get chain() {
+        return this._chain;
+    }
+
     get inner() {
         return this._inner;
     }
@@ -778,14 +787,12 @@ keras.Node = class {
 
 keras.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-
         if (typeof value == 'object' && value.class_name && value.config) {
             this._value = keras.Attribute._convert(value);
         }
-
         switch (name) {
             case 'trainable':
                 this._type = 'boolean';
@@ -795,15 +802,15 @@ keras.Attribute = class {
                 this._visible = false;
                 break;
             default: {
-                if (schema) {
-                    if (schema.type) {
-                        this._type = schema.type;
+                if (metadata) {
+                    if (metadata.type) {
+                        this._type = metadata.type;
                     }
-                    if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
-                        this._visible = false;
+                    if (Object.prototype.hasOwnProperty.call(metadata, 'visible')) {
+                        this._visible = metadata.visible;
                     }
-                    else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                        if (keras.Attribute._isEquivalent(schema.default, value)) {
+                    else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                        if (keras.Attribute._isEquivalent(metadata.default, value)) {
                             this._visible = false;
                         }
                     }

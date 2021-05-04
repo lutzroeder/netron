@@ -2,7 +2,6 @@
   {
     "name": "Activation",
     "package": "tensorflow.keras.layers",
-    "category": "Activation",
     "description": "Applies an activation function to an output.",
     "attributes": [
       {
@@ -2316,6 +2315,10 @@
     ]
   },
   {
+    "name": "HardSigmoid",
+    "category": "Activation"
+  },
+  {
     "name": "InputLayer",
     "package": "tensorflow.keras.layers",
     "category": "Data",
@@ -3672,6 +3675,10 @@
     ]
   },
   {
+    "name": "Sigmoid",
+    "category": "Activation"
+  },
+  {
     "name": "SimpleRNN",
     "package": "tensorflow.keras.layers",
     "category": "Layer",
@@ -3906,6 +3913,19 @@
     ]
   },
   {
+    "name": "Softmax",
+    "package": "tensorflow.keras.layers",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftPlus",
+    "category": "Activation"
+  },
+  {
+    "name": "SoftSign",
+    "category": "Activation"
+  },
+  {
     "name": "SpatialDropout1D",
     "package": "tensorflow.keras.layers",
     "category": "Dropout",
@@ -4038,6 +4058,10 @@
         "code": "    import keras\n\n    input1 = keras.layers.Input(shape=(16,))\n    x1 = keras.layers.Dense(8, activation='relu')(input1)\n    input2 = keras.layers.Input(shape=(32,))\n    x2 = keras.layers.Dense(8, activation='relu')(input2)\n    # Equivalent to subtracted = keras.layers.subtract([x1, x2])\n    subtracted = keras.layers.Subtract()([x1, x2])\n\n    out = keras.layers.Dense(4)(subtracted)\n    model = keras.models.Model(inputs=[input1, input2], outputs=out)"
       }
     ]
+  },
+  {
+    "name": "TanH",
+    "category": "Activation"
   },
   {
     "name": "ThresholdedReLU",
