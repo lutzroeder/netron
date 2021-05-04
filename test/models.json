@@ -15,6 +15,14 @@
   },
   {
     "type":   "_",
+    "target": "coreml_invalid_file.mlmodel",
+    "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
+    "error":  "Invalid file content. File contains Zip archive in 'coreml_invalid_file.mlmodel'.",
+    "format": "Core ML v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/193"
+  },
+  {
+    "type":   "_",
     "target": "empty.zip",
     "source": "https://github.com/lutzroeder/netron/files/5581087/empty.zip",
     "error":  "Invalid file content. File contains Zip archive in 'empty.zip'.",
@@ -25,6 +33,13 @@
     "target": "imagenet_2012_challenge_label_map_proto.pbtxt",
     "source": "https://raw.githubusercontent.com/dmlc/web-data/master/tensorflow/models/InceptionV1/imagenet_2012_challenge_label_map_proto.pbtxt",
     "error":  "Invalid file content. File contains ImageNet LabelMap data."
+  },
+  {
+    "type":   "_",
+    "target": "keras_invalid_file.h5",
+    "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
+    "error":  "File has no content.",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
     "type":   "_",
@@ -1094,14 +1109,6 @@
   },
   {
     "type":   "coreml",
-    "target": "coreml_invalid_file.mlmodel",
-    "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "Invalid file content. File contains Zip archive in 'coreml_invalid_file.mlmodel'.",
-    "format": "Core ML v1",
-    "link":   "https://github.com/lutzroeder/netron/issues/193"
-  },
-  {
-    "type":   "coreml",
     "target": "Exermote.mlmodel",
     "source": "https://raw.githubusercontent.com/Lausbert/Exermote/master/ExermoteInference/ExermoteCoreML/ExermoteCoreML/Model/Exermote.mlmodel",
     "format": "Core ML v1"
@@ -2030,13 +2037,6 @@
     "target": "InceptionV3.h5.zip",
     "source": "https://github.com/lutzroeder/netron/files/6098151/InceptionV3.h5.zip",
     "format": "Keras v2.4.0",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
-  },
-  {
-    "type":   "keras",
-    "target": "keras_invalid_file.h5",
-    "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
-    "error":  "File has no content.",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
   },
   {
