@@ -774,7 +774,7 @@ paddle.Container = class {
                     let rootFolder = null;
                     for (const entry of this._data) {
                         const name = entry.name;
-                        if (name.startsWith('PaxHeader/') || (name.startsWith('.') && !name.startsWith('./'))) {
+                        if (name.startsWith('.') && !name.startsWith('./')) {
                             continue;
                         }
                         const parts = name.split('/');

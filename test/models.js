@@ -360,21 +360,11 @@ function decompress(buffer) {
             buffer = entry.data;
         }
     }
-    if (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B) {
-        return zip.Archive.open(buffer);
-    }
-    if (buffer.length >= 512) {
-        let sum = 0;
-        for (let i = 0; i < 512; i++) {
-            sum += (i >= 148 && i < 156) ? 32 : buffer[i];
-        }
-        let checksum = '';
-        for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
-            checksum += String.fromCharCode(buffer[i]);
-        }
-        checksum = parseInt(checksum, 8);
-        if (!isNaN(checksum) && sum === checksum) {
-            return tar.Archive.open(buffer);
+    const formats = [ zip, tar ];
+    for (const module of formats) {
+        archive = module.Archive.open(buffer);
+        if (archive) {
+            break;
         }
     }
     return archive;

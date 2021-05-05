@@ -7,21 +7,34 @@ tar.Archive = class {
     static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new tar.BinaryReader(buffer) : buffer;
         if (stream.length > 512) {
-            return new tar.Archive(stream);
+            const buffer = stream.peek(512);
+            const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
+            let checksum = '';
+            for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
+                checksum += String.fromCharCode(buffer[i]);
+            }
+            checksum = parseInt(checksum, 8);
+            if (!isNaN(checksum) && sum === checksum) {
+                return new tar.Archive(stream);
+            }
         }
-        throw new tar.Error('Invalid tar archive size.');
+        return null;
     }
 
     constructor(stream) {
         this._entries = [];
+        const position = stream.position;
         while (stream.position < stream.length) {
-            this._entries.push(new tar.Entry(stream));
+            const entry = new tar.Entry(stream);
+            if (entry.type === '0' || entry.type === '1' || entry.type === '2') {
+                this._entries.push(entry);
+            }
             if (stream.position + 512 > stream.length ||
                 stream.peek(512).every((value) => value === 0x00)) {
                 break;
             }
         }
-        stream.seek(0);
+        stream.seek(position);
     }
 
     get entries() {
@@ -34,24 +47,38 @@ tar.Entry = class {
     constructor(stream) {
         const buffer = stream.read(512);
         const reader = new tar.BinaryReader(buffer);
-        let sum = 0;
-        for (let i = 0; i < buffer.length; i++) {
-            sum += (i >= 148 && i < 156) ? 32 : buffer[i];
+        const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
+        let checksum = '';
+        for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
+            checksum += String.fromCharCode(buffer[i]);
+        }
+        checksum = parseInt(checksum, 8);
+        if (isNaN(checksum) || sum !== checksum) {
+            throw new tar.Error('Invalid tar archive.');
         }
         this._name = reader.string(100);
         reader.string(8); // file mode
         reader.string(8); // owner
         reader.string(8); // group
-        const size = parseInt(reader.string(12).trim(), 8); // size
+        const size = parseInt(reader.string(12).trim(), 8);
         reader.string(12); // timestamp
-        const checksum = parseInt(reader.string(8).trim(), 8); // checksum
-        if (isNaN(checksum) || sum != checksum) {
-            throw new tar.Error('Invalid tar archive.');
-        }
-        reader.string(1); // link indicator
+        reader.string(8); // checksum
+        this._type = reader.string(1);
         reader.string(100); // name of linked file
+        if (reader.string(6) === 'ustar') {
+            reader.string(2); // ustar version
+            reader.string(32); // owner user name
+            reader.string(32); // owner group name
+            reader.string(8); // device major number
+            reader.string(8); // device number number
+            this._name = reader.string(155) + this._name;
+        }
         this._stream = stream.stream(size);
         stream.read(((size % 512) != 0) ? (512 - (size % 512)) : 0);
+    }
+
+    get type() {
+        return this._type;
     }
 
     get name() {

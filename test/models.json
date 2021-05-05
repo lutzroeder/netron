@@ -58,7 +58,7 @@
     "type":   "_",
     "target": "gzip_invalid_archive.tar.gz",
     "source": "https://github.com/lutzroeder/netron/files/5468427/gzip_invalid_archive.tar.gz",
-    "error":  "Invalid gzip archive in 'gzip_invalid_archive.tar.gz'.",
+    "error":  "Unsupported file content (ff000000000000000000000000000000) for extension '.gz' in 'gzip_invalid_archive.tar.gz'.",
     "link":   "https://github.com/lutzroeder/netron/issues/249"
   },
   {
@@ -121,7 +121,7 @@
     "type":   "_",
     "target": "zip_invalid_archive.zip",
     "source": "https://github.com/lutzroeder/netron/files/5468425/zip_invalid_archive.zip",
-    "error":  "Invalid Zip archive in 'zip_invalid_archive.zip'.",
+    "error":  "Unsupported file content (ff000000000000000000000000000000) for extension '.zip' in 'zip_invalid_archive.zip'.",
     "link":   "https://github.com/lutzroeder/netron/issues/250"
   },
   {

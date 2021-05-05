@@ -14,11 +14,12 @@ zip.Archive = class {
         if (stream.length > 4 && stream.peek(2).every((value, index) => value === signature[index])) {
             return new zip.Archive(stream);
         }
-        throw new zip.Error('Invalid Zip archive.');
+        return null;
     }
 
     constructor(stream) {
         this._entries = [];
+        const position = stream.position;
         const lookup = (stream, signature) => {
             let position = stream.length;
             do {
@@ -123,7 +124,7 @@ zip.Archive = class {
         for (const entry of entries) {
             this._entries.push(new zip.Entry(stream, entry));
         }
-        stream.seek(0);
+        stream.seek(position);
     }
 
     get entries() {
@@ -509,6 +510,7 @@ zip.InflaterStream = class {
 
     constructor(stream, length) {
         this._stream = stream;
+        this._offset = this._stream.position;
         this._position = 0;
         this._length = length;
     }
@@ -568,9 +570,12 @@ zip.InflaterStream = class {
 
     _inflate() {
         if (this._buffer === undefined) {
+            const position = this._stream.position;
+            this._stream.seek(this._offset);
             const buffer = this._stream.peek();
             this._buffer = new zip.Inflater().inflateRaw(buffer, this._length);
             this._length = this._buffer.length;
+            this._stream.seek(position);
             delete this._stream;
         }
     }
@@ -652,8 +657,10 @@ zip.BinaryReader = class {
 zlib.Archive = class {
 
     constructor(stream) {
+        const position = stream.position;
         stream.read(2);
         this._entries = [ new zlib.Entry(stream) ];
+        stream.seek(position);
     }
 
     get entries() {

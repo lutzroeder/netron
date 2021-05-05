@@ -11,7 +11,7 @@ gzip.Archive = class {
         if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
             return new gzip.Archive(stream);
         }
-        throw new gzip.Error('Invalid gzip archive.');
+        return null;
     }
 
     constructor(stream) {

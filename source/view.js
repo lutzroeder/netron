@@ -1495,9 +1495,19 @@ view.ModelFactoryService = class {
     _unsupported(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        const format = [ 'Zip', 'tar' ].find((extension) => context.entries(extension.toLowerCase()).length > 0);
-        if (format) {
-            throw new view.Error("Invalid file content. File contains " + format + " archive in '" + identifier + "'.", true);
+        for (const format of new Map([ [ 'Zip', zip ], [ 'tar', tar ] ])) {
+            const name = format[0];
+            const module = format[1];
+            let archive = null;
+            try {
+                archive = module.Archive.open(context.stream);
+            }
+            catch (error) {
+                // continue regardless of error
+            }
+            if (archive) {
+                throw new view.Error("Invalid file content. File contains " + name + " archive in '" + identifier + "'.", true);
+            }
         }
         const knownUnsupportedIdentifiers = new Set([
             'natives_blob.bin',
@@ -1589,11 +1599,11 @@ view.ModelFactoryService = class {
         let stream = context.stream;
         let extension;
         let identifier = context.identifier;
-        let buffer = stream.peek(Math.min(512, stream.length));
         try {
             extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'gz' || extension === 'tgz' || (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b)) {
-                const entries = gzip.Archive.open(stream).entries;
+            const gzipArchive = gzip.Archive.open(stream);
+            if (gzipArchive) {
+                const entries = gzipArchive.entries;
                 if (entries.length === 1) {
                     const entry = entries[0];
                     if (entry.name) {
@@ -1612,7 +1622,6 @@ view.ModelFactoryService = class {
                         }
                     }
                     stream = entry.stream;
-                    buffer = stream.peek(Math.min(512, stream.length));
                 }
             }
         }
@@ -1622,22 +1631,14 @@ view.ModelFactoryService = class {
         }
 
         try {
-            extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'zip' || (buffer.length > 2 && buffer[0] === 0x50 && buffer[1] === 0x4B)) {
-                entries.set('zip', zip.Archive.open(stream).entries);
-            }
-            if (extension === 'tar' || (buffer.length >= 512)) {
-                let sum = 0;
-                for (let i = 0; i < 512; i++) {
-                    sum += (i >= 148 && i < 156) ? 32 : buffer[i];
-                }
-                let checksum = '';
-                for (let i = 148; i < 156 && buffer[i] !== 0x00; i++) {
-                    checksum += String.fromCharCode(buffer[i]);
-                }
-                checksum = parseInt(checksum, 8);
-                if (!isNaN(checksum) && sum === checksum) {
-                    entries.set('tar', tar.Archive.open(stream).entries);
+            const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] ]);
+            for (const pair of formats) {
+                const format = pair[0];
+                const module = pair[1];
+                const archive = module.Archive.open(stream);
+                if (archive) {
+                    entries.set(format, archive.entries);
+                    break;
                 }
             }
         }
@@ -1692,10 +1693,10 @@ view.ModelFactoryService = class {
     _openEntries(entries) {
         try {
             const files = entries.map((entry) => entry.name).filter((file) => !file.endsWith('/') && !file.split('/').pop().startsWith('.')).slice();
-            const values = files.filter((file) => !file.startsWith('PaxHeader/') && (!file.startsWith('.') || file.startsWith('./')));
+            const values = files.filter((file) => !file.startsWith('.') || file.startsWith('./'));
             const map = values.map((file) => file.split('/').slice(0, -1));
             const at = index => list => list[index];
-            const rotate = list => list[0].map((item, index) => list.map(at(index)));
+            const rotate = list => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
             const equals = list => list.every((item) => item === list[0]);
             const folder = rotate(map).filter(equals).map(at(0)).join('/');
             const rootFolder = folder.length === 0 ? folder : folder + '/';
