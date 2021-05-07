@@ -855,6 +855,7 @@ pytorch.Execution = class extends python.Execution {
     constructor(sources, exceptionCallback) {
         super(sources, exceptionCallback);
         this.registerModule('ops');
+        this.registerModule('ops.torchvision');
         this.registerModule('torch');
         this.registerModule('torchvision');
         this.context.scope.ops._caffe2 = { __name__: 'torch', __class__: this.context.scope.builtins.module };
@@ -1051,8 +1052,10 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils.data.dataloader.DataLoader', class {});
+        this.registerType('torch.utils.data.dataset.Subset', class {});
         this.registerType('torch.utils.data.dataset.ConcatDataset', class {});
         this.registerType('torch.utils.data.sampler.BatchSampler', class {});
+        this.registerType('torch.utils.data.sampler.RandomSampler', class {});
         this.registerType('torch.utils.data.sampler.SequentialSampler', class {});
         this.registerType('torchvision.datasets.folder.ImageFolder', class {});
         this.registerType('torchvision.datasets.mnist.MNIST', class {});
@@ -1140,8 +1143,11 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.ops.misc.FrozenBatchNorm2d', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
+        this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
+        this.registerType('torchvision.transforms.transforms.Grayscale', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class {});
+        this.registerType('torchvision.transforms.transforms.RandomAffine', class {});
         this.registerType('torchvision.transforms.transforms.Resize', class {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});

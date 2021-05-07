@@ -5625,5 +5625,32 @@
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
+  },
+  {
+    "name": "ops.torchvision.nms",
+    "inputs": [
+      { "name": "dets", "type": "Tensor" },
+      { "name": "scores", "type": "Tensor" },
+      { "name": "iou_threshold", "type": "float32" }
+
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "ops.torchvision.roi_align",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "rois", "type": "Tensor" },
+      { "name": "spatial_scale", "type": "float32" },
+      { "name": "pooled_height", "type": "int64" },
+      { "name": "pooled_width", "type": "int64" },
+      { "name": "sampling_ratio", "type": "int64" },
+      { "name": "aligned", "type": "boolean" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
   }
 ]

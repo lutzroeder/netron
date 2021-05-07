@@ -2839,7 +2839,13 @@ python.Execution = class {
     }
 
     registerModule(name) {
-        this._context.scope[name] = { __name__: name, __class__: this._context.scope.builtins.module };
+        let scope = this._context.scope;
+        const items = name.split('.');
+        while (items.length > 0) {
+            const item = items.shift();
+            scope[item] = { __name__: name, __class__: this._context.scope.builtins.module };
+            scope = scope[item];
+        }
     }
 
     _raiseUnkownName(name) {

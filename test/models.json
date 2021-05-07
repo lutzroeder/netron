@@ -4095,7 +4095,7 @@
     "type":   "pytorch",
     "target": "d2go.pt",
     "source": "https://github.com/lutzroeder/netron/files/6370675/d2go.pt.zip[d2go.pt]",
-    "error":  "Failed to resolve module 'ops.torchvision' in 'd2go.pt'.",
+    "format": "TorchScript v1.7",
     "link":   "https://github.com/lutzroeder/netron/issues/732"
   },
   {
