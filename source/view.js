@@ -628,8 +628,6 @@ view.View = class {
                     }
                 }
 
-                viewGraph.build(this._host.document, canvasElement);
-
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
                 const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
@@ -645,6 +643,8 @@ view.View = class {
                 const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
                 originElement.setAttribute('id', 'origin');
                 canvasElement.appendChild(originElement);
+
+                viewGraph.build(this._host.document, originElement);
 
                 let svg = null;
                 switch (this._host.environment('zoom')) {
@@ -667,7 +667,7 @@ view.View = class {
 
                 return this._timeout(20).then(() => {
 
-                    viewGraph.render(this._host.document, originElement);
+                    viewGraph.layout();
 
                     const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
                     if (elements.length === 0) {
@@ -961,21 +961,18 @@ view.Graph = class extends grapher.Graph {
         return this._arguments.get(name);
     }
 
-    createEdge() {
-        const value = new view.Edge();
+    createEdge(from, to) {
+        const value = new view.Edge(from, to);
         return value;
     }
 
-    build(document, canvas) {
+    build(document, originElement) {
 
         for (const argument of this._arguments.values()) {
             argument.build();
         }
 
-        for (const key of this.nodes()) {
-            const node = this.node(key);
-            node.label = node.build ? node.build(document, canvas) : null;
-        }
+        super.build(document, originElement);
     }
 };
 
@@ -1154,6 +1151,7 @@ view.Argument = class {
     }
 
     build() {
+        this._edges = this._edges || [];
         if (this._from && this._to) {
             for (const to of this._to) {
                 let text = '';
@@ -1162,9 +1160,9 @@ view.Argument = class {
                     text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
                 }
                 if (this.context.view.showNames) {
-                    text = this._name.split('\n').shift(); // custom argument id
+                    text = this._argument.name.split('\n').shift(); // custom argument id
                 }
-                const edge = this.context.createEdge();
+                const edge = this.context.createEdge(this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;
                 edge.label = text;
@@ -1173,6 +1171,7 @@ view.Argument = class {
                     edge.class = 'edge-path-control-dependency';
                 }
                 this.context.setEdge(edge);
+                this._edges.push(edge);
             }
         }
     }
@@ -1180,6 +1179,9 @@ view.Argument = class {
 
 view.Edge = class extends grapher.Edge {
 
+    constructor(from, to) {
+        super(from, to);
+    }
 };
 
 view.ModelContext = class {
