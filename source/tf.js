@@ -223,18 +223,71 @@ tf.ModelFactory = class {
             }
             else if (extension === 'json') {
                 try {
-                    const root = context.open('json');
-                    const graph_def = new tf.proto.GraphDef();
+                    const obj = context.open('json');
+                    format = 'TensorFlow.js ' + obj.format;
+                    producer = obj.convertedBy || obj.generatedBy || '';
                     const meta_graph = new tf.proto.MetaGraphDef();
-                    meta_graph.graph_def = graph_def;
+                    meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
                     saved_model = new tf.proto.SavedModel();
                     saved_model.meta_graphs.push(meta_graph);
-                    for (const node of root.modelTopology.node) {
-                        graph_def.node.push(node);
+                    const nodes = new Map();
+                    for (const node of meta_graph.graph_def.node) {
                         node.input = node.input || [];
+                        if (node.op === 'Const') {
+                            nodes.set(node.name, node);
+                        }
                     }
-                    format = 'TensorFlow.js ' + root.format;
-                    producer = root.convertedBy || root.generatedBy || '';
+                    const shards = new Map();
+                    const manifests = Array.isArray(obj.weightsManifest) ? obj.weightsManifest : [];
+                    for (const manifest of manifests) {
+                        for (const path of manifest.paths) {
+                            if (!shards.has(path)) {
+                                shards.set(path, context.request(path, null));
+                            }
+                        }
+                    }
+                    const create_model = (shards) => {
+                        const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ] ]);
+                        for (const manifest of manifests) {
+                            let buffer = null;
+                            if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
+                                const list = manifest.paths.map((path) => shards.get(path));
+                                const size = list.reduce((a, b) => a + b.length, 0);
+                                buffer = new Uint8Array(size);
+                                let offset = 0;
+                                for (const item of list) {
+                                    buffer.set(item, offset);
+                                    offset += item.length;
+                                }
+                            }
+                            let offset = 0;
+                            for (const weight of manifest.weights) {
+                                const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
+                                if (!dtype_size_map.has(dtype)) {
+                                    throw new tf.Error("Unknown weight data type size '" + dtype + "'.");
+                                }
+                                const itemsize = dtype_size_map.get(dtype);
+                                const size = weight.shape.length > 0 ? weight.shape.reduce((a, b) => a * b) : 1;
+                                const length = itemsize * size;
+                                const tensor_content = buffer ? buffer.slice(offset, offset + length) : null;
+                                offset += length;
+                                if (nodes.has(weight.name)) {
+                                    const node = nodes.get(weight.name);
+                                    node.attr.value.tensor.tensor_content = tensor_content;
+                                }
+                            }
+                        }
+                        return openModel(saved_model, format, producer, null);
+                    };
+                    return Promise.all(shards.values()).then((streams) => {
+                        for (const key of shards.keys()) {
+                            shards.set(key, streams.shift().peek());
+                        }
+                        return create_model(shards);
+                    }).catch(() => {
+                        shards.clear();
+                        return create_model(shards);
+                    });
                 }
                 catch (error) {
                     throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
@@ -523,7 +576,7 @@ tf.Graph = class {
                     }
                 }
                 for (const node of node_map.values()) {
-                    const initializer = map_tensor(node.name, node, 'Constant');
+                    const initializer = map_tensor(node.name, node, 'Const');
                     if (initializer) {
                         initializers.set(initializer.name, initializer);
                         node_map.delete(node.name);
@@ -1043,7 +1096,7 @@ tf.Function = class {
                 }
             }
             for (const node of node_map.values()) {
-                const initializer = map_tensor(node.name, node, 'Constant');
+                const initializer = map_tensor(node.name, node, 'Const');
                 if (initializer) {
                     initializers.set(initializer.name, initializer);
                     node_map.delete(node.name);
@@ -2238,6 +2291,99 @@ tf.Utility = class {
     }
 };
 
+tf.JsonReader = class {
+
+    static decodeGraphDef(json) {
+        const message = new tf.proto.GraphDef();
+        message.node = json.node.map((node) => tf.JsonReader.decodeNodeDef(node));
+        return message;
+    }
+
+    static decodeNodeDef(json) {
+        const message = new tf.proto.NodeDef();
+        message.name = json.name;
+        message.op = json.op;
+        message.input = json.input;
+        message.device = json.device;
+        message.attr = {};
+        for (const key of Object.keys(json.attr)) {
+            message.attr[key] = tf.JsonReader.decodeAttrValue(json.attr[key]);
+        }
+        return message;
+    }
+
+    static decodeAttrValue(json) {
+        const message = new tf.proto.AttrValue();
+        const keys = Object.keys(json);
+        if (keys.length !== 1) {
+            throw new tf.Error("Unsupported JSON tensorflow.AttrValue '" + JSON.stringify(keys) + "'.");
+        }
+        const key = keys[0];
+        const value = json[key];
+        switch (key) {
+            case 'type':
+                message.type = tf.proto.DataType[value];
+                break;
+            case 'shape':
+                message.shape = tf.JsonReader.decodeTensorShapeProto(value);
+                break;
+            case 'tensor':
+                message.tensor = tf.JsonReader.decodeTensorProto(value);
+                break;
+            case 'b':
+            case 'f':
+            case 'i':
+            case 's':
+                message[key] = value;
+                break;
+            case 'list':
+                message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
+                break;
+            default:
+                throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue." + key + "'.");
+        }
+        return message;
+    }
+
+    static decodeAttrValueListValue(json) {
+        const message = new tf.proto.AttrValue.ListValue();
+        const keys = Object.keys(json);
+        if (keys.length > 0) {
+            if (keys.length !== 1) {
+                throw new tf.Error("Unsupported JSON tensorflow.AttrValue.ListValue '" + JSON.stringify(keys) + "'.");
+            }
+            const key = keys[0];
+            const value = json[key];
+            switch (key) {
+                case 'i':
+                case 's':
+                    message[key] = value;
+                    break;
+                default:
+                    throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");
+            }
+        }
+        return message;
+    }
+
+    static decodeTensorProto(json) {
+        const message = new tf.proto.TensorProto();
+        message.dtype = tf.proto.DataType[json.dtype];
+        message.tensor_shape = tf.JsonReader.decodeTensorShapeProto(json.tensorShape);
+        return message;
+    }
+
+    static decodeTensorShapeProto(json) {
+        const message = new tf.proto.TensorShapeProto();
+        message.dim = (json.dim || []).map((json) => {
+            const message = new tf.proto.TensorShapeProto.Dim();
+            message.size = json.size;
+            message.name = json.name;
+            return message;
+        });
+        return message;
+    }
+};
 
 tf.Error = class extends Error {
 

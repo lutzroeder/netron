@@ -5446,8 +5446,8 @@
   },
   {
     "type":   "tfjs",
-    "target": "mnist_transfer_cnn_v1/model.json,mnist_transfer_cnn_v1/group1-shard1of1,mnist_transfer_cnn_v1/group2-shard1of1,mnist_transfer_cnn_v1/group3-shard1of1,mnist_transfer_cnn_v1/group4-shard1of1",
-    "source": "https://github.com/lutzroeder/netron/files/3361048/mnist_transfer_cnn_v1.zip[model.json,group1-shard1of1,group2-shard1of1,group3-shard1of1,group4-shard1of1]",
+    "target": "mnist_transfer_cnn_v1.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3361048/mnist_transfer_cnn_v1.zip",
     "format": "TensorFlow.js Keras v2.1.4",
     "link":   "https://github.com/tensorflow/tfjs-examples"
   },
@@ -5460,8 +5460,8 @@
   },
   {
     "type":   "tfjs",
-    "target": "posenet_mobilenet_float_075/model-stride16.json,posenet_mobilenet_float_075/group1-shard1of2.bin,posenet_mobilenet_float_075/group1-shard2of2.bin",
-    "source": "https://github.com/lutzroeder/netron/files/3357629/posenet_mobilenet_float_075.zip[model-stride16.json,group1-shard1of2.bin,group1-shard2of2.bin]",
+    "target": "posenet_mobilenet_float_075.zip",
+    "source": "https://github.com/lutzroeder/netron/files/3357629/posenet_mobilenet_float_075.zip",
     "format": "TensorFlow.js graph-model",
     "link":   "https://github.com/intel/webml-polyfill/issues/880"
   },
@@ -5478,6 +5478,13 @@
     "source": "https://storage.googleapis.com/tfjs-models/tfjs/translation_en_fr_v1/model.json",
     "format": "TensorFlow.js Keras v2.1.4",
     "link":   "https://github.com/tensorflow/tfjs-examples"
+  },
+  {
+    "type":   "tfjs",
+    "target": "yamnet.tar",
+    "source": "https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1?tfjs-format=compressed",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1"
   },
   {
     "type":   "tflite",

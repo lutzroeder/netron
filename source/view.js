@@ -1746,6 +1746,12 @@ view.ModelFactoryService = class {
                         matches.some((e) => e.name.toLowerCase().endsWith('-symbol.json'))) {
                         matches = matches.filter((e) => e.name.toLowerCase().endsWith('.params'));
                     }
+                    // TensorFlow.js
+                    if (matches.length > 0 &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                        matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
+                        matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
+                    }
                     // TensorFlow Bundle
                     if (matches.length > 1 &&
                         matches.some((e) => e.name.toLowerCase().endsWith('.data-00000-of-00001'))) {

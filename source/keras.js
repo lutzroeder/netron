@@ -237,7 +237,7 @@ keras.ModelFactory = class {
                         let buffer = null;
                         if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
                             const list = manifest.paths.map((path) => shards.get(path));
-                            const size = list.reduce((a, b) => a + b.length);
+                            const size = list.reduce((a, b) => a + b.length, 0);
                             buffer = new Uint8Array(size);
                             let offset = 0;
                             for (const item of list) {
