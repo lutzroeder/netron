@@ -43,7 +43,7 @@ onnx.ModelFactory = class {
                     'keras2onnx', 'tf2onnx', 'tflite2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2', 'OnnxMLTools', 'ML.NET',
                     'kneron_formatter', 'Kneron', 'kneron_kl530_test_case', 'onnxruntime-tools', 'onnx_test', 'CNTK',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'MVTec Software', 'PaddlePaddle',
-                    'darknet to ONNX example'
+                    'darknet to ONNX example', 'onnx-example'
                 ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
                     return true;
