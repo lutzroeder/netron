@@ -43,9 +43,9 @@ pytorch.Model = class {
         const type = container.type;
         switch (type) {
             case 'script':
-            case 'module':
                 this._graphs.push(new pytorch.Graph(metadata, type, container.data, container));
                 break;
+            case 'module':
             case 'weights':
                 for (const data of container.data) {
                     this._graphs.push(new pytorch.Graph(metadata, type, data, container));
@@ -168,8 +168,9 @@ pytorch.Graph = class {
                 break;
             }
             case 'module': {
-                this._type = (data.__module__ && data.__name__) ? (data.__module__ + '.' + data.__name__) : '';
-                this._loadModule(metadata, container.data, [], []);
+                this._name = data.name || '';
+                this._type = (data.obj.__module__ && data.obj.__name__) ? (data.obj.__module__ + '.' + data.obj.__name__) : '';
+                this._loadModule(metadata, data.obj, [], []);
                 break;
             }
             case 'weights': {
@@ -281,6 +282,7 @@ pytorch.Graph = class {
             name: name,
             type: type,
             attributes: attributes,
+            children: obj._modules && obj._modules.size > 0 ? true : false,
             inputs: inputs,
             outputs: outputs
         };
@@ -413,6 +415,7 @@ pytorch.Node = class {
 
         if (!item.module && !item.node) {
             this._type = item.type;
+            this._function = item.children;
             this._inputs = item.inputs;
             this._outputs = item.outputs;
             this._attributes = item.attributes.map((attribute) => {
@@ -547,7 +550,7 @@ pytorch.Node = class {
     }
 
     get function() {
-        return this._type.startsWith('torch.nn.modules.') && this._type !== 'torch.nn.modules.module.Module';
+        return this._function;
     }
 
     get attributes() {
@@ -1032,6 +1035,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.utils.spectral_norm.SpectralNormLoadStateDictPreHook', class {});
         this.registerType('torch.nn.utils.weight_norm.WeightNorm', class {});
         this.registerType('torch.optim.adam.Adam', class {});
+        this.registerType('torch.optim.adamw.AdamW', class {});
         this.registerType('torch.optim.adagrad.Adagrad', class {});
         this.registerType('torch.optim.adadelta.Adadelta', class {});
         this.registerType('torch.optim.lr_scheduler.CosineAnnealingLR', class {});
@@ -1882,8 +1886,9 @@ pytorch.Execution = class extends python.Execution {
 pytorch.Container = class {
 
     static open(context, metadata, exception) {
-        if (context.entries('zip').some((entry) => entry.name === 'model.json' || entry.name === 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'))) {
-            return new pytorch.Container.Zip(context.entries('zip'), metadata, exception);
+        const zip = pytorch.Container.Zip.open(context.entries('zip'), metadata, exception);
+        if (zip) {
+            return zip;
         }
         const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
@@ -2142,18 +2147,36 @@ pytorch.Container.Pickle = class {
 
 pytorch.Container.Zip = class {
 
-    constructor(entries, metadata, exceptionCallback) {
+    static open(entries, metadata, exception) {
+        const entry = entries.find((entry) => entry.name == 'model.json' || entry.name == 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'));
+        if (!entry) {
+            return null;
+        }
+        let model = null;
+        if (entry.name.endsWith('.json')) {
+            try {
+                const decoder = new TextDecoder('utf-8');
+                const text = decoder.decode(entry.data);
+                model = JSON.parse(text);
+                if (!model.mainModule) {
+                    return null;
+                }
+            }
+            catch (error) {
+                return null;
+            }
+        }
+        return new pytorch.Container.Zip(entries, entry, model, metadata, exception);
+    }
+
+    constructor(entries, entry, model, metadata, exception) {
         this._entries = entries;
         this._metadata = metadata;
-        this._exceptionCallback = exceptionCallback;
+        this._exceptionCallback = exception;
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
-        const entry = this._entries.find((entry) => entry.name == 'model.json' || entry.name == 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'));
-        if (!entry) {
-            throw new pytorch.Error("PyTorch Zip container does not contain 'data.pkl' or 'model.json'.");
-        }
+        this._model = model;
         const lastIndex = entry.name.lastIndexOf('/');
         this._prefix = lastIndex === -1 ? '' : entry.name.substring(0, lastIndex + 1);
-        this._utf8Decoder = new TextDecoder('utf-8');
     }
 
     get format() {
@@ -2163,7 +2186,8 @@ pytorch.Container.Zip = class {
             }
             else if (this._entry('data.pkl')) {
                 const versionEntry = this._entry('version');
-                const versionNumber = versionEntry ? this._utf8Decoder.decode(versionEntry.data).split('\n').shift() : '';
+                const decoder = new TextDecoder('utf-8');
+                const versionNumber = versionEntry ? decoder.decode(versionEntry.data).split('\n').shift() : '';
                 // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
                 // kProducedFileFormatVersion
                 const versionTable = {
@@ -2276,11 +2300,9 @@ pytorch.Container.Zip = class {
                 this._data = this._unpickle(dataEntry.data, this._storage('data'));
             }
             else {
-                const modelEntry = this._entry('model.json');
-                if (modelEntry) {
-                    const model = JSON.parse(this._utf8Decoder.decode(modelEntry.data));
-                    this._producer = model.producerName + (model.producerVersion ? ' v' + model.producerVersion : '');
-                    this._data = model.mainModule || {};
+                if (this._model) {
+                    this._producer = this._model.producerName + (this._model.producerVersion ? ' v' + this._model.producerVersion : '');
+                    this._data = this._model.mainModule || {};
                     this._name = this._data.name || '';
                     if (this._data.torchscriptArena) {
                         this._torchscriptArena = this._data.torchscriptArena.key;
@@ -2298,7 +2320,7 @@ pytorch.Container.Zip = class {
                         [ 'INT32', 'Int' ],
                         [ 'INT64', 'Long' ]
                     ]);
-                    const constants = model.tensors || [];
+                    const constants = this._model.tensors || [];
                     this._constants = constants.map((constant) => {
                         const key = this._prefix + constant.data.key;
                         if (!tensorTypeMap.has(constant.dataType)) {
@@ -2371,6 +2393,7 @@ pytorch.Container.Zip = class {
                             module[attribute.name] = this._attributes[attribute.id];
                         }
                     }
+                    delete this._model;
                 }
             }
             if (this.format.startsWith('TorchScript ')) {
@@ -3134,8 +3157,14 @@ pytorch.Utility = class {
             const keys = [ '', 'model', 'net' ];
             for (const key of keys) {
                 const obj = key === '' ? root : root[key];
-                if (obj && obj._modules) {
-                    return obj;
+                if (obj) {
+                    if (obj._modules) {
+                        return [ { name: '', obj: obj } ];
+                    }
+                    const objKeys = Object.keys(obj).filter((key) => obj[key] && obj[key]._modules);
+                    if (objKeys.length > 1) {
+                        return objKeys.map((key) => { return { name: key, obj: obj[key] }; });
+                    }
                 }
             }
         }
