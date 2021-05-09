@@ -991,6 +991,10 @@ ncnn.EltwiseType = [ 'Prod', 'Sum', 'Max' ];
 
 ncnn.PoolingType = [ 'Max', 'Average' ];
 
+ncnn.InterpResizeType = [ '', 'nearest', 'bilinear', 'bicubic' ];
+
+ncnn.PermuteOrderType = [ 'whc', 'hwc', 'wch', 'cwh', 'hcw', 'chw'];
+
 ncnn.Error = class extends Error {
 
     constructor(message) {
