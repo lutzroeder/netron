@@ -498,14 +498,14 @@ ncnn.Node = class {
 
 ncnn.Attribute = class {
 
-    constructor(schema, key, value) {
+    constructor(metadata, key, value) {
         this._type = '';
         this._name = key;
         this._value = value;
-        if (schema) {
-            this._name = schema.name;
-            if (schema.type) {
-                this._type = schema.type;
+        if (metadata) {
+            this._name = metadata.name;
+            if (metadata.type) {
+                this._type = metadata.type;
             }
             switch (this._type) {
                 case 'int32': {
@@ -521,19 +521,17 @@ ncnn.Attribute = class {
                     break;
                 }
                 default: {
-                    if (Array.isArray(ncnn[this._type])) {
-                        const array = ncnn[this._type];
-                        const index = parseInt(this._value, 10);
-                        this._value = index < array.length ? array[index] : this._value;
+                    if (this._type) {
+                        this._value = ncnn.Utility.value(this._value, this._type);
                     }
                     break;
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                if (this._value == schema.default || (this._value && this._value.toString() == schema.default.toString())) {
+            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+                if (this._value == metadata.default || (this._value && this._value.toString() == metadata.default.toString())) {
                     this._visible = false;
                 }
             }
@@ -762,6 +760,27 @@ ncnn.Metadata = class {
     }
 };
 
+ncnn.Utility = class {
+
+    static value(value, type) {
+        ncnn.Utility._enum = ncnn.Utility._enum || new Map([
+            [ 'BinaryOpType', [ 'Add', 'Sub', 'Mul', 'Div', 'Max', 'Min', 'Pow', 'RSub', 'RDiv' ] ],
+            [ 'EltwiseType', [ 'Prod', 'Sum', 'Max' ] ],
+            [ 'PoolingType', [ 'Max', 'Average' ] ],
+            [ 'InterpResizeType', [ '', 'Nearest', 'Bilinear', 'Bicubic' ] ],
+            [ 'PermuteOrderType', [ 'WHC', 'HWC', 'WCH', 'CWH', 'HCW', 'CHW'] ]
+        ]);
+        if (this._enum.has(type) && typeof value === 'string') {
+            const index = parseInt(value, 10);
+            const list = this._enum.get(type);
+            if (Number.isInteger(index) && index < list.length) {
+                return list[index];
+            }
+        }
+        return value;
+    }
+};
+
 ncnn.TextParamReader = class {
 
     constructor(buffer) {
@@ -984,12 +1003,6 @@ ncnn.BinaryReader = class {
         return this._dataView.getInt32(position, true);
     }
 };
-
-ncnn.BinaryOpType = [ 'Add', 'Sub', 'Mul', 'Div', 'Max', 'Min', 'Pow', 'RSub', 'RDiv' ];
-
-ncnn.EltwiseType = [ 'Prod', 'Sum', 'Max' ];
-
-ncnn.PoolingType = [ 'Max', 'Average' ];
 
 ncnn.Error = class extends Error {
 

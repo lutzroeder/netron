@@ -324,7 +324,7 @@
     "name": "Interp",
     "operator": 50,
     "attributes": [
-      { "name": "resize_type", "default": 0 },
+      { "name": "resize_type", "type": "InterpResizeType", "default": 0 },
       { "name": "height_scale", "type": "float32", "default": 1 },
       { "name": "width_scale", "type": "float32", "default": 1 },
       { "name": "output_height", "default": 0 },
@@ -428,7 +428,7 @@
     "operator": 47,
     "category": "Shape",
     "attributes": [
-      { "name": "order_type", "default": 0 }
+      { "name": "order_type", "type": "PermuteOrderType", "default": 0 }
     ]
   },
   {
