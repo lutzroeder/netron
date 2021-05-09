@@ -1694,47 +1694,54 @@ view.ModelFactoryService = class {
 
     _openEntries(entries) {
         try {
-            const files = entries.map((entry) => entry.name).filter((file) => !file.endsWith('/') && !file.split('/').pop().startsWith('.')).slice();
-            const values = files.filter((file) => !file.startsWith('.') || file.startsWith('./'));
-            const map = values.map((file) => file.split('/').slice(0, -1));
-            const at = index => list => list[index];
-            const rotate = list => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
-            const equals = list => list.every((item) => item === list[0]);
-            const folder = rotate(map).filter(equals).map(at(0)).join('/');
-            const rootFolder = folder.length === 0 ? folder : folder + '/';
+            const rootFolder = (files) => {
+                const map = files.map((file) => file.split('/').slice(0, -1));
+                const at = index => list => list[index];
+                const rotate = list => list.length === 0 ? [] : list[0].map((item, index) => list.map(at(index)));
+                const equals = list => list.every((item) => item === list[0]);
+                const folder = rotate(map).filter(equals).map(at(0)).join('/');
+                return folder.length === 0 ? folder : folder + '/';
+            };
+            const files = entries.filter((entry) => {
+                if (entry.name.endsWith('/')) {
+                    return false;
+                }
+                if (entry.name.split('/').pop().startsWith('.')) {
+                    return false;
+                }
+                if (!entry.name.startsWith('./') && entry.name.startsWith('.')) {
+                    return false;
+                }
+                return true;
+            });
+            const folder = rootFolder(files.map((entry) => entry.name));
             let matches = [];
-            const queue = entries.slice(0);
+            const queue = files.slice(0).filter((entry) => entry.name.substring(folder.length).indexOf('/') < 0);
             const nextEntry = () => {
                 if (queue.length > 0) {
                     const entry = queue.shift();
-                    if (entry.name.startsWith(rootFolder)) {
-                        const identifier = entry.name.substring(rootFolder.length);
-                        if (identifier.length > 0 && identifier.indexOf('/') < 0 && !identifier.startsWith('.')) {
-                            const context = new view.ModelContext(new view.ArchiveContext(this._host, null, rootFolder, entry.name, entry.stream));
-                            let modules = this._filter(context);
-                            const nextModule = () => {
-                                if (modules.length > 0) {
-                                    const id = modules.shift();
-                                    return this._host.require(id).then((module) => {
-                                        if (!module.ModelFactory) {
-                                            throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
-                                        }
-                                        const factory = new module.ModelFactory();
-                                        if (factory.match(context)) {
-                                            matches.push(entry);
-                                            modules = [];
-                                        }
-                                        return nextModule();
-                                    });
+                    const context = new view.ModelContext(new view.ArchiveContext(this._host, null, folder, entry.name, entry.stream));
+                    let modules = this._filter(context);
+                    const nextModule = () => {
+                        if (modules.length > 0) {
+                            const id = modules.shift();
+                            return this._host.require(id).then((module) => {
+                                if (!module.ModelFactory) {
+                                    throw new view.ArchiveError("Failed to load module '" + id + "'.", null);
                                 }
-                                else {
-                                    return nextEntry();
+                                const factory = new module.ModelFactory();
+                                if (factory.match(context)) {
+                                    matches.push(entry);
+                                    modules = [];
                                 }
-                            };
-                            return nextModule();
+                                return nextModule();
+                            });
                         }
-                    }
-                    return nextEntry();
+                        else {
+                            return nextEntry();
+                        }
+                    };
+                    return nextModule();
                 }
                 else {
                     if (matches.length === 0) {
@@ -1761,7 +1768,7 @@ view.ModelFactoryService = class {
                         return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                     }
                     const match = matches.shift();
-                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, rootFolder, match.name, match.stream)));
+                    return Promise.resolve(new view.ModelContext(new view.ArchiveContext(this._host, entries, folder, match.name, match.stream)));
                 }
             };
             return nextEntry();
