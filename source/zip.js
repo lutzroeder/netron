@@ -69,6 +69,7 @@ zip.Archive = class {
             if ((flags & 1) == 1) {
                 throw new zip.Error('Encrypted Zip entries not supported.');
             }
+            entry.encoding = flags & 0x800 ? 'utf-8' : 'ascii';
             entry.compressionMethod = reader.uint16();
             reader.uint32(); // date
             reader.uint32(); // crc32
@@ -81,7 +82,9 @@ zip.Archive = class {
             reader.uint16(); // internal file attributes
             reader.uint32(); // external file attributes
             entry.localHeaderOffset = reader.uint32();
-            entry.nameBuffer = stream.read(entry.nameLength);
+            const nameBuffer = stream.read(entry.nameLength);
+            const decoder = new TextDecoder(entry.encoding);
+            entry.name = decoder.decode(nameBuffer);
             const extraData = stream.read(extraDataLength);
             if (extraData.length > 0) {
                 const reader = new zip.BinaryReader(extraData);
@@ -122,6 +125,9 @@ zip.Archive = class {
             entries.push(entry);
         }
         for (const entry of entries) {
+            if (entry.size === 0 && entry.name.endsWith('/')) {
+                continue;
+            }
             this._entries.push(new zip.Entry(stream, entry));
         }
         stream.seek(position);
@@ -146,10 +152,8 @@ zip.Entry = class {
         const extraDataLength = reader.uint16();
         entry.nameBuffer = stream.read(entry.nameLength);
         stream.skip(extraDataLength);
-        this._name = '';
-        for (const c of entry.nameBuffer) {
-            this._name += String.fromCharCode(c);
-        }
+        const decoder = new TextDecoder(entry.encoding);
+        this._name = decoder.decode(entry.nameBuffer);
         this._stream = stream.stream(entry.compressedSize);
         switch (entry.compressionMethod) {
             case 0: { // Stored
