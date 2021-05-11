@@ -1002,7 +1002,8 @@ view.Node = class extends grapher.Node {
         }
         const type = node.type;
         if (typeof type !== 'string' || !type.split) { // #416
-            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in '" + this.context.view.model.format + "'.");
+            const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
+            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in format '" + format + "'.");
         }
         const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
         const tooltip = this.context.view.showNames && (node.name || node.location) ? type : (node.name || node.location);
@@ -1065,7 +1066,8 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + this.context.view.model.format + "' (" + err.message + ").");
+                            const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
+                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + format + "' (" + err.message + ").");
                         }
                     }
                 }
