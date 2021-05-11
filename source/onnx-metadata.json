@@ -11673,21 +11673,21 @@
     "domain": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "The operator computes the hardmax values for the given input:\n\n Hardmax(element in input, axis) = 1 if the element is the first maximum value along the specified axis, 0 otherwise\n\nThe input does not need to explicitly be a 2D vector. The \"axis\" attribute\nindicates the dimension along which Hardmax will be performed.\nThe output tensor has the same shape\nand contains the Hardmax values of the corresponding input.\n",
+    "description": "The operator computes the hardmax values for the given input:\n\n Hardmax(element in input, axis) = 1 if the element is the first maximum value along the specified axis, 0 otherwise\n\nThe \"axis\" attribute indicates the dimension along which Hardmax\nwill be performed. The output tensor has the same shape\nand contains the Hardmax values of the corresponding input.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": -1,
-        "description": "\nDescribes the dimension Hardmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).,\n"
+        "description": "\nDescribes the dimension Hardmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).\n"
       }
     ],
     "inputs": [
       {
         "name": "input",
         "type": "T",
-        "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above."
+        "description": "The input tensor of rank >= axis."
       }
     ],
     "min_input": 1,
@@ -11696,7 +11696,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "The output values with the same shape as input tensor (the original size without coercion)."
+        "description": "The output values with the same shape as the input tensor."
       }
     ],
     "min_output": 1,
@@ -14235,21 +14235,21 @@
     "domain": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "The operator computes the log of softmax values for the given input:\n\n LogSoftmax(input, axis) = Log(Softmax(input, axis=axis))\n\nThe input does not need to explicitly be a 2D vector. The \"axis\" attribute\nindicates the dimension along which LogSoftmax will be performed.\nThe output tensor has the same shape\nand contains the LogSoftmax values of the corresponding input.\n",
+    "description": "The operator computes the log of softmax values for the given input:\n\n LogSoftmax(input, axis) = Log(Softmax(input, axis=axis))\n\nThe \"axis\" attribute indicates the dimension along which LogSoftmax\nwill be performed. The output tensor has the same shape\nand contains the LogSoftmax values of the corresponding input.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": -1,
-        "description": "\nDescribes the dimension LogSoftmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).,\n"
+        "description": "\nDescribes the dimension LogSoftmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).\n"
       }
     ],
     "inputs": [
       {
         "name": "input",
         "type": "T",
-        "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above."
+        "description": "The input tensor of rank >= axis."
       }
     ],
     "min_input": 1,
@@ -14258,7 +14258,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "The output values with the same shape as input tensor (the original size without coercion)."
+        "description": "The output values with the same shape as the input tensor."
       }
     ],
     "min_output": 1,
@@ -27366,21 +27366,21 @@
     "domain": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "The operator computes the normalized exponential values for the given input:\n\n Softmax(input, axis) = Exp(input) / ReduceSum(Exp(input), axis=axis, keepdims=1) \n\nThe input does not need to explicitly be a 2D vector. The \"axis\" attribute\nindicates the dimension along which Softmax will be performed.\nThe output tensor has the same shape\nand contains the Softmax values of the corresponding input.\n",
+    "description": "The operator computes the normalized exponential values for the given input:\n\n Softmax(input, axis) = Exp(input) / ReduceSum(Exp(input), axis=axis, keepdims=1) \n\nThe \"axis\" attribute indicates the dimension along which Softmax\nwill be performed. The output tensor has the same shape\nand contains the Softmax values of the corresponding input.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": -1,
-        "description": "\nDescribes the dimension Softmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).,\n"
+        "description": "\nDescribes the dimension Softmax will be performed on.\nNegative value means counting dimensions\nfrom the back. Accepted range is [-r, r-1] where r = rank(input).\n"
       }
     ],
     "inputs": [
       {
         "name": "input",
         "type": "T",
-        "description": "The input tensor that's coerced into a 2D matrix of size (NxD) as described above."
+        "description": "The input tensor of rank >= axis."
       }
     ],
     "min_input": 1,
@@ -27389,7 +27389,7 @@
       {
         "name": "output",
         "type": "T",
-        "description": "The output values with the same shape as input tensor (the original size without coercion)."
+        "description": "The output values with the same shape as the input tensor."
       }
     ],
     "min_output": 1,
