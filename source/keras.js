@@ -282,7 +282,7 @@ keras.Model = class {
         this._format = format;
         this._backend = backend;
         this._producer = producer;
-        this._graphs = [ new keras.Graph(metadata, config, weights) ];
+        this._graphs = [ new keras.Graph(new keras.GraphMetadata(metadata), config, weights) ];
     }
 
     get name() {
@@ -656,9 +656,18 @@ keras.Node = class {
             for (const name of Object.keys(config)) {
                 const value = config[name];
                 if (name === 'activation' && value !== 'linear') {
-                    const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
-                    const type = set.has(value) ? set.get(value) : value;
-                    this.chain.push(new keras.Node(metadata, type, {}, [], [], null, null));
+                    if (typeof value === 'string') {
+                        const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
+                        const type = set.has(value) ? set.get(value) : value;
+                        this.chain.push(new keras.Node(metadata, type, {}, [], [], null, null));
+                    }
+                    else if (value && typeof value.class_name === 'string' && value.config) {
+                        const type = value.class_name;
+                        if (!metadata.type(type)) {
+                            metadata.add(type, { category: 'Activation' });
+                        }
+                        this.chain.push(new keras.Node(metadata, type, value.config, [], [], null, null));
+                    }
                 }
                 if (name !== 'name' && value !== null) {
                     this._attributes.push(new keras.Attribute(metadata.attribute(this.type, name), name, value));
@@ -1125,6 +1134,29 @@ keras.TensorShape = class {
 
     toString() {
         return this._dimensions ? ('[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']') : '';
+    }
+};
+
+keras.GraphMetadata = class {
+
+    constructor(metadata) {
+        this._metadata = metadata;
+        this._map = new Map();
+    }
+
+    type(name) {
+        if (this._map.has(name)) {
+            return this._map.get(name);
+        }
+        return this._metadata.type(name);
+    }
+
+    attribute(type, name) {
+        return this._metadata.attribute(type, name);
+    }
+
+    add(type, metadata) {
+        this._map.set(type, metadata);
     }
 };
 
