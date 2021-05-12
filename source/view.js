@@ -685,9 +685,11 @@ view.View = class {
                                 const xs = [];
                                 const ys = [];
                                 for (let i = 0; i < elements.length; i++) {
-                                    const inputTransform = elements[i].transform.baseVal.consolidate().matrix;
-                                    xs.push(inputTransform.e);
-                                    ys.push(inputTransform.f);
+                                    const transform = elements[i].transform.baseVal.consolidate();
+                                    if (transform) {
+                                        xs.push(transform.matrix.e);
+                                        ys.push(transform.matrix.f);
+                                    }
                                 }
                                 let x = xs[0];
                                 const y = ys[0];
