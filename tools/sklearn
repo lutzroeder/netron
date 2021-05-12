@@ -37,21 +37,16 @@ sync() {
 install() {
     echo "sklearn install"
     if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        echo "- arm64 [skip]"
+        return
         venv
         [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+        ${python} -m pip install --upgrade --no-cache-dir cython pybind11
+        ${python} -m pip install --upgrade --no-use-pep517 numpy
         export OPENBLAS=$(brew --prefix openblas)
-        ${python} -m pip install --upgrade --quiet pybind11
-        ${python} -m pip install --upgrade --quiet cython
-        ${python} -m pip install --upgrade --quiet pythran
-        ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
-        rm -rf ./third_party/source/scipy
-        git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
         export CFLAGS="-falign-functions=8 ${CFLAGS}"
-        pushd ./third_party/source/scipy > /dev/null
-        python setup.py install --quiet >/dev/null 2>&1
-        popd > /dev/null
-        rm -rf ./third_party/source/scipy
-        ${python} -m pip install --quiet --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple scikit-learn --no-use-pep517
+        ${python} -m pip install --upgrade --no-use-pep517 scipy
+        ${python} -m pip install --upgrade --no-cache-dir --pre --extra-index https://pypi.anaconda.org/scipy-wheels-nightly/simple --no-use-pep517 scikit-learn
         deactivate
         return
     fi
@@ -63,6 +58,10 @@ install() {
 
 metadata() {
     echo "sklearn metadata"
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        echo "- arm64 [skip]"
+        return
+    fi
     [[ $(grep -U $'\x0D' ./source/sklearn-metadata.json) ]] && crlf=1
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
