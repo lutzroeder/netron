@@ -136,12 +136,14 @@ openvino.Graph = class {
                     const outputLayer = layers.get(outputLayerId);
                     if (outputLayer && outputId) {
                         const output = outputLayer.outputs.find((output) => output.id === outputId);
-                        input.precision = output.precision;
+                        if (input && output) {
+                            input.precision = output.precision;
+                        }
                     }
                 }
                 return this._argument(layer.id, input.precision || layer.precision, input, net.edges);
             });
-            const outputs = layer.outputs.map((output) => this._argument(layer.id, output.precision || layer.precision, output, null));
+            const outputs = layer.outputs.map((output) => this._argument(layer.id, output && output.precision ? output.precision : layer && layer.precision ? layer.precision : null, output, null));
             switch (layer.type) {
                 case 'Input': {
                     const name = layer.name || '';
