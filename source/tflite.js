@@ -87,15 +87,11 @@ tflite.Model = class {
             const index = tflite.schema.BuiltinOperator[key];
             builtinOperators.set(index, name);
         }
-        const operators = model.operator_codes.map((operator, index) => {
-            const code = operator.deprecated_builtin_code < tflite.schema.BuiltinOperator.PLACEHOLDER_FOR_GREATER_OP_CODES ? operator.deprecated_builtin_code : operator.builtin_code;
+        const operators = model.operator_codes.map((operator) => {
+            const code = Math.max(operator.deprecated_builtin_code, operator.builtin_code || 0);
             const version = operator.version;
             const custom = code === tflite.schema.BuiltinOperator.CUSTOM;
-            const name = custom ? operator.custom_code : builtinOperators.get(code);
-            if (!name) {
-                const text = JSON.stringify(Object.keys(operator).map((key) => operator[key])).slice(1, -1);
-                throw new tflite.Error("Invalid built-in code '" + text + "' at '" + index.toString() + "'.");
-            }
+            const name = custom ? operator.custom_code ? operator.custom_code : 'Custom' : builtinOperators.has(code) ? builtinOperators.get(code) : code.toString();
             return custom ? { name: name, version: version, custom: true } : { name: name, version: version };
         });
         let modelMetadata = null;
