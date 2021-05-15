@@ -2527,7 +2527,7 @@
   {
     "name": "Atan2",
     "summary": "Computes arctangent of `y/x` element-wise, respecting signs of the arguments.",
-    "description": "This is the angle \\( \\theta \\in [-\\pi, \\pi] \\) such that\n\\[ x = r \\cos(\\theta) \\]\nand\n\\[ y = r \\sin(\\theta) \\]\nwhere \\(r = \\sqrt(x^2 + y^2) \\).",
+    "description": "This is the angle \\\\( \\theta \\in [-\\pi, \\pi] \\\\) such that\n\\\\[ x = r \\cos(\\theta) \\\\]\nand\n\\\\[ y = r \\sin(\\theta) \\\\]\nwhere \\\\(r = \\sqrt{x^2 + y^2} \\\\).\n\nFor example:\n\n>>> x = [1., 1.]\n>>> y = [1., -1.]\n>>> print((tf.math.atan2(y,x) * (180 / np.pi)).numpy())\n[ 45. -45.]\n\n",
     "attributes": [
       {
         "name": "T",
@@ -7081,6 +7081,11 @@
         "default": false
       },
       {
+        "name": "blank_index",
+        "type": "int64",
+        "default": -1
+      },
+      {
         "name": "T",
         "type": "type",
         "description": "Must be one of the following: `float32`, `float64`.",
@@ -8259,7 +8264,7 @@
   {
     "name": "ComplexAbs",
     "summary": "Computes the complex absolute value of a tensor.",
-    "description": "Given a tensor `x` of complex numbers, this operation returns a tensor of type\n`float` or `double` that is the absolute value of each element in `x`. All\nelements in `x` must be complex numbers of the form \\\\(a + bj\\\\). The absolute\nvalue is computed as \\\\( \\sqrt{a^2 + b^2}\\\\).",
+    "description": "Given a tensor `x` of complex numbers, this operation returns a tensor of type\n`float` or `double` that is the absolute value of each element in `x`. All\nelements in `x` must be complex numbers of the form \\\\(a + bj\\\\). The absolute\nvalue is computed as \\\\( \\sqrt{a^2 + b^2}\\\\).\n\nFor example:\n\n>>> x = tf.complex(3.0, 4.0)\n>>> print((tf.raw_ops.ComplexAbs(x=x, Tout=tf.dtypes.float32, name=None)).numpy())\n5.0\n",
     "attributes": [
       {
         "name": "T",
@@ -53555,12 +53560,14 @@
       {
         "name": "encoding",
         "type": "string",
+        "description": "Character encoding of `input`. Allowed values are '' and 'utf-8'.\nValue '' is interpreted as ASCII.",
         "default": ""
       }
     ],
     "inputs": [
       {
         "name": "input",
+        "description": "The input to be lower-cased.",
         "type": 7
       }
     ],
@@ -53725,6 +53732,7 @@
   {
     "name": "StringStrip",
     "summary": "Strip leading and trailing whitespaces from the Tensor.",
+    "description": "Examples:\n\n>>> tf.strings.strip([\"\\nTensorFlow\", \"     The python library    \"]).numpy()\narray([b'TensorFlow', b'The python library'], dtype=object)",
     "inputs": [
       {
         "name": "input",
@@ -53735,7 +53743,7 @@
     "outputs": [
       {
         "name": "output",
-        "description": "A string `Tensor` of the same shape as the input.\n\nExamples:\n\n>>> tf.strings.strip([\"\\nTensorFlow\", \"     The python library    \"]).numpy()\narray([b'TensorFlow', b'The python library'], dtype=object)",
+        "description": "A string `Tensor` of the same shape as the input.",
         "type": 7
       }
     ]
@@ -53862,12 +53870,14 @@
       {
         "name": "encoding",
         "type": "string",
+        "description": "Character encoding of `input`. Allowed values are '' and 'utf-8'.\nValue '' is interpreted as ASCII.",
         "default": ""
       }
     ],
     "inputs": [
       {
         "name": "input",
+        "description": "The input to be upper-cased.",
         "type": 7
       }
     ],
@@ -58802,7 +58812,7 @@
   {
     "name": "UnsortedSegmentSum",
     "summary": "Computes the sum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_sum(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 5,  5, 5, 5],\n#       [5,  6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output[i] = \\sum_{j...} data[j...]\\\\) where the sum is over tuples `j...` such\nthat `segment_ids[j...] == i`.  Unlike `SegmentSum`, `segment_ids`\nneed not be sorted and need not cover all values in the full\nrange of valid values.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\nIf the given segment ID `i` is negative, the value is dropped and will not be\nadded to the sum of the segment.\n\n`num_segments` should equal the number of distinct segment IDs.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentSum.png\" alt>\n</div>\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.math.unsorted_segment_sum(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 5, 5, 5, 5],\n#       [5, 6, 7, 8]]\n```\n",
     "attributes": [
       {
         "name": "T",
