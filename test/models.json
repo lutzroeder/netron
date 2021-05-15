@@ -2962,10 +2962,10 @@
   },
   {
     "type":   "onnx",
-    "target": "bidaf.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_9/bidaf/bidaf.onnx",
+    "target": "bidaf-9.onnx",
+    "source": "https://github.com/onnx/models/raw/master/text/machine_comprehension/bidirectional_attention_flow/model/bidaf-9.onnx",
     "format": "ONNX v4", "producer": "CNTK 2.7",
-    "link":   "https://github.com/onnx/models/tree/master/bidaf"
+    "link":   "https://github.com/onnx/models/tree/master/text/machine_comprehension/bidirectional_attention_flow"
   },
   {
     "type":   "onnx",
@@ -3074,6 +3074,20 @@
   },
   {
     "type":   "onnx",
+    "target": "emoji8.onnx",
+    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/Emoji8/UWP/cs/Emoji8/Models/model.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/Emoji8/UWP/cs/Emoji8"
+  },
+  {
+    "type":   "onnx",
+    "target": "emotion-ferplus-8.onnx",
+    "source": "https://github.com/onnx/models/raw/master/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx",
+    "format": "ONNX v3",
+    "link":   "https://github.com/onnx/models/tree/master/vision/body_analysis/emotion_ferplus"
+  },
+  {
+    "type":   "onnx",
     "target": "end2end_tfc_w1a1_oqnt_streamlined.onnx",
     "source": "https://github.com/lutzroeder/netron/files/4885362/end2end_tfc_w1a1_oqnt_streamlined.zip[end2end_tfc_w1a1_oqnt_streamlined.onnx]",
     "format": "ONNX v4",
@@ -3085,18 +3099,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2592478/Exermote.onnx.zip[Exermote.onnx]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "emoji8.onnx",
-    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/Emoji8/UWP/cs/Emoji8/Models/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/Emoji8/UWP/cs/Emoji8"
-  },
-  {
-    "type":   "onnx",
-    "target": "emotion_ferplus_opset_8.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/emotion_ferplus/emotion_ferplus.tar.gz[emotion_ferplus/model.onnx]"
   },
   {
     "type":   "onnx",
@@ -3180,11 +3182,6 @@
     "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/MNIST/Tutorial/cs/Assets/mnist.onnx",
     "format": "ONNX v3",
     "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/MNIST/Tutorial/cs/Assets"
-  },
-  {
-    "type":   "onnx",
-    "target": "mnist_opset_9.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/mnist/mnist.tar.gz[mnist/model.onnx]"
   },
   {
     "type":   "onnx",
@@ -3358,9 +3355,10 @@
   },
   {
     "type":   "onnx",
-    "target": "tiny_yolov2_opset_8.onnx",
-    "source": "https://onnxzoo.blob.core.windows.net/models/opset_8/tiny_yolov2/tiny_yolov2.tar.gz[tiny_yolov2/./Model.onnx]",
-    "link":   "https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny_yolov2"
+    "target": "tinyyolov2-8.onnx",
+    "source": "https://github.com/onnx/models/raw/master/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.onnx",
+    "format": "ONNX v5",
+    "link":   "https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2"
   },
   {
     "type":   "onnx",
