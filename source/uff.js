@@ -69,7 +69,7 @@ uff.Model = class {
 
     constructor(metadata, meta_graph) {
         this._version = meta_graph.version;
-        this._imports = meta_graph.descriptors.map((descriptor) => descriptor.id + ' v' + descriptor.version.toString()).join(', ');
+        this._imports = meta_graph.descriptors.map((descriptor) => descriptor.id + ' v' + descriptor.version.toString());
         const references = new Map(meta_graph.referenced_data.map((item) => [ item.key, item.value ]));
         for (const graph of meta_graph.graphs) {
             for (const node of graph.nodes) {

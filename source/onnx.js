@@ -145,25 +145,20 @@ onnx.Model = class {
         this._metadata = [];
         this._imports = null;
 
-        const imports = {};
+        const imports = new Map();
         if (model.opset_import && model.opset_import.length > 0) {
-            const results = [];
             for (const opset_import of model.opset_import) {
-                let domain = opset_import.domain || 'ai.onnx';
-                const result = domain + ' v' + opset_import.version;
-                if (!results.includes(result)) {
-                    results.push(result);
-                }
-                domain = domain == 'ai.onnx' ? '' : domain;
-                if (!imports[domain] || imports[domain] > opset_import.version) {
-                    imports[domain] = opset_import.version;
+                const domain = opset_import.domain || 'ai.onnx';
+                const version = opset_import.version ? Number.isInteger(opset_import.version) ? opset_import.version : opset_import.version.toNumber() : 0;
+                if (!imports.has(domain) || imports.get(domain) > version) {
+                    imports.set(domain, version);
                 }
             }
-            this._imports = results.join(', ');
+            this._imports = Array.from(imports).map((pair) => pair[0] + ' v' + pair[1].toString());
         }
-        if (Object.keys(imports).length == 0) {
-            imports[''] = 1;
-            imports['ai.onnx.ml'] = 1;
+        if (imports.size == 0) {
+            imports.set('ai.onnx', 1);
+            imports.set('ai.onnx.ml', 1);
         }
 
         let imageFormat = '';
@@ -1126,20 +1121,20 @@ onnx.GraphMetadata = class {
         this._attributeCache = new Map();
     }
 
-    type(operator) {
-        if (!this._cache.has(operator)) {
-            this._cache.set(operator, this._metadata.type(operator, this._imports));
+    type(name) {
+        if (!this._cache.has(name)) {
+            this._cache.set(name, this._metadata.type(name, this._imports));
         }
-        return this._cache.get(operator);
+        return this._cache.get(name);
     }
 
-    attribute(operator, name) {
-        const key = operator + ':' + name;
+    attribute(type, name) {
+        const key = type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(operator);
+            const schema = this.type(type);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(operator + ':' + attribute.name, attribute);
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
             if (!this._attributeCache.has(key)) {
@@ -1181,22 +1176,18 @@ onnx.Metadata = class {
         }
     }
 
-    type(operator, imports) {
-        let result = null;
-        const schemas = this._map.get(operator);
-        if (schemas) {
-            let version = -1;
-            for (const schema of schemas) {
-                const domain = schema.domain === 'ai.onnx' ? '' : schema.domain;
-                const importVersion = imports[domain];
-                const sinceVersion = schema.version;
-                if (importVersion >= sinceVersion && version < sinceVersion) {
-                    version = sinceVersion;
-                    result = schema;
+    type(name, imports) {
+        let current = null;
+        if (this._map.has(name)) {
+            for (const metadata of this._map.get(name)) {
+                const matchVersion = current ? current.version : -1;
+                const importVersion = imports.get(metadata.domain) || 0;
+                if (importVersion >= metadata.version && matchVersion < metadata.version) {
+                    current = metadata;
                 }
             }
         }
-        return result;
+        return current;
     }
 };
 

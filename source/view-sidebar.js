@@ -462,10 +462,15 @@ sidebar.ValueTextView = class {
             element.appendChild(this._action);
         }
 
-        const line = this._host.document.createElement('div');
-        line.className = 'sidebar-view-item-value-line';
-        line.innerText = value;
-        element.appendChild(line);
+        const list = Array.isArray(value) ? value : [ value ];
+        let className = 'sidebar-view-item-value-line';
+        for (const item of list) {
+            const line = this._host.document.createElement('div');
+            line.className = className;
+            line.innerText = item;
+            element.appendChild(line);
+            className = 'sidebar-view-item-value-line-border';
+        }
     }
 
     render() {
