@@ -694,7 +694,7 @@ view.View = class {
                                 let x = xs[0];
                                 const y = ys[0];
                                 if (ys.every(y => y === ys[0])) {
-                                    x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
                                 }
                                 const sx = (svgSize.width / (this._showHorizontal ? 4 : 2)) - x;
                                 const sy = (svgSize.height / (this._showHorizontal ? 2 : 4)) - y;
@@ -737,7 +737,7 @@ view.View = class {
                                 let x = xs[0];
                                 const y = ys[0];
                                 if (ys.every(y => y === ys[0])) {
-                                    x = xs.reduce((a,b) => { return a + b; }) / xs.length;
+                                    x = xs.reduce((a, b) => a + b, 0) / xs.length;
                                 }
                                 // const canvasRect = graphElement.getBoundingClientRect();
                                 const graphRect = graphElement.getBoundingClientRect();

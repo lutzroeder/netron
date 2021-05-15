@@ -1453,7 +1453,7 @@ pytorch.Execution = class extends python.Execution {
             if (tensor && tensor.size) {
                 const size = tensor.size();
                 if (size) {
-                    return size.length === 0 ? 1 : size.reduce((a, b) => a * b);
+                    return size.reduce((a, b) => a * b, 1);
                 }
             }
             return NaN;
@@ -2329,7 +2329,7 @@ pytorch.Container.Zip = class {
                         const type = tensorTypeMap.get(constant.dataType);
                         const shape = constant.dims ? constant.dims.map((dim) => parseInt(dim, 10)) : null;
                         const storage_type = this.execution.type('torch.' + type + 'Storage');
-                        const size = shape && shape.length > 0 ? shape.reduce((a, b) => a * b) : 1;
+                        const size = (shape || []).reduce((a, b) => a * b, 1);
                         const offset = parseInt(constant.offset, 10) || 0;
                         const storage = new storage_type([ size ]);
                         const itemsize = storage.dtype.itemsize();

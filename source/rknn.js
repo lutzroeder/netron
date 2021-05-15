@@ -312,7 +312,7 @@ rknn.Tensor = class {
             case 'float32': size = 4; break;
         }
         const shape = type.shape.dimensions;
-        size = size * (shape.length === 0 ? 1 : shape.reduce((a, b) => a * b));
+        size = size * shape.reduce((a, b) => a * b, 1);
         if (size > 0) {
             this._data = weights.slice(offset, offset + size);
         }

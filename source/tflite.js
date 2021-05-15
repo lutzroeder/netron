@@ -643,7 +643,7 @@ tflite.Tensor = class {
             if (!itemsize.has(dataType)) {
                 throw new tflite.Error("Tensor data type '" + this.type.dataType + "' is not implemented.");
             }
-            const size = shape.length > 0 ? shape.reduce((a, b) => a * b) : 1;
+            const size = shape.reduce((a, b) => a * b, 1);
             if (this._data.length < itemsize.get(dataType) * size) {
                 context.state = "Invalid tensor data size.";
                 return context;

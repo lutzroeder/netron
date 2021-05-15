@@ -513,7 +513,7 @@ paddle.Tensor = class {
                 const length = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength).getUint32(0, true);
                 const reader = protobuf.Reader.create(stream.read(length));
                 const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
-                const size = tensorDesc.dims.reduce((a, b) => a * b.toNumber());
+                const size = tensorDesc.dims.reduce((a, b) => a * b.toNumber(), 1);
                 let itemsize = 0;
                 switch (tensorDesc.data_type) {
                     case paddle.proto.VarType.Type.FP32: itemsize = 4; break;

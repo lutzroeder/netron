@@ -252,7 +252,7 @@ keras.ModelFactory = class {
                                 throw new keras.Error("Unknown weight data type size '" + dtype + "'.");
                             }
                             const itemsize = dtype_size_map.get(dtype);
-                            const size = weight.shape.length > 0 ? weight.shape.reduce((a, b) => a * b) : 1;
+                            const size = weight.shape.reduce((a, b) => a * b, 1);
                             const length = itemsize * size;
                             const data = buffer ? buffer.slice(offset, offset + length) : null;
                             weights.add(weight.identifier, new keras.Tensor(weight.name, weight.shape, dtype, weight.quantization, true, data));

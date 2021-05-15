@@ -1153,7 +1153,7 @@ ndarray.Shape = class {
     }
 
     size() {
-        return this._dimensions.reduce((a, b) => a * b);
+        return this._dimensions.reduce((a, b) => a * b, 1);
     }
 };
 

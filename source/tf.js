@@ -267,7 +267,7 @@ tf.ModelFactory = class {
                                     throw new tf.Error("Unknown weight data type size '" + dtype + "'.");
                                 }
                                 const itemsize = dtype_size_map.get(dtype);
-                                const size = weight.shape.length > 0 ? weight.shape.reduce((a, b) => a * b) : 1;
+                                const size = weight.shape.reduce((a, b) => a * b, 1);
                                 const length = itemsize * size;
                                 const tensor_content = buffer ? buffer.slice(offset, offset + length) : null;
                                 offset += length;

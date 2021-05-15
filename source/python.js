@@ -1803,7 +1803,7 @@ python.Execution = class {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
                 else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                     this.data = unpickler.read(size);
                 }
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
@@ -1835,7 +1835,7 @@ python.Execution = class {
                 this.data = state[4];
             }
             __read__(unpickler) {
-                const dims = this.shape && this.shape.length > 0 ? this.shape.reduce((a, b) => a * b) : 1;
+                const dims = (this.shape || []).reduce((a, b) => a * b, 1);
                 const size = this.dtype.itemsize * dims;
                 if (typeof this.data == 'string') {
                     this.data = unpickler.unescape(this.data, size);
@@ -1891,7 +1891,7 @@ python.Execution = class {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
                 else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                     this.data = unpickler.read(size);
                 }
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
