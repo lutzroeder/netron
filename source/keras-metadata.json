@@ -1942,6 +1942,10 @@
       {
         "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.",
         "name": "data_format"
+      },
+      {
+        "name": "keepdims",
+        "description": "A boolean, whether to keep the temporal dimension or not.\n    If `keepdims` is `False` (default), the rank of the tensor is reduced\n    for spatial dimensions.\n    If `keepdims` is `True`, the temporal dimension are retained with\n    length 1.\n    The behavior is the same as for `tf.reduce_mean` or `np.mean`."
       }
     ],
     "inputs": [
@@ -1952,7 +1956,7 @@
     ],
     "outputs": [
       {
-        "description": "2D tensor with shape `(batch_size, features)`.",
+        "description": "- If `keepdims`=False:\n  2D tensor with shape `(batch_size, features)`.\n- If `keepdims`=True:\n  - If `data_format='channels_last'`:\n    3D tensor with shape `(batch_size, 1, features)`\n  - If `data_format='channels_first'`:\n    3D tensor with shape `(batch_size, features, 1)`",
         "name": "output"
       }
     ],
@@ -1972,6 +1976,10 @@
         "default": "channels_last",
         "description": "A string,\n      one of `channels_last` (default) or `channels_first`.\n      The ordering of the dimensions in the inputs.\n      `channels_last` corresponds to inputs with shape\n      `(batch, height, width, channels)` while `channels_first`\n      corresponds to inputs with shape\n      `(batch, channels, height, width)`.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".",
         "name": "data_format"
+      },
+      {
+        "name": "keepdims",
+        "description": "A boolean, whether to keep the spatial dimensions or not.\n      If `keepdims` is `False` (default), the rank of the tensor is reduced\n      for spatial dimensions.\n      If `keepdims` is `True`, the spatial dimensions are retained with\n      length 1.\n      The behavior is the same as for `tf.reduce_mean` or `np.mean`."
       }
     ],
     "inputs": [
@@ -1982,7 +1990,7 @@
     ],
     "outputs": [
       {
-        "description": "2D tensor with shape `(batch_size, channels)`.",
+        "description": "- If `keepdims`=False:\n  2D tensor with shape `(batch_size, channels)`.\n- If `keepdims`=True:\n  - If `data_format='channels_last'`:\n    4D tensor with shape `(batch_size, 1, 1, channels)`\n  - If `data_format='channels_first'`:\n    4D tensor with shape `(batch_size, channels, 1, 1)`",
         "name": "output"
       }
     ],
@@ -2001,6 +2009,10 @@
       {
         "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, steps, features)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, features, steps)`.",
         "name": "data_format"
+      },
+      {
+        "name": "keepdims",
+        "description": "A boolean, whether to keep the temporal dimension or not.\n    If `keepdims` is `False` (default), the rank of the tensor is reduced\n    for spatial dimensions.\n    If `keepdims` is `True`, the temporal dimension are retained with\n    length 1.\n    The behavior is the same as for `tf.reduce_max` or `np.max`."
       }
     ],
     "inputs": [
@@ -2011,7 +2023,7 @@
     ],
     "outputs": [
       {
-        "description": "2D tensor with shape `(batch_size, features)`.",
+        "description": "- If `keepdims`=False:\n  2D tensor with shape `(batch_size, features)`.\n- If `keepdims`=True:\n  - If `data_format='channels_last'`:\n    3D tensor with shape `(batch_size, 1, features)`\n  - If `data_format='channels_first'`:\n    3D tensor with shape `(batch_size, features, 1)`",
         "name": "output"
       }
     ]
@@ -2026,6 +2038,10 @@
         "default": "channels_last",
         "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, height, width, channels)` while `channels_first`\n    corresponds to inputs with shape\n    `(batch, channels, height, width)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
         "name": "data_format"
+      },
+      {
+        "name": "keepdims",
+        "description": "A boolean, whether to keep the spatial dimensions or not.\n    If `keepdims` is `False` (default), the rank of the tensor is reduced\n    for spatial dimensions.\n    If `keepdims` is `True`, the spatial dimensions are retained with\n    length 1.\n    The behavior is the same as for `tf.reduce_max` or `np.max`."
       }
     ],
     "inputs": [
@@ -2036,7 +2052,7 @@
     ],
     "outputs": [
       {
-        "description": "2D tensor with shape `(batch_size, channels)`.",
+        "description": "- If `keepdims`=False:\n  2D tensor with shape `(batch_size, channels)`.\n- If `keepdims`=True:\n  - If `data_format='channels_last'`:\n    4D tensor with shape `(batch_size, 1, 1, channels)`\n  - If `data_format='channels_first'`:\n    4D tensor with shape `(batch_size, channels, 1, 1)`",
         "name": "output"
       }
     ],
@@ -3259,7 +3275,7 @@
         "name": "negative_slope"
       },
       {
-        "description": "Float. Threshold value for thresholded activation. Default to 0.",
+        "description": "Float >= 0. Threshold value for thresholded activation. Default\n    to 0.",
         "name": "threshold"
       }
     ],
@@ -3915,7 +3931,26 @@
   {
     "name": "Softmax",
     "package": "tensorflow.keras.layers",
-    "category": "Activation"
+    "category": "Activation",
+    "description": "Softmax activation function.\n\nExample without mask:\n\n```\n>>> inp = np.asarray([1., 2., 1.])\n>>> layer = tf.keras.layers.Softmax()\n>>> layer(inp).numpy()\narray([0.21194157, 0.5761169 , 0.21194157], dtype=float32)\n>>> mask = np.asarray([True, False, True], dtype=bool)\n>>> layer(inp, mask).numpy()\narray([0.5, 0. , 0.5], dtype=float32)\n```",
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Arbitrary. Use the keyword argument `input_shape`\n(tuple of integers, does not include the samples axis)\nwhen using this layer as the first layer in a model."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
+        "description": "Same shape as the input."
+      }
+    ],
+    "attributes": [
+      {
+        "name": "axis",
+        "description": "Integer, or list of Integers, axis along which the softmax\n    normalization is applied."
+      }
+    ]
   },
   {
     "name": "SoftPlus",
