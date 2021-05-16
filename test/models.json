@@ -17,7 +17,7 @@
     "type":   "_",
     "target": "coreml_invalid_file.mlmodel",
     "source": "https://github.com/lutzroeder/netron/files/3219681/coreml_invalid_file.mlmodel.zip",
-    "error":  "Invalid file content. File contains Zip archive in 'coreml_invalid_file.mlmodel'.",
+    "error":  "Archive contains no model files in 'coreml_invalid_file.mlmodel'.",
     "format": "Core ML v1",
     "link":   "https://github.com/lutzroeder/netron/issues/193"
   },
@@ -25,7 +25,7 @@
     "type":   "_",
     "target": "empty.zip",
     "source": "https://github.com/lutzroeder/netron/files/5581087/empty.zip",
-    "error":  "Invalid file content. File contains Zip archive in 'empty.zip'.",
+    "error":  "Archive contains no model files in 'empty.zip'.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -3064,6 +3064,13 @@
     "source": "https://github.com/lutzroeder/netron/files/4209090/eisber_model3.pbtxt.zip[eisber_model3.pbtxt]",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/139"
+  },
+  {
+    "type":   "onnx",
+    "target": "eisber_model3.pbtxt.gz",
+    "source": "https://github.com/lutzroeder/netron/files/6490172/eisber_model3.pbtxt.gz",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/249"
   },
   {
     "type":   "onnx",
