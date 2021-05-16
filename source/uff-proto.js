@@ -50,10 +50,10 @@ $root.uff.MetaGraph = class MetaGraph {
             const tag = reader.tag();
             switch (tag) {
                 case "version":
-                    message.version = reader.integer();
+                    message.version = reader.int64();
                     break;
                 case "descriptor_core_version":
-                    message.descriptor_core_version = reader.integer();
+                    message.descriptor_core_version = reader.int64();
                     break;
                 case "descriptors":
                     message.descriptors.push($root.uff.Descriptor.decodeText(reader));
@@ -215,10 +215,10 @@ $root.uff.Descriptor = class Descriptor {
                     message.id = reader.string();
                     break;
                 case "version":
-                    message.version = reader.integer();
+                    message.version = reader.int64();
                     break;
                 case "optional":
-                    message.optional = reader.boolean();
+                    message.optional = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -585,19 +585,19 @@ $root.uff.Data = class Data {
                     message.s_list = $root.uff.ListString.decodeText(reader);
                     break;
                 case "d":
-                    message.d = reader.float();
+                    message.d = reader.double();
                     break;
                 case "d_list":
                     message.d_list = $root.uff.ListDouble.decodeText(reader);
                     break;
                 case "b":
-                    message.b = reader.boolean();
+                    message.b = reader.bool();
                     break;
                 case "b_list":
                     message.b_list = $root.uff.ListBool.decodeText(reader);
                     break;
                 case "i":
-                    message.i = reader.integer();
+                    message.i = reader.int64();
                     break;
                 case "i_list":
                     message.i_list = $root.uff.ListInt64.decodeText(reader);
@@ -807,7 +807,7 @@ $root.uff.ListDouble = class ListDouble {
             const tag = reader.tag();
             switch (tag) {
                 case "val":
-                    reader.array(message.val, () => reader.float());
+                    reader.array(message.val, () => reader.double());
                     break;
                 default:
                     reader.field(tag, message);
@@ -848,7 +848,7 @@ $root.uff.ListBool = class ListBool {
             const tag = reader.tag();
             switch (tag) {
                 case "val":
-                    reader.array(message.val, () => reader.boolean());
+                    reader.array(message.val, () => reader.bool());
                     break;
                 default:
                     reader.field(tag, message);
@@ -889,7 +889,7 @@ $root.uff.ListInt64 = class ListInt64 {
             const tag = reader.tag();
             switch (tag) {
                 case "val":
-                    reader.array(message.val, () => reader.integer());
+                    reader.array(message.val, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);

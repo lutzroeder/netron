@@ -237,13 +237,13 @@ $root.serial_v2.Tensor = class Tensor {
                     message.tensor_name = reader.string();
                     break;
                 case "tensor_dim":
-                    reader.array(message.tensor_dim, () => reader.integer());
+                    reader.array(message.tensor_dim, () => reader.uint32());
                     break;
                 case "data_type":
-                    message.data_type = reader.integer();
+                    message.data_type = reader.int32();
                     break;
                 case "tensor_bit_width":
-                    message.tensor_bit_width = reader.integer();
+                    message.tensor_bit_width = reader.int32();
                     break;
                 case "tensor_attr":
                     reader.entry(message.tensor_attr, () => reader.string(), () => $root.serial_v2.AttrValue.decodeText(reader));
@@ -437,7 +437,7 @@ $root.serial_v2.AttrDef = class AttrDef {
                     message.default_value = $root.serial_v2.AttrValue.decodeText(reader);
                     break;
                 case "list_length":
-                    message.list_length = reader.integer();
+                    message.list_length = reader.int32();
                     break;
                 case "annotation":
                     message.annotation = reader.string();
@@ -506,7 +506,7 @@ $root.serial_v2.OpArgDef = class OpArgDef {
                     message.occur_type = reader.enum($root.serial_v2.OpArgDef.OccurType);
                     break;
                 case "data_type":
-                    message.data_type = reader.integer();
+                    message.data_type = reader.int32();
                     break;
                 case "annotation":
                     message.annotation = reader.string();
@@ -650,25 +650,25 @@ $root.serial_v2.AttrValue = class AttrValue {
             const tag = reader.tag();
             switch (tag) {
                 case "bool_value":
-                    message.bool_value = reader.boolean();
+                    message.bool_value = reader.bool();
                     break;
                 case "int32_value":
-                    message.int32_value = reader.integer();
+                    message.int32_value = reader.int32();
                     break;
                 case "uint32_value":
-                    message.uint32_value = reader.integer();
+                    message.uint32_value = reader.uint32();
                     break;
                 case "int64_value":
-                    message.int64_value = reader.integer();
+                    message.int64_value = reader.int64();
                     break;
                 case "uint64_value":
-                    message.uint64_value = reader.integer();
+                    message.uint64_value = reader.uint64();
                     break;
                 case "float_value":
                     message.float_value = reader.float();
                     break;
                 case "double_value":
-                    message.double_value = reader.float();
+                    message.double_value = reader.double();
                     break;
                 case "string_value":
                     message.string_value = reader.string();
@@ -817,7 +817,7 @@ $root.serial_v2.BoolVec = class BoolVec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.boolean());
+                    reader.array(message.value, () => reader.bool());
                     break;
                 default:
                     reader.field(tag, message);
@@ -858,7 +858,7 @@ $root.serial_v2.Int32Vec = class Int32Vec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.integer());
+                    reader.array(message.value, () => reader.int32());
                     break;
                 default:
                     reader.field(tag, message);
@@ -899,7 +899,7 @@ $root.serial_v2.Uint32Vec = class Uint32Vec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.integer());
+                    reader.array(message.value, () => reader.uint32());
                     break;
                 default:
                     reader.field(tag, message);
@@ -940,7 +940,7 @@ $root.serial_v2.Int64Vec = class Int64Vec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.integer());
+                    reader.array(message.value, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -981,7 +981,7 @@ $root.serial_v2.Uint64Vec = class Uint64Vec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.integer());
+                    reader.array(message.value, () => reader.uint64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -1063,7 +1063,7 @@ $root.serial_v2.DoubleVec = class DoubleVec {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.float());
+                    reader.array(message.value, () => reader.double());
                     break;
                 default:
                     reader.field(tag, message);

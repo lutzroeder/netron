@@ -385,7 +385,7 @@ protobuf.TextReader = class {
         return value;
     }
 
-    float() {
+    double() {
         let token = this._token;
         if (token.startsWith('nan')) {
             return NaN;
@@ -408,6 +408,50 @@ protobuf.TextReader = class {
         return value;
     }
 
+    float() {
+        return this.double();
+    }
+
+    uint32() {
+        return this.integer();
+    }
+
+    int32() {
+        return this.integer();
+    }
+
+    sint32() {
+        return this.integer();
+    }
+
+    int64() {
+        return new base.Int64(this.integer(), 0);
+    }
+
+    uint64() {
+        return new base.Uint64(this.integer(), 0);
+    }
+
+    sint64() {
+        return new base.Int64(this.integer(), 0);
+    }
+
+    fixed64() {
+        return new base.Uint64(this.integer(), 0);
+    }
+
+    sfixed64() {
+        return new base.Int64(this.integer(), 0);
+    }
+
+    fixed32() {
+        return this.integer();
+    }
+
+    sfixed32() {
+        return this.integer();
+    }
+
     string() {
         const token = this._token;
         if (token.length < 2) {
@@ -426,7 +470,7 @@ protobuf.TextReader = class {
         return value;
     }
 
-    boolean() {
+    bool() {
         const token = this._token;
         switch (token) {
             case 'true':

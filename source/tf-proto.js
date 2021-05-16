@@ -35,7 +35,7 @@ $root.tensorflow.SavedModel = class SavedModel {
             const tag = reader.tag();
             switch (tag) {
                 case "saved_model_schema_version":
-                    message.saved_model_schema_version = reader.integer();
+                    message.saved_model_schema_version = reader.int64();
                     break;
                 case "meta_graphs":
                     message.meta_graphs.push($root.tensorflow.MetaGraphDef.decodeText(reader));
@@ -205,7 +205,7 @@ $root.tensorflow.MetaGraphDef.MetaInfoDef = class MetaInfoDef {
                     message.tensorflow_git_version = reader.string();
                     break;
                 case "stripped_default_attrs":
-                    message.stripped_default_attrs = reader.boolean();
+                    message.stripped_default_attrs = reader.bool();
                     break;
                 case "function_aliases":
                     reader.entry(message.function_aliases, () => reader.string(), () => reader.string());
@@ -407,7 +407,7 @@ $root.tensorflow.CollectionDef.Int64List = class Int64List {
             const tag = reader.tag();
             switch (tag) {
                 case "value":
-                    reader.array(message.value, () => reader.integer());
+                    reader.array(message.value, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -827,7 +827,7 @@ $root.tensorflow.GraphDef = class GraphDef {
                     message.versions = $root.tensorflow.VersionDef.decodeText(reader);
                     break;
                 case "version":
-                    message.version = reader.integer();
+                    message.version = reader.int32();
                     break;
                 case "library":
                     message.library = $root.tensorflow.FunctionDefLibrary.decodeText(reader);
@@ -959,10 +959,10 @@ $root.tensorflow.FunctionDef = class FunctionDef {
                     reader.entry(message.attr, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader));
                     break;
                 case "arg_attr":
-                    reader.entry(message.arg_attr, () => reader.integer(), () => $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader));
+                    reader.entry(message.arg_attr, () => reader.uint32(), () => $root.tensorflow.FunctionDef.ArgAttrs.decodeText(reader));
                     break;
                 case "resource_arg_unique_id":
-                    reader.entry(message.resource_arg_unique_id, () => reader.integer(), () => reader.uint32());
+                    reader.entry(message.resource_arg_unique_id, () => reader.uint32(), () => reader.uint32());
                     break;
                 case "node_def":
                     message.node_def.push($root.tensorflow.NodeDef.decodeText(reader));
@@ -1187,13 +1187,13 @@ $root.tensorflow.AttrValue = class AttrValue {
                     message.s = reader.bytes();
                     break;
                 case "i":
-                    message.i = reader.integer();
+                    message.i = reader.int64();
                     break;
                 case "f":
                     message.f = reader.float();
                     break;
                 case "b":
-                    message.b = reader.boolean();
+                    message.b = reader.bool();
                     break;
                 case "type":
                     message.type = reader.enum($root.tensorflow.DataType);
@@ -1283,13 +1283,13 @@ $root.tensorflow.AttrValue.ListValue = class ListValue {
                     reader.array(message.s, () => reader.bytes());
                     break;
                 case "i":
-                    reader.array(message.i, () => reader.integer());
+                    reader.array(message.i, () => reader.int64());
                     break;
                 case "f":
                     reader.array(message.f, () => reader.float());
                     break;
                 case "b":
-                    reader.array(message.b, () => reader.boolean());
+                    reader.array(message.b, () => reader.bool());
                     break;
                 case "type":
                     reader.array(message.type, () => reader.enum($root.tensorflow.DataType));
@@ -1457,22 +1457,22 @@ $root.tensorflow.TensorProto = class TensorProto {
                     message.tensor_shape = $root.tensorflow.TensorShapeProto.decodeText(reader);
                     break;
                 case "version_number":
-                    message.version_number = reader.integer();
+                    message.version_number = reader.int32();
                     break;
                 case "tensor_content":
                     message.tensor_content = reader.bytes();
                     break;
                 case "half_val":
-                    reader.array(message.half_val, () => reader.integer());
+                    reader.array(message.half_val, () => reader.int32());
                     break;
                 case "float_val":
                     reader.array(message.float_val, () => reader.float());
                     break;
                 case "double_val":
-                    reader.array(message.double_val, () => reader.float());
+                    reader.array(message.double_val, () => reader.double());
                     break;
                 case "int_val":
-                    reader.array(message.int_val, () => reader.integer());
+                    reader.array(message.int_val, () => reader.int32());
                     break;
                 case "string_val":
                     reader.array(message.string_val, () => reader.bytes());
@@ -1481,13 +1481,13 @@ $root.tensorflow.TensorProto = class TensorProto {
                     reader.array(message.scomplex_val, () => reader.float());
                     break;
                 case "int64_val":
-                    reader.array(message.int64_val, () => reader.integer());
+                    reader.array(message.int64_val, () => reader.int64());
                     break;
                 case "bool_val":
-                    reader.array(message.bool_val, () => reader.boolean());
+                    reader.array(message.bool_val, () => reader.bool());
                     break;
                 case "dcomplex_val":
-                    reader.array(message.dcomplex_val, () => reader.float());
+                    reader.array(message.dcomplex_val, () => reader.double());
                     break;
                 case "resource_handle_val":
                     message.resource_handle_val.push($root.tensorflow.ResourceHandleProto.decodeText(reader));
@@ -1496,10 +1496,10 @@ $root.tensorflow.TensorProto = class TensorProto {
                     message.variant_val.push($root.tensorflow.VariantTensorDataProto.decodeText(reader));
                     break;
                 case "uint32_val":
-                    reader.array(message.uint32_val, () => reader.integer());
+                    reader.array(message.uint32_val, () => reader.uint32());
                     break;
                 case "uint64_val":
-                    reader.array(message.uint64_val, () => reader.integer());
+                    reader.array(message.uint64_val, () => reader.uint64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -1625,7 +1625,7 @@ $root.tensorflow.ResourceHandleProto = class ResourceHandleProto {
                     message.name = reader.string();
                     break;
                 case "hash_code":
-                    message.hash_code = reader.integer();
+                    message.hash_code = reader.uint64();
                     break;
                 case "maybe_type_name":
                     message.maybe_type_name = reader.string();
@@ -1733,7 +1733,7 @@ $root.tensorflow.TensorShapeProto = class TensorShapeProto {
                     message.dim.push($root.tensorflow.TensorShapeProto.Dim.decodeText(reader));
                     break;
                 case "unknown_rank":
-                    message.unknown_rank = reader.boolean();
+                    message.unknown_rank = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1778,7 +1778,7 @@ $root.tensorflow.TensorShapeProto.Dim = class Dim {
             const tag = reader.tag();
             switch (tag) {
                 case "size":
-                    message.size = reader.integer();
+                    message.size = reader.int64();
                     break;
                 case "name":
                     message.name = reader.string();
@@ -2066,16 +2066,16 @@ $root.tensorflow.OpDef = class OpDef {
                     message.description = reader.string();
                     break;
                 case "is_commutative":
-                    message.is_commutative = reader.boolean();
+                    message.is_commutative = reader.bool();
                     break;
                 case "is_aggregate":
-                    message.is_aggregate = reader.boolean();
+                    message.is_aggregate = reader.bool();
                     break;
                 case "is_stateful":
-                    message.is_stateful = reader.boolean();
+                    message.is_stateful = reader.bool();
                     break;
                 case "allows_uninitialized_input":
-                    message.allows_uninitialized_input = reader.boolean();
+                    message.allows_uninitialized_input = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2170,7 +2170,7 @@ $root.tensorflow.OpDef.ArgDef = class ArgDef {
                     message.handle_data.push($root.tensorflow.ResourceHandleProto.DtypeAndShape.decodeText(reader));
                     break;
                 case "is_ref":
-                    message.is_ref = reader.boolean();
+                    message.is_ref = reader.bool();
                     break;
                 case "experimental_full_type":
                     message.experimental_full_type = $root.tensorflow.FullTypeDef.decodeText(reader);
@@ -2252,10 +2252,10 @@ $root.tensorflow.OpDef.AttrDef = class AttrDef {
                     message.description = reader.string();
                     break;
                 case "has_minimum":
-                    message.has_minimum = reader.boolean();
+                    message.has_minimum = reader.bool();
                     break;
                 case "minimum":
-                    message.minimum = reader.integer();
+                    message.minimum = reader.int64();
                     break;
                 case "allowed_values":
                     message.allowed_values = $root.tensorflow.AttrValue.decodeText(reader);
@@ -2309,7 +2309,7 @@ $root.tensorflow.OpDeprecation = class OpDeprecation {
             const tag = reader.tag();
             switch (tag) {
                 case "version":
-                    message.version = reader.integer();
+                    message.version = reader.int32();
                     break;
                 case "explanation":
                     message.explanation = reader.string();
@@ -2489,13 +2489,13 @@ $root.tensorflow.VersionDef = class VersionDef {
             const tag = reader.tag();
             switch (tag) {
                 case "producer":
-                    message.producer = reader.integer();
+                    message.producer = reader.int32();
                     break;
                 case "min_consumer":
-                    message.min_consumer = reader.integer();
+                    message.min_consumer = reader.int32();
                     break;
                 case "bad_consumers":
-                    reader.array(message.bad_consumers, () => reader.integer());
+                    reader.array(message.bad_consumers, () => reader.int32());
                     break;
                 default:
                     reader.field(tag, message);
@@ -2750,7 +2750,7 @@ $root.tensorflow.SavedAsset = class SavedAsset {
             const tag = reader.tag();
             switch (tag) {
                 case "asset_file_def_index":
-                    message.asset_file_def_index = reader.integer();
+                    message.asset_file_def_index = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2897,7 +2897,7 @@ $root.tensorflow.SavedConcreteFunction = class SavedConcreteFunction {
             const tag = reader.tag();
             switch (tag) {
                 case "bound_inputs":
-                    reader.array(message.bound_inputs, () => reader.integer());
+                    reader.array(message.bound_inputs, () => reader.int32());
                     break;
                 case "canonicalized_input_signature":
                     message.canonicalized_input_signature = $root.tensorflow.StructuredValue.decodeText(reader);
@@ -2962,7 +2962,7 @@ $root.tensorflow.SavedBareConcreteFunction = class SavedBareConcreteFunction {
                     reader.array(message.argument_keywords, () => reader.string());
                     break;
                 case "allowed_positional_arguments":
-                    message.allowed_positional_arguments = reader.integer();
+                    message.allowed_positional_arguments = reader.int64();
                     break;
                 case "function_spec":
                     message.function_spec = $root.tensorflow.FunctionSpec.decodeText(reader);
@@ -3079,7 +3079,7 @@ $root.tensorflow.SavedVariable = class SavedVariable {
                     message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader);
                     break;
                 case "trainable":
-                    message.trainable = reader.boolean();
+                    message.trainable = reader.bool();
                     break;
                 case "synchronization":
                     message.synchronization = reader.enum($root.tensorflow.VariableSynchronization);
@@ -3154,7 +3154,7 @@ $root.tensorflow.FunctionSpec = class FunctionSpec {
                     message.fullargspec = $root.tensorflow.StructuredValue.decodeText(reader);
                     break;
                 case "is_method":
-                    message.is_method = reader.boolean();
+                    message.is_method = reader.bool();
                     break;
                 case "input_signature":
                     message.input_signature = $root.tensorflow.StructuredValue.decodeText(reader);
@@ -3256,10 +3256,10 @@ $root.tensorflow.SaveableObject = class SaveableObject {
             const tag = reader.tag();
             switch (tag) {
                 case "save_function":
-                    message.save_function = reader.integer();
+                    message.save_function = reader.int32();
                     break;
                 case "restore_function":
-                    message.restore_function = reader.integer();
+                    message.restore_function = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3355,10 +3355,10 @@ $root.tensorflow.VariableDef = class VariableDef {
                     message.save_slice_info_def = $root.tensorflow.SaveSliceInfoDef.decodeText(reader);
                     break;
                 case "is_resource":
-                    message.is_resource = reader.boolean();
+                    message.is_resource = reader.bool();
                     break;
                 case "trainable":
-                    message.trainable = reader.boolean();
+                    message.trainable = reader.bool();
                     break;
                 case "synchronization":
                     message.synchronization = reader.enum($root.tensorflow.VariableSynchronization);
@@ -3429,13 +3429,13 @@ $root.tensorflow.SaveSliceInfoDef = class SaveSliceInfoDef {
                     message.full_name = reader.string();
                     break;
                 case "full_shape":
-                    reader.array(message.full_shape, () => reader.integer());
+                    reader.array(message.full_shape, () => reader.int64());
                     break;
                 case "var_offset":
-                    reader.array(message.var_offset, () => reader.integer());
+                    reader.array(message.var_offset, () => reader.int64());
                     break;
                 case "var_shape":
-                    reader.array(message.var_shape, () => reader.integer());
+                    reader.array(message.var_shape, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -3524,16 +3524,16 @@ $root.tensorflow.StructuredValue = class StructuredValue {
                     message.none_value = $root.tensorflow.NoneValue.decodeText(reader);
                     break;
                 case "float64_value":
-                    message.float64_value = reader.float();
+                    message.float64_value = reader.double();
                     break;
                 case "int64_value":
-                    message.int64_value = reader.integer();
+                    message.int64_value = reader.sint64();
                     break;
                 case "string_value":
                     message.string_value = reader.string();
                     break;
                 case "bool_value":
-                    message.bool_value = reader.boolean();
+                    message.bool_value = reader.bool();
                     break;
                 case "tensor_shape_value":
                     message.tensor_shape_value = $root.tensorflow.TensorShapeProto.decodeText(reader);
@@ -4152,7 +4152,7 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class Ob
             const tag = reader.tag();
             switch (tag) {
                 case "node_id":
-                    message.node_id = reader.integer();
+                    message.node_id = reader.int32();
                     break;
                 case "local_name":
                     message.local_name = reader.string();
@@ -4216,7 +4216,7 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SerializedTensor = class S
                     message.checkpoint_key = reader.string();
                     break;
                 case "optional_restore":
-                    message.optional_restore = reader.boolean();
+                    message.optional_restore = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4267,13 +4267,13 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = cl
             const tag = reader.tag();
             switch (tag) {
                 case "original_variable_node_id":
-                    message.original_variable_node_id = reader.integer();
+                    message.original_variable_node_id = reader.int32();
                     break;
                 case "slot_name":
                     message.slot_name = reader.string();
                     break;
                 case "slot_variable_node_id":
-                    message.slot_variable_node_id = reader.integer();
+                    message.slot_variable_node_id = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4344,10 +4344,10 @@ $root.tensorflow.SaverDef = class SaverDef {
                     message.restore_op_name = reader.string();
                     break;
                 case "max_to_keep":
-                    message.max_to_keep = reader.integer();
+                    message.max_to_keep = reader.int32();
                     break;
                 case "sharded":
-                    message.sharded = reader.boolean();
+                    message.sharded = reader.bool();
                     break;
                 case "keep_checkpoint_every_n_hours":
                     message.keep_checkpoint_every_n_hours = reader.float();
@@ -4413,7 +4413,7 @@ $root.tensorflow.BundleHeaderProto = class BundleHeaderProto {
             const tag = reader.tag();
             switch (tag) {
                 case "num_shards":
-                    message.num_shards = reader.integer();
+                    message.num_shards = reader.int32();
                     break;
                 case "endianness":
                     message.endianness = reader.enum($root.tensorflow.BundleHeaderProto.Endianness);
@@ -4493,16 +4493,16 @@ $root.tensorflow.BundleEntryProto = class BundleEntryProto {
                     message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader);
                     break;
                 case "shard_id":
-                    message.shard_id = reader.integer();
+                    message.shard_id = reader.int32();
                     break;
                 case "offset":
-                    message.offset = reader.integer();
+                    message.offset = reader.int64();
                     break;
                 case "size":
-                    message.size = reader.integer();
+                    message.size = reader.int64();
                     break;
                 case "crc32c":
-                    message.crc32c = reader.integer();
+                    message.crc32c = reader.fixed32();
                     break;
                 case "slices":
                     message.slices.push($root.tensorflow.TensorSliceProto.decodeText(reader));
@@ -4601,10 +4601,10 @@ $root.tensorflow.TensorSliceProto.Extent = class Extent {
             const tag = reader.tag();
             switch (tag) {
                 case "start":
-                    message.start = reader.integer();
+                    message.start = reader.int64();
                     break;
                 case "length":
-                    message.length = reader.integer();
+                    message.length = reader.int64();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4892,10 +4892,10 @@ $root.tensorflow.Event = class Event {
             const tag = reader.tag();
             switch (tag) {
                 case "wall_time":
-                    message.wall_time = reader.float();
+                    message.wall_time = reader.double();
                     break;
                 case "step":
-                    message.step = reader.integer();
+                    message.step = reader.int64();
                     break;
                 case "file_version":
                     message.file_version = reader.string();
@@ -5143,7 +5143,7 @@ $root.tensorflow.WatchdogConfig = class WatchdogConfig {
             const tag = reader.tag();
             switch (tag) {
                 case "timeout_ms":
-                    message.timeout_ms = reader.integer();
+                    message.timeout_ms = reader.int64();
                     break;
                 default:
                     reader.field(tag, message);
@@ -5185,7 +5185,7 @@ $root.tensorflow.RequestedExitCode = class RequestedExitCode {
             const tag = reader.tag();
             switch (tag) {
                 case "exit_code":
-                    message.exit_code = reader.integer();
+                    message.exit_code = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -5401,25 +5401,25 @@ $root.tensorflow.HistogramProto = class HistogramProto {
             const tag = reader.tag();
             switch (tag) {
                 case "min":
-                    message.min = reader.float();
+                    message.min = reader.double();
                     break;
                 case "max":
-                    message.max = reader.float();
+                    message.max = reader.double();
                     break;
                 case "num":
-                    message.num = reader.float();
+                    message.num = reader.double();
                     break;
                 case "sum":
-                    message.sum = reader.float();
+                    message.sum = reader.double();
                     break;
                 case "sum_squares":
-                    message.sum_squares = reader.float();
+                    message.sum_squares = reader.double();
                     break;
                 case "bucket_limit":
-                    reader.array(message.bucket_limit, () => reader.float());
+                    reader.array(message.bucket_limit, () => reader.double());
                     break;
                 case "bucket":
-                    reader.array(message.bucket, () => reader.float());
+                    reader.array(message.bucket, () => reader.double());
                     break;
                 default:
                     reader.field(tag, message);
@@ -5634,13 +5634,13 @@ $root.tensorflow.Summary.Image = class Image {
             const tag = reader.tag();
             switch (tag) {
                 case "height":
-                    message.height = reader.integer();
+                    message.height = reader.int32();
                     break;
                 case "width":
-                    message.width = reader.integer();
+                    message.width = reader.int32();
                     break;
                 case "colorspace":
-                    message.colorspace = reader.integer();
+                    message.colorspace = reader.int32();
                     break;
                 case "encoded_image_string":
                     message.encoded_image_string = reader.bytes();
@@ -5703,10 +5703,10 @@ $root.tensorflow.Summary.Audio = class Audio {
                     message.sample_rate = reader.float();
                     break;
                 case "num_channels":
-                    message.num_channels = reader.integer();
+                    message.num_channels = reader.int64();
                     break;
                 case "length_frames":
-                    message.length_frames = reader.integer();
+                    message.length_frames = reader.int64();
                     break;
                 case "encoded_audio_string":
                     message.encoded_audio_string = reader.bytes();

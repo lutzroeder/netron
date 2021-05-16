@@ -277,7 +277,8 @@ caffe.Graph = class {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
-                        const type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
+                        const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => dim.toNumber()));
+                        const type = new caffe.TensorType(null, shape);
                         this._inputs.push(new caffe.Parameter(layer.output[0], [ new caffe.Argument(layer.output[0], type) ]));
                         layer = null;
                     }
@@ -304,12 +305,14 @@ caffe.Graph = class {
                 if (net.input_shape && i < net.input_shape.length) {
                     const blobShape = net.input_shape[i];
                     if (blobShape && blobShape.dim) {
-                        inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
+                        const shape = new caffe.TensorShape(blobShape.dim.map((dim) => dim.toNumber()));
+                        inputType = new caffe.TensorType(null, shape);
                     }
                 }
                 const dim = i * 4;
                 if (!inputType && net.input_dim && net.input_dim.length >= dim) {
-                    inputType = new caffe.TensorType(null, new caffe.TensorShape(net.input_dim.slice(dim, dim + 4)));
+                    const shape = new caffe.TensorShape(net.input_dim.slice(dim, dim + 4));
+                    inputType = new caffe.TensorType(null, shape);
                 }
                 this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, inputType, null) ]));
             }
@@ -542,7 +545,7 @@ caffe.Attribute = class {
         this._name = name;
         this._value = value;
         if (value instanceof caffe.proto.BlobShape) {
-            this._value = new caffe.TensorShape(value.dim);
+            this._value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
         }
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
@@ -600,7 +603,7 @@ caffe.Tensor = class {
             }
         }
         else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
-            shape = blob.shape.dim;
+            shape = blob.shape.dim.map((dim) => dim.toNumber());
         }
 
         let dataType = '?';
@@ -710,7 +713,7 @@ caffe.TensorType = class {
 caffe.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions.map((dimension) => Number.isInteger(dimension) ? dimension : dimension.toNumber());
+        this._dimensions = dimensions;
     }
 
     get dimensions() {
