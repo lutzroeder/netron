@@ -1469,6 +1469,7 @@ view.ModelFactoryService = class {
         this.register('./dl4j', [ '.zip' ]);
         this.register('./mlnet', [ '.zip' ]);
         this.register('./acuity', [ '.json' ]);
+        this.register('./imgdnn', [ '.dnn', 'params', '.json' ]);
     }
 
     register(id, extensions) {
