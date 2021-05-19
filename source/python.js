@@ -1660,11 +1660,40 @@ python.Execution = class {
         });
         this.registerType('collections.deque', class {
             constructor(iterable) {
-                let i = 0;
-                for (const value of iterable) {
-                    this[i++] = value;
+                if (iterable) {
+                    let i = 0;
+                    for (const value of iterable) {
+                        this[i++] = value;
+                    }
+                    this.length = i;
                 }
-                this.length = i;
+            }
+        });
+        this.registerType('collections.OrderedDict', class extends Map {
+            constructor(items) {
+                super();
+                if (items) {
+                    for (const pair of items) {
+                        this.__setitem__(pair[0], pair[1]);
+                    }
+                }
+            }
+            __setitem__(key, value) {
+                this.set(key, value);
+            }
+        });
+        this.registerType('cuml.common.array_descriptor.CumlArrayDescriptorMeta', class {});
+        this.registerType('cuml.ensemble.randomforestclassifier.RandomForestClassifier', class {});
+        this.registerType('cuml.raft.common.handle.Handle', class {
+            __setstate__(state) {
+                this._handle = state;
+            }
+        });
+        this.registerType('haiku._src.data_structures.FlatMapping', class {
+            constructor(dict) {
+                for (const key of Object.keys(dict)) {
+                    this[key] = dict[key];
+                }
             }
         });
         this.registerType('numpy.core._multiarray_umath.scalar', class {
@@ -2214,18 +2243,6 @@ python.Execution = class {
         this.registerFunction('collections.Counter', function(/* iterable */) {
             return { __module__: 'collections', __name__: 'Counter' };
         });
-        this.registerFunction('collections.OrderedDict', function(args) {
-            const obj = new Map();
-            obj.__setitem__ = function(key, value) {
-                obj.set(key, value);
-            };
-            if (args) {
-                for (const arg of args) {
-                    obj.__setitem__(arg[0], arg[1]);
-                }
-            }
-            return obj;
-        });
         this.registerFunction('collections.defaultdict', function(/* default_factory */) {
             return {};
         });
@@ -2338,20 +2355,6 @@ python.Execution = class {
             return function() {
                 return self.invoke('types.' + name, arguments);
             };
-        });
-        this.registerType('cuml.common.array_descriptor.CumlArrayDescriptorMeta', class {});
-        this.registerType('cuml.ensemble.randomforestclassifier.RandomForestClassifier', class {});
-        this.registerType('cuml.raft.common.handle.Handle', class {
-            __setstate__(state) {
-                this._handle = state;
-            }
-        });
-        this.registerType('haiku._src.data_structures.FlatMapping', class {
-            constructor(dict) {
-                for (const key of Object.keys(dict)) {
-                    this[key] = dict[key];
-                }
-            }
         });
     }
 
