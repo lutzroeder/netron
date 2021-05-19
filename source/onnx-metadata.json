@@ -10790,7 +10790,7 @@
     "examples": [
       {
         "summary": "globalaveragepool",
-        "code": "node = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\nspatial_shape = np.ndim(x) - 2\ny = np.average(x, axis=tuple(range(spatial_shape, spatial_shape + 2)))\nfor _ in range(spatial_shape):\n    y = np.expand_dims(y, -1)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool')"
+        "code": "node = onnx.helper.make_node(\n    'GlobalAveragePool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\ny = np.mean(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name='test_globalaveragepool')"
       },
       {
         "summary": "globalaveragepool_precomputed",
@@ -10929,7 +10929,7 @@
     "examples": [
       {
         "summary": "globalmaxpool",
-        "code": "\nnode = onnx.helper.make_node(\n    'GlobalMaxPool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\nspatial_shape = np.ndim(x) - 2\ny = np.max(x, axis=tuple(range(spatial_shape, spatial_shape + 2)))\nfor _ in range(spatial_shape):\n    y = np.expand_dims(y, -1)\nexpect(node, inputs=[x], outputs=[y], name='test_globalmaxpool')"
+        "code": "\nnode = onnx.helper.make_node(\n    'GlobalMaxPool',\n    inputs=['x'],\n    outputs=['y'],\n)\nx = np.random.randn(1, 3, 5, 5).astype(np.float32)\ny = np.max(x, axis=tuple(range(2, np.ndim(x))), keepdims=True)\nexpect(node, inputs=[x], outputs=[y], name='test_globalmaxpool')"
       },
       {
         "summary": "globalmaxpool_precomputed",
