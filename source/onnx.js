@@ -1283,15 +1283,23 @@ onnx.Utility = class {
                 break;
         }
         switch (type.value) {
-            case 'tensor_type':
-            case 'sparse_tensor_type': {
-                let shape = [];
-                if (type.tensor_type.shape && type.tensor_type.shape.dim) {
-                    shape = type.tensor_type.shape.dim.map((dim) => {
-                        return dim.dim_param ? dim.dim_param : dim.dim_value;
-                    });
+            case 'tensor_type': {
+                {
+                    const tensor_type = type.tensor_type;
+                    let shape = [];
+                    if (tensor_type.shape && tensor_type.shape.dim) {
+                        shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
+                    }
+                    return new onnx.TensorType(tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
                 }
-                return new onnx.TensorType(type.tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
+            }
+            case 'sparse_tensor_type': {
+                const tensor_type = type.sparse_tensor_type;
+                let shape = [];
+                if (tensor_type.shape && tensor_type.shape.dim) {
+                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
+                }
+                return new onnx.TensorType(tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
             }
             case 'map_type': {
                 return new onnx.MapType(type.map_type.key_type, onnx.Utility.formatType(type.map_type.value_type, imageFormat), denotation);

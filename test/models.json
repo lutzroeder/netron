@@ -3287,6 +3287,13 @@
   },
   {
     "type":   "onnx",
+    "target": "sparse_initializer_as_output.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/6512243/sparse_initializer_as_output.onnx.zip[sparse_initializer_as_output.onnx]",
+    "format": "ONNX v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/741"
+  },
+  {
+    "type":   "onnx",
     "target": "squeezenet.onnx",
     "source": "https://raw.githubusercontent.com/onnx/tutorials/master/tutorials/assets/squeezenet.onnx",
     "format": "ONNX v1", "producer": "pytorch 0.2"
