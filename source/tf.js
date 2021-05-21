@@ -536,7 +536,7 @@ tf.Graph = class {
 
                 const initializers = new Map();
                 const map_tensor = (name, node, kind) => {
-                    if (node.op === 'Const' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                    if (node && node.op === 'Const' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
                         const value = node.attr.value;
                         if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
                             const tensor = new tf.Tensor(value.tensor, name, kind);
