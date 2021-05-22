@@ -1244,6 +1244,39 @@
     ]
   },
   {
+    "name": "GenOP",
+    "attributes": [
+      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
+      { "name": "alpha", "type": "float32", "default": 0 },
+      { "name": "min_val", "type": "float32", "default": 0 },
+      { "name": "max_val", "type": "float32", "default": 0 },
+      { "name": "is_training", "type": "boolean", "default": false },
+      { "name": "format", "type": "Format", "default": "NCHW" },
+      { "name": "kernel_size", "type": "int64[]", "default": 0 },
+      { "name": "stride", "type": "int64[]", "default": 0 },
+      { "name": "dilation", "type": "int64[]", "default": 0 },
+      { "name": "pad_mode", "type": "PadMode", "default": "PAD" },
+      { "name": "pad_list", "type": "int64[]", "default": 0 },
+      { "name": "mode", "type": "int64", "default": 0 },
+      { "name": "group", "type": "int64", "default": 0 },
+      { "name": "in_channel", "type": "int64", "default": 0 },
+      { "name": "out_channel", "type": "int64", "default": 0 },
+      { "name": "eltwise_mode", "type": "EltwiseMode", "default": "PROD" },
+      { "name": "has_bias", "type": "boolean", "default": false },
+      { "name": "use_axis", "type": "boolean", "default": false },
+      { "name": "axis", "type": "int64", "default": 0 },
+      { "name": "epsilon", "type": "float32", "default": 0.0001 },
+      { "name": "momentum", "type": "float32", "default": 0.9 },
+      { "name": "transpose_a", "type": "boolean", "default": false },
+      { "name": "transpose_b", "type": "boolean", "default": false },
+      { "name": "pad", "type": "int64[]", "default": 0 },
+      { "name": "round_mode", "type": "RoundMode", "default": "FLOOR" },
+      { "name": "global", "type": "boolean", "default": false },
+      { "name": "channel_shared", "type": "boolean", "default": false },
+      { "name": "axes", "type": "int64[]", "default": 0 }
+    ]
+  },
+  {
     "name": "Greater",
     "inputs": [
       { "name": "x" },
