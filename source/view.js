@@ -1737,6 +1737,11 @@ view.ModelFactoryService = class {
                             matches.some((e) => e.name.toLowerCase().endsWith('.data-00000-of-00001'))) {
                             matches = matches.filter((e) => !e.name.toLowerCase().endsWith('.data-00000-of-00001'));
                         }
+                        // TensorFlow SavedModel
+                        if (matches.length === 2 &&
+                            matches.some((e) => e.name.toLowerCase().split('/').pop() === 'keras_metadata.pb')) {
+                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() !== 'keras_metadata.pb');
+                        }
                         if (matches.length > 1) {
                             return Promise.reject(new view.ArchiveError('Archive contains multiple model files.'));
                         }

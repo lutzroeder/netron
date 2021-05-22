@@ -52,6 +52,9 @@ tf.ModelFactory = class {
                     return true;
                 }
             }
+            else if (identifier === 'keras_metadata.pb' && tags.size === 1 && tags.get(1) === 2) {
+                return true;
+            }
             else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
                 if (tags.get(1) !== 2) {
                     return true;
@@ -119,18 +122,36 @@ tf.ModelFactory = class {
     open(context) {
         return context.require('./tf-proto').then(() => {
             tf.proto = protobuf.get('tf').tensorflow;
-            let saved_model = null;
-            let format = null;
-            let producer = null;
-            const openModel = (saved_model, format, producer, bundle) => {
+            const createModel = (saved_model, format, producer, bundle) => {
                 return tf.Metadata.open(context).then((metadata) => {
                     return new tf.Model(metadata, saved_model, format, producer, bundle);
                 });
             };
+            const openModel = (saved_model, format, producer) => {
+                if (saved_model.meta_graphs.length === 1 &&
+                    saved_model.meta_graphs[0].object_graph_def &&
+                    saved_model.meta_graphs[0].object_graph_def.nodes &&
+                    saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
+                    const identifier = 'variables/variables.index';
+                    return context.request(identifier, null).then((stream) => {
+                        return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
+                            return createModel(saved_model, format, producer, bundle);
+                        });
+                    }).catch(() => {
+                        return createModel(saved_model, format, producer, null);
+                    });
+                }
+                if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
+                    saved_model.meta_graphs[0].meta_info_def &&
+                    Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
+                    producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
+                }
+                return createModel(saved_model, format, producer, null);
+            };
             const openBundle = (context) => {
                 const open = (stream, identifier, context) => {
                     return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
-                        return openModel(null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
+                        return createModel(null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                     }).catch((error) => {
                         context.exception(error, false);
                         const message = error && error.message ? error.message : error.toString();
@@ -153,15 +174,11 @@ tf.ModelFactory = class {
                 }
                 return open(context.stream, identifier, context);
             };
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'ckpt' || extension === 'index' || /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-                return openBundle(context);
-            }
-            else if (/^events.out.tfevents./.exec(identifier)) {
-                format = 'TensorFlow Event File';
+            const openEventFile = () => {
+                let format = 'TensorFlow Event File';
+                let producer = null;
                 const eventFileReader = tf.EventFileReader.open(context.stream);
-                saved_model = new tf.proto.SavedModel();
+                const saved_model = new tf.proto.SavedModel();
                 for (;;) {
                     const event = eventFileReader.read();
                     if (!event) {
@@ -215,20 +232,21 @@ tf.ModelFactory = class {
                                 node.__metadata__ = Array.from(metadata.get(node.op) || []);
                             }
                         }
-                        return openModel(saved_model, format, producer, null);
+                        return createModel(saved_model, format, producer, null);
                     }).catch(() => {
-                        return openModel(saved_model, format, producer, null);
+                        return createModel(saved_model, format, producer, null);
                     });
                 }
-            }
-            else if (extension === 'json') {
+                return openModel(saved_model, format, producer);
+            };
+            const openJson = (context) => {
                 try {
                     const obj = context.open('json');
-                    format = 'TensorFlow.js ' + obj.format;
-                    producer = obj.convertedBy || obj.generatedBy || '';
+                    const format = 'TensorFlow.js ' + obj.format;
+                    const producer = obj.convertedBy || obj.generatedBy || '';
                     const meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
-                    saved_model = new tf.proto.SavedModel();
+                    const saved_model = new tf.proto.SavedModel();
                     saved_model.meta_graphs.push(meta_graph);
                     const nodes = new Map();
                     for (const node of meta_graph.graph_def.node) {
@@ -292,64 +310,17 @@ tf.ModelFactory = class {
                 catch (error) {
                     throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
                 }
-            }
-            else {
+            };
+            const openTextBuffer = (context) => {
                 const tags = context.tags('pbtxt');
-                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                    if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                        try {
-                            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                                const buffer = context.stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
-                                saved_model = tf.proto.SavedModel.decodeText(reader);
-                                format = 'TensorFlow Saved Model';
-                                if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
-                                    format = format + ' v' + saved_model.saved_model_schema_version.toString();
-                                }
-                            }
-                        }
-                        catch (error) {
-                            throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
-                        }
-                    }
-                    else if (tags.has('graph_def')) {
-                        try {
-                            if (!saved_model) {
-                                const buffer = context.stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
-                                const meta_graph = tf.proto.MetaGraphDef.decodeText(reader);
-                                saved_model = new tf.proto.SavedModel();
-                                saved_model.meta_graphs.push(meta_graph);
-                                format = 'TensorFlow MetaGraph';
-                            }
-                        }
-                        catch (error) {
-                            throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
-                        }
-                    }
-                    else if (tags.has('node')) {
-                        try {
+                let format = null;
+                let saved_model = null;
+                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                    try {
+                        if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
                             const buffer = context.stream.peek();
                             const reader = protobuf.TextReader.create(buffer);
-                            const graph_def = tf.proto.GraphDef.decodeText(reader);
-                            const meta_graph = new tf.proto.MetaGraphDef();
-                            meta_graph.graph_def = graph_def;
-                            saved_model = new tf.proto.SavedModel();
-                            saved_model.meta_graphs.push(meta_graph);
-                            format = 'TensorFlow Graph';
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                }
-                else {
-                    try {
-                        if (identifier.endsWith('saved_model.pb')) {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            saved_model = tf.proto.SavedModel.decode(reader);
+                            saved_model = tf.proto.SavedModel.decodeText(reader);
                             format = 'TensorFlow Saved Model';
                             if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
                                 format = format + ' v' + saved_model.saved_model_schema_version.toString();
@@ -357,65 +328,118 @@ tf.ModelFactory = class {
                         }
                     }
                     catch (error) {
-                        const stream = context.stream;
-                        const signature = [ 0x08, 0x01, 0x12 ];
-                        if (signature.length < stream.length && stream.peek(3).every((value, index) => value === signature[index])) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
-                        }
+                        throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
                     }
+                }
+                else if (tags.has('graph_def')) {
                     try {
-                        if (!saved_model && extension == 'meta') {
+                        if (!saved_model) {
                             const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            const meta_graph = tf.proto.MetaGraphDef.decode(reader);
+                            const reader = protobuf.TextReader.create(buffer);
+                            const meta_graph = tf.proto.MetaGraphDef.decodeText(reader);
                             saved_model = new tf.proto.SavedModel();
                             saved_model.meta_graphs.push(meta_graph);
                             format = 'TensorFlow MetaGraph';
                         }
                     }
                     catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new tf.Error('File format is not tensorflow.MetaGraphDef (' + message.replace(/\.$/, '') + ').');
+                        throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
                     }
+                }
+                else if (tags.has('node')) {
                     try {
-                        if (!saved_model) {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            const graph_def = tf.proto.GraphDef.decode(reader);
-                            const meta_graph = new tf.proto.MetaGraphDef();
-                            meta_graph.graph_def = graph_def;
-                            saved_model = new tf.proto.SavedModel();
-                            saved_model.meta_graphs.push(meta_graph);
-                            format = 'TensorFlow Graph';
-                        }
+                        const buffer = context.stream.peek();
+                        const reader = protobuf.TextReader.create(buffer);
+                        const graph_def = tf.proto.GraphDef.decodeText(reader);
+                        const meta_graph = new tf.proto.MetaGraphDef();
+                        meta_graph.graph_def = graph_def;
+                        saved_model = new tf.proto.SavedModel();
+                        saved_model.meta_graphs.push(meta_graph);
+                        format = 'TensorFlow Graph';
                     }
                     catch (error) {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new tf.Error('File format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
+                        throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
                     }
                 }
-                if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
-                    saved_model.meta_graphs[0].meta_info_def &&
-                    Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
-                    producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
+                return openModel(saved_model, format, null);
+            };
+            const openBuffer = (stream, identifier) => {
+                let saved_model = null;
+                let format = null;
+                try {
+                    if (identifier.endsWith('saved_model.pb')) {
+                        const buffer = stream.peek();
+                        const reader = protobuf.Reader.create(buffer);
+                        saved_model = tf.proto.SavedModel.decode(reader);
+                        format = 'TensorFlow Saved Model';
+                        if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
+                            format = format + ' v' + saved_model.saved_model_schema_version.toString();
+                        }
+                    }
                 }
+                catch (error) {
+                    const signature = [ 0x08, 0x01, 0x12 ];
+                    if (signature.length < stream.length && stream.peek(3).every((value, index) => value === signature[index])) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
+                    }
+                }
+                try {
+                    if (!saved_model && extension == 'meta') {
+                        const buffer = stream.peek();
+                        const reader = protobuf.Reader.create(buffer);
+                        const meta_graph = tf.proto.MetaGraphDef.decode(reader);
+                        saved_model = new tf.proto.SavedModel();
+                        saved_model.meta_graphs.push(meta_graph);
+                        format = 'TensorFlow MetaGraph';
+                    }
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File format is not tensorflow.MetaGraphDef (' + message.replace(/\.$/, '') + ').');
+                }
+                try {
+                    if (!saved_model) {
+                        const buffer = stream.peek();
+                        const reader = protobuf.Reader.create(buffer);
+                        const graph_def = tf.proto.GraphDef.decode(reader);
+                        const meta_graph = new tf.proto.MetaGraphDef();
+                        meta_graph.graph_def = graph_def;
+                        saved_model = new tf.proto.SavedModel();
+                        saved_model.meta_graphs.push(meta_graph);
+                        format = 'TensorFlow Graph';
+                    }
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
+                }
+                return openModel(saved_model, format, null);
+            };
+            const identifier = context.identifier;
+            const extension = identifier.split('.').pop().toLowerCase();
+            if (extension === 'ckpt' || extension === 'index' || /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
+                return openBundle(context);
             }
-            if (saved_model.meta_graphs.length === 1 &&
-                saved_model.meta_graphs[0].object_graph_def &&
-                saved_model.meta_graphs[0].object_graph_def.nodes &&
-                saved_model.meta_graphs[0].object_graph_def.nodes.length > 0) {
-                const identifier = 'variables/variables.index';
+            if (/^events.out.tfevents./.exec(identifier)) {
+                return openEventFile(context);
+            }
+            if (extension === 'json') {
+                return openJson(context);
+            }
+            const textTags = context.tags('pbtxt');
+            if (textTags.has('node') || textTags.has('saved_model_schema_version') || textTags.has('meta_graphs') || textTags.has('graph_def')) {
+                return openTextBuffer(context);
+            }
+            const tags = context.tags('pb');
+            if (identifier === 'keras_metadata.pb' && tags.size === 1 && tags.get(1) === 2) {
+                const identifier = 'saved_model.pb';
                 return context.request(identifier, null).then((stream) => {
-                    return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
-                        return openModel(saved_model, format, producer, bundle);
-                    });
-                }).catch(() => {
-                    return openModel(saved_model, format, producer, null);
-
+                    return openBuffer(stream, identifier);
                 });
             }
-            return openModel(saved_model, format, producer, null);
+            return openBuffer(context.stream, context.identifier);
         });
     }
 };
