@@ -20,10 +20,41 @@ onnx.ModelFactory = class {
             if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
                 // TensorProto
-                if (tags.get(2) === 0 && tags.get(9) === 2) {
-                    const schema = [[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
+                if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
+                    const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         return true;
+                    }
+                }
+                // GraphProto
+                if (tags.get(1) === 2) {
+                    const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                        const decode = (buffer, value) => {
+                            const reader = protobuf.Reader.create(buffer);
+                            const length = reader.length;
+                            while (reader.position < length) {
+                                const tag = reader.uint32();
+                                const number = tag >>> 3;
+                                const type = tag & 7;
+                                if (value === number) {
+                                    return type === 2 ? reader.bytes() : null;
+                                }
+                                else {
+                                    reader.skipType(type);
+                                }
+                            }
+                            return null;
+                        };
+                        const stream = context.stream;
+                        const buffer = stream.peek();
+                        const nodeBuffer = decode(buffer, 1);
+                        if (nodeBuffer) {
+                            const nameBuffer = decode(nodeBuffer, 4);
+                            if (nameBuffer && nameBuffer.every((c) => c > 0x20 && c < 0x7f)) {
+                                return true;
+                            }
+                        }
                     }
                 }
                 // ModelProto
@@ -84,22 +115,9 @@ onnx.ModelFactory = class {
                 }
                 default: {
                     const tags = context.tags('pb');
-                    const tensor = (tags.has(1) && tags.get(1) === 0 && tags.has(2) && tags.get(2) === 0 && tags.has(9) && tags.get(9) === 2);
-                    if (!tensor) {
+                    if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
+                        // TensorProto
                         // input_0.pb, output_0.pb
-                        try {
-                            onnx.proto = protobuf.get('onnx').onnx;
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            model = onnx.proto.ModelProto.decode(reader);
-                            format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                    else {
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
                             const buffer = context.stream.peek();
@@ -121,6 +139,35 @@ onnx.ModelFactory = class {
                         catch (error) {
                             const message = error && error.message ? error.message : error.toString();
                             throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
+                        }
+                    }
+                    else if (tags.get(1) === 2) {
+                        // GraphProto
+                        try {
+                            onnx.proto = protobuf.get('onnx').onnx;
+                            const buffer = context.stream.peek();
+                            const reader = protobuf.Reader.create(buffer);
+                            model = new onnx.proto.ModelProto();
+                            model.graph = onnx.proto.GraphProto.decode(reader);
+                            format = 'ONNX';
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
+                        }
+                    }
+                    else {
+                        // ModelProto
+                        try {
+                            onnx.proto = protobuf.get('onnx').onnx;
+                            const buffer = context.stream.peek();
+                            const reader = protobuf.Reader.create(buffer);
+                            model = onnx.proto.ModelProto.decode(reader);
+                            format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
                         }
                     }
                 }

@@ -3335,6 +3335,13 @@
   },
   {
     "type":   "onnx",
+    "target": "super_resolution.onnx",
+    "source": "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193/raw/b385b1b242dc89a35dd808235b885ed8a19aedc1/super_resolution.onnx",
+    "format": "ONNX",
+    "link":   "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193"
+  },
+  {
+    "type":   "onnx",
     "target": "super-resolution-10.onnx",
     "source": "https://media.githubusercontent.com/media/onnx/models/master/vision/super_resolution/sub_pixel_cnn_2016/model/super-resolution-10.onnx",
     "format": "ONNX v4", "producer": "pytorch 1.1",
@@ -3344,7 +3351,8 @@
     "type":   "onnx",
     "target": "super_resolution_0.2.onnx",
     "source": "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193/raw/93672b029103648953c4e5ad3ac3aadf346a4cdc/super_resolution_0.2.onnx",
-    "format": "ONNX v1", "producer": "pytorch 0.2"
+    "format": "ONNX v1", "producer": "pytorch 0.2",
+    "link":   "https://gist.github.com/zhreshold/bcda4716699ac97ea44f791c24310193"
   },
   {
     "type":   "onnx",
