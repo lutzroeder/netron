@@ -3561,16 +3561,38 @@
     ]
   },
   {
+    "name": "torch.upsample_linear1d:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales", "type": "float32", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.upsample_linear1d:vec",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "optional": true },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scale_factors", "type": "float32[]", "optional": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.upsample_bilinear2d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
       { "name": "align_corners", "type": "boolean" },
       { "name": "scales_h", "type": "float32", "optional": true, "default": null },
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3579,13 +3601,11 @@
   {
     "name": "torch.upsample_bilinear2d:vec",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
       { "name": "scale_factors", "type": "float32[]", "optional": true }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3594,12 +3614,10 @@
   {
     "name": "torch.upsample_nearest1d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
       { "name": "scales", "type": "float32", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3608,12 +3626,10 @@
   {
     "name": "torch.upsample_nearest1d:vec",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "scales_factors", "type": "float32[]", "optional": true }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3622,13 +3638,11 @@
   {
     "name": "torch.upsample_nearest2d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
       { "name": "scales_h", "type": "float32", "optional": true, "default": null },
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3637,12 +3651,10 @@
   {
     "name": "torch.upsample_nearest2d:vec",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "scales_factors", "type": "float32[]", "optional": true }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3651,14 +3663,12 @@
   {
     "name": "torch.upsample_nearest3d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
       { "name": "scales_d", "type": "float32", "optional": true, "default": null },
       { "name": "scales_h", "type": "float32", "optional": true, "default": null },
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3667,12 +3677,10 @@
   {
     "name": "torch.upsample_nearest3d:vec",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "scales_factors", "type": "float32[]", "optional": true }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3680,15 +3688,13 @@
   },
   {
     "name": "torch.upsample_trilinear3d:",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]" },
       { "name": "align_corners", "type": "boolean" },
       { "name": "scales_d", "type": "float32", "optional": true, "default": null },
       { "name": "scales_h", "type": "float32", "optional": true, "default": null },
       { "name": "scales_w", "type": "float32", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "int64" }
@@ -3696,14 +3702,12 @@
   },
   {
     "name": "torch.upsample_trilinear3d:vec",
-    "attributes": [
+    "inputs": [
+      { "name": "grad_output", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "input_size", "type": "int64[]" },
       { "name": "align_corners", "type": "boolean" },
       { "name": "scale_factors", "type": "float32[]", "optional": true }
-    ],
-    "inputs": [
-      { "name": "grad_output", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "int64" }
