@@ -15,17 +15,18 @@ xmodel.ModelFactory = class {
 
     open(context) {
         return context.require('./xmodel-proto').then(() => {
-            let graph = null;
             try {
                 xmodel.proto = protobuf.get('xmodel').serial_v2;
-                const reader = protobuf.Reader.create(context.stream.peek());
-                graph = xmodel.proto.Graph.decode(reader);
+                const stream = context.stream;
+                const buffer = stream.peek();
+                const reader = protobuf.Reader.create(buffer);
+                const graph = xmodel.proto.Graph.decode(reader);
+                return new xmodel.Model(graph);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new xmodel.Error('File format is not serial_v2.Graph (' + message.replace(/\.$/, '') + ').');
             }
-            return new xmodel.Model(graph);
         });
     }
 };
@@ -59,10 +60,9 @@ xmodel.Model = class {
 xmodel.Graph = class {
 
     constructor(graph) {
-        const metadata = new xmodel.GraphMetadata(graph.op_defs);
+        const metadata = new xmodel.Metadata(graph.op_defs);
         this._inputs = [];
         this._outputs = [];
-        this._nodes = [];
         const count = new Map();
         for (const op_node of graph.op_node) {
             for (const arg of op_node.args) {
@@ -89,9 +89,7 @@ xmodel.Graph = class {
             }
             nodes.push(op_node);
         }
-        for (const op_node of nodes) {
-            this._nodes.push(new xmodel.Node(metadata, op_node, initializers));
-        }
+        this._nodes = nodes.map((node) => new xmodel.Node(metadata, node, initializers))
     }
 
     get inputs() {
@@ -418,7 +416,7 @@ xmodel.Utility = class {
     }
 };
 
-xmodel.GraphMetadata = class {
+xmodel.Metadata = class {
 
     constructor(op_defs) {
         this._map = new Map();
