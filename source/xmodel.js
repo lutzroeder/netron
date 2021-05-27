@@ -89,7 +89,7 @@ xmodel.Graph = class {
             }
             nodes.push(op_node);
         }
-        this._nodes = nodes.map((node) => new xmodel.Node(metadata, node, initializers))
+        this._nodes = nodes.map((node) => new xmodel.Node(metadata, node, initializers));
     }
 
     get inputs() {
