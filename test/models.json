@@ -5552,12 +5552,6 @@
   },
   {
     "type":   "tflite",
-    "target": "inception_resnet_v2.tflite",
-    "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_resnet_v2_2018_04_27.tgz[./inception_resnet_v2.tflite]",
-    "format": "TensorFlow Lite v3"
-  },
-  {
-    "type":   "tflite",
     "target": "inception_v3.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/inception_v3_2018_04_27.tgz[./inception_v3.tflite]"
   },
