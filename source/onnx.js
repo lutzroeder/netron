@@ -71,10 +71,16 @@ onnx.ModelFactory = class {
             const buffer = stream.peek(Math.min(stream.length, 32));
             if (buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
                 const producers = [
-                    'keras2onnx', 'tf2onnx', 'tflite2onnx', 'pytorch', 'skl2onnx', 'onnx-caffe2', 'OnnxMLTools', 'ML.NET',
-                    'kneron_formatter', 'Kneron', 'kneron_kl530_test_case', 'onnxruntime-tools', 'onnx_test', 'CNTK',
-                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'MVTec Software', 'PaddlePaddle',
-                    'darknet to ONNX example', 'onnx-example', 'onnx.quantize', 'BrainwaveCompiler'
+                    'BrainwaveCompiler',
+                    'CNTK',
+                    'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
+                    'darknet to ONNX example',
+                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
+                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
+                    'PaddlePaddle', 'pytorch',
+                    'skl2onnx',
+                    'tf2onnx', 'tflite2onnx',
+                    'WinMLTools'
                 ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
                     return true;
