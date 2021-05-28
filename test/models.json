@@ -3398,10 +3398,10 @@
   },
   {
     "type":   "onnx",
-    "target": "vgg19.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/vgg19.tar.gz[vgg19/model.onnx]",
+    "target": "vgg19.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6558105/vgg19.onnx.zip",
     "format": "ONNX v3",
-    "link":   "https://github.com/onnx/models/tree/master/vision/classification/vgg"
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
