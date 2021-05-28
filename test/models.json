@@ -3384,13 +3384,6 @@
   },
   {
     "type":   "onnx",
-    "target": "YOLOv2_tiny.onnx",
-    "source": "https://raw.githubusercontent.com/tkat0/chainer-nnvm-example/master/models/YOLOv2_tiny/YOLOv2_tiny.onnx",
-    "format": "ONNX v1", "producer": "Chainer 3.2.0",
-    "link":   "https://github.com/tkat0/chainer-nnvm-example"
-  },
-  {
-    "type":   "onnx",
     "target": "yolov3.onnx",
     "source": "https://github.com/lutzroeder/netron/files/5581031/yolov3.onnx.zip[yolov3.onnx]",
     "format": "ONNX v5", "producer": "keras2onnx 1.5.1",
