@@ -1880,13 +1880,6 @@
   },
   {
     "type":   "dl4j",
-    "target": "resnet50_dl4j_inference.v3.zip",
-    "source": "https://dl4jdata.blob.core.windows.net/models/resnet50_dl4j_inference.v3.zip",
-    "format": "Deeplearning4j",
-    "link":   "https://github.com/eclipse/deeplearning4j"
-  },
-  {
-    "type":   "dl4j",
     "target": "squeezenet_dl4j_inference.v2.zip",
     "source": "https://dl4jdata.blob.core.windows.net/models/squeezenet_dl4j_inference.v2.zip",
     "format": "Deeplearning4j",
