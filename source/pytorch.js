@@ -956,6 +956,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm3d', class {});
         this.registerType('torch.nn.modules.linear._LinearWithBias', class {});
         this.registerType('torch.nn.modules.linear.Bilinear', class {});
+        this.registerType('torch.nn.modules.linear.LazyLinear', class {});
         this.registerType('torch.nn.modules.linear.Linear', class {});
         this.registerType('torch.nn.modules.linear.Identity', class {});
         this.registerType('torch.nn.modules.loss.BCELoss', class {});
@@ -1828,6 +1829,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.parameter.Parameter', class extends torch.Tensor {
             constructor(data, requires_grad) {
                 super();
+                if (!data) {
+                    data = self.invoke('torch.Tensor', [[]]);
+                }
                 this.data = data;
                 this.requires_grad = requires_grad !== undefined ? requires_grad : true;
             }
@@ -1840,6 +1844,11 @@ pytorch.Execution = class extends python.Execution {
                         this.data = state[0];
                         break;
                 }
+            }
+        });
+        this.registerType('torch.nn.parameter.UninitializedParameter', class extends torch.nn.parameter.Parameter {
+            constructor(requires_grad /*, device, dtype */) {
+                super(undefined, requires_grad);
             }
         });
         this.registerType('torch.BoolTensor', class extends torch.Tensor {});
