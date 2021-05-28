@@ -1632,6 +1632,7 @@ python.Execution = class {
         this.registerModule('sklearn');
         this.registerModule('typing');
         this.registerModule('xgboost');
+        const builtins = this._context.scope.builtins;
         const numpy = this._context.scope.numpy;
         const typing = this._context.scope.typing;
         this.registerType('builtins.function', class {});
@@ -1641,6 +1642,7 @@ python.Execution = class {
         this.registerType('builtins.bool', class {});
         this.registerType('builtins.int', class {});
         this.registerType('builtins.float', class {});
+        this.registerType('builtins.object', class {});
         this.registerType('builtins.str', class {});
         this.registerType('builtins.tuple', class {});
         this.registerType('typing._Final', class {});
@@ -2171,6 +2173,7 @@ python.Execution = class {
             constructor(/* args */) {
             }
         });
+        this.registerType('types.ObjectType', builtins.object);
         this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
         this.registerType('xgboost.core.Booster', class {});
         this.registerType('xgboost.sklearn.XGBClassifier', class {});
@@ -2248,17 +2251,15 @@ python.Execution = class {
         });
         this.registerFunction('copy_reg._reconstructor', function(cls, base, state) {
             // copyreg._reconstructor in Python 3
-            switch (base) {
-                case '__builtin__.object': {
-                    return self.invoke(cls, []);
+            if (base === '__builtin__.object' || base === builtins.object) {
+                return self.invoke(cls, []);
+            }
+            else if (base === '__builtin__.tuple' || base === builtins.tuple) {
+                const obj = self.invoke(cls, []);
+                for (let i = 0; i < state.length; i++) {
+                    obj[i] = state[i];
                 }
-                case '__builtin__.tuple': {
-                    const obj = self.invoke(cls, []);
-                    for (let i = 0; i < state.length; i++) {
-                        obj[i] = state[i];
-                    }
-                    return obj;
-                }
+                return obj;
             }
             throw new python.Error("Unknown copy_reg._reconstructor base type '" + base + "'.");
         });
@@ -2291,8 +2292,11 @@ python.Execution = class {
                 }
             }
         });
+        this.registerFunction('dill.dill._load_type', function(name) {
+            return self.context.getx('types.' + name);
+        });
         this.registerFunction('dill._dill._load_type', function(name) {
-            return self.conext.getx('types.' + name);
+            return self.context.getx('types.' + name);
         });
         this.registerFunction('getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
