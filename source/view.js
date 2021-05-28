@@ -1842,6 +1842,7 @@ view.ModelFactoryService = class {
             { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
             { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
+            { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
             { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
