@@ -23,6 +23,7 @@ $root.onnx.AttributeProto = class AttributeProto {
         this.tensors = [];
         this.graphs = [];
         this.sparse_tensors = [];
+        this.type_protos = [];
     }
 
     static decode(reader, length) {
@@ -61,6 +62,9 @@ $root.onnx.AttributeProto = class AttributeProto {
                 case 22:
                     message.sparse_tensor = $root.onnx.SparseTensorProto.decode(reader, reader.uint32());
                     break;
+                case 14:
+                    message.tp = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    break;
                 case 7:
                     message.floats = reader.floats(message.floats, tag);
                     break;
@@ -78,6 +82,9 @@ $root.onnx.AttributeProto = class AttributeProto {
                     break;
                 case 23:
                     message.sparse_tensors.push($root.onnx.SparseTensorProto.decode(reader, reader.uint32()));
+                    break;
+                case 15:
+                    message.type_protos.push($root.onnx.TypeProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -123,6 +130,9 @@ $root.onnx.AttributeProto = class AttributeProto {
                 case "sparse_tensor":
                     message.sparse_tensor = $root.onnx.SparseTensorProto.decodeText(reader);
                     break;
+                case "tp":
+                    message.tp = $root.onnx.TypeProto.decodeText(reader);
+                    break;
                 case "floats":
                     reader.array(message.floats, () => reader.float());
                     break;
@@ -140,6 +150,9 @@ $root.onnx.AttributeProto = class AttributeProto {
                     break;
                 case "sparse_tensors":
                     message.sparse_tensors.push($root.onnx.SparseTensorProto.decodeText(reader));
+                    break;
+                case "type_protos":
+                    message.type_protos.push($root.onnx.TypeProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -160,6 +173,7 @@ $root.onnx.AttributeProto.prototype.s = new Uint8Array([]);
 $root.onnx.AttributeProto.prototype.t = null;
 $root.onnx.AttributeProto.prototype.g = null;
 $root.onnx.AttributeProto.prototype.sparse_tensor = null;
+$root.onnx.AttributeProto.prototype.tp = null;
 
 $root.onnx.AttributeProto.AttributeType = {
     "UNDEFINED": 0,
@@ -169,12 +183,14 @@ $root.onnx.AttributeProto.AttributeType = {
     "TENSOR": 4,
     "GRAPH": 5,
     "SPARSE_TENSOR": 11,
+    "TYPE_PROTO": 13,
     "FLOATS": 6,
     "INTS": 7,
     "STRINGS": 8,
     "TENSORS": 9,
     "GRAPHS": 10,
-    "SPARSE_TENSORS": 12
+    "SPARSE_TENSORS": 12,
+    "TYPE_PROTOS": 14
 };
 
 $root.onnx.ValueInfoProto = class ValueInfoProto {
@@ -1050,7 +1066,7 @@ $root.onnx.TypeProto = class TypeProto {
     }
 
     get value() {
-        $root.onnx.TypeProto.valueSet = $root.onnx.TypeProto.valueSet || new Set([ "tensor_type", "sequence_type", "map_type", "sparse_tensor_type", "opaque_type"]);
+        $root.onnx.TypeProto.valueSet = $root.onnx.TypeProto.valueSet || new Set([ "tensor_type", "sequence_type", "map_type", "optional_type", "sparse_tensor_type", "opaque_type"]);
         return Object.keys(this).find((key) => $root.onnx.TypeProto.valueSet.has(key) && this[key] != null);
     }
 
@@ -1068,6 +1084,9 @@ $root.onnx.TypeProto = class TypeProto {
                     break;
                 case 5:
                     message.map_type = $root.onnx.TypeProto.Map.decode(reader, reader.uint32());
+                    break;
+                case 9:
+                    message.optional_type = $root.onnx.TypeProto.Optional.decode(reader, reader.uint32());
                     break;
                 case 8:
                     message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decode(reader, reader.uint32());
@@ -1100,6 +1119,9 @@ $root.onnx.TypeProto = class TypeProto {
                     break;
                 case "map_type":
                     message.map_type = $root.onnx.TypeProto.Map.decodeText(reader);
+                    break;
+                case "optional_type":
+                    message.optional_type = $root.onnx.TypeProto.Optional.decodeText(reader);
                     break;
                 case "sparse_tensor_type":
                     message.sparse_tensor_type = $root.onnx.TypeProto.SparseTensor.decodeText(reader);
@@ -1260,6 +1282,48 @@ $root.onnx.TypeProto.Map = class Map {
 
 $root.onnx.TypeProto.Map.prototype.key_type = 0;
 $root.onnx.TypeProto.Map.prototype.value_type = null;
+
+$root.onnx.TypeProto.Optional = class Optional {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.onnx.TypeProto.Optional();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.elem_type = $root.onnx.TypeProto.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.onnx.TypeProto.Optional();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "elem_type":
+                    message.elem_type = $root.onnx.TypeProto.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.onnx.TypeProto.Optional.prototype.elem_type = null;
 
 $root.onnx.TypeProto.SparseTensor = class SparseTensor {
 
