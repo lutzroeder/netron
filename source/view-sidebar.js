@@ -1161,10 +1161,10 @@ sidebar.FindSidebar = class {
             this._resultElement.removeChild(this._resultElement.lastChild);
         }
 
-        const text = searchText.toLowerCase();
+        const terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
 
-        const nodeMatches = new Set();
-        const edgeMatches = new Set();
+        const nodes = new Set();
+        const edges = new Set();
 
         for (const node of this._graph.nodes) {
 
@@ -1172,21 +1172,41 @@ sidebar.FindSidebar = class {
 
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
-                    const match =
-                        (argument.name && argument.name.toLowerCase().indexOf(text) != -1) ||
-                        (argument.type && argument.type.dataType && argument.type.dataType.toLowerCase() === text) ||
-                        (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.some((dimension) => dimension && dimension.toString() === text)) ||
-                        (argument.type && argument.type.shape && argument.type.shape.dimensions && (argument.type.shape.toString() === text || argument.type.shape.toString() === '[' + text + ']'));
-                    if (match && !edgeMatches.has(argument.name)) {
-                        if (!argument.initializer) {
-                            const inputItem = this._host.document.createElement('li');
-                            inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
-                            inputItem.id = 'edge-' + argument.name;
-                            this._resultElement.appendChild(inputItem);
-                            edgeMatches.add(argument.name);
-                        }
-                        else {
-                            initializers.push(argument);
+                    if (argument.name && !edges.has(argument.name)) {
+                        const match = (argument, term) => {
+                            if (argument.name.toLowerCase().indexOf(term) !== -1) {
+                                return true;
+                            }
+                            if (argument.type) {
+                                if (term === argument.type.dataType.toLowerCase()) {
+                                    return true;
+                                }
+                                if (term === argument.type.shape.toString().toLowerCase()) {
+                                    return true;
+                                }
+                                if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
+                                    const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                                    if (term === dimensions.join(',')) {
+                                        return true;
+                                    }
+                                    if (dimensions.some((dimension) => term === dimension)) {
+                                        return true;
+                                    }
+                                }
+                            }
+                            return false;
+                        };
+                        if (terms.every((term) => match(argument, term))) {
+                            if (!argument.initializer) {
+                                const inputItem = this._host.document.createElement('li');
+                                inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
+                                inputItem.id = 'edge-' + argument.name;
+                                this._resultElement.appendChild(inputItem);
+                                edges.add(argument.name);
+                            }
+                            else {
+                                initializers.push(argument);
+                            }
                         }
                     }
                 }
@@ -1194,14 +1214,13 @@ sidebar.FindSidebar = class {
 
             const name = node.name;
             const operator = node.type;
-            if (!nodeMatches.has(name) && name &&
-                ((name.toLowerCase().indexOf(text) != -1) ||
-                (operator && operator.toLowerCase().indexOf(text) != -1))) {
+            if (name && !nodes.has(name) &&
+                terms.every((term) => name.toLowerCase().indexOf(term) != -1 || (operator && operator.toLowerCase().indexOf(term) != -1))) {
                 const nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
                 nameItem.id = 'node-name-' + node.name;
                 this._resultElement.appendChild(nameItem);
-                nodeMatches.add(node.name);
+                nodes.add(node.name);
             }
 
             for (const argument of initializers) {
@@ -1217,12 +1236,12 @@ sidebar.FindSidebar = class {
         for (const node of this._graph.nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
-                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
+                    if (argument.name && !edges.has(argument.name) && terms.every((term) => argument.name.toLowerCase().indexOf(term) != -1)) {
                         const outputItem = this._host.document.createElement('li');
                         outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                         outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches.add(argument.name);
+                        edges.add(argument.name);
                     }
                 }
             }
