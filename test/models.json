@@ -5886,13 +5886,6 @@
   },
   {
     "type":   "torch",
-    "target": "resnet.t7",
-    "source": "https://raw.githubusercontent.com/cpra/fer-cnn-sota/master/models/resnet.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/cpra/fer-cnn-sota"
-  },
-  {
-    "type":   "torch",
     "target": "resnet-18.t7",
     "source": "https://d2j0dndfm35trm.cloudfront.net/resnet-18.t7",
     "format": "Torch v7",
@@ -5932,13 +5925,6 @@
     "source": "http://data.csail.mit.edu/soundnet/soundnet_models_public.zip[soundnet_models_public/soundnet5_final.t7]",
     "format": "Torch v7",
     "link":   "https://github.com/afperezm/acoustic-images-distillation"
-  },
-  {
-    "type":   "torch",
-    "target": "upconv_7l_photo_scale2.0x_model.t7",
-    "source": "https://raw.githubusercontent.com/nagadomi/waifu2x/master/models/upconv_7l/photo/scale2.0x_model.t7",
-    "format": "Torch v7",
-    "link":   "https://github.com/nagadomi/waifu2x"
   },
   {
     "type":   "torch",
