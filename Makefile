@@ -77,7 +77,12 @@ publish_electron: install
 build_web:
 	mkdir -p ./dist/web
 	rm -rf ./dist/web/*
-	cp -R ./source/*.{html,css,js,json,ico,png} ./dist/web
+	cp -R ./source/*.html ./dist/web
+	cp -R ./source/*.css ./dist/web
+	cp -R ./source/*.js ./dist/web
+	cp -R ./source/*.json ./dist/web
+	cp -R ./source/*.ico ./dist/web
+	cp -R ./source/*.png ./dist/web
 	rm -rf ./dist/web/electron.* ./dist/web/app.js
 	cp -R ./node_modules/d3/dist/d3.js ./dist/web
 	cp -R ./node_modules/dagre/dist/dagre.js ./dist/web
