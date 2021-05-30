@@ -3392,7 +3392,7 @@ pytorch.Utility = class {
                     const layer = layers.get(layerName);
                     if (pytorch.Utility.isTensor(value)) {
                         layer.states.push({ name: parameter, arguments: [ { id: key, value: value } ] });
-                        if (layer.name == '' && layer.states.length > 4) {
+                        if (layer.name == '' && layer.states.length > 12) {
                             return null;
                         }
                     }
