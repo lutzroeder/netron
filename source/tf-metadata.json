@@ -2115,7 +2115,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`, `float32`, `float64`, `bool`, `variant`."
+        "description": "Must be one of the following: `float32`, `float64`, `int32`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`, `uint16`, `float16`, `uint32`, `uint64`, `complex64`, `complex128`, `bool`, `variant`."
       },
       {
         "name": "precision",
@@ -8019,7 +8019,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float16`, `float64`, `int32`, `int64`."
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
       },
       {
         "name": "group_size",
@@ -8083,7 +8083,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float16`, `float64`, `int32`, `int64`."
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
       },
       {
         "name": "merge_op",
@@ -8295,6 +8295,69 @@
       {
         "name": "y",
         "typeAttr": "Tout"
+      }
+    ]
+  },
+  {
+    "name": "CompositeTensorVariantFromComponents",
+    "summary": "Encodes an `ExtensionType` value into a `variant` scalar Tensor.",
+    "description": "Returns a scalar variant tensor containing a single `CompositeTensorVariant`\nwith the specified Tensor components and TypeSpec.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "description": "String serialization for the TypeSpec.  (Note: the encoding for the TypeSpec\nmay change in future versions of TensorFlow.)"
+      },
+      {
+        "name": "Tcomponents",
+        "type": "type[]",
+        "minimum": 0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "components",
+        "description": "The component tensors for the extension type value.",
+        "typeListAttr": "Tcomponents"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "encoded",
+        "description": "A `variant` Tensor that containing the encoded value.",
+        "type": 21
+      }
+    ]
+  },
+  {
+    "name": "CompositeTensorVariantToComponents",
+    "summary": "Decodes a `variant` scalar Tensor into an `ExtensionType` value.",
+    "description": "Returns the Tensor components encoded in a `CompositeTensorVariant`.\n\nRaises an error if `type_spec_proto` doesn't match the TypeSpec\nin `encoded`.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "description": "String serialization for the TypeSpec.  Must be compatible with the\n`TypeSpec` contained in `encoded`.  (Note: the encoding for the TypeSpec\nmay change in future versions of TensorFlow.)"
+      },
+      {
+        "name": "Tcomponents",
+        "type": "type[]",
+        "description": "Expected dtypes for components.",
+        "minimum": 0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "encoded",
+        "description": "A scalar `variant` Tensor containing an encoded ExtensionType value.",
+        "type": 21
+      }
+    ],
+    "outputs": [
+      {
+        "name": "components",
+        "description": "The component tensors for the ExtensionType value in `encoded`.",
+        "typeListAttr": "Tcomponents"
       }
     ]
   },
@@ -19735,7 +19798,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       }
     ],
     "inputs": [
@@ -19790,7 +19853,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       }
     ],
     "inputs": [
@@ -25904,7 +25967,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `uint8`, `int16`, `uint16`, `int32`, `uint32`, `int64`, `uint64`."
       }
     ],
     "inputs": [
@@ -26161,7 +26224,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int16`, `int32`, `int64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `uint8`, `int16`, `uint16`, `int32`, `uint32`, `int64`, `uint64`."
       }
     ],
     "inputs": [
@@ -42042,7 +42105,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `bool`, `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`, `string`."
+        "description": "Must be one of the following: `uint8`, `int8`, `uint16`, `int16`, `uint32`, `int32`, `uint64`, `int64`, `bool`, `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`, `string`."
       }
     ],
     "inputs": [
@@ -42132,7 +42195,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `uint8`, `int8`, `uint16`, `int16`, `int32`, `int64`, `bool`, `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`, `string`."
+        "description": "Must be one of the following: `uint8`, `int8`, `uint16`, `int16`, `int32`, `uint32`, `int64`, `uint64`, `bool`, `bfloat16`, `float16`, `float32`, `float64`, `complex64`, `complex128`, `string`."
       }
     ],
     "inputs": [
@@ -46471,7 +46534,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -50176,6 +50239,64 @@
       {
         "name": "output",
         "description": "Has same shape as data, except for dimension 0 which\nhas size `k`, the number of segments.",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "SparseSegmentSumGrad",
+    "summary": "Computes gradients for SparseSegmentSum.",
+    "description": "Returns tensor \"output\" with same shape as grad, except for dimension 0 whose\nvalue is output_dim0.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+      },
+      {
+        "name": "Tidx",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "Tsegmentids",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      }
+    ],
+    "inputs": [
+      {
+        "name": "grad",
+        "description": "gradient propagated to the SparseSegmentSum op.",
+        "typeAttr": "T"
+      },
+      {
+        "name": "indices",
+        "description": "indices passed to the corresponding SparseSegmentSum op.",
+        "typeAttr": "Tidx"
+      },
+      {
+        "name": "segment_ids",
+        "description": "segment_ids passed to the corresponding SparseSegmentSum op.",
+        "typeAttr": "Tsegmentids"
+      },
+      {
+        "name": "output_dim0",
+        "description": "dimension 0 of \"data\" passed to SparseSegmentSum op.",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
         "typeAttr": "T"
       }
     ]
