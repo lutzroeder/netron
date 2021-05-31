@@ -2955,10 +2955,10 @@
   },
   {
     "type":   "onnx",
-    "target": "bidaf-9.onnx",
-    "source": "https://github.com/onnx/models/raw/master/text/machine_comprehension/bidirectional_attention_flow/model/bidaf-9.onnx",
+    "target": "bidaf-9.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6572387/bidaf-9.onnx.zip",
     "format": "ONNX v4", "producer": "CNTK 2.7",
-    "link":   "https://github.com/onnx/models/tree/master/text/machine_comprehension/bidirectional_attention_flow"
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3127,18 +3127,17 @@
   },
   {
     "type":   "onnx",
-    "target": "inception_v2_opset_6.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_6/inception_v2.tar.gz[inception_v2/model.onnx]"
+    "target": "inception_v2_opset_6.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6572388/inception_v2_opset_6.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
-    "target": "inception_v2_opset_8.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_8/inception_v2.tar.gz[inception_v2/model.onnx]"
-  },
-  {
-    "type":   "onnx",
-    "target": "inception_v2_opset_9.onnx",
-    "source": "https://s3.amazonaws.com/download.onnx/models/opset_9/inception_v2.tar.gz[inception_v2/model.onnx]"
+    "target": "inception_v2_opset_9.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6572391/inception_v2_opset_9.onnx.zip",
+    "format": "ONNX v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
     "type":   "onnx",
@@ -3231,11 +3230,6 @@
     "source": "https://github.com/lutzroeder/netron/files/5296268/resnet50_opset_9.onnx.zip",
     "format": "ONNX v3",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
-  },
-  {
-    "type":   "onnx",
-    "target": "resnet50v2.onnx",
-    "source": "https://s3.amazonaws.com/onnx-model-zoo/resnet/resnet50v2/resnet50v2.onnx"
   },
   {
     "type":   "onnx",
