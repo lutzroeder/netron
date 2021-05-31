@@ -4059,12 +4059,6 @@
   },
   {
     "type":   "pytorch",
-    "target": "bn_inception-9f5701afb96c8044.pth",
-    "source": "https://yjxiong.blob.core.windows.net/models/bn_inception-9f5701afb96c8044.pth",
-    "format": "PyTorch v0.1.1"
-  },
-  {
-    "type":   "pytorch",
     "target": "bvlc_googlenet.caffemodel.pth",
     "source": "https://www.dropbox.com/s/2ljm35ztj6hllcu/bvlc_googlenet.caffemodel.pth?dl=1",
     "format": "PyTorch v0.1.10",
