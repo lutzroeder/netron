@@ -3256,7 +3256,7 @@ pytorch.Utility = class {
                 return obj;
             }
             if (obj && Object(obj) === obj) {
-                const integer = new Set([ 'epoch', 'i_batch', 'num_vid' ]);
+                const integer = new Set([ 'epoch', 'i_batch', 'num_vid', 'seen' ]);
                 const target = {};
                 for (const key of Object.keys(obj)) {
                     const value = obj[key];
