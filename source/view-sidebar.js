@@ -1181,16 +1181,18 @@ sidebar.FindSidebar = class {
                                 if (term === argument.type.dataType.toLowerCase()) {
                                     return true;
                                 }
-                                if (term === argument.type.shape.toString().toLowerCase()) {
-                                    return true;
-                                }
-                                if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
-                                    const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
-                                    if (term === dimensions.join(',')) {
+                                if (argument.type.shape) {
+                                    if (term === argument.type.shape.toString().toLowerCase()) {
                                         return true;
                                     }
-                                    if (dimensions.some((dimension) => term === dimension)) {
-                                        return true;
+                                    if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
+                                        const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                                        if (term === dimensions.join(',')) {
+                                            return true;
+                                        }
+                                        if (dimensions.some((dimension) => term === dimension)) {
+                                            return true;
+                                        }
                                     }
                                 }
                             }
