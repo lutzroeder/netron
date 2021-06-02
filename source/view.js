@@ -1540,7 +1540,10 @@ view.ModelFactoryService = class {
                     { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
                     { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
                     { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
-                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] }
+                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] },
+                    { name: 'vitis.ai.proto.DpuModelParamList data', tags: [ 'model', 'model.name', 'model.kernel' ] },
+                    { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.ssd' ] },
+                    { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.faster_rcnn' ] }
                 ]
             },
             {
