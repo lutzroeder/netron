@@ -169,6 +169,32 @@ grapher.Graph = class {
             }
         }
 
+        let add_listener = (nodeId) => {
+            const lastIndex = nodeId.lastIndexOf('/');
+            if (!cluster.has(nodeId)) {
+                let parent = nodeId.substring(0, lastIndex);
+                if (parent)
+                    add_listener(parent);
+                let node = this.node(nodeId);
+                node.element.addEventListener('click', node.ShowClusterAttr);
+                cluster.add(nodeId);
+            }
+        };
+
+        let cluster = new Set();
+        for (const nodeId of this.nodes()) {
+            let node = this.node(nodeId);
+            if (node.ShowClusterAttr) {
+                add_listener(nodeId);
+            }
+            if (node.level) {
+                let textElement = createElement('text');
+                textElement.textContent = node.level;
+                node.text = textElement;
+                node.element.appendChild(textElement);
+            }
+        }
+
         for (const edgeId of this.edges()) {
             const edge = this.edge(edgeId);
             edge.build(document, edgePathGroup, edgeLabelGroup);
@@ -193,6 +219,11 @@ grapher.Graph = class {
                 node.rectangle.setAttribute('y', - node.height / 2 );
                 node.rectangle.setAttribute('width', node.width);
                 node.rectangle.setAttribute('height', node.height);
+                if (node.text) {
+                    node.text.setAttribute('y', - node.height / 2);
+                    node.text.setAttribute('text-anchor', 'middle');
+                    node.text.setAttribute('font-size', '20px');
+                }
             }
         }
 
@@ -755,7 +786,6 @@ grapher.Edge = class {
         return {x: x + sx, y: y + sy};
     }
 };
-
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Graph = grapher.Graph;

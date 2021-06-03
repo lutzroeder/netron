@@ -124,6 +124,54 @@ sidebar.Sidebar = class {
     }
 };
 
+sidebar.SubgraphSidebar = class {
+
+    constructor(host, subgraph) {
+        this._host = host;
+        this._subgraph = subgraph;
+        this._elements = [];
+        this._attributes = [];
+
+        if (subgraph.name) {
+            this._addProperty('name', new sidebar.ValueTextView(this._host, subgraph.name));
+        }
+        const attributes = subgraph.attributes;
+        if (attributes && attributes.length > 0) {
+            this._addHeader('Attributes');
+            for (const attribute of attributes) {
+                this._addAttribute(attribute.name, attribute);
+            }
+        }
+
+        const divider = this._host.document.createElement('div');
+        divider.setAttribute('style', 'margin-bottom: 20px');
+        this._elements.push(divider);
+    }
+
+    render() {
+        return this._elements;
+    }
+
+    _addProperty(name, value) {
+        const item = new sidebar.NameValueView(this._host, name, value);
+        this._elements.push(item.render());
+    }
+
+    _addHeader(title) {
+        const headerElement = this._host.document.createElement('div');
+        headerElement.className = 'sidebar-view-header';
+        headerElement.innerText = title;
+        this._elements.push(headerElement);
+    }
+
+    _addAttribute(name, attribute) {
+        const item = new sidebar.NameValueView(this._host, name, new NodeAttributeView(this._host, attribute));
+        this._attributes.push(item);
+        this._elements.push(item.render());
+    }
+
+};
+
 sidebar.NodeSidebar = class {
 
     constructor(host, node) {
@@ -657,10 +705,55 @@ sidebar.ArgumentView = class {
             typeLine.innerHTML = 'type: <code><b>' + type.toString().split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
             this._element.appendChild(typeLine);
         }
+        if (argument.xmodel) {
+            if (argument.shape) {
+                const Line = this._host.document.createElement('div');
+                Line.className = 'sidebar-view-item-value-line-border';
+                Line.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>' + "shape" + ': <b>[' + argument.shape + ']</b></span>';
+                this._element.appendChild(Line);
+            }
+            if (argument.attributes.length > 0) {
+                this._attr_expander = this._host.document.createElement('div');
+                this._attr_expander.className = 'sidebar-view-item-value-expander';
+                this._attr_expander.innerText = '+ MORE ATTRS';
+                this._attr_expander.addEventListener('click', () => {
+                    this.toggle_attr(argument.attributes);
+                });
+                this._element.appendChild(this._attr_expander);
+            }
+            if (argument.data_type) {
+                const Line = this._host.document.createElement('div');
+                Line.className = 'sidebar-view-item-value-line-border';
+                Line.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>' + "type" + ': <b>' + argument.data_type + '</b></span>';
+                this._element.appendChild(Line);
+            }
+        }
     }
 
     render() {
         return this._element;
+    }
+
+    toggle_attr(attrs) {
+        if(this._attr_expander) {
+            if (this._attr_expander.innerText == '+ MORE ATTRS') {
+                this._attr_expander.innerText = '- FOLD ATTRS';
+                for (const attr of attrs) {
+                    if (attr.name && typeof attr.name === 'string') {
+                        const Line = this._host.document.createElement('div');
+                        Line.className = 'sidebar-view-item-value-line-border';
+                        Line.innerHTML = attr.name +  ':<b>' + sidebar.NodeSidebar.formatAttributeValue(attr.value) + '</b>';
+                        this._element.appendChild(Line);
+                    }
+                }
+            }
+            else {
+                this._attr_expander.innerText = '+ MORE ATTRS';
+                while (this._element.childElementCount > 4) {
+                    this._element.removeChild(this._element.lastChild);
+                }
+            }
+        }
     }
 
     toggle() {
@@ -2006,6 +2099,7 @@ if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Sidebar = sidebar.Sidebar;
     module.exports.ModelSidebar = sidebar.ModelSidebar;
     module.exports.NodeSidebar = sidebar.NodeSidebar;
+    module.exports.SubgraphSidebar = sidebar.SubgraphSidebar;
     module.exports.DocumentationSidebar = sidebar.DocumentationSidebar;
     module.exports.FindSidebar = sidebar.FindSidebar;
 }

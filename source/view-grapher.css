@@ -35,7 +35,17 @@
 .node-item-type-tensor path { fill: rgb(89, 66, 59); }
 .node-item-type-transform path { fill: rgb(51, 85, 68); }
 .node-item-type-data path { fill: rgb(85, 85, 85); }
+.node-item-type-quantization path { fill: rgb(105, 105, 105); }
 .node-item-type-custom path { fill: rgb(128, 128, 128); }
+
+.node-item-type-cpu path { fill: rgba(51, 85, 51); }
+.node-item-type-dpu path {  fill: rgb(51, 85, 136);  }
+.node-item-type-dpu0 path {  fill: rgb(69, 71, 112);  }
+.node-item-type-dpu1 path {  fill: rgb(108, 79, 71);  }
+.node-item-type-dpu2 path {  fill: rgb(85, 85, 85);  }
+.node-item-type-dpu3 path {  fill: rgb(51, 85, 136);  }
+.node-item-type-dpu4 path {  fill: rgb(128, 128, 128);  }
+.node-item-type-dpu5 path {  fill: rgb(99, 97, 76);  }
 
 .node-item-input path { fill: #fff; }
 .node-item-input:hover { cursor: hand; }
@@ -67,7 +77,7 @@
 #arrowhead-vee { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
 
-.cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.06; stroke-width: 1px; }
+.cluster rect { stroke: #000; fill: #000; fill-opacity: 0.02; stroke-opacity: 0.2; stroke-width: 1px; }
 
 .select .node.border { stroke: #e00; stroke-width: 2px; }
 .select.edge-path { stroke: #e00; stroke-width: 2px; marker-end: url("#arrowhead-vee-select"); }
