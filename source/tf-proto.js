@@ -2388,6 +2388,7 @@ $root.tensorflow.FullTypeId = {
     "TFT_HALF": 209,
     "TFT_FLOAT": 210,
     "TFT_DOUBLE": 211,
+    "TFT_BFLOAT16": 215,
     "TFT_COMPLEX64": 212,
     "TFT_COMPLEX128": 213,
     "TFT_STRING": 214
