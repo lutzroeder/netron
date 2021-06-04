@@ -66,7 +66,7 @@ npz.ModelFactory = class {
                         const group = groups.get(groupName);
                         const data = entry.data;
                         let array = new numpy.Array(data);
-                        if (array.byteOrder === '|') {
+                        if (array.byteOrder === '|' && array.dataType !== 'u1' && array.dataType !== 'i1') {
                             if (array.dataType !== 'O') {
                                 throw new npz.Error("Invalid data type '" + array.dataType + "'.");
                             }
@@ -305,12 +305,8 @@ npz.Tensor = class  {
         context.index = 0;
         context.count = 0;
         context.state = null;
-        if (this._byteOrder !== '<' && this._byteOrder !== '>') {
+        if (this._byteOrder !== '<' && this._byteOrder !== '>' && this._type.dataType !== 'uint8' && this._type.dataType !== 'int8') {
             context.state = 'Tensor byte order is not supported.';
-            return context;
-        }
-        if (this._reference) {
-            context.state = 'Tensor reference not implemented.';
             return context;
         }
         if (!this._data || this._data.length == 0) {
