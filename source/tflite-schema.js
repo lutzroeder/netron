@@ -359,7 +359,8 @@ $root.tflite.BuiltinOperator = {
     HASHTABLE_FIND: 137,
     HASHTABLE_IMPORT: 138,
     HASHTABLE_SIZE: 139,
-    REDUCE_ALL: 140
+    REDUCE_ALL: 140,
+    CONV_3D_TRANSPOSE: 141
 };
 
 $root.tflite.BuiltinOptions = class {
