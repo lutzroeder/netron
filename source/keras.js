@@ -977,10 +977,6 @@ keras.Tensor = class {
         context.index = 0;
         context.count = 0;
         context.state = null;
-        if (this._reference) {
-            context.state = 'Tensor reference not implemented.';
-            return context;
-        }
         if (!this._data) {
             context.state = 'Tensor data is empty.';
             return context;
