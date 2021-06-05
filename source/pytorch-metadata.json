@@ -5331,6 +5331,46 @@
     ]
   },
   {
+    "name": "ops.quantized.mul_relu:Scalar",
+    "inputs": [
+      { "name": "qa", "type": "Tensor" },
+      { "name": "b", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "qc", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "ops.quantized.mul_relu:Scalar2",
+    "inputs": [
+      { "name": "b", "type": "Scalar" },
+      { "name": "qa", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "qc", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "ops.quantized.mul_scalar",
+    "inputs": [
+      { "name": "qa", "type": "Tensor" },
+      { "name": "qb", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "qc", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "ops.quantized.mul_scalar_relu",
+    "inputs": [
+      { "name": "qa", "type": "Tensor" },
+      { "name": "qb", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "qc", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "ops.quantized.relu6",
     "category": "Activation",
     "inputs": [
