@@ -38,7 +38,7 @@ view.View = class {
             });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
-            });
+            }, { passive: true });
             this._host.document.addEventListener('keydown', () => {
                 this.clearSelection();
             });
@@ -115,7 +115,7 @@ view.View = class {
                 case 'd3': {
                     this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
                         this._preventZoom(e);
-                    });
+                    }, { passive: true });
                     break;
                 }
             }
