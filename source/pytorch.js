@@ -1418,6 +1418,9 @@ pytorch.Execution = class extends python.Execution {
             list.push(value);
             return value;
         });
+        this.registerFunction('torch.extend', function(list, value) {
+            list.push(...value);
+        });
         this.registerFunction('torch.insert', function(list, index, value) {
             list.splice(index, 0, value);
             return value;
