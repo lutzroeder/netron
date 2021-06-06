@@ -8,10 +8,10 @@ const path = require('path');
 const packageManifestFile = process.argv[2];
 const manifestDir = process.argv[3];
 
-const request = (url, timeout) => {
+const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
         const httpModule = url.split(':').shift() === 'https' ? https : http;
-        httpModule.get(url, (response) => {
+        const request = httpModule.request(url, {}, (response) => {
             if (response.statusCode === 200) {
                 const data = [];
                 let position = 0;
@@ -28,10 +28,10 @@ const request = (url, timeout) => {
                 });
             }
             else if (response.statusCode === 302) {
-                request(response.headers.location).then((data) => {
+                get(response.headers.location).then((data) => {
                     resolve(data);
                 }).catch((err) => {
-                    request(err);
+                    reject(err);
                 });
             }
             else {
@@ -41,18 +41,20 @@ const request = (url, timeout) => {
                 err.status = response.statusCode;
                 reject(err);
             }
-        }).on("error", (err) => {
+        });
+        request.on("error", (err) => {
             reject(err);
         });
         if (timeout) {
             request.setTimeout(timeout, () => {
-                request.abort();
+                request.destroy();
                 const err = new Error("The web request timed out at '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
             });
         }
+        request.end();
     });
 };
 
@@ -64,7 +66,7 @@ const publisher = packageManifest.author.name;
 const repository = packageManifest.repository;
 const url = 'https://github.com/' + repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
 
-request(url).then((data) => {
+get(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
     const lines = [
         'PackageIdentifier: ' + publisher.replace(' ', '') + '.' + productName,
