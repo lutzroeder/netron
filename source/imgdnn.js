@@ -85,6 +85,7 @@ imgdnn.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading IMGDNN model.';
+        this.stack = undefined;
     }
 };
 
