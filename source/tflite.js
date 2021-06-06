@@ -3,6 +3,7 @@
 var tflite = tflite || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var flexbuffers = {};
+var zip = zip || require('./zip');
 
 tflite.ModelFactory = class {
 
@@ -39,10 +40,11 @@ tflite.ModelFactory = class {
         return context.require('./tflite-schema').then(() => {
             tflite.schema = flatbuffers.get('tflite').tflite;
             let model = null;
+            const attachments = new Map();
             const identifier = context.identifier;
             const extension = identifier.split('.').pop().toLowerCase();
             switch (extension) {
-                case 'json':
+                case 'json': {
                     try {
                         const obj = context.open('json');
                         const reader = new flatbuffers.TextReader(obj);
@@ -53,9 +55,10 @@ tflite.ModelFactory = class {
                         throw new tflite.Error('File text format is not tflite.Model (' + message.replace(/\.$/, '') + ').');
                     }
                     break;
-                default:
+                }
+                default: {
+                    const buffer = context.stream.peek();
                     try {
-                        const buffer = context.stream.peek();
                         const reader = new flatbuffers.Reader(buffer);
                         model = tflite.schema.Model.create(reader);
                     }
@@ -63,7 +66,17 @@ tflite.ModelFactory = class {
                         const message = error && error.message ? error.message : error.toString();
                         throw new tflite.Error('File format is not tflite.Model (' + message.replace(/\.$/, '') + ').');
                     }
+                    try {
+                        const archive = zip.Archive.open(buffer);
+                        for (const entry of archive.entries) {
+                            attachments.set(entry.name, entry.stream);
+                        }
+                    }
+                    catch (error) {
+                        // continue regardless of error
+                    }
                     break;
+                }
             }
             return tflite.Metadata.open(context).then((metadata) => {
                 return new tflite.Model(metadata, model);
