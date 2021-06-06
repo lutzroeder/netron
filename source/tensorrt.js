@@ -102,6 +102,7 @@ tensorrt.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading TensorRT model.';
+        this.stack = undefined;
     }
 };
 
