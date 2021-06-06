@@ -1670,7 +1670,8 @@ view.ModelFactoryService = class {
             else {
                 if (match) {
                     if (errors.length === 1) {
-                        return Promise.reject(errors[0]);
+                        const error = errors[0];
+                        return Promise.reject(error);
                     }
                     return Promise.reject(new view.Error(errors.map((err) => err.message).join('\n')));
                 }
