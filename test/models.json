@@ -5463,6 +5463,13 @@
   },
   {
     "type":   "tfjs",
+    "target": "ssd_mobilenet_v2_1_default_1.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6605132/ssd_mobilenet_v2_1_default_1.zip",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/lutzroeder/netron/issues/294"
+  },
+  {
+    "type":   "tfjs",
     "target": "translation_en_fr_v1/model.json",
     "source": "https://storage.googleapis.com/tfjs-models/tfjs/translation_en_fr_v1/model.json",
     "format": "TensorFlow.js Keras v2.1.4",

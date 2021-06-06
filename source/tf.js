@@ -92,7 +92,7 @@ tf.ModelFactory = class {
         }
         if (extension === 'json') {
             const obj = context.open('json');
-            if (obj && obj.format && obj.format === 'graph-model' && obj.modelTopology) {
+            if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
                 return true;
             }
         }
@@ -242,7 +242,7 @@ tf.ModelFactory = class {
             const openJson = (context) => {
                 try {
                     const obj = context.open('json');
-                    const format = 'TensorFlow.js ' + obj.format;
+                    const format = 'TensorFlow.js ' + (obj.format || 'graph-model');
                     const producer = obj.convertedBy || obj.generatedBy || '';
                     const meta_graph = new tf.proto.MetaGraphDef();
                     meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
@@ -2326,8 +2326,10 @@ tf.JsonReader = class {
         message.input = json.input;
         message.device = json.device;
         message.attr = {};
-        for (const key of Object.keys(json.attr)) {
-            message.attr[key] = tf.JsonReader.decodeAttrValue(json.attr[key]);
+        if (json.attr) {
+            for (const key of Object.keys(json.attr)) {
+                message.attr[key] = tf.JsonReader.decodeAttrValue(json.attr[key]);
+            }
         }
         return message;
     }
@@ -2351,10 +2353,16 @@ tf.JsonReader = class {
                 message.tensor = tf.JsonReader.decodeTensorProto(value);
                 break;
             case 'b':
-            case 'f':
-            case 'i':
-            case 's':
                 message[key] = value;
+                break;
+            case 'f':
+                message[key] = parseFloat(value);
+                break;
+            case 'i':
+                message[key] = parseInt(value, 10);
+                break;
+            case 's':
+                message[key] = typeof value === 'string' ? value : tf.Utility.decodeText(Uint8Array.from(value));
                 break;
             case 'list':
                 message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
@@ -2367,17 +2375,20 @@ tf.JsonReader = class {
 
     static decodeAttrValueListValue(json) {
         const message = new tf.proto.AttrValue.ListValue();
-        const keys = Object.keys(json);
-        if (keys.length > 0) {
+        const properties = Object.keys(json);
+        if (properties.length > 0) {
+            const keys = properties.filter((key) => Array.isArray(json[key]) && json[key].length > 0);
             if (keys.length !== 1) {
                 throw new tf.Error("Unsupported JSON tensorflow.AttrValue.ListValue '" + JSON.stringify(keys) + "'.");
             }
             const key = keys[0];
-            const value = json[key];
+            const list = json[key];
             switch (key) {
                 case 'i':
+                    message[key] = list.map((value) => parseInt(value, 10));
+                    break;
                 case 's':
-                    message[key] = value;
+                    message[key] = list.map((value) => typeof value === 'string' ? value : tf.Utility.decodeText(Uint8Array.from(value)));
                     break;
                 default:
                     throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");
