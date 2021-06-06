@@ -7,57 +7,67 @@ zip.Archive = class {
 
     static open(buffer) {
         const stream = buffer instanceof Uint8Array ? new zip.BinaryReader(buffer) : buffer;
-        if (stream.length > 2 && stream.peek(1)[0] === 0x78) { // zlib
-            return new zlib.Archive(stream);
-        }
-        const signature = [ 0x50, 0x4B, 0x01, 0x02 ];
-        if (stream.length > 4 && stream.peek(2).every((value, index) => value === signature[index])) {
-            return new zip.Archive(stream);
+        if (stream.length > 2) {
+            const buffer = stream.peek(2);
+            if (buffer[0] === 0x78) { // zlib
+                return new zlib.Archive(stream);
+            }
+            const signature = buffer[0] === 0x50 && buffer[1] === 0x4B;
+            const position = stream.position;
+            const seek = (content) => {
+                let position = stream.length;
+                do {
+                    position = Math.max(0, position - 66000);
+                    stream.seek(position);
+                    const length = Math.min(stream.length - position, 66000 + 4);
+                    const buffer = stream.read(length);
+                    for (let i = buffer.length - 4; i >= 0; i--) {
+                        if (content[0] === buffer[i] && content[1] === buffer[i + 1] && content[2] === buffer[i + 2] && content[3] === buffer[i + 3]) {
+                            stream.seek(position + i + 4);
+                            return true;
+                        }
+                    }
+                }
+                while (position > 0 && signature);
+                return false;
+            };
+            if (!seek([ 0x50, 0x4B, 0x05, 0x06 ])) {
+                stream.seek(position);
+                if (!signature) {
+                    return null;
+                }
+                throw new zip.Error('End of Zip central directory not found.');
+            }
+            const reader = new zip.BinaryReader(stream.read(16));
+            reader.skip(12);
+            let offset = reader.uint32(); // central directory offset
+            if (offset > stream.length) {
+                if (!seek([ 0x50, 0x4B, 0x06, 0x06 ])) {
+                    stream.seek(position);
+                    throw new zip.Error('End of Zip64 central directory not found.');
+                }
+                const reader = new zip.BinaryReader(stream.read(52));
+                reader.skip(44);
+                offset = reader.uint32();
+                if (reader.uint32() !== 0) {
+                    stream.seek(position);
+                    throw new zip.Error('Zip 64-bit central directory offset not supported.');
+                }
+            }
+            if (offset > stream.length) {
+                stream.seek(position);
+                throw new zip.Error('Invalid Zip central directory offset.');
+            }
+            stream.seek(offset);
+            const archive = new zip.Archive(stream);
+            stream.seek(position);
+            return archive;
         }
         return null;
     }
 
     constructor(stream) {
         this._entries = [];
-        const position = stream.position;
-        const lookup = (stream, signature) => {
-            let position = stream.length;
-            do {
-                position = Math.max(0, position - 64000);
-                stream.seek(position);
-                const buffer = stream.read(Math.min(stream.length - position, 65536));
-                for (let i = buffer.length - 4; i >= 0; i--) {
-                    if (signature[0] === buffer[i] && signature[1] === buffer[i + 1] && signature[2] === buffer[i + 2] && signature[3] === buffer[i + 3]) {
-                        stream.seek(position + i + 4);
-                        return true;
-                    }
-                }
-            }
-            while (position > 0);
-            return false;
-        };
-        if (!lookup(stream, [ 0x50, 0x4B, 0x05, 0x06 ])) {
-            throw new zip.Error('End of Zip central directory not found.');
-        }
-        let reader = new zip.BinaryReader(stream.read(16));
-        reader.skip(12);
-        let offset = reader.uint32(); // central directory offset
-        if (offset > stream.length) {
-            if (!lookup(stream, [ 0x50, 0x4B, 0x06, 0x06 ])) {
-                throw new zip.Error('Zip64 end of central directory not found.');
-            }
-            reader = new zip.BinaryReader(stream.read(52));
-            reader.skip(44);
-            offset = reader.uint32();
-            if (reader.uint32() !== 0) {
-                throw new zip.Error('Zip 64-bit central directory offset not supported.');
-            }
-        }
-        if (offset > stream.length) {
-            throw new zip.Error('Invalid Zip central directory offset.');
-        }
-        stream.seek(offset); // central directory offset
-
         const entries = [];
         const signature = [ 0x50, 0x4B, 0x01, 0x02 ];
         while (stream.position + 4 < stream.length && stream.read(4).every((value, index) => value === signature[index])) {
@@ -130,7 +140,6 @@ zip.Archive = class {
             }
             this._entries.push(new zip.Entry(stream, entry));
         }
-        stream.seek(position);
     }
 
     get entries() {
@@ -156,14 +165,13 @@ zip.Entry = class {
         this._name = decoder.decode(entry.nameBuffer);
         this._stream = stream.stream(entry.compressedSize);
         switch (entry.compressionMethod) {
-            case 0: { // Stored
+            case 0: { // stored
                 if (entry.size !== entry.compressedSize) {
                     throw new zip.Error('Invalid compression size.');
                 }
                 break;
             }
-            case 8: {
-                // Deflate
+            case 8: { // deflate
                 this._stream = new zip.InflaterStream(this._stream, entry.size);
                 break;
             }
@@ -696,6 +704,7 @@ zip.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Zip Error';
+        this.stack = undefined;
     }
 };
 
