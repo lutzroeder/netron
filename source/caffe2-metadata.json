@@ -17651,5 +17651,46 @@
   {
     "name": "Log1pGradient",
     "support_level": "default"
+  },
+  {
+    "name": "SparseItemwiseDropoutWithReplacement",
+    "description": "\n\n`SparseItemwiseDropoutWithReplacement` takes a 1-d input tensor and a lengths tensor.\nValues in the Lengths tensor represent how many input elements consitute each\nexample in a given batch.  The each input value in the tensor of an example can be\nreplaced with the replacement value with probability given by the `ratio`\nargument.\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"SparseItemwiseDropoutWithReplacement\",\n    [\"X\", \"Lengths\"],\n    [\"Y\", \"OutputLengths\"],\n    ratio=0.5,\n    replacement_value=-1\n)\n\nworkspace.FeedBlob(\"X\", np.array([1, 2, 3, 4, 5]).astype(np.int64))\nworkspace.FeedBlob(\"Lengths\", np.array([2, 3]).astype(np.int32))\nprint(\"X:\", workspace.FetchBlob(\"X\"))\nprint(\"Lengths:\", workspace.FetchBlob(\"Lengths\"))\nworkspace.RunOperatorOnce(op)\nprint(\"Y:\", workspace.FetchBlob(\"Y\"))\nprint(\"OutputLengths:\", workspace.FetchBlob(\"OutputLengths\"))\n```\n\n**Result**\n\n```\nX: [1, 2, 3, 4, 5]\nLengths: [2, 3]\nY: [1, 2, -1]\nOutputLengths: [2, 1]\n```\n\n</details>\n\n",
+    "attributes": [
+      {
+        "name": "ratio",
+        "type": "float32",
+        "default": 0.0,
+        "description": "Probability of an element to be replaced.",
+        "option": "optional"
+      },
+      {
+        "name": "replacement_value",
+        "type": "int64",
+        "default": 0,
+        "description": "Value elements are replaced with.",
+        "option": "optional"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "description": "*(type: Tensor`<int64_t>`)* Input data tensor."
+      },
+      {
+        "name": "Lengths",
+        "description": "*(type: Tensor`<int32_t>`)* Lengths tensor for input."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "Y",
+        "description": "*(type: Tensor`<int64_t>`)* Output tensor."
+      },
+      {
+        "name": "OutputLengths",
+        "description": "*(type: Tensor`<int32_t>`)* Output tensor."
+      }
+    ],
+    "support_level": "default"
   }
 ]
