@@ -1846,14 +1846,14 @@ view.ModelFactoryService = class {
             { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
             { name: 'TSD header', value: /^%TSD-Header-###%/ },
             { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
-            { name: "TensorFlow Hub module", value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
+            { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
         ];
         /* eslint-enable no-control-regex */
         const buffer = stream.peek(Math.min(4096, stream.length));
         const text = String.fromCharCode.apply(null, buffer);
         for (const entry of entries) {
             if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                return Promise.reject(new view.Error("Invalid file content. File contains " + entry.name + ".", true));
+                return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
             }
         }
         return Promise.resolve(context);
