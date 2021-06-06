@@ -164,6 +164,7 @@ tar.BinaryReader = class {
 };
 
 tar.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'tar Error';
