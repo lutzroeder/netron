@@ -853,6 +853,7 @@ paddle.Metadata = class {
 };
 
 paddle.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Error loading PaddlePaddle model.';
