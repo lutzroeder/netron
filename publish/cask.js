@@ -8,10 +8,10 @@ const crypto = require('crypto');
 const packageManifestFile = process.argv[2];
 const caskFile = process.argv[3];
 
-const request = (url, timeout) => {
+const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
         const httpModule = url.split(':').shift() === 'https' ? https : http;
-        httpModule.get(url, (response) => {
+        const request = httpModule.request(url, {}, (response) => {
             if (response.statusCode === 200) {
                 const data = [];
                 let position = 0;
@@ -28,10 +28,10 @@ const request = (url, timeout) => {
                 });
             }
             else if (response.statusCode === 302) {
-                request(response.headers.location).then((data) => {
+                get(response.headers.location).then((data) => {
                     resolve(data);
                 }).catch((err) => {
-                    request(err);
+                    reject(err);
                 });
             }
             else {
@@ -41,18 +41,20 @@ const request = (url, timeout) => {
                 err.status = response.statusCode;
                 reject(err);
             }
-        }).on("error", (err) => {
+        });
+        request.on("error", (err) => {
             reject(err);
         });
         if (timeout) {
             request.setTimeout(timeout, () => {
-                request.abort();
+                request.destroy();
                 const err = new Error("The web request timed out at '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
             });
         }
+        request.end();
     });
 };
 
@@ -63,8 +65,9 @@ const productName = packageManifest.productName;
 const description = packageManifest.description;
 const repository = 'https://github.com/' + packageManifest.repository;
 const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
+const location = url.replace(/#{version}/g, version);
 
-request(url.replace(/#{version}/g, version)).then((data) => {
+get(location).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
     const lines = [
         'cask "' + name + '" do',
