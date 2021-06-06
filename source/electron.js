@@ -310,12 +310,22 @@ host.ElectronHost = class {
     exception(error, fatal) {
         if (this._telemetry && error && error.telemetry !== false) {
             try {
-                const description = [];
-                description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+                const name = error && error.name ? error.name + ': ' : '';
+                const message = error && error.message ? error.message : '(null)';
+                const description = [ name + message ];
                 if (error.stack) {
-                    const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                    const format = (file, line, column) => {
+                        return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
+                    };
+                    const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
+                        description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                    }
+                    else {
+                        const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
+                        if (match) {
+                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        }
                     }
                 }
                 this._telemetry.exception(description.join(' @ '), fatal);
@@ -389,7 +399,7 @@ host.ElectronHost = class {
             const options = {
                 headers: headers
             };
-            const request = httpModule.get(url, options, (response) => {
+            const request = httpModule.request(url, options, (response) => {
                 if (response.statusCode !== 200) {
                     const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
                     err.type = 'error';
@@ -409,18 +419,20 @@ host.ElectronHost = class {
                         resolve(data);
                     });
                 }
-            }).on("error", (err) => {
+            });
+            request.on("error", (err) => {
                 reject(err);
             });
             if (timeout) {
                 request.setTimeout(timeout, () => {
-                    request.abort();
+                    request.destroy();
                     const err = new Error("The web request timed out at '" + url + "'.");
                     err.type = 'timeout';
                     err.url = url;
                     reject(err);
                 });
             }
+            request.end();
         });
     }
 
@@ -493,7 +505,7 @@ host.Telemetry = class {
             response.on('error', (/* error */) => {});
         });
         request.setTimeout(5000, () => {
-            request.abort();
+            request.destroy();
         });
         request.on('error', (/* error */) => {});
         request.write(body);
