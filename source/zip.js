@@ -692,6 +692,7 @@ zlib.Entry = class {
 };
 
 zip.Error = class extends Error {
+
     constructor(message) {
         super(message);
         this.name = 'Zip Error';
