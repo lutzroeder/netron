@@ -62,17 +62,9 @@ imgdnn.Graph = class {
 
 imgdnn.Metadata = class {
 
-    static open(context) {
-        if (imgdnn.Metadata._metadata) {
-            return Promise.resolve(imgdnn.Metadata._metadata);
-        }
-        return context.request('imgdnn-metadata.json', 'utf-8', null).then((data) => {
-            imgdnn.Metadata._metadata = new imgdnn.Metadata(data);
-            return imgdnn.Metadata._metadata;
-        }).catch(() => {
-            imgdnn.Metadata._metadata = new imgdnn.Metadata(null);
-            return imgdnn.Metadata._metadata;
-        });
+    static open(/* context */) {
+        imgdnn.Metadata._metadata = imgdnn.Metadata._metadata || new imgdnn.Metadata(null);
+        return Promise.resolve(imgdnn.Metadata._metadata);
     }
 
     constructor(data) {
