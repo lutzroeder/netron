@@ -1273,7 +1273,11 @@
       { "name": "round_mode", "type": "RoundMode", "default": "FLOOR" },
       { "name": "global", "type": "boolean", "default": false },
       { "name": "channel_shared", "type": "boolean", "default": false },
-      { "name": "axes", "type": "int64[]", "default": 0 }
+      { "name": "axes", "type": "int64[]", "default": 0 },
+      { "name": "keep_dims", "type": "boolean", "default": false },
+      { "name": "reduce_mode", "type": "ReduceMode", "default": "ReduceMean" },
+      { "name": "reduce_to_end", "type": "boolean", "default": false },
+      { "name": "coeff", "type": "float32", "default": 0 }
     ]
   },
   {

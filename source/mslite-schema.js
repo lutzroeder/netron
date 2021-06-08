@@ -3786,6 +3786,10 @@ $root.mindspore.schema.GenOP = class GenOP {
         $.global = reader.bool_(position, 54, false);
         $.channel_shared = reader.bool_(position, 56, false);
         $.axes = reader.int64s_(position, 58);
+        $.keep_dims = reader.bool_(position, 60, false);
+        $.reduce_mode = reader.int8_(position, 62, 0);
+        $.reduce_to_end = reader.bool_(position, 64, false);
+        $.coeff = reader.float32_(position, 66, 0);
         return $;
     }
 
@@ -3819,6 +3823,10 @@ $root.mindspore.schema.GenOP = class GenOP {
         $.global = reader.value(json.global, false);
         $.channel_shared = reader.value(json.channel_shared, false);
         $.axes = reader.array(json.axes);
+        $.keep_dims = reader.value(json.keep_dims, false);
+        $.reduce_mode = $root.mindspore.schema.ReduceMode[json.reduce_mode];
+        $.reduce_to_end = reader.value(json.reduce_to_end, false);
+        $.coeff = reader.value(json.coeff, 0);
         return $;
     }
 };
@@ -4003,9 +4011,7 @@ $root.mindspore.schema.MetaGraph = class MetaGraph {
         $.allTensors = reader.tableArray(position, 18, $root.mindspore.schema.Tensor.decode);
         $.subGraph = reader.tableArray(position, 20, $root.mindspore.schema.SubGraph.decode);
         $.obfuscate = reader.bool_(position, 22, false);
-        $.encrypt = reader.bool_(position, 24, false);
-        $.obfMetaData = reader.typedArray(position, 26, Uint8Array);
-        $.decryptTable = reader.typedArray(position, 28, Uint8Array);
+        $.obfMetaData = reader.typedArray(position, 24, Uint8Array);
         return $;
     }
 
@@ -4021,9 +4027,7 @@ $root.mindspore.schema.MetaGraph = class MetaGraph {
         $.allTensors = reader.objectArray(json.allTensors, $root.mindspore.schema.Tensor.decodeText);
         $.subGraph = reader.objectArray(json.subGraph, $root.mindspore.schema.SubGraph.decodeText);
         $.obfuscate = reader.value(json.obfuscate, false);
-        $.encrypt = reader.value(json.encrypt, false);
         $.obfMetaData = reader.typedArray(json.obfMetaData, Uint8Array);
-        $.decryptTable = reader.typedArray(json.decryptTable, Uint8Array);
         return $;
     }
 };
