@@ -1432,7 +1432,7 @@ view.ModelFactoryService = class {
         this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl' ]);
         this.register('./mxnet', [ '.json', '.params' ]);
-        this.register('./coreml', [ '.mlmodel' ]);
+        this.register('./coreml', [ '.mlmodel', '.mlpackage', '.mlpackage.zip' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7' ]);
@@ -1522,7 +1522,8 @@ view.ModelFactoryService = class {
             'models.json',
             'LICENSE.meta',
             'input_0.pb',
-            'output_0.pb'
+            'output_0.pb',
+            'Metadata.json'
         ]);
         const skip = knownUnsupportedIdentifiers.has(identifier);
         const encodings = [

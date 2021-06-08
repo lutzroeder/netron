@@ -5,20 +5,34 @@ var protobuf = protobuf || require('./protobuf');
 
 coreml.ModelFactory = class {
 
-    match(context) {
-        const tags = context.tags('pb');
-        if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return true;
+    _extractMLModelFromPackage(context) {
+        const mlmodels = context.entries('zip')
+            .filter(entry => !entry.name.startsWith('__MACOSX'))
+            .filter(entry => entry.name.endsWith('.mlmodel'));
+        if (mlmodels.length > 0) {
+            return mlmodels[0];
+        } else {
+            return null;
+        }
+    }
+
+    _isMLPackage(context) {
+        // match .mlpackage format -- the folder-like structure is interpreted as .mlpackage.zip
+        if (context.identifier.endsWith('.mlpackage.zip')) {
+             // make sure entries contains a .mlmodel file
+             if (this._extractMLModelFromPackage(context) != null) {
+                 return true;
+             }
         }
         return false;
     }
 
-    open(context) {
+    _openStream(context, stream) {
         return context.require('./coreml-proto').then(() => {
             let decodedBuffer = null;
             try {
                 coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                const reader = protobuf.Reader.create(context.stream.peek());
+                const reader = protobuf.Reader.create(stream.peek());
                 decodedBuffer = coreml.proto.Model.decode(reader);
             }
             catch (error) {
@@ -29,6 +43,30 @@ coreml.ModelFactory = class {
                 return new coreml.Model(metadata, decodedBuffer);
             });
         });
+    }
+
+    match(context) {
+        if (this._isMLPackage(context)) {
+            return true;
+        }
+
+        // match .mlmodel format
+        const tags = context.tags('pb');
+        if (tags.get(1) === 0 && tags.get(2) === 2) {
+            return true;
+        }
+        return false;
+    }
+
+    open(context) {
+        // if it matches mlpackage, pass on the .mlmodel from inside the mlpackage
+        if (this._isMLPackage(context)) {
+            const mlmodel = this._extractMLModelFromPackage(context);
+            return this._openStream(context, mlmodel.stream);
+        } else {
+            // otherwise, assume plain mlmodel
+            return this._openStream(context, context.stream);
+        }
     }
 };
 
@@ -441,11 +479,159 @@ coreml.Graph = class {
                     [ model.description.output[0].name ]);
                 return 'customModel';
             }
+            case 'mlProgram': {
+                return this._loadMLProgram(model.mlProgram, scope, group);
+            }
         }
         throw new coreml.Error("Unknown model type '" + JSON.stringify(Object.keys(model)) + "'.");
     }
 
-    _createNode(scope, group, type, name, description, data, inputs, outputs) {
+    static _formatMILOpType(opName) {
+        switch (opName) {
+            case 'conv':
+                return 'convolution';
+            case 'avg_pool':
+                return 'pooling';
+            case 'relu6':
+                return 'activation';
+            default:
+                return opName;
+        }
+    }
+
+    static _formatMILDataType(dataType) {
+        const dataTypes = protobuf.get('coreml').CoreML.Specification.MILSpec.DataType;
+        for (const key of Object.keys(dataTypes)) {
+            if (dataTypes[key] == dataType) {
+                return key.toLowerCase();
+            }
+        }
+        console.assert(false, 'did not find data type matching identifier ' + dataType);
+        return '';
+    }
+
+    static _buildMILEdgeGraph(block) {
+        // edges of the graph, represented as {producers: [], consumers: []}
+        let graph = {};
+
+        // first, build the graph structure
+        for (const op of block.operations) {
+            op.inputNames = op.inputs ? Object.entries(op.inputs).map((kv) => {
+                const value = kv[1];
+                return value.arguments.map((arg) => arg.name);
+            }).flat() : [];
+            op.outputNames = op.outputs ? op.outputs.map((o) => o.name) : [];
+            op.outputTypes = op.outputs ? op.outputs.map((o) => {
+                const tensorType = o.type.listType ?
+                  o.type.listType.type.tensorType :
+                  o.type.tensorType;
+                return new coreml.TensorType(
+                    coreml.Graph._formatMILDataType(tensorType.dataType),
+                    new coreml.TensorShape(tensorType.dimensions.map(dim => {
+                        return dim.constant ? dim.constant.size : "?";
+                    }))
+                );
+            }) : [];
+
+            // construct graph of edges from inputs and outputs
+            for (const name of op.inputNames) {
+                // initialize empty if needed
+                graph[name] = graph[name] || {producers:[], consumers:[]};
+                graph[name].consumers.push(op);
+            }
+            for (const name of op.outputNames) {
+                // initialize empty if needed
+                graph[name] = graph[name] || {producers:[], consumers:[]};
+                graph[name].producers.push(op);
+            }
+        }
+
+        return graph;
+    }
+
+    static _foldMILConstOps(graph) {
+        for (const name in graph) {
+            let producedByConst = false;
+            let constValues = null;
+            for (const op of graph[name].producers) {
+                if (op.type == "const") {
+                    producedByConst = true;
+                    if (!op.attributes.val.blobFileValue) {
+                        // extract const values into the consumers
+                        let tensor = op.attributes.val.immediateValue.tensor;
+                        if (tensor.ints) {
+                            constValues = tensor.ints.values;
+                        } else if (tensor.strings) {
+                            constValues = tensor.strings.values;
+                        } else if (tensor.bools) {
+                            constValues = tensor.bools.values;
+                        } else if (tensor.floats) {
+                            constValues = tensor.floats.values;
+                        }
+                        console.assert(constValues != null, 'expected to find const values in tensor');
+                       
+                        for (const consumingOp of graph[name].consumers) {
+                            // prefer human-readable names like "perm" over "transpose_6106_perm_0"
+                            Object.keys(consumingOp.inputs).forEach((key) => {
+                                if (consumingOp.inputs[key].arguments[0].name == name) {
+                                    consumingOp.graphAttributes = consumingOp.graphAttributes || {};
+                                    consumingOp.graphAttributes[key] = constValues;
+
+                                    // remove from inputs since we are putting it in attributes
+                                    delete consumingOp.inputs[key];
+                                    consumingOp.inputNames = consumingOp.inputNames.filter(val => val != name);
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            // remove all const ops even if we don't unfold them above
+            // TODO: make sure we unfold them all
+            // if (constValues) {
+            if (producedByConst) {
+                // remove the const op entirely
+                console.assert(graph[name].producers.length == 1);
+                graph[name].producers = [];
+                graph[name].consumers = [];
+            }
+        }
+    }
+
+    _loadMLProgram(mlProgram, scope, group) {
+        // TODO: need to handle functions other than main?
+        const main = mlProgram.functions.main;
+        // TODO: need to handle more than one block specialization?
+        const block = main.block_specializations.CoreML5;
+
+        // get edges of the graph, represented as {producers: [], consumers: []}
+        let graph = coreml.Graph._buildMILEdgeGraph(block);
+
+        // then, elide the "const" ops
+        coreml.Graph._foldMILConstOps(graph);
+          
+        // create nodes out of the updated graph structure
+        for (const name in graph) {
+            for (const op of graph[name].producers) {
+                if (!op._createdNode) {
+                    const opType = coreml.Graph._formatMILOpType(op.type);
+                    this._createNode(scope, group, opType, op.type, null, op.graphAttributes, op.inputNames, op.outputNames, op.outputTypes, true /* isMILOp */);
+                    op._createdNode = true;
+                }
+            }
+            for (const op of graph[name].consumers) {
+                if (!op._createdNode) {
+                    const opType = coreml.Graph._formatMILOpType(op.type);
+                    this._createNode(scope, group, opType, op.type, null, op.graphAttributes, op.inputNames, op.outputNames, op.outputTypes, true /* isMILOp */);
+                    op._createdNode = true;
+                }
+            }
+        }
+
+        return 'ML Program';
+    }
+
+    _createNode(scope, group, type, name, description, data, inputs, outputs, outputTypes, isMILop) {
         inputs = inputs.map((input) => scope[input] ? scope[input].argument : input);
         outputs = outputs.map((output) => {
             if (scope[output]) {
@@ -461,7 +647,7 @@ coreml.Graph = class {
             return output;
         });
 
-        const node = new coreml.Node(this._metadata, group, type, name, description, data, inputs, outputs);
+        const node = new coreml.Node(this._metadata, group, type, name, description, data, inputs, outputs, outputTypes, isMILop);
         this._nodes.push(node);
         return node;
     }
@@ -589,7 +775,7 @@ coreml.Argument = class {
 
 coreml.Node = class {
 
-    constructor(metadata, group, type, name, description, data, inputs, outputs) {
+    constructor(metadata, group, type, name, description, data, inputs, outputs, outputTypes, isMILop) {
         this._metadata = metadata;
         if (group) {
             this._group = group;
@@ -603,7 +789,8 @@ coreml.Node = class {
         this._attributes = [];
         const initializers = [];
         if (data) {
-            const initializerMap = this._initialize(data, initializers);
+            // skip _initialize for MIL ops (they use layer-agnostic attribute storage)
+            const initializerMap = isMILop ? {} : this._initialize(data, initializers);
             for (const key of Object.keys(data)) {
                 if (!initializerMap[key]) {
                     const schema = metadata.attribute(this.type, key);
@@ -619,7 +806,8 @@ coreml.Node = class {
         this._inputs.push(...initializers);
         this._outputs = outputs.map((output, index) => {
             const name = this._metadata.getOutputName(this._type, index);
-            return new coreml.Parameter(name, true, [ new coreml.Argument(output, null, null, null) ]);
+            const outputType = outputTypes ? outputTypes[index] : null;
+            return new coreml.Parameter(name, true, [ new coreml.Argument(output, outputType, null, null) ]);
         });
     }
 

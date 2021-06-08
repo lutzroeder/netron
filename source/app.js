@@ -152,7 +152,7 @@ class Application {
                 { name: 'All Model Files',  extensions: [
                     'onnx', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
-                    'mlmodel',
+                    'mlmodel', 'mlpackage',
                     'caffemodel',
                     'model', 'dnn', 'cmf', 'mar', 'params',
                     'pdmodel', 'pdparams',

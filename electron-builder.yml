@@ -27,6 +27,8 @@ fileAssociations:
     ext: meta
   - name: "Core ML Model"
     ext: mlmodel
+  - name: "Core ML Model Package"
+    ext: mlpackage
   - name: "MNN Model"
     ext: mnn
   - name: "Model"
