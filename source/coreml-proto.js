@@ -236,7 +236,7 @@ $root.CoreML.Specification.Model = class Model {
     }
 
     get Type() {
-        $root.CoreML.Specification.Model.TypeSet = $root.CoreML.Specification.Model.TypeSet || new Set([ "pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding", "serializedModel"]);
+        $root.CoreML.Specification.Model.TypeSet = $root.CoreML.Specification.Model.TypeSet || new Set([ "pipelineClassifier", "pipelineRegressor", "pipeline", "glmRegressor", "supportVectorRegressor", "treeEnsembleRegressor", "neuralNetworkRegressor", "bayesianProbitRegressor", "glmClassifier", "supportVectorClassifier", "treeEnsembleClassifier", "neuralNetworkClassifier", "kNearestNeighborsClassifier", "neuralNetwork", "itemSimilarityRecommender", "mlProgram", "customModel", "linkedModel", "oneHotEncoder", "imputer", "featureVectorizer", "dictVectorizer", "scaler", "categoricalMapping", "normalizer", "arrayFeatureExtractor", "nonMaximumSuppression", "identity", "textClassifier", "wordTagger", "visionFeaturePrint", "soundAnalysisPreprocessing", "gazetteer", "wordEmbedding", "audioFeaturePrint", "serializedModel"]);
         return Object.keys(this).find((key) => $root.CoreML.Specification.Model.TypeSet.has(key) && this[key] != null);
     }
 
@@ -300,6 +300,9 @@ $root.CoreML.Specification.Model = class Model {
                 case 501:
                     message.itemSimilarityRecommender = $root.CoreML.Specification.ItemSimilarityRecommender.decode(reader, reader.uint32());
                     break;
+                case 502:
+                    message.mlProgram = $root.CoreML.Specification.MILSpec.Program.decode(reader, reader.uint32());
+                    break;
                 case 555:
                     message.customModel = $root.CoreML.Specification.CustomModel.decode(reader, reader.uint32());
                     break;
@@ -353,6 +356,9 @@ $root.CoreML.Specification.Model = class Model {
                     break;
                 case 2005:
                     message.wordEmbedding = $root.CoreML.Specification.CoreMLModels.WordEmbedding.decode(reader, reader.uint32());
+                    break;
+                case 2006:
+                    message.audioFeaturePrint = $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.decode(reader, reader.uint32());
                     break;
                 case 3000:
                     message.serializedModel = $root.CoreML.Specification.SerializedModel.decode(reader, reader.uint32());
@@ -465,6 +471,64 @@ $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.prototype.ver
 $root.CoreML.Specification.CoreMLModels.VisionFeaturePrint.Objects.ObjectsVersion = {
     "OBJECTS_VERSION_INVALID": 0,
     "OBJECTS_VERSION_1": 1
+};
+
+$root.CoreML.Specification.CoreMLModels.AudioFeaturePrint = class AudioFeaturePrint {
+
+    constructor() {
+    }
+
+    get AudioFeaturePrintType() {
+        $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet = $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet || new Set([ "sound"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.AudioFeaturePrintTypeSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 20:
+                    message.sound = $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound = class Sound {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.version = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound.prototype.version = 0;
+
+$root.CoreML.Specification.CoreMLModels.AudioFeaturePrint.Sound.SoundVersion = {
+    "SOUND_VERSION_INVALID": 0,
+    "SOUND_VERSION_1": 1
 };
 
 $root.CoreML.Specification.CoreMLModels.TextClassifier = class TextClassifier {
@@ -2370,6 +2434,919 @@ $root.CoreML.Specification.Imputer = class Imputer {
         return message;
     }
 };
+
+$root.CoreML.Specification.MILSpec = {};
+
+$root.CoreML.Specification.MILSpec.Program = class Program {
+
+    constructor() {
+        this.functions = {};
+        this.attributes = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Program();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.version = reader.int64();
+                    break;
+                case 2:
+                    reader.entry(message.functions, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Function.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.docString = reader.string();
+                    break;
+                case 4:
+                    reader.entry(message.attributes, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Program.prototype.version = protobuf.Int64.create(0);
+$root.CoreML.Specification.MILSpec.Program.prototype.docString = "";
+
+$root.CoreML.Specification.MILSpec.Function = class Function {
+
+    constructor() {
+        this.inputs = [];
+        this.block_specializations = {};
+        this.attributes = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Function();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.inputs.push($root.CoreML.Specification.MILSpec.NamedValueType.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.opset = reader.string();
+                    break;
+                case 3:
+                    reader.entry(message.block_specializations, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Block.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    reader.entry(message.attributes, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Function.prototype.opset = "";
+
+$root.CoreML.Specification.MILSpec.Block = class Block {
+
+    constructor() {
+        this.inputs = [];
+        this.outputs = [];
+        this.operations = [];
+        this.attributes = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Block();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.inputs.push($root.CoreML.Specification.MILSpec.NamedValueType.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.outputs.push(reader.string());
+                    break;
+                case 3:
+                    message.operations.push($root.CoreML.Specification.MILSpec.Operation.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    reader.entry(message.attributes, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Argument = class Argument {
+
+    constructor() {
+        this["arguments"] = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Argument();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message["arguments"].push($root.CoreML.Specification.MILSpec.Argument.Binding.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Argument.Binding = class Binding {
+
+    constructor() {
+    }
+
+    get binding() {
+        $root.CoreML.Specification.MILSpec.Argument.Binding.bindingSet = $root.CoreML.Specification.MILSpec.Argument.Binding.bindingSet || new Set([ "name", "value"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.Argument.Binding.bindingSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Argument.Binding();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.value = $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Operation = class Operation {
+
+    constructor() {
+        this.inputs = {};
+        this.outputs = [];
+        this.blocks = [];
+        this.attributes = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Operation();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type = reader.string();
+                    break;
+                case 2:
+                    reader.entry(message.inputs, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Argument.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.outputs.push($root.CoreML.Specification.MILSpec.NamedValueType.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    message.blocks.push($root.CoreML.Specification.MILSpec.Block.decode(reader, reader.uint32()));
+                    break;
+                case 5:
+                    reader.entry(message.attributes, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Operation.prototype.type = "";
+
+$root.CoreML.Specification.MILSpec.NamedValueType = class NamedValueType {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.NamedValueType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.type = $root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.NamedValueType.prototype.name = "";
+$root.CoreML.Specification.MILSpec.NamedValueType.prototype.type = null;
+
+$root.CoreML.Specification.MILSpec.ValueType = class ValueType {
+
+    constructor() {
+    }
+
+    get type() {
+        $root.CoreML.Specification.MILSpec.ValueType.typeSet = $root.CoreML.Specification.MILSpec.ValueType.typeSet || new Set([ "tensorType", "listType", "tupleType", "dictionaryType"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.ValueType.typeSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.ValueType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.tensorType = $root.CoreML.Specification.MILSpec.TensorType.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.listType = $root.CoreML.Specification.MILSpec.ListType.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.tupleType = $root.CoreML.Specification.MILSpec.TupleType.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.dictionaryType = $root.CoreML.Specification.MILSpec.DictionaryType.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.DataType = {
+    "UNUSED_TYPE": 0,
+    "BOOL": 1,
+    "STRING": 2,
+    "FLOAT16": 10,
+    "FLOAT32": 11,
+    "FLOAT64": 12,
+    "INT8": 21,
+    "INT16": 22,
+    "INT32": 23,
+    "INT64": 24,
+    "UINT8": 31,
+    "UINT16": 32,
+    "UINT32": 33,
+    "UINT64": 34
+};
+
+$root.CoreML.Specification.MILSpec.TensorType = class TensorType {
+
+    constructor() {
+        this.dimensions = [];
+        this.attributes = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.dataType = reader.int32();
+                    break;
+                case 2:
+                    message.rank = reader.int64();
+                    break;
+                case 3:
+                    message.dimensions.push($root.CoreML.Specification.MILSpec.Dimension.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    reader.entry(message.attributes, () => reader.string(), () => $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorType.prototype.dataType = 0;
+$root.CoreML.Specification.MILSpec.TensorType.prototype.rank = protobuf.Int64.create(0);
+
+$root.CoreML.Specification.MILSpec.TupleType = class TupleType {
+
+    constructor() {
+        this.types = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TupleType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.types.push($root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.ListType = class ListType {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.ListType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type = $root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.length = $root.CoreML.Specification.MILSpec.Dimension.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.ListType.prototype.type = null;
+$root.CoreML.Specification.MILSpec.ListType.prototype.length = null;
+
+$root.CoreML.Specification.MILSpec.DictionaryType = class DictionaryType {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.DictionaryType();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.keyType = $root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.valueType = $root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.DictionaryType.prototype.keyType = null;
+$root.CoreML.Specification.MILSpec.DictionaryType.prototype.valueType = null;
+
+$root.CoreML.Specification.MILSpec.Dimension = class Dimension {
+
+    constructor() {
+    }
+
+    get dimension() {
+        $root.CoreML.Specification.MILSpec.Dimension.dimensionSet = $root.CoreML.Specification.MILSpec.Dimension.dimensionSet || new Set([ "constant", "unknown"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.Dimension.dimensionSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Dimension();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.constant = $root.CoreML.Specification.MILSpec.Dimension.ConstantDimension.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.unknown = $root.CoreML.Specification.MILSpec.Dimension.UnknownDimension.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Dimension.ConstantDimension = class ConstantDimension {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Dimension.ConstantDimension();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.size = reader.uint64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Dimension.ConstantDimension.prototype.size = protobuf.Uint64.create(0);
+
+$root.CoreML.Specification.MILSpec.Dimension.UnknownDimension = class UnknownDimension {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Dimension.UnknownDimension();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.variadic = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Dimension.UnknownDimension.prototype.variadic = false;
+
+$root.CoreML.Specification.MILSpec.Value = class Value {
+
+    constructor() {
+    }
+
+    get value() {
+        $root.CoreML.Specification.MILSpec.Value.valueSet = $root.CoreML.Specification.MILSpec.Value.valueSet || new Set([ "immediateValue", "blobFileValue"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.Value.valueSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Value();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.docString = reader.string();
+                    break;
+                case 2:
+                    message.type = $root.CoreML.Specification.MILSpec.ValueType.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.immediateValue = $root.CoreML.Specification.MILSpec.Value.ImmediateValue.decode(reader, reader.uint32());
+                    break;
+                case 5:
+                    message.blobFileValue = $root.CoreML.Specification.MILSpec.Value.BlobFileValue.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Value.prototype.docString = "";
+$root.CoreML.Specification.MILSpec.Value.prototype.type = null;
+
+$root.CoreML.Specification.MILSpec.Value.ImmediateValue = class ImmediateValue {
+
+    constructor() {
+    }
+
+    get value() {
+        $root.CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet = $root.CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet || new Set([ "tensor", "tuple", "list", "dictionary"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.Value.ImmediateValue.valueSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Value.ImmediateValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.tensor = $root.CoreML.Specification.MILSpec.TensorValue.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.tuple = $root.CoreML.Specification.MILSpec.TupleValue.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.list = $root.CoreML.Specification.MILSpec.ListValue.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.dictionary = $root.CoreML.Specification.MILSpec.DictionaryValue.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Value.BlobFileValue = class BlobFileValue {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.Value.BlobFileValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.fileName = reader.string();
+                    break;
+                case 2:
+                    message.offset = reader.uint64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.fileName = "";
+$root.CoreML.Specification.MILSpec.Value.BlobFileValue.prototype.offset = protobuf.Uint64.create(0);
+
+$root.CoreML.Specification.MILSpec.TensorValue = class TensorValue {
+
+    constructor() {
+    }
+
+    get value() {
+        $root.CoreML.Specification.MILSpec.TensorValue.valueSet = $root.CoreML.Specification.MILSpec.TensorValue.valueSet || new Set([ "floats", "ints", "bools", "strings", "longInts", "doubles", "bytes"]);
+        return Object.keys(this).find((key) => $root.CoreML.Specification.MILSpec.TensorValue.valueSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.floats = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedFloats.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.ints = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedInts.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.bools = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedBools.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.strings = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedStrings.decode(reader, reader.uint32());
+                    break;
+                case 5:
+                    message.longInts = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedLongInts.decode(reader, reader.uint32());
+                    break;
+                case 6:
+                    message.doubles = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedDoubles.decode(reader, reader.uint32());
+                    break;
+                case 7:
+                    message.bytes = $root.CoreML.Specification.MILSpec.TensorValue.RepeatedBytes.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedFloats = class RepeatedFloats {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedFloats();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.floats(message.values, tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedDoubles = class RepeatedDoubles {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedDoubles();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.doubles(message.values, tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedInts = class RepeatedInts {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedInts();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.array(message.values, () => reader.int32(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedLongInts = class RepeatedLongInts {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedLongInts();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.array(message.values, () => reader.int64(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedBools = class RepeatedBools {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedBools();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.array(message.values, () => reader.bool(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedStrings = class RepeatedStrings {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedStrings();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values.push(reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedBytes = class RepeatedBytes {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TensorValue.RepeatedBytes();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values = reader.bytes();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.TensorValue.RepeatedBytes.prototype.values = new Uint8Array([]);
+
+$root.CoreML.Specification.MILSpec.TupleValue = class TupleValue {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.TupleValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values.push($root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.ListValue = class ListValue {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.ListValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values.push($root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.DictionaryValue = class DictionaryValue {
+
+    constructor() {
+        this.values = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.DictionaryValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.values.push($root.CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair = class KeyValuePair {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.key = $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.value = $root.CoreML.Specification.MILSpec.Value.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair.prototype.key = null;
+$root.CoreML.Specification.MILSpec.DictionaryValue.KeyValuePair.prototype.value = null;
 
 $root.CoreML.Specification.NeuralNetworkMultiArrayShapeMapping = {
     "RANK5_ARRAY_MAPPING": 0,
