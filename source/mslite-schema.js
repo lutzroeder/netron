@@ -3734,7 +3734,7 @@ $root.mindspore.schema.SplitWithOverlap = class SplitWithOverlap {
         $.extend_top = reader.int64s_(position, 8);
         $.extend_bottom = reader.int64s_(position, 10);
         $.split_dim = reader.int64_(position, 12, 0);
-        $.stride = reader.int64_(position, 14, 0);
+        $.split_stride = reader.int64_(position, 14, 0);
         $.pad_top = reader.int64_(position, 16, 0);
         $.trans_format = reader.bool_(position, 18, false);
         return $;
@@ -3747,7 +3747,7 @@ $root.mindspore.schema.SplitWithOverlap = class SplitWithOverlap {
         $.extend_top = reader.array(json.extend_top);
         $.extend_bottom = reader.array(json.extend_bottom);
         $.split_dim = reader.value(json.split_dim, 0);
-        $.stride = reader.value(json.stride, 0);
+        $.split_stride = reader.value(json.split_stride, 0);
         $.pad_top = reader.value(json.pad_top, 0);
         $.trans_format = reader.value(json.trans_format, false);
         return $;
