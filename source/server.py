@@ -161,10 +161,17 @@ def _add_thread(thread):
     global _thread_list
     _thread_list.append(thread)
 
-def _update_thread_list():
+def _update_thread_list(address=None):
     global _thread_list
     _thread_list = [ thread for thread in _thread_list if thread.alive() ]
-    return _thread_list
+    threads = _thread_list
+    if address is not None:
+        address = _make_address(address)
+        if address[1] is None:
+            threads = [ thread for thread in threads if address[0] == thread.address[0] ]
+        else:
+            threads = [ thread for thread in threads if address[0] == thread.address[0] and address[1] == thread.address[1] ]
+    return threads
 
 def _make_address(address):
     if address is None or isinstance(address, int):
@@ -212,16 +219,19 @@ def stop(address=None):
     Args:
         address (tuple, optional): A (host, port) tuple, or a port number.
     '''
-    threads = _update_thread_list()
-    if address is not None:
-        address = _make_address(address)
-        if address[1] is None:
-            threads = [ thread for thread in threads if address[0] == thread.address[0] ]
-        else:
-            threads = [ thread for thread in threads if address[0] == thread.address[0] and address[1] == thread.address[1] ]
+    threads = _update_thread_list(address)
     for thread in threads:
         thread.stop()
     _update_thread_list()
+
+def status(adrress=None):
+    '''Is model served at address.
+
+    Args:
+        address (tuple, optional): A (host, port) tuple, or a port number.
+    '''
+    threads = _update_thread_list(adrress)
+    return len(threads) > 0
 
 def wait():
     '''Wait for console exit and stop all model servers.'''

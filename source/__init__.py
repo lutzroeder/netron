@@ -5,6 +5,7 @@ import os
 
 from .server import start
 from .server import stop
+from .server import status
 from .server import wait
 from .server import serve
 from .__version__ import __version__
