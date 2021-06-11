@@ -479,7 +479,7 @@
   },
   {
     "name": "Pad",
-    "category": "Layer",
+    "category": "Tensor",
     "attributes": [
       { "name": "pad_n_0", "type": "int32", "default": -1 },
       { "name": "pad_n_1", "type": "int32", "default": -1 },
