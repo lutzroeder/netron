@@ -18,7 +18,7 @@ flatc.Object = class {
     resolve() {
         if (!this.resolved) {
             for (const key of this.metadata.keys()) {
-                if (key !== 'force_align' && key !== 'deprecated') {
+                if (key !== 'force_align' && key !== 'deprecated' && key !== 'key') {
                     throw new flatc.Error("Unsupported attribute '" + key + "'.");
                 }
             }
