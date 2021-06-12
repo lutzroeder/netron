@@ -56,7 +56,7 @@ host.ElectronHost = class {
     initialize(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
-            this._openFile(data.file);
+            this._openFile(data.path);
         });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
@@ -188,9 +188,9 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
-            const files = Array.from(e.dataTransfer.files).map(((file) => file.path));
-            if (files.length > 0) {
-                electron.ipcRenderer.send('drop-files', { files: files });
+            const paths = Array.from(e.dataTransfer.files).map(((file) => file.path));
+            if (paths.length > 0) {
+                electron.ipcRenderer.send('drop-paths', { paths: paths });
             }
             return false;
         });
