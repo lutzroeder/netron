@@ -415,5 +415,51 @@
       { "name": "locations" },
       { "name": "lengths" }
     ]
+  },
+  {
+    "name": "program:conv",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "program:linear",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "program:pad",
+    "category": "Tensor"
+  },
+  {
+    "name": "program:transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "program:sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "program:softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "program:relu",
+    "category": "Activation"
+  },
+  {
+    "name": "program:relu6",
+    "category": "Activation"
+  },
+  {
+    "name": "program:reshape",
+    "category": "Shape"
   }
 ]

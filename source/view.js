@@ -1228,7 +1228,8 @@ view.ModelContext = class {
                 case 'json': {
                     try {
                         reset = true;
-                        const reader = json.TextReader.create(this.stream.peek());
+                        const buffer = this.stream.peek();
+                        const reader = json.TextReader.create(buffer);
                         const obj = reader.read();
                         this._content.set(type, obj);
                     }
@@ -1378,9 +1379,7 @@ view.ArchiveContext = class {
             for (const entry of entries) {
                 if (entry.name.startsWith(rootFolder)) {
                     const name = entry.name.substring(rootFolder.length);
-                    if (name.length > 0 && (name.indexOf('/') === -1 || name.startsWith('MAR-INF/'))) {
-                        this._entries[name] = entry;
-                    }
+                    this._entries[name] = entry;
                 }
             }
         }
@@ -1432,7 +1431,7 @@ view.ModelFactoryService = class {
         this.register('./pytorch', [ '.pt', '.pth', '.pt1', '.pyt', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl' ]);
         this.register('./mxnet', [ '.json', '.params' ]);
-        this.register('./coreml', [ '.mlmodel' ]);
+        this.register('./coreml', [ '.mlmodel', 'manifest.json', 'metadata.json', 'featuredescriptions.json' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7' ]);
