@@ -1174,11 +1174,11 @@ sidebar.FindSidebar = class {
                 for (const argument of input.arguments) {
                     if (argument.name && !edges.has(argument.name)) {
                         const match = (argument, term) => {
-                            if (argument.name.toLowerCase().indexOf(term) !== -1) {
+                            if (argument.name && argument.name.toLowerCase().indexOf(term) !== -1) {
                                 return true;
                             }
                             if (argument.type) {
-                                if (term === argument.type.dataType.toLowerCase()) {
+                                if (argument.type.dataType && term === argument.type.dataType.toLowerCase()) {
                                     return true;
                                 }
                                 if (argument.type.shape) {
