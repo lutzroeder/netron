@@ -6,7 +6,8 @@ $root.MNN.NetSource = {
     CAFFE: 0,
     TENSORFLOW: 1,
     TFLITE: 2,
-    ONNX: 3
+    ONNX: 3,
+    TORCH: 4
 };
 
 $root.MNN.DataType = {
@@ -147,6 +148,21 @@ $root.MNN.Convolution3DCommon = class Convolution3DCommon {
     }
 };
 
+$root.MNN.SparseAlgo = {
+    RANDOM: 0,
+    SIMD_OC: 1
+};
+
+$root.MNN.SparseCommon = class SparseCommon {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.SparseCommon();
+        $.method = reader.int8_(position, 4, 0);
+        $.args = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
+        return $;
+    }
+};
+
 $root.MNN.IDSTQuan = class IDSTQuan {
 
     static decode(reader, position) {
@@ -199,6 +215,7 @@ $root.MNN.Convolution2D = class Convolution2D {
         $.bias = reader.typedArray(position, 8, Float32Array);
         $.quanParameter = reader.table(position, 10, $root.MNN.IDSTQuan.decode);
         $.symmetricQuan = reader.table(position, 12, $root.MNN.QuantizedFloatParam.decode);
+        $.sparseParameter = reader.table(position, 14, $root.MNN.SparseCommon.decode);
         return $;
     }
 };
@@ -786,7 +803,8 @@ $root.MNN.UnaryOpOperation = {
     EXPM1: 28,
     SIGMOID: 29,
     TANH: 30,
-    HARDSWISH: 31
+    HARDSWISH: 31,
+    GELU: 32
 };
 
 $root.MNN.UnaryOp = class UnaryOp {
@@ -1326,77 +1344,12 @@ $root.MNN.TfQuantizedConv2D = class TfQuantizedConv2D {
     }
 };
 
-$root.MNN.STORAGE_TYPE = {
-    BUFFER: 0,
-    UNIFORM: 1,
-    IMAGE: 2
-};
-
-$root.MNN.ACCESS_TYPE = {
-    READ_ONLY: 0,
-    WRITE_ONLY: 1,
-    READ_WRITE: 2
-};
-
-$root.MNN.GpuBuffer = class GpuBuffer {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuBuffer();
-        $.access = reader.int8_(position, 4, 0);
-        $.storage = reader.int8_(position, 6, 0);
-        $.content = reader.table(position, 8, $root.MNN.Blob.decode);
-        return $;
-    }
-};
-
-$root.MNN.GpuPipeline = class GpuPipeline {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuPipeline();
-        $.localSize = reader.typedArray(position, 4, Int32Array);
-        $.key = reader.string_(position, 6, null);
-        $.metal = reader.typedArray(position, 8, Int8Array);
-        $.vulkan = reader.typedArray(position, 10, Int8Array);
-        $.openglComputeShader = reader.string_(position, 12, null);
-        $.openclKernel = reader.string_(position, 14, null);
-        return $;
-    }
-};
-
-$root.MNN.GpuStage = class GpuStage {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuStage();
-        $.pipeline = reader.string_(position, 4, null);
-        $.groupSize = reader.typedArray(position, 6, Int32Array);
-        $.inputIndexes = reader.typedArray(position, 8, Int32Array);
-        $.outputIndexes = reader.typedArray(position, 10, Int32Array);
-        $.middleBuffer = reader.tableArray(position, 12, $root.MNN.GpuBuffer.decode);
-        $.constBuffer = reader.tableArray(position, 14, $root.MNN.GpuBuffer.decode);
-        $.globalSizeIndex = reader.int32_(position, 16, 0);
-        $.globalSizeDivide = reader.typedArray(position, 18, Int32Array);
-        $.requireSize = reader.bool_(position, 20, false);
-        return $;
-    }
-};
-
-$root.MNN.GpuFunction = class GpuFunction {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuFunction();
-        $.stags = reader.tableArray(position, 4, $root.MNN.GpuStage.decode);
-        $.name = reader.string_(position, 6, null);
-        return $;
-    }
-};
-
 $root.MNN.GpuLibrary = class GpuLibrary {
 
     static decode(reader, position) {
         const $ = new $root.MNN.GpuLibrary();
-        $.functions = reader.tableArray(position, 4, $root.MNN.GpuFunction.decode);
-        $.pipeline = reader.tableArray(position, 6, $root.MNN.GpuPipeline.decode);
-        $.name = reader.string_(position, 8, null);
+        $.buffer = reader.typedArray(position, 4, Int8Array);
+        $.name = reader.string_(position, 6, null);
         return $;
     }
 };
@@ -1653,6 +1606,36 @@ $root.MNN.IfParam = class IfParam {
     }
 };
 
+$root.MNN.RegionCommand = class RegionCommand {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.RegionCommand();
+        $.op = reader.table(position, 4, $root.MNN.Op.decode);
+        $.steps = reader.typedArray(position, 6, Int32Array);
+        $.size = reader.typedArray(position, 8, Int32Array);
+        $.indexes = reader.typedArray(position, 10, Int32Array);
+        $.view = reader.tableArray(position, 12, $root.MNN.View.decode);
+        $.fuse = reader.int32_(position, 14, -1);
+        $.iterIndexes = reader.typedArray(position, 16, Int32Array);
+        return $;
+    }
+};
+
+$root.MNN.LoopParam = class LoopParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.LoopParam();
+        $.tensorNumber = reader.int32_(position, 4, 0);
+        $.outputIndexes = reader.typedArray(position, 6, Int32Array);
+        $.inputIndexes = reader.typedArray(position, 8, Int32Array);
+        $.midTensors = reader.tableArray(position, 10, $root.MNN.TensorDescribe.decode);
+        $.parallel = reader.bool_(position, 12, true);
+        $.loopNumber = reader.int32_(position, 14, 0);
+        $.commands = reader.tableArray(position, 16, $root.MNN.RegionCommand.decode);
+        return $;
+    }
+};
+
 $root.MNN.OpParameter = class {
 
     static decode(reader, position, type) {
@@ -1748,6 +1731,7 @@ $root.MNN.OpParameter = class {
             case 89: return $root.MNN.TensorArray.decode(reader, position);
             case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
             case 91: return $root.MNN.GridSample.decode(reader, position);
+            case 92: return $root.MNN.LoopParam.decode(reader, position);
         }
         return undefined;
     }
@@ -1845,6 +1829,7 @@ $root.MNN.OpParameter = class {
             case 'TensorArray': return $root.MNN.TensorArray.decodeText(reader, json);
             case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
             case 'GridSample': return $root.MNN.GridSample.decodeText(reader, json);
+            case 'LoopParam': return $root.MNN.LoopParam.decodeText(reader, json);
         }
         return undefined;
     }

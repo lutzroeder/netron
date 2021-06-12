@@ -32,7 +32,6 @@ mnn.ModelFactory = class {
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mnn.Error('File format is not mnn.Net (' + message.replace(/\.$/, '') + ').');
-
             }
             return mnn.Metadata.open(context).then((metadata) => {
                 return new mnn.Model(metadata, net);
@@ -44,11 +43,13 @@ mnn.ModelFactory = class {
 mnn.Model = class {
 
     constructor(metadata, net) {
+        const NetSource = mnn.schema.NetSource;
         switch (net.sourceType) {
-            case mnn.schema.NetSource.CAFFE: this._source = 'Caffe'; break;
-            case mnn.schema.NetSource.TENSORFLOW: this._source = 'TensorFlow'; break;
-            case mnn.schema.NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
-            case mnn.schema.NetSource.ONNX: this._source = 'ONNX'; break;
+            case NetSource.CAFFE: this._source = 'Caffe'; break;
+            case NetSource.TENSORFLOW: this._source = 'TensorFlow'; break;
+            case NetSource.TFLITE: this._source = 'TensorFlow Lite'; break;
+            case NetSource.ONNX: this._source = 'ONNX'; break;
+            case NetSource.TORCH: this._source = 'Torch'; break;
         }
         this._graphs = [ new mnn.Graph(metadata, net) ];
     }
