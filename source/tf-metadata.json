@@ -3658,12 +3658,12 @@
       {
         "name": "Ta",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
       },
       {
         "name": "Tb",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `uint8`, `int8`, `int16`, `int32`, `int64`, `complex64`, `complex128`."
       },
       {
         "name": "Tout",
@@ -11969,7 +11969,7 @@
       {
         "name": "out_type",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `int32`, `uint16`, `uint8`, `int16`, `int8`, `int64`."
+        "description": "Must be one of the following: `float16`, `float32`, `float64`, `int32`, `uint16`, `uint8`, `int16`, `int8`, `int64`, `bfloat16`."
       },
       {
         "name": "little_endian",
@@ -12101,7 +12101,7 @@
       {
         "name": "out_type",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `int32`, `uint16`, `uint8`, `int16`, `int8`, `int64`, `complex64`, `complex128`, `bool`."
+        "description": "Must be one of the following: `float16`, `float32`, `float64`, `int32`, `uint16`, `uint8`, `int16`, `int8`, `int64`, `complex64`, `complex128`, `bool`, `bfloat16`."
       },
       {
         "name": "little_endian",
@@ -17418,7 +17418,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `int32`, `int64`, `uint32`, `uint64`, `bfloat16`, `float16`, `float32`, `float64`."
+        "description": "Must be one of the following: `int8`, `int16`, `int32`, `int64`, `uint8`, `uint16`, `uint32`, `uint64`, `bfloat16`, `float16`, `float32`, `float64`."
       }
     ],
     "inputs": [
@@ -30938,7 +30938,7 @@
     "outputs": [
       {
         "name": "output",
-        "description": "= The unmodified `input` tensor",
+        "description": "The unmodified `input` tensor",
         "typeAttr": "T"
       }
     ]
@@ -39131,7 +39131,7 @@
   {
     "name": "ResourceApplyFtrlV2",
     "summary": "Update '*var' according to the Ftrl-proximal scheme.",
-    "description": "grad_with_shrinkage = grad + 2 * l2_shrinkage * var\naccum_new = accum + grad_with_shrinkage * grad_with_shrinkage\nlinear += grad_with_shrinkage +\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
+    "description": "accum_new = accum + grad * grad\ngrad_with_shrinkage = grad + 2 * l2_shrinkage * var\nlinear += grad_with_shrinkage +\n    (accum_new^(-lr_power) - accum^(-lr_power)) / lr * var\nquadratic = 1.0 / (accum_new^(lr_power) * lr) + 2 * l2\nvar = (sign(linear) * l1 - linear) / quadratic if |linear| > l1 else 0.0\naccum = accum_new",
     "attributes": [
       {
         "name": "T",
@@ -49842,7 +49842,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -49895,7 +49895,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -49953,7 +49953,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -50020,7 +50020,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -50073,7 +50073,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -50131,7 +50131,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
@@ -50251,7 +50251,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float32`, `float64`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`."
       },
       {
         "name": "Tidx",
