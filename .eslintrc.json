@@ -19,6 +19,7 @@
     },
     "globals": {
         "flatbuffers": "readonly",
-        "protobuf": "readonly"
+        "protobuf": "readonly",
+        "d3": "readonly"
     }
 }

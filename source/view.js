@@ -9,9 +9,6 @@ var tar = tar || require('./tar');
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
 var python = python || require('./python');
-
-var d3 = d3 || require('d3');
-
 var sidebar = sidebar || require('./view-sidebar');
 var grapher = grapher || require('./view-grapher');
 
