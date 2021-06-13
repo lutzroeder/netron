@@ -983,7 +983,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Used to specify the norm used in the penalization. The 'newton-cg',\n'sag' and 'lbfgs' solvers support only l2 penalties. 'elasticnet' is\nonly supported by the 'saga' solver. If 'none' (not supported by the\nliblinear solver), no regularization is applied.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
         "name": "penalty"
       },
       {
@@ -1029,7 +1029,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs', 'sag' and 'saga' handle L2 or no penalty\n- 'liblinear' and 'saga' also handle L1 penalty\n- 'saga' also supports 'elasticnet' penalty\n- 'liblinear' does not support setting ``penalty='none'``\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n`Table <https://scikit-learn.org/dev/modules/linear_model.html#logistic-regression>`_\nsummarazing solver/penalty supports.\n<!--\n# noqa: E501\n-->\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
         "name": "solver"
       },
       {
@@ -1196,7 +1196,7 @@
     "attributes": [
       {
         "default": "l2",
-        "description": "Used to specify the norm used in the penalization. The 'newton-cg',\n'sag' and 'lbfgs' solvers support only l2 penalties. 'elasticnet' is\nonly supported by the 'saga' solver. If 'none' (not supported by the\nliblinear solver), no regularization is applied.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
+        "description": "Specify the norm of the penalty:\n\n- `'none'`: no penalty is added;\n- `'l2'`: add a L2 penalty term and it is the default choice;\n- `'l1'`: add a L1 penalty term;\n- `'elasticnet'`: both L1 and L2 penalty terms are added.\n\n.. warning::\nSome penalties may not work with some solvers. See the parameter\n`solver` below, to know the compatibility between the penalty and\nsolver.\n\n.. versionadded:: 0.19\nl1 penalty with SAGA solver (allowing 'multinomial' + L1)\n",
         "name": "penalty",
         "option": "optional"
       },
@@ -1250,7 +1250,7 @@
       },
       {
         "default": "lbfgs",
-        "description": "\nAlgorithm to use in the optimization problem.\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag' and\n'saga' are faster for large ones.\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and 'lbfgs'\nhandle multinomial loss; 'liblinear' is limited to one-versus-rest\nschemes.\n- 'newton-cg', 'lbfgs', 'sag' and 'saga' handle L2 or no penalty\n- 'liblinear' and 'saga' also handle L1 penalty\n- 'saga' also supports 'elasticnet' penalty\n- 'liblinear' does not support setting ``penalty='none'``\n\nNote that 'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from sklearn.preprocessing.\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
+        "description": "\nAlgorithm to use in the optimization problem. Default is 'lbfgs'.\nTo choose a solver, you might want to consider the following aspects:\n\n- For small datasets, 'liblinear' is a good choice, whereas 'sag'\nand 'saga' are faster for large ones;\n- For multiclass problems, only 'newton-cg', 'sag', 'saga' and\n'lbfgs' handle multinomial loss;\n- 'liblinear' is limited to one-versus-rest schemes.\n\n.. warning::\nThe choice of the algorithm depends on the penalty chosen:\nSupported penalties by solver:\n\n- 'newton-cg'   -   ['l2', 'none']\n- 'lbfgs'       -   ['l2', 'none']\n- 'liblinear'   -   ['l1', 'l2']\n- 'sag'         -   ['l2', 'none']\n- 'saga'        -   ['elasticnet', 'l1', 'l2', 'none']\n\n.. note::\n'sag' and 'saga' fast convergence is only guaranteed on\nfeatures with approximately the same scale. You can\npreprocess the data with a scaler from :mod:`sklearn.preprocessing`.\n\n.. seealso::\nRefer to the User Guide for more information regarding\n:class:`LogisticRegression` and more specifically the\n`Table <https://scikit-learn.org/dev/modules/linear_model.html#logistic-regression>`_\nsummarazing solver/penalty supports.\n<!--\n# noqa: E501\n-->\n\n.. versionadded:: 0.17\nStochastic Average Gradient descent solver.\n.. versionadded:: 0.19\nSAGA solver.\n.. versionchanged:: 0.22\nThe default solver changed from 'liblinear' to 'lbfgs' in 0.22.\n",
         "name": "solver",
         "option": "optional"
       },
