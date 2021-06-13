@@ -52,11 +52,12 @@ npz.ModelFactory = class {
                 case 'npz': {
                     format = 'NumPy Zip';
                     const execution = new python.Execution(null);
-                    for (const entry of context.entries('zip')) {
-                        if (!entry.name.endsWith('.npy')) {
+                    const entries = context.entries('zip');
+                    for (const entry of entries) {
+                        if (!entry[0].endsWith('.npy')) {
                             throw new npz.Error("Invalid file name '" + entry.name + "'.");
                         }
-                        const name = entry.name.replace(/\.npy$/, '');
+                        const name = entry[0].replace(/\.npy$/, '');
                         const parts = name.split('/');
                         const parameterName = parts.pop();
                         const groupName = parts.join('/');
@@ -64,8 +65,9 @@ npz.ModelFactory = class {
                             groups.set(groupName, { name: groupName, parameters: [] });
                         }
                         const group = groups.get(groupName);
-                        const data = entry.data;
-                        let array = new numpy.Array(data);
+                        const stream = entry[1];
+                        const buffer = stream.peek();
+                        let array = new numpy.Array(buffer);
                         if (array.byteOrder === '|' && array.dataType !== 'u1' && array.dataType !== 'i1') {
                             if (array.dataType !== 'O') {
                                 throw new npz.Error("Invalid data type '" + array.dataType + "'.");
@@ -494,7 +496,7 @@ npz.Utility = class {
             return 'npy';
         }
         const entries = context.entries('zip');
-        if (entries.length > 0 && entries.every((entry) => entry.name.endsWith('.npy'))) {
+        if (entries.size > 0 && Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
             return 'npz';
         }
         const obj = context.open('pkl');

@@ -728,10 +728,10 @@ paddle.Utility = class {
 paddle.Container = class {
 
     static open(context) {
-        const extension = [ 'zip', 'tar' ].find((extension) => context.entries(extension).length > 0);
+        const extension = [ 'zip', 'tar' ].find((extension) => context.entries(extension).size > 0);
         if (extension) {
-            const entries = context.entries(extension).filter((entry) => !entry.name.endsWith('/') && !entry.name.split('/').pop().startsWith('.')).slice();
-            if (entries.length > 2 && entries.every((entry) => entry.name.split('_').length > 0 && entry.data.slice(0, 16).every((value) => value === 0x00))) {
+            const entries = new Map(Array.from(context.entries(extension)).filter((entry) => !entry[0].endsWith('/') && !entry[0].split('/').pop().startsWith('.')).slice());
+            if (entries.size > 2 && Array.from(entries).every((entry) => entry[0].split('_').length > 0 && entry[1].peek(16).every((value) => value === 0x00))) {
                 return new paddle.Container('entries', entries);
             }
         }
@@ -773,7 +773,7 @@ paddle.Container = class {
                 case 'entries': {
                     let rootFolder = null;
                     for (const entry of this._data) {
-                        const name = entry.name;
+                        const name = entry[0];
                         if (name.startsWith('.') && !name.startsWith('./')) {
                             continue;
                         }
@@ -783,9 +783,11 @@ paddle.Container = class {
                     }
                     this._weights = new Map();
                     for (const entry of this._data) {
-                        if (entry.name.startsWith(rootFolder)) {
-                            const name = entry.name.substring(rootFolder.length);
-                            this._weights.set(name, new paddle.Tensor(null, entry.stream));
+                        if (entry[0].startsWith(rootFolder)) {
+                            const name = entry[0].substring(rootFolder.length);
+                            const stream = entry[1];
+                            const tensor = new paddle.Tensor(null, stream);
+                            this._weights.set(name, tensor);
                         }
                     }
                     break;

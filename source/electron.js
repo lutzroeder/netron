@@ -56,7 +56,7 @@ host.ElectronHost = class {
     initialize(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
-            this._openFile(data.path);
+            this._openPath(data.path);
         });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
@@ -117,8 +117,8 @@ host.ElectronHost = class {
             const queue = this._queue;
             delete this._queue;
             if (queue.length > 0) {
-                const file = queue.pop();
-                this._openFile(file);
+                const path = queue.pop();
+                this._openPath(path);
             }
         }
 
@@ -281,17 +281,17 @@ host.ElectronHost = class {
     request(file, encoding, base) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(base || __dirname, file);
-            fs.stat(pathname, (err, stats) => {
+            fs.stat(pathname, (err, stat) => {
                 if (err && err.code === 'ENOENT') {
                     reject(new Error("The file '" + file + "' does not exist."));
                 }
                 else if (err) {
                     reject(err);
                 }
-                else if (!stats.isFile()) {
+                else if (!stat.isFile()) {
                     reject(new Error("The path '" + file + "' is not a file."));
                 }
-                else if (stats && stats.size < 0x7ffff000) {
+                else if (stat && stat.size < 0x7ffff000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
                             reject(err);
@@ -302,10 +302,10 @@ host.ElectronHost = class {
                     });
                 }
                 else if (encoding) {
-                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
+                    reject(new Error("The file '" + file + "' size (" + stat.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
                 }
                 else {
-                    resolve(new host.ElectronHost.FileStream(pathname, 0, stats.size, stats.mtimeMs));
+                    resolve(new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs));
                 }
             });
         });
@@ -366,21 +366,49 @@ host.ElectronHost = class {
         }
     }
 
-    _openFile(file) {
+    _context(location) {
+        const basename = path.basename(location);
+        const stat = fs.statSync(location);
+        if (stat.isFile()) {
+            const dirname = path.dirname(location);
+            return this.request(basename, null, dirname).then((stream) => {
+                return new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
+            });
+        }
+        else if (stat.isDirectory()) {
+            const entries = new Map();
+            const walk = (dir) => {
+                for (const item of fs.readdirSync(dir)) {
+                    const pathname = path.join(dir, item);
+                    const stat = fs.statSync(pathname);
+                    if (stat.isDirectory()) {
+                        walk(pathname);
+                    }
+                    else if (stat.isFile()) {
+                        const stream = new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs);
+                        const name = pathname.split(path.sep).join(path.posix.sep);
+                        entries.set(name, stream);
+                    }
+                }
+            };
+            walk(location);
+            return Promise.resolve(new host.ElectronHost.ElectonContext(this, location, basename, null, entries));
+        }
+        throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
+    }
+
+    _openPath(path) {
         if (this._queue) {
-            this._queue.push(file);
+            this._queue.push(path);
             return;
         }
-        if (file && this._view.accept(file)) {
+        if (path && this._view.accept(path)) {
             this._view.show('welcome spinner');
-            const dirname = path.dirname(file);
-            const basename = path.basename(file);
-            this.request(basename, null, dirname).then((stream) => {
-                const context = new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
+            this._context(path).then((context) => {
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {
-                        this._update('path', file);
+                        this._update('path', path);
                     }
                     this._update('show-attributes', this._view.showAttributes);
                     this._update('show-initializers', this._view.showInitializers);
@@ -683,11 +711,12 @@ host.ElectronHost.FileStream = class {
 
 host.ElectronHost.ElectonContext = class {
 
-    constructor(host, folder, identifier, stream) {
+    constructor(host, folder, identifier, stream, entries) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
         this._stream = stream;
+        this._entries = entries || new Map();
     }
 
     get identifier() {
@@ -696,6 +725,10 @@ host.ElectronHost.ElectonContext = class {
 
     get stream() {
         return this._stream;
+    }
+
+    get entries() {
+        return this._entries;
     }
 
     request(file, encoding, base) {

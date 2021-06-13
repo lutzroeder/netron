@@ -26,14 +26,14 @@ dl4j.ModelFactory = class {
     }
 
     static _openContainer(entries) {
-        const configurationEntries = entries.filter((entry) => entry.name === 'configuration.json');
-        const coefficientsEntries = entries.filter((entry) => entry.name === 'coefficients.bin');
-        if (configurationEntries.length === 1 && coefficientsEntries.length <= 1) {
+        const configurationStream = entries.get('configuration.json');
+        const coefficientsStream = entries.get('coefficients.bin');
+        if (configurationStream) {
             try {
-                const reader = json.TextReader.create(configurationEntries[0].data);
+                const reader = json.TextReader.create(configurationStream.peek());
                 const configuration = reader.read();
                 if (configuration && (configuration.confs || configuration.vertices)) {
-                    const coefficients = coefficientsEntries.length == 1 ? coefficientsEntries[0].data : [];
+                    const coefficients = coefficientsStream ? coefficientsStream.peek() : [];
                     return { configuration: configuration, coefficients: coefficients };
                 }
             }

@@ -109,8 +109,13 @@ class TestHost {
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
-        const buffer = fs.readFileSync(pathname, encoding);
-        return Promise.resolve(encoding ? buffer : new TestBinaryStream(buffer));
+        if (encoding) {
+            const text = fs.readFileSync(pathname, encoding);
+            return Promise.resolve(text);
+        }
+        const buffer = fs.readFileSync(pathname, null);
+        const stream = new TestBinaryStream(buffer);
+        return Promise.resolve(stream);
     }
 
     event(/* category, action, label, value */) {
@@ -200,11 +205,12 @@ class TestBinaryStream {
 
 class TestContext {
 
-    constructor(host, folder, identifier, stream) {
+    constructor(host, folder, identifier, stream, entries) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
         this._stream = stream;
+        this._entries = entries;
     }
 
     get identifier() {
@@ -213,6 +219,10 @@ class TestContext {
 
     get stream() {
         return this._stream;
+    }
+
+    get entries() {
+        return this._entries;
     }
 
     request(file, encoding, base) {
@@ -355,9 +365,9 @@ function decompress(buffer) {
     let archive = null;
     if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
         archive = gzip.Archive.open(buffer);
-        if (archive.entries.length == 1) {
-            const entry = archive.entries[0];
-            buffer = entry.data;
+        if (archive.entries.size == 1) {
+            const stream = archive.entries.values().next().value;
+            buffer = stream.peek();
         }
     }
     const formats = [ zip, tar ];
@@ -489,17 +499,28 @@ function download(folder, targets, sources) {
             }
             process.stdout.write('  decompress...\r');
             const archive = decompress(data, source.split('?').shift().split('/').pop());
-            for (const file of sourceFiles) {
+            for (const name of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
-                process.stdout.write('  write ' + file + '\n');
-                const entry = archive.entries.filter((entry) => entry.name == file)[0];
-                if (!entry) {
-                    throw new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                process.stdout.write('  write ' + name + '\n');
+                if (name !== '.') {
+                    const stream = archive.entries.get(name);
+                    if (!stream) {
+                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                    }
+                    const target = targets.shift();
+                    const buffer = stream.peek();
+                    const file = path.join(folder, target);
+                    fs.writeFileSync(file, buffer, null);
                 }
-                const target = targets.shift();
-                fs.writeFileSync(folder + '/' + target, entry.data, null);
+                else {
+                    const target = targets.shift();
+                    const dir = path.join(folder, target);
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir);
+                    }
+                }
             }
         }
         else {
@@ -547,15 +568,35 @@ function loadModel(target, item) {
     host.on('exception', (_, data) => {
         exceptions.push(data.exception);
     });
-    const folder = path.dirname(target);
     const identifier = path.basename(target);
-    const size = fs.statSync(target).size;
-    const buffer = new Uint8Array(size);
-    const fd = fs.openSync(target, 'r');
-    fs.readSync(fd, buffer, 0, size, 0);
-    fs.closeSync(fd);
-    const reader = new TestBinaryStream(buffer);
-    const context = new TestContext(host, folder, identifier, reader);
+    const stat = fs.statSync(target);
+    let context = null;
+    if (stat.isFile()) {
+        const buffer = fs.readFileSync(target, null);
+        const reader = new TestBinaryStream(buffer);
+        const dirname = path.dirname(target);
+        context = new TestContext(host, dirname, identifier, reader);
+    }
+    else if (stat.isDirectory()) {
+        const entries = new Map();
+        const walk = (dir) => {
+            for (const item of fs.readdirSync(dir)) {
+                const pathname = path.join(dir, item);
+                const stat = fs.statSync(pathname);
+                if (stat.isDirectory()) {
+                    walk(pathname);
+                }
+                else if (stat.isFile()) {
+                    const buffer = fs.readFileSync(pathname, null);
+                    const stream = new TestBinaryStream(buffer);
+                    const name = pathname.split(path.sep).join(path.posix.sep);
+                    entries.set(name, stream);
+                }
+            }
+        };
+        walk(target);
+        context = new TestContext(host, target, identifier, null, entries);
+    }
     const modelFactoryService = new view.ModelFactoryService(host);
     let opened = false;
     return modelFactoryService.open(context).then((model) => {

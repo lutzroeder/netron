@@ -419,7 +419,7 @@ view.View = class {
     }
 
     open(context) {
-        this._host.event('Model', 'Open', 'Size', context.stream.length);
+        this._host.event('Model', 'Open', 'Size', context.stream ? context.stream.length : 0);
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
@@ -1186,11 +1186,11 @@ view.Edge = class extends grapher.Edge {
 
 view.ModelContext = class {
 
-    constructor(context, entries) {
+    constructor(context, formats) {
         this._context = context;
         this._tags = new Map();
         this._content = new Map();
-        this._entries = entries || new Map();
+        this._formats = formats || new Map();
     }
 
     get identifier() {
@@ -1214,7 +1214,7 @@ view.ModelContext = class {
     }
 
     entries(format) {
-        return this._entries.get(format) || [];
+        return this._formats.get(format) || new Map();
     }
 
     open(type) {
@@ -1238,7 +1238,7 @@ view.ModelContext = class {
                 case 'pkl': {
                     try {
                         if (this.stream.length > 2) {
-                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries[0].stream : this.stream;
+                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries.values().next().value : this.stream;
                             const match = (stream) => {
                                 const head = stream.peek(2);
                                 if (head[0] === 0x80 && head[1] < 7) {
@@ -1289,73 +1289,75 @@ view.ModelContext = class {
                 [ 0x50, 0x4b ]
             ];
             const stream = this.stream;
-            if (!signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
-                try {
-                    switch (type) {
-                        case 'pbtxt': {
-                            reset = true;
-                            const buffer = stream.peek();
-                            const decoder = base.TextDecoder.create(buffer);
-                            let count = 0;
-                            for (let i = 0; i < 0x100; i++) {
-                                const c = decoder.decode();
-                                switch (c) {
-                                    case '\n': case '\r': case '\t': case '\0': break;
-                                    case undefined: i = 0x100; break;
-                                    default: count += c < ' ' ? 1 : 0; break;
-                                }
-                            }
-                            if (count < 4) {
+            if (stream) {
+                if (!signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
+                    try {
+                        switch (type) {
+                            case 'pbtxt': {
+                                reset = true;
                                 const buffer = stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
-                                reader.start(false);
-                                while (!reader.end(false)) {
-                                    const tag = reader.tag();
-                                    tags.set(tag, true);
-                                    if (reader.token() === '{') {
-                                        reader.start();
-                                        while (!reader.end()) {
-                                            const subtag = reader.tag();
-                                            tags.set(tag + '.' + subtag, true);
+                                const decoder = base.TextDecoder.create(buffer);
+                                let count = 0;
+                                for (let i = 0; i < 0x100; i++) {
+                                    const c = decoder.decode();
+                                    switch (c) {
+                                        case '\n': case '\r': case '\t': case '\0': break;
+                                        case undefined: i = 0x100; break;
+                                        default: count += c < ' ' ? 1 : 0; break;
+                                    }
+                                }
+                                if (count < 4) {
+                                    const buffer = stream.peek();
+                                    const reader = protobuf.TextReader.create(buffer);
+                                    reader.start(false);
+                                    while (!reader.end(false)) {
+                                        const tag = reader.tag();
+                                        tags.set(tag, true);
+                                        if (reader.token() === '{') {
+                                            reader.start();
+                                            while (!reader.end()) {
+                                                const subtag = reader.tag();
+                                                tags.set(tag + '.' + subtag, true);
+                                                reader.skip();
+                                                reader.match(',');
+                                            }
+                                        }
+                                        else {
                                             reader.skip();
-                                            reader.match(',');
                                         }
                                     }
-                                    else {
-                                        reader.skip();
+                                }
+                                break;
+                            }
+                            case 'pb': {
+                                reset = true;
+                                const buffer = stream.peek();
+                                const reader = protobuf.Reader.create(buffer);
+                                const length = reader.length;
+                                while (reader.position < length) {
+                                    const tag = reader.uint32();
+                                    const number = tag >>> 3;
+                                    const type = tag & 7;
+                                    if (type > 5 || number === 0) {
+                                        tags = new Map();
+                                        break;
+                                    }
+                                    tags.set(number, type);
+                                    try {
+                                        reader.skipType(type);
+                                    }
+                                    catch (err) {
+                                        tags = new Map();
+                                        break;
                                     }
                                 }
+                                break;
                             }
-                            break;
-                        }
-                        case 'pb': {
-                            reset = true;
-                            const buffer = stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            const length = reader.length;
-                            while (reader.position < length) {
-                                const tag = reader.uint32();
-                                const number = tag >>> 3;
-                                const type = tag & 7;
-                                if (type > 5 || number === 0) {
-                                    tags = new Map();
-                                    break;
-                                }
-                                tags.set(number, type);
-                                try {
-                                    reader.skipType(type);
-                                }
-                                catch (err) {
-                                    tags = new Map();
-                                    break;
-                                }
-                            }
-                            break;
                         }
                     }
-                }
-                catch (error) {
-                    tags = new Map();
+                    catch (error) {
+                        tags = new Map();
+                    }
                 }
             }
             if (reset) {
@@ -1371,12 +1373,12 @@ view.ArchiveContext = class {
 
     constructor(host, entries, rootFolder, identifier, stream) {
         this._host = host;
-        this._entries = {};
+        this._entries = new Map();
         if (entries) {
             for (const entry of entries) {
-                if (entry.name.startsWith(rootFolder)) {
-                    const name = entry.name.substring(rootFolder.length);
-                    this._entries[name] = entry;
+                if (entry[0].startsWith(rootFolder)) {
+                    const name = entry[0].substring(rootFolder.length);
+                    this._entries.set(name, entry[1]);
                 }
             }
         }
@@ -1394,11 +1396,17 @@ view.ArchiveContext = class {
 
     request(file, encoding, base) {
         if (base === undefined) {
-            const entry = this._entries[file];
-            if (!entry) {
+            const stream = this._entries.get(file);
+            if (!stream) {
                 return Promise.reject(new Error('File not found.'));
             }
-            return Promise.resolve(encoding ? new TextDecoder(encoding).decode(entry.data) : entry.stream);
+            if (encoding) {
+                const decoder = new TextDecoder(encoding);
+                const buffer = stream.peek();
+                const value = decoder.decode(buffer);
+                return Promise.resolve(value);
+            }
+            return Promise.resolve(stream);
         }
         return this._host.request(file, encoding, base);
     }
@@ -1475,14 +1483,54 @@ view.ModelFactoryService = class {
 
     open(context) {
         return this._openSignature(context).then((context) => {
-            const entries = this._openArchive(context);
-            const modelContext = new view.ModelContext(context, entries);
+            const containers = new Map();
+            let stream = context.stream;
+            const entries = context.entries;
+            if (!stream && entries && entries.size > 0) {
+                containers.set('', entries);
+            }
+            else {
+                const identifier = context.identifier;
+                try {
+                    const archive = gzip.Archive.open(stream);
+                    if (archive) {
+                        const entries = archive.entries;
+                        containers.set('gzip', entries);
+                        if (archive.entries.size === 1) {
+                            stream = archive.entries.values().next().value;
+                        }
+                    }
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                }
+                try {
+                    const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] ]);
+                    for (const pair of formats) {
+                        const format = pair[0];
+                        const module = pair[1];
+                        const archive = module.Archive.open(stream);
+                        if (archive) {
+                            containers.set(format, archive.entries);
+                            containers.delete('gzip');
+                            break;
+                        }
+                    }
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
+                }
+            }
+
+            const modelContext = new view.ModelContext(context, containers);
             return this._openContext(modelContext).then((model) => {
                 if (model) {
                     return model;
                 }
-                if (entries.size > 0) {
-                    return this._openEntries(entries.values().next().value).then((context) => {
+                if (containers.size > 0) {
+                    return this._openEntries(containers.values().next().value).then((context) => {
                         if (context) {
                             return this._openContext(context);
                         }
@@ -1595,44 +1643,6 @@ view.ModelFactoryService = class {
         const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
         const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
         throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
-    }
-
-    _openArchive(context) {
-        const entries = new Map();
-        let stream = context.stream;
-        const identifier = context.identifier;
-        try {
-            const archive = gzip.Archive.open(stream);
-            if (archive) {
-                entries.set('gzip', archive.entries);
-                if (archive.entries.length === 1) {
-                    const entry = archive.entries[0];
-                    stream = entry.stream;
-                }
-            }
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-        }
-        try {
-            const formats = new Map([ [ 'zip', zip ], [ 'tar', tar ] ]);
-            for (const pair of formats) {
-                const format = pair[0];
-                const module = pair[1];
-                const archive = module.Archive.open(stream);
-                if (archive) {
-                    entries.set(format, archive.entries);
-                    entries.delete('gzip');
-                    break;
-                }
-            }
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new view.ArchiveError(message.replace(/\.$/, '') + " in '" + identifier + "'.");
-        }
-        return entries;
     }
 
     _openContext(context) {
@@ -1750,7 +1760,10 @@ view.ModelFactoryService = class {
                 };
                 return nextEntry();
             };
-            const files = entries.filter((entry) => {
+            const list = Array.from(entries).map((entry) => {
+                return { name: entry[0], stream: entry[1] };
+            });
+            const files = list.filter((entry) => {
                 if (entry.name.endsWith('/')) {
                     return false;
                 }
@@ -1793,7 +1806,8 @@ view.ModelFactoryService = class {
             identifier.endsWith('.tgz') ||
             identifier.endsWith('.gz') ||
             identifier.endsWith('.mar') ||
-            identifier.endsWith('.model')) {
+            identifier.endsWith('.model') ||
+            identifier.endsWith('.mlpackage')) {
             this._host.event('File', 'Accept', extension, 1);
             return true;
         }
@@ -1811,45 +1825,47 @@ view.ModelFactoryService = class {
 
     _openSignature(context) {
         const stream = context.stream;
-        let empty = true;
-        let position = 0;
-        while (empty && position < stream.length) {
-            const buffer = stream.read(Math.min(4096, stream.length - position));
-            position += buffer.length;
-            if (!buffer.every((value) => value === 0x00)) {
-                empty = false;
-                break;
+        if (stream) {
+            let empty = true;
+            let position = 0;
+            while (empty && position < stream.length) {
+                const buffer = stream.read(Math.min(4096, stream.length - position));
+                position += buffer.length;
+                if (!buffer.every((value) => value === 0x00)) {
+                    empty = false;
+                    break;
+                }
             }
-        }
-        stream.seek(0);
-        if (empty) {
-            return Promise.reject(new view.Error('File has no content.', true));
-        }
-        /* eslint-disable no-control-regex */
-        const entries = [
-            { name: 'ELF executable', value: /^\x7FELF/ },
-            { name: 'PNG image', value: /^\x89PNG/ },
-            { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
-            { name: 'Git LFS header', value: /^\s*oid sha256:/ },
-            { name: 'HTML markup', value: /^\s*<html>/ },
-            { name: 'HTML markup', value: /^\s*<!doctype\s*html>/ },
-            { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*html>/ },
-            { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*HTML>/ },
-            { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*HTML\s+(PUBLIC|SYSTEM)?/ },
-            { name: 'Unity metadata', value: /^fileFormatVersion:/ },
-            { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
-            { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
-            { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
-            { name: 'TSD header', value: /^%TSD-Header-###%/ },
-            { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
-            { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
-        ];
-        /* eslint-enable no-control-regex */
-        const buffer = stream.peek(Math.min(4096, stream.length));
-        const text = String.fromCharCode.apply(null, buffer);
-        for (const entry of entries) {
-            if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
-                return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
+            stream.seek(0);
+            if (empty) {
+                return Promise.reject(new view.Error('File has no content.', true));
+            }
+            /* eslint-disable no-control-regex */
+            const entries = [
+                { name: 'ELF executable', value: /^\x7FELF/ },
+                { name: 'PNG image', value: /^\x89PNG/ },
+                { name: 'Git LFS header', value: /^version https:\/\/git-lfs.github.com/ },
+                { name: 'Git LFS header', value: /^\s*oid sha256:/ },
+                { name: 'HTML markup', value: /^\s*<html>/ },
+                { name: 'HTML markup', value: /^\s*<!doctype\s*html>/ },
+                { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*html>/ },
+                { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*HTML>/ },
+                { name: 'HTML markup', value: /^\s*<!DOCTYPE\s*HTML\s+(PUBLIC|SYSTEM)?/ },
+                { name: 'Unity metadata', value: /^fileFormatVersion:/ },
+                { name: 'Python source code', value: /^\s*import[ ]+(os|sys|types|torch|argparse|onnx|numpy|tensorflow)(,|;|\s)/ },
+                { name: 'Python source code', value: /^\s*import[ ]+([a-z])+[ ]+as[ ]+/ },
+                { name: 'Python source code', value: /^\s*from[ ]+(torch)[ ]+import[ ]+/ },
+                { name: 'TSD header', value: /^%TSD-Header-###%/ },
+                { name: 'AppleDouble data', value: /^\x00\x05\x16\x07/ },
+                { name: 'TensorFlow Hub module', value: /^\x08\x03$/, identifier: 'tfhub_module.pb' }
+            ];
+            /* eslint-enable no-control-regex */
+            const buffer = stream.peek(Math.min(4096, stream.length));
+            const text = String.fromCharCode.apply(null, buffer);
+            for (const entry of entries) {
+                if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
+                    return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
+                }
             }
         }
         return Promise.resolve(context);

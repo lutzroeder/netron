@@ -1911,8 +1911,9 @@ pytorch.Container = class {
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             return new pytorch.Container.Pickle(stream, exception);
         }
-        if (context.entries('tar').some((entry) => entry.name == 'pickle')) {
-            return new pytorch.Container.Tar(context.entries('tar'), exception);
+        const entries = context.entries('tar');
+        if (entries.has('pickle')) {
+            return new pytorch.Container.Tar(entries, exception);
         }
         return null;
     }
@@ -1957,10 +1958,10 @@ pytorch.Container.Tar = class {
         const entries = {};
         for (const entry of this._entries) {
             switch (entry.name) {
-                case 'sys_info': entries.sys_info = entry.data; break;
-                case 'pickle': entries.pickle = entry.data; break;
-                case 'storages': entries.storages = entry.data; break;
-                case 'tensors': entries.tensors = entry.data; break;
+                case 'sys_info': entries.sys_info = entry.stream.peek(); break;
+                case 'pickle': entries.pickle = entry.stream.peek(); break;
+                case 'storages': entries.storages = entry.stream.peek(); break;
+                case 'tensors': entries.tensors = entry.stream.peek(); break;
             }
         }
 
@@ -2164,15 +2165,17 @@ pytorch.Container.Pickle = class {
 pytorch.Container.Zip = class {
 
     static open(entries, metadata, exception) {
-        const entry = entries.find((entry) => entry.name == 'model.json' || entry.name == 'data.pkl' || entry.name.endsWith('/model.json') || entry.name.endsWith('/data.pkl'));
-        if (!entry) {
+        const name = Array.from(entries.keys()).find((name) => name == 'model.json' || name == 'data.pkl' || name.endsWith('/model.json') || name.endsWith('/data.pkl'));
+        if (!name) {
             return null;
         }
         let model = null;
-        if (entry.name.endsWith('.json')) {
+        if (name.endsWith('.json')) {
             try {
+                const stream = entries.get(name);
+                const buffer = stream.peek();
                 const decoder = new TextDecoder('utf-8');
-                const text = decoder.decode(entry.data);
+                const text = decoder.decode(buffer);
                 model = JSON.parse(text);
                 if (!model.mainModule) {
                     return null;
@@ -2182,17 +2185,17 @@ pytorch.Container.Zip = class {
                 return null;
             }
         }
-        return new pytorch.Container.Zip(entries, entry, model, metadata, exception);
+        return new pytorch.Container.Zip(entries, name, model, metadata, exception);
     }
 
-    constructor(entries, entry, model, metadata, exception) {
+    constructor(entries, name, model, metadata, exception) {
         this._entries = entries;
         this._metadata = metadata;
         this._exceptionCallback = exception;
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._model = model;
-        const lastIndex = entry.name.lastIndexOf('/');
-        this._prefix = lastIndex === -1 ? '' : entry.name.substring(0, lastIndex + 1);
+        const lastIndex = name.lastIndexOf('/');
+        this._prefix = lastIndex === -1 ? '' : name.substring(0, lastIndex + 1);
     }
 
     get format() {
@@ -2201,9 +2204,9 @@ pytorch.Container.Zip = class {
                 this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
             else if (this._entry('data.pkl')) {
-                const versionEntry = this._entry('version');
+                const stream = this._entry('version');
                 const decoder = new TextDecoder('utf-8');
-                const versionNumber = versionEntry ? decoder.decode(versionEntry.data).split('\n').shift() : '';
+                const versionNumber = stream ? decoder.decode(stream.peek()).split('\n').shift() : '';
                 // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
                 // kProducedFileFormatVersion
                 const versionTable = {
@@ -2249,9 +2252,10 @@ pytorch.Container.Zip = class {
     get constants() {
         if (this._constants === undefined) {
             this._constants = [];
-            const entry = this._entry('constants.pkl');
-            if (entry && entry.data) {
-                this._constants = this._unpickle(entry.data, this._storage('constants'));
+            const stream = this._entry('constants.pkl');
+            if (stream) {
+                const buffer = stream.peek();
+                this._constants = this._unpickle(buffer, this._storage('constants'));
                 for (let i = 0; i < this._constants.length; i++) {
                     const constant = this._constants[i];
                     const variable = 'CONSTANTS.c' + i.toString();
@@ -2286,12 +2290,15 @@ pytorch.Container.Zip = class {
         if (this._execution === undefined) {
             const sources = new Map();
             for (const entry of this._entries) {
-                if (entry.name.startsWith(this._prefix + 'code')) {
-                    const file = entry.name.substring(this._prefix.length);
+                const name = entry[0];
+                if (name.startsWith(this._prefix + 'code')) {
+                    const file = name.substring(this._prefix.length);
                     if (sources.has(file)) {
                         throw new pytorch.Error("Duplicate source file '" + file + "'.");
                     }
-                    sources.set(file, entry.data);
+                    const stream = entry[1];
+                    const buffer = stream.peek();
+                    sources.set(file, buffer);
                 }
             }
             this._execution = new pytorch.Container.Zip.Execution(sources, this._exceptionCallback, this._metadata);
@@ -2305,15 +2312,16 @@ pytorch.Container.Zip = class {
     }
 
     _entry(name) {
-        return this._entries.find((entry) => entry.name == this._prefix + name);
+        return this._entries.get(this._prefix + name);
     }
 
     _load() {
         if (this._data === undefined) {
             this._data = null;
-            const dataEntry = this._entry('data.pkl');
-            if (dataEntry && dataEntry.data) {
-                this._data = this._unpickle(dataEntry.data, this._storage('data'));
+            const stream = this._entry('data.pkl');
+            if (stream) {
+                const buffer = stream.peek();
+                this._data = this._unpickle(buffer, this._storage('data'));
             }
             else {
                 if (this._model) {
@@ -2326,7 +2334,10 @@ pytorch.Container.Zip = class {
                     const queue = [ this._data ];
                     const entries = new Map();
                     for (const entry of this._entries) {
-                        entries.set(entry.name, entry.data);
+                        const name = entry[0];
+                        const stream = entry[1];
+                        const buffer = stream.peek();
+                        entries.set(name, buffer);
                     }
                     const tensorTypeMap = new Map([
                         [ 'FLOAT', 'Float' ],
@@ -2358,9 +2369,11 @@ pytorch.Container.Zip = class {
                         return tensor;
                     });
                     this._attributes = [];
-                    const attributesEntry = this._entry('attributes.pkl');
-                    if (attributesEntry && attributesEntry.data) {
-                        this._attributes.push(...new python.Unpickler(attributesEntry.data).load((name, args) => this.execution.invoke(name, args)));
+                    const stream = this._entry('attributes.pkl');
+                    if (stream) {
+                        const buffer = stream.peek();
+                        const unpickler = new python.Unpickler(buffer);
+                        this._attributes.push(...unpickler.load((name, args) => this.execution.invoke(name, args)));
                     }
                     while (queue.length > 0) {
                         const module = queue.shift();
@@ -2477,9 +2490,10 @@ pytorch.Container.Zip = class {
         const map = new Map();
         const prefix = this._prefix + dirname + '/';
         for (const entry of this._entries) {
-            if (entry.name.startsWith(prefix)) {
-                const key = entry.name.substring(prefix.length);
-                map.set(key, entry.data);
+            if (entry[0].startsWith(prefix)) {
+                const key = entry[0].substring(prefix.length);
+                const buffer = entry[1].peek();
+                map.set(key, buffer);
             }
         }
         return map;

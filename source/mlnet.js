@@ -9,9 +9,9 @@ mlnet.ModelFactory = class {
 
     match(context) {
         const entries = context.entries('zip');
-        if (entries.length > 0) {
+        if (entries.size > 0) {
             const root = new Set([ 'TransformerChain', 'Predictor']);
-            if (entries.some((e) => root.has(e.name.split('\\').shift().split('/').shift()))) {
+            if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
                 return true;
             }
         }
@@ -20,7 +20,8 @@ mlnet.ModelFactory = class {
 
     open(context) {
         return mlnet.Metadata.open(context).then((metadata) => {
-            const reader = new mlnet.ModelReader(context.entries('zip'));
+            const entries = context.entries('zip');
+            const reader = new mlnet.ModelReader(entries);
             return new mlnet.Model(metadata, reader);
         });
     }
@@ -614,10 +615,11 @@ mlnet.ModelHeader = class {
     open(name) {
         const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
         name = dir + name;
-        const entryName = name + '/Model.key';
-        const entry = this._entries.find((entry) => entry.name == entryName || entry.name == entryName.replace(/\//g, '\\'));
-        if (entry) {
-            const context = new mlnet.ModelHeader(this._catalog, this._entries, name, entry.data);
+        const key = name + '/Model.key';
+        const stream = this._entries.get(key) || this._entries.get(key.replace(/\//g, '\\'));
+        if (stream) {
+            const buffer = stream.peek();
+            const context = new mlnet.ModelHeader(this._catalog, this._entries, name, buffer);
             const value = this._catalog.create(context.loaderSignature, context);
             value.__type__ = value.__type__ || context.loaderSignature;
             value.__name__ = name;
@@ -629,16 +631,22 @@ mlnet.ModelHeader = class {
     openBinary(name) {
         const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
         name = dir + name;
-        const entry = this._entries.find((entry) => entry.name == name || entry.name == name.replace(/\//g, '\\'));
-        return entry ? new mlnet.Reader(entry.data) : null;
+        const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
+        if (stream) {
+            const buffer = stream.peek();
+            return new mlnet.Reader(buffer);
+        }
+        return null;
     }
 
     openText(name) {
         const dir = this._directory.length > 0 ? this._directory + '/' : this._directory;
         name = dir + name;
-        const entry = this._entries.find((entry) => entry.name.split('\\').join('/') == name);
-        if (entry) {
-            return new TextDecoder().decode(entry.data);
+        const stream = this._entries.get(name) || this._entries.get(name.replace(/\//g, '\\'));
+        if (stream) {
+            const buffer = stream.peek();
+            const decoder = new TextDecoder();
+            return decoder.decode(buffer);
         }
         return null;
     }

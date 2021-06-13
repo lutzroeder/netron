@@ -1102,6 +1102,13 @@
   },
   {
     "type":   "coreml",
+    "target": "EfficientNetB0.mlpackage,EfficientNetB0.mlpackage/Manifest.json,EfficientNetB0.mlpackage/Data/com.apple.CoreML/model.mlmodel,EfficientNetB0.mlpackage/Data/com.apple.CoreML/weights/weight.bin",
+    "source": "https://github.com/lutzroeder/netron/files/6636195/EfficientNetB0.mlpackage.zip[.,EfficientNetB0.mlpackage/Manifest.json,EfficientNetB0.mlpackage/Data/com.apple.CoreML/model.mlmodel,EfficientNetB0.mlpackage/Data/com.apple.CoreML/weights/weight.bin]",
+    "format": "Core ML Package v6",
+    "link":   "https://github.com/lutzroeder/netron/issues/751"
+  },
+  {
+    "type":   "coreml",
     "target": "EfficientNetB0.mlpackage.zip",
     "source": "https://github.com/lutzroeder/netron/files/6636195/EfficientNetB0.mlpackage.zip",
     "format": "Core ML Package v6",

@@ -62,7 +62,7 @@ class Application {
             const paths = data.paths.filter((path) => {
                 if (fs.existsSync(path)) {
                     const stat = fs.statSync(path);
-                    return stat.isFile() /* || stat.isDirectory() */;
+                    return stat.isFile() || stat.isDirectory();
                 }
                 return false;
             });
@@ -109,7 +109,7 @@ class Application {
                     const extension = arg.split('.').pop().toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg)) {
                         const stat = fs.statSync(arg);
-                        if (stat.isFile() /* || stat.isDirectory() */) {
+                        if (stat.isFile() || stat.isDirectory()) {
                             this._openPath(arg);
                             open = true;
                         }
@@ -161,7 +161,7 @@ class Application {
                 { name: 'All Model Files',  extensions: [
                     'onnx', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
-                    'mlmodel',
+                    'mlmodel', 'mlpackage',
                     'caffemodel',
                     'model', 'dnn', 'cmf', 'mar', 'params',
                     'pdmodel', 'pdparams',
@@ -191,7 +191,7 @@ class Application {
         }
         if (path && path.length > 0 && fs.existsSync(path)) {
             const stat = fs.statSync(path);
-            if (stat.isFile() /* || stat.isDirectory() */) {
+            if (stat.isFile() || stat.isDirectory()) {
                 // find existing view for this file
                 let view = this._views.find(path);
                 // find empty welcome window
@@ -390,7 +390,7 @@ class Application {
                 const path = recent.path;
                 if (fs.existsSync(path)) {
                     const stat = fs.statSync(path);
-                    if (stat.isFile() /* || stat.isDirectory() */) {
+                    if (stat.isFile() || stat.isDirectory()) {
                         return true;
                     }
                 }

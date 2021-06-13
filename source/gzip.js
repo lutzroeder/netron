@@ -16,7 +16,8 @@ gzip.Archive = class {
 
     constructor(stream) {
         const position = stream.position;
-        this._entries = [ new gzip.Entry(stream) ];
+        const entry = new gzip.Entry(stream);
+        this._entries = new Map([ [ entry.name, entry.stream ] ]);
         stream.seek(position);
     }
 
@@ -73,10 +74,6 @@ gzip.Entry = class {
 
     get stream() {
         return this._stream;
-    }
-
-    get data() {
-        return this.stream.peek();
     }
 };
 

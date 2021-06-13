@@ -22,12 +22,12 @@ tar.Archive = class {
     }
 
     constructor(stream) {
-        this._entries = [];
+        this._entries = new Map();
         const position = stream.position;
         while (stream.position < stream.length) {
             const entry = new tar.Entry(stream);
             if (entry.type === '0' || entry.type === '1' || entry.type === '2') {
-                this._entries.push(entry);
+                this._entries.set(entry.name, entry.stream);
             }
             if (stream.position + 512 > stream.length ||
                 stream.peek(512).every((value) => value === 0x00)) {
@@ -87,10 +87,6 @@ tar.Entry = class {
 
     get stream() {
         return this._stream;
-    }
-
-    get data() {
-        return this.stream.peek();
     }
 };
 
