@@ -25,13 +25,13 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 16
 
       - if: startsWith(matrix.os, 'ubuntu')
         name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Install npm packages 
         run: make install
