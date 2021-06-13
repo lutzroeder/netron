@@ -1972,6 +1972,7 @@ python.Execution = class {
         this.registerType('sklearn.isotonic.IsotonicRegression', class {});
         this.registerType('sklearn.linear_model._base.LinearRegression', class {});
         this.registerType('sklearn.linear_model._bayes.BayesianRidge', class {});
+        this.registerType('sklearn.linear_model._coordinate_descent.ElasticNetCV', class {});
         this.registerType('sklearn.linear_model._coordinate_descent.ElasticNet', class {});
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
@@ -1990,6 +1991,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
         this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
         this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
+        this.registerType('sklearn.mixture._bayesian_mixture.BayesianGaussianMixture', class {});
         this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
         this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
         this.registerType('sklearn.model_selection._split.KFold', class {});
