@@ -16535,6 +16535,7 @@
   },
   {
     "name": "Transpose",
+    "category": "Transform",
     "description": "\nTranspose the input tensor by permuting the axes of the input according\nto the `axes` argument. Similar to numpy's\n[transpose](https://docs.scipy.org/doc/numpy/reference/generated/numpy.transpose.html)\nfunction.\n\nFor example, when axes=(1, 0, 2), given an input tensor of shape\n(1, 2, 3), the output shape will be (2, 1, 3).\n\nGithub Links:\n\n- https://github.com/pytorch/pytorch/blob/master/caffe2/operators/transpose_op.cc\n\n<details>\n\n<summary> <b>Example</b> </summary>\n\n**Code**\n\n```\nworkspace.ResetWorkspace()\n\nop = core.CreateOperator(\n    \"Transpose\",\n    [\"X\"],\n    [\"Y\"],\n    axes=(0,3,1,2)\n)\n\nx = np.random.rand(1,32,32,3)\nworkspace.FeedBlob(\"X\", x)\nprint(\"X.shape (NHWC order):\", workspace.FetchBlob(\"X\").shape)\nworkspace.RunOperatorOnce(op)\nprint(\"Y.shape (NCHW order):\", workspace.FetchBlob(\"Y\").shape)\n```\n\n**Result**\n\n```\nX.shape (NHWC order): (1, 32, 32, 3)\nY.shape (NCHW order): (1, 3, 32, 32)\n```\n\n</details>\n\n",
     "attributes": [
       {
