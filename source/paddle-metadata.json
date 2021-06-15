@@ -29,6 +29,10 @@
     ]
   },
   {
+    "name": "conv2d_transpose",
+    "category": "Layer"
+  },
+  {
     "name": "depthwise_conv2d",
     "category": "Layer",
     "attributes": [
@@ -71,7 +75,19 @@
     ]
   },
   {
+    "name": "hard_swish",
+    "category": "Activation"
+  },
+  {
+    "name": "hard_sigmoid",
+    "category": "Activation"
+  },
+  {
     "name": "relu",
+    "category": "Activation"
+  },
+  {
+    "name": "sigmoid",
     "category": "Activation"
   },
   {
@@ -81,6 +97,22 @@
   {
     "name": "reshape2",
     "category": "Shape"
+  },
+  {
+    "name": "scale",
+    "category": "Layer"
+  },
+  {
+    "name": "rnn",
+    "category": "Layer"
+  },
+  {
+    "name": "transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "transpose2",
+    "category": "Transform"
   },
   {
     "name": "softmax",

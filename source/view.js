@@ -1451,7 +1451,7 @@ view.ModelFactoryService = class {
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
-        this.register('./paddle', [ '.pdmodel', '.pdparams', '.paddle', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz' ]);
+        this.register('./paddle', [ '.pdmodel', '.pdparams', '.pdiparams', '.paddle', '__model__', '.pbtxt', '.txt', '.tar', '.tar.gz', 'model', 'params' ]);
         this.register('./bigdl', [ '.model', '.bigdl' ]);
         this.register('./darknet', [ '.cfg', '.model', '.txt', '.weights' ]);
         this.register('./weka', [ '.model' ]);
@@ -1740,6 +1740,17 @@ view.ModelFactoryService = class {
                             matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
                             matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
                             matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
+                        }
+                        // Paddle
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams'))) {
+                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
+                        }
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.split('/').pop().toLowerCase() === 'model') &&
+                            matches.some((e) => e.name.split('/').pop().toLowerCase() === 'params')) {
+                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop().toLowerCase() === 'model');
                         }
                         // TensorFlow Bundle
                         if (matches.length > 1 &&
