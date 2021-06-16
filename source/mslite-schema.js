@@ -368,6 +368,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 192: return $root.mindspore.schema.CumSum.decode(reader, position);
             case 193: return $root.mindspore.schema.SplitWithOverlap.decode(reader, position);
             case 194: return $root.mindspore.schema.GenOP.decode(reader, position);
+            case 195: return $root.mindspore.schema.RaggedRange.decode(reader, position);
         }
         return undefined;
     }
@@ -568,6 +569,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'CumSum': return $root.mindspore.schema.CumSum.decodeText(reader, json);
             case 'SplitWithOverlap': return $root.mindspore.schema.SplitWithOverlap.decodeText(reader, json);
             case 'GenOP': return $root.mindspore.schema.GenOP.decodeText(reader, json);
+            case 'RaggedRange': return $root.mindspore.schema.RaggedRange.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3827,6 +3829,19 @@ $root.mindspore.schema.GenOP = class GenOP {
         $.reduce_mode = $root.mindspore.schema.ReduceMode[json.reduce_mode];
         $.reduce_to_end = reader.value(json.reduce_to_end, false);
         $.coeff = reader.value(json.coeff, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.RaggedRange = class RaggedRange {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.RaggedRange();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.RaggedRange();
         return $;
     }
 };
