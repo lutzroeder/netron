@@ -68,8 +68,10 @@ tflite.ModelFactory = class {
                     }
                     try {
                         const archive = zip.Archive.open(buffer);
-                        for (const entry of archive.entries) {
-                            attachments.set(entry.name, entry.stream);
+                        if (archive) {
+                            for (const entry of archive.entries) {
+                                attachments.set(entry[0], entry[1]);
+                            }
                         }
                     }
                     catch (error) {
@@ -343,12 +345,16 @@ tflite.Node = class {
                     try {
                         const reader = flexbuffers.Reader.create(node.custom_options);
                         const custom_options = reader.read();
-                        for (const key of Object.keys(custom_options)) {
-                            const schema = metadata.attribute(this.type, key);
-                            const value = custom_options[key];
-                            this._attributes.push(new tflite.Attribute(schema, key, value));
+                        if (custom_options) {
+                            for (const pair of Object.entries(custom_options)) {
+                                const key = pair[0];
+                                const value = pair[1];
+                                const schema = metadata.attribute(this.type, key);
+                                const attribute = new tflite.Attribute(schema, key, value);
+                                this._attributes.push(attribute);
+                            }
+                            decoded = true;
                         }
-                        decoded = true;
                     }
                     catch (err) {
                         // continue regardless of error
