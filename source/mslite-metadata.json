@@ -1281,6 +1281,12 @@
     ]
   },
   {
+    "name": "GLU",
+    "attributes": [
+      { "name": "axis", "type": "int64", "default": -1 }
+    ]
+  },
+  {
     "name": "Greater",
     "inputs": [
       { "name": "x" },

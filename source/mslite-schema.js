@@ -369,6 +369,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 193: return $root.mindspore.schema.SplitWithOverlap.decode(reader, position);
             case 194: return $root.mindspore.schema.GenOP.decode(reader, position);
             case 195: return $root.mindspore.schema.RaggedRange.decode(reader, position);
+            case 196: return $root.mindspore.schema.GLU.decode(reader, position);
         }
         return undefined;
     }
@@ -570,6 +571,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'SplitWithOverlap': return $root.mindspore.schema.SplitWithOverlap.decodeText(reader, json);
             case 'GenOP': return $root.mindspore.schema.GenOP.decodeText(reader, json);
             case 'RaggedRange': return $root.mindspore.schema.RaggedRange.decodeText(reader, json);
+            case 'GLU': return $root.mindspore.schema.GLU.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3842,6 +3844,21 @@ $root.mindspore.schema.RaggedRange = class RaggedRange {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.RaggedRange();
+        return $;
+    }
+};
+
+$root.mindspore.schema.GLU = class GLU {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.GLU();
+        $.axis = reader.int64_(position, 4, -1);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.GLU();
+        $.axis = reader.value(json.axis, -1);
         return $;
     }
 };
