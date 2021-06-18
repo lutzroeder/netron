@@ -2027,6 +2027,9 @@ $root.tensorflow.OpDef = class OpDef {
                 case 19:
                     message.allows_uninitialized_input = reader.bool();
                     break;
+                case 21:
+                    message.is_distributed_communication = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2077,6 +2080,9 @@ $root.tensorflow.OpDef = class OpDef {
                 case "allows_uninitialized_input":
                     message.allows_uninitialized_input = reader.bool();
                     break;
+                case "is_distributed_communication":
+                    message.is_distributed_communication = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2094,6 +2100,7 @@ $root.tensorflow.OpDef.prototype.is_commutative = false;
 $root.tensorflow.OpDef.prototype.is_aggregate = false;
 $root.tensorflow.OpDef.prototype.is_stateful = false;
 $root.tensorflow.OpDef.prototype.allows_uninitialized_input = false;
+$root.tensorflow.OpDef.prototype.is_distributed_communication = false;
 
 $root.tensorflow.OpDef.ArgDef = class ArgDef {
 
