@@ -11,7 +11,9 @@ coreml.ModelFactory = class {
         if (tags.get(1) === 0 && tags.get(2) === 2) {
             return true;
         }
+        const stream = context.stream;
         const identifier = context.identifier.toLowerCase();
+        const extension = identifier.split('.').pop().toLowerCase();
         switch (identifier) {
             case 'manifest.json': {
                 const obj = context.open('json');
@@ -36,6 +38,15 @@ coreml.ModelFactory = class {
                     return true;
                 }
                 break;
+            }
+        }
+        if (extension === 'bin' && stream.length > 16) {
+            const buffer = stream.peek(Math.min(256, stream.length));
+            for (let i = 0; i < buffer.length - 4; i++) {
+                const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
+                if (signature === 0xdeadbeef) {
+                    return true;
+                }
             }
         }
         return false;
@@ -126,6 +137,14 @@ coreml.ModelFactory = class {
                         return openModel(stream, context, file, 'Core ML Package');
                     });
                 };
+                const openManifestStream = (context, path) => {
+                    return context.request(path + 'Manifest.json', null).then((stream) => {
+                        const buffer = stream.peek();
+                        const reader = json.TextReader.create(buffer);
+                        const obj = reader.read();
+                        return openManifest(obj, context, path);
+                    });
+                };
                 const tags = context.tags('pb');
                 if (tags.get(1) === 0 && tags.get(2) === 2) {
                     return openModel(context.stream, context, context.identifier);
@@ -138,12 +157,13 @@ coreml.ModelFactory = class {
                     }
                     case 'featuredescriptions.json':
                     case 'metadata.json': {
-                        return context.request('../../Manifest.json', null).then((stream) => {
-                            const buffer = stream.peek();
-                            const reader = json.TextReader.create(buffer);
-                            const obj = reader.read();
-                            return openManifest(obj, context, '../../');
-                        });
+                        return openManifestStream(context, '../../');
+                    }
+                    default: {
+                        const extension = identifier.split('.').pop().toLowerCase();
+                        if (extension === 'bin') {
+                            return openManifestStream(context, '../../../');
+                        }
                     }
                 }
             });

@@ -39,10 +39,19 @@ openvino.ModelFactory = class {
             }
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
-                const signature = buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24;
+                const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
                     return false;
+                }
+            }
+            if (stream.length > 4) {
+                const buffer = stream.peek(Math.min(256, stream.length));
+                for (let i = 0; i < buffer.length - 4; i++) {
+                    const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
+                    if (signature === 0xdeadbeef) {
+                        return false;
+                    }
                 }
             }
             return true;
