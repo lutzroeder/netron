@@ -2965,6 +2965,89 @@
     "category": "Normalization"
   },
   {
+    "name": "Bernoulli",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Draws binary random numbers (0 or 1) from a Bernoulli distribution. The input tensor should be a tensor\ncontaining probabilities p (a value in the range [0,1]) to be used for drawing the binary random number,\nwhere an output of 1 is produced with probability p and an output of 0 is produced with probability (1-p).\n\nThis operator is non-deterministic and may not produce the same values in different\nimplementations (even if a seed is specified).\n",
+    "attributes": [
+      {
+        "name": "dtype",
+        "type": "int64",
+        "required": false,
+        "description": "The data type for the elements of the output tensor. if not specified, we will use the data type of the input tensor."
+      },
+      {
+        "name": "seed",
+        "type": "float32",
+        "required": false,
+        "description": "(Optional) Seed to the random generator, if not specified we will auto generate one."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "All values in input have to be in the range:[0, 1]."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "The returned output tensor only has values 0 or 1, same shape as input tensor."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)"
+        ]
+      },
+      {
+        "description": "Constrain output types to all numeric tensors and bool tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "bernoulli_with_dtype",
+        "code": "node = onnx.helper.make_node(\n    'Bernoulli',\n    inputs=['x'],\n    outputs=['y'],\n    dtype=onnx.TensorProto.DOUBLE,\n)\n\nx = np.random.uniform(0.0, 1.0, 10).astype(np.float32)\ny = bernoulli_reference_implementation(x, np.float64)\nexpect(node, inputs=[x], outputs=[y], name='test_bernoulli_double')"
+      },
+      {
+        "summary": "bernoulli_with_seed",
+        "code": "seed = np.float(0)\nnode = onnx.helper.make_node(\n    'Bernoulli',\n    inputs=['x'],\n    outputs=['y'],\n    seed=seed,\n)\n\nx = np.random.uniform(0.0, 1.0, 10).astype(np.float32)\ny = bernoulli_reference_implementation(x, np.float32)\nexpect(node, inputs=[x], outputs=[y], name='test_bernoulli_seed')"
+      },
+      {
+        "summary": "bernoulli_without_dtype",
+        "code": "node = onnx.helper.make_node(\n    'Bernoulli',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.random.uniform(0.0, 1.0, 10).astype(np.float)\ny = bernoulli_reference_implementation(x, np.float)\nexpect(node, inputs=[x], outputs=[y], name='test_bernoulli')"
+      }
+    ]
+  },
+  {
     "name": "Binarizer",
     "domain": "ai.onnx.ml",
     "version": 1,
