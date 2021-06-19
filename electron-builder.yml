@@ -29,6 +29,7 @@ fileAssociations:
     ext: mlmodel
   - name: "Core ML Model Package"
     ext: mlpackage
+    isPackage: true
   - name: "MNN Model"
     ext: mnn
   - name: "Model"
