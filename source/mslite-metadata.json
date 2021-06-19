@@ -131,6 +131,16 @@
     ]
   },
   {
+    "name": "Affine",
+    "attributes": [
+      { "name": "context", "type": "int64[]", "default": 0 },
+      { "name": "output_dim", "type": "int64", "default": 0 },
+      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
+      { "name": "transpose_a", "type": "boolean", "default": false },
+      { "name": "transpose_b", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "All",
     "attributes": [
       { "name": "keepDims", "type": "int32", "default": 0 },
@@ -2754,6 +2764,21 @@
     "outputs": [
       { "name": "y" }
     ]
+  },
+  {
+    "name": "TensorArray",
+    "attributes": [
+      { "name": "dynamic_size", "type": "boolean", "default": false },
+      { "name": "identical_element_shapes", "type": "boolean", "default": false },
+      { "name": "element_shape", "type": "int32[]", "default": 0 },
+      { "name": "data_type", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "TensorArrayRead"
+  },
+  {
+    "name": "TensorArrayWrite"
   },
   {
     "name": "TensorListFromTensor",

@@ -370,6 +370,10 @@ $root.mindspore.schema.PrimitiveType = class {
             case 194: return $root.mindspore.schema.GenOP.decode(reader, position);
             case 195: return $root.mindspore.schema.RaggedRange.decode(reader, position);
             case 196: return $root.mindspore.schema.GLU.decode(reader, position);
+            case 197: return $root.mindspore.schema.TensorArray.decode(reader, position);
+            case 198: return $root.mindspore.schema.TensorArrayRead.decode(reader, position);
+            case 199: return $root.mindspore.schema.TensorArrayWrite.decode(reader, position);
+            case 200: return $root.mindspore.schema.Affine.decode(reader, position);
         }
         return undefined;
     }
@@ -572,6 +576,10 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'GenOP': return $root.mindspore.schema.GenOP.decodeText(reader, json);
             case 'RaggedRange': return $root.mindspore.schema.RaggedRange.decodeText(reader, json);
             case 'GLU': return $root.mindspore.schema.GLU.decodeText(reader, json);
+            case 'TensorArray': return $root.mindspore.schema.TensorArray.decodeText(reader, json);
+            case 'TensorArrayRead': return $root.mindspore.schema.TensorArrayRead.decodeText(reader, json);
+            case 'TensorArrayWrite': return $root.mindspore.schema.TensorArrayWrite.decodeText(reader, json);
+            case 'Affine': return $root.mindspore.schema.Affine.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3859,6 +3867,76 @@ $root.mindspore.schema.GLU = class GLU {
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.GLU();
         $.axis = reader.value(json.axis, -1);
+        return $;
+    }
+};
+
+$root.mindspore.schema.TensorArray = class TensorArray {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.TensorArray();
+        $.dynamic_size = reader.bool_(position, 4, false);
+        $.identical_element_shapes = reader.bool_(position, 6, false);
+        $.element_shape = reader.typedArray(position, 8, Int32Array);
+        $.data_type = reader.int32_(position, 10, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.TensorArray();
+        $.dynamic_size = reader.value(json.dynamic_size, false);
+        $.identical_element_shapes = reader.value(json.identical_element_shapes, false);
+        $.element_shape = reader.typedArray(json.element_shape, Int32Array);
+        $.data_type = reader.value(json.data_type, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.TensorArrayRead = class TensorArrayRead {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.TensorArrayRead();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.TensorArrayRead();
+        return $;
+    }
+};
+
+$root.mindspore.schema.TensorArrayWrite = class TensorArrayWrite {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.TensorArrayWrite();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.TensorArrayWrite();
+        return $;
+    }
+};
+
+$root.mindspore.schema.Affine = class Affine {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.Affine();
+        $.context = reader.int64s_(position, 4);
+        $.output_dim = reader.int64_(position, 6, 0);
+        $.activation_type = reader.int8_(position, 8, 0);
+        $.transpose_a = reader.bool_(position, 10, false);
+        $.transpose_b = reader.bool_(position, 12, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.Affine();
+        $.context = reader.array(json.context);
+        $.output_dim = reader.value(json.output_dim, 0);
+        $.activation_type = $root.mindspore.schema.ActivationType[json.activation_type];
+        $.transpose_a = reader.value(json.transpose_a, false);
+        $.transpose_b = reader.value(json.transpose_b, false);
         return $;
     }
 };
