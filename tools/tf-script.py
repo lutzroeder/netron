@@ -377,5 +377,5 @@ def metadata():
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata }
-    command = sys.argv[1] # if len(sys.argv) > 1 else 'metadata'
+    command = sys.argv[1] if len(sys.argv) > 1 else 'metadata'
     command_table[command]()
