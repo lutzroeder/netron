@@ -1977,6 +1977,7 @@ python.Execution = class {
         this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
         this.registerType('sklearn.linear_model._ridge.Ridge', class {});
         this.registerType('sklearn.linear_model._sgd_fast.Hinge', class {});
+        this.registerType('sklearn.linear_model._sgd_fast.Log', class {});
         this.registerType('sklearn.linear_model._sgd_fast.ModifiedHuber', class {});
         this.registerType('sklearn.linear_model._sgd_fast.SquaredHinge', class {});
         this.registerType('sklearn.linear_model._stochastic_gradient.SGDClassifier', class {});
