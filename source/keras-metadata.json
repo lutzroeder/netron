@@ -1047,10 +1047,10 @@
   {
     "name": "ConvLSTM2D",
     "package": "tensorflow.keras.layers",
-    "description": "2D Convolutional LSTM layer.\n\nA convolutional LSTM is similar to an LSTM, but the input transformations\nand recurrent transformations are both convolutional. This layer is typically\nused to process timeseries of images (i.e. video-like data).\n\nIt is known to perform well for weather data forecasting,\nusing inputs that are timeseries of 2D grids of sensor values.\nIt isn't usually applied to regular video data, due to its high computational\ncost.",
+    "description": "2D Convolutional LSTM.\n\nSimilar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.",
     "attributes": [
       {
-        "description": "Integer, the dimensionality of the output space\n    (i.e. the number of output filters in the convolution).",
+        "description": "Integer, the dimensionality of the output space (i.e. the number of\n    output filters in the convolution).",
         "name": "filters"
       },
       {
@@ -1058,28 +1058,28 @@
         "name": "kernel_size"
       },
       {
-        "description": "An integer or tuple/list of n integers,\n    specifying the strides of the convolution.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+        "description": "An integer or tuple/list of n integers, specifying the strides of\n    the convolution. Specifying any stride value != 1 is incompatible with\n    specifying any `dilation_rate` value != 1.",
         "name": "strides"
       },
       {
-        "description": "One of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding evenly to\n    the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+        "description": "One of `\"valid\"` or `\"same\"` (case-insensitive). `\"valid\"` means no\n    padding. `\"same\"` results in padding evenly to the left/right or up/down\n    of the input such that output has the same height/width dimension as the\n    input.",
         "name": "padding"
       },
       {
         "default": "channels_last",
-        "description": "A string,\n    one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs.\n    `channels_last` corresponds to inputs with shape\n    `(batch, time, ..., channels)`\n    while `channels_first` corresponds to\n    inputs with shape `(batch, time, channels, ...)`.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+        "description": "A string, one of `channels_last` (default) or `channels_first`.\n    The ordering of the dimensions in the inputs. `channels_last` corresponds\n    to inputs with shape `(batch, time, ..., channels)` while `channels_first`\n    corresponds to inputs with shape `(batch, time, channels, ...)`. It\n    defaults to the `image_data_format` value found in your Keras config file\n    at `~/.keras/keras.json`. If you never set it, then it will be\n    \"channels_last\".",
         "name": "data_format"
       },
       {
-        "description": "An integer or tuple/list of n integers, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
+        "description": "An integer or tuple/list of n integers, specifying the\n    dilation rate to use for dilated convolution. Currently, specifying any\n    `dilation_rate` value != 1 is incompatible with specifying any `strides`\n    value != 1.",
         "name": "dilation_rate"
       },
       {
-        "description": "Activation function to use.\n    By default hyperbolic tangent activation function is applied\n    (`tanh(x)`).",
+        "description": "Activation function to use. By default hyperbolic tangent\n    activation function is applied (`tanh(x)`).",
         "name": "activation"
       },
       {
-        "description": "Activation function to use\n    for the recurrent step.",
+        "description": "Activation function to use for the recurrent step.",
         "name": "recurrent_activation"
       },
       {
@@ -1089,12 +1089,12 @@
         "visible": false
       },
       {
-        "description": "Initializer for the `kernel` weights matrix,\n    used for the linear transformation of the inputs.",
+        "description": "Initializer for the `kernel` weights matrix, used for\n    the linear transformation of the inputs.",
         "name": "kernel_initializer",
         "visible": false
       },
       {
-        "description": "Initializer for the `recurrent_kernel`\n    weights matrix,\n    used for the linear transformation of the recurrent state.",
+        "description": "Initializer for the `recurrent_kernel` weights\n    matrix, used for the linear transformation of the recurrent state.",
         "name": "recurrent_initializer",
         "visible": false
       },
@@ -1104,16 +1104,16 @@
         "visible": false
       },
       {
-        "description": "Boolean.\n    If True, add 1 to the bias of the forget gate at initialization.\n    Use in combination with `bias_initializer=\"zeros\"`.\n    This is recommended in [Jozefowicz et al., 2015](\n      http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
+        "description": "Boolean. If True, add 1 to the bias of the forget gate at\n    initialization. Use in combination with `bias_initializer=\"zeros\"`. This\n    is recommended in [Jozefowicz et al., 2015](\n      http://www.jmlr.org/proceedings/papers/v37/jozefowicz15.pdf)",
         "name": "unit_forget_bias"
       },
       {
-        "description": "Regularizer function applied to\n    the `kernel` weights matrix.",
+        "description": "Regularizer function applied to the `kernel` weights\n    matrix.",
         "name": "kernel_regularizer",
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the `recurrent_kernel` weights matrix.",
+        "description": "Regularizer function applied to the\n    `recurrent_kernel` weights matrix.",
         "name": "recurrent_regularizer",
         "visible": false
       },
@@ -1128,12 +1128,12 @@
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the `kernel` weights matrix.",
+        "description": "Constraint function applied to the `kernel` weights\n    matrix.",
         "name": "kernel_constraint",
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the `recurrent_kernel` weights matrix.",
+        "description": "Constraint function applied to the `recurrent_kernel`\n    weights matrix.",
         "name": "recurrent_constraint",
         "visible": false
       },
@@ -1143,28 +1143,28 @@
         "visible": false
       },
       {
-        "description": "Boolean. Whether to return the last output\n    in the output sequence, or the full sequence. (default False)",
+        "description": "Boolean. Whether to return the last output in the output\n    sequence, or the full sequence. (default False)",
         "name": "return_sequences"
       },
       {
-        "description": "Boolean (default False).\n    If True, process the input sequence backwards.",
+        "description": "Boolean (default False). If True, process the input sequence\n    backwards.",
         "name": "go_backwards"
       },
       {
-        "description": "Boolean (default False). If True, the last state\n    for each sample at index i in a batch will be used as initial\n    state for the sample of index i in the following batch.",
+        "description": "Boolean (default False). If True, the last state for each sample\n    at index i in a batch will be used as initial state for the sample of\n    index i in the following batch.",
         "name": "stateful"
       },
       {
         "default": 0,
-        "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the inputs.",
+        "description": "Float between 0 and 1. Fraction of the units to drop for the linear\n    transformation of the inputs.",
         "name": "dropout"
       },
       {
-        "description": "Float between 0 and 1.\n    Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
+        "description": "Float between 0 and 1. Fraction of the units to drop for\n    the linear transformation of the recurrent state.",
         "name": "recurrent_dropout"
       },
       {
-        "description": "Boolean Whether to return the last state\n    in addition to the output. (default False)",
+        "description": "Boolean Whether to return the last state in addition to the\n    output. (default False)",
         "name": "return_state"
       }
     ],
@@ -1176,18 +1176,18 @@
     ],
     "outputs": [
       {
-        "description": "- If `return_state`: a list of tensors. The first tensor is\n  the output. The remaining tensors are the last states,\n  each 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n  `rows` and `cols` values might have changed due to padding.\n- If `return_sequences`: 5D tensor with shape:\n  `(samples, timesteps, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 5D tensor with shape:\n  `(samples, timesteps, new_rows, new_cols, filters)`\n  if data_format='channels_last'.\n- Else, 4D tensor with shape:\n  `(samples, filters, new_rows, new_cols)`\n  if data_format='channels_first'\n  or 4D tensor with shape:\n  `(samples, new_rows, new_cols, filters)`\n  if data_format='channels_last'.",
+        "description": "- If `return_state`: a list of tensors. The first tensor is the output. The\n  remaining tensors are the last states,\n  each 4D tensor with shape: `(samples, filters, new_rows, new_cols)` if\n    data_format='channels_first'\n  or shape: `(samples, new_rows, new_cols, filters)` if\n    data_format='channels_last'. `rows` and `cols` values might have changed\n    due to padding.\n- If `return_sequences`: 5D tensor with shape: `(samples, timesteps,\n  filters, new_rows, new_cols)` if data_format='channels_first'\n  or shape: `(samples, timesteps, new_rows, new_cols, filters)` if\n    data_format='channels_last'.\n- Else, 4D tensor with shape: `(samples, filters, new_rows, new_cols)` if\n  data_format='channels_first'\n  or shape: `(samples, new_rows, new_cols, filters)` if\n    data_format='channels_last'.",
         "name": "output"
-      }
-    ],
-    "references": [
-      {
-        "description": "[Shi et al., 2015](http://arxiv.org/abs/1506.04214v1) (the current implementation does not include the feedback loop on the cells output). "
       }
     ],
     "examples": [
       {
         "code": "steps = 10\nheight = 32\nwidth = 32\ninput_channels = 3\noutput_channels = 6\n\ninputs = tf.keras.Input(shape=(steps, height, width, input_channels))\nlayer = tf.keras.layers.ConvLSTM2D(filters=output_channels, kernel_size=3)\noutputs = layer(inputs)"
+      }
+    ],
+    "references": [
+      {
+        "description": "[Shi et al., 2015](http://arxiv.org/abs/1506.04214v1) (the current implementation does not include the feedback loop on the cells output)."
       }
     ]
   },
