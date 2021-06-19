@@ -583,7 +583,7 @@ tf.Graph = class {
                             node_map.delete(node.input[0].name);
                         }
                         const identity = node.input[0].from;
-                        if (identity.op === 'Identity' && identity.input.length === 1 && identity.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                        if (identity && identity.op === 'Identity' && identity.input.length === 1 && identity.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
                             const initializer = map_tensor(node.name, identity.input[0].from, 'Identity Constant');
                             if (initializer) {
                                 initializers.set(initializer.name, initializer);
