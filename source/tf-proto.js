@@ -1845,12 +1845,6 @@ $root.tensorflow.DataType = {
     "DT_UINT64_REF": 123
 };
 
-$root.tensorflow.SpecializedType = {
-    "ST_INVALID": 0,
-    "ST_TENSOR_LIST": 1,
-    "ST_OPTIONAL": 2
-};
-
 $root.tensorflow.NodeDef = class NodeDef {
 
     constructor() {
@@ -2382,6 +2376,7 @@ $root.tensorflow.FullTypeId = {
     "TFT_CALLABLE": 100,
     "TFT_TENSOR": 1000,
     "TFT_ARRAY": 1001,
+    "TFT_OPTIONAL": 1002,
     "TFT_DATASET": 10102,
     "TFT_BOOL": 200,
     "TFT_UINT8": 201,
