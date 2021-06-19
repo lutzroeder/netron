@@ -11031,6 +11031,11 @@
         "name": "data_transfer_protocol",
         "type": "string",
         "default": ""
+      },
+      {
+        "name": "target_workers",
+        "type": "string",
+        "default": "AUTO"
       }
     ],
     "inputs": [
@@ -11093,6 +11098,11 @@
         "name": "data_transfer_protocol",
         "type": "string",
         "default": ""
+      },
+      {
+        "name": "target_workers",
+        "type": "string",
+        "default": "AUTO"
       }
     ],
     "inputs": [
@@ -14447,7 +14457,7 @@
   },
   {
     "name": "Erf",
-    "summary": "Computes the Gauss error function of `x` element-wise.",
+    "summary": "Computes the [Gauss error function](https://en.wikipedia.org/wiki/Error_function) of `x` element-wise. In statistics, for non-negative values of $x$, the error function has the following interpretation: for a random variable $Y$ that is normally distributed with mean 0 and variance $1/\\sqrt{2}$, $erf(x)$ is the probability that $Y$ falls in the range $[\u2212x, x]$.",
     "attributes": [
       {
         "name": "T",
@@ -19848,7 +19858,7 @@
   {
     "name": "Igammac",
     "summary": "Compute the upper regularized incomplete Gamma function `Q(a, x)`.",
-    "description": "The upper regularized incomplete Gamma function is defined as:\n\n\\\\(Q(a, x) = Gamma(a, x) / Gamma(a) = 1 - P(a, x)\\\\)\n\nwhere\n\n\\\\(Gamma(a, x) = int_{x}^{\\infty} t^{a-1} exp(-t) dt\\\\)\n\nis the upper incomplete Gama function.\n\nNote, above `P(a, x)` (`Igamma`) is the lower regularized complete\nGamma function.",
+    "description": "The upper regularized incomplete Gamma function is defined as:\n\n\\\\(Q(a, x) = Gamma(a, x) / Gamma(a) = 1 - P(a, x)\\\\)\n\nwhere\n\n\\\\(Gamma(a, x) = \\int_{x}^{\\infty} t^{a-1} exp(-t) dt\\\\)\n\nis the upper incomplete Gamma function.\n\nNote, above `P(a, x)` (`Igamma`) is the lower regularized complete\nGamma function.",
     "attributes": [
       {
         "name": "T",
@@ -57863,6 +57873,11 @@
         "type": "boolean",
         "description": "Whether to apply partial pivoting. Partial pivoting makes the procedure more\nstable, but slower.",
         "default": true
+      },
+      {
+        "name": "perturb_singular",
+        "type": "boolean",
+        "default": false
       },
       {
         "name": "T",
