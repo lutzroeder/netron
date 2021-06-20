@@ -5,8 +5,8 @@ var zip = zip || require('./zip');
 
 gzip.Archive = class {
 
-    static open(buffer) {
-        const stream = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
+    static open(data) {
+        const stream = data instanceof Uint8Array ? new gzip.BinaryReader(data) : data;
         const signature = [ 0x1f, 0x8b ];
         if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
             return new gzip.Archive(stream);
