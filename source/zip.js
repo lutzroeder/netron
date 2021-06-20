@@ -5,8 +5,8 @@ var zlib = zlib || {};
 
 zip.Archive = class {
 
-    static open(buffer) {
-        const stream = buffer instanceof Uint8Array ? new zip.BinaryReader(buffer) : buffer;
+    static open(data) {
+        const stream = data instanceof Uint8Array ? new zip.BinaryReader(data) : data;
         if (stream.length > 2) {
             const buffer = stream.peek(2);
             if (buffer[0] === 0x78) { // zlib
