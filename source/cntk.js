@@ -43,7 +43,8 @@ cntk.ModelFactory = class {
                 if (!obj) {
                     cntk_v2 = protobuf.get('cntk').CNTK.proto;
                     cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const reader = protobuf.Reader.create(context.stream.peek());
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
                     const dictionary = cntk_v2.Dictionary.decode(reader);
                     obj = cntk.ModelFactory._convertDictionary(dictionary);
                     version = 2;

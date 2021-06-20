@@ -18,8 +18,7 @@ xmodel.ModelFactory = class {
             try {
                 xmodel.proto = protobuf.get('xmodel').serial_v2;
                 const stream = context.stream;
-                const buffer = stream.peek();
-                const reader = protobuf.Reader.create(buffer);
+                const reader = protobuf.BinaryReader.open(stream);
                 const graph = xmodel.proto.Graph.decode(reader);
                 return new xmodel.Model(graph);
             }

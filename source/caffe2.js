@@ -64,7 +64,7 @@ caffe2.ModelFactory = class {
                         let init_net = null;
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            const reader = protobuf.TextReader.create(predictBuffer);
+                            const reader = protobuf.TextReader.open(predictBuffer);
                             reader.field = function(tag, message) {
                                 if (message instanceof caffe2.proto.DeviceOption) {
                                     message[tag] = this.read();
@@ -81,9 +81,14 @@ caffe2.ModelFactory = class {
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
                             if (initBuffer) {
-                                init_net = initTextFormat ?
-                                    caffe2.proto.NetDef.decodeText(protobuf.TextReader.create(initBuffer)) :
-                                    caffe2.proto.NetDef.decode(protobuf.Reader.create(initBuffer));
+                                if (initTextFormat) {
+                                    const reader = protobuf.TextReader.open(initBuffer);
+                                    init_net = caffe2.proto.NetDef.decodeText(reader);
+                                }
+                                else {
+                                    const reader = protobuf.BinaryReader.open(initBuffer);
+                                    init_net = caffe2.proto.NetDef.decode(reader);
+                                }
                             }
                         }
                         catch (error) {
@@ -127,7 +132,7 @@ caffe2.ModelFactory = class {
                         let init_net = null;
                         try {
                             caffe2.proto = protobuf.get('caffe2').caffe2;
-                            const reader = protobuf.Reader.create(predictBuffer);
+                            const reader = protobuf.BinaryReader.open(predictBuffer);
                             predict_net = caffe2.proto.NetDef.decode(reader);
                         }
                         catch (error) {
@@ -137,7 +142,7 @@ caffe2.ModelFactory = class {
                         try {
                             if (initBuffer) {
                                 caffe2.proto = protobuf.get('caffe2').caffe2;
-                                const reader = protobuf.Reader.create(initBuffer);
+                                const reader = protobuf.BinaryReader.open(initBuffer);
                                 init_net = caffe2.proto.NetDef.decode(reader);
                             }
                         }

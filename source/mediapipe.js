@@ -18,8 +18,8 @@ mediapipe.ModelFactory = class {
         // return context.require('./mediapipe-proto').then(() => {
             mediapipe.proto = protobuf.get('mediapipe');
             try {
-                const buffer = context.stream.peek();
-                const reader = protobuf.TextReader.create(buffer);
+                const stream = context.stream;
+                const reader = protobuf.TextReader.open(stream);
                 // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
                 const config = new mediapipe.Object(reader);
                 return new mediapipe.Model(config);
@@ -185,7 +185,7 @@ mediapipe.Node = class {
             for (const entry of node_options) {
                 const value = new RegExp(/^\{(.*)\}\s*$/, 's').exec(entry.value);
                 const buffer = new TextEncoder('utf-8').encode(value[1]);
-                const reader = protobuf.TextReader.create(buffer);
+                const reader = protobuf.TextReader.open(buffer);
                 if (entry.type_url.startsWith('type.googleapis.com/mediapipe.')) {
                     const type = entry.type_url.split('.').pop();
                     if (mediapipe.proto && mediapipe.proto.mediapipe && mediapipe.proto.mediapipe[type]) {

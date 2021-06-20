@@ -15,7 +15,7 @@ json.TextReader = class {
     }
 
     read() {
-        const decoder = base.TextDecoder.create(this._buffer);
+        const decoder = base.TextDecoder.open(this._buffer);
         const stack = [];
         this._decoder = decoder;
         this._position = 0;

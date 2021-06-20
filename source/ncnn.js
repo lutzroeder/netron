@@ -11,7 +11,7 @@ ncnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const reader = base.TextReader.create(context.stream.peek(), 2048);
+            const reader = base.TextReader.open(context.stream.peek(), 2048);
             const signature = reader.read();
             if (signature !== undefined) {
                 if (signature.trim() === '7767517') {
@@ -784,7 +784,7 @@ ncnn.Utility = class {
 ncnn.TextParamReader = class {
 
     constructor(buffer) {
-        const reader = base.TextReader.create(buffer);
+        const reader = base.TextReader.open(buffer);
         const lines = [];
         for (;;) {
             const line = reader.read();

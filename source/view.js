@@ -1281,22 +1281,19 @@ view.ModelContext = class {
         let tags = this._tags.get(type);
         if (!tags) {
             tags = new Map();
-            let reset = false;
-            const signatures = [
-                // Reject PyTorch models
-                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ],
-                // Reject TorchScript models
-                [ 0x50, 0x4b ]
-            ];
             const stream = this.stream;
             if (stream) {
+                const signatures = [
+                    // Reject PyTorch models
+                    [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ],
+                    [ 0x50, 0x4b ]
+                ];
                 if (!signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
                     try {
                         switch (type) {
                             case 'pbtxt': {
-                                reset = true;
                                 const buffer = stream.peek();
-                                const decoder = base.TextDecoder.create(buffer);
+                                const decoder = base.TextDecoder.open(buffer);
                                 let count = 0;
                                 for (let i = 0; i < 0x100; i++) {
                                     const c = decoder.decode();
@@ -1307,8 +1304,7 @@ view.ModelContext = class {
                                     }
                                 }
                                 if (count < 4) {
-                                    const buffer = stream.peek();
-                                    const reader = protobuf.TextReader.create(buffer);
+                                    const reader = protobuf.TextReader.open(stream);
                                     reader.start(false);
                                     while (!reader.end(false)) {
                                         const tag = reader.tag();
@@ -1330,9 +1326,7 @@ view.ModelContext = class {
                                 break;
                             }
                             case 'pb': {
-                                reset = true;
-                                const buffer = stream.peek();
-                                const reader = protobuf.Reader.create(buffer);
+                                const reader = protobuf.BinaryReader.open(stream);
                                 const length = reader.length;
                                 while (reader.position < length) {
                                     const tag = reader.uint32();
@@ -1360,8 +1354,8 @@ view.ModelContext = class {
                     }
                 }
             }
-            if (reset) {
-                this.stream.seek(0);
+            if (stream.position !== 0) {
+                stream.seek(0);
             }
             this._tags.set(type, tags);
         }

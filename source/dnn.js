@@ -19,7 +19,8 @@ dnn.ModelFactory = class {
             let model = null;
             try {
                 dnn.proto = protobuf.get('dnn').dnn;
-                const reader = protobuf.Reader.create(context.stream.peek());
+                const stream = context.stream;
+                const reader = protobuf.BinaryReader.open(stream);
                 model = dnn.proto.Model.decode(reader);
             }
             catch (error) {

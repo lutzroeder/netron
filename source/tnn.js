@@ -9,7 +9,7 @@ tnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
             try {
-                const reader = base.TextReader.create(context.stream.peek(), 2048);
+                const reader = base.TextReader.open(context.stream.peek(), 2048);
                 const text = reader.read();
                 if (text !== undefined) {
                     const line = text.trim();
@@ -634,7 +634,7 @@ tnn.Metadata = class {
 tnn.TextProtoReader = class {
 
     constructor(buffer) {
-        const reader = base.TextReader.create(buffer);
+        const reader = base.TextReader.open(buffer);
         let lines = [];
         for (;;) {
             const line = reader.read();

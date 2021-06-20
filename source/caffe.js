@@ -30,7 +30,8 @@ caffe.ModelFactory = class {
                 const tags = context.tags('pbtxt');
                 if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
                     try {
-                        const reader = protobuf.TextReader.create(context.stream.peek());
+                        const stream = context.stream;
+                        const reader = protobuf.TextReader.open(stream);
                         reader.field = function(tag, message) {
                             if (message instanceof caffe.proto.SolverParameter) {
                                 message[tag] = this.read();
@@ -66,7 +67,8 @@ caffe.ModelFactory = class {
                 else {
                     let netParameter = null;
                     try {
-                        const reader = protobuf.Reader.create(context.stream.peek());
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
                         netParameter = caffe.proto.NetParameter.decode(reader);
                     }
                     catch (error) {
@@ -82,7 +84,7 @@ caffe.ModelFactory = class {
     _openNetParameterText(metadata, identifier, buffer) {
         let netParameter = null;
         try {
-            const reader = protobuf.TextReader.create(buffer);
+            const reader = protobuf.TextReader.open(buffer);
             reader.field = function(tag, message) {
                 const type = message.constructor.name;
                 if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {

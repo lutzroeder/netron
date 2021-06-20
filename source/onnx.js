@@ -34,7 +34,7 @@ onnx.ModelFactory = class {
                     const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
                         const decode = (buffer, value) => {
-                            const reader = protobuf.Reader.create(buffer);
+                            const reader = protobuf.BinaryReader.open(buffer);
                             const length = reader.length;
                             while (reader.position < length) {
                                 const tag = reader.uint32();
@@ -111,8 +111,8 @@ onnx.ModelFactory = class {
                 case 'prototxt': {
                     try {
                         onnx.proto = protobuf.get('onnx').onnx;
-                        const buffer = context.stream.peek();
-                        const reader = protobuf.TextReader.create(buffer);
+                        const stream = context.stream;
+                        const reader = protobuf.TextReader.open(stream);
                         model = onnx.proto.ModelProto.decodeText(reader);
                         format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                     }
@@ -129,8 +129,8 @@ onnx.ModelFactory = class {
                         // input_0.pb, output_0.pb
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
+                            const stream = context.stream;
+                            const reader = protobuf.BinaryReader.open(stream);
                             const tensor = onnx.proto.TensorProto.decode(reader);
                             tensor.name = tensor.name || context.identifier;
                             model = new onnx.proto.ModelProto();
@@ -154,8 +154,8 @@ onnx.ModelFactory = class {
                         // GraphProto
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
+                            const stream = context.stream;
+                            const reader = protobuf.BinaryReader.open(stream);
                             model = new onnx.proto.ModelProto();
                             model.graph = onnx.proto.GraphProto.decode(reader);
                             format = 'ONNX';
@@ -169,8 +169,8 @@ onnx.ModelFactory = class {
                         // ModelProto
                         try {
                             onnx.proto = protobuf.get('onnx').onnx;
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
+                            const stream = context.stream;
+                            const reader = protobuf.BinaryReader.open(stream);
                             model = onnx.proto.ModelProto.decode(reader);
                             format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
                         }

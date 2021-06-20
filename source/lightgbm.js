@@ -8,7 +8,7 @@ lightgbm.ModelFactory = class {
     match(context) {
         try {
             const stream = context.stream;
-            const reader = base.TextReader.create(stream.peek(), 65536);
+            const reader = base.TextReader.open(stream.peek(), 65536);
             const line = reader.read();
             if (line === 'tree') {
                 return true;
@@ -34,7 +34,7 @@ lightgbm.ModelFactory = class {
                     format = 'LightGBM Pickle';
                     model = obj;
                     if (model && model.handle && typeof model.handle === 'string') {
-                        const reader = base.TextReader.create(model.handle);
+                        const reader = base.TextReader.open(model.handle);
                         model = new lightgbm.basic.Booster(reader);
                     }
                 }
@@ -42,7 +42,7 @@ lightgbm.ModelFactory = class {
                     format = 'LightGBM';
                     const stream = context.stream;
                     const buffer = stream.peek();
-                    const reader = base.TextReader.create(buffer);
+                    const reader = base.TextReader.open(buffer);
                     model = new lightgbm.basic.Booster(reader);
                 }
                 resolve(new lightgbm.Model(model, format));

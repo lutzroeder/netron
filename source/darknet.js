@@ -16,7 +16,7 @@ darknet.ModelFactory = class {
                 break;
             default:
                 try {
-                    const reader = base.TextReader.create(context.stream.peek(), 65536);
+                    const reader = base.TextReader.open(context.stream.peek(), 65536);
                     for (;;) {
                         const line = reader.read();
                         if (line === undefined) {
@@ -91,7 +91,7 @@ darknet.Graph = class {
         // read_cfg
         const sections = [];
         let section = null;
-        const reader = base.TextReader.create(cfg);
+        const reader = base.TextReader.open(cfg);
         let lineNumber = 0;
         for (;;) {
             lineNumber++;

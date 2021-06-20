@@ -10,7 +10,7 @@ openvino.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
             try {
-                const reader = base.TextReader.create(context.stream.peek(), 2048);
+                const reader = base.TextReader.open(context.stream.peek(), 2048);
                 for (;;) {
                     const line = reader.read();
                     if (line === undefined) {

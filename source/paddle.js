@@ -44,8 +44,7 @@ paddle.ModelFactory = class {
                         case 'pbtxt':
                         case 'txt': {
                             try {
-                                const buffer = stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
+                                const reader = protobuf.TextReader.open(stream);
                                 program.desc = paddle.proto.ProgramDesc.decodeText(reader);
                             }
                             catch (error) {
@@ -56,8 +55,7 @@ paddle.ModelFactory = class {
                         }
                         default: {
                             try {
-                                const buffer = stream.peek();
-                                const reader = protobuf.Reader.create(buffer);
+                                const reader = protobuf.BinaryReader.open(stream);
                                 program.desc = paddle.proto.ProgramDesc.decode(reader);
                             }
                             catch (error) {
@@ -533,14 +531,19 @@ paddle.Tensor = class {
                 this._kind = 'NumPy Array';
             }
             else {
+                const uint32 = (stream) => {
+                    const buffer = stream.read(4);
+                    const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                    return view.getUint32(0, true);
+                };
                 const stream = data;
                 const signature = stream.read(16);
                 if (!signature.every((value) => value === 0x00)) {
                     throw new paddle.Error('Invalid paddle.TensorDesc signature.');
                 }
-                const buffer = stream.read(4);
-                const length = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength).getUint32(0, true);
-                const reader = protobuf.Reader.create(stream.read(length));
+                const length = uint32(stream);
+                const buffer = stream.read(length);
+                const reader = protobuf.BinaryReader.open(buffer);
                 const tensorDesc = paddle.proto.VarType.TensorDesc.decode(reader);
                 const size = tensorDesc.dims.reduce((a, b) => a * b.toNumber(), 1);
                 let itemsize = 0;

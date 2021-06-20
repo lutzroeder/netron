@@ -12,9 +12,10 @@ protobuf.get = (name) => {
     return protobuf._map.get(name);
 };
 
-protobuf.Reader = class {
+protobuf.BinaryReader = class {
 
-    constructor(buffer) {
+    constructor(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
@@ -22,8 +23,8 @@ protobuf.Reader = class {
         this._utf8Decoder = new TextDecoder('utf-8');
     }
 
-    static create(buffer) {
-        return new protobuf.Reader(buffer);
+    static open(buffer) {
+        return new protobuf.BinaryReader(buffer);
     }
 
     get length() {
@@ -334,8 +335,9 @@ protobuf.Reader = class {
 
 protobuf.TextReader = class {
 
-    constructor(buffer) {
-        this._decoder = base.TextDecoder.create(buffer);
+    constructor(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
+        this._decoder = base.TextDecoder.open(buffer);
         this._position = 0;
         this._token = undefined;
         this._depth = 0;
@@ -344,7 +346,7 @@ protobuf.TextReader = class {
         this.next();
     }
 
-    static create(buffer) {
+    static open(buffer) {
         return new protobuf.TextReader(buffer);
     }
 
@@ -981,7 +983,7 @@ protobuf.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Reader = protobuf.Reader;
+    module.exports.BinaryReader = protobuf.BinaryReader;
     module.exports.TextReader = protobuf.TextReader;
     module.exports.Error = protobuf.Error;
     module.exports.Int64 = protobuf.Int64;

@@ -59,7 +59,7 @@ coreml.ModelFactory = class {
                     let model = null;
                     try {
                         coreml.proto = protobuf.get('coreml').CoreML.Specification;
-                        const reader = protobuf.Reader.create(stream.peek());
+                        const reader = protobuf.BinaryReader.open(stream);
                         model = coreml.proto.Model.decode(reader);
                     }
                     catch (error) {
