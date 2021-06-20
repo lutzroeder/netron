@@ -4,8 +4,8 @@ var tar = tar || {};
 
 tar.Archive = class {
 
-    static open(buffer) {
-        const stream = buffer instanceof Uint8Array ? new tar.BinaryReader(buffer) : buffer;
+    static open(data) {
+        const stream = data instanceof Uint8Array ? new tar.BinaryReader(data) : data;
         if (stream.length > 512) {
             const buffer = stream.peek(512);
             const sum = buffer.map((value, index) => (index >= 148 && index < 156) ? 32 : value).reduce((a, b) => a + b, 0);
