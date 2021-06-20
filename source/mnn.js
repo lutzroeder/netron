@@ -11,7 +11,7 @@ mnn.ModelFactory = class {
             const extension = context.identifier.split('.').pop().toLowerCase();
             if (extension == 'mnn') {
                 const buffer = stream.peek(4);
-                const reader = new flatbuffers.Reader(buffer);
+                const reader = new flatbuffers.BinaryReader(buffer);
                 if (reader.root === 0x00000018 || reader.root === 0x0000001C || reader.root === 0x00000020) {
                     return true;
                 }
@@ -25,8 +25,8 @@ mnn.ModelFactory = class {
             let net = null;
             try {
                 mnn.schema = flatbuffers.get('mnn').MNN;
-                const buffer = context.stream.peek();
-                const reader = new flatbuffers.Reader(buffer);
+                const stream = context.stream;
+                const reader = flatbuffers.BinaryReader.open(stream);
                 net = mnn.schema.Net.create(reader);
             }
             catch (error) {

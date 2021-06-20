@@ -12,9 +12,14 @@ flatbuffers.get = (name) => {
     return flatbuffers._map.get(name);
 };
 
-flatbuffers.Reader = class {
+flatbuffers.BinaryReader = class {
 
-    constructor(buffer) {
+    static open(data) {
+        return new flatbuffers.BinaryReader(data);
+    }
+
+    constructor(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
         this._buffer = buffer;
         this._position = 0;
         this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
@@ -298,6 +303,10 @@ flatbuffers.Reader = class {
 
 flatbuffers.TextReader = class {
 
+    static open(obj) {
+        return new flatbuffers.TextReader(obj);
+    }
+
     constructor(obj) {
         this._root = obj;
     }
@@ -367,7 +376,7 @@ flatbuffers.Error = class extends Error {
 };
 
 if (typeof module !== "undefined" && typeof module.exports === "object") {
-    module.exports.Reader = flatbuffers.Reader;
+    module.exports.BinaryReader = flatbuffers.BinaryReader;
     module.exports.TextReader = flatbuffers.TextReader;
     module.exports.get = flatbuffers.get;
 }

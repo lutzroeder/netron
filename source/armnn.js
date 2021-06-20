@@ -29,13 +29,14 @@ armnn.ModelFactory = class {
                 const extension = identifier.split('.').pop().toLowerCase();
                 switch (extension) {
                     case 'armnn': {
-                        const reader = new flatbuffers.Reader(context.stream.peek());
+                        const stream = context.stream;
+                        const reader = flatbuffers.BinaryReader.open(stream);
                         model = armnn.schema.SerializedGraph.create(reader);
                         break;
                     }
                     case 'json': {
                         const obj = context.open('json');
-                        const reader = new flatbuffers.TextReader(obj);
+                        const reader = flatbuffers.TextReader.open(obj);
                         model = armnn.schema.SerializedGraph.createText(reader);
                         break;
                     }

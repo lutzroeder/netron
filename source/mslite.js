@@ -9,7 +9,7 @@ mslite.ModelFactory = class {
         const stream = context.stream;
         if (stream.length >= 8) {
             const buffer = stream.peek(8);
-            const reader = new flatbuffers.Reader(buffer);
+            const reader = new flatbuffers.BinaryReader(buffer);
             if (reader.identifier === '' || reader.identifier === 'MSL1' || reader.identifier === 'MSL2') {
                 return true;
             }
@@ -19,8 +19,8 @@ mslite.ModelFactory = class {
 
     open(context) {
         return context.require('./mslite-schema').then(() => {
-            const buffer = context.stream.peek();
-            const reader = new flatbuffers.Reader(buffer);
+            const stream = context.stream;
+            const reader = flatbuffers.BinaryReader.open(stream);
             switch (reader.identifier) {
                 case '':
                     throw new mslite.Error('MSL0 format is deprecated.', false);

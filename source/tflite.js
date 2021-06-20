@@ -11,7 +11,7 @@ tflite.ModelFactory = class {
         const stream = context.stream;
         if (stream.length >= 8) {
             const buffer = stream.peek(Math.min(32, stream.length));
-            const reader = new flatbuffers.Reader(buffer);
+            const reader = flatbuffers.BinaryReader.open(buffer);
             if (reader.identifier === 'TFL3') {
                 return true;
             }
@@ -57,9 +57,9 @@ tflite.ModelFactory = class {
                     break;
                 }
                 default: {
-                    const buffer = context.stream.peek();
+                    const stream = context.stream;
                     try {
-                        const reader = new flatbuffers.Reader(buffer);
+                        const reader = flatbuffers.BinaryReader.open(stream);
                         model = tflite.schema.Model.create(reader);
                     }
                     catch (error) {
@@ -67,7 +67,7 @@ tflite.ModelFactory = class {
                         throw new tflite.Error('File format is not tflite.Model (' + message.replace(/\.$/, '') + ').');
                     }
                     try {
-                        const archive = zip.Archive.open(buffer);
+                        const archive = zip.Archive.open(stream);
                         if (archive) {
                             for (const entry of archive.entries) {
                                 attachments.set(entry[0], entry[1]);
@@ -119,7 +119,7 @@ tflite.Model = class {
                 }
                 case 'TFLITE_METADATA': {
                     const data = model.buffers[metadata.buffer].data || new Uint8Array(0);
-                    const reader = new flatbuffers.Reader(data);
+                    const reader = flatbuffers.BinaryReader.open(data);
                     if (tflite.schema.ModelMetadata.identifier(reader)) {
                         modelMetadata = tflite.schema.ModelMetadata.create(reader);
                         this._name = modelMetadata.name || '';
