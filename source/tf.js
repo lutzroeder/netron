@@ -1660,7 +1660,7 @@ tf.Tensor = class {
                                 break;
                             case tf.proto.DataType.DT_UINT8:
                                 results.push(context.rawData.getUint8(context.index));
-                                context.index += 4;
+                                context.index += 1;
                                 context.count++;
                                 break;
                             case tf.proto.DataType.DT_INT32:
