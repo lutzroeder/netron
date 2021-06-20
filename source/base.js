@@ -551,10 +551,11 @@ DataView.prototype.getBits = DataView.prototype.getBits || function(offset, bits
 
 base.TextDecoder = class {
 
-    static create(buffer) {
-        if (typeof buffer === 'string') {
-            return new base.TextDecoder.String(buffer);
+    static open(data) {
+        if (typeof data === 'string') {
+            return new base.TextDecoder.String(data);
         }
+        const buffer = data instanceof Uint8Array ? data : data.peek();
         const length = buffer.length;
         if (length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
             return new base.TextDecoder.Utf8(buffer, 3);
@@ -607,7 +608,10 @@ base.TextDecoder.String = class {
     }
 
     decode() {
-        return this.position < this.length ? this.buffer[this.position++] : undefined;
+        if (this.position < this.length) {
+            return this.buffer[this.position++];
+        }
+        return undefined;
     }
 };
 
@@ -721,14 +725,14 @@ base.TextDecoder.Utf16BE = class {
 
 base.TextReader = class {
 
-    constructor(buffer, length) {
-        this._decoder = base.TextDecoder.create(buffer);
+    constructor(data, length) {
+        this._decoder = base.TextDecoder.open(data);
         this._position = 0;
         this._length = length || Number.MAX_SAFE_INTEGER;
     }
 
-    static create(buffer, length) {
-        return new base.TextReader(buffer, length);
+    static open(data, length) {
+        return new base.TextReader(data, length);
     }
 
     read() {
