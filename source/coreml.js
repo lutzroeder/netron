@@ -139,8 +139,7 @@ coreml.ModelFactory = class {
                 };
                 const openManifestStream = (context, path) => {
                     return context.request(path + 'Manifest.json', null).then((stream) => {
-                        const buffer = stream.peek();
-                        const reader = json.TextReader.create(buffer);
+                        const reader = json.TextReader.open(stream);
                         const obj = reader.read();
                         return openManifest(obj, context, path);
                     });

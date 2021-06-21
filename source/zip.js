@@ -10,7 +10,10 @@ zip.Archive = class {
         if (stream.length > 2) {
             const buffer = stream.peek(2);
             if (buffer[0] === 0x78) { // zlib
-                return new zlib.Archive(stream);
+                const check = (buffer[0] << 8) + buffer[1];
+                if (check % 31 === 0) {
+                    return new zlib.Archive(stream);
+                }
             }
             const signature = buffer[0] === 0x50 && buffer[1] === 0x4B;
             const position = stream.position;

@@ -1892,7 +1892,7 @@ pytorch.Execution = class extends python.Execution {
         const buffer = this.source(file + '.debug_pkl');
         if (buffer) {
             return null;
-            // const unpickler = new python.Unpickler(buffer);
+            // const unpickler = python.Unpickler.open(buffer);
             // return unpickler.load((name, args) => this.invoke(name, args), null);
         }
         return null;
@@ -1969,7 +1969,7 @@ pytorch.Container.Tar = class {
         this._entries = null;
 
         if (entries.sys_info) {
-            const unpickler = new python.Unpickler(entries.sys_info);
+            const unpickler = python.Unpickler.open(entries.sys_info);
             const sys_info = unpickler.load((name, args) => execution.invoke(name, args));
             if (sys_info.protocol_version != 1000) {
                 throw new pytorch.Error("Unsupported protocol version '" + sys_info.protocol_version + "'.");
@@ -1985,7 +1985,7 @@ pytorch.Container.Tar = class {
 
         const deserialized_objects = {};
         if (entries.storages) {
-            const unpickler = new python.Unpickler(entries.storages);
+            const unpickler = python.Unpickler.open(entries.storages);
             const num_storages = unpickler.load((name, args) => execution.invoke(name, args));
             for (let i = 0; i < num_storages; i++) {
                 const args = unpickler.load();
@@ -2003,7 +2003,7 @@ pytorch.Container.Tar = class {
         }
 
         if (entries.tensors) {
-            const unpickler = new python.Unpickler(entries.tensors);
+            const unpickler = python.Unpickler.open(entries.tensors);
             const num_tensors = unpickler.load((name, args) => execution.invoke(name, args));
             for (let i = 0; i < num_tensors; i++) {
                 const args = unpickler.load();
@@ -2027,7 +2027,7 @@ pytorch.Container.Tar = class {
         }
 
         if (entries.pickle) {
-            const unpickler = new python.Unpickler(entries.pickle);
+            const unpickler = python.Unpickler.open(entries.pickle);
             const persistent_load = (saved_id) => {
                 return deserialized_objects[saved_id];
             };
@@ -2076,7 +2076,7 @@ pytorch.Container.Pickle = class {
         }
 
         const execution = new pytorch.Execution(null, this._exceptionCallback);
-        const unpickler = new python.Unpickler(this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream);
+        const unpickler = python.Unpickler.open(this._stream.length < 0x7ffff000 ? this._stream.peek() : this._stream);
 
         this._stream = null;
         this._exceptionCallback = null;
@@ -2372,7 +2372,7 @@ pytorch.Container.Zip = class {
                     const stream = this._entry('attributes.pkl');
                     if (stream) {
                         const buffer = stream.peek();
-                        const unpickler = new python.Unpickler(buffer);
+                        const unpickler = python.Unpickler.open(buffer);
                         this._attributes.push(...unpickler.load((name, args) => this.execution.invoke(name, args)));
                     }
                     while (queue.length > 0) {
@@ -2483,7 +2483,7 @@ pytorch.Container.Zip = class {
             }
             return storage;
         };
-        return new python.Unpickler(data).load((name, args) => this.execution.invoke(name, args), persistent_load);
+        return python.Unpickler.open(data).load((name, args) => this.execution.invoke(name, args), persistent_load);
     }
 
     _storage(dirname) {

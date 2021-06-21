@@ -26,15 +26,17 @@ dl4j.ModelFactory = class {
     }
 
     static _openContainer(entries) {
-        const configurationStream = entries.get('configuration.json');
-        const coefficientsStream = entries.get('coefficients.bin');
-        if (configurationStream) {
+        const stream = entries.get('configuration.json');
+        const coefficients = entries.get('coefficients.bin');
+        if (stream) {
             try {
-                const reader = json.TextReader.create(configurationStream.peek());
+                const reader = json.TextReader.open(stream);
                 const configuration = reader.read();
                 if (configuration && (configuration.confs || configuration.vertices)) {
-                    const coefficients = coefficientsStream ? coefficientsStream.peek() : [];
-                    return { configuration: configuration, coefficients: coefficients };
+                    return {
+                        configuration: configuration,
+                        coefficients: coefficients ? coefficients.peek() : []
+                    };
                 }
             }
             catch (error) {

@@ -2081,12 +2081,12 @@ python.Execution = class {
         });
         this.registerType('spacy._ml.PrecomputableAffine', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('spacy.syntax._parser_model.ParserModel', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.describe.Biases', class {
@@ -2116,52 +2116,52 @@ python.Execution = class {
         });
         this.registerType('thinc.neural._classes.affine.Affine', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.convolution.ExtractWindow', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.feature_extracter.FeatureExtracter', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.feed_forward.FeedForward', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.function_layer.FunctionLayer', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.hash_embed.HashEmbed', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.layernorm.LayerNorm', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.maxout.Maxout', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.resnet.Residual', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural._classes.softmax.Softmax', class {
             __setstate__(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
             }
         });
         this.registerType('thinc.neural.mem.Memory', class {
@@ -2958,8 +2958,25 @@ python.Utility = class {
 
 python.Unpickler = class {
 
-    constructor(buffer) {
-        this._reader = buffer instanceof Uint8Array ? new python.Unpickler.BinaryReader(buffer) : new python.Unpickler.StreamReader(buffer);
+    static open(data) {
+        const reader = data instanceof Uint8Array ? new python.Unpickler.BinaryReader(data) : new python.Unpickler.StreamReader(data);
+        if (reader.length > 2) {
+            const head = reader.peek(2);
+            if (head[0] === 0x80 && head[1] < 7) {
+                return new python.Unpickler(reader);
+            }
+            reader.seek(-1);
+            const tail = reader.peek(1);
+            reader.seek(0);
+            if (tail[0] === 0x2e) {
+                return new python.Unpickler(reader);
+            }
+        }
+        return null;
+    }
+
+    constructor(reader) {
+        this._reader = reader;
     }
 
     load(function_call, persistent_load) {
@@ -3464,6 +3481,13 @@ python.Unpickler.BinaryReader = class {
         return this._length;
     }
 
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
     skip(offset) {
         this._position += offset;
         if (this._position > this._buffer.length) {
@@ -3577,6 +3601,11 @@ python.Unpickler.StreamReader = class {
         return this._length;
     }
 
+    seek(position) {
+        this._stream.seek(position);
+        this._position = this._stream.position;
+    }
+
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
@@ -3588,6 +3617,11 @@ python.Unpickler.StreamReader = class {
         this._stream.seek(this._position);
         this.skip(length);
         return this._stream.stream(length);
+    }
+
+    peek(length) {
+        this._stream.seek(this._position);
+        return this._stream.peek(length);
     }
 
     read(length) {

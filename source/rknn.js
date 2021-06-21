@@ -486,7 +486,7 @@ rknn.Container = class {
             this._version = this._reader.uint64();
             this._weights = this._reader.read();
             const buffer = this._reader.read();
-            const reader = json.TextReader.create(buffer);
+            const reader = json.TextReader.open(buffer);
             this._model = reader.read();
             delete this._reader;
         }

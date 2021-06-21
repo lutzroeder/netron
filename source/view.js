@@ -1220,146 +1220,168 @@ view.ModelContext = class {
     open(type) {
         if (!this._content.has(type)) {
             this._content.set(type, undefined);
-            let reset = false;
-            switch (type) {
-                case 'json': {
-                    try {
-                        reset = true;
-                        const buffer = this.stream.peek();
-                        const reader = json.TextReader.create(buffer);
-                        const obj = reader.read();
-                        this._content.set(type, obj);
+            const stream = this.stream;
+            const position = stream.position;
+            const skip =
+                Array.from(this._tags.values()).some((map) => map.size > 0) ||
+                Array.from(this._content.values()).some((obj) => obj !== undefined);
+            if (!skip) {
+                switch (type) {
+                    case 'json': {
+                        try {
+                            const reader = json.TextReader.open(stream);
+                            const obj = reader.read();
+                            this._content.set(type, obj);
+                        }
+                        catch (err) {
+                            // continue regardless of error
+                        }
+                        break;
                     }
-                    catch (err) {
-                        // continue regardless of error
-                    }
-                    break;
-                }
-                case 'pkl': {
-                    try {
-                        if (this.stream.length > 2) {
-                            const stream = this.stream.peek(1)[0] === 0x78 ? zip.Archive.open(this.stream).entries.values().next().value : this.stream;
-                            const match = (stream) => {
-                                const head = stream.peek(2);
-                                if (head[0] === 0x80 && head[1] < 7) {
-                                    return true;
+                    case 'pkl': {
+                        try {
+                            if (stream.length > 2) {
+                                const zlib = (stream) => {
+                                    const buffer = stream.peek(2);
+                                    if (buffer[0] === 0x78) {
+                                        const check = (buffer[0] << 8) + buffer[1];
+                                        if (check % 31 === 0) {
+                                            const archive = zip.Archive.open(stream);
+                                            return archive.entries.get('');
+                                        }
+                                    }
+                                    return stream;
+                                };
+                                const unpickler = python.Unpickler.open(zlib(stream));
+                                if (unpickler) {
+                                    const execution = new python.Execution(null, (error, fatal) => {
+                                        const message = error && error.message ? error.message : error.toString();
+                                        this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                                    });
+                                    const obj = unpickler.load((name, args) => execution.invoke(name, args));
+                                    this._content.set(type, obj);
                                 }
-                                stream.seek(-1);
-                                const tail = stream.peek(1);
-                                stream.seek(0);
-                                if (tail[0] === 0x2e) {
-                                    return true;
-                                }
-                                return false;
-                            };
-                            if (match(stream)) {
-                                reset = true;
-                                const unpickler = new python.Unpickler(stream);
-                                const execution = new python.Execution(null, (error, fatal) => {
-                                    const message = error && error.message ? error.message : error.toString();
-                                    this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
-                                });
-                                const obj = unpickler.load((name, args) => execution.invoke(name, args));
-                                this._content.set(type, obj);
                             }
                         }
+                        catch (err) {
+                            // continue regardless of error
+                        }
+                        break;
                     }
-                    catch (err) {
-                        // continue regardless of error
-                    }
-                    break;
                 }
             }
-            if (reset) {
-                this.stream.seek(0);
+            if (stream.position !== position) {
+                stream.seek(0);
             }
         }
         return this._content.get(type);
     }
 
     tags(type) {
-        let tags = this._tags.get(type);
-        if (!tags) {
-            tags = new Map();
+        if (!this._tags.has(type)) {
+            const tags = new Map();
             const stream = this.stream;
+            const position = stream.position;
             if (stream) {
                 const signatures = [
-                    // Reject PyTorch models
-                    [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ],
-                    [ 0x50, 0x4b ]
+                    [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ], // PyTorch
+                    [ 0x50, 0x4b ], // Zip
+                    [ 0x1f, 0x8b ] // Gzip
                 ];
-                if (!signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
+                const skip =
+                    signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
+                    Array.from(this._tags.values()).some((map) => map.size > 0) ||
+                    Array.from(this._content.values()).some((obj) => obj !== undefined);
+                if (!skip) {
+                    const detectTextProto = (stream) => {
+                        const decoder = base.TextDecoder.open(stream);
+                        for (let i = 0; i < 0x100; i++) {
+                            const c = decoder.decode();
+                            if (c === undefined || c === '\0') {
+                                break;
+                            }
+                            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                                return false;
+                            }
+                        }
+                        return true;
+                    };
+                    const decodeTextProto = (stream, tags) => {
+                        const reader = protobuf.TextReader.open(stream);
+                        reader.start(false);
+                        while (!reader.end(false)) {
+                            const tag = reader.tag();
+                            tags.set(tag, true);
+                            if (reader.token() === '{') {
+                                reader.start();
+                                while (!reader.end()) {
+                                    const subtag = reader.tag();
+                                    tags.set(tag + '.' + subtag, true);
+                                    reader.skip();
+                                    reader.match(',');
+                                }
+                            }
+                            else {
+                                reader.skip();
+                            }
+                        }
+                    };
+                    const detectBinaryProto = (stream) => {
+                        const buffer = stream.peek(1);
+                        const type = buffer[0] & 7;
+                        if (type === 4 || type === 6 || type === 7) {
+                            return false;
+                        }
+                        return true;
+                    };
+                    const decodeBinaryProto = (stream, tags) => {
+                        const reader = protobuf.BinaryReader.open(stream);
+                        const length = reader.length;
+                        while (reader.position < length) {
+                            const tag = reader.uint32();
+                            const field = tag >>> 3;
+                            const type = tag & 7;
+                            if (type > 5 || field === 0) {
+                                tags.clear();
+                                break;
+                            }
+                            tags.set(field, type);
+                            try {
+                                reader.skipType(type);
+                            }
+                            catch (err) {
+                                tags.clear();
+                                break;
+                            }
+                        }
+                    };
                     try {
                         switch (type) {
                             case 'pbtxt': {
-                                const buffer = stream.peek();
-                                const decoder = base.TextDecoder.open(buffer);
-                                let count = 0;
-                                for (let i = 0; i < 0x100; i++) {
-                                    const c = decoder.decode();
-                                    switch (c) {
-                                        case '\n': case '\r': case '\t': case '\0': break;
-                                        case undefined: i = 0x100; break;
-                                        default: count += c < ' ' ? 1 : 0; break;
-                                    }
-                                }
-                                if (count < 4) {
-                                    const reader = protobuf.TextReader.open(stream);
-                                    reader.start(false);
-                                    while (!reader.end(false)) {
-                                        const tag = reader.tag();
-                                        tags.set(tag, true);
-                                        if (reader.token() === '{') {
-                                            reader.start();
-                                            while (!reader.end()) {
-                                                const subtag = reader.tag();
-                                                tags.set(tag + '.' + subtag, true);
-                                                reader.skip();
-                                                reader.match(',');
-                                            }
-                                        }
-                                        else {
-                                            reader.skip();
-                                        }
-                                    }
+                                if (detectTextProto(stream)) {
+                                    decodeTextProto(stream, tags);
                                 }
                                 break;
                             }
                             case 'pb': {
-                                const reader = protobuf.BinaryReader.open(stream);
-                                const length = reader.length;
-                                while (reader.position < length) {
-                                    const tag = reader.uint32();
-                                    const number = tag >>> 3;
-                                    const type = tag & 7;
-                                    if (type > 5 || number === 0) {
-                                        tags = new Map();
-                                        break;
-                                    }
-                                    tags.set(number, type);
-                                    try {
-                                        reader.skipType(type);
-                                    }
-                                    catch (err) {
-                                        tags = new Map();
-                                        break;
-                                    }
+                                if (detectBinaryProto(stream)) {
+                                    decodeBinaryProto(stream, tags);
                                 }
                                 break;
                             }
                         }
                     }
                     catch (error) {
-                        tags = new Map();
+                        tags.clear();
                     }
                 }
             }
-            if (stream.position !== 0) {
-                stream.seek(0);
+            if (stream.position !== position) {
+                stream.seek(position);
             }
             this._tags.set(type, tags);
         }
-        return tags;
+        return this._tags.get(type);
     }
 };
 

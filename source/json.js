@@ -5,17 +5,17 @@ var base = base || require('./base');
 
 json.TextReader = class {
 
-    constructor(buffer) {
-        this._buffer = buffer;
+    static open(data) {
+        return new json.TextReader(data);
+    }
+
+    constructor(data) {
+        this._data = data;
         this._escape = { '"': '"', '\\': '\\', '/': '/', b: '\b', f: '\f', n: '\n', r: '\r', t: '\t' };
     }
 
-    static create(buffer) {
-        return new json.TextReader(buffer);
-    }
-
     read() {
-        const decoder = base.TextDecoder.open(this._buffer);
+        const decoder = base.TextDecoder.open(this._data);
         const stack = [];
         this._decoder = decoder;
         this._position = 0;
@@ -357,12 +357,13 @@ json.TextReader = class {
 
 json.BinaryReader = class {
 
-    constructor(buffer) {
-        this._buffer = buffer;
+    static open(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
+        return new json.BinaryReader(buffer);
     }
 
-    static create(buffer) {
-        return new json.BinaryReader(buffer);
+    constructor(buffer) {
+        this._buffer = buffer;
     }
 
     read() {

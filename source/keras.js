@@ -51,7 +51,7 @@ keras.ModelFactory = class {
                     if (rootGroup.attribute('model_config') || rootGroup.attribute('layer_names')) {
                         const model_config_json = rootGroup.attribute('model_config');
                         if (model_config_json) {
-                            const reader = json.TextReader.create(model_config_json);
+                            const reader = json.TextReader.open(model_config_json);
                             model_config = reader.read();
                         }
                         backend = rootGroup.attribute('backend') || '';

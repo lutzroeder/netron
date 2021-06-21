@@ -72,7 +72,7 @@ npz.ModelFactory = class {
                             if (array.dataType !== 'O') {
                                 throw new npz.Error("Invalid data type '" + array.dataType + "'.");
                             }
-                            const unpickler = new python.Unpickler(array.data);
+                            const unpickler = python.Unpickler.open(array.data);
                             const root = unpickler.load((name, args) => execution.invoke(name, args));
                             array = { dataType: root.dtype.name, shape: null, data: null, byteOrder: '|' };
                         }
