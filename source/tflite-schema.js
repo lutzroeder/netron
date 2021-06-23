@@ -360,7 +360,10 @@ $root.tflite.BuiltinOperator = {
     HASHTABLE_IMPORT: 138,
     HASHTABLE_SIZE: 139,
     REDUCE_ALL: 140,
-    CONV_3D_TRANSPOSE: 141
+    CONV_3D_TRANSPOSE: 141,
+    VAR_HANDLE: 142,
+    READ_VARIABLE: 143,
+    ASSIGN_VARIABLE: 144
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -477,6 +480,9 @@ $root.tflite.BuiltinOptions = class {
             case 108: return $root.tflite.HashtableFindOptions.decode(reader, position);
             case 109: return $root.tflite.HashtableImportOptions.decode(reader, position);
             case 110: return $root.tflite.HashtableSizeOptions.decode(reader, position);
+            case 111: return $root.tflite.VarHandleOptions.decode(reader, position);
+            case 112: return $root.tflite.ReadVariableOptions.decode(reader, position);
+            case 113: return $root.tflite.AssignVariableOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -593,6 +599,9 @@ $root.tflite.BuiltinOptions = class {
             case 'HashtableFindOptions': return $root.tflite.HashtableFindOptions.decodeText(reader, json);
             case 'HashtableImportOptions': return $root.tflite.HashtableImportOptions.decodeText(reader, json);
             case 'HashtableSizeOptions': return $root.tflite.HashtableSizeOptions.decodeText(reader, json);
+            case 'VarHandleOptions': return $root.tflite.VarHandleOptions.decodeText(reader, json);
+            case 'ReadVariableOptions': return $root.tflite.ReadVariableOptions.decodeText(reader, json);
+            case 'AssignVariableOptions': return $root.tflite.AssignVariableOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2341,6 +2350,49 @@ $root.tflite.HashtableSizeOptions = class HashtableSizeOptions {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.tflite.HashtableSizeOptions();
+        return $;
+    }
+};
+
+$root.tflite.VarHandleOptions = class VarHandleOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.VarHandleOptions();
+        $.container = reader.string_(position, 4, null);
+        $.shared_name = reader.string_(position, 6, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.VarHandleOptions();
+        $.container = reader.value(json.container, null);
+        $.shared_name = reader.value(json.shared_name, null);
+        return $;
+    }
+};
+
+$root.tflite.ReadVariableOptions = class ReadVariableOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.ReadVariableOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.ReadVariableOptions();
+        return $;
+    }
+};
+
+$root.tflite.AssignVariableOptions = class AssignVariableOptions {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.tflite.AssignVariableOptions();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.tflite.AssignVariableOptions();
         return $;
     }
 };

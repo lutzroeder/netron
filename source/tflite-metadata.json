@@ -976,6 +976,13 @@
     ]
   },
   {
+    "name": "VarHandle",
+    "attributes": [
+      { "name": "container", "type": "string", "default": null },
+      { "name": "shared_name", "type": "string", "default": null }
+    ]
+  },
+  {
     "name": "While",
     "attributes": [
       { "name": "cond_subgraph_index", "type": "int32", "default": 0 },
