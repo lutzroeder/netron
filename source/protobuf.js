@@ -14,6 +14,10 @@ protobuf.get = (name) => {
 
 protobuf.BinaryReader = class {
 
+    static open(buffer) {
+        return new protobuf.BinaryReader(buffer);
+    }
+
     constructor(data) {
         const buffer = data instanceof Uint8Array ? data : data.peek();
         this._buffer = buffer;
@@ -23,8 +27,124 @@ protobuf.BinaryReader = class {
         this._utf8Decoder = new TextDecoder('utf-8');
     }
 
-    static open(buffer) {
-        return new protobuf.BinaryReader(buffer);
+    signature() {
+        const tags = new Map();
+        this._position = 0;
+        try {
+            if (this._length > 0) {
+                const type = this._buffer[0] & 7;
+                if (type !== 4 && type !== 6 && type !== 7) {
+                    const length = this.length;
+                    while (this._position < length) {
+                        const tag = this.uint32();
+                        const field = tag >>> 3;
+                        const type = tag & 7;
+                        if (type > 5 || field === 0) {
+                            tags.clear();
+                            break;
+                        }
+                        tags.set(field, type);
+                        this.skipType(type);
+                    }
+                }
+            }
+        }
+        catch (err) {
+            tags.clear();
+        }
+        this._position = 0;
+        return tags;
+    }
+
+    decode() {
+        const tags = new Map();
+        this._position = 0;
+        try {
+            const decodeMessage = () => {
+                const length = this.uint32();
+                const end = this.position + length;
+                try {
+                    const tags = new Map();
+                    while (this.position < end) {
+                        const tag = this.uint32();
+                        const field = tag >>> 3;
+                        const type = tag & 7;
+                        if (type > 5 || field === 0) {
+                            this.seek(end);
+                            return 2;
+                        }
+                        if (type === 2) {
+                            const type = tags.get(field);
+                            if (type !== 2) {
+                                const inner = decodeMessage(this);
+                                if (inner === 2) {
+                                    tags.set(field, inner);
+                                }
+                                else if (!type) {
+                                    tags.set(field, inner);
+                                }
+                                else {
+                                    for (const pair of inner) {
+                                        type.set(pair[0], pair[1]);
+                                    }
+                                }
+                                continue;
+                            }
+                        }
+                        tags.set(field, type);
+                        this.skipType(type);
+                    }
+                    if (this.position === end) {
+                        return tags;
+                    }
+                }
+                catch (err) {
+                    // continue regardless of error
+                }
+                this.seek(end);
+                return 2;
+            };
+            if (this._length > 0) {
+                const type = this._buffer[0] & 7;
+                if (type !== 4 && type !== 6 && type !== 7) {
+                    const length = this.length;
+                    while (this.position < length) {
+                        const tag = this.uint32();
+                        const field = tag >>> 3;
+                        const type = tag & 7;
+                        if (type > 5 || field === 0) {
+                            tags.clear();
+                            break;
+                        }
+                        if (type === 2) {
+                            const type = tags.get(field);
+                            if (type !== 2) {
+                                const inner = decodeMessage(this);
+                                if (inner === 2) {
+                                    tags.set(field, inner);
+                                }
+                                else if (!type) {
+                                    tags.set(field, inner);
+                                }
+                                else {
+                                    for (const pair of inner) {
+                                        type.set(pair[0], pair[1]);
+                                    }
+                                }
+                                continue;
+                            }
+                        }
+                        tags.set(field, type);
+                        this.skipType(type);
+                    }
+                }
+            }
+        }
+        catch (err) {
+            tags.clear();
+        }
+        this._position = 0;
+        return tags;
     }
 
     get length() {
@@ -33,6 +153,10 @@ protobuf.BinaryReader = class {
 
     get position() {
         return this._position;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
     }
 
     string() {
@@ -335,19 +459,67 @@ protobuf.BinaryReader = class {
 
 protobuf.TextReader = class {
 
+    static open(buffer) {
+        return new protobuf.TextReader(buffer);
+    }
+
     constructor(data) {
         const buffer = data instanceof Uint8Array ? data : data.peek();
         this._decoder = base.TextDecoder.open(buffer);
+        this.reset();
+    }
+
+    signature() {
+        const tags = new Map();
+        this.reset();
+        try {
+            let text = true;
+            for (let i = 0; i < 0x100; i++) {
+                const c = this._decoder.decode();
+                if (c === undefined || c === '\0') {
+                    break;
+                }
+                if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                    text = false;
+                    break;
+                }
+            }
+            if (text) {
+                this.reset();
+                this.start(false);
+                while (!this.end(false)) {
+                    const tag = this.tag();
+                    tags.set(tag, true);
+                    if (this.token() === '{') {
+                        this.start();
+                        while (!this.end()) {
+                            const subtag = this.tag();
+                            tags.set(tag + '.' + subtag, true);
+                            this.skip();
+                            this.match(',');
+                        }
+                    }
+                    else {
+                        this.skip();
+                    }
+                }
+            }
+        }
+        catch (err) {
+            tags.clear();
+        }
+        this.reset();
+        return tags;
+    }
+
+    reset() {
+        this._decoder.position = 0;
         this._position = 0;
         this._token = undefined;
         this._depth = 0;
         this._arrayDepth = 0;
         this._token = '';
         this.next();
-    }
-
-    static open(buffer) {
-        return new protobuf.TextReader(buffer);
     }
 
     start() {

@@ -44,7 +44,7 @@
   {
     "type":   "_",
     "target": "knift_index.pb",
-    "error":  "Unsupported Protocol Buffers content '1:2' for extension '.pb' in 'knift_index.pb'.",
+    "error":  "Invalid file content. File contains mediapipe.BoxDetectorIndex data.",
     "source": "https://github.com/lutzroeder/netron/files/6308301/knift_index.pb.zip[knift_index.pb]"
   },
   {
@@ -102,6 +102,13 @@
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/core/ops/ops.pbtxt",
     "error":  "Invalid file content. File contains TensorFlow OpList data.",
     "link":   "https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/ops/ops.pbtxt"
+  },
+  {
+    "type":   "_",
+    "target": "spm_char.model",
+    "source": "https://github.com/lutzroeder/netron/files/6611189/covost2_en_asr_vocab_char.zip[spm_char.model]",
+    "error":  "Invalid file content. File contains sentencepiece.ModelProto data.",
+    "link":   "https://github.com/lutzroeder/netron/issues/748"
   },
   {
     "type":   "_",

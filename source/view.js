@@ -1279,7 +1279,7 @@ view.ModelContext = class {
 
     tags(type) {
         if (!this._tags.has(type)) {
-            const tags = new Map();
+            let tags = new Map();
             const stream = this.stream;
             const position = stream.position;
             if (stream) {
@@ -1293,80 +1293,16 @@ view.ModelContext = class {
                     Array.from(this._tags.values()).some((map) => map.size > 0) ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
-                    const detectTextProto = (stream) => {
-                        const decoder = base.TextDecoder.open(stream);
-                        for (let i = 0; i < 0x100; i++) {
-                            const c = decoder.decode();
-                            if (c === undefined || c === '\0') {
-                                break;
-                            }
-                            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
-                                return false;
-                            }
-                        }
-                        return true;
-                    };
-                    const decodeTextProto = (stream, tags) => {
-                        const reader = protobuf.TextReader.open(stream);
-                        reader.start(false);
-                        while (!reader.end(false)) {
-                            const tag = reader.tag();
-                            tags.set(tag, true);
-                            if (reader.token() === '{') {
-                                reader.start();
-                                while (!reader.end()) {
-                                    const subtag = reader.tag();
-                                    tags.set(tag + '.' + subtag, true);
-                                    reader.skip();
-                                    reader.match(',');
-                                }
-                            }
-                            else {
-                                reader.skip();
-                            }
-                        }
-                    };
-                    const detectBinaryProto = (stream) => {
-                        const buffer = stream.peek(1);
-                        const type = buffer[0] & 7;
-                        if (type === 4 || type === 6 || type === 7) {
-                            return false;
-                        }
-                        return true;
-                    };
-                    const decodeBinaryProto = (stream, tags) => {
-                        const reader = protobuf.BinaryReader.open(stream);
-                        const length = reader.length;
-                        while (reader.position < length) {
-                            const tag = reader.uint32();
-                            const field = tag >>> 3;
-                            const type = tag & 7;
-                            if (type > 5 || field === 0) {
-                                tags.clear();
-                                break;
-                            }
-                            tags.set(field, type);
-                            try {
-                                reader.skipType(type);
-                            }
-                            catch (err) {
-                                tags.clear();
-                                break;
-                            }
-                        }
-                    };
                     try {
                         switch (type) {
                             case 'pbtxt': {
-                                if (detectTextProto(stream)) {
-                                    decodeTextProto(stream, tags);
-                                }
+                                const reader = protobuf.TextReader.open(stream);
+                                tags = reader.signature();
                                 break;
                             }
                             case 'pb': {
-                                if (detectBinaryProto(stream)) {
-                                    decodeBinaryProto(stream, tags);
-                                }
+                                const reader = protobuf.BinaryReader.open(stream);
+                                tags = reader.signature();
                                 break;
                             }
                         }
@@ -1561,10 +1497,11 @@ view.ModelFactoryService = class {
     _unsupported(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
+        const stream = context.stream;
         for (const module of [ zip, tar, gzip ]) {
             let archive = null;
             try {
-                archive = module.Archive.open(context.stream);
+                archive = module.Archive.open(stream);
             }
             catch (error) {
                 // continue regardless of error
@@ -1573,42 +1510,24 @@ view.ModelFactoryService = class {
                 throw new view.Error("Archive contains no model files in '" + identifier + "'.", true);
             }
         }
-        const knownUnsupportedIdentifiers = new Set([
-            'natives_blob.bin',
-            'v8_context_snapshot.bin',
-            'snapshot_blob.bin',
-            'image_net_labels.json',
-            'package.json',
-            'models.json',
-            'LICENSE.meta',
-            'input_0.pb',
-            'output_0.pb'
-        ]);
-        const skip = knownUnsupportedIdentifiers.has(identifier);
-        const encodings = [
-            {
-                type: 'pb',
-                name: 'Protocol Buffers',
-                formats: []
-            },
-            {
-                type: 'pbtxt',
-                name: 'Protocol Buffers text',
-                formats: [
-                    { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
-                    { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
-                    { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
-                    { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
-                    { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] },
-                    { name: 'vitis.ai.proto.DpuModelParamList data', tags: [ 'model', 'model.name', 'model.kernel' ] },
-                    { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.ssd' ] },
-                    { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.faster_rcnn' ] }
-                ]
-            },
-            {
-                type: 'json',
-                name: 'JSON',
-                formats: [
+        const skip = () => {
+            const knownUnsupportedIdentifiers = new Set([
+                'natives_blob.bin',
+                'v8_context_snapshot.bin',
+                'snapshot_blob.bin',
+                'image_net_labels.json',
+                'package.json',
+                'models.json',
+                'LICENSE.meta',
+                'input_0.pb',
+                'output_0.pb'
+            ]);
+            return knownUnsupportedIdentifiers.has(context.identifier);
+        };
+        const json = () => {
+            const obj = context.open('json');
+            if (obj) {
+                const formats = [
                     { name: 'Netron metadata', tags: [ '[].name', '[].schema' ] },
                     { name: 'Netron metadata', tags: [ '[].name', '[].attributes' ] },
                     { name: 'Darkflow metadata', tags: [ 'net', 'type', 'model' ] },
@@ -1618,13 +1537,37 @@ view.ModelFactoryService = class {
                     { name: 'NuGet assets', tags: [ 'version', 'targets', 'packageFolders' ] },
                     { name: 'NuGet data', tags: [ 'format', 'restore', 'projects' ] },
                     { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] }
-                ]
+                ];
+                const match = (obj, tag) => {
+                    if (tag.startsWith('[].')) {
+                        tag = tag.substring(3);
+                        return (Array.isArray(obj) && obj.some((item) => Object.prototype.hasOwnProperty.call(item, tag)));
+                    }
+                    return Object.prototype.hasOwnProperty.call(obj, tag);
+                };
+                for (const format of formats) {
+                    if (format.tags.every((tag) => match(obj, tag))) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substr(0, 48) + '...';
+                throw new view.Error("Unsupported JSON content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
             }
-        ];
-        for (const encoding of encodings) {
-            const tags = context.tags(encoding.type);
+        };
+        const pbtxt = () => {
+            const formats = [
+                { name: 'ImageNet LabelMap data', tags: [ 'entry', 'entry.target_class' ] },
+                { name: 'StringIntLabelMapProto data', tags: [ 'item', 'item.id', 'item.name' ] },
+                { name: 'caffe.LabelMap data', tags: [ 'item', 'item.name', 'item.label' ] },
+                { name: 'Triton Inference Server configuration', tags: [ 'name', 'platform', 'input', 'output' ] },
+                { name: 'TensorFlow OpList data', tags: [ 'op', 'op.name', 'op.input_arg' ] },
+                { name: 'vitis.ai.proto.DpuModelParamList data', tags: [ 'model', 'model.name', 'model.kernel' ] },
+                { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.ssd' ] },
+                { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.faster_rcnn' ] }
+            ];
+            const tags = context.tags('pbtxt');
             if (tags.size > 0) {
-                for (const format of encoding.formats) {
+                for (const format of formats) {
                     if (format.tags.every((tag) => tags.has(tag))) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
@@ -1633,32 +1576,65 @@ view.ModelFactoryService = class {
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') === -1));
                 entries.push(...Array.from(tags).filter((pair) => pair[0].toString().indexOf('.') !== -1));
                 const content = entries.map((pair) => pair[1] === true ? pair[0] : pair[0] + ':' + JSON.stringify(pair[1])).join(',');
-                throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                throw new view.Error("Unsupported Protocol Buffers text content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
             }
-            const obj = context.open(encoding.type);
-            if (obj) {
-                const match = (obj, tag) => {
-                    if (tag.startsWith('[].')) {
-                        tag = tag.substring(3);
-                        return (Array.isArray(obj) && obj.some((item) => Object.prototype.hasOwnProperty.call(item, tag)));
+        };
+        const pb = () => {
+            const tags = context.tags('pb');
+            if (tags.size > 0) {
+                const formats = [
+                    { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]]]]] },
+                    { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] }
+                ];
+                const match = (tags, schema) => {
+                    for (const pair of schema) {
+                        const key = pair[0];
+                        if (!tags.has(key)) {
+                            continue;
+                        }
+                        const inner = pair[1];
+                        if (Array.isArray(inner)) {
+                            const value = tags.get(key);
+                            if (!(value instanceof Map) || !match(value, inner)) {
+                                return false;
+                            }
+                        }
+                        else if (inner !== tags.get(key)) {
+                            return false;
+                        }
                     }
-                    return Object.prototype.hasOwnProperty.call(obj, tag);
+                    return true;
                 };
-                for (const format of encoding.formats) {
-                    if (format.tags.every((tag) => match(obj, tag))) {
+                const reader = protobuf.BinaryReader.open(stream);
+                const tags = reader.decode();
+                for (const format of formats) {
+                    if (match(tags, format.tags)) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
-                const content = JSON.stringify(obj).substring(0, 100).replace(/\s/, '').substr(0, 48) + '...';
-                throw new view.Error("Unsupported " + encoding.name + " content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip);
+                const format = (tags) => {
+                    const text = Array.from(tags).map((pair) => {
+                        const key = pair[0];
+                        const value = pair[1];
+                        return key.toString() + ':' + (value instanceof Map ? '{' + format(value) + '}' : value.toString());
+                    });
+                    return text.join(',');
+                };
+                const content = format(tags);
+                throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
             }
-        }
-        const stream = context.stream;
-        stream.seek(0);
-        const buffer = stream.peek(Math.min(16, stream.length));
-        const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
-        const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
-        throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip);
+        };
+        const unknown = () => {
+            stream.seek(0);
+            const buffer = stream.peek(Math.min(16, stream.length));
+            const bytes = Array.from(buffer).map((c) => (c < 16 ? '0' : '') + c.toString(16)).join('');
+            const content = stream.length > 268435456 ? '(' + bytes + ') [' + stream.length.toString() + ']': '(' + bytes + ')';
+            throw new view.Error("Unsupported file content " + content + " for extension '." + extension + "' in '" + identifier + "'.", !skip());
+        };
+        json();
+        pbtxt();
+        pb();
+        unknown();
     }
 
     _openContext(context) {
