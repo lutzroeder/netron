@@ -8,9 +8,11 @@ paddle.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (identifier === '__model__' || identifier === 'model' ||
-            extension === 'paddle' || extension === 'pdmodel') {
-            return true;
+        if (identifier === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
+            const tags = context.tags('pb');
+            if (tags.get(1) === 2) {
+                return true;
+            }
         }
         if (extension === 'pbtxt' || extension === 'txt') {
             const tags = context.tags('pbtxt');
