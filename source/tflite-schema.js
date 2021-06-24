@@ -2531,6 +2531,7 @@ $root.tflite.SignatureDef = class SignatureDef {
         $.outputs = reader.tableArray(position, 6, $root.tflite.TensorMap.decode);
         $.method_name = reader.string_(position, 8, null);
         $.key = reader.string_(position, 10, null);
+        $.subgraph_index = reader.uint32_(position, 12, 0);
         return $;
     }
 
@@ -2540,6 +2541,7 @@ $root.tflite.SignatureDef = class SignatureDef {
         $.outputs = reader.objectArray(json.outputs, $root.tflite.TensorMap.decodeText);
         $.method_name = reader.value(json.method_name, null);
         $.key = reader.value(json.key, null);
+        $.subgraph_index = reader.value(json.subgraph_index, 0);
         return $;
     }
 };
