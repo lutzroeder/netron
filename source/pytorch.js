@@ -1022,6 +1022,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.parallel.distributed.DistributedDataParallel', class {});
         this.registerType('torch.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
+        this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
         this.registerType('torch.nn.quantized.modules.batchnorm.BatchNorm2d', class {});
         this.registerType('torch.nn.quantized.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.conv.ConvTranspose2d', class {});
