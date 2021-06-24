@@ -52,7 +52,7 @@ tf.ModelFactory = class {
                     return true;
                 }
             }
-            else if (identifier === 'keras_metadata.pb' && tags.size === 1 && tags.get(1) === 2) {
+            else if (tags.size === 1 && tags.get(1) === 2 && identifier === 'keras_metadata.pb') {
                 return true;
             }
             else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {

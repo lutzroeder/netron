@@ -15,11 +15,11 @@ onnx.ModelFactory = class {
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
             return false;
         }
-        if (identifier === 'keras_metadata.pb' && tags.size === 1 && tags.get(1) === 2) {
-            return false;
-        }
         let tags = context.tags('pb');
         if (tags.size > 0) {
+            if (tags.size === 1 && tags.get(1) === 2 && identifier === 'keras_metadata.pb') {
+                return false;
+            }
             if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
                 // TensorProto

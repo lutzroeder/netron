@@ -1290,7 +1290,7 @@ view.ModelContext = class {
                 ];
                 const skip =
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                    Array.from(this._tags.values()).some((map) => map.size > 0) ||
+                    (Array.from(this._tags.values()).some((map) => map.size > 0) && type !== 'pb+') ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
                     try {
@@ -1303,6 +1303,11 @@ view.ModelContext = class {
                             case 'pb': {
                                 const reader = protobuf.BinaryReader.open(stream);
                                 tags = reader.signature();
+                                break;
+                            }
+                            case 'pb+': {
+                                const reader = protobuf.BinaryReader.open(stream);
+                                tags = reader.decode();
                                 break;
                             }
                         }
@@ -1580,11 +1585,12 @@ view.ModelFactoryService = class {
             }
         };
         const pb = () => {
-            const tags = context.tags('pb');
+            const tags = context.tags('pb+');
             if (tags.size > 0) {
                 const formats = [
                     { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]]]]] },
-                    { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] }
+                    { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] },
+                    { name: 'third_party.tensorflow.python.keras.protobuf.SavedMetadata data', tags: [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]] }
                 ];
                 const match = (tags, schema) => {
                     for (const pair of schema) {
@@ -1605,8 +1611,7 @@ view.ModelFactoryService = class {
                     }
                     return true;
                 };
-                const reader = protobuf.BinaryReader.open(stream);
-                const tags = reader.decode();
+                const tags = context.tags('pb+');
                 for (const format of formats) {
                     if (match(tags, format.tags)) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
