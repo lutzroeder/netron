@@ -13339,7 +13339,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float16`, `float32`, `float64`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `float16`, `float32`, `bfloat16`, `float64`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
@@ -46985,6 +46985,46 @@
     ]
   },
   {
+    "name": "SnapshotDatasetReader",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "compression",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "version",
+        "type": "int64"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "shard_dir",
+        "type": 7
+      },
+      {
+        "name": "start_index",
+        "type": 9
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "SnapshotDatasetV2",
     "summary": "Creates a dataset that will write to / read from a snapshot.",
     "description": "This dataset attempts to determine whether a valid snapshot exists at the\n`snapshot_path`, and reads from the snapshot in lieu of using `input_dataset`.\nIf not, it will run the preprocessing pipeline as usual, and write out a\nsnapshot of the data processed for future use.",
@@ -47064,6 +47104,39 @@
       {
         "name": "shard_func_other_args",
         "typeListAttr": "Tshard_func_args"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
+    "name": "SnapshotNestedDatasetReader",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "numberAttr": "N",
+        "type": 21
       }
     ],
     "outputs": [
@@ -59367,6 +59440,38 @@
         "name": "reader_handle",
         "description": "The handle to reference the Reader.",
         "type": 20
+      }
+    ]
+  },
+  {
+    "name": "Window",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "Tinputs",
+        "type": "type[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "typeListAttr": "Tinputs"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
       }
     ]
   },
