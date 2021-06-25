@@ -11814,6 +11814,16 @@
         "description": "Default 1e-5",
         "name": "epsilon",
         "option": "optional"
+      },
+      {
+        "name": "weight_decay",
+        "description": "Default 0",
+        "option": "optional"
+      },
+      {
+        "name": "counter_halflife",
+        "description": "Optional arg when weight_decay is adjusted by frequency (default -1)",
+        "option": "optional"
       }
     ],
     "inputs": [
@@ -11836,6 +11846,10 @@
       {
         "description": "learning rate",
         "name": "lr"
+      },
+      {
+        "name": "counter",
+        "description": "Optional input when weight_decay is adjusted by frequency ignored when counter_halflife == -1"
       }
     ],
     "outputs": [
