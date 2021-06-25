@@ -2550,6 +2550,18 @@
     ]
   },
   {
+    "name": "torch.quantize_per_tensor:qparams",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "scale", "type": "Tensor" },
+      { "name": "zero_point", "type": "Tensor" },
+      { "name": "dtype", "type": "ScalarType" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.quantize_per_tensor:tensors",
     "inputs": [
       { "name": "tensors", "type": "Tensor[]" },

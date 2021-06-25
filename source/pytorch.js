@@ -1165,6 +1165,9 @@ pytorch.Execution = class extends python.Execution {
             if (type === self.context.scope.builtins.int) {
                 return Number.isInteger(value) ? value : NaN;
             }
+            if (type === self.context.scope.builtins.float) {
+                return typeof value === 'number' ? value : NaN;
+            }
             if (type === self.context.scope.builtins.number) {
                 if (pytorch.Utility.isTensor(value)) {
                     value.resize_([]);
@@ -1831,6 +1834,9 @@ pytorch.Execution = class extends python.Execution {
                 this._storage_offset = state[1];
                 this._shape = state[2];
                 this._stride = state[3];
+            }
+            tolist() {
+
             }
         });
         this.registerType('torch.nn.parameter.Parameter', class extends torch.Tensor {
