@@ -79,7 +79,7 @@ onnx.ModelFactory = class {
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
-                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
+                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
                     'PaddlePaddle', 'pytorch',
                     'skl2onnx',
                     'tf2onnx', 'tflite2onnx',
