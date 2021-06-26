@@ -1,12 +1,13 @@
 
 
 const fs = require('fs');
+const path = require('path');
 const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
-const packageManifestFile = process.argv[2];
-const caskFile = process.argv[3];
+const configuration = require('../package.json');
+const caskFile = process.argv[2];
 
 const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
@@ -58,18 +59,21 @@ const get = (url, timeout) => {
     });
 };
 
-const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8'));
-const name = packageManifest.name;
-const version = packageManifest.version;
-const productName = packageManifest.productName;
-const description = packageManifest.description;
-const repository = 'https://github.com/' + packageManifest.repository;
+const name = configuration.name;
+const version = configuration.version;
+const productName = configuration.productName;
+const description = configuration.description;
+const repository = 'https://github.com/' + configuration.repository;
 const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
 const location = url.replace(/#{version}/g, version);
 
 get(location).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
-    const lines = [
+    const caskDir = path.dirname(caskFile);
+    if (!fs.existsSync(caskDir)){
+        fs.mkdirSync(caskDir, { recursive: true });
+    }
+    fs.writeFileSync(caskFile, [
         'cask "' + name + '" do',
         '  version "' + version + '"',
         '  sha256 "' + sha256 + '"',
@@ -90,9 +94,7 @@ get(location).then((data) => {
         '  app "' + productName + '.app"',
         'end',
         ''
-    ];
-    fs.writeFileSync(caskFile, lines.join('\n'));
-
+    ].join('\n'));
 }).catch((err) => {
     console.log(err.message);
 });

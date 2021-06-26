@@ -5,8 +5,9 @@ const http = require('http');
 const https = require('https');
 const path = require('path');
 
-const packageManifestFile = process.argv[2];
-const manifestDir = process.argv[3];
+const manifestDir = process.argv[2];
+const configuration = require('../package.json');
+const builder = fs.readFileSync('./electron-builder.yml', 'utf-8');
 
 const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
@@ -58,41 +59,88 @@ const get = (url, timeout) => {
     });
 };
 
-const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8'));
-const name = packageManifest.name;
-const version = packageManifest.version;
-const productName = packageManifest.productName;
-const publisher = packageManifest.author.name;
-const repository = packageManifest.repository;
-const url = 'https://github.com/' + repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
+const name = configuration.name;
+const version = configuration.version;
+const productName = configuration.productName;
+const publisher = configuration.author.name;
+const packageIdentifier = publisher.replace(' ', '') + '.' + productName;
+const license = 'Copyright (c) ' + publisher;
+const repository = 'https://github.com/' + configuration.repository;
+const url = repository + '/releases/download/v' + version + '/' + productName + '-Setup-' + version + '.exe';
+const extensions = builder.split('\n').filter((line) => line.startsWith('    ext')).map((line) => / {4}ext: (.*)\s*/.exec(line)[1]).sort().map((extension) => '- ' + extension).join('\n');
 
 get(url).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toUpperCase();
-    const lines = [
-        'PackageIdentifier: ' + publisher.replace(' ', '') + '.' + productName,
+    const versionDir = path.join(manifestDir, publisher[0].toLowerCase(), publisher.replace(' ', ''), productName, version);
+    if (!fs.existsSync(versionDir)){
+        fs.mkdirSync(versionDir, { recursive: true });
+    }
+    const manifestFile = path.join(versionDir, packageIdentifier);
+    fs.writeFileSync(manifestFile + '.yaml', [
+        'PackageIdentifier: ' + packageIdentifier,
         'PackageVersion: ' + version,
-        'PackageName: ' + productName,
-        'Publisher: ' + publisher,
-        'Moniker: ' + name,
-        'ShortDescription: ' + packageManifest.description,
-        'License: Copyright (c) ' + publisher,
-        'PackageUrl: ' + 'https://github.com/' + repository,
+        'DefaultLocale: en-US',
+        'ManifestType: version',
+        'ManifestVersion: 1.0.0',
+        ''
+    ].join('\n'));
+    fs.writeFileSync(manifestFile + '.installer.yaml', [
+        'PackageIdentifier: ' + packageIdentifier,
+        'PackageVersion: ' + version,
+        'Platform:',
+        '- Windows.Desktop',
+        'InstallModes:',
+        '- silent',
+        '- silentWithProgress',
         'Installers:',
         '- Architecture: x86',
+        '  Scope: user',
         '  InstallerType: nullsoft',
         '  InstallerUrl: ' + url,
         '  InstallerSha256: ' + sha256,
-        'PackageLocale: en-US',
-        'ManifestType: singleton',
+        '  InstallerLocale: en-US',
+        '  InstallerSwitches:',
+        '    Custom: /NORESTART',
+        '  UpgradeBehavior: install',
+        '- Architecture: arm64',
+        '  Scope: user',
+        '  InstallerType: nullsoft',
+        '  InstallerUrl: ' + url,
+        '  InstallerSha256: ' + sha256,
+        '  InstallerLocale: en-US',
+        '  InstallerSwitches:',
+        '    Custom: /NORESTART',
+        '  UpgradeBehavior: install',
+        'FileExtensions:',
+        extensions,
+        'ManifestType: installer',
         'ManifestVersion: 1.0.0',
         ''
-    ];
-    const versionDir = path.join(manifestDir, publisher[0].toLowerCase(), publisher.replace(' ', ''), productName, version);
-    if (!fs.existsSync(versionDir)){
-        fs.mkdirSync(versionDir);
-    }
-    const manifestFile = path.join(versionDir, publisher.replace(' ', '') + '.' + productName + '.yaml');
-    fs.writeFileSync(manifestFile, lines.join('\n'));
+    ].join('\n'));
+    fs.writeFileSync(manifestFile + '.locale.en-US.yaml', [
+        'PackageIdentifier: ' + packageIdentifier,
+        'PackageVersion: ' + version,
+        'PackageName: ' + productName,
+        'PackageLocale: en-US',
+        'PackageUrl: ' + repository,
+        'Publisher: ' + publisher,
+        'PublisherUrl: ' + repository,
+        'PublisherSupportUrl: ' + repository + '/issues',
+        'Author: ' + publisher,
+        'License: ' + license,
+        'Copyright: ' + license,
+        'CopyrightUrl: ' + repository + '/blob/main/LICENSE',
+        'ShortDescription: ' + configuration.description,
+        'Description: ' + configuration.description,
+        'Moniker: ' + name,
+        'Tags:',
+        '- machine-learning',
+        '- deep-learning',
+        '- neural-network',
+        'ManifestType: defaultLocale',
+        'ManifestVersion: 1.0.0',
+        ''
+    ].join('\n'));
 }).catch((err) => {
     console.log(err.message);
 });

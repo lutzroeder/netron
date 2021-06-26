@@ -101,7 +101,7 @@ publish_cask:
 	rm -rf ./dist/homebrew-cask
 	sleep 4
 	git clone --depth=2 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/homebrew-cask.git ./dist/homebrew-cask
-	node ./publish/cask.js ./package.json ./dist/homebrew-cask/Casks/netron.rb
+	node ./publish/cask.js ./dist/homebrew-cask/Casks/netron.rb
 	git -C ./dist/homebrew-cask add --all
 	git -C ./dist/homebrew-cask commit -m "Update $$(node -pe "require('./package.json').productName") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/homebrew-cask push
@@ -115,7 +115,7 @@ publish_winget:
 	rm -rf ./dist/winget-pkgs
 	sleep 4
 	git clone --depth=2 https://x-access-token:$(GITHUB_TOKEN)@github.com/$(GITHUB_USER)/winget-pkgs.git ./dist/winget-pkgs
-	node ./publish/winget.js ./package.json ./dist/winget-pkgs/manifests
+	node ./publish/winget.js ./dist/winget-pkgs/manifests
 	git -C ./dist/winget-pkgs add --all
 	git -C ./dist/winget-pkgs commit -m "Update $$(node -pe "require('./package.json').name") to $$(node -pe "require('./package.json').version")"
 	git -C ./dist/winget-pkgs push
