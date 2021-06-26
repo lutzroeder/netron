@@ -17707,5 +17707,32 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "EstimateAllBlobSizes",
+    "description": "\nReturns two outputs: a 1D tensor of strings containing the names\nof each blob in the active workspace, and a 1D tensor of integers containing the\nestimated serialized size of each blob (in bytes).\n",
+    "attributes": [
+      {
+        "name": "include_shared",
+        "description": "(bool, default true) Whether to include blobs inherited from parent workspaces.",
+        "option": "optional"
+      },
+      {
+        "name": "options",
+        "description": "(string, default empty) A BlobSerializationOptions message specifying options for how specific blobs should be serialized.",
+        "option": "optional"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "blob_names",
+        "description": "1D tensor of strings containing blob names."
+      },
+      {
+        "name": "blob_sizes",
+        "description": "1D tensor of int64_t containing blob sizes."
+      }
+    ],
+    "support_level": "default"
   }
 ]
