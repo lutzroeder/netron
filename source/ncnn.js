@@ -105,8 +105,9 @@ ncnn.ModelFactory = class {
 ncnn.Model = class {
 
     constructor(metadata, param, bin) {
-        this._graphs = [];
-        this._graphs.push(new ncnn.Graph(metadata, param, bin));
+        this._graphs = [
+            new ncnn.Graph(metadata, param, bin)
+        ];
     }
 
     get format() {
@@ -134,9 +135,12 @@ ncnn.Graph = class {
             return args.get(name);
         };
         for (const layer of layers) {
-            layer.attributes = layer.attributes.filter((attribute) => {
-                if (attribute.key === '30') {
-                    const value = attribute.value.map((item) => parseInt(item, 10));
+            const attributes = layer.attributes;
+            for (const pair of attributes) {
+                const key = pair[0];
+                const list = pair[1];
+                if (key === '30' && Array.isArray(list)) {
+                    const value = list.map((item) => parseInt(item, 10));
                     for (const output of layer.outputs || []) {
                         if (value.length > 0 && value[0] <= value.length - 1) {
                             const shape = new Array(value.shift());
@@ -146,20 +150,23 @@ ncnn.Graph = class {
                             const type = new ncnn.TensorType('?', new ncnn.TensorShape(shape));
                             arg(output, type, null);
                         }
-                        return false;
+                        attributes.delete(key);
                     }
                 }
-                return true;
-            });
+            }
         }
         for (const layer of layers) {
             if (layer.type == 'Input') {
-                const dimensions = layer.attributes.map((a) => !isNaN(parseInt(a.value, 10)) ? parseInt(a.value, 10) : a.value);
-                const type = new ncnn.TensorType('float32', new ncnn.TensorShape(dimensions));
-                this._inputs.push(new ncnn.Parameter(layer.name, true, layer.outputs.map((output) => new ncnn.Argument(output, type, null))));
+                const values = Array.from(layer.attributes.values());
+                const dimensions = values.map((value) => !isNaN(parseInt(value, 10)) ? parseInt(value, 10) : value);
+                const shape = new ncnn.TensorShape(dimensions);
+                const type = new ncnn.TensorType('float32', shape);
+                const input = new ncnn.Parameter(layer.name, true, layer.outputs.map((output) => new ncnn.Argument(output, type, null)));
+                this._inputs.push(input);
             }
             else {
-                this._nodes.push(new ncnn.Node(metadata, blobReader, layer, arg));
+                const node = new ncnn.Node(metadata, blobReader, layer, arg);
+                this._nodes.push(node);
             }
         }
     }
@@ -231,7 +238,6 @@ ncnn.Node = class {
         this._metadata = metadata;
         this._inputs = [];
         this._outputs = [];
-        this._attributes = [];
         this._chain = [];
         this._type = layer.type;
         this._name = layer.name || '';
@@ -242,14 +248,9 @@ ncnn.Node = class {
         }
 
         const schema = metadata.type(this._type);
-
         const attributeMetadata = schema && schema.attributes ? schema && schema.attributes : [];
-        for (const attribute of layer.attributes || []) {
-            const key = attribute.key;
-            const value = attribute.value;
-            const attributeSchema = attributeMetadata[key];
-            this._attributes.push(new ncnn.Attribute(attributeSchema, key, value));
-        }
+
+        const attributes = layer.attributes;
 
         const inputs = layer.inputs || [];
         let inputIndex = 0;
@@ -286,7 +287,7 @@ ncnn.Node = class {
         }));
         switch (this._type) {
             case 'BatchNorm': {
-                const channels = parseInt(layer.attr['0'] || 0, 10);
+                const channels = parseInt(attributes.get('0') || 0, 10);
                 this._weight(blobReader, 'slope', [ channels ], 'float32');
                 this._weight(blobReader, 'mean', [ channels ], 'float32');
                 this._weight(blobReader, 'variance', [ channels ], 'float32');
@@ -295,32 +296,36 @@ ncnn.Node = class {
             }
             case 'InnerProduct': {
                 const activation_names = [ '', 'ReLU', 'Leaky ReLU', 'Clip', 'Sigmoid', 'Mish' ];
-                const activation_type = parseInt(layer.attr['9'] || 0, 10);
+                const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
-                    this._chain.push(new ncnn.Node(metadata, blobReader, {
-                        type: activation_names[activation_type]
-                    }, arg));
+                    const layer = {
+                        type: activation_names[activation_type],
+                        attributes: new Map()
+                    };
+                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, arg));
                 }
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = parseInt(layer.attr['2'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('2') || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
-                if (layer.attr['1'] == '1') {
+                if (attributes.get('1') === '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
+                attributes.delete('2');
                 break;
             }
             case 'Bias': {
-                const bias_data_size = parseInt(layer.attr['0'] || 0, 10);
+                const bias_data_size = parseInt(attributes.get('0') || 0, 10);
                 this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 break;
             }
             case 'Embed': {
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = parseInt(layer.attr['3'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('3') || 0, 10);
                 this._weight(blobReader, 'weight', [ weight_data_size ]);
-                if (layer.attr['2'] == '1') {
+                if (attributes.get('2') === '1') {
                     this._weight(blobReader, 'bias', [ num_output], 'float32');
                 }
+                attributes.get('3');
                 break;
             }
             case 'Convolution':
@@ -328,74 +333,77 @@ ncnn.Node = class {
             case 'Deconvolution':
             case 'DeconvolutionDepthWise': {
                 const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish' ];
-                const activation_type = parseInt(layer.attr['9'] || 0, 10);
+                const activation_type = parseInt(attributes.get('9') || 0, 10);
                 if (activation_type > 0 && activation_type < activation_names.length) {
-                    this._chain.push(new ncnn.Node(metadata, blobReader, {
-                        type: activation_names[activation_type]
-                    }, arg));
+                    const layer = {
+                        type: activation_names[activation_type],
+                        attributes: new Map()
+                    };
+                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, arg));
                 }
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const kernel_w = parseInt(layer.attr['1'] || 0, 10);
-                const kernel_h = parseInt(layer.attr['11'] || kernel_w, 10);
-                const weight_data_size = parseInt(layer.attr['6'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const kernel_w = parseInt(attributes.get('1') || 0, 10);
+                const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
+                const weight_data_size = parseInt(attributes.get('6') || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
-                if (layer.attr['5'] == '1') {
+                if (attributes.get('5') === '1') {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
+                attributes.delete('6');
                 break;
             }
             case 'Dequantize': {
-                if (layer.attr['1'] == '1') {
-                    const bias_data_size = parseInt(layer.attr['2'] || 0, 10);
+                if (attributes.get('1') === '1') {
+                    const bias_data_size = parseInt(attributes.get('2') || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 break;
             }
             case 'Requantize': {
-                if (layer.attr['2'] == '1') {
-                    const bias_data_size = parseInt(layer.attr['3'] || 0, 10);
+                if (attributes.get('2') === '1') {
+                    const bias_data_size = parseInt(attributes.get('3') || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 break;
             }
             case 'InstanceNorm': {
-                const affine = parseInt(layer.attr['2'] || 1, 10);
+                const affine = parseInt(attributes.get('2') || 1, 10);
                 if (affine === 1) {
-                    const channels = parseInt(layer.attr['0'] || 0, 10);
+                    const channels = parseInt(attributes.get('0') || 0, 10);
                     this._weight(blobReader, 'gamma', [ channels ], 'float32');
                     this._weight(blobReader, 'beta', [ channels ], 'float32');
                 }
                 break;
             }
             case 'Scale': {
-                const scale_data_size = parseInt(layer.attr['0'] || 0, 10);
+                const scale_data_size = parseInt(attributes.get('0') || 0, 10);
                 if (scale_data_size != -233) {
                     this._weight(blobReader, 'scale', [ scale_data_size], 'float32');
-                    if (layer.attr['1'] == '1') {
+                    if (attributes.get('1') == '1') {
                         this._weight(blobReader, 'bias', [ scale_data_size ], 'float32');
                     }
                 }
                 break;
             }
             case 'Normalize': {
-                const scale_data_size = parseInt(layer.attr['3'] || 0, 10);
+                const scale_data_size = parseInt(attributes.get('3') || 0, 10);
                 this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
                 break;
             }
             case 'PReLU': {
-                const num_slope = parseInt(layer.attr['0'] || 0, 10);
+                const num_slope = parseInt(attributes.get('0') || 0, 10);
                 this._weight(blobReader, 'slope', [ num_slope ], 'float32');
                 break;
             }
             case 'Padding': {
-                const per_channel_pad_data_size = parseInt(layer.attr['6'] || 0, 10);
+                const per_channel_pad_data_size = parseInt(attributes.get('6') || 0, 10);
                 this._weight(blobReader, 'per_channel_pad_data', [ per_channel_pad_data_size ], 'float32');
                 break;
             }
             case 'MemoryData': {
-                const w = parseInt(layer.attr['0'] || 0, 10);
-                const h = parseInt(layer.attr['1'] || 0, 10);
-                const c = parseInt(layer.attr['2'] || 0, 10);
+                const w = parseInt(attributes.get('0') || 0, 10);
+                const h = parseInt(attributes.get('1') || 0, 10);
+                const c = parseInt(attributes.get('2') || 0, 10);
                 if (c != 0) {
                     this._weight(blobReader, 'data', [ c, h, w ], 'float32');
                 }
@@ -411,51 +419,61 @@ ncnn.Node = class {
                 break;
             }
             case 'GroupNorm': {
-                const affine = parseInt(layer.attr['3'] || 1, 10);
+                const affine = parseInt(attributes.get('3') || 1, 10);
                 if (affine === 1) {
-                    const channels = parseInt(layer.attr['1'] || 0, 10);
+                    const channels = parseInt(attributes.get('1') || 0, 10);
                     this._weight(blobReader, 'gamma', [ channels ], 'float32');
                     this._weight(blobReader, 'beta', [ channels ], 'float32');
                 }
                 break;
             }
             case 'LayerNorm': {
-                const channels = parseInt(layer.attr['0'] || 0, 10);
+                const channels = parseInt(attributes.get('0') || 0, 10);
                 this._weight(blobReader, 'gamma', [ channels ], 'float32');
                 this._weight(blobReader, 'beta', [ channels ], 'float32');
                 break;
             }
             case 'RNN': {
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
-                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('1') || 0, 10);
+                const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
                 this._weight(blobReader, 'weight_xc', [ num_directions, num_output, weight_data_size / num_directions / num_output ]);
                 this._weight(blobReader, 'bias_c', [ num_directions, num_output ]);
                 this._weight(blobReader, 'weight_hc', [ num_directions, num_output, num_output ]);
+                attributes.delete('1');
                 break;
             }
             case 'LSTM': {
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
-                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('1') || 0, 10);
+                const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
                 this._weight(blobReader, 'weight_xc', [ num_directions, 4, num_output, weight_data_size / num_directions / num_output / 4 ]);
                 this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
                 this._weight(blobReader, 'weight_hc', [ num_directions, 4, num_output, num_output ]);
+                attributes.delete('1');
                 break;
             }
             case 'GRU': {
-                const num_output = parseInt(layer.attr['0'] || 0, 10);
-                const weight_data_size = parseInt(layer.attr['1'] || 0, 10);
-                const direction = parseInt(layer.attr['2'] || 0, 10);
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('1') || 0, 10);
+                const direction = parseInt(attributes.get('2') || 0, 10);
                 const num_directions = direction == 2 ? 2 : 1;
                 this._weight(blobReader, 'weight_xc', [ num_directions, 3, num_output, weight_data_size / num_directions / num_output / 3 ]);
                 this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
                 this._weight(blobReader, 'weight_hc', [ num_directions, 3, num_output, num_output ]);
+                attributes.delete('1');
                 break;
             }
         }
+
+        this._attributes = Array.from(attributes).map((attribute) => {
+            const key = attribute[0];
+            const value = attribute[1];
+            const metadata = attributeMetadata[key];
+            return new ncnn.Attribute(metadata, key, value);
+        });
     }
 
     get type() {
@@ -810,23 +828,23 @@ ncnn.TextParamReader = class {
                 const outputCount = parseInt(columns.shift(), 10);
                 layer.inputs = columns.splice(0, inputCount);
                 layer.outputs = columns.splice(0, outputCount);
-                layer.attr = {};
-                layer.attributes = [];
+                layer.attributes = new Map();
+                const attributes = layer.attributes;
                 let index = 0;
                 for (const column of columns) {
                     const parts = column.split('=');
-                    if (parts.length <= 2) {
-                        let key = (parts.length === 2) ? parts[0].trim() : index.toString();
-                        let value = (parts.length === 2) ? parts[1].trim() : parts[0].trim();
-                        const keyInt = parseInt(key, 10);
-                        if (keyInt < 0) {
-                            value = value.split(',').map((v) => v.trim());
-                            value.shift();
-                            key = (-(keyInt + 23300)).toString();
-                        }
-                        layer.attr[key] = value;
-                        layer.attributes.push({ key: key, value: value });
+                    if (parts.length > 2) {
+                        throw new ncnn.Attribute("Invalid attribute '" + column + "'.");
                     }
+                    let key = (parts.length === 2) ? parts[0].trim() : index.toString();
+                    let value = (parts.length === 2) ? parts[1].trim() : parts[0].trim();
+                    const keyInt = parseInt(key, 10);
+                    if (keyInt < 0) {
+                        value = value.split(',').map((v) => v.trim());
+                        value.shift();
+                        key = (-(keyInt + 23300)).toString();
+                    }
+                    attributes.set(key, value);
                     index++;
                 }
                 layers.push(layer);
@@ -856,10 +874,9 @@ ncnn.BinaryParamReader = class {
             const layer = {
                 type: operator || typeIndex.toString(),
                 name: i.toString(),
+                attributes: new Map(),
                 inputs: [],
-                outputs: [],
-                attr: {},
-                attributes: []
+                outputs: []
             };
             const inputCount = reader.int32();
             const outputCount = reader.int32();
@@ -869,25 +886,25 @@ ncnn.BinaryParamReader = class {
             for (let j = 0; j < outputCount; j++) {
                 layer.outputs.push(reader.int32().toString());
             }
+            const attributes = layer.attributes;
             let id = reader.int32();
             while (id != -233) {
                 const isArray = id <= -23300;
                 if (isArray) {
                     id = -id - 23300;
                 }
+                const key = id.toString();
                 if (isArray) {
-                    const len = reader.int32();
+                    const length = reader.int32();
                     const values = [];
-                    for (let i = 0; i < len; i++) {
+                    for (let i = 0; i < length; i++) {
                         values.push(reader.int32());
                     }
-                    layer.attributes.push({ key: id.toString(), value: values.toString() });
-                    layer.attr[id.toString()] = values;
+                    attributes.set(key, values);
                 }
                 else {
                     const value = reader.int32();
-                    layer.attributes.push({ key: id.toString(), value: value.toString() });
-                    layer.attr[id.toString()] = value.toString();
+                    attributes.set(key, value);
                 }
                 id = reader.int32();
             }
