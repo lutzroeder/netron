@@ -2786,6 +2786,13 @@
     "link":   "https://github.com/lutzroeder/netron/issues/286"
   },
   {
+    "type":   "nnabla",
+    "target": "tecogan_model.h5",
+    "source": "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
+    "format": "nnabla HDF5 Weights",
+    "link":   "https://github.com/sony/nnabla-examples/issues/192"
+  },
+  {
     "type":   "ncnn",
     "target": "centerface.param,centerface.bin",
     "source": "https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.param,https://raw.githubusercontent.com/MirrorYuChen/ncnn_example/798f64b7d5f0b883e05cb994258d43658b0661b6/models/centerface.bin",
