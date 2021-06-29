@@ -402,6 +402,7 @@ $root.onnx.ModelProto = class ModelProto {
         this.opset_import = [];
         this.metadata_props = [];
         this.training_info = [];
+        this.functions = [];
     }
 
     static decode(reader, length) {
@@ -439,6 +440,9 @@ $root.onnx.ModelProto = class ModelProto {
                     break;
                 case 20:
                     message.training_info.push($root.onnx.TrainingInfoProto.decode(reader, reader.uint32()));
+                    break;
+                case 25:
+                    message.functions.push($root.onnx.FunctionProto.decode(reader, reader.uint32()));
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -483,6 +487,9 @@ $root.onnx.ModelProto = class ModelProto {
                     break;
                 case "training_info":
                     message.training_info.push($root.onnx.TrainingInfoProto.decodeText(reader));
+                    break;
+                case "functions":
+                    message.functions.push($root.onnx.FunctionProto.decodeText(reader));
                     break;
                 default:
                     reader.field(tag, message);
@@ -1496,12 +1503,6 @@ $root.onnx.FunctionProto = class FunctionProto {
                 case 1:
                     message.name = reader.string();
                     break;
-                case 2:
-                    message.since_version = reader.int64();
-                    break;
-                case 3:
-                    message.status = reader.int32();
-                    break;
                 case 4:
                     message.input.push(reader.string());
                     break;
@@ -1520,6 +1521,9 @@ $root.onnx.FunctionProto = class FunctionProto {
                 case 9:
                     message.opset_import.push($root.onnx.OperatorSetIdProto.decode(reader, reader.uint32()));
                     break;
+                case 10:
+                    message.domain = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1536,12 +1540,6 @@ $root.onnx.FunctionProto = class FunctionProto {
             switch (tag) {
                 case "name":
                     message.name = reader.string();
-                    break;
-                case "since_version":
-                    message.since_version = reader.int64();
-                    break;
-                case "status":
-                    message.status = reader.enum($root.onnx.OperatorStatus);
                     break;
                 case "input":
                     reader.array(message.input, () => reader.string());
@@ -1561,6 +1559,9 @@ $root.onnx.FunctionProto = class FunctionProto {
                 case "opset_import":
                     message.opset_import.push($root.onnx.OperatorSetIdProto.decodeText(reader));
                     break;
+                case "domain":
+                    message.domain = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -1571,9 +1572,8 @@ $root.onnx.FunctionProto = class FunctionProto {
 };
 
 $root.onnx.FunctionProto.prototype.name = "";
-$root.onnx.FunctionProto.prototype.since_version = protobuf.Int64.create(0);
-$root.onnx.FunctionProto.prototype.status = 0;
 $root.onnx.FunctionProto.prototype.doc_string = "";
+$root.onnx.FunctionProto.prototype.domain = "";
 
 $root.onnx.OperatorProto = class OperatorProto {
 
