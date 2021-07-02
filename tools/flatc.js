@@ -1243,9 +1243,10 @@ const main = (args) => {
     }
 
     try {
-        const content = new flatc.Generator(new flatc.Root(options.root, options.paths, options.files), options.text).content;
+        const root = new flatc.Root(options.root, options.paths, options.files);
+        const generator = new flatc.Generator(root, options.text);
         if (options.out) {
-            fs.writeFileSync(options.out, content, 'utf-8');
+            fs.writeFileSync(options.out, generator.content, 'utf-8');
         }
     }
     catch (err) {
