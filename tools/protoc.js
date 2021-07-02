@@ -159,6 +159,9 @@ protoc.Root = class extends protoc.Namespace {
             if (resolved) {
                 this._loadFile(paths, resolved);
             }
+            else {
+                throw new protoc.Error("File '" + file + "' not found.");
+            }
         }
         return this;
     }
@@ -1498,9 +1501,10 @@ const main = (args) => {
     }
 
     try {
-        const content = new protoc.Generator(new protoc.Root(options.root, options.paths, options.files), options.text).content;
+        const root = new protoc.Root(options.root, options.paths, options.files);
+        const generator = new protoc.Generator(root, options.text);
         if (options.out) {
-            fs.writeFileSync(options.out, content, 'utf-8');
+            fs.writeFileSync(options.out, generator.content, 'utf-8');
         }
     }
     catch (err) {
