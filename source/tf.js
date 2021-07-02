@@ -43,50 +43,82 @@ tf.ModelFactory = class {
                 }
             }
             const tags = context.tags('pb');
-            if (tags.size === 0) {
+            if (tags.size > 0) {
+                if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
+                    if (tags.size === 1 && tags.get(1) === 2) {
+                        const tags = context.tags('pb+');
+                        const match = (tags, schema) => {
+                            for (const pair of schema) {
+                                const key = pair[0];
+                                const inner = pair[1];
+                                if (!tags.has(key)) {
+                                    continue;
+                                }
+                                else if (inner === false) {
+                                    return false;
+                                }
+                                if (Array.isArray(inner)) {
+                                    const value = tags.get(key);
+                                    if (!(value instanceof Map) || !match(value, inner)) {
+                                        return false;
+                                    }
+                                }
+                                else if (inner !== tags.get(key)) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        };
+                        // mediapipe.BoxDetectorIndex
+                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                            return false;
+                        }
+                        // third_party.tensorflow.python.keras.protobuf.SavedMetadata
+                        if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
+                            return false;
+                        }
+                    }
+                    if (tags.get(1) !== 2) {
+                        return true;
+                    }
+                    const decode = (buffer, value) => {
+                        const reader = protobuf.BinaryReader.open(buffer);
+                        const length = reader.length;
+                        while (reader.position < length) {
+                            const tag = reader.uint32();
+                            const number = tag >>> 3;
+                            const type = tag & 7;
+                            if (value === number) {
+                                return type === 2 ? reader.bytes() : null;
+                            }
+                            else {
+                                reader.skipType(type);
+                            }
+                        }
+                        return null;
+                    };
+                    const stream = context.stream;
+                    const buffer = stream.peek();
+                    const nodeBuffer = decode(buffer, 1);
+                    if (nodeBuffer) {
+                        const nameBuffer = decode(nodeBuffer, 1);
+                        if (nameBuffer) {
+                            const decoder = new TextDecoder('utf-8');
+                            const name = decoder.decode(nameBuffer);
+                            if (Array.from(name).filter((c) => c <= ' ').length < 256) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            else {
                 const tags = context.tags('pbtxt');
                 if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                     return false;
                 }
                 if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
                     return true;
-                }
-            }
-            else if (tags.size === 1 && tags.get(1) === 2 && identifier === 'keras_metadata.pb') {
-                return true;
-            }
-            else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
-                if (tags.get(1) !== 2) {
-                    return true;
-                }
-                const decode = (buffer, value) => {
-                    const reader = protobuf.BinaryReader.open(buffer);
-                    const length = reader.length;
-                    while (reader.position < length) {
-                        const tag = reader.uint32();
-                        const number = tag >>> 3;
-                        const type = tag & 7;
-                        if (value === number) {
-                            return type === 2 ? reader.bytes() : null;
-                        }
-                        else {
-                            reader.skipType(type);
-                        }
-                    }
-                    return null;
-                };
-                const stream = context.stream;
-                const buffer = stream.peek();
-                const nodeBuffer = decode(buffer, 1);
-                if (nodeBuffer) {
-                    const nameBuffer = decode(nodeBuffer, 1);
-                    if (nameBuffer) {
-                        const decoder = new TextDecoder('utf-8');
-                        const name = decoder.decode(nameBuffer);
-                        if (Array.from(name).filter((c) => c <= ' ').length < 256) {
-                            return true;
-                        }
-                    }
                 }
             }
         }

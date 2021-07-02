@@ -36,10 +36,10 @@
   },
   {
     "type":   "_",
-    "target": "keras_invalid_file.h5",
-    "source": "https://github.com/lutzroeder/netron/files/3364286/keras_invalid_file.zip[keras_invalid_file.h5]",
-    "error":  "File has no content.",
-    "link":   "https://github.com/lutzroeder/netron/issues/57"
+    "target": "keras_metadata.pb",
+    "source": "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
+    "error":  "Invalid file content. File contains third_party.tensorflow.python.keras.protobuf.SavedMetadata data.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
     "type":   "_",

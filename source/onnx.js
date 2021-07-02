@@ -17,8 +17,38 @@ onnx.ModelFactory = class {
         }
         let tags = context.tags('pb');
         if (tags.size > 0) {
-            if (tags.size === 1 && tags.get(1) === 2 && identifier === 'keras_metadata.pb') {
-                return false;
+            if (tags.size === 1 && tags.get(1) === 2) {
+                const tags = context.tags('pb+');
+                const match = (tags, schema) => {
+                    for (const pair of schema) {
+                        const key = pair[0];
+                        const inner = pair[1];
+                        if (!tags.has(key)) {
+                            continue;
+                        }
+                        else if (inner === false) {
+                            return false;
+                        }
+                        if (Array.isArray(inner)) {
+                            const value = tags.get(key);
+                            if (!(value instanceof Map) || !match(value, inner)) {
+                                return false;
+                            }
+                        }
+                        else if (inner !== tags.get(key)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                // mediapipe.BoxDetectorIndex
+                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                    return false;
+                }
+                // third_party.tensorflow.python.keras.protobuf.SavedMetadata
+                if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
+                    return false;
+                }
             }
             if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
