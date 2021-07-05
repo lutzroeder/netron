@@ -1031,6 +1031,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.quantized.modules.functional_modules.QFunctional', class {});
         this.registerType('torch.nn.quantized.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.linear.LinearPackedParams', class {});
+        this.registerType('torch.nn.quantized.modules.normalization.InstanceNorm2d', class {});
         this.registerType('torch.nn.quantized.modules.Quantize', class {});
         this.registerType('torch.nn.utils.prune.L1Unstructured', class {});
         this.registerType('torch.nn.utils.spectral_norm.SpectralNorm', class {});
