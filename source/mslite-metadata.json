@@ -255,6 +255,9 @@
     ]
   },
   {
+    "name": "Attention"
+  },
+  {
     "name": "AudioSpectrogram",
     "attributes": [
       { "name": "windowSize", "type": "int32", "default": 0 },

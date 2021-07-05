@@ -374,6 +374,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 198: return $root.mindspore.schema.TensorArrayRead.decode(reader, position);
             case 199: return $root.mindspore.schema.TensorArrayWrite.decode(reader, position);
             case 200: return $root.mindspore.schema.Affine.decode(reader, position);
+            case 201: return $root.mindspore.schema.Attention.decode(reader, position);
         }
         return undefined;
     }
@@ -580,6 +581,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'TensorArrayRead': return $root.mindspore.schema.TensorArrayRead.decodeText(reader, json);
             case 'TensorArrayWrite': return $root.mindspore.schema.TensorArrayWrite.decodeText(reader, json);
             case 'Affine': return $root.mindspore.schema.Affine.decodeText(reader, json);
+            case 'Attention': return $root.mindspore.schema.Attention.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3931,6 +3933,19 @@ $root.mindspore.schema.Affine = class Affine {
         $.activation_type = $root.mindspore.schema.ActivationType[json.activation_type];
         $.transpose_a = reader.value(json.transpose_a, false);
         $.transpose_b = reader.value(json.transpose_b, false);
+        return $;
+    }
+};
+
+$root.mindspore.schema.Attention = class Attention {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.Attention();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.Attention();
         return $;
     }
 };
