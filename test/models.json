@@ -38,7 +38,7 @@
     "type":   "_",
     "target": "keras_metadata.pb",
     "source": "https://github.com/lutzroeder/netron/files/6751650/keras_metadata.pb.zip[keras_metadata.pb]",
-    "error":  "Invalid file content. File contains third_party.tensorflow.python.keras.protobuf.SavedMetadata data.",
+    "error":  "The file 'saved_model.pb' does not exist in 'keras_metadata.pb'.",
     "link":   "https://github.com/lutzroeder/netron/issues/458"
   },
   {
@@ -5474,6 +5474,13 @@
     "target": "age_gender_model/age_gender_model-weights_manifest.json,age_gender_model/age_gender_model-shard1",
     "source": "https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-weights_manifest.json,https://raw.githubusercontent.com/justadudewhohacks/face-api.js-models/master/age_gender_model/age_gender_model-shard1",
     "format": "TensorFlow.js Weights"
+  },
+  {
+    "type":   "tfjs",
+    "target": "deeplab_ade20k_1_quantized_2_1.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6766475/deeplab_ade20k_1_quantized_2_1.zip",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/lutzroeder/netron/issues/294"
   },
   {
     "type":   "tfjs",
