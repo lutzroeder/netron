@@ -3031,6 +3031,15 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 pytorch.Utility.isCall(statement.expression, 'torch.unbind', 2)) {
                 statement.expression.arguments[0].__tuple__ = statement.target.value.length;
             }
+            // x = torch.len(input)
+            if (statement.type === '=' &&
+                statement.target.type === 'id' &&
+                pytorch.Utility.isCall(statement.expression, 'torch.len', 1)) {
+                const tensor = this.expression(statement.expression.arguments[0], context);
+                if (tensor && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
+                    tensor.resize_([ NaN, NaN, NaN, NaN ]);
+                }
+            }
             const value = this.statement(statement, context);
             if (value !== undefined) {
                 return value;

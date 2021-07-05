@@ -4319,6 +4319,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "model_0_epochs.pt",
+    "source": "https://github.com/lutzroeder/netron/files/6765569/model_0_epochs.pt.zip[model_0_epochs.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/647"
+  },
+  {
+    "type":   "pytorch",
     "target": "model-reddit16-f140225004_2.pt1",
     "source": "https://raw.githubusercontent.com/pytorch/android-demo-app/master/PyTorchDemoApp/app/src/main/assets/model-reddit16-f140225004_2.pt1",
     "format": "TorchScript v1.3",
