@@ -19,7 +19,7 @@ keras.ModelFactory = class {
             if (obj.nodes && obj.arg_nodes && obj.heads) {
                 return false;
             }
-            if (obj.modelTopology && obj.format !== 'graph-model') {
+            if (obj.modelTopology && (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config)) {
                 return true;
             }
             if (obj.model_config || (obj.class_name && obj.config)) {
