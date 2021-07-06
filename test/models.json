@@ -2140,7 +2140,7 @@
     "type":   "keras",
     "target": "nested_bidrectional.weights",
     "source": "https://github.com/lutzroeder/netron/files/4304644/nested_bidrectional.zip[nested_bidrectional_weights.h5]",
-    "format": "Keras v2.3.1",
+    "format": "Keras Weights v2.3.1",
     "link":   "https://github.com/lutzroeder/netron/issues/428"
   },
   {
@@ -2203,7 +2203,7 @@
     "type":   "keras",
     "target": "resnet50_weights_tf_dim_ordering_tf_kernels.h5",
     "source": "https://github.com/fchollet/deep-learning-models/releases/download/v0.2/resnet50_weights_tf_dim_ordering_tf_kernels.h5",
-    "format": "Keras"
+    "format": "Keras Weights"
   },
   {
     "type":   "keras",
