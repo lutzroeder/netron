@@ -363,7 +363,8 @@ $root.tflite.BuiltinOperator = {
     CONV_3D_TRANSPOSE: 141,
     VAR_HANDLE: 142,
     READ_VARIABLE: 143,
-    ASSIGN_VARIABLE: 144
+    ASSIGN_VARIABLE: 144,
+    BROADCAST_ARGS: 145
 };
 
 $root.tflite.BuiltinOptions = class {
