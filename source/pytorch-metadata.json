@@ -2392,11 +2392,20 @@
   {
     "name": "torch.cat:",
     "category": "Tensor",
-    "attributes": [
+    "inputs": [
+      { "name": "tensors", "type": "Tensor[]" },
       { "name": "dim", "type": "int64", "default": 0 }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.cat:names",
+    "category": "Tensor",
     "inputs": [
-      { "name": "tensors", "type": "Tensor[]" }
+      { "name": "tensors", "type": "Tensor[]" },
+      { "name": "dim", "type": "Dimname" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
