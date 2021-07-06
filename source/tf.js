@@ -2458,6 +2458,9 @@ tf.JsonReader = class {
                 case 's':
                     message[key] = list.map((value) => typeof value === 'string' ? value : tf.Utility.decodeText(Uint8Array.from(value)));
                     break;
+                case 'type':
+                    message[key] = list.map((value) => tf.proto.tensorflow.DataType[value]);
+                    break;
                 default:
                     throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");
             }
