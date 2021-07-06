@@ -92,7 +92,10 @@ protobuf.BinaryReader = class {
                             }
                         }
                         tags.set(field, type);
-                        this.skipType(type);
+                        if (!this._skipType(type)) {
+                            this.seek(end);
+                            return 2;
+                        }
                     }
                     if (this.position === end) {
                         return tags;
@@ -135,7 +138,10 @@ protobuf.BinaryReader = class {
                             }
                         }
                         tags.set(field, type);
-                        this.skipType(type);
+                        if (!this.skipType(type)) {
+                            tags.clear();
+                            break;
+                        }
                     }
                 }
             }
@@ -360,6 +366,38 @@ protobuf.BinaryReader = class {
             }
         }
         while (this._buffer[this._position++] & 128);
+    }
+
+    _skipType(wireType) {
+        switch (wireType) {
+            case 0:
+                do {
+                    if (this._position >= this._length) {
+                        return false;
+                    }
+                }
+                while (this._buffer[this._position++] & 128);
+                break;
+            case 1:
+                this.skip(8);
+                break;
+            case 2:
+                this.skip(this.uint32());
+                break;
+            case 3:
+                while ((wireType = this.uint32() & 7) !== 4) {
+                    if (!this._skipType(wireType)) {
+                        return false;
+                    }
+                }
+                break;
+            case 5:
+                this.skip(4);
+                break;
+            default:
+                return false;
+        }
+        return true;
     }
 
     skipType(wireType) {
