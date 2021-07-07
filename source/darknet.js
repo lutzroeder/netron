@@ -675,20 +675,24 @@ darknet.Graph = class {
                             layer.out_w = params.w * stride;
                             layer.out_h = params.h * stride;
                             layer.out_c = Math.floor(params.c / (stride * stride));
+                            layer.out = layer.out_h * layer.out_w * layer.out_c;
                         }
                         else {
                             layer.out_w = Math.floor(params.w / stride);
                             layer.out_h = Math.floor(params.h / stride);
                             layer.out_c = params.c * (stride * stride);
+                            layer.out = layer.out_h * layer.out_w * layer.out_c;
                         }
-                        layer.out = layer.out_h * layer.out_w * layer.out_c;
                         if (extra) {
                             layer.out_w = 0;
                             layer.out_h = 0;
                             layer.out_c = 0;
                             layer.out = (params.h * params.w * params.c) + extra;
+                            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'reorg'));
                         }
-                        layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out ], 'reorg'));
+                        else {
+                            layer.outputs[0].type = new darknet.TensorType('float32', make_shape([ layer.out_w, layer.out_h, layer.out_c ], 'reorg'));
+                        }
                         break;
                     }
                     case 'route': {

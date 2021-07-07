@@ -411,6 +411,10 @@
     "category": "Activation"
   },
   {
+    "name": "silu",
+    "category": "Activation"
+  },
+  {
     "name": "shortcut",
     "category": "Tensor",
     "attributes": [
