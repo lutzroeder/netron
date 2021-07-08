@@ -5837,5 +5837,15 @@
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
+  },
+  {
+    "name": "torch.one_hot:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "num_classes", "type": "int64", "default": -1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
   }
 ]
