@@ -3264,10 +3264,11 @@ pytorch.Utility = class {
     }
 
     static _convertObjectList(list) {
-        if (list && Array.isArray(list) && list.every((obj) => obj.__class__ && Object.keys(obj).filter((key) => pytorch.Utility.isTensor(obj[key]).length > 0))) {
+        if (list && Array.isArray(list) && list.every((obj) => obj && Object.keys(obj).filter((key) => pytorch.Utility.isTensor(obj[key]).length > 0))) {
             const layers = [];
             for (const obj of list) {
-                const layer = { type: obj.__class__.__module__ + '.' + obj.__class__.__name__, states: [], attributes: [] };
+                const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '?';
+                const layer = { type: type, states: [], attributes: [] };
                 for (const key of Object.keys(obj)) {
                     const value = obj[key];
                     if (pytorch.Utility.isTensor(value)) {
