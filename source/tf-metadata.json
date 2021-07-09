@@ -1246,7 +1246,7 @@
   {
     "name": "ApplyAdam",
     "summary": "Update '*var' according to the Adam algorithm.",
-    "description": "$$lr_t := \\text{learning\\_rate} * \\sqrt{1 - beta_2^t} / (1 - beta_1^t)$$\n$$m_t := beta_1 * m_{t-1} + (1 - beta_1) * g$$\n$$v_t := beta_2 * v_{t-1} + (1 - beta_2) * g * g$$\n$$variable := variable - lr_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+    "description": "$$\\text{lr}_t := \\mathrm{lr} \\cdot \\frac{\\sqrt{1 - \\beta_2^t}}{1 - \\beta_1^t}$$\n$$m_t := \\beta_1 \\cdot m_{t-1} + (1 - \\beta_1) \\cdot g$$\n$$v_t := \\beta_2 \\cdot v_{t-1} + (1 - \\beta_2) \\cdot g^2$$\n$$\\text{var} := \\begin{cases} \\text{var} - (m_t \\beta_1 + g \\cdot (1 - \\beta_1))\\cdot\\text{lr}_t/(\\sqrt{v_t} + \\epsilon), &\\text{if use_nesterov}\\\\\\\\  \\text{var} - m_t \\cdot \\text{lr}_t /(\\sqrt{v_t} + \\epsilon), &\\text{otherwise} \\end{cases}$$",
     "attributes": [
       {
         "name": "T",
@@ -36674,6 +36674,47 @@
     ]
   },
   {
+    "name": "ReadVariableXlaSplitND",
+    "summary": "Splits resource variable input tensor across all dimensions.",
+    "description": "An op which splits the resource variable input tensor based on the given\nnum_splits attribute, pads slices optionally, and returned the slices. Slices\nare returned in row-major order.\n\nThis op may be generated via the TPU bridge.\n\nFor example, with `input` tensor:\n```\n[[0, 1, 2],\n [3, 4, 5],\n [6, 7, 8]]\n```\n`num_splits`:\n```\n[2, 2]\n```\nand `paddings`:\n```\n[1, 1]\n```\nthe expected `outputs` is:\n```\n[[0, 1],\n [3, 4]]\n[[2, 0],\n [5, 0]]\n[[6, 7],\n [0, 0]]\n[[8, 0],\n [0, 0]]\n```",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_splits",
+        "type": "int64[]",
+        "description": "Number of ways to split per dimension. Shape dimensions must be evenly\ndivisible."
+      },
+      {
+        "name": "paddings",
+        "type": "int64[]",
+        "description": "Optional list of right paddings per dimension of input tensor to apply before\nsplitting. This can be used to make a dimension evenly divisible.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "resource",
+        "description": "Resource variable of input tensor to split across all dimensions.\n  }\n  out_arg {\n    name: \"outputs\"\n    description: <<END\nOutput slices based on input and num_splits defined, in row-major order.",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "outputs",
+        "numberAttr": "N",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "ReaderNumRecordsProduced",
     "summary": "Returns the number of records this Reader has produced.",
     "description": "This is the same as the number of ReaderRead executions that have\nsucceeded.",
@@ -38805,7 +38846,7 @@
   {
     "name": "ResourceApplyAdam",
     "summary": "Update '*var' according to the Adam algorithm.",
-    "description": "$$\\text{lr}_t := \\mathrm{learning_rate} * \\sqrt{1 - \\beta_2^t} / (1 - \\beta_1^t)$$\n$$m_t := \\beta_1 * m_{t-1} + (1 - \\beta_1) * g$$\n$$v_t := \\beta_2 * v_{t-1} + (1 - \\beta_2) * g * g$$\n$$\\text{variable} := \\text{variable} - \\text{lr}_t * m_t / (\\sqrt{v_t} + \\epsilon)$$",
+    "description": "$$\\text{lr}_t := \\mathrm{lr} \\cdot \\frac{\\sqrt{1 - \\beta_2^t}}{1 - \\beta_1^t}$$\n$$m_t := \\beta_1 \\cdot m_{t-1} + (1 - \\beta_1) \\cdot g$$\n$$v_t := \\beta_2 \\cdot v_{t-1} + (1 - \\beta_2) \\cdot g^2$$\n$$\\text{var} := \\begin{cases} \\text{var} - (m_t \\beta_1 + g \\cdot (1 - \\beta_1))\\cdot\\text{lr}_t/(\\sqrt{v_t} + \\epsilon), &\\text{if use_nesterov}\\\\\\\\  \\text{var} - m_t \\cdot \\text{lr}_t /(\\sqrt{v_t} + \\epsilon), &\\text{otherwise} \\end{cases}$$",
     "attributes": [
       {
         "name": "T",
@@ -42191,7 +42232,7 @@
   {
     "name": "ReverseV2",
     "summary": "Reverses specific dimensions of a tensor.",
-    "description": "NOTE `tf.reverse` has now changed behavior in preparation for 1.0.\n`tf.reverse_v2` is currently an alias that will be deprecated before TF 1.0.\n\nGiven a `tensor`, and a `int32` tensor `axis` representing the set of\ndimensions of `tensor` to reverse. This operation reverses each dimension\n`i` for which there exists `j` s.t. `axis[j] == i`.\n\n`tensor` can have up to 8 dimensions. The number of dimensions specified\nin `axis` may be 0 or more entries. If an index is specified more than\nonce, a InvalidArgument error is raised.\n\nFor example:\n\n```\n# tensor 't' is [[[[ 0,  1,  2,  3],\n#                  [ 4,  5,  6,  7],\n#                  [ 8,  9, 10, 11]],\n#                 [[12, 13, 14, 15],\n#                  [16, 17, 18, 19],\n#                  [20, 21, 22, 23]]]]\n# tensor 't' shape is [1, 2, 3, 4]\n\n# 'dims' is [3] or 'dims' is [-1]\nreverse(t, dims) ==> [[[[ 3,  2,  1,  0],\n                        [ 7,  6,  5,  4],\n                        [ 11, 10, 9, 8]],\n                       [[15, 14, 13, 12],\n                        [19, 18, 17, 16],\n                        [23, 22, 21, 20]]]]\n\n# 'dims' is '[1]' (or 'dims' is '[-3]')\nreverse(t, dims) ==> [[[[12, 13, 14, 15],\n                        [16, 17, 18, 19],\n                        [20, 21, 22, 23]\n                       [[ 0,  1,  2,  3],\n                        [ 4,  5,  6,  7],\n                        [ 8,  9, 10, 11]]]]\n\n# 'dims' is '[2]' (or 'dims' is '[-2]')\nreverse(t, dims) ==> [[[[8, 9, 10, 11],\n                        [4, 5, 6, 7],\n                        [0, 1, 2, 3]]\n                       [[20, 21, 22, 23],\n                        [16, 17, 18, 19],\n                        [12, 13, 14, 15]]]]\n```",
+    "description": "Given a `tensor`, and a `int32` tensor `axis` representing the set of\ndimensions of `tensor` to reverse. This operation reverses each dimension\n`i` for which there exists `j` s.t. `axis[j] == i`.\n\n`tensor` can have up to 8 dimensions. The number of dimensions specified\nin `axis` may be 0 or more entries. If an index is specified more than\nonce, a InvalidArgument error is raised.\n\nFor example:\n\n```\n# tensor 't' is [[[[ 0,  1,  2,  3],\n#                  [ 4,  5,  6,  7],\n#                  [ 8,  9, 10, 11]],\n#                 [[12, 13, 14, 15],\n#                  [16, 17, 18, 19],\n#                  [20, 21, 22, 23]]]]\n# tensor 't' shape is [1, 2, 3, 4]\n\n# 'dims' is [3] or 'dims' is [-1]\nreverse(t, dims) ==> [[[[ 3,  2,  1,  0],\n                        [ 7,  6,  5,  4],\n                        [ 11, 10, 9, 8]],\n                       [[15, 14, 13, 12],\n                        [19, 18, 17, 16],\n                        [23, 22, 21, 20]]]]\n\n# 'dims' is '[1]' (or 'dims' is '[-3]')\nreverse(t, dims) ==> [[[[12, 13, 14, 15],\n                        [16, 17, 18, 19],\n                        [20, 21, 22, 23]\n                       [[ 0,  1,  2,  3],\n                        [ 4,  5,  6,  7],\n                        [ 8,  9, 10, 11]]]]\n\n# 'dims' is '[2]' (or 'dims' is '[-2]')\nreverse(t, dims) ==> [[[[8, 9, 10, 11],\n                        [4, 5, 6, 7],\n                        [0, 1, 2, 3]]\n                       [[20, 21, 22, 23],\n                        [16, 17, 18, 19],\n                        [12, 13, 14, 15]]]]\n```",
     "attributes": [
       {
         "name": "Tidx",
@@ -59988,6 +60029,47 @@
       {
         "name": "input",
         "typeAttr": "Tinput"
+      }
+    ]
+  },
+  {
+    "name": "XlaSplitND",
+    "summary": "Splits input tensor across all dimensions.",
+    "description": "An op which slices the input tensor based on the given num_splits attribute,\npads slices optionally, and returned the slices. Slices are returned in\nrow-major order.\n\nThis op may be generated via the TPU bridge.\n\nFor example, with `input` tensor:\n```\n[[0, 1, 2],\n [3, 4, 5],\n [6, 7, 8]]\n```\n`num_splits`:\n```\n[2, 2]\n```\nand `paddings`:\n```\n[1, 1]\n```\nthe expected `outputs` is:\n```\n[[0, 1],\n [3, 4]]\n[[2, 0],\n [5, 0]]\n[[6, 7],\n [0, 0]]\n[[8, 0],\n [0, 0]]\n```",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_splits",
+        "type": "int64[]",
+        "description": "Number of ways to split per dimension. Shape dimensions must be evenly\ndivisible."
+      },
+      {
+        "name": "paddings",
+        "type": "int64[]",
+        "description": "Optional list of right paddings per dimension of input tensor to apply before\nsplitting. This can be used to make a dimension evenly divisible.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "description": "Input tensor to split across all dimensions.\n  }\n  out_arg {\n    name: \"outputs\"\n    description: <<END\nOutput slices based on input and num_splits defined, in row-major order.",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "outputs",
+        "numberAttr": "N",
+        "typeAttr": "T"
       }
     ]
   },
