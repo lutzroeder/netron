@@ -569,7 +569,7 @@
     "attributes": [
       {
         "default": "linear",
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (see `keras.activations`).",
         "name": "activation"
       },
       {
@@ -607,7 +607,7 @@
           "class_name": "Zeros",
           "config": {}
         },
-        "description": "Initializer for the bias vector (\n    see `keras.initializers`). Defaults to 'zeros'.",
+        "description": "Initializer for the bias vector\n    (see `keras.initializers`). Defaults to 'zeros'.",
         "name": "bias_initializer",
         "visible": false
       },
@@ -621,7 +621,7 @@
             "seed": null
           }
         },
-        "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`). Defaults to 'glorot_uniform'.",
+        "description": "Initializer for the `kernel` weights matrix\n    (see `keras.initializers`). Defaults to 'glorot_uniform'.",
         "name": "kernel_initializer",
         "visible": false
       },
@@ -639,21 +639,21 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+        "description": "Regularizer function applied to the bias vector\n    (see `keras.regularizers`).",
         "name": "bias_regularizer",
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\") (\n    see `keras.regularizers`).",
+        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\")\n    (see `keras.regularizers`).",
         "name": "activity_regularizer",
         "visible": false
       },
       {
-        "description": "Constraint function applied to the kernel matrix (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to the kernel matrix\n    (see `keras.constraints`).",
         "name": "kernel_constraint"
       },
       {
-        "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to the bias vector\n    (see `keras.constraints`).",
         "name": "bias_constraint"
       },
       {
@@ -858,7 +858,7 @@
         "name": "dilation_rate"
       },
       {
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (see `keras.activations`).",
         "name": "activation"
       },
       {
@@ -877,7 +877,7 @@
             "seed": null
           }
         },
-        "description": "Initializer for the `kernel` weights matrix (\n    see `keras.initializers`). Defaults to 'glorot_uniform'.",
+        "description": "Initializer for the `kernel` weights matrix\n    (see `keras.initializers`). Defaults to 'glorot_uniform'.",
         "name": "kernel_initializer",
         "visible": false
       },
@@ -886,7 +886,7 @@
           "class_name": "Zeros",
           "config": {}
         },
-        "description": "Initializer for the bias vector (\n    see `keras.initializers`). Defaults to 'zeros'.",
+        "description": "Initializer for the bias vector\n    (see `keras.initializers`). Defaults to 'zeros'.",
         "name": "bias_initializer",
         "visible": false
       },
@@ -896,7 +896,7 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+        "description": "Regularizer function applied to the bias vector\n    (see `keras.regularizers`).",
         "name": "bias_regularizer",
         "visible": false
       },
@@ -906,11 +906,11 @@
         "visible": false
       },
       {
-        "description": "Constraint function applied to the kernel matrix (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to the kernel matrix\n    (see `keras.constraints`).",
         "name": "kernel_constraint"
       },
       {
-        "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to the bias vector\n    (see `keras.constraints`).",
         "name": "bias_constraint"
       },
       {
@@ -3466,7 +3466,7 @@
         "name": "depth_multiplier"
       },
       {
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (see `keras.activations`).",
         "name": "activation"
       },
       {
@@ -3474,11 +3474,11 @@
         "name": "use_bias"
       },
       {
-        "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer (\n    'glorot_uniform') will be used.",
+        "description": "An initializer for the depthwise convolution kernel\n    (see `keras.initializers`). If None, then the default initializer\n    ('glorot_uniform') will be used.",
         "name": "depthwise_initializer"
       },
       {
-        "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer \n    ('glorot_uniform') will be used.",
+        "description": "An initializer for the pointwise convolution kernel\n    (see `keras.initializers`). If None, then the default initializer\n    ('glorot_uniform') will be used.",
         "name": "pointwise_initializer"
       },
       {
@@ -3494,23 +3494,23 @@
         "name": "pointwise_regularizer"
       },
       {
-        "description": "Optional regularizer for the bias vector (\n    see `keras.regularizers`).",
+        "description": "Optional regularizer for the bias vector\n    (see `keras.regularizers`).",
         "name": "bias_regularizer"
       },
       {
-        "description": "Optional regularizer function for the output (\n    see `keras.regularizers`).",
+        "description": "Optional regularizer function for the output\n    (see `keras.regularizers`).",
         "name": "activity_regularizer"
       },
       {
-        "description": "Optional projection function to be applied to the\n    depthwise kernel after being updated by an `Optimizer` (e.g. used for\n    norm constraints or value constraints for layer weights). The function\n    must take as input the unprojected variable and must return the\n    projected variable (which must have the same shape). Constraints are\n    not safe to use when doing asynchronous distributed training (\n    see `keras.constraints`).",
+        "description": "Optional projection function to be applied to the\n    depthwise kernel after being updated by an `Optimizer` (e.g. used for\n    norm constraints or value constraints for layer weights). The function\n    must take as input the unprojected variable and must return the\n    projected variable (which must have the same shape). Constraints are\n    not safe to use when doing asynchronous distributed training\n    (see `keras.constraints`).",
         "name": "depthwise_constraint"
       },
       {
-        "description": "Optional projection function to be applied to the\n    pointwise kernel after being updated by an `Optimizer` (\n    see `keras.constraints`).",
+        "description": "Optional projection function to be applied to the\n    pointwise kernel after being updated by an `Optimizer`\n    (see `keras.constraints`).",
         "name": "pointwise_constraint"
       },
       {
-        "description": "Optional projection function to be applied to the\n    bias after being updated by an `Optimizer` (\n    see `keras.constraints`).",
+        "description": "Optional projection function to be applied to the\n    bias after being updated by an `Optimizer`\n    (see `keras.constraints`).",
         "name": "bias_constraint"
       },
       {
@@ -3539,7 +3539,7 @@
     "attributes": [
       {
         "default": "linear",
-        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied (\n    see `keras.activations`).",
+        "description": "Activation function to use.\n    If you don't specify anything, no activation is applied\n    (see `keras.activations`).",
         "name": "activation"
       },
       {
@@ -3563,7 +3563,7 @@
           1,
           1
         ],
-        "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions. Current implementation only supports equal \n    length strides in the row and column dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
+        "description": "An integer or tuple/list of 2 integers,\n    specifying the strides of the convolution along the height and width.\n    Can be a single integer to specify the same value for\n    all spatial dimensions. Current implementation only supports equal\n    length strides in the row and column dimensions.\n    Specifying any stride value != 1 is incompatible with specifying\n    any `dilation_rate` value != 1.",
         "name": "strides"
       },
       {
@@ -3589,7 +3589,7 @@
             "seed": null
           }
         },
-        "description": "An initializer for the pointwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer \n    ('glorot_uniform') will be used.",
+        "description": "An initializer for the pointwise convolution kernel\n    (see `keras.initializers`). If None, then the default initializer\n    ('glorot_uniform') will be used.",
         "name": "pointwise_initializer",
         "visible": false
       },
@@ -3603,7 +3603,7 @@
             "seed": null
           }
         },
-        "description": "An initializer for the depthwise convolution kernel (\n    see `keras.initializers`). If None, then the default initializer (\n    'glorot_uniform') will be used.",
+        "description": "An initializer for the depthwise convolution kernel\n    (see `keras.initializers`). If None, then the default initializer\n    ('glorot_uniform') will be used.",
         "name": "depthwise_initializer",
         "visible": false
       },
@@ -3648,26 +3648,26 @@
         "visible": false
       },
       {
-        "description": "Regularizer function applied to the bias vector (\n    see `keras.regularizers`).",
+        "description": "Regularizer function applied to the bias vector\n    (see `keras.regularizers`).",
         "name": "bias_regularizer",
         "visible": false
       },
       {
-        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\") (\n    see `keras.regularizers`).",
+        "description": "Regularizer function applied to\n    the output of the layer (its \"activation\")\n    (see `keras.regularizers`).",
         "name": "activity_regularizer",
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the depthwise kernel matrix (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to\n    the depthwise kernel matrix\n    (see `keras.constraints`).",
         "name": "depthwise_constraint",
         "visible": false
       },
       {
-        "description": "Constraint function applied to\n    the pointwise kernel matrix (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to\n    the pointwise kernel matrix\n    (see `keras.constraints`).",
         "name": "pointwise_constraint"
       },
       {
-        "description": "Constraint function applied to the bias vector (\n    see `keras.constraints`).",
+        "description": "Constraint function applied to the bias vector\n    (see `keras.constraints`).",
         "name": "bias_constraint"
       }
     ],
@@ -4353,13 +4353,51 @@
     "name": "Attention",
     "package": "tensorflow.keras.layers",
     "inputs": [
-      { "name": "query" },
-      { "name": "value" },
-      { "name": "key" }
+      {
+        "name": "query"
+      },
+      {
+        "name": "value"
+      },
+      {
+        "name": "key"
+      }
     ],
     "outputs": [
-      { "name": "outputs" }
+      {
+        "name": "outputs"
+      }
+    ],
+    "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are `query` tensor of shape `[batch_size, Tq, dim]`, `value` tensor of\nshape `[batch_size, Tv, dim]` and `key` tensor of shape\n`[batch_size, Tv, dim]`. The calculation follows the steps:\n\n1. Calculate scores with shape `[batch_size, Tq, Tv]` as a `query`-`key` dot\n   product: `scores = tf.matmul(query, key, transpose_b=True)`.\n2. Use scores to calculate a distribution with shape\n   `[batch_size, Tq, Tv]`: `distribution = tf.nn.softmax(scores)`.\n3. Use `distribution` to create a linear combination of `value` with\n   shape `[batch_size, Tq, dim]`:\n   `return tf.matmul(distribution, value)`.",
+    "attributes": [
+      {
+        "name": "use_scale",
+        "description": "If `True`, will create a scalar variable to scale the attention\n    scores."
+      },
+      {
+        "name": "causal",
+        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past."
+      },
+      {
+        "name": "dropout",
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Args:"
+      },
+      {
+        "name": "inputs",
+        "description": "List of the following tensors:\n    * query: Query `Tensor` of shape `[batch_size, Tq, dim]`.\n    * value: Value `Tensor` of shape `[batch_size, Tv, dim]`.\n    * key: Optional key `Tensor` of shape `[batch_size, Tv, dim]`. If not\n      given, will use `value` for both `key` and `value`, which is the\n      most common case."
+      },
+      {
+        "name": "mask",
+        "description": "List of the following tensors:\n    * query_mask: A boolean mask `Tensor` of shape `[batch_size, Tq]`.\n      If given, the output will be zero at the positions where\n      `mask==False`.\n    * value_mask: A boolean mask `Tensor` of shape `[batch_size, Tv]`.\n      If given, will apply the mask such that values at positions where\n      `mask==False` do not contribute to the result."
+      },
+      {
+        "name": "return_attention_scores",
+        "description": "bool, it `True`, returns the attention scores\n    (after masking and softmax) as an additional output argument."
+      },
+      {
+        "name": "training",
+        "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```"
+      }
     ]
   }
-
 ]
