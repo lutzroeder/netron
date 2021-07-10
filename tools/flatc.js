@@ -381,7 +381,8 @@ flatc.Parser = class {
                 this._parseMetadata(union.metadata);
                 this._tokenizer.expect('{');
                 while (!this._tokenizer.eat('}')) {
-                    const key = this._tokenizer.identifier();
+                    const name = this._tokenizer.identifier();
+                    const key = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
                     const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
                     union.values.set(key, value);
                     if (this._tokenizer.eat(',')) {
@@ -1003,7 +1004,8 @@ flatc.Generator = class {
                                 throw new flatc.Error('Not implemented.');
                             }
                             else if (field.type instanceof flatc.Struct) {
-                                throw new flatc.Error('Not implemented.');
+                                const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
+                                this._builder.add('$.' + field.name + ' = ' + fieldType + '.decode(reader, position + ' + field.offset + ');');
                             }
                             else {
                                 const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
