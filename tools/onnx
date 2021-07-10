@@ -19,9 +19,10 @@ venv() {
 }
 
 clean() {
-    echo "sklearn clean"
+    echo "onnx clean"
     rm -rf "./third_party/env/onnx"
     rm -rf "./third_party/source/onnx"
+    rm -rf "./third_party/source/onnxruntime"
 }
 
 sync() {
@@ -32,6 +33,8 @@ sync() {
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
+    mkdir -p "./third_party/source/onnxruntime/core/flatbuffers/schema"
+    curl --silent --location --output "./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/core/flatbuffers/schema/ort.fbs?raw=true"
 }
 
 install() {
@@ -93,6 +96,11 @@ schema() {
     node ./tools/protoc.js --text --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/ort-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root ort --out ./source/ort-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/ort-schema.js ./source/ort-schema.js
     fi
 }
 
