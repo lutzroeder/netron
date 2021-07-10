@@ -3047,6 +3047,15 @@ python.Unpickler = class {
                 case OpCode.BINGET:
                     stack.push(memo.get(reader.byte()));
                     break;
+                case OpCode.INST: {
+                    const module = reader.line();
+                    const name = reader.line();
+                    const type = module + '.' + name;
+                    const items = stack;
+                    stack = marker.pop();
+                    stack.push(function_call(type, items));
+                    break;
+                }
                 case OpCode.LONG_BINGET:
                     stack.push(memo.get(reader.uint32()));
                     break;
@@ -3428,6 +3437,7 @@ python.Unpickler.OpCode = {
     APPENDS: 101,          // 'e'
     GET: 103,              // 'g'
     BINGET: 104,           // 'h'
+    INST: 105,             // 'i'
     LONG_BINGET: 106,      // 'j'
     LIST: 108,             // 'l'
     OBJ: 111,              // 'o'

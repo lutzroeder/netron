@@ -1240,6 +1240,7 @@ view.ModelContext = class {
                         break;
                     }
                     case 'pkl': {
+                        let unpickler = null;
                         try {
                             if (stream.length > 2) {
                                 const zlib = (stream) => {
@@ -1253,19 +1254,19 @@ view.ModelContext = class {
                                     }
                                     return stream;
                                 };
-                                const unpickler = python.Unpickler.open(zlib(stream));
-                                if (unpickler) {
-                                    const execution = new python.Execution(null, (error, fatal) => {
-                                        const message = error && error.message ? error.message : error.toString();
-                                        this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
-                                    });
-                                    const obj = unpickler.load((name, args) => execution.invoke(name, args));
-                                    this._content.set(type, obj);
-                                }
+                                unpickler = python.Unpickler.open(zlib(stream));
                             }
                         }
                         catch (err) {
                             // continue regardless of error
+                        }
+                        if (unpickler) {
+                            const execution = new python.Execution(null, (error, fatal) => {
+                                const message = error && error.message ? error.message : error.toString();
+                                this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
+                            });
+                            const obj = unpickler.load((name, args) => execution.invoke(name, args));
+                            this._content.set(type, obj);
                         }
                         break;
                     }
@@ -1654,21 +1655,30 @@ view.ModelFactoryService = class {
             if (modules.length > 0) {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
+                    const updateErrorContext = (error, context) => {
+                        const text = " in '" + context.identifier + "'.";
+                        if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
+                            error.message = error.message.replace(/\.$/, '') + text;
+                        }
+                    };
                     if (!module.ModelFactory) {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
-                    if (!modelFactory.match(context)) {
-                        return nextModule();
+                    try {
+                        if (!modelFactory.match(context)) {
+                            return nextModule();
+                        }
+                    }
+                    catch (error) {
+                        updateErrorContext(error, context);
+                        return Promise.reject(error);
                     }
                     match = true;
                     return modelFactory.open(context).then((model) => {
                         return model;
                     }).catch((error) => {
-                        const text = " in '" + context.identifier + "'.";
-                        if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
-                            error.message = error.message.replace(/\.$/, '') + text;
-                        }
+                        updateErrorContext(error, context);
                         errors.push(error);
                         return nextModule();
                     });
