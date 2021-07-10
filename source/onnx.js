@@ -1,19 +1,125 @@
 /* jshint esversion: 6 */
 
 var onnx = onnx || {};
+var ort = ort || {};
 var protobuf = protobuf || require('./protobuf');
+var flatbuffers = flatbuffers || require('./flatbuffers');
 
 onnx.ModelFactory = class {
 
     match(context) {
+        return this._format(context).length > 0;
+    }
+
+    open(context) {
+        const open = (model, format) => {
+            return onnx.Metadata.open(context).then((metadata) => {
+                return new onnx.Model(metadata, model, format);
+            });
+        };
+        switch (this._format(context)) {
+            case 'pbtxt':
+                return context.require('./onnx-proto').then(() => {
+                    try {
+                        onnx.proto = protobuf.get('onnx').onnx;
+                        const stream = context.stream;
+                        const reader = protobuf.TextReader.open(stream);
+                        const model = onnx.proto.ModelProto.decodeText(reader);
+                        const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                        return open(model, format);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+            case 'pb-tensor':
+                return context.require('./onnx-proto').then(() => {
+                    // TensorProto
+                    // input_0.pb, output_0.pb
+                    try {
+                        onnx.proto = protobuf.get('onnx').onnx;
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
+                        const tensor = onnx.proto.TensorProto.decode(reader);
+                        tensor.name = tensor.name || context.identifier;
+                        const model = new onnx.proto.ModelProto();
+                        model.graph = new onnx.proto.GraphProto();
+                        model.graph.initializer = [ tensor ];
+                        model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
+                        model.graph.value_info[0].name = tensor.name;
+                        model.graph.node = [ new onnx.proto.NodeProto() ];
+                        model.graph.node[0].op_type = 'Constant';
+                        model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
+                        model.graph.node[0].attribute[0].name = 'value';
+                        model.graph.node[0].attribute[0].t = tensor;
+                        const format = 'ONNX Tensor';
+                        return open(model, format);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+            case 'pb-graph':
+                return context.require('./onnx-proto').then(() => {
+                    // GraphProto
+                    try {
+                        onnx.proto = protobuf.get('onnx').onnx;
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
+                        const model = new onnx.proto.ModelProto();
+                        model.graph = onnx.proto.GraphProto.decode(reader);
+                        const format = 'ONNX';
+                        return open(model, format);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+            case 'pb-model':
+                return context.require('./onnx-proto').then(() => {
+                    // ModelProto
+                    try {
+                        onnx.proto = protobuf.get('onnx').onnx;
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
+                        const model = onnx.proto.ModelProto.decode(reader);
+                        const format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                        return open(model, format);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+            case 'ort':
+                return context.require('./ort-schema').then((/* schema */) => {
+                    try {
+                        ort.schema = flatbuffers.get('ort').onnxruntime.experimental.fbs;
+                        const stream = context.stream;
+                        const reader = flatbuffers.BinaryReader.open(stream);
+                        const session = ort.schema.InferenceSession.create(reader);
+                        return open(session.model, 'ORT');
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new ort.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
+                    }
+                });
+        }
+    }
+
+    _format(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-            return false;
+            return '';
         }
         if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return false;
+            return '';
         }
         let tags = context.tags('pb');
         if (tags.size > 0) {
@@ -43,11 +149,11 @@ onnx.ModelFactory = class {
                 };
                 // mediapipe.BoxDetectorIndex
                 if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
-                    return false;
+                    return '';
                 }
                 // third_party.tensorflow.python.keras.protobuf.SavedMetadata
                 if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                    return false;
+                    return '';
                 }
             }
             if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
@@ -56,7 +162,7 @@ onnx.ModelFactory = class {
                 if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
                     const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        return true;
+                        return 'pb-tensor';
                     }
                 }
                 // GraphProto
@@ -85,7 +191,7 @@ onnx.ModelFactory = class {
                         if (nodeBuffer) {
                             const nameBuffer = decode(nodeBuffer, 4);
                             if (nameBuffer && nameBuffer.every((c) => c > 0x20 && c < 0x7f)) {
-                                return true;
+                                return 'pb-graph';
                             }
                         }
                     }
@@ -94,7 +200,7 @@ onnx.ModelFactory = class {
                 if (tags.get(7) === 2) {
                     const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
                     if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        return true;
+                        return 'pb-model';
                     }
                 }
             }
@@ -116,105 +222,27 @@ onnx.ModelFactory = class {
                     'WinMLTools'
                 ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
-                    return true;
+                    return 'pb-model';
                 }
             }
         }
         tags = context.tags('pbtxt');
         if (tags.has('ir_version')) {
-            return true;
+            return 'pbtxt';
         }
         if (tags.has('graph') && extension !== 'model') {
-            return true;
+            return 'pbtxt';
         }
-        return false;
-    }
-
-    open(context) {
-        return context.require('./onnx-proto').then(() => {
-            let model = null;
-            let format = null;
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'pbtxt':
-                case 'prototxt': {
-                    try {
-                        onnx.proto = protobuf.get('onnx').onnx;
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        model = onnx.proto.ModelProto.decodeText(reader);
-                        format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new onnx.Error('File text format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                    }
-                    break;
-                }
-                default: {
-                    const tags = context.tags('pb');
-                    if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
-                        // TensorProto
-                        // input_0.pb, output_0.pb
-                        try {
-                            onnx.proto = protobuf.get('onnx').onnx;
-                            const stream = context.stream;
-                            const reader = protobuf.BinaryReader.open(stream);
-                            const tensor = onnx.proto.TensorProto.decode(reader);
-                            tensor.name = tensor.name || context.identifier;
-                            model = new onnx.proto.ModelProto();
-                            model.graph = new onnx.proto.GraphProto();
-                            model.graph.initializer = [ tensor ];
-                            model.graph.value_info = [ new onnx.proto.ValueInfoProto() ];
-                            model.graph.value_info[0].name = tensor.name;
-                            model.graph.node = [ new onnx.proto.NodeProto() ];
-                            model.graph.node[0].op_type = 'Constant';
-                            model.graph.node[0].attribute = [ new onnx.proto.AttributeProto() ];
-                            model.graph.node[0].attribute[0].name = 'value';
-                            model.graph.node[0].attribute[0].t = tensor;
-                            format = 'ONNX Tensor';
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.TensorProto (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                    else if (tags.get(1) === 2) {
-                        // GraphProto
-                        try {
-                            onnx.proto = protobuf.get('onnx').onnx;
-                            const stream = context.stream;
-                            const reader = protobuf.BinaryReader.open(stream);
-                            model = new onnx.proto.ModelProto();
-                            model.graph = onnx.proto.GraphProto.decode(reader);
-                            format = 'ONNX';
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.GraphProto (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                    else {
-                        // ModelProto
-                        try {
-                            onnx.proto = protobuf.get('onnx').onnx;
-                            const stream = context.stream;
-                            const reader = protobuf.BinaryReader.open(stream);
-                            model = onnx.proto.ModelProto.decode(reader);
-                            format = 'ONNX' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new onnx.Error('File format is not onnx.ModelProto (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                }
+        /*
+        if (stream.length >= 8) {
+            const buffer = stream.peek(8);
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            if (reader.identifier === 'ORTM') {
+                return 'ort';
             }
-            return onnx.Metadata.open(context).then((metadata) => {
-                return new onnx.Model(metadata, model, format);
-            });
-        });
+        }
+        */
+        return '';
     }
 };
 
