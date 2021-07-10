@@ -1299,7 +1299,7 @@ view.ModelContext = class {
                         switch (type) {
                             case 'pbtxt': {
                                 const reader = protobuf.TextReader.open(stream);
-                                tags = reader.signature();
+                                tags = reader ? reader.signature() : tags;
                                 break;
                             }
                             case 'pb': {

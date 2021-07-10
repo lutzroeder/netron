@@ -497,12 +497,34 @@ protobuf.BinaryReader = class {
 
 protobuf.TextReader = class {
 
-    static open(buffer) {
+    static open(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
+        const decoder = base.TextDecoder.open(buffer);
+        for (let i = 0; i < 0x100; i++) {
+            const c = decoder.decode();
+            if (c === undefined || c === '\0') {
+                if (i === 0) {
+                    return null;
+                }
+                break;
+            }
+            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                return null;
+            }
+            if (i === 0) {
+                if (c === '#' || c === '[') {
+                    continue;
+                }
+                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+                    continue;
+                }
+                return null;
+            }
+        }
         return new protobuf.TextReader(buffer);
     }
 
-    constructor(data) {
-        const buffer = data instanceof Uint8Array ? data : data.peek();
+    constructor(buffer) {
         this._decoder = base.TextDecoder.open(buffer);
         this.reset();
     }
@@ -511,35 +533,21 @@ protobuf.TextReader = class {
         const tags = new Map();
         this.reset();
         try {
-            let text = true;
-            for (let i = 0; i < 0x100; i++) {
-                const c = this._decoder.decode();
-                if (c === undefined || c === '\0') {
-                    break;
-                }
-                if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
-                    text = false;
-                    break;
-                }
-            }
-            if (text) {
-                this.reset();
-                this.start(false);
-                while (!this.end(false)) {
-                    const tag = this.tag();
-                    tags.set(tag, true);
-                    if (this.token() === '{') {
-                        this.start();
-                        while (!this.end()) {
-                            const subtag = this.tag();
-                            tags.set(tag + '.' + subtag, true);
-                            this.skip();
-                            this.match(',');
-                        }
-                    }
-                    else {
+            this.start(false);
+            while (!this.end(false)) {
+                const tag = this.tag();
+                tags.set(tag, true);
+                if (this.token() === '{') {
+                    this.start();
+                    while (!this.end()) {
+                        const subtag = this.tag();
+                        tags.set(tag + '.' + subtag, true);
                         this.skip();
+                        this.match(',');
                     }
+                }
+                else {
+                    this.skip();
                 }
             }
         }
