@@ -2212,27 +2212,37 @@ pytorch.Container.Zip = class {
                 this._format = this._entry('attributes.pkl') ? 'TorchScript v1.1' : 'TorchScript v1.0';
             }
             else if (this._entry('data.pkl')) {
-                const stream = this._entry('version');
-                const decoder = new TextDecoder('utf-8');
-                const versionNumber = stream ? decoder.decode(stream.peek()).split('\n').shift() : '';
                 // https://github.com/pytorch/pytorch/blob/master/caffe2/serialize/inline_container.h
                 // kProducedFileFormatVersion
-                const versionTable = {
-                    '1': 'v1.3',
-                    '2': 'v1.5', // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
-                    '3': 'v1.6', // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
-                    '4': 'v1.6', // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
-                    '5': 'v1.7'  // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
-                };
-                const version = versionTable[versionNumber];
-                if (!version) {
-                    this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + versionNumber + "'."));
+                const versions = new Map([
+                    [ '1', 'v1.3'  ],
+                    [ '2', 'v1.5'  ], // 7a2889b014ce36fcc333b2c6de6f29f976652f84 (#28122)
+                    [ '3', 'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
+                    [ '4', 'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
+                    [ '5', 'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
+                    [ '6', 'v1.9+' ]  // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
+                ]);
+                const value = this.version;
+                if (!versions.has(value)) {
+                    this._exceptionCallback(new pytorch.Error("Unsupported PyTorch Zip version '" + value + "'."));
                 }
+                const version = versions.get(value);
                 const constants = this._entry('constants.pkl');
-                this._format = (constants ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v-' + versionNumber.toString() );
+                this._format = (constants ? 'TorchScript' : 'PyTorch') + ' ' + (version || 'v-' + value.toString() );
             }
         }
         return this._format;
+    }
+
+    get version() {
+        const stream = this._entry('version');
+        if (stream) {
+            const decoder = new TextDecoder('utf-8');
+            const buffer = stream.peek();
+            const value = decoder.decode(buffer);
+            return value.split('\n').shift();
+        }
+        return '';
     }
 
     get producer() {
