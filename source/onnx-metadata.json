@@ -2965,6 +2965,129 @@
     "category": "Normalization"
   },
   {
+    "name": "BatchNormalization",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Carries out batch normalization as described in the paper\nhttps://arxiv.org/abs/1502.03167. Depending on the mode it is being run,\nThere are five required inputs 'X', 'scale', 'B', 'input_mean' and\n'input_var'.\nNote that 'input_mean' and 'input_var' are expected to be the estimated\nstatistics in inference mode (training_mode=False, default),\nand the running statistics in training mode (training_mode=True).\nThere are multiple cases for the number of outputs, which we list below:\n\nOutput case #1: Y, running_mean, running_var (training_mode=True)\nOutput case #2: Y (training_mode=False)\n\nWhen training_mode=False, extra outputs are invalid.\nThe outputs are updated as follows when training_mode=True:\n```\nrunning_mean = input_mean * momentum + current_mean * (1 - momentum)\nrunning_var = input_var * momentum + current_var * (1 - momentum)\n\nY = (X - current_mean) / sqrt(current_var + epsilon) * scale + B\n\nwhere:\n\ncurrent_mean = ReduceMean(X, axis=all_except_channel_index)\ncurrent_var =  ReduceVar(X, axis=all_except_channel_index)\n\nNotice that ReduceVar refers to the population variance, and it equals to\nsum(sqrd(x_i - x_avg)) / N\nwhere N is the population size (this formula does not use sample size N - 1).\n\n```\n\nThe computation of ReduceMean and ReduceVar uses float to avoid overflow for float16 inputs.\n\nWhen training_mode=False:\n```\nY = (X - input_mean) / sqrt(input_var + epsilon) * scale + B\n```\n\nFor previous (depreciated) non-spatial cases, implementors are suggested\nto flatten the input shape to (N x C * D1 * D2 * ... * Dn) before a BatchNormalization Op.\nThis operator has **optional** inputs/outputs. See [the doc](https://github.com/onnx/onnx/blob/master/docs/IR.md) for more details about the representation of optional arguments. An empty string may be used in the place of an actual argument's name to indicate a missing argument. Trailing optional arguments (those not followed by an argument that is present) may also be simply omitted.\n",
+    "attributes": [
+      {
+        "name": "epsilon",
+        "type": "float32",
+        "required": false,
+        "default": 9.999999747378752e-06,
+        "description": "The epsilon value to use to avoid division by zero."
+      },
+      {
+        "name": "momentum",
+        "type": "float32",
+        "required": false,
+        "default": 0.8999999761581421,
+        "description": "Factor used in computing the running mean and variance.e.g., running_mean = running_mean * momentum + mean * (1 - momentum)."
+      },
+      {
+        "name": "training_mode",
+        "type": "int64",
+        "required": false,
+        "description": "If set to true, it indicates BatchNormalization is being used for training, and outputs 1, 2, 3, and 4 would be populated."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "X",
+        "type": "T",
+        "description": "Input data tensor from the previous operator; dimensions are in the form of (N x C x D1 x D2 ... Dn), where N is the batch size, C is the number of channels. Statistics are computed for every channel of C over N and D1 to Dn dimensions. For image data, input dimensions become (N x C x H x W). The op also accepts single dimension input of size N in which case C is assumed to be 1"
+      },
+      {
+        "name": "scale",
+        "type": "T1",
+        "description": "Scale tensor of shape (C)."
+      },
+      {
+        "name": "B",
+        "type": "T1",
+        "description": "Bias tensor of shape (C)."
+      },
+      {
+        "name": "input_mean",
+        "type": "T2",
+        "description": "running (training) or estimated (testing) mean tensor of shape (C)."
+      },
+      {
+        "name": "input_var",
+        "type": "T2",
+        "description": "running (training) or estimated (testing) variance tensor of shape (C)."
+      }
+    ],
+    "min_input": 5,
+    "max_input": 5,
+    "outputs": [
+      {
+        "name": "Y",
+        "type": "T",
+        "description": "The output tensor of the same shape as X"
+      },
+      {
+        "name": "running_mean",
+        "type": "T2",
+        "option": "optional",
+        "description": "The running mean after the BatchNormalization operator."
+      },
+      {
+        "name": "running_var",
+        "type": "T2",
+        "option": "optional",
+        "description": "The running variance after the BatchNormalization operator. This op uses the population size (N) for calculating variance, and not the sample size N-1."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 3,
+    "outputs_range": "1 - 3",
+    "type_constraints": [
+      {
+        "description": "Constrain input and output types to float tensors.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain scale and bias types to float tensors.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain mean and variance types to float tensors.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "batchnormalization",
+        "code": "# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ny = _batchnorm_test_mode(x, s, bias, mean, var).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_example')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\nepsilon = 1e-2\ny = _batchnorm_test_mode(x, s, bias, mean, var, epsilon).astype(np.float32)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y'],\n    epsilon=epsilon,\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var], outputs=[y],\n       name='test_batchnorm_epsilon')"
+      },
+      {
+        "summary": "train",
+        "code": "# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\n# using np.bool(1) while generating test data with \"'bool' object has no attribute 'dtype'\"\n# working around by using np.byte(1).astype(bool)\ntraining_mode = 1\ny, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var'],\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var],\n       name='test_batchnorm_example_training_mode')\n\n# input size: (2, 3, 4, 5)\nx = np.random.randn(2, 3, 4, 5).astype(np.float32)\ns = np.random.randn(3).astype(np.float32)\nbias = np.random.randn(3).astype(np.float32)\nmean = np.random.randn(3).astype(np.float32)\nvar = np.random.rand(3).astype(np.float32)\ntraining_mode = 1\nmomentum = 0.9\nepsilon = 1e-2\ny, output_mean, output_var = _batchnorm_training_mode(x, s, bias, mean, var, momentum,\n                                                      epsilon)\n\nnode = onnx.helper.make_node(\n    'BatchNormalization',\n    inputs=['x', 's', 'bias', 'mean', 'var'],\n    outputs=['y', 'output_mean', 'output_var'],\n    epsilon=epsilon,\n    training_mode=training_mode\n)\n\n# output size: (2, 3, 4, 5)\nexpect(node, inputs=[x, s, bias, mean, var],\n       outputs=[y, output_mean, output_var],\n       name='test_batchnorm_epsilon_training_mode')"
+      }
+    ],
+    "category": "Normalization"
+  },
+  {
     "name": "Bernoulli",
     "domain": "ai.onnx",
     "version": 15,
