@@ -8,6 +8,7 @@ var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
+var flatbuffers = flatbuffers || require('./flatbuffers');
 var python = python || require('./python');
 var sidebar = sidebar || require('./view-sidebar');
 var grapher = grapher || require('./view-grapher');
@@ -1312,6 +1313,17 @@ view.ModelContext = class {
                                 tags = reader.decode();
                                 break;
                             }
+                            case 'flatbuffers': {
+                                if (stream.length >= 8) {
+                                    const buffer = stream.peek(Math.min(32, stream.length));
+                                    const reader = flatbuffers.BinaryReader.open(buffer);
+                                    const identifier = reader.identifier;
+                                    if (identifier.length > 0) {
+                                        tags.set('file_identifier', identifier);
+                                    }
+                                }
+                                break;
+                            }
                         }
                     }
                     catch (error) {
@@ -1634,6 +1646,21 @@ view.ModelFactoryService = class {
                 throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
             }
         };
+        const flatbuffers = () => {
+            const tags = context.tags('flatbuffers');
+            if (tags.has('file_identifier')) {
+                const file_identifier = tags.get('file_identifier');
+                const formats = [
+                    { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' }
+                ];
+                for (const format of formats) {
+                    if (file_identifier === format.identifier) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                throw new view.Error("Unsupported FlatBuffers content '" + file_identifier + "' in '" + context.identifier + "'.", !skip());
+            }
+        };
         const unknown = () => {
             stream.seek(0);
             const buffer = stream.peek(Math.min(16, stream.length));
@@ -1644,6 +1671,7 @@ view.ModelFactoryService = class {
         json();
         pbtxt();
         pb();
+        flatbuffers();
         unknown();
     }
 
