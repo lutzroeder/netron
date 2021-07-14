@@ -2843,6 +2843,13 @@
   },
   {
     "type":   "ncnn",
+    "target": "mnet.25.zip",
+    "source": "https://github.com/lutzroeder/netron/files/6813063/mnet.25.zip",
+    "format": "ncnn",
+    "link":   "https://github.com/MirrorYuChen/ncnn_example"
+  },
+  {
+    "type":   "ncnn",
     "target": "mobilefacenet.bin,mobilefacenet.param",
     "source": "https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.bin,https://raw.githubusercontent.com/GRAYKEY/mobilefacenet_ncnn/master/models/mobilefacenet.param",
     "format": "ncnn",
@@ -2922,7 +2929,7 @@
     "type":   "ncnn",
     "target": "squeezenet_v1.1.bin",
     "source": "https://raw.githubusercontent.com/nihui/ncnn-android-squeezenet/master/app/src/main/assets/squeezenet_v1.1.bin",
-    "error":  "The file 'squeezenet_v1.1.param' does not exist in 'squeezenet_v1.1.bin'.",
+    "format": "ncnn",
     "link":   "https://github.com/Tencent/ncnn"
   },
   {

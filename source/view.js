@@ -1782,6 +1782,18 @@ view.ModelFactoryService = class {
                             matches.some((e) => e.name.toLowerCase().endsWith('.json'))) {
                             matches = matches.filter((e) => e.name.toLowerCase().endsWith('.json'));
                         }
+                        // ncnn
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.param'))) {
+                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param'));
+                        }
+                        // ncnn
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.bin')) &&
+                            matches.some((e) => e.name.toLowerCase().endsWith('.param.bin'))) {
+                            matches = matches.filter((e) => e.name.toLowerCase().endsWith('.param.bin'));
+                        }
                         // Paddle
                         if (matches.length > 0 &&
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&

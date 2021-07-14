@@ -96,6 +96,11 @@ ncnn.ModelFactory = class {
                 return context.request(text, null).then((stream) => {
                     const buffer = stream.peek();
                     return openText(buffer, context.stream.peek());
+                }).catch(() => {
+                    return context.request(text + '.bin', null).then((stream) => {
+                        const buffer = stream.peek();
+                        return openBinary(buffer, context.stream.peek());
+                    });
                 });
             }
         });
@@ -307,7 +312,7 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('2') || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / num_output ]);
-                if (attributes.get('1') === '1') {
+                if (parseInt(attributes.get('1') || 0, 10) === 1) {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
                 attributes.delete('2');
@@ -322,7 +327,7 @@ ncnn.Node = class {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('3') || 0, 10);
                 this._weight(blobReader, 'weight', [ weight_data_size ]);
-                if (attributes.get('2') === '1') {
+                if (parseInt(attributes.get('2') || 0, 10) === 1) {
                     this._weight(blobReader, 'bias', [ num_output], 'float32');
                 }
                 attributes.get('3');
@@ -346,21 +351,21 @@ ncnn.Node = class {
                 const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
                 this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
-                if (attributes.get('5') === '1') {
+                if (parseInt(attributes.get('5') || 0, 10) === 1) {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
                 attributes.delete('6');
                 break;
             }
             case 'Dequantize': {
-                if (attributes.get('1') === '1') {
+                if (parseInt(attributes.get('1') || 0, 10) === 1) {
                     const bias_data_size = parseInt(attributes.get('2') || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
                 break;
             }
             case 'Requantize': {
-                if (attributes.get('2') === '1') {
+                if (parseInt(attributes.get('2') || 0, 10) === 1) {
                     const bias_data_size = parseInt(attributes.get('3') || 0, 10);
                     this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 }
@@ -867,7 +872,7 @@ ncnn.BinaryParamReader = class {
         }
         const layerCount = reader.int32();
         /* const blobCount = */ reader.int32();
-        const layers = [];
+        this._layers = [];
         for (let i = 0; i < layerCount; i++) {
             const typeIndex = reader.int32();
             const operator = metadata.operator(typeIndex);
@@ -908,9 +913,8 @@ ncnn.BinaryParamReader = class {
                 }
                 id = reader.int32();
             }
-            layers.push(layer);
+            this._layers.push(layer);
         }
-        this._layers = layers;
     }
 
     get layers() {
@@ -949,6 +953,7 @@ ncnn.BlobReader = class {
                             break;
                         case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
                         default:
+                            console.log('xxxxxxx');
                             throw new ncnn.Error("Unknown weight type '" + type + "'.");
                     }
                 }
