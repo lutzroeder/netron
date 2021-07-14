@@ -1232,8 +1232,10 @@ view.ModelContext = class {
                     case 'json': {
                         try {
                             const reader = json.TextReader.open(stream);
-                            const obj = reader.read();
-                            this._content.set(type, obj);
+                            if (reader) {
+                                const obj = reader.read();
+                                this._content.set(type, obj);
+                            }
                         }
                         catch (err) {
                             // continue regardless of error

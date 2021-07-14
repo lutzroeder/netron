@@ -6,6 +6,28 @@ var base = base || require('./base');
 json.TextReader = class {
 
     static open(data) {
+        const decoder = base.TextDecoder.open(data);
+        for (let i = 0; i < 0x100; i++) {
+            const c = decoder.decode();
+            if (c === undefined || c === '\0') {
+                if (i === 0) {
+                    return null;
+                }
+                break;
+            }
+            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                return null;
+            }
+            if (i === 0) {
+                if (c === '#' || c === '[' || c === '{') {
+                    continue;
+                }
+                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+                    continue;
+                }
+                return null;
+            }
+        }
         return new json.TextReader(data);
     }
 
