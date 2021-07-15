@@ -1,7 +1,6 @@
 /* jshint esversion: 6 */
 
 var onnx = onnx || {};
-var ort = ort || {};
 var protobuf = protobuf || require('./protobuf');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 
@@ -97,15 +96,49 @@ onnx.ModelFactory = class {
             case 'ort':
                 return context.require('./ort-schema').then((/* schema */) => {
                     try {
-                        ort.schema = flatbuffers.get('ort').onnxruntime.experimental.fbs;
+                        onnx.schema = flatbuffers.get('ort').onnxruntime.experimental.fbs;
                         const stream = context.stream;
                         const reader = flatbuffers.BinaryReader.open(stream);
-                        const session = ort.schema.InferenceSession.create(reader);
-                        return open(session.model, 'ORT');
+                        const session = onnx.schema.InferenceSession.create(reader);
+                        const model = session.model;
+                        const graph = model.graph;
+                        graph.node = graph.nodes;
+                        graph.value_info = graph.node_args;
+                        graph.input = graph.inputs.map((input) => {
+                            return { name: input };
+                        });
+                        graph.output = graph.outputs.map((output) => {
+                            return { name: output };
+                        });
+                        graph.initializer = graph.initializers.map((tensor) => {
+                            tensor.data_location = onnx.DataLocation.DEFAULT;
+                            return tensor;
+                        });
+                        graph.sparse_initializer = graph.sparse_initializers.map((tensor) => {
+                            tensor.values.data_location = onnx.DataLocation.DEFAULT;
+                            tensor.indices.data_location = onnx.DataLocation.DEFAULT;
+                            return tensor;
+                        });
+                        delete graph.nodes;
+                        delete graph.node_args;
+                        delete graph.inputs;
+                        delete graph.outputs;
+                        delete graph.initializers;
+                        delete graph.sparse_initializers;
+                        for (const node of graph.node) {
+                            node.input = node.inputs;
+                            node.output = node.outputs;
+                            node.attribute = node.attributes;
+                            delete node.inputs;
+                            delete node.outputs;
+                            delete node.attributes;
+                        }
+                        const format = 'ONNX Runtime' + (model.ir_version ? ' v' + model.ir_version.toString() : '');
+                        return open(model, format);
                     }
                     catch (error) {
                         const message = error && error.message ? error.message : error.toString();
-                        throw new ort.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
+                        throw new onnx.Error('File format is not ort.Model (' + message.replace(/\.$/, '') + ').');
                     }
                 });
         }
@@ -233,15 +266,9 @@ onnx.ModelFactory = class {
         if (tags.has('graph') && extension !== 'model') {
             return 'pbtxt';
         }
-        /*
-        if (stream.length >= 8) {
-            const buffer = stream.peek(8);
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            if (reader.identifier === 'ORTM') {
-                return 'ort';
-            }
+        if (context.tags('flatbuffers').get('file_identifier') === 'ORTM') {
+            return 'ort';
         }
-        */
         return '';
     }
 };
@@ -428,32 +455,31 @@ onnx.Graph = class {
                 node.input = node.input.map((name) => tensors.map(name));
                 node.output = node.output.map((name) => tensors.map(name));
                 node.param = {};
-                const AttributeType = onnx.proto.AttributeProto.AttributeType;
                 for (const attribute of node.attribute) {
                     attribute.type = onnx.Utility.attributeType(attribute);
                     switch (attribute.type) {
-                        case AttributeType.INT:
+                        case onnx.AttributeType.INT:
                             node.param[attribute.name] = attribute.i;
                             break;
-                        case AttributeType.FLOAT:
+                        case onnx.AttributeType.FLOAT:
                             node.param[attribute.name] = attribute.f;
                             break;
-                        case AttributeType.STRING:
+                        case onnx.AttributeType.STRING:
                             node.param[attribute.name] = attribute.s;
                             break;
-                        case AttributeType.INTS:
+                        case onnx.AttributeType.INTS:
                             node.param[attribute.name] = attribute.ints;
                             break;
-                        case AttributeType.FLOATS:
+                        case onnx.AttributeType.FLOATS:
                             node.param[attribute.name] = attribute.floats;
                             break;
-                        case AttributeType.STRINGS:
+                        case onnx.AttributeType.STRINGS:
                             node.param[attribute.name] = attribute.strings;
                             break;
-                        case AttributeType.TENSOR:
+                        case onnx.AttributeType.TENSOR:
                             node.param[attribute.name] = attribute.t;
                             break;
-                        case AttributeType.SPARSE_TENSOR:
+                        case onnx.AttributeType.SPARSE_TENSOR:
                             node.param[attribute.name] = attribute.sparse_tensor;
                             break;
                     }
@@ -467,7 +493,7 @@ onnx.Graph = class {
                 const tensor = tensors.map(sparse_initializer.values.name);
                 tensor.initializer = new onnx.Tensor(sparse_initializer, 'Sparse Initializer');
             }
-            for (const tensor_annotation of graph.quantization_annotation) {
+            for (const tensor_annotation of graph.quantization_annotation || []) {
                 const tensor = tensors.map(tensor_annotation.tensor_name);
                 const annotation = {};
                 for (const pair of tensor_annotation.quant_parameter_tensor_names) {
@@ -500,7 +526,6 @@ onnx.Graph = class {
             }
             graph.input.every((input) => inputMap.delete(input));
             graph.output.every((output) => outputMap.delete(output));
-            const AttributeType = onnx.proto.AttributeProto.AttributeType;
             const nodes = [];
             for (const node of graph.node) {
                 const constant = node &&
@@ -509,11 +534,11 @@ onnx.Graph = class {
                     node.input.length === 0 &&
                     node.output.length === 1 && node.output[0] && inputMap.get(node.output[0].name) === 1 && outputMap.get(node.output[0].name) === 1;
                 const attribute = constant ? node.attribute[0] : null;
-                if (attribute && attribute.name === 'value' && attribute.type === AttributeType.TENSOR && attribute.t) {
+                if (attribute && attribute.name === 'value' && attribute.type === onnx.AttributeType.TENSOR && attribute.t) {
                     const tensor = tensors.map(node.output[0].name);
                     tensor.initializer = new onnx.Tensor(attribute.t, 'Constant');
                 }
-                else if (attribute && attribute.name === 'sparse_value' && attribute.type === AttributeType.SPARSE_TENSOR && attribute.sparse_tensor) {
+                else if (attribute && attribute.name === 'sparse_value' && attribute.type === onnx.AttributeType.SPARSE_TENSOR && attribute.sparse_tensor) {
                     const tensor = tensors.map(node.output[0].name);
                     tensor.initializer = new onnx.Tensor(attribute.sparse_tensor, 'Sparse Constant');
                 }
@@ -713,18 +738,16 @@ onnx.Attribute = class {
         this._description = attribute.doc_string || '';
         this._type = null;
         this._value = null;
-
-        const AttributeType = onnx.proto.AttributeProto.AttributeType;
         switch (attribute.type) {
-            case AttributeType.FLOAT:
+            case onnx.AttributeType.FLOAT:
                 this._value = attribute.f;
                 this._type = 'float32';
                 break;
-            case AttributeType.INT:
+            case onnx.AttributeType.INT:
                 this._value = attribute.i;
                 this._type = 'int64';
                 break;
-            case AttributeType.STRING:
+            case onnx.AttributeType.STRING:
                 switch (operator) {
                     case 'Int8GivenTensorFill':
                         this._value = Array.from(attribute.s);
@@ -735,39 +758,39 @@ onnx.Attribute = class {
                 }
                 this._type = 'string';
                 break;
-            case AttributeType.TENSOR:
+            case onnx.AttributeType.TENSOR:
                 this._value = new onnx.Tensor(attribute.t);
                 this._type = 'tensor';
                 break;
-            case AttributeType.GRAPH:
+            case onnx.AttributeType.GRAPH:
                 this._value = context.graph(attribute.g);
                 this._type = 'graph';
                 break;
-            case AttributeType.FLOATS:
+            case onnx.AttributeType.FLOATS:
                 this._value = attribute.floats;
                 this._type = 'float32[]';
                 break;
-            case AttributeType.INTS:
+            case onnx.AttributeType.INTS:
                 this._value = attribute.ints;
                 this._type = 'int64[]';
                 break;
-            case AttributeType.STRINGS:
+            case onnx.AttributeType.STRINGS:
                 this._value = attribute.strings.map((s) => onnx.Utility.decodeText(s));
                 this._type = 'string[]';
                 break;
-            case AttributeType.TENSORS:
+            case onnx.AttributeType.TENSORS:
                 this._value = attribute.tensors.map((tensor) => new onnx.Tensor(tensor));
                 this._type = 'tensor[]';
                 break;
-            case AttributeType.GRAPHS:
+            case onnx.AttributeType.GRAPHS:
                 this._value = attribute.graphs.map((graph) => context.graph(graph));
                 this._type = 'graph[]';
                 break;
-            case AttributeType.SPARSE_TENSOR:
+            case onnx.AttributeType.SPARSE_TENSOR:
                 this._value = new onnx.Tensor(attribute.sparse_tensor);
                 this._type = 'tensor';
                 break;
-            case AttributeType.SPARSE_TENSORS:
+            case onnx.AttributeType.SPARSE_TENSORS:
                 this._value = attribute.sparse_tensors.map((tensor) => new onnx.Tensor(tensor));
                 this._type = 'tensor[]';
                 break;
@@ -808,9 +831,9 @@ onnx.Tensor = class {
         this._kind = kind || null;
         const data = (tensor) => {
             let data = undefined;
-            if (tensor.data_location === onnx.proto.TensorProto.DataLocation.DEFAULT) {
+            if (tensor.data_location === onnx.DataLocation.DEFAULT) {
                 switch (tensor.data_type) {
-                    case onnx.proto.TensorProto.DataType.FLOAT16:
+                    case onnx.DataType.FLOAT16:
                         if (tensor.int32_data && tensor.int32_data.length > 0) {
                             const buffer = new Uint8Array(tensor.int32_data.length << 1);
                             const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
@@ -824,38 +847,38 @@ onnx.Tensor = class {
                             };
                         }
                         break;
-                    case onnx.proto.TensorProto.DataType.FLOAT:
+                    case onnx.DataType.FLOAT:
                         data = new Float32Array(tensor.float_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.DOUBLE:
+                    case onnx.DataType.DOUBLE:
                         data = new Float64Array(tensor.double_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.BOOL:
+                    case onnx.DataType.BOOL:
                         data = new Array(tensor.int32_data.size);
                         for (let i = 0; i < data.length; i++) {
                             data[i] = data[i] === 0 ? false : true;
                         }
                         break;
-                    case onnx.proto.TensorProto.DataType.INT8:
+                    case onnx.DataType.INT8:
                         data = new Int8Array(tensor.int32_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.UINT8:
+                    case onnx.DataType.UINT8:
                         data = new Uint8Array(tensor.int32_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.INT16:
+                    case onnx.DataType.INT16:
                         data = new Int32Array(tensor.int32_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.UINT16:
+                    case onnx.DataType.UINT16:
                         data = new Int32Array(tensor.int32_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.INT32:
+                    case onnx.DataType.INT32:
                         data = new Int32Array(tensor.int32_data);
                         break;
-                    case onnx.proto.TensorProto.DataType.UINT32:
-                    case onnx.proto.TensorProto.DataType.UINT64:
+                    case onnx.DataType.UINT32:
+                    case onnx.DataType.UINT64:
                         data = tensor.uint64_data;
                         break;
-                    case onnx.proto.TensorProto.DataType.INT64:
+                    case onnx.DataType.INT64:
                         data = tensor.int64_data;
                         break;
                 }
@@ -874,7 +897,8 @@ onnx.Tensor = class {
         const location = (tensor) => {
             return onnx.Utility.formatLocation(tensor.data_location);
         };
-        if (tensor instanceof onnx.proto.SparseTensorProto) {
+        if ((onnx.proto && tensor instanceof onnx.proto.SparseTensorProto) ||
+            (onnx.schema && tensor instanceof onnx.schema.SparseTensor)) {
             this._name = tensor.values.name || '';
             this._type = new onnx.TensorType(tensor.values.data_type, new onnx.TensorShape(tensor.dims.map((dim) => dim)), null);
             this._location = Array.from(new Set([ location(tensor.values), location(tensor.indices) ])).join(':');
@@ -944,73 +968,73 @@ onnx.Tensor = class {
             const type = data.type;
             data = undefined;
             switch (type) {
-                case onnx.proto.TensorProto.DataType.BOOL:
+                case onnx.DataType.BOOL:
                     data = new Array(buffer.length);
                     for (let i = 0; i < buffer.length; i++) {
                         data[i] = view.getUint8(i) === 0 ? false : true;
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.FLOAT16:
+                case onnx.DataType.FLOAT16:
                     data = new Float32Array(buffer.length >> 1);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getFloat16(i << 1, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.FLOAT:
+                case onnx.DataType.FLOAT:
                     data = new Float32Array(buffer.length >> 2);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getFloat32(i << 2, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.DOUBLE:
+                case onnx.DataType.DOUBLE:
                     data = new Float64Array(buffer.length >> 3);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getFloat64(i << 3, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.INT8:
+                case onnx.DataType.INT8:
                     data = new Int8Array(buffer.length);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getInt8(i, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.UINT8:
+                case onnx.DataType.UINT8:
                     data = new Uint8Array(buffer.length);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getUint8(i, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.INT16:
+                case onnx.DataType.INT16:
                     data = new Int16Array(buffer.length >> 1);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getInt16(i << 1, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.UINT16:
+                case onnx.DataType.UINT16:
                     data = new Uint16Array(buffer.length >> 1);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getUint16(i << 1, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.INT32:
+                case onnx.DataType.INT32:
                     data = new Int32Array(buffer.length >> 2);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getInt32(i << 2, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.UINT32:
+                case onnx.DataType.UINT32:
                     data = new Uint32Array(buffer.length >> 2);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getUint32(i << 2, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.INT64:
+                case onnx.DataType.INT64:
                     data = new Array(buffer.length >> 3);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getInt64(i << 3, true);
                     }
                     break;
-                case onnx.proto.TensorProto.DataType.UINT64:
+                case onnx.DataType.UINT64:
                     data = new Array(buffer.length >> 3);
                     for (let i = 0; i < data.length; i++) {
                         data[i] = view.getUint64(i << 3, true);
@@ -1341,9 +1365,54 @@ onnx.Inference = class {
     }
 };
 
+onnx.DataLocation = {
+    DEFAULT: 0,
+    EXTERNAL: 1
+};
+
+onnx.DataType = {
+    UNDEFINED: 0,
+    FLOAT: 1,
+    UINT8: 2,
+    INT8: 3,
+    UINT16: 4,
+    INT16: 5,
+    INT32: 6,
+    INT64: 7,
+    STRING: 8,
+    BOOL: 9,
+    FLOAT16: 10,
+    DOUBLE: 11,
+    UINT32: 12,
+    UINT64: 13,
+    COMPLEX64: 14,
+    COMPLEX128: 15,
+    BFLOAT16: 16
+};
+
+onnx.AttributeType = {
+    UNDEFINED: 0,
+    FLOAT: 1,
+    INT: 2,
+    STRING: 3,
+    TENSOR: 4,
+    GRAPH: 5,
+    FLOATS: 6,
+    INTS: 7,
+    STRINGS: 8,
+    TENSORS: 9,
+    GRAPHS: 10,
+    SPARSE_TENSOR: 11,
+    SPARSE_TENSORS: 12,
+    TYPE_PROTOS: 14
+};
+
 onnx.Utility = class {
 
     static decodeText(value) {
+        if (typeof value === 'string') {
+            return value;
+        }
         onnx.Utility._utf8Decoder = onnx.Utility._utf8Decoder || new TextDecoder('utf-8');
         return onnx.Utility._utf8Decoder.decode(value);
     }
@@ -1351,30 +1420,30 @@ onnx.Utility = class {
     static formatElementType(elementType) {
         if (!onnx.Utility._elementTypeMap) {
             const map = {};
-            map[onnx.proto.TensorProto.DataType.UNDEFINED] = 'UNDEFINED';
-            map[onnx.proto.TensorProto.DataType.FLOAT] = 'float32';
-            map[onnx.proto.TensorProto.DataType.UINT8] = 'uint8';
-            map[onnx.proto.TensorProto.DataType.INT8] = 'int8';
-            map[onnx.proto.TensorProto.DataType.UINT16] = 'uint16';
-            map[onnx.proto.TensorProto.DataType.INT16] = 'int16';
-            map[onnx.proto.TensorProto.DataType.INT32] = 'int32';
-            map[onnx.proto.TensorProto.DataType.INT64] = 'int64';
-            map[onnx.proto.TensorProto.DataType.STRING] = 'string';
-            map[onnx.proto.TensorProto.DataType.BOOL] = 'boolean';
-            map[onnx.proto.TensorProto.DataType.FLOAT16] = 'float16';
-            map[onnx.proto.TensorProto.DataType.DOUBLE] = 'float64';
-            map[onnx.proto.TensorProto.DataType.UINT32] = 'uint32';
-            map[onnx.proto.TensorProto.DataType.UINT64] = 'uint64';
-            map[onnx.proto.TensorProto.DataType.COMPLEX64] = 'complex64';
-            map[onnx.proto.TensorProto.DataType.COMPLEX128] = 'complex128';
-            map[onnx.proto.TensorProto.DataType.BFLOAT16] = 'bfloat16';
+            map[onnx.DataType.UNDEFINED] = 'UNDEFINED';
+            map[onnx.DataType.FLOAT] = 'float32';
+            map[onnx.DataType.UINT8] = 'uint8';
+            map[onnx.DataType.INT8] = 'int8';
+            map[onnx.DataType.UINT16] = 'uint16';
+            map[onnx.DataType.INT16] = 'int16';
+            map[onnx.DataType.INT32] = 'int32';
+            map[onnx.DataType.INT64] = 'int64';
+            map[onnx.DataType.STRING] = 'string';
+            map[onnx.DataType.BOOL] = 'boolean';
+            map[onnx.DataType.FLOAT16] = 'float16';
+            map[onnx.DataType.DOUBLE] = 'float64';
+            map[onnx.DataType.UINT32] = 'uint32';
+            map[onnx.DataType.UINT64] = 'uint64';
+            map[onnx.DataType.COMPLEX64] = 'complex64';
+            map[onnx.DataType.COMPLEX128] = 'complex128';
+            map[onnx.DataType.BFLOAT16] = 'bfloat16';
             onnx.Utility._elementTypeMap = map;
         }
         const name = onnx.Utility._elementTypeMap[elementType];
         if (name) {
             return name;
         }
-        return onnx.Utility._elementTypeMap[onnx.proto.TensorProto.DataType.UNDEFINED];
+        return onnx.Utility._elementTypeMap[onnx.DataType.UNDEFINED];
     }
 
     static formatType(type, imageFormat) {
@@ -1429,49 +1498,47 @@ onnx.Utility = class {
     }
 
     static formatLocation(location) {
-        if (!onnx.Utility._locationMap) {
-            const DataLocation = onnx.proto.TensorProto.DataLocation;
-            onnx.Utility._locationMap = new Map(Object.keys(DataLocation).map((key) => [ DataLocation[key], key.toLowerCase() ]));
+        if (!onnx.Utility._dataLocations) {
+            onnx.Utility._dataLocations = new Map(Object.keys(onnx.DataLocation).map((key) => [ onnx.DataLocation[key], key.toLowerCase() ]));
         }
-        return onnx.Utility._locationMap.get(location);
+        return onnx.Utility._dataLocations.get(location);
     }
 
     static attributeType(attribute) {
         if (attribute.type) {
             return attribute.type;
         }
-        const AttributeType = onnx.proto.AttributeProto.AttributeType;
         if (attribute.ints && attribute.ints.length > 0) {
-            return AttributeType.INTS;
+            return onnx.AttributeType.INTS;
         }
         else if (attribute.floats && attribute.floats.length > 0) {
-            return AttributeType.FLOATS;
+            return onnx.AttributeType.FLOATS;
         }
         else if (attribute.strings && attribute.strings.length > 0) {
-            return AttributeType.STRINGS;
+            return onnx.AttributeType.STRINGS;
         }
         else if (attribute.graphs && attribute.graphs.length > 0) {
-            return AttributeType.GRAPHS;
+            return onnx.AttributeType.GRAPHS;
         }
         else if (attribute.s && attribute.s.length > 0) {
-            return AttributeType.STRING;
+            return onnx.AttributeType.STRING;
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'f')) {
-            return AttributeType.FLOAT;
+            return onnx.AttributeType.FLOAT;
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'i')) {
-            return AttributeType.INT;
+            return onnx.AttributeType.INT;
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 't')) {
-            return AttributeType.TENSOR;
+            return onnx.AttributeType.TENSOR;
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'g')) {
-            return AttributeType.GRAPH;
+            return onnx.AttributeType.GRAPH;
         }
         else if (Object.prototype.hasOwnProperty.call(attribute, 'sparse_tensor')) {
-            return AttributeType.SPARSE_TENSOR;
+            return onnx.AttributeType.SPARSE_TENSOR;
         }
-        return AttributeType.UNDEFINED;
+        return onnx.AttributeType.UNDEFINED;
     }
 };
 

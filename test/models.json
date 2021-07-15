@@ -3235,14 +3235,14 @@
     "type":   "onnx",
     "target": "mobilenet_v2_float.ort",
     "source": "https://github.com/lutzroeder/netron/files/6805664/mobilenet_v2_float.ort.zip[mobilenet_v2_float.ort]",
-    "error":  "Invalid file content. File contains onnxruntime.experimental.fbs.InferenceSession data.",
+    "format": "ONNX Runtime v6",
     "link":   "https://github.com/lutzroeder/netron/issues/767"
   },
   {
     "type":   "onnx",
-    "target": "mobilenet_v2_float.ort",
+    "target": "mobilenet_v2_uint8.ort",
     "source": "https://github.com/lutzroeder/netron/files/6805665/mobilenet_v2_uint8.ort.zip[mobilenet_v2_uint8.ort]",
-    "error":  "Invalid file content. File contains onnxruntime.experimental.fbs.InferenceSession data.",
+    "format": "ONNX Runtime v6",
     "link":   "https://github.com/lutzroeder/netron/issues/767"
   },
   {
