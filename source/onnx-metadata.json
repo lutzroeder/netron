@@ -3614,6 +3614,84 @@
     ]
   },
   {
+    "name": "CastLike",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "The operator casts the elements of a given input tensor (the first input) to\nthe same data type as the elements of the second input tensor.\nSee documentation of the Cast operator for further details.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "T1",
+        "description": "Input tensor to be cast."
+      },
+      {
+        "name": "target_type",
+        "type": "T2",
+        "description": "The (first) input tensor will be cast to produce a tensor of the same type as this (second input) tensor."
+      }
+    ],
+    "min_input": 2,
+    "max_input": 2,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "T2",
+        "description": "Output tensor produced by casting the first input tensor to have the same type as the second input tensor."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrain input types. Casting from complex is not supported.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(bool)",
+          "tensor(string)",
+          "tensor(bfloat16)"
+        ]
+      },
+      {
+        "description": "Constrain output types. Casting to complex is not supported.",
+        "type_param_str": "T2",
+        "allowed_type_strs": [
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(bool)",
+          "tensor(string)",
+          "tensor(bfloat16)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "castlike",
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    like = output.flatten()[0:1]\n    node = onnx.helper.make_node(\n        'CastLike',\n        inputs=['input', 'like'],\n        outputs=['output'],\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type,\n                   input_types=[input_type, output_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type)"
+      }
+    ]
+  },
+  {
     "name": "CastMap",
     "domain": "ai.onnx.ml",
     "version": 1,
