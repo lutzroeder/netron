@@ -2052,6 +2052,7 @@ python.Execution = class {
         this.registerType('sklearn.svm._classes.SVC', class {});
         this.registerType('sklearn.svm._classes.SVR', class {});
         this.registerType('sklearn.svm.classes.LinearSVC', class {});
+        this.registerType('sklearn.svm.classes.OneClassSVM', class {});
         this.registerType('sklearn.svm.classes.SVC', class {});
         this.registerType('sklearn.svm.classes.SVR', class {});
         this.registerType('sklearn.tree._classes.DecisionTreeClassifier', class {});
