@@ -8,32 +8,7 @@ var zip = zip || require('./zip');
 tflite.ModelFactory = class {
 
     match(context) {
-        const stream = context.stream;
-        if (stream.length >= 8) {
-            const buffer = stream.peek(Math.min(32, stream.length));
-            const reader = flatbuffers.BinaryReader.open(buffer);
-            if (reader.identifier === 'TFL3') {
-                return true;
-            }
-            if (reader.root === 0x00000018) {
-                const identifier = context.identifier;
-                const extension = identifier.split('.').pop().toLowerCase();
-                if (extension === 'tflite') {
-                    const version = reader.uint32_(reader.root, 4, 0);
-                    if (version === 3) {
-                        return true;
-                    }
-                }
-            }
-        }
-        const extension = context.identifier.split('.').pop().toLowerCase();
-        if (extension === 'json') {
-            const obj = context.open('json');
-            if (obj && obj.subgraphs && obj.operator_codes) {
-                return true;
-            }
-        }
-        return false;
+        return this._format(context).length > 0;
     }
 
     open(context) {
@@ -41,9 +16,7 @@ tflite.ModelFactory = class {
             tflite.schema = flatbuffers.get('tflite').tflite;
             let model = null;
             const attachments = new Map();
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            switch (extension) {
+            switch (this._format(context)) {
                 case 'json': {
                     try {
                         const obj = context.open('json');
@@ -56,7 +29,7 @@ tflite.ModelFactory = class {
                     }
                     break;
                 }
-                default: {
+                case 'flatbuffers': {
                     const stream = context.stream;
                     try {
                         const reader = flatbuffers.BinaryReader.open(stream);
@@ -84,6 +57,31 @@ tflite.ModelFactory = class {
                 return new tflite.Model(metadata, model);
             });
         });
+    }
+
+    _format(context) {
+        const tags = context.tags('flatbuffers');
+        if (tags.get('file_identifier') === 'TFL3') {
+            return 'flatbuffers';
+        }
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        const stream = context.stream;
+        if (extension === 'tflite' && stream.length >= 8) {
+            const buffer = stream.peek(Math.min(32, stream.length));
+            const reader = flatbuffers.BinaryReader.open(buffer);
+            if (reader.root === 0x00000018) {
+                const version = reader.uint32_(reader.root, 4, 0);
+                if (version === 3) {
+                    return 'flatbuffers';
+                }
+            }
+        }
+        const obj = context.open('json');
+        if (obj && obj.subgraphs && obj.operator_codes) {
+            return 'json';
+        }
+        return '';
     }
 };
 
