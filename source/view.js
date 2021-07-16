@@ -1225,7 +1225,7 @@ view.ModelContext = class {
             const stream = this.stream;
             const position = stream.position;
             const skip =
-                Array.from(this._tags.values()).some((map) => map.size > 0) ||
+                Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
                 Array.from(this._content.values()).some((obj) => obj !== undefined);
             if (!skip) {
                 switch (type) {
@@ -1295,7 +1295,7 @@ view.ModelContext = class {
                 ];
                 const skip =
                     signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
-                    (Array.from(this._tags.values()).some((map) => map.size > 0) && type !== 'pb+') ||
+                    (Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) && type !== 'pb+') ||
                     Array.from(this._content.values()).some((obj) => obj !== undefined);
                 if (!skip) {
                     try {
@@ -1653,14 +1653,14 @@ view.ModelFactoryService = class {
             if (tags.has('file_identifier')) {
                 const file_identifier = tags.get('file_identifier');
                 const formats = [
-                    { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' }
+                    { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' },
+                    { name: 'tflite.Model data', identifier: 'TFL3' }
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
                         throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
                     }
                 }
-                throw new view.Error("Unsupported FlatBuffers content '" + file_identifier + "' in '" + context.identifier + "'.", !skip());
             }
         };
         const unknown = () => {
