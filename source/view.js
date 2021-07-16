@@ -1557,7 +1557,8 @@ view.ModelFactoryService = class {
                     { name: 'DeepLearningExamples configuration', tags: [ 'attention_probs_dropout_prob', 'hidden_act', 'hidden_dropout_prob', 'hidden_size', ] },
                     { name: 'NuGet assets', tags: [ 'version', 'targets', 'packageFolders' ] },
                     { name: 'NuGet data', tags: [ 'format', 'restore', 'projects' ] },
-                    { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] }
+                    { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] },
+                    { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
