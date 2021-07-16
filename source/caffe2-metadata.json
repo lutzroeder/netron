@@ -17734,5 +17734,79 @@
       }
     ],
     "support_level": "default"
+  },
+  {
+    "name": "SmartDecaySparseAdam",
+    "description": "\n\n    Computes the Adam Update for the sparse case.\n    Given inputs (param, moment1, moment2, indices, grad, lr, iter), runs the dense\n    Adam on (param, moment1[indices], momemnt2[indices], lr, iter) and returns\n    (new_param, new_moment1, new_moment2) as in dense case.\n    Adam can be customized as Rectified Adam (RAdam) by setting enableRAdam = true.\n\n    ",
+    "attributes": [
+      {
+        "name": "beta1",
+        "description": "Default 0.9",
+        "option": "optional"
+      },
+      {
+        "name": "beta2",
+        "description": "Default 0.999",
+        "option": "optional"
+      },
+      {
+        "name": "epsilon",
+        "description": "Default 1e-5",
+        "option": "optional"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "param",
+        "description": "Parameters to be updated"
+      },
+      {
+        "name": "moment_1",
+        "description": "First moment history"
+      },
+      {
+        "name": "moment_2",
+        "description": "Second moment history"
+      },
+      {
+        "name": "last_seen",
+        "description": "Minibatch index when each weight was last seen"
+      },
+      {
+        "name": "indices",
+        "description": "Sparse indices"
+      },
+      {
+        "name": "grad",
+        "description": "Gradient computed"
+      },
+      {
+        "name": "lr",
+        "description": "learning rate"
+      },
+      {
+        "name": "iter",
+        "description": "iteration number"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output_param",
+        "description": "Updated parameters"
+      },
+      {
+        "name": "output_moment_1",
+        "description": "Updated first moment"
+      },
+      {
+        "name": "output_moment_2",
+        "description": "Updated second moment"
+      },
+      {
+        "name": "output_last_seen",
+        "description": "Updated minibatch index when each weight was last seen"
+      }
+    ],
+    "support_level": "default"
   }
 ]
