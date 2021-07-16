@@ -3372,7 +3372,7 @@
     "examples": [
       {
         "summary": "cast",
-        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_types=[input_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type_proto = None\n    output_type_proto = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), output.shape)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), output.shape)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type_proto and output_type_proto:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_type_protos=[input_type_proto],\n                   output_type_protos=[output_type_proto])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
       }
     ]
   },
@@ -3449,7 +3449,7 @@
     "examples": [
       {
         "summary": "cast",
-        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_types=[input_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type_proto = None\n    output_type_proto = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), output.shape)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), output.shape)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type_proto and output_type_proto:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_type_protos=[input_type_proto],\n                   output_type_protos=[output_type_proto])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
       }
     ]
   },
@@ -3528,7 +3528,7 @@
     "examples": [
       {
         "summary": "cast",
-        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_types=[input_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type_proto = None\n    output_type_proto = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), output.shape)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), output.shape)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type_proto and output_type_proto:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_type_protos=[input_type_proto],\n                   output_type_protos=[output_type_proto])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
       }
     ]
   },
@@ -3609,7 +3609,7 @@
     "examples": [
       {
         "summary": "cast",
-        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_types=[input_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type_proto = None\n    output_type_proto = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), output.shape)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), output.shape)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    node = onnx.helper.make_node(\n        'Cast',\n        inputs=['input'],\n        outputs=['output'],\n        to=getattr(TensorProto, to_type),\n    )\n    if input_type_proto and output_type_proto:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type,\n                   input_type_protos=[input_type_proto],\n                   output_type_protos=[output_type_proto])\n    else:\n        expect(node, inputs=[input], outputs=[output],\n                   name='test_cast_' + from_type + '_to_' + to_type)"
       }
     ]
   },
@@ -3687,7 +3687,7 @@
     "examples": [
       {
         "summary": "castlike",
-        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type = None\n    output_type = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type = int(TensorProto.FLOAT)\n            output_type = int(TensorProto.BFLOAT16)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type = int(TensorProto.BFLOAT16)\n            output_type = int(TensorProto.FLOAT)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    like = output.flatten()[0:1]\n    node = onnx.helper.make_node(\n        'CastLike',\n        inputs=['input', 'like'],\n        outputs=['output'],\n    )\n    if input_type and output_type:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type,\n                   input_types=[input_type, output_type],\n                   output_types=[output_type])\n    else:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type)"
+        "code": "shape = (3, 4)\ntest_cases = [\n    ('FLOAT', 'FLOAT16'),\n    ('FLOAT', 'DOUBLE'),\n    ('FLOAT16', 'FLOAT'),\n    ('FLOAT16', 'DOUBLE'),\n    ('DOUBLE', 'FLOAT'),\n    ('DOUBLE', 'FLOAT16'),\n    ('FLOAT', 'STRING'),\n    ('STRING', 'FLOAT'),\n    ('FLOAT', 'BFLOAT16'),\n    ('BFLOAT16', 'FLOAT'),\n]\n\nfor from_type, to_type in test_cases:\n    input_type_proto = None\n    output_type_proto = None\n    if 'BFLOAT16' == from_type or 'BFLOAT16' == to_type:\n        np_fp32 = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.float32)\n        little_endisan = sys.byteorder == 'little'\n        np_uint16_view = np_fp32.view(dtype=np.uint16)\n        np_bfp16 = np_uint16_view[1::2] if little_endisan else np_uint16_view[0::2]\n        if 'BFLOAT16' == to_type:\n            assert from_type == 'FLOAT'\n            input = np_fp32.reshape([3, 4])\n            output = np_bfp16.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), output.shape)\n        else:\n            assert to_type == 'FLOAT'\n            input = np_bfp16.reshape([3, 4])\n            #convert bfloat to FLOAT\n            np_fp32_zeros = np.zeros((len(np_bfp16) * 2,), dtype=np.uint16)\n            if little_endisan:\n                np_fp32_zeros[1::2] = np_bfp16\n            else:\n                np_fp32_zeros[0::2] = np_bfp16\n            np_fp32_from_bfloat = np_fp32_zeros.view(dtype=np.float32)\n            output = np_fp32_from_bfloat.reshape([3, 4])\n            input_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.BFLOAT16), input.shape)\n            output_type_proto = onnx.helper.make_tensor_type_proto(int(TensorProto.FLOAT), output.shape)\n    elif 'STRING' != from_type:\n        input = np.random.random_sample(shape).astype(\n            TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, from_type)])\n        if ('STRING' == to_type):\n            # Converting input to str, then give it np.object dtype for generating script\n            ss = []\n            for i in input.flatten():\n                s = str(i).encode('utf-8')\n                su = s.decode('utf-8')\n                ss.append(su)\n\n            output = np.array(ss).astype(np.object).reshape([3, 4])\n        else:\n            output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    else:\n        input = np.array([u'0.47892547', u'0.48033667', u'0.49968487', u'0.81910545',\n            u'0.47031248', u'0.816468', u'0.21087195', u'0.7229038',\n            u'NaN', u'INF', u'+INF', u'-INF'], dtype=np.dtype(np.object)).reshape([3, 4])\n        output = input.astype(TENSOR_TYPE_TO_NP_TYPE[getattr(TensorProto, to_type)])\n    like = output.flatten()[0:1]\n    node = onnx.helper.make_node(\n        'CastLike',\n        inputs=['input', 'like'],\n        outputs=['output'],\n    )\n    if input_type_proto and output_type_proto:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type,\n                   input_type_protos=[input_type_proto, output_type_proto],\n                   output_type_protos=[output_type_proto])\n    else:\n        expect(node, inputs=[input, like], outputs=[output],\n                   name='test_castlike_' + from_type + '_to_' + to_type)"
       }
     ]
   },
@@ -14663,7 +14663,7 @@
       },
       {
         "summary": "loop_13",
-        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])"
+        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_type_protos=[onnx.helper.make_tensor_type_proto(onnx.TensorProto.INT64, trip_count.shape),\n                          onnx.helper.make_tensor_type_proto(onnx.TensorProto.BOOL, cond.shape),\n                          onnx.helper.make_sequence_type_proto(\n                              onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, []))])"
       }
     ]
   },
@@ -14759,7 +14759,7 @@
       },
       {
         "summary": "loop_13",
-        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])"
+        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_type_protos=[onnx.helper.make_tensor_type_proto(onnx.TensorProto.INT64, trip_count.shape),\n                          onnx.helper.make_tensor_type_proto(onnx.TensorProto.BOOL, cond.shape),\n                          onnx.helper.make_sequence_type_proto(\n                              onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, []))])"
       }
     ]
   },
@@ -14870,7 +14870,7 @@
       },
       {
         "summary": "loop_13",
-        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_types=[onnx.TensorProto.INT64, onnx.TensorProto.BOOL, onnx.TensorProto.FLOAT])"
+        "code": "# Given a tensor x of values [x1, ..., xN],\n# Return a sequence of tensors of\n#   [[x1], [x1, x2], ..., [x1, ..., xN]]\n\nseq_in = onnx.helper.make_tensor_sequence_value_info('seq_in', onnx.TensorProto.FLOAT, None)\nseq_out = onnx.helper.make_tensor_sequence_value_info('seq_out', onnx.TensorProto.FLOAT, None)\ncond_in = onnx.helper.make_tensor_value_info('cond_in', onnx.TensorProto.BOOL, [])\ncond_out = onnx.helper.make_tensor_value_info('cond_out', onnx.TensorProto.BOOL, [])\niter_count = onnx.helper.make_tensor_value_info('iter_count', onnx.TensorProto.INT64, [])\n\nx = np.array([1, 2, 3, 4, 5]).astype(np.float32)\n\nx_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['x'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_x',\n        data_type=onnx.TensorProto.FLOAT,\n        dims=x.shape,\n        vals=x.flatten().astype(float),\n    )\n)\n\none_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['one'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_one',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[1]\n    )\n)\n\nzero_const_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['slice_start'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_zero',\n        data_type=onnx.TensorProto.INT64,\n        dims=(1,),\n        vals=[0]\n    )\n)\n\naxes_node = onnx.helper.make_node(\n    'Constant',\n    inputs=[],\n    outputs=['axes'],\n    value=onnx.helper.make_tensor(\n        name='const_tensor_axes',\n        data_type=onnx.TensorProto.INT64,\n        dims=(),\n        vals=[0]\n    )\n)\n\nadd_node = onnx.helper.make_node(\n    'Add',\n    inputs=['iter_count', 'one'],\n    outputs=['end']\n)\n\nend_unsqueeze_node = onnx.helper.make_node(\n    'Unsqueeze',\n    inputs=['end', 'axes'],\n    outputs=['slice_end']\n)\n\nslice_node = onnx.helper.make_node(\n    'Slice',\n    inputs=['x', 'slice_start', 'slice_end'],\n    outputs=['slice_out']\n)\n\ninsert_node = onnx.helper.make_node(\n    'SequenceInsert',\n    inputs=['seq_in', 'slice_out'],\n    outputs=['seq_out']\n)\n\nidentity_node = onnx.helper.make_node(\n    'Identity',\n    inputs=['cond_in'],\n    outputs=['cond_out']\n)\n\nloop_body = onnx.helper.make_graph(\n    [identity_node, x_const_node, one_const_node, zero_const_node, add_node,\n     axes_node, end_unsqueeze_node, slice_node, insert_node],\n    'loop_body',\n    [iter_count, cond_in, seq_in],\n    [cond_out, seq_out]\n)\n\nnode = onnx.helper.make_node(\n    'Loop',\n    inputs=['trip_count', 'cond', 'seq_empty'],\n    outputs=['seq_res'],\n    body=loop_body\n)\n\ntrip_count = np.array(5).astype(np.int64)\nseq_empty = []  # type: List[Any]\nseq_res = [x[:int(i)] for i in x]\ncond = np.array(1).astype(np.bool)\nexpect(node, inputs=[trip_count, cond, seq_empty], outputs=[seq_res],\n       name='test_loop13_seq', opset_imports=[onnx.helper.make_opsetid(\"\", 13)],\n       input_type_protos=[onnx.helper.make_tensor_type_proto(onnx.TensorProto.INT64, trip_count.shape),\n                          onnx.helper.make_tensor_type_proto(onnx.TensorProto.BOOL, cond.shape),\n                          onnx.helper.make_sequence_type_proto(\n                              onnx.helper.make_tensor_type_proto(onnx.TensorProto.FLOAT, []))])"
       }
     ]
   },
@@ -15311,13 +15311,13 @@
         "name": "a_zero_point",
         "type": "T1",
         "option": "optional",
-        "description": "Zero point tensor for input 'A'. It's optional and default value is 0. It could be a scalar or a 1-D tensor, which means a per-tensor or per-row quantization. If it's a 1-D tensor, its number of elements should be equal to the number of rows of input 'A'."
+        "description": "Zero point tensor for input 'A'. It's optional and default value is 0. It could be a scalar or N-D tensor. Scalar refers to per tensor quantization whereas N-D refers to per row quantization. If the input is 2D of shape [M, K] then zero point tensor may be an M element vector [zp_1, zp_2, ..., zp_M]. If the input is N-D tensor with shape [D1, D2, M, K] then zero point tensor may have shape [D1, D2, M, 1]. "
       },
       {
         "name": "b_zero_point",
         "type": "T2",
         "option": "optional",
-        "description": "Zero point tensor for input 'B'. It's optional and default value is 0.  It could be a scalar or a 1-D tensor, which means a per-tensor or per-column quantization. If it's a 1-D tensor, its number of elements should be equal to the number of columns of input 'B'."
+        "description": "Zero point tensor for input 'B'. It's optional and default value is 0. It could be a scalar or a N-D tensor, Scalar refers to per tensor quantization whereas N-D refers to per col quantization. If the input is 2D of shape [K, N] then zero point tensor may be an N element vector [zp_1, zp_2, ..., zp_N]. If the input is N-D tensor with shape [D1, D2, K, N] then zero point tensor may have shape [D1, D2, 1, N]. "
       }
     ],
     "min_input": 2,
@@ -18976,6 +18976,301 @@
     ]
   },
   {
+    "name": "Optional",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Constructs an optional-type value containing either an empty optional of a certain type specified by the attribute,\nor a non-empty value containing the input element.\n",
+    "attributes": [
+      {
+        "name": "type",
+        "required": false,
+        "description": "Type of the element in the optional output"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "type": "V",
+        "option": "optional",
+        "description": "The input element."
+      }
+    ],
+    "min_input": 0,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "O",
+        "description": "The optional output enclosing the input element."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "inputs_range": "0 - 1",
+    "type_constraints": [
+      {
+        "description": "Constrains input type to all tensor and sequence types.",
+        "type_param_str": "V",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrains output type to all optional tensor or optional sequence types.",
+        "type_param_str": "O",
+        "allowed_type_strs": [
+          "optional(seq(tensor(uint8)))",
+          "optional(seq(tensor(uint16)))",
+          "optional(seq(tensor(uint32)))",
+          "optional(seq(tensor(uint64)))",
+          "optional(seq(tensor(int8)))",
+          "optional(seq(tensor(int16)))",
+          "optional(seq(tensor(int32)))",
+          "optional(seq(tensor(int64)))",
+          "optional(seq(tensor(float16)))",
+          "optional(seq(tensor(float)))",
+          "optional(seq(tensor(double)))",
+          "optional(seq(tensor(string)))",
+          "optional(seq(tensor(bool)))",
+          "optional(seq(tensor(complex64)))",
+          "optional(seq(tensor(complex128)))",
+          "optional(tensor(uint8))",
+          "optional(tensor(uint16))",
+          "optional(tensor(uint32))",
+          "optional(tensor(uint64))",
+          "optional(tensor(int8))",
+          "optional(tensor(int16))",
+          "optional(tensor(int32))",
+          "optional(tensor(int64))",
+          "optional(tensor(float16))",
+          "optional(tensor(float))",
+          "optional(tensor(double))",
+          "optional(tensor(string))",
+          "optional(tensor(bool))",
+          "optional(tensor(complex64))",
+          "optional(tensor(complex128))"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "OptionalGetElement",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Outputs the element in the optional-type input. It is an error if the input value does not have an element\nand the behavior is undefined in this case.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "O",
+        "description": "The optional input."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "V",
+        "description": "Output element in the optional input."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrains input type to optional tensor and optional sequence types.",
+        "type_param_str": "O",
+        "allowed_type_strs": [
+          "optional(seq(tensor(uint8)))",
+          "optional(seq(tensor(uint16)))",
+          "optional(seq(tensor(uint32)))",
+          "optional(seq(tensor(uint64)))",
+          "optional(seq(tensor(int8)))",
+          "optional(seq(tensor(int16)))",
+          "optional(seq(tensor(int32)))",
+          "optional(seq(tensor(int64)))",
+          "optional(seq(tensor(float16)))",
+          "optional(seq(tensor(float)))",
+          "optional(seq(tensor(double)))",
+          "optional(seq(tensor(string)))",
+          "optional(seq(tensor(bool)))",
+          "optional(seq(tensor(complex64)))",
+          "optional(seq(tensor(complex128)))",
+          "optional(tensor(uint8))",
+          "optional(tensor(uint16))",
+          "optional(tensor(uint32))",
+          "optional(tensor(uint64))",
+          "optional(tensor(int8))",
+          "optional(tensor(int16))",
+          "optional(tensor(int32))",
+          "optional(tensor(int64))",
+          "optional(tensor(float16))",
+          "optional(tensor(float))",
+          "optional(tensor(double))",
+          "optional(tensor(string))",
+          "optional(tensor(bool))",
+          "optional(tensor(complex64))",
+          "optional(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrain output type to all tensor or sequence types.",
+        "type_param_str": "V",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)",
+          "seq(tensor(uint8))",
+          "seq(tensor(uint16))",
+          "seq(tensor(uint32))",
+          "seq(tensor(uint64))",
+          "seq(tensor(int8))",
+          "seq(tensor(int16))",
+          "seq(tensor(int32))",
+          "seq(tensor(int64))",
+          "seq(tensor(float16))",
+          "seq(tensor(float))",
+          "seq(tensor(double))",
+          "seq(tensor(string))",
+          "seq(tensor(bool))",
+          "seq(tensor(complex64))",
+          "seq(tensor(complex128))"
+        ]
+      }
+    ]
+  },
+  {
+    "name": "OptionalHasElement",
+    "domain": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Returns true if the optional-type input contains an element. If it is an empty optional-type, this op returns false.\n",
+    "inputs": [
+      {
+        "name": "input",
+        "type": "O",
+        "description": "The optional input."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "output",
+        "type": "B",
+        "description": "A scalar boolean tensor. If true, it indicates that optional-type input contains an element. Otherwise, it is empty."
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Constrains input type to optional tensor and optional sequence types.",
+        "type_param_str": "O",
+        "allowed_type_strs": [
+          "optional(seq(tensor(uint8)))",
+          "optional(seq(tensor(uint16)))",
+          "optional(seq(tensor(uint32)))",
+          "optional(seq(tensor(uint64)))",
+          "optional(seq(tensor(int8)))",
+          "optional(seq(tensor(int16)))",
+          "optional(seq(tensor(int32)))",
+          "optional(seq(tensor(int64)))",
+          "optional(seq(tensor(float16)))",
+          "optional(seq(tensor(float)))",
+          "optional(seq(tensor(double)))",
+          "optional(seq(tensor(string)))",
+          "optional(seq(tensor(bool)))",
+          "optional(seq(tensor(complex64)))",
+          "optional(seq(tensor(complex128)))",
+          "optional(tensor(uint8))",
+          "optional(tensor(uint16))",
+          "optional(tensor(uint32))",
+          "optional(tensor(uint64))",
+          "optional(tensor(int8))",
+          "optional(tensor(int16))",
+          "optional(tensor(int32))",
+          "optional(tensor(int64))",
+          "optional(tensor(float16))",
+          "optional(tensor(float))",
+          "optional(tensor(double))",
+          "optional(tensor(string))",
+          "optional(tensor(bool))",
+          "optional(tensor(complex64))",
+          "optional(tensor(complex128))"
+        ]
+      },
+      {
+        "description": "Constrains output to a boolean tensor.",
+        "type_param_str": "B",
+        "allowed_type_strs": [
+          "tensor(bool)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "empty",
+        "code": "optional = None\ntensor_type_proto = onnx.helper.make_tensor_type_proto(elem_type=onnx.TensorProto.INT32, shape=[])\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\nnode = onnx.helper.make_node(\n    'OptionalHasElement',\n    inputs=['optional_input'],\n    outputs=['output']\n)\noutput = optional_has_element_reference_implementation(optional)\nexpect(node, inputs=[optional], outputs=[output],\n       input_type_protos=[input_type_proto],\n       name='test_optional_has_element_empty')"
+      },
+      {
+        "summary": "get_element_sequence",
+        "code": "optional = [np.array([1, 2, 3, 4]).astype(np.int32)]\ntensor_type_proto = onnx.helper.make_tensor_type_proto(elem_type=onnx.TensorProto.INT32, shape=[4, ])\nseq_type_proto = onnx.helper.make_sequence_type_proto(tensor_type_proto)\ninput_type_proto = onnx.helper.make_optional_type_proto(seq_type_proto)\n\nnode = onnx.helper.make_node(\n    'OptionalGetElement',\n    inputs=['optional_input'],\n    outputs=['output']\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(node, inputs=[optional], outputs=[output],\n       input_type_protos=[input_type_proto],\n       name='test_optional_get_element_sequence')"
+      },
+      {
+        "summary": "get_element_tensor",
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(elem_type=onnx.TensorProto.FLOAT, shape=[4, ])\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\n\nnode = onnx.helper.make_node(\n    'OptionalGetElement',\n    inputs=['optional_input'],\n    outputs=['output']\n)\noutput = optional_get_element_reference_implementation(optional)\nexpect(node, inputs=[optional], outputs=[output],\n       input_type_protos=[input_type_proto],\n       name='test_optional_get_element')"
+      },
+      {
+        "summary": "optionalhaselement",
+        "code": "optional = np.array([1, 2, 3, 4]).astype(np.float32)\ntensor_type_proto = onnx.helper.make_tensor_type_proto(elem_type=onnx.TensorProto.FLOAT, shape=[4, ])\ninput_type_proto = onnx.helper.make_optional_type_proto(tensor_type_proto)\nnode = onnx.helper.make_node(\n    'OptionalHasElement',\n    inputs=['optional_input'],\n    outputs=['output']\n)\noutput = optional_has_element_reference_implementation(optional)\nexpect(node, inputs=[optional], outputs=[output],\n       input_type_protos=[input_type_proto],\n       name='test_optional_has_element')"
+      }
+    ]
+  },
+  {
     "name": "Or",
     "domain": "ai.onnx",
     "version": 1,
@@ -20116,7 +20411,7 @@
     "domain": "ai.onnx",
     "version": 10,
     "support_level": "common",
-    "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output, and computes the quantized output.\nThe quantization formula is y = saturate((x / y_scale) + y_zero_point). For (x / y_scale), it is rounding to nearest ties to even.\nRefer to https://en.wikipedia.org/wiki/Rounding for details. Scale and zero point must have same shape.\nThey must be either scalar (per tensor) or 1-D tensor (per row for 'a' and per column for 'b'). If scale and zero point are 1-D tensor,\nthe number of elements of scale and zero point tensor of input 'a' and output 'y' should be equal to the number of rows of input 'a',\nand the number of elements of scale and zero point tensor of input 'b' should be equal to the number of columns of input 'b'.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
+    "description": "Matrix product that behaves like numpy.matmul: https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.matmul.html.\nIt consumes two quantized input tensors, their scales and zero points, scale and zero point of output, \nand computes the quantized output. The quantization formula is y = saturate((x / y_scale) + y_zero_point). \nFor (x / y_scale), it is rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. \nScale and zero point must have same shape. They must be either scalar (per tensor) or N-D tensor \n(per row for 'a' and per column for 'b'). Scalar refers to per tensor quantization whereas N-D refers to per row \nor per column quantization. If the input is 2D of shape [M, K] then zero point and scale tensor may be \nan M element vector [v_1, v_2, ..., v_M] for per row quantization and K element vector of shape [v_1, v_2, ..., v_K] \nfor per column quantization. If the input is N-D tensor with shape [D1, D2, M, K] then zero point and scale tensor may \nhave shape [D1, D2, M, 1] for per row quantization and shape [D1, D2, 1, K] for per column quantization.\nProduction must never overflow, and accumulation may overflow if and only if in 32 bits.\n",
     "inputs": [
       {
         "name": "a",
