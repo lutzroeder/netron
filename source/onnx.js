@@ -241,7 +241,7 @@ onnx.ModelFactory = class {
         const stream = context.stream;
         if (stream.length > 5) {
             const buffer = stream.peek(Math.min(stream.length, 32));
-            if (buffer[0] === 0x08 && buffer[1] < 0x08 && buffer[2] === 0x12) {
+            if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
                     'BrainwaveCompiler',
                     'CNTK',
