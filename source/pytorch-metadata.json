@@ -1891,12 +1891,10 @@
   },
   {
     "name": "torch.unsafe_chunk",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "chunks", "type": "int64" },
       { "name": "dim", "type": "int64", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor[]" }
@@ -1904,11 +1902,9 @@
   },
   {
     "name": "torch.view",
-    "attributes": [
-      { "name": "size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -5843,6 +5839,33 @@
     "inputs": [
       { "name": "self", "type": "Tensor" },
       { "name": "num_classes", "type": "int64", "default": -1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.hann_window:",
+    "inputs": [
+      { "name": "window_length", "type": "int64" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.hann_window:periodic",
+    "inputs": [
+      { "name": "window_length", "type": "int64" },
+      { "name": "periodic", "type": "boolean" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }

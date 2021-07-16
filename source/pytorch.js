@@ -1460,7 +1460,7 @@ pytorch.Execution = class extends python.Execution {
                     return size.length;
                 }
             }
-            return 0; // TODO
+            return undefined; // TODO
         });
         this.registerFunction('torch.numel', function(tensor) {
             if (tensor && tensor.size) {
@@ -1477,6 +1477,9 @@ pytorch.Execution = class extends python.Execution {
             }
             if (typeof left === 'number' && typeof right === 'number') {
                 return left === right;
+            }
+            if (left === undefined || right === undefined) {
+                return true;
             }
             throw new pytorch.Error("Unknown 'torch.eq' expression type.");
         });
@@ -1495,7 +1498,7 @@ pytorch.Execution = class extends python.Execution {
             return list.map((text) => {
                 if (text === '{}' || text === '{}D') {
                     const arg = args.shift();
-                    return Array.isArray(arg) ? '[' + arg.map((item) => item.toString()).join(', ') + ']' : arg.toString();
+                    return Array.isArray(arg) ? '[' + arg.map((item) => item.toString()).join(', ') + ']' : arg ? arg.toString() : '?';
                 }
                 return text;
             }).join('');
@@ -1560,6 +1563,9 @@ pytorch.Execution = class extends python.Execution {
                 }
                 return left <= right;
             }
+            if (left === undefined || right === undefined) {
+                return true;
+            }
             throw new pytorch.Error("Unknown 'torch.le' expression type.");
         });
         this.registerFunction('torch.list', function(args) {
@@ -1580,6 +1586,9 @@ pytorch.Execution = class extends python.Execution {
             }
             if (isNaN(left) || isNaN(right)) {
                 return NaN;
+            }
+            if (Array.isArray(left) && left.every((value) => typeof value === 'number') && typeof right === 'number') {
+                return left.map((value) => value * right);
             }
             throw new pytorch.Error("Unknown 'torch.mul' expression type.");
         });
@@ -1613,6 +1622,9 @@ pytorch.Execution = class extends python.Execution {
             }
             if (typeof left === 'string' && typeof right === 'string') {
                 return left !== right;
+            }
+            if (left === undefined || right === undefined) {
+                return true;
             }
             throw new pytorch.Error("Unknown 'torch.ne' expression type.");
         });
@@ -2501,7 +2513,8 @@ pytorch.Container.Zip = class {
             }
             return storage;
         };
-        return python.Unpickler.open(data).load((name, args) => this.execution.invoke(name, args), persistent_load);
+        const unpickler = python.Unpickler.open(data);
+        return unpickler.load((name, args) => this.execution.invoke(name, args), persistent_load);
     }
 
     _storage(dirname) {
@@ -2861,6 +2874,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             parameter.resize_([ NaN, NaN, NaN ]);
                                             break;
                                         }
+                                        case 'torch.mean':
                                         case 'torch.mul':
                                         case 'torch.add':
                                         case 'torch.batch_norm':
@@ -2888,6 +2902,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'ops.quantized.conv2d_relu':
                                         case 'ops.quantized.add_relu':
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            break;
+                                        case 'torch.view':
+                                            parameter.resize_(this.expression(args[1], context));
                                             break;
                                     }
                                 }
@@ -2981,6 +2998,25 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 tensor.resize_(Array(number).fill(NaN));
                             }
                         }
+                    }
+                }
+                // _0 = torch.eq(torch.len(torch.size(x)), 2)
+                // if _0:
+                //   pass
+                // else:
+                //   ops.prim.RaiseException("AssertionError: ")
+                if (assign.type === '=' &&
+                    condition.type === 'if' &&
+                    pytorch.Utility.isEqual(assign.target, condition.condition) &&
+                    pytorch.Utility.isCall(assign.expression, 'torch.eq', 2) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.len', 1) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0].arguments[0], 'torch.size', 1) &&
+                    condition.else.statements.length == 1 &&
+                    pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
+                    const tensor = this.expression(assign.expression.arguments[0].arguments[0].arguments[0], context);
+                    if (tensor && tensor.shape === undefined) {
+                        const number = this.expression(assign.expression.arguments[1], context);
+                        tensor.resize_(Array(number).fill(NaN));
                     }
                 }
             }
