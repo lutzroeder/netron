@@ -953,7 +953,6 @@ ncnn.BlobReader = class {
                             break;
                         case 0x0002C056: // size * sizeof(float) - raw data with extra scaling
                         default:
-                            console.log('xxxxxxx');
                             throw new ncnn.Error("Unknown weight type '" + type + "'.");
                     }
                 }
