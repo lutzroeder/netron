@@ -152,7 +152,7 @@ tf.ModelFactory = class {
                         }
                     }
                     const openShards = (shards) => {
-                        const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ] ]);
+                        const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ], [ 'bool', 1 ] ]);
                         for (const manifest of manifests) {
                             let buffer = null;
                             if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
@@ -487,7 +487,8 @@ tf.Model = class {
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
                 const name = (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) ? meta_graph.meta_info_def.any_info.toString() : ((model.meta_graphs.length > 1) ? i.toString() : '-');
-                graphs.push(new tf.Graph(metadata, meta_graph, name, bundle));
+                const graph = new tf.Graph(metadata, meta_graph, name, bundle);
+                graphs.push(graph);
             }
             // Recursively add all subgraphs.
             while (graphs.length > 0) {
@@ -2353,7 +2354,6 @@ tf.Utility = class {
             dataTypes.set(DataType.DT_HALF, 'float16');
             dataTypes.set(DataType.DT_FLOAT, 'float32');
             dataTypes.set(DataType.DT_DOUBLE, 'float64');
-            dataTypes.set('DT_FLOAT', 'float32');
             tf.Utility._dataTypes = dataTypes;
         }
         return tf.Utility._dataTypes.has(type) ? tf.Utility._dataTypes.get(type) : '?';
@@ -2371,7 +2371,6 @@ tf.Utility = class {
             dataTypeKeys.set('float16', DataType.DT_HALF);
             dataTypeKeys.set('float32', DataType.DT_FLOAT);
             dataTypeKeys.set('float64', DataType.DT_DOUBLE);
-            dataTypeKeys.set('float32', 'DT_FLOAT');
             tf.Utility._dataTypeKeys = dataTypeKeys;
         }
         return tf.Utility._dataTypeKeys.get(type);
@@ -2391,8 +2390,10 @@ tf.JsonReader = class {
         const message = new tf.proto.tensorflow.NodeDef();
         message.name = json.name;
         message.op = json.op;
-        message.input = json.input;
-        message.device = json.device;
+        message.input = json.input || [];
+        if (json.device) {
+            message.device = json.device;
+        }
         message.attr = {};
         if (json.attr) {
             for (const key of Object.keys(json.attr)) {
@@ -2430,7 +2431,7 @@ tf.JsonReader = class {
                 message[key] = parseInt(value, 10);
                 break;
             case 's':
-                message[key] = typeof value === 'string' ? value : tf.Utility.decodeText(Uint8Array.from(value));
+                message[key] = typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value));
                 break;
             case 'list':
                 message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
@@ -2456,7 +2457,7 @@ tf.JsonReader = class {
                     message[key] = list.map((value) => parseInt(value, 10));
                     break;
                 case 's':
-                    message[key] = list.map((value) => typeof value === 'string' ? value : tf.Utility.decodeText(Uint8Array.from(value)));
+                    message[key] = list.map((value) => typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value)));
                     break;
                 case 'type':
                     message[key] = list.map((value) => tf.proto.tensorflow.DataType[value]);
