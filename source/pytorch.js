@@ -1075,7 +1075,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.detection._utils.BalancedPositiveNegativeSampler', class {});
         this.registerType('torchvision.models.detection._utils.BoxCoder', class {});
         this.registerType('torchvision.models.detection._utils.Matcher', class {});
+        this.registerType('torchvision.models.detection._utils.SSDMatcher', class {});
         this.registerType('torchvision.models.detection.anchor_utils.AnchorGenerator', class {});
+        this.registerType('torchvision.models.detection.anchor_utils.DefaultBoxGenerator', class {});
         this.registerType('torchvision.models.detection.backbone_utils.BackboneWithFPN', class {});
         this.registerType('torchvision.models.detection.faster_rcnn.FasterRCNN', class {});
         this.registerType('torchvision.models.detection.faster_rcnn.FastRCNNPredictor', class {});
@@ -1093,7 +1095,11 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.models.detection.rpn.AnchorGenerator', class {});
         this.registerType('torchvision.models.detection.rpn.RegionProposalNetwork', class {});
         this.registerType('torchvision.models.detection.rpn.RPNHead', class {});
-        this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
+        this.registerType('torchvision.models.detection.ssd.SSD', class {});
+        this.registerType('torchvision.models.detection.ssdlite.SSDLiteClassificationHead', class {});
+        this.registerType('torchvision.models.detection.ssdlite.SSDLiteFeatureExtractorMobileNet', class {});
+        this.registerType('torchvision.models.detection.ssdlite.SSDLiteHead', class {});
+        this.registerType('torchvision.models.detection.ssdlite.SSDLiteRegressionHead', class {});        this.registerType('torchvision.models.detection.transform.GeneralizedRCNNTransform', class {});
         this.registerType('torchvision.models.googlenet.BasicConv2d', class {});
         this.registerType('torchvision.models.googlenet.GoogLeNet', class {});
         this.registerType('torchvision.models.googlenet.Inception', class {});
