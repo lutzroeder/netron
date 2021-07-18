@@ -175,9 +175,8 @@ xmodel.Argument = class {
 xmodel.Node = class {
 
     constructor(metadata, op_node, initializers) {
-        this._type = op_node.op_type;
         this._name = op_node.op_name || '';
-        this._metadata = metadata.type(this._type);
+        this._type = metadata.type(op_node.op_type) || { name: op_node.op_type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -199,10 +198,6 @@ xmodel.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get name() {

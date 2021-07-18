@@ -136,14 +136,14 @@ sidebar.NodeSidebar = class {
 
         if (node.type) {
             let showDocumentation = null;
-            if (node.metadata) {
+            if (node.type && Object.keys(node.type).length > 1) {
                 showDocumentation = {};
                 showDocumentation.text = '?';
                 showDocumentation.callback = () => {
                     this._raise('show-documentation', null);
                 };
             }
-            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type, showDocumentation));
+            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type.name, showDocumentation));
         }
 
         if (node.name) {

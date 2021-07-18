@@ -148,15 +148,15 @@ armnn.Graph = class {
 armnn.Node = class {
 
     constructor(metadata, layer, args) {
-        this._metadata = metadata;
-        this._type = layer.layer.constructor.name;
+        const type = layer.layer.constructor.name;
         this._name = '';
         this._outputs = [];
         this._inputs = [];
         this._attributes = [];
-        const schema = this._metadata.type(this._type);
-        const inputSchemas = (schema && schema.inputs) ? [...schema.inputs] : [ { name: 'input' } ];
-        const outputSchemas = (schema && schema.outputs) ? [...schema.outputs] : [ { name: 'output' } ];
+        this._type = Object.assign({}, metadata.type(type) || { name: type });
+        this._type.name = this._type.name.replace(/Layer$/, '');
+        const inputSchemas = (this._type && this._type.inputs) ? [...this._type.inputs] : [ { name: 'input' } ];
+        const outputSchemas = (this._type && this._type.outputs) ? [...this._type.outputs] : [ { name: 'output' } ];
         const base = armnn.Node.getBase(layer);
         if (base) {
             this._name = base.layerName;
@@ -177,25 +177,25 @@ armnn.Node = class {
                 })));
             }
         }
-        if (schema) {
+        if (this._type) {
             const _layer = armnn.Node.castLayer(layer);
 
-            if (schema.bindings) {
-                for (let i = 0 ; i < schema.bindings.length ; i++) {
-                    const binding = schema.bindings[i];
+            if (this._type.bindings) {
+                for (let i = 0 ; i < this._type.bindings.length ; i++) {
+                    const binding = this._type.bindings[i];
                     const value = _layer.base()[binding.src]();
                     this._attributes.push(new armnn.Attribute(binding.name, binding.type, value));
                 }
             }
-            if (schema.attributes) {
-                for (const attribute of schema.attributes) {
+            if (this._type.attributes) {
+                for (const attribute of this._type.attributes) {
                     const value = this.packAttr(_layer, attribute);
                     this._attributes.push(new armnn.Attribute(attribute.name, attribute.type, value));
                 }
             }
-            if (schema.inputs) {
-                for (let i = 0 ; i < schema.inputs.length ; i++) {
-                    const input = schema.inputs[i];
+            if (this._type.inputs) {
+                for (let i = 0 ; i < this._type.inputs.length ; i++) {
+                    const input = this._type.inputs[i];
                     const initializer = _layer[input.src];
                     if (initializer) {
                         const args = [ new armnn.Argument('', null, initializer) ];
@@ -207,7 +207,7 @@ armnn.Node = class {
     }
 
     get type() {
-        return this._type.replace(/Layer$/, '');
+        return this._type;
     }
 
     get name() {
@@ -216,10 +216,6 @@ armnn.Node = class {
 
     get domain() {
         return null;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get group() {

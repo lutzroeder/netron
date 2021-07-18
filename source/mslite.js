@@ -147,25 +147,23 @@ mslite.Graph = class {
 mslite.Node = class {
 
     constructor(metadata, op, args) {
-        this._metadata = metadata;
         this._name = op.name || '';
-        this._type = '?';
+        this._type = { name: '?' };
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
 
-        let schema = null;
         const data = op.primitive.value;
         if (data && data.constructor) {
-            this._type = data.constructor.name;
-            schema = metadata.type(this._type);
-            this._attributes = Object.keys(data).map((key) => new mslite.Attribute(metadata.attribute(this.type, key), key.toString(), data[key]));
+            const type = data.constructor.name;
+            this._type = metadata.type(type);
+            this._attributes = Object.keys(data).map((key) => new mslite.Attribute(metadata.attribute(type, key), key.toString(), data[key]));
         }
 
         const input_num = op.inputIndex.length;
         let i = 0;
-        if (schema && schema.inputs){
-            for (const input of schema.inputs) {
+        if (this._type && this._type.inputs){
+            for (const input of this._type.inputs) {
                 if (i >= input_num) {
                     break;
                 }
@@ -181,8 +179,8 @@ mslite.Node = class {
 
         const output_num = op.outputIndex.length;
         i = 0;
-        if (schema && schema.outputs){
-            for (const output of schema.outputs) {
+        if (this._type && this._type.outputs){
+            for (const output of this._type.outputs) {
                 if (i >= output_num) {
                     break;
                 }
@@ -203,10 +201,6 @@ mslite.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this.type);
     }
 
     get inputs() {

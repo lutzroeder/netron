@@ -240,27 +240,18 @@ ncnn.Argument = class {
 ncnn.Node = class {
 
     constructor(metadata, blobReader, layer, arg) {
-        this._metadata = metadata;
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
-        this._type = layer.type;
         this._name = layer.name || '';
-
-        const operator = metadata.operator(this._type);
-        if (operator) {
-            this._type = operator;
-        }
-
-        const schema = metadata.type(this._type);
-        const attributeMetadata = schema && schema.attributes ? schema && schema.attributes : [];
-
+        const type = layer.type;
+        this._type = metadata.type(type) || metadata.operator(type) || { name: type };
+        const attributeMetadata = this._type && this._type.attributes ? this._type.attributes : [];
         const attributes = layer.attributes;
-
         const inputs = layer.inputs || [];
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => arg(id));
@@ -276,8 +267,8 @@ ncnn.Node = class {
 
         const outputs = layer.outputs || [];
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => arg(id));
@@ -290,7 +281,7 @@ ncnn.Node = class {
             const outputName = ((outputIndex + index) == 0) ? 'output' : (outputIndex + index).toString();
             return new ncnn.Parameter(outputName, true, [ arg(output) ]);
         }));
-        switch (this._type) {
+        switch (this._type.name) {
             case 'BatchNorm': {
                 const channels = parseInt(attributes.get('0') || 0, 10);
                 this._weight(blobReader, 'slope', [ channels ], 'float32');
@@ -487,10 +478,6 @@ ncnn.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {

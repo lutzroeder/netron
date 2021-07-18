@@ -216,17 +216,15 @@ uff.Node = class {
 
     constructor(metadata, node, args) {
         this._name = node.id;
-        this._operation = node.operation;
-        this._metadata = metadata.type(node.operation);
+        this._type = metadata.type(node.operation) || { name: node.operation };
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
 
-        const schema = metadata.type(node.operation);
         if (node.inputs && node.inputs.length > 0) {
             let inputIndex = 0;
-            if (schema && schema.inputs) {
-                for (const inputSchema of schema.inputs) {
+            if (this._type && this._type.inputs) {
+                for (const inputSchema of this._type.inputs) {
                     if (inputIndex < node.inputs.length || inputSchema.optional !== true) {
                         const inputCount = inputSchema.list ? (node.inputs.length - inputIndex) : 1;
                         const inputArguments = node.inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
@@ -248,7 +246,7 @@ uff.Node = class {
         ]));
 
         for (const field of node.fields) {
-            this._attributes.push(new uff.Attribute(metadata.attribute(this._operation, field.key), field.key, field.value));
+            this._attributes.push(new uff.Attribute(metadata.attribute(node.operation, field.key), field.key, field.value));
         }
     }
 
@@ -257,11 +255,7 @@ uff.Node = class {
     }
 
     get type() {
-        return this._operation;
-    }
-
-    get metadata() {
-        return this._metadata;
+        return this._type;
     }
 
     get inputs() {

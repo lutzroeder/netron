@@ -405,26 +405,27 @@ caffe.Argument = class {
 caffe.Node = class {
 
     constructor(metadata, layer, version) {
-        this._metadata = metadata;
         this._chain = [];
         this._attributes = [];
+        let type;
         switch (version) {
             case 0: {
                 this._name = layer.layer.name;
-                this._type = layer.layer.type;
+                type = layer.layer.type;
                 break;
             }
             case 1: {
                 this._name = layer.name;
-                this._type = caffe.Utility.layerType(layer.type);
+                type = caffe.Utility.layerType(layer.type);
                 break;
             }
             case 2: {
                 this._name = layer.name;
-                this._type = layer.type;
+                type = layer.type;
                 break;
             }
         }
+        this._type = metadata.type(type) || { name: type };
 
         let initializers = [];
         switch (version) {
@@ -457,25 +458,23 @@ caffe.Node = class {
                     }
                 }
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'include'), 'include', layer.include));
+                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'include'), 'include', layer.include));
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'exclude'), 'exclude', layer.exclude));
+                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'exclude'), 'exclude', layer.exclude));
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'shape'), 'shape', layer.input_param.shape));
+                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'shape'), 'shape', layer.input_param.shape));
                 }
                 initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
             }
         }
-
-        const schema = this._metadata.type(this.type);
         this._inputs = [];
         const inputs = layer.input.concat(initializers);
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = inputDef.option == 'variadic' ? inputs.length - inputIndex : 1;
                     this._inputs.push(new caffe.Parameter(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
@@ -494,8 +493,8 @@ caffe.Node = class {
         this._outputs = [];
         const outputs = layer.output;
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length) {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
@@ -514,10 +513,6 @@ caffe.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get name() {

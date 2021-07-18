@@ -230,7 +230,6 @@ torch.Argument = class {
 torch.Node = class {
 
     constructor(metadata, module, groups, name, inputs, outputs) {
-        this._metadata = metadata;
         this._group = groups.join('/');
         if (module.name && typeof module.name === 'string') {
             this._name = module.name;
@@ -239,7 +238,8 @@ torch.Node = class {
         else {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
-        this._type = module.__type__ || 'nn.Module';
+        const type = module.__type__ || 'nn.Module';
+        this._type = metadata.type(type);
         let initializers = [];
         for (const key of Object.keys(module)) {
             const obj = module[key];
@@ -265,7 +265,7 @@ torch.Node = class {
         delete module.tmp_in;
         delete module.tmp_out;
         delete module.accUpdateGradParameters;
-        switch (this._type) {
+        switch (this._type.name) {
             case 'nn.Linear':
                 delete module.addBuffer;
                 break;
@@ -351,7 +351,7 @@ torch.Node = class {
                 if (key == 'modules' || (obj.__type__ && obj.__type__ != 'Function')) {
                     continue;
                 }
-                this._attributes.push(new torch.Attribute(this._metadata, this._type, key, obj));
+                this._attributes.push(new torch.Attribute(metadata, type, key, obj));
             }
         }
         this._inputs = [];
@@ -391,10 +391,6 @@ torch.Node = class {
 
     get group() {
         return this._group;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -622,18 +618,21 @@ torch.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         this._attributeCache = {};
         if (data) {
             const items = JSON.parse(data);
             for (const item of items) {
-                this._map[item.name] = item;
+                this._map.set(item.name, item);
             }
         }
     }
 
     type(name) {
-        return this._map[name] || null;
+        if (!this._map.has(name)) {
+            this._map.set(name, { name: name });
+        }
+        return this._map.get(name);
     }
 
     attribute(type, name) {

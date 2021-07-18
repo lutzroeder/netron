@@ -671,15 +671,14 @@ function loadModel(target, item) {
             for (const node of graph.nodes) {
                 node.type.toString();
                 node.type.length;
-                if (typeof node.type != 'string') {
+                if (!node.type || typeof node.type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
                 node.name.toString();
                 node.name.length;
                 node.description;
-                const metadata = node.metadata;
-                if (metadata !== null && metadata !== undefined && (typeof metadata !== 'object' || !metadata.name)) {
-                    throw new Error("Invalid metadata object '" + node.type + "'.");
+                if (node.metadata) {
+                    throw new Error("Invalid metadata object '" + node.type.name + "'.");
                 }
                 sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
                 node.attributes.slice();

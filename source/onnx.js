@@ -684,14 +684,13 @@ onnx.Argument = class {
 onnx.Node = class {
 
     constructor(context, type, domain, name, description, attributes, inputs, outputs) {
-        this._metadata = context.metadata;
-        this._type = type;
+        this._type = context.metadata.type(type) || { name: type };
         this._domain = domain || '';
         this._name = name || '';
         this._description = description || '';
         this._inputs = inputs;
         this._outputs = outputs;
-        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(context, this.type, attribute));
+        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(context, type, attribute));
     }
 
     get type() {
@@ -704,10 +703,6 @@ onnx.Node = class {
 
     get description() {
         return this._description;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get domain() {

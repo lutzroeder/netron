@@ -1035,14 +1035,14 @@ coreml.Argument = class {
 coreml.Node = class {
 
     constructor(metadata, group, type, name, description, attributes, inputs, outputs) {
-        this._metadata = metadata.type(type);
-        if (group) {
-            this._group = group;
-        }
         if (!type) {
             throw new Error('Undefined node type.');
         }
-        this._type = type.split(':').pop();
+        if (group) {
+            this._group = group;
+        }
+        this._type = Object.assign({}, metadata.type(type) || { name: type });
+        this._type.name = type.split(':').pop();
         this._name = name || '';
         this._description = description || '';
         this._inputs = inputs;

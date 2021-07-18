@@ -3247,6 +3247,13 @@
   },
   {
     "type":   "onnx",
+    "target": "model_local_func_test.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/6836872/model_local_func_test.onnx.zip[model_local_func_test.onnx]",
+    "format": "ONNX v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/773"
+  },
+  {
+    "type":   "onnx",
     "target": "netron_issue_119.onnx",
     "source": "https://github.com/lutzroeder/netron/files/4260629/netron_issue_119.zip[netron_issue_119.onnx]",
     "format": "ONNX v4",
@@ -5578,7 +5585,7 @@
     "target": "densenet.tflite",
     "source": "https://storage.googleapis.com/download.tensorflow.org/models/tflite/model_zoo/upload_20180427/densenet_2018_04_27.tgz[densenet/densenet.tflite]",
     "format": "TensorFlow Lite v3",
-    "assert": [ "model.graphs[0].nodes[0].type=Conv2D" ],
+    "assert": [ "model.graphs[0].nodes[0].type.name=Conv2D" ],
     "link":   "https://www.tensorflow.org/lite/guide/hosted_models"
   },
   {

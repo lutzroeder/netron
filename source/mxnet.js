@@ -504,8 +504,7 @@ mxnet.Argument = class {
 mxnet.Node = class {
 
     constructor(metadata, node, argumentMap, initializerMap, tensors) {
-        this._metadata = metadata;
-        this._type = node.op;
+        let type = node.op;
         this._name = node.name;
         this._attributes = [];
         this._inputs = [];
@@ -513,27 +512,27 @@ mxnet.Node = class {
 
         const attrs = node.attrs || node.attr || node.param;
         if (attrs) {
-            if (this._type == 'tvm_op' && attrs.func_name) {
-                this._type = attrs.func_name;
+            if (type == 'tvm_op' && attrs.func_name) {
+                type = attrs.func_name;
             }
             for (const attributeName of Object.keys(attrs)) {
-                if (this._type != 'tvm_op' && attributeName != 'func_name') {
-                    this._attributes.push(new mxnet.Attribute(this._metadata, this.type, attributeName, attrs[attributeName]));
+                if (type != 'tvm_op' && attributeName != 'func_name') {
+                    this._attributes.push(new mxnet.Attribute(metadata, type, attributeName, attrs[attributeName]));
                 }
             }
         }
 
         let initializer = null;
-        const schema = metadata.type(this.type);
+        this._type = metadata.type(type) || { name: type };
         if (node.inputs) {
             let inputs = node.inputs;
-            if (this._type == 'RNN') {
+            if (type == 'RNN') {
                 inputs = inputs.map((input) => {
                     const argumentNodeIndex = input[0];
                     const argument = argumentMap[argumentNodeIndex];
                     if (argument && argument.op == 'null' && argument.name &&
                         argument.name.endsWith('_parameters') && argument.attr && argument.attr.__init__) {
-                        this._attributes.push(new mxnet.Attribute(this._metadata, this.type, argument.name, argument.attr.__init__));
+                        this._attributes.push(new mxnet.Attribute(metadata, type, argument.name, argument.attr.__init__));
                         delete argumentMap[argumentNodeIndex];
                         return null;
                     }
@@ -592,8 +591,8 @@ mxnet.Node = class {
             }
 
             let inputIndex = 0;
-            if (schema && schema.inputs) {
-                for (const inputDef of schema.inputs) {
+            if (this._type && this._type.inputs) {
+                for (const inputDef of this._type.inputs) {
                     if (inputIndex < inputs.length || inputDef.option != 'optional') {
                         const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                         const inputArguments = [];
@@ -621,8 +620,8 @@ mxnet.Node = class {
         if (node.outputs) {
             const outputs = node.outputs;
             let outputIndex = 0;
-            if (schema && schema.outputs) {
-                for (const outputDef of schema.outputs) {
+            if (this._type && this._type.outputs) {
+                for (const outputDef of this._type.outputs) {
                     if (outputIndex < outputs.length || outputDef.option != 'optional') {
                         const outputArguments = [];
                         const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
@@ -654,10 +653,6 @@ mxnet.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get name() {

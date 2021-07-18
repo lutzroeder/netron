@@ -498,24 +498,23 @@ openvino.Graph = class {
 openvino.Node = class {
 
     constructor(graph, metadata, bin, layer, inputs, outputs) {
-        this._metadata = metadata;
-        this._type = layer.type;
         this._name = layer.name || '';
         this._id = layer.id;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        const type = layer.type;
+        this._type = metadata.type(type) || { name: type };
         const precision = layer.precision;
-        const schema = metadata.type(layer.type);
         for (let i = 0; i < inputs.length; ) {
-            const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
+            const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : inputs.length === 1 ? { name: 'input' } : { name: i.toString() };
             const count = input.list ? inputs.length - i : 1;
             const list = inputs.slice(i, i + count);
             this._inputs.push(new openvino.Parameter(input.name, list));
             i += count;
         }
         for (let i = 0; i < outputs.length; ) {
-            const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
+            const output = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i] : outputs.length === 1 ? { name: 'output' } : { name: i.toString() };
             const count = output.list ? outputs.length - i : 1;
             const list = outputs.slice(i, i + count);
             this._outputs.push(new openvino.Parameter(output.name, list));
@@ -524,7 +523,7 @@ openvino.Node = class {
         const attributes = {};
         for (const attribute of layer.data) {
             attributes[attribute.name] = attribute.value;
-            const attributeSchema = metadata.attribute(this.type, attribute.name);
+            const attributeSchema = metadata.attribute(type, attribute.name);
             this._attributes.push(new openvino.Attribute(attributeSchema, attribute.name, attribute.value));
         }
         for (const blob of layer.blobs) {
@@ -543,7 +542,7 @@ openvino.Node = class {
             };
             const itemSize = precisionMap[dataType];
             if (itemSize) {
-                switch (this._type + ':' + name) {
+                switch (type + ':' + name) {
                     case 'FullyConnected:weights': {
                         const outSize = parseInt(attributes['out-size'], 10);
                         dimensions = [ size / (outSize * itemSize), outSize ];
@@ -611,10 +610,6 @@ openvino.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {

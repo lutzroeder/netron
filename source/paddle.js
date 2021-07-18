@@ -354,8 +354,8 @@ paddle.Argument = class {
 paddle.Node = class {
 
     constructor(metadata, op, args) {
-        this._metadata = metadata;
-        this._type = op.type;
+        const type = op.type;
+        this._type = metadata.type(type) || { name: type };
         this._name = op.name || '';
         this._attributes = [];
         this._inputs = [];
@@ -363,7 +363,7 @@ paddle.Node = class {
         this._chain = [];
         if (op.attrs) {
             for (const attr of op.attrs) {
-                const schema = metadata.attribute(this._type, this._name);
+                const schema = metadata.attribute(type, this._name);
                 this._attributes.push(new paddle.Attribute(schema, attr));
             }
         }
@@ -393,10 +393,6 @@ paddle.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {

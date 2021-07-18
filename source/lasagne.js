@@ -148,8 +148,8 @@ lasagne.Node = class {
 
     constructor(metadata, layer, arg) {
         this._name = layer.name || '';
-        this._type = layer.__class__ ? layer.__class__.__module__ + '.' + layer.__class__.__name__ : '';
-        this._metadata = metadata.type(this._type);
+        const type = layer.__class__ ? layer.__class__.__module__ + '.' + layer.__class__.__name__ : '';
+        this._type = metadata.type(type) || { name: type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -193,10 +193,6 @@ lasagne.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get inputs() {

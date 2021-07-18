@@ -348,23 +348,20 @@ cntk.Argument = class {
 cntk.Node = class {
 
     constructor(metadata, version, obj, args) {
-
-        this._metadata = metadata;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
-
         let inputs = [];
         let outputs = [];
         const initializers = [];
-
         switch (version) {
             case 1: {
-                this._type = obj.__type__;
+                const type = obj.__type__;
+                this._type = metadata.type(this._function ? ('Function:' + type) : type) || { name: type };
                 this._name = obj.name;
                 for (const attributeName of Object.keys(obj)) {
                     if (attributeName != '__type__' && attributeName != 'name' && attributeName != 'inputs' && attributeName != 'precision') {
-                        this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, attributeName), attributeName, obj[attributeName]));
+                        this._attributes.push(new cntk.Attribute(metadata.attribute(type, attributeName), attributeName, obj[attributeName]));
                     }
                 }
                 inputs = obj.inputs.map((input) => {
@@ -380,25 +377,27 @@ cntk.Node = class {
                 this._name = obj.name || obj.uid || null;
                 const output = obj.uid;
                 if (obj.op == 57) {
-                    this._type = 'Block';
+                    let type = 'Block';
                     if (obj.block_function_op_name) {
-                        this._type = obj.block_function_op_name;
+                        type = obj.block_function_op_name;
                         this._function = true;
                     }
+                    this._type = metadata.type(this._function ? ('Function:' + type) : type) || { name: type };
                 }
                 else {
                     if (!Object.prototype.hasOwnProperty.call(obj, 'op')) {
-                        this._type = obj.type;
+                        const type = obj.type;
+                        this._type = metadata.type(this._function ? ('Function:' + type) : type) || { name: type };
                         if (obj.user_defined_state) {
                             for (const attributeName of Object.keys(obj.user_defined_state)) {
-                                this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, attributeName), attributeName, obj.user_defined_state[attributeName]));
+                                this._attributes.push(new cntk.Attribute(metadata.attribute(type, attributeName), attributeName, obj.user_defined_state[attributeName]));
                             }
                         }
                     }
                     else {
-                        this._type = this._metadata.name(obj.op);
-                        if (this.type == null) {
-                            this._type = obj.op ? obj.op.toString() : '?';
+                        this._type = metadata.name(obj.op.toNumber());
+                        if (!this._type) {
+                            this._type = { name: obj.op ? obj.op.toString() : '?' };
                         }
                     }
                 }
@@ -426,11 +425,9 @@ cntk.Node = class {
                 break;
             }
         }
-
         let inputIndex = 0;
-        const schema = this._metadata.type(this._function ? ('Function:' + this._type) : this._type);
-        if (schema && schema.inputs) {
-            for (const inputSchema of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputSchema of this._type.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
                     const inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = [];
@@ -449,8 +446,8 @@ cntk.Node = class {
         }));
 
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputSchema of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputSchema of this._type.outputs) {
                 if (outputIndex < outputs.length || outputSchema.option != 'optional') {
                     const outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
@@ -473,10 +470,6 @@ cntk.Node = class {
 
     get function() {
         return this._function || false;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._function ? ('Function:' + this._type) : this._type);
     }
 
     get attributes() {

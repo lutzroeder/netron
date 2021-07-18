@@ -182,8 +182,8 @@ dnn.Node = class {
     constructor(metadata, node, arg) {
         const layer = node.layer;
         this._name = layer.name;
-        this._type = layer.type;
-        this._metadata = metadata.type(this._type);
+        const type = layer.type;
+        this._type = metadata.type(type) || { name: type };
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
@@ -204,11 +204,10 @@ dnn.Node = class {
         }
         const outputs = node.output.map((output) => { return arg(output); });
 
-        const schema = this._metadata;
         if (inputs && inputs.length > 0) {
             let inputIndex = 0;
-            if (schema && schema.inputs) {
-                for (const inputSchema of schema.inputs) {
+            if (this._type && this._type.inputs) {
+                for (const inputSchema of this._type.inputs) {
                     if (inputIndex < inputs.length || inputSchema.option != 'optional') {
                         const inputCount = (inputSchema.option == 'variadic') ? (node.input.length - inputIndex) : 1;
                         const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount);
@@ -238,7 +237,7 @@ dnn.Node = class {
                 case 'quantization':
                     break;
                 default:
-                    this._attributes.push(new dnn.Attribute(metadata.attribute(this._type, key), key, layer[key]));
+                    this._attributes.push(new dnn.Attribute(metadata.attribute(type, key), key, layer[key]));
                     break;
             }
         }
@@ -250,10 +249,6 @@ dnn.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get inputs() {

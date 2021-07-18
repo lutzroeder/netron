@@ -282,9 +282,8 @@ tflite.Graph = class {
 tflite.Node = class {
 
     constructor(metadata, node, type, location, args) {
-        this._metadata = metadata;
         this._location = location;
-        this._type = type;
+        this._type = type.custom ? { name: type.name, category: 'custom' } : metadata.type(type.name) || { name: type.name };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -293,15 +292,14 @@ tflite.Node = class {
             let outputs = [];
             inputs = Array.from(node.inputs || new Int32Array(0));
             outputs = Array.from(node.outputs || new Int32Array(0));
-            const schema = this._metadata.type(this.type);
             let inputIndex = 0;
             while (inputIndex < inputs.length) {
                 let count = 1;
                 let inputName = null;
                 let inputVisible = true;
                 const inputArguments = [];
-                if (schema && schema.inputs && inputIndex < schema.inputs.length) {
-                    const input = schema.inputs[inputIndex];
+                if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
+                    const input = this._type.inputs[inputIndex];
                     inputName = input.name;
                     if (input.option == 'variadic') {
                         count = inputs.length - inputIndex;
@@ -329,8 +327,8 @@ tflite.Node = class {
                     outputArguments.push(argument);
                 }
                 let outputName = k.toString();
-                if (schema && schema.outputs && k < schema.outputs.length) {
-                    const output = schema.outputs[k];
+                if (this._type && this._type.outputs && k < this._type.outputs.length) {
+                    const output = this._type.outputs[k];
                     if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
                         outputName = output.name;
                     }
@@ -347,7 +345,7 @@ tflite.Node = class {
                             for (const pair of Object.entries(custom_options)) {
                                 const key = pair[0];
                                 const value = pair[1];
-                                const schema = metadata.attribute(this.type, key);
+                                const schema = metadata.attribute(type.name, key);
                                 const attribute = new tflite.Attribute(schema, key, value);
                                 this._attributes.push(attribute);
                             }
@@ -359,7 +357,7 @@ tflite.Node = class {
                     }
                 }
                 if (!decoded) {
-                    const schema = metadata.attribute(this.type, 'custom');
+                    const schema = metadata.attribute(type.name, 'custom');
                     this._attributes.push(new tflite.Attribute(schema, 'custom', Array.from(node.custom_options)));
                 }
             }
@@ -375,7 +373,7 @@ tflite.Node = class {
                         const type = activationFunctionMap[value];
                         this._chain = [ new tflite.Node(metadata, null, { name: type }, null, []) ];
                     }
-                    const schema = metadata.attribute(this.type, name);
+                    const schema = metadata.attribute(type.name, name);
                     this._attributes.push(new tflite.Attribute(schema, name, value));
                 }
             }
@@ -383,7 +381,7 @@ tflite.Node = class {
     }
 
     get type() {
-        return this._type.name;
+        return this._type;
     }
 
     get name() {
@@ -396,13 +394,6 @@ tflite.Node = class {
 
     get domain() {
         return null;
-    }
-
-    get metadata() {
-        if (this._type.custom) {
-            return { name: this.type, category: 'custom' };
-        }
-        return this._metadata.type(this.type);
     }
 
     get group() {

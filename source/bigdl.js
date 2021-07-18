@@ -170,16 +170,15 @@ bigdl.Argument = class {
 bigdl.Node = class {
 
     constructor(metadata, group, module) {
-        this._metadata = metadata;
         this._group = group;
-        this._type = module.moduleType.split('.').pop();
+        const type = module.moduleType.split('.').pop();
         this._name = module.name;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
-        const schema =  metadata.type(this.type);
-        const inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
+        this._type =  metadata.type(type);
+        const inputs = (this._type && this._type.inputs) ? this._type.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
             inputs.shift();
@@ -234,10 +233,6 @@ bigdl.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get name() {

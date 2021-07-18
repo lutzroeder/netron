@@ -139,8 +139,8 @@ mnn.Graph = class {
 mnn.Node = class {
 
     constructor(metadata, op, net) {
-        this._metadata = metadata;
-        this._type = mnn.Utility.enum('OpType', op.type) || '(' + op.type.toString() + ')';
+        const type = mnn.Utility.enum('OpType', op.type) || '(' + op.type.toString() + ')';
+        this._type = metadata.type(type) || { name: type };
         this._name = op.name || '';
         this._attributes = [];
         this._inputs = [];
@@ -267,10 +267,6 @@ mnn.Node = class {
 
     get domain() {
         return null;
-    }
-
-    get metadata() {
-        return this._metadata.type(this.type);
     }
 
     get group() {

@@ -207,10 +207,10 @@ sklearn.Argument = class {
 sklearn.Node = class {
 
     constructor(metadata, group, name, obj, inputs, outputs) {
-        this._metadata = metadata;
         this._group = group || '';
         this._name = name || '';
-        this._type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        this._type = metadata.type(type) || { name: type };
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -239,10 +239,6 @@ sklearn.Node = class {
 
     get group() {
         return this._group ? this._group : null;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get inputs() {

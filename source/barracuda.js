@@ -70,7 +70,7 @@ barracuda.Graph = class {
         }
 
         for (const layer of layers) {
-            this._nodes.push(new barracuda.Node(metadata, layer, initializers));
+            this._nodes.push(new barracuda.Node(metadata, layer, null, initializers));
         }
     }
 
@@ -135,17 +135,14 @@ barracuda.Argument = class {
 
 barracuda.Node = class {
 
-    constructor(metadata, layer, initializers) {
-
+    constructor(metadata, layer, type, initializers) {
         this._name = layer.name || '';
-        this._metadata = metadata.type(layer.type) || { name: layer.type.toString() };
-        this._type = this._metadata.name;
-
+        this._type = type ? type : metadata.type(layer.type) || { name: layer.type.toString() };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        const inputs = Array.prototype.slice.call(this._metadata.inputs || [ 'input' ]);
-        if (this._metadata.inputs && this._metadata.inputs.length === 1 && this._metadata.inputs[0] === 'inputs') {
+        const inputs = Array.prototype.slice.call(this._type.inputs || [ 'input' ]);
+        if (this._type.inputs && this._type.inputs.length === 1 && this._type.inputs[0] === 'inputs') {
             this._inputs.push(new barracuda.Parameter('inputs', layer.inputs.map((input) => {
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
                 return new barracuda.Argument(input, initializer ? initializer.type : null, initializer);
@@ -174,14 +171,16 @@ barracuda.Node = class {
                 new barracuda.Argument(this._name)
             ]));
         }
-        if (!barracuda.Activation[layer.activation]) {
-            throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
-        }
-        if (this._type === 'Activation') {
-            this._type = barracuda.Activation[layer.activation];
-        }
-        else if (layer.activation !== 0) {
-            this._chain = [ new barracuda.Node(metadata, { type: 50, activation: layer.activation }, initializers) ];
+        /* if (this._type.name === 'Activation') {
+            const type = barracuda.Activation[layer.activation];
+            this._type = metadata.type(layer.activation) || { name: type };
+        } */
+        if (layer.activation && layer.activation !== 0) {
+            const type = barracuda.Activation[layer.activation];
+            if (!type) {
+                throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
+            }
+            this._chain = [ new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, initializers) ];
         }
         const attribute = (name, type, value, defaultValue) => {
             if (value === undefined) {
@@ -212,10 +211,6 @@ barracuda.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get attributes() {
@@ -605,7 +600,7 @@ barracuda.Metadata = class {
         this._register(37, 'GlobalMaxPool3D', 'Pool');
         this._register(38, 'GlobalAvgPool3D', 'Pool');
         this._register(39, 'Border3D', '');
-        this._register(50, 'Activation', 'Activation');
+        this._register(50, 'Activation', '');
         this._register(51, 'ScaleBias', 'Normalization', [ 'input', 'scale', 'bias' ]);
         this._register(52, 'Normalization', 'Normalization');
         this._register(53, 'LRN', 'Normalization');

@@ -907,9 +907,9 @@ view.View = class {
     }
 
     showNodeDocumentation(node) {
-        const metadata = node.metadata;
-        if (metadata) {
-            const documentationSidebar = new sidebar.DocumentationSidebar(this._host, metadata);
+        const type = node.type;
+        if (type && Object.keys(type).length > 1) {
+            const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
@@ -991,18 +991,17 @@ view.Node = class extends grapher.Node {
 
         const header =  this.header();
         const styles = [ 'node-item-type' ];
-        const metadata = node.metadata;
-        const category = metadata && metadata.category ? metadata.category : '';
+        const type = node.type;
+        const category = type && type.category ? type.category : '';
         if (category) {
             styles.push('node-item-type-' + category.toLowerCase());
         }
-        const type = node.type;
-        if (typeof type !== 'string' || !type.split) { // #416
+        if (typeof type.name !== 'string' || !type.name.split) { // #416
             const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
-            throw new view.Error("Unknown node type '" + JSON.stringify(type) + "' in format '" + format + "'.");
+            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in format '" + format + "'.");
         }
-        const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.split('.').pop();
-        const tooltip = this.context.view.showNames && (node.name || node.location) ? type : (node.name || node.location);
+        const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
+        const tooltip = this.context.view.showNames && (node.name || node.location) ? type.name : (node.name || node.location);
         header.add(null, styles, content, tooltip, () => {
             this.context.view.showNodeProperties(node, null);
         });

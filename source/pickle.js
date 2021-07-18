@@ -108,11 +108,12 @@ pickle.Node = class {
         this._outputs = [];
         this._attributes = [];
         if (Array.isArray(obj)) {
-            this._type = 'List';
+            this._type = { name: 'List' };
             this._attributes.push(new pickle.Attribute('value', obj));
         }
         else {
-            this._type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+            const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+            this._type = { name: type };
             for (const key of Object.keys(obj)) {
                 const value = obj[key];
                 this._attributes.push(new pickle.Attribute(key, value));

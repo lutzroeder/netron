@@ -149,26 +149,24 @@ tengine.Argument = class {
 tengine.Node = class {
 
     constructor(metadata, node, tensors) {
-        this._metadata = metadata;
         this._name = node.name;
-        this._type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
-        this._version = node.version;
+        const type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
+        const version = node.version;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
-        const schema = metadata.type(this._type, this._version);
+        this._type = metadata.type(type, version) || { name: type };
 
         for (let i = 0; i < node.params.length; i++) {
-            const attributeSchema = (schema && schema.attributes && i < schema.attributes.length) ? schema.attributes[i] : null;
+            const attributeSchema = (this._type && this._type.attributes && i < this._type.attributes.length) ? this._type.attributes[i] : null;
             const attributeName = attributeSchema ? attributeSchema.name : i.toString();
             this._attributes.push(new tengine.Attribute(attributeSchema, attributeName, node.params[i]));
         }
 
         const inputs = node.inputs;
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
@@ -186,8 +184,8 @@ tengine.Node = class {
 
         const outputs = node.outputs;
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
@@ -210,10 +208,6 @@ tengine.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type, this._version);
     }
 
     get attributes() {

@@ -150,13 +150,12 @@ lightgbm.Argument = class {
 lightgbm.Node = class {
 
     constructor(model, args) {
-        this._type = model.__class__.__module__ + '.' + model.__class__.__name__;
+        const type = model.__class__.__module__ + '.' + model.__class__.__name__;
+        this._type = { name: type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
         this._inputs.push(new lightgbm.Parameter('features', args));
-
         for (const key of Object.keys(model.params)) {
             this._attributes.push(new lightgbm.Attribute(key, model.params[key]));
         }

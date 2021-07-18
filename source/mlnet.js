@@ -183,10 +183,11 @@ mlnet.Node = class {
         this._metadata = metadata;
         this._group = group;
         this._name = transformer.__name__;
-        this._type = transformer.__type__;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        const type = transformer.__type__;
+        this._type = metadata.type(type) || { name: type };
 
         if (transformer.inputs) {
             let i = 0;
@@ -209,7 +210,7 @@ mlnet.Node = class {
         }
 
         for (const key of Object.keys(transformer).filter((key) => !key.startsWith('_') && key !== 'inputs' && key !== 'outputs')) {
-            const schema = metadata.attribute(this._type, this._name);
+            const schema = metadata.attribute(type, this._name);
             this._attributes.push(new mlnet.Attribute(schema, key, transformer[key]));
         }
     }
@@ -224,10 +225,6 @@ mlnet.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get inputs() {

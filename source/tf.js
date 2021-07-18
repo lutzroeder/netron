@@ -1218,8 +1218,9 @@ tf.Function = class {
 tf.Node = class {
 
     constructor(metadata, namespaces, node, op, name, initializers, tensors) {
-        this._type = op;
-        this._metadata = node && node.metadata ? node.metadata : metadata.type(op);
+        this._type = Object.assign({}, node && node.metadata ? node.metadata : metadata.type(op) || { name: op });
+        this._type.identifier = this._type.name;
+        this._type.name = op;
         this._name = name;
         this._attributes = [];
         this._inputs = [];
@@ -1246,16 +1247,15 @@ tf.Node = class {
             if (node.attr) {
                 this._attributes = Object.keys(node.attr).map((name) => {
                     const value = node.attr[name];
-                    const schema = value && value.metadata ? value.metadata : metadata.attribute(this._type, name);
+                    const schema = value && value.metadata ? value.metadata : metadata.attribute(op, name);
                     const visible = metadata.visible(this._type, name);
                     return new tf.Attribute(schema, name, value, visible);
                 });
             }
-            const schema = this._metadata;
             let inputIndex = 0;
             const inputs = node.input.filter((input) => !input.name.startsWith('^'));
-            if (schema && schema.inputs) {
-                for (const input of schema.inputs) {
+            if (this._type && this._type.inputs) {
+                for (const input of this._type.inputs) {
                     let inputCount = 1;
                     if (input.numberAttr) {
                         const inputNumber = node.attr[input.numberAttr];
@@ -1283,8 +1283,8 @@ tf.Node = class {
             }));
             let outputIndex = 0;
             const outputs = node.output;
-            if (schema && schema.outputs) {
-                for (const output of schema.outputs) {
+            if (this._type && this._type.outputs) {
+                for (const output of this._type.outputs) {
                     let outputCount = 1;
                     if (output.numberAttr) {
                         const outputNumber = node.attr[output.numberAttr];
@@ -1343,10 +1343,6 @@ tf.Node = class {
 
     get domain() {
         return null;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get inputs() {

@@ -188,17 +188,16 @@ rknn.Node = class {
 
     constructor(metadata, node, arg) {
         this._name = node.name || '';
-        this._metadata = metadata.type(node.op);
-        this._type = node.op;
+        this._type = Object.assign({}, metadata.type(node.op) || { name: node.op });
         for (const prefix of [ 'VSI_NN_OP_', 'RKNN_OP_' ]) {
-            this._type = this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this._type;
+            this._type.name = this._type.name.startsWith(prefix) ? this._type.name.substring(prefix.length) : this._type.name;
         }
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
         node.input = node.input || [];
         for (let i = 0; i < node.input.length; ) {
-            const input = this._metadata && this._metadata.inputs && i < this._metadata.inputs.length ? this._metadata.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
+            const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
             const count = input.list ? node.input.length - i : 1;
             const list = node.input.slice(i, i + count).map((input) => {
                 if (input.right_tensor) {
@@ -246,10 +245,6 @@ rknn.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get inputs() {

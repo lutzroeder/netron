@@ -648,7 +648,6 @@ keras.Node = class {
 
     constructor(metadata, type, config, inputs, outputs, group, weights) {
         this._group = group || '';
-        this._type = type || '?';
         const name = config && config.name ? config.name : '';
         this._name = (this._group ? this._group + '/' : '') + name;
         this._inputs = [];
@@ -697,13 +696,13 @@ keras.Node = class {
                     }
                 }
                 if (name !== 'name' && value !== null) {
-                    const attribute = new keras.Attribute(metadata.attribute(this.type, name), name, value);
+                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
                     this._attributes.push(attribute);
                 }
             }
         }
 
-        this._metadata = metadata.type(this.type);
+        this._metadata = metadata.type(type) || { name: type };
         const innerType = this.inner ? this.inner.type : null;
         const innerSchema = innerType ? metadata.type(innerType) : null;
         let inputIndex = 0;
@@ -786,10 +785,6 @@ keras.Node = class {
     }
 
     get type() {
-        return this._type;
-    }
-
-    get metadata() {
         return this._metadata;
     }
 

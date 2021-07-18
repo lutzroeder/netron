@@ -203,13 +203,12 @@ dl4j.Argument = class {
 dl4j.Node = class {
 
     constructor(metadata, layer, inputs, dataType, variables) {
-
-        this._metadata = metadata;
-        this._type = layer.__type__;
         this._name = layer.layerName || '';
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        const type = layer.__type__;
+        this._type = metadata.type(type) || { name: type };
 
         if (inputs && inputs.length > 0) {
             const args = inputs.map((input) => new dl4j.Argument(input, null, null));
@@ -219,7 +218,7 @@ dl4j.Node = class {
         if (variables) {
             for (const variable of variables) {
                 let tensor = null;
-                switch (this._type) {
+                switch (type) {
                     case 'Convolution':
                         switch (variable) {
                             case 'W':
@@ -304,7 +303,7 @@ dl4j.Node = class {
                 case 'hasBias':
                     continue;
             }
-            this._attributes.push(new dl4j.Attribute(metadata.attribute(this._type, key), key, attributes[key]));
+            this._attributes.push(new dl4j.Attribute(metadata.attribute(type, key), key, attributes[key]));
         }
 
         if (layer.idropout) {
@@ -321,10 +320,6 @@ dl4j.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get inputs() {

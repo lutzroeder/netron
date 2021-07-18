@@ -124,8 +124,8 @@ mediapipe.Graph = class {
 mediapipe.Node = class {
 
     constructor(node) {
-        this._type = node.calculator || '?';
-        this._type = this._type.replace(/Calculator$/, '');
+        const type = node.calculator || '?';
+        this._type = { name: type.replace(/Calculator$/, '') };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -222,10 +222,6 @@ mediapipe.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return null;
     }
 
     get inputs() {

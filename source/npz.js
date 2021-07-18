@@ -224,7 +224,7 @@ npz.Node = class {
 
     constructor(group) {
         this._name = group.name || '';
-        this._type = group.type || 'Module';
+        this._type = { name: group.type || 'Module' };
         this._inputs = [];
         for (const parameter of group.parameters) {
             const name = this._name ? [ this._name, parameter.name ].join('/') : parameter.name;
@@ -242,10 +242,6 @@ npz.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return null;
     }
 
     get inputs() {

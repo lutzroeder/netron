@@ -159,21 +159,17 @@ tnn.Argument = class {
 tnn.Node = class {
 
     constructor(metadata, resources, layer) {
-        this._metadata = metadata;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        this._type = layer.type;
         this._name = layer.name;
-
-        const operator = metadata.operator(this._type);
+        let type = layer.type;
+        const operator = metadata.operator(type);
         if (operator) {
-            this._type = operator;
+            type = operator;
         }
-
-        const schema = metadata.type(this._type);
-
-        const attributeSchemas = schema && schema.attributes ? schema && schema.attributes.slice() : [];
+        this._type = metadata.type(type) || { name: type };
+        const attributeSchemas = this._type && this._type.attributes ? this._type && this._type.attributes.slice() : [];
         const attributes = layer.attributes.slice();
         while (attributes.length > 0) {
             const attributeSchema = attributeSchemas.shift();
@@ -193,8 +189,8 @@ tnn.Node = class {
 
         const inputs = layer.inputs;
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
@@ -214,8 +210,8 @@ tnn.Node = class {
 
         const outputs = layer.outputs;
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
@@ -232,7 +228,7 @@ tnn.Node = class {
                 return new tnn.Parameter(outputName, [ new tnn.Argument(output, null, null) ]);
             }));
         }
-        switch (this._type) {
+        switch (type) {
             case 'Convolution':
             case 'ConvolutionDepthWise':
             case 'Deconvolution':
@@ -354,10 +350,6 @@ tnn.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {

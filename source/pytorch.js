@@ -409,17 +409,22 @@ pytorch.Argument = class {
 pytorch.Node = class {
 
     constructor(metadata, group, item, initializers) {
-        this._metadata = metadata;
         this._group = group || '';
         this._name = item.name || '';
-
+        const type = (metadata, name) => {
+            this._type = Object.assign({}, metadata.type(name) || { name: name });
+            const identifier = this._type.name;
+            this._type.identifier = identifier;
+            const index = identifier.indexOf(':');
+            this._type.name = index === -1 ? identifier : identifier.substring(0, index);
+        };
         if (!item.module && !item.node) {
-            this._type = item.type;
+            type(metadata, item.type);
             this._function = item.children;
             this._inputs = item.inputs;
             this._outputs = item.outputs;
             this._attributes = item.attributes.map((attribute) => {
-                const schema = metadata.attribute(this._type, attribute.name);
+                const schema = metadata.attribute(this._type.identifier, attribute.name);
                 return new pytorch.Attribute(schema, attribute.name, attribute.value);
             });
         }
@@ -430,7 +435,7 @@ pytorch.Node = class {
 
             let module = item.module;
             if (module) {
-                this._type = 'torch.nn.modules.module.Module';
+                this._type = { name: 'torch.nn.modules.module.Module' };
                 for (const parameter of pytorch.Graph._getParameters(module)) {
                     this._inputs.push(new pytorch.Parameter(parameter.__id__, true, [
                         new pytorch.Argument('', null, parameter.initializer || null)
@@ -444,8 +449,7 @@ pytorch.Node = class {
             }
 
             if (item.node) {
-                this._type = item.type;
-                const schema = metadata.type(this._type);
+                type(metadata, item.type);
                 module = null;
                 let match = true;
                 let count = 0;
@@ -491,8 +495,8 @@ pytorch.Node = class {
 
                 for (let inputIndex = 0; inputIndex < item.node.inputs.length; inputIndex++) {
                     let inputName = inputIndex.toString();
-                    if (schema && schema.inputs && schema.inputs.length > inputIndex) {
-                        inputName = schema.inputs[inputIndex].name;
+                    if (this._type && this._type.inputs && this._type.inputs.length > inputIndex) {
+                        inputName = this._type.inputs[inputIndex].name;
                     }
                     this._inputs.push(new pytorch.Parameter(inputName, true,
                         item.node.inputs[inputIndex].map((input) => new pytorch.Argument(input.id, null, input.initializer || null))
@@ -501,8 +505,8 @@ pytorch.Node = class {
 
                 for (let outputIndex = 0; outputIndex < item.node.outputs.length; outputIndex++) {
                     let outputName = outputIndex.toString();
-                    if (schema && schema.outputs && schema.outputs.length > outputIndex) {
-                        outputName = schema.outputs[outputIndex].name;
+                    if (this._type && this._type.outputs && this._type.outputs.length > outputIndex) {
+                        outputName = this._type.outputs[outputIndex].name;
                     }
                     this._outputs.push(new pytorch.Parameter(outputName, true,
                         item.node.outputs[outputIndex].map((output) => new pytorch.Argument(output.id, null, null))
@@ -512,7 +516,7 @@ pytorch.Node = class {
                 for (const attribute of item.node.attributes) {
                     const name = attribute.name;
                     const value = attribute.value;
-                    const schema = metadata.attribute(this._type, name);
+                    const schema = metadata.attribute(this._type.identifier, name);
                     this._attributes.push(new pytorch.Attribute(schema, name, value));
                 }
             }
@@ -541,12 +545,7 @@ pytorch.Node = class {
     }
 
     get type() {
-        const index = this._type.indexOf(':');
-        return index === -1 ? this._type : this._type.substring(0, index);
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
+        return this._type;
     }
 
     get function() {

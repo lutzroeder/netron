@@ -862,12 +862,12 @@ darknet.Node = class {
     constructor(metadata, net, section) {
         this._name = section.name || '';
         this._location = section.line !== undefined ? section.line.toString() : undefined;
-        this._metadata = metadata;
-        this._type = section.type;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._chain = [];
+        const type = section.type;
+        this._type = metadata.type(type) || { name: type };
         const layer = section.layer;
         if (layer && layer.inputs && layer.inputs.length > 0) {
             this._inputs.push(new darknet.Parameter(layer.inputs.length <= 1 ? 'input' : 'inputs', true, layer.inputs));
@@ -886,7 +886,7 @@ darknet.Node = class {
         const options = section.options;
         if (options) {
             for (const key of Object.keys(options)) {
-                this._attributes.push(new darknet.Attribute(metadata.attribute(this._type, key), key, options[key]));
+                this._attributes.push(new darknet.Attribute(metadata.attribute(type, key), key, options[key]));
             }
         }
     }
@@ -901,10 +901,6 @@ darknet.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {

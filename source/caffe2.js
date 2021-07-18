@@ -418,19 +418,14 @@ caffe2.Node = class {
         this._name = op.name || '';
         this._device = op.engine || '';
         this._metadata = metadata;
-        this._type = op.type;
         this._chain = [];
-
         this._attributes = [];
+        this._type = metadata.type(op.type) || { name: op.type };
         for (const arg of op.arg) {
             this._attributes.push(new caffe2.Attribute(metadata, metadata.attribute(this._type, arg.name), arg));
         }
-
-        const schema = metadata.type(this._type);
-
         const inputs = op.input;
         const outputs = op.output;
-
         const tensors = {};
         let index = 0;
         for (const input of inputs) {
@@ -449,8 +444,8 @@ caffe2.Node = class {
         }
         this._inputs = [];
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => {
@@ -469,11 +464,10 @@ caffe2.Node = class {
                 ]);
             }));
         }
-
         this._outputs = [];
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => new caffe2.Argument(id));
@@ -502,10 +496,6 @@ caffe2.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get inputs() {
