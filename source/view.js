@@ -110,7 +110,7 @@ view.View = class {
                     }
                     break;
                 }
-                case 'd3': {
+                case 'drag': {
                     this._getElementById('toolbar').addEventListener('mousewheel', (e) => {
                         this._preventZoom(e);
                     }, { passive: true });
@@ -232,9 +232,9 @@ view.View = class {
             case 'scroll':
                 this._updateZoom(this._zoom * 1.1);
                 break;
-            case 'd3':
+            case 'drag':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._getElementById('canvas')), 1.2);
+                    this._zoom.scaleBy(1.2);
                 }
                 break;
         }
@@ -245,9 +245,9 @@ view.View = class {
             case 'scroll':
                 this._updateZoom(this._zoom * 0.9);
                 break;
-            case 'd3':
+            case 'drag':
                 if (this._zoom) {
-                    this._zoom.scaleBy(d3.select(this._getElementById('canvas')), 0.8);
+                    this._zoom.scaleBy(0.8);
                 }
                 break;
         }
@@ -258,9 +258,9 @@ view.View = class {
             case 'scroll':
                 this._updateZoom(1);
                 break;
-            case 'd3':
+            case 'drag':
                 if (this._zoom) {
-                    this._zoom.scaleTo(d3.select(this._getElementById('canvas')), 1);
+                    this._zoom.scaleTo(1);
                 }
                 break;
         }
@@ -323,7 +323,7 @@ view.View = class {
         if (selection && selection.length > 0) {
             const graphElement = this._getElementById('graph');
             switch (this._host.environment('zoom')) {
-                case 'd3': {
+                case 'drag': {
                     let x = 0;
                     let y = 0;
                     for (const element of selection) {
@@ -340,7 +340,7 @@ view.View = class {
                     y = y / selection.length;
                     const canvasElement = this._getElementById('canvas');
                     const canvasRect = canvasElement.getBoundingClientRect();
-                    this._zoom.transform(d3.select(canvasElement), d3.zoomIdentity.translate((canvasRect.width / 2) - x, (canvasRect.height / 2) - y));
+                    this._zoom.transform(view.Zoom.identity().translate((canvasRect.width / 2) - x, (canvasRect.height / 2) - y));
                     break;
                 }
                 case 'scroll': {
@@ -500,7 +500,7 @@ view.View = class {
                         canvasElement.style.position = 'static';
                         canvasElement.style.margin = 'auto';
                         break;
-                    case 'd3':
+                    case 'drag':
                         this._zoom = null;
                         canvasElement.style.position = 'absolute';
                         canvasElement.style.margin = '0';
@@ -630,7 +630,7 @@ view.View = class {
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
                 const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
                 backgroundElement.setAttribute('id', 'background');
-                if (this._host.environment('zoom') === 'd3') {
+                if (this._host.environment('zoom') === 'drag') {
                     backgroundElement.setAttribute('width', '100%');
                     backgroundElement.setAttribute('height', '100%');
                 }
@@ -644,17 +644,13 @@ view.View = class {
 
                 viewGraph.build(this._host.document, originElement);
 
-                let svg = null;
                 switch (this._host.environment('zoom')) {
-                    case 'd3': {
-                        svg = d3.select(canvasElement);
-                        this._zoom = d3.zoom();
-                        this._zoom(svg);
-                        this._zoom.scaleExtent([ 0.1, 1.4 ]);
-                        this._zoom.on('zoom', (event) => {
-                            originElement.setAttribute('transform', event.transform.toString());
+                    case 'drag': {
+                        this._zoom = new view.Zoom(canvasElement, 0.1, 1.4);
+                        this._zoom.on('zoom', (sender, data) => {
+                            originElement.setAttribute('transform', data.transform.toString());
                         });
-                        this._zoom.transform(svg, d3.zoomIdentity);
+                        this._zoom.transform(view.Zoom.identity());
                         break;
                     }
                     case 'scroll': {
@@ -676,7 +672,7 @@ view.View = class {
                     }
 
                     switch (this._host.environment('zoom')) {
-                        case 'd3': {
+                        case 'drag': {
                             const svgSize = canvasElement.getBoundingClientRect();
                             if (elements && elements.length > 0) {
                                 // Center view based on input elements
@@ -696,10 +692,10 @@ view.View = class {
                                 }
                                 const sx = (svgSize.width / (this._showHorizontal ? 4 : 2)) - x;
                                 const sy = (svgSize.height / (this._showHorizontal ? 2 : 4)) - y;
-                                this._zoom.transform(svg, d3.zoomIdentity.translate(sx, sy));
+                                this._zoom.transform(view.Zoom.identity().translate(sx, sy));
                             }
                             else {
-                                this._zoom.transform(svg, d3.zoomIdentity.translate((svgSize.width - viewGraph.graph().width) / 2, (svgSize.height - viewGraph.graph().height) / 2));
+                                this._zoom.transform(view.Zoom.identity().translate((svgSize.width - viewGraph.graph().width) / 2, (svgSize.height - viewGraph.graph().height) / 2));
                             }
                             break;
                         }
@@ -1939,6 +1935,506 @@ view.Error = class extends Error {
         this.name = 'Error loading model.';
         this.telemetry = telemetry;
         this.stack = undefined;
+    }
+};
+
+view.Zoom = class {
+
+    constructor(node, min, max) {
+        this._scaleExtent = [ min, max ];
+        this._translateExtent = [ [-Infinity, -Infinity], [Infinity, Infinity] ],
+        this._touchStarting = false;
+        this._touchFirst = false;
+        this._touchEnding = false;
+        this._touchDelay = 500;
+        this._wheelDelay = 150;
+        this._clickDistance2 = 0;
+        this._tapDistance = 10;
+        this._events = new Map([ [ 'start', [] ], [ 'zoom', [] ], [ 'end', [] ] ]);
+        this._selection = new view.Zoom.Selection(node);
+        this._selection.node.__zoom = view.Zoom.identity();
+        this._selection.on('wheel.zoom', (event) => this._wheel(event), {passive: false});
+        this._selection.on('mousedown.zoom', (event) => this._mouseDown(event));
+        if (navigator.maxTouchPoints || node.ontouchstart) {
+            this._selection.on('touchstart.zoom', (event) => this._touchStarted(event));
+            this._selection.on('touchmove.zoom', (event) => this._touchMoved(event));
+            this._selection.on('touchend.zoom', (event) => this._touchEnded(event));
+            this._selection.on('touchcancel.zoom', (event) => this._touchEnded(event));
+            node.style.setProperty('-webkit-tap-highlight-color', 'rgba(0,0,0,0)', '');
+        }
+    }
+
+    static identity() {
+        view.Zoom._identity = view.Zoom._identity || new view.Zoom.Transform(1, 0, 0);
+        return view.Zoom._identity;
+    }
+
+    on(event, callback) {
+        if (this._events.has(event)) {
+            if (callback) {
+                this._events.get(event).push(callback);
+            }
+            else {
+                this._events.set([]);
+            }
+        }
+    }
+
+    raise(event, data) {
+        if (this._events.has(event)) {
+            const callbacks = this._events.get(event);
+            for (const callback of callbacks) {
+                callback(this, data);
+            }
+        }
+    }
+
+    transform(transform) {
+        const node = this._selection.node;
+        if (node) {
+            this._gesture(node, arguments)
+                .start()
+                .zoom(null, typeof transform === 'function' ? transform() : transform)
+                .end();
+        }
+    }
+
+    scaleTo(k) {
+        const node = this._selection.node;
+        if (node) {
+            this.transform(() => {
+                const e = this.extent(node);
+                const t0 = node.__zoom;
+                const p0 = this._centroid(e);
+                const p1 = t0.invert(p0);
+                const k1 = typeof k === 'function' ? k() : k;
+                const transform = this.translate(this.scale(t0, k1), p0, p1);
+                return this._constrain(transform, e, this._translateExtent);
+            });
+        }
+    }
+
+    scaleBy(k) {
+        const node = this._selection.node;
+        if (node) {
+            this.scaleTo(() => {
+                const k0 = node.__zoom.k;
+                const k1 = k;
+                return k0 * k1;
+            });
+        }
+    }
+
+    scale(transform, k) {
+        k = Math.max(this._scaleExtent[0], Math.min(this._scaleExtent[1], k));
+        return k === transform.k ? transform : new view.Zoom.Transform(k, transform.x, transform.y);
+    }
+
+    translate(transform, p0, p1) {
+        const x = p0[0] - p1[0] * transform.k, y = p0[1] - p1[1] * transform.k;
+        return x === transform.x && y === transform.y ? transform : new view.Zoom.Transform(transform.k, x, y);
+    }
+
+    pointer(event, node) {
+        while (event.sourceEvent) {
+            event = event.sourceEvent;
+        }
+        if (node === undefined) {
+            node = event.currentTarget;
+        }
+        if (node) {
+            const svg = node.ownerSVGElement || node;
+            if (svg.createSVGPoint) {
+                let point = svg.createSVGPoint();
+                point.x = event.clientX, point.y = event.clientY;
+                point = point.matrixTransform(node.getScreenCTM().inverse());
+                return [point.x, point.y];
+            }
+            if (node.getBoundingClientRect) {
+                const rect = node.getBoundingClientRect();
+                return [event.clientX - rect.left - node.clientLeft, event.clientY - rect.top - node.clientTop];
+            }
+        }
+        return [event.pageX, event.pageY];
+    }
+
+    _filter(event) {
+        return (!event.ctrlKey || event.type === 'wheel') && !event.button;
+    }
+
+    extent(node) {
+        let e = node;
+        if (e instanceof SVGElement) {
+            e = e.ownerSVGElement || e;
+            if (e.hasAttribute('viewBox')) {
+                e = e.viewBox.baseVal;
+                return [[e.x, e.y], [e.x + e.width, e.y + e.height]];
+            }
+            return [[0, 0], [e.width.baseVal.value, e.height.baseVal.value]];
+        }
+        return [[0, 0], [e.clientWidth, e.clientHeight]];
+    }
+
+    _wheelDelta(event) {
+        return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * (event.ctrlKey ? 10 : 1);
+    }
+
+    _constrain(transform, extent, translateExtent) {
+        const dx0 = transform.invertX(extent[0][0]) - translateExtent[0][0];
+        const dx1 = transform.invertX(extent[1][0]) - translateExtent[1][0];
+        const dy0 = transform.invertY(extent[0][1]) - translateExtent[0][1];
+        const dy1 = transform.invertY(extent[1][1]) - translateExtent[1][1];
+        return transform.translate(
+            dx1 > dx0 ? (dx0 + dx1) / 2 : Math.min(0, dx0) || Math.max(0, dx1),
+            dy1 > dy0 ? (dy0 + dy1) / 2 : Math.min(0, dy0) || Math.max(0, dy1)
+        );
+    }
+
+    _centroid(extent) {
+        return [ (+extent[0][0] + +extent[1][0]) / 2, (+extent[0][1] + +extent[1][1]) / 2 ];
+    }
+
+    _gesture(node, clean) {
+        return (!clean && node.__zooming) || new view.Zoom.Gesture(node, this);
+    }
+
+    _stopEvent(event) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+    }
+
+    _wheel(event) {
+        const currentTarget = event.currentTarget;
+        const wheelidled = (gesture) => {
+            gesture.wheel = null;
+            gesture.end();
+        };
+        if (this._filter(event)) {
+            const gesture = this._gesture(currentTarget);
+            const t = currentTarget.__zoom;
+            const k = Math.max(this._scaleExtent[0], Math.min(this._scaleExtent[1], t.k * Math.pow(2, this._wheelDelta(event))));
+            const p = this.pointer(event);
+            if (gesture.wheel) {
+                if (gesture.mouse[0][0] !== p[0] || gesture.mouse[0][1] !== p[1]) {
+                    gesture.mouse[1] = t.invert(gesture.mouse[0] = p);
+                }
+                clearTimeout(gesture.wheel);
+            }
+            else if (t.k === k) {
+                return;
+            }
+            else {
+                gesture.mouse = [p, t.invert(p)];
+                gesture.start();
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            gesture.wheel = setTimeout(() => wheelidled(gesture), this._wheelDelay);
+            const transform = this.translate(this.scale(t, k), gesture.mouse[0], gesture.mouse[1]);
+            gesture.zoom('mouse', this._constrain(transform, gesture.extent, this._translateExtent));
+        }
+    }
+
+    _mouseDown(event) {
+        const currentTarget = event.currentTarget;
+        if (this._touchEnding || !this._filter(event)) return;
+        const gesture = this._gesture(currentTarget, true);
+        const selection = new view.Zoom.Selection(event.view)
+            .on('mousemove.zoom', (event) => mousemoved(event), true)
+            .on('mouseup.zoom', (event) => mouseupped(event), true);
+        const p = this.pointer(event, currentTarget);
+        const x0 = event.clientX;
+        const y0 = event.clientY;
+        const root = event.view.document.documentElement;
+        selection.on('dragstart.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
+        if ('onselectstart' in root) {
+            selection.on('selectstart.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
+        }
+        else {
+            root.__noselect = root.style.MozUserSelect;
+            root.style.MozUserSelect = 'none';
+        }
+        event.stopImmediatePropagation();
+        gesture.mouse = [ p, currentTarget.__zoom.invert(p) ];
+        gesture.start();
+        const mousemoved = (event) => {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            if (!gesture.moved) {
+                const dx = event.clientX - x0, dy = event.clientY - y0;
+                gesture.moved = dx * dx + dy * dy > this._clickDistance2;
+            }
+            const transform = this.translate(gesture.node.__zoom, gesture.mouse[0] = this.pointer(event, currentTarget), gesture.mouse[1]);
+            gesture.zoom('mouse', this._constrain(transform, gesture.extent, this._translateExtent));
+        };
+        const mouseupped = (event) => {
+            selection.on('mousemove.zoom', null);
+            selection.on('mouseup.zoom', null);
+            const root = event.view.document.documentElement;
+            selection.on('dragstart.drag', null);
+            if (gesture.moved) {
+                selection.on('click.drag', (event) => this._stopEvent(event), { capture: true, passive: false });
+                setTimeout(function() { selection.on('click.drag', null); }, 0);
+            }
+            if ('onselectstart' in root) {
+                selection.on('selectstart.drag', null);
+            }
+            else {
+                root.style.MozUserSelect = root.__noselect;
+                delete root.__noselect;
+            }
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            gesture.end();
+        };
+    }
+
+    _touchStarted(event) {
+        const currentTarget = event.currentTarget;
+        if (this._filter(event)) {
+            const touches = event.touches;
+            const gesture = this._gesture(currentTarget, event.changedTouches.length === touches.length);
+            let started;
+            let p;
+            event.stopImmediatePropagation();
+            for (let i = 0; i < touches.length; ++i) {
+                const t = touches[i];
+                p = this.pointer(t, currentTarget);
+                p = [p, currentTarget.__zoom.invert(p), t.identifier];
+                if (!gesture.touch0) {
+                    gesture.touch0 = p;
+                    started = true;
+                    gesture.taps = 1 + !!this._touchStarting;
+                }
+                else if (!gesture.touch1 && gesture.touch0[2] !== p[2]) {
+                    gesture.touch1 = p;
+                    gesture.taps = 0;
+                }
+            }
+            if (this._touchStarting) {
+                this._touchStarting = clearTimeout(this._touchStarting);
+            }
+            if (started) {
+                if (gesture.taps < 2) {
+                    this._touchFirst = p[0];
+                    this._touchStarting = setTimeout(function() { this._touchStarting = null; }, this._touchDelay);
+                }
+                gesture.start();
+            }
+        }
+    }
+
+    _touchMoved(event) {
+        const currentTarget = event.currentTarget;
+        if (!currentTarget.__zooming) return;
+        const gesture = this._gesture(currentTarget);
+        const touches = event.changedTouches;
+        let t, p, l;
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        for (let i = 0; i < touches.length; i++) {
+            t = touches[i], p = this.pointer(t, currentTarget);
+            if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
+                gesture.touch0[0] = p;
+            }
+            else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+                gesture.touch1[0] = p;
+            }
+        }
+        t = gesture.node.__zoom;
+        if (gesture.touch1) {
+            const p0 = gesture.touch0[0];
+            const l0 = gesture.touch0[1];
+            const p1 = gesture.touch1[0];
+            const l1 = gesture.touch1[1];
+            let dp, dl;
+            dp = (dp = p1[0] - p0[0]) * dp + (dp = p1[1] - p0[1]) * dp;
+            dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
+            t = this.scale(t, Math.sqrt(dp / dl));
+            p = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
+            l = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
+        }
+        else if (gesture.touch0) {
+            p = gesture.touch0[0], l = gesture.touch0[1];
+        }
+        else {
+            return;
+        }
+        const transform = this.translate(t, p, l);
+        gesture.zoom('touch', this._constrain(transform, gesture.extent, this._translateExtent));
+    }
+
+    _touchEnded(event) {
+        const currentTarget = event.currentTarget;
+        if (!currentTarget.__zooming) return;
+        const gesture = this._gesture(currentTarget);
+        const touches = event.changedTouches;
+        let t;
+        event.stopImmediatePropagation();
+        if (this._touchEnding) {
+            clearTimeout(this._touchEnding);
+        }
+        this._touchEnding = setTimeout(function() { this._touchEnding = null; }, this._touchDelay);
+        for (let i = 0; i < touches.length; i++) {
+            t = touches[i];
+            if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
+                delete gesture.touch0;
+            }
+            else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+                delete gesture.touch1;
+            }
+        }
+        if (gesture.touch1 && !gesture.touch0) {
+            gesture.touch0 = gesture.touch1;
+            delete gesture.touch1;
+        }
+        if (gesture.touch0) {
+            gesture.touch0[1] = currentTarget.__zoom.invert(gesture.touch0[0]);
+        }
+        else {
+            gesture.end();
+            if (gesture.taps === 2) {
+                t = this.pointer(t, currentTarget);
+                if (Math.hypot(this._touchFirst[0] - t[0], this._touchFirst[1] - t[1]) < this._tapDistance) {
+                    const selection = new view.Zoom.Selection(currentTarget).on('dblclick.zoom');
+                    if (selection) {
+                        selection.apply(currentTarget, arguments);
+                    }
+                }
+            }
+        }
+    }
+};
+
+view.Zoom.Selection = class {
+
+    constructor(node) {
+        this._node = node;
+    }
+
+    get node() {
+        return this._node;
+    }
+
+    each(callback) {
+        if (this._node) {
+            callback(this._node);
+        }
+        return this;
+    }
+
+    on(name, value, options) {
+        const node = this._node;
+        if (node) {
+            const key = name.split('.');
+            if (value) {
+                node.__on = node.__on || [];
+                const listener = (event) => value.call(node, event);
+                let match = false;
+                for (const handler of node.__on) {
+                    if (handler.type === key[0] && handler.name === key[1]) {
+                        node.removeEventListener(handler.type, handler.listener, handler.options);
+                        node.addEventListener(handler.type, handler.listener = listener, handler.options = options);
+                        handler.value = value;
+                        handler.options = options;
+                        match = true;
+                        break;
+                    }
+                }
+                if (!match) {
+                    node.addEventListener(key[0], listener, options);
+                    node.__on.push({ type: key[0], name: key[1], value: value, listener: listener, options: options });
+                }
+            }
+            else if (node.__on) {
+                node.__on = node.__on.filter((handler) => {
+                    if (handler.type === key[0] && handler.name === key[1]) {
+                        node.removeEventListener(handler.type, handler.listener, handler.options);
+                        return false;
+                    }
+                    return true;
+                });
+                if (node.__on.length === 0) {
+                    delete node.__on;
+                }
+            }
+        }
+        return this;
+    }
+};
+
+view.Zoom.Transform = class {
+
+    constructor(k, x, y) {
+        this.k = k;
+        this.x = x;
+        this.y = y;
+    }
+
+    translate(x, y) {
+        return x === 0 & y === 0 ? this : new view.Zoom.Transform(this.k, this.x + this.k * x, this.y + this.k * y);
+    }
+
+    invert(location) {
+        return [(location[0] - this.x) / this.k, (location[1] - this.y) / this.k];
+    }
+
+    invertX(x) {
+        return (x - this.x) / this.k;
+    }
+
+    invertY(y) {
+        return (y - this.y) / this.k;
+    }
+
+    toString() {
+        return 'translate(' + this.x + ',' + this.y + ') scale(' + this.k + ')';
+    }
+};
+
+view.Zoom.Gesture = class {
+
+    constructor(node, target) {
+        this.node = node;
+        this.active = 0;
+        this.extent = target.extent(node);
+        this.taps = 0;
+        this.target = target;
+    }
+
+    start() {
+        if (++this.active === 1) {
+            this.node.__zooming = this;
+            this.raise('start');
+        }
+        return this;
+    }
+
+    zoom(name, transform) {
+        if (this.mouse && name !== 'mouse') {
+            this.mouse[1] = transform.invert(this.mouse[0]);
+        }
+        if (this.touch0 && name !== 'touch') {
+            this.touch0[1] = transform.invert(this.touch0[0]);
+        }
+        if (this.touch1 && name !== 'touch') {
+            this.touch1[1] = transform.invert(this.touch1[0]);
+        }
+        this.node.__zoom = transform;
+        this.raise('zoom');
+        return this;
+    }
+
+    end() {
+        if (--this.active === 0) {
+            delete this.node.__zooming;
+            this.raise('end');
+        }
+        return this;
+    }
+
+    raise(event) {
+        this.target.raise(event, { transform: this.node.__zoom });
     }
 };
 
