@@ -106,7 +106,7 @@ class Application {
         if (argv.length > 1) {
             for (const arg of argv.slice(1)) {
                 if (!arg.startsWith('-') && arg !== path.dirname(__dirname)) {
-                    const extension = arg.split('.').pop().toLowerCase();
+                    const extension = path.extname(arg).toLowerCase();
                     if (extension != '' && extension != 'js' && fs.existsSync(arg)) {
                         const stat = fs.statSync(arg);
                         if (stat.isFile() || stat.isDirectory()) {
