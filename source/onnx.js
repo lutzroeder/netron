@@ -103,6 +103,7 @@ onnx.ModelFactory = class {
                         const model = session.model;
                         const graph = model.graph;
                         graph.node = graph.nodes;
+                        graph.doc_string = model.graph_doc_string;
                         graph.value_info = graph.node_args;
                         graph.input = graph.inputs.map((input) => {
                             return { name: input };
@@ -125,6 +126,7 @@ onnx.ModelFactory = class {
                         delete graph.outputs;
                         delete graph.initializers;
                         delete graph.sparse_initializers;
+                        delete model.graph_doc_string;
                         for (const node of graph.node) {
                             node.input = node.inputs;
                             node.output = node.outputs;
@@ -247,11 +249,12 @@ onnx.ModelFactory = class {
                     'CNTK',
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
+                    'htshinichi',
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
                     'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
                     'PaddlePaddle', 'pytorch',
                     'skl2onnx',
-                    'tf2onnx', 'tflite2onnx',
+                    'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
                     'WinMLTools'
                 ];
                 if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
