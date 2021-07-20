@@ -138,9 +138,9 @@ def generate_json(schemas, json_file):
         json_schema = {}
         json_schema['name'] = schema.name
         if schema.domain:
-            json_schema['domain'] = schema.domain
+            json_schema['module'] = schema.domain
         else:
-            json_schema['domain'] = 'ai.onnx'
+            json_schema['module'] = 'ai.onnx'
         json_schema['version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:

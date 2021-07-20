@@ -142,7 +142,7 @@ barracuda.Node = class {
         this._outputs = [];
         this._attributes = [];
         const inputs = Array.prototype.slice.call(this._type.inputs || [ 'input' ]);
-        if (this._type.inputs && this._type.inputs.length === 1 && this._type.inputs[0] === 'inputs') {
+        if (this._type.inputs && this._type.inputs.length === 1 && this._type.inputs[0].name === 'inputs') {
             this._inputs.push(new barracuda.Parameter('inputs', layer.inputs.map((input) => {
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
                 return new barracuda.Argument(input, initializer ? initializer.type : null, initializer);
@@ -152,7 +152,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
-                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
+                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift().name : i.toString(), [
                     new barracuda.Argument(input, initializer ? initializer.type : null, initializer)
                 ]));
             }
@@ -161,7 +161,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.tensors.length; i++) {
                 const tensor = layer.tensors[i];
                 const initializer = new barracuda.Tensor(tensor);
-                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
+                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift().name : i.toString(), [
                     new barracuda.Argument(tensor.name, initializer.type, initializer)
                 ]));
             }
@@ -661,7 +661,7 @@ barracuda.Metadata = class {
     }
 
     _register(id, name, category, inputs) {
-        this._map.set(id, { name: name, category: category, inputs: inputs });
+        this._map.set(id, { name: name, category: category, inputs: (inputs || []).map((input) => { return { name: input }; }) });
     }
 
     type(name) {

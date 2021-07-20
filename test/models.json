@@ -3241,8 +3241,8 @@
   {
     "type":   "onnx",
     "target": "model_local_func_test.onnx",
-    "source": "https://github.com/lutzroeder/netron/files/6836872/model_local_func_test.onnx.zip[model_local_func_test.onnx]",
-    "format": "ONNX v7",
+    "source": "https://github.com/lutzroeder/netron/files/6845111/model_local_func_test.onnx.zip[model_local_func_test.onnx]",
+    "format": "ONNX v8",
     "link":   "https://github.com/lutzroeder/netron/issues/773"
   },
   {

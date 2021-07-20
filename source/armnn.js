@@ -214,10 +214,6 @@ armnn.Node = class {
         return this._name;
     }
 
-    get domain() {
-        return null;
-    }
-
     get group() {
         return null;
     }

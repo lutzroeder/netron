@@ -392,10 +392,6 @@ tflite.Node = class {
         return this._location;
     }
 
-    get domain() {
-        return null;
-    }
-
     get group() {
         return null;
     }

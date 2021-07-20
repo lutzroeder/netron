@@ -438,7 +438,7 @@ xmodel.Metadata = class {
                 if (input_arg.annotation) {
                     input.description = input_arg.annotation;
                 }
-                return input_arg;
+                return input;
             });
             schema.attributes = op_def.attrs.map((attr) => {
                 const attribute = {};
@@ -446,10 +446,10 @@ xmodel.Metadata = class {
                 const value = xmodel.Utility.attribute(attr.default_value);
                 attribute.default = value.value;
                 if (attr.annotation) {
-                    attr.description = attr.annotation;
+                    attribute.description = attr.annotation;
                 }
                 this._attributeCache.set(name + ':' + attr.name, attribute);
-                return attr;
+                return attribute;
             });
             if (categories.has(name)) {
                 schema.category = categories.get(name);

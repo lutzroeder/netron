@@ -191,7 +191,7 @@ onnx.ModelFactory = class {
                     return '';
                 }
             }
-            if (Array.from(tags.keys()).every((tag) => tag <= 20) &&
+            if (Array.from(tags.keys()).every((tag) => tag <= 100) &&
                 Array.from(tags.values()).every((type) => type < 5)) {
                 // TensorProto
                 if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
@@ -245,7 +245,7 @@ onnx.ModelFactory = class {
             const buffer = stream.peek(Math.min(stream.length, 32));
             if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
                 const producers = [
-                    'BrainwaveCompiler',
+                    'backend-test', 'BrainwaveCompiler',
                     'CNTK',
                     'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
                     'darknet to ONNX example',
@@ -343,6 +343,9 @@ onnx.Model = class {
             const context = {};
             context.metadata = new onnx.GraphMetadata(metadata, imports);
             context.imageFormat = imageFormat;
+            for (const func of model.functions || []) {
+                context.metadata.add(new onnx.Function(context, func));
+            }
             context.graphs = new Map();
             context.graph = function(graph) {
                 graph.key = graph.key || (key++).toString();
@@ -574,7 +577,7 @@ onnx.Graph = class {
                 }
             }
             for (const node of nodes) {
-                const schema = context.metadata.type(node.op_type);
+                const schema = context.metadata.type(node.op_type, node.domain);
                 const inputs = [];
                 node.input = node.input || [];
                 for (let i = 0; i < node.input.length; ) {
@@ -686,14 +689,18 @@ onnx.Argument = class {
 
 onnx.Node = class {
 
-    constructor(context, type, domain, name, description, attributes, inputs, outputs) {
-        this._type = context.metadata.type(type) || { name: type };
-        this._domain = domain || '';
+    constructor(context, op_type, domain, name, description, attributes, inputs, outputs) {
+        this._type = context.metadata.type(op_type, domain) || { name: op_type, module: domain };
+        if (this.type.module !== domain && !(this._type instanceof onnx.Function)) {
+            this._type = Object.assign({}, this.type);
+            this._type.name = op_type;
+            this._type.module = domain;
+        }
         this._name = name || '';
         this._description = description || '';
         this._inputs = inputs;
         this._outputs = outputs;
-        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(context, type, attribute));
+        this._attributes = (attributes || []).map((attribute) => new onnx.Attribute(context, op_type, domain, attribute));
     }
 
     get type() {
@@ -706,10 +713,6 @@ onnx.Node = class {
 
     get description() {
         return this._description;
-    }
-
-    get domain() {
-        return this._domain;
     }
 
     get group() {
@@ -731,7 +734,7 @@ onnx.Node = class {
 
 onnx.Attribute = class {
 
-    constructor(context, operator, attribute) {
+    constructor(context, op_type, domain, attribute) {
         this._name = attribute.name;
         this._description = attribute.doc_string || '';
         this._type = null;
@@ -746,7 +749,7 @@ onnx.Attribute = class {
                 this._type = 'int64';
                 break;
             case onnx.AttributeType.STRING:
-                switch (operator) {
+                switch (op_type) {
                     case 'Int8GivenTensorFill':
                         this._value = Array.from(attribute.s);
                         break;
@@ -796,7 +799,7 @@ onnx.Attribute = class {
                 throw new onnx.Error("Unknown attribute type '" + attribute.type + "'.");
         }
 
-        const metadata = context.metadata.attribute(operator, attribute.name);
+        const metadata = context.metadata.attribute(op_type, domain, attribute.name);
         if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'default') && this._value == metadata.default) {
             this._visible = false;
         }
@@ -1248,6 +1251,42 @@ onnx.OpaqueType = class {
     }
 };
 
+onnx.Function = class {
+
+    constructor(context, func) {
+        this._name = func.name;
+        this._domain = func.domain;
+        this._description = func.doc_string;
+        this._inputs = func.input.map((input) => { return { name: input }; });
+        this._outputs = func.output.map((output) => { return { name: output }; });
+        this._attributes = func.attribute.map((attribtue) => { return { name: attribtue }; });
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get module() {
+        return this._domain;
+    }
+
+    get description() {
+        return this._description;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get attributes() {
+        return this._attributes;
+    }
+};
+
 onnx.GraphMetadata = class {
 
     constructor(metadata, imports) {
@@ -1255,19 +1294,42 @@ onnx.GraphMetadata = class {
         this._imports = imports;
         this._cache = new Map();
         this._attributeCache = new Map();
+        this._functions = new Map();
     }
 
-    type(name) {
-        if (!this._cache.has(name)) {
-            this._cache.set(name, this._metadata.type(name, this._imports));
+    add(func) {
+        if (!this._functions.has(func.module)) {
+            this._functions.set(func.module, new Map());
         }
-        return this._cache.get(name);
+        const map = this._functions.get(func.module);
+        if (map.has(func.name)) {
+            throw new onnx.Error("Duplicate function identifier '" + func.module + '.' + func.name + "'.");
+        }
+        map.set(func.name, func);
     }
 
-    attribute(type, name) {
-        const key = type + ':' + name;
+    type(name, domain) {
+        domain = domain || 'ai.onnx';
+        const key = domain + ':' + name;
+        if (!this._cache.has(key)) {
+            let value = this._metadata.type(name, domain, this._imports);
+            if (!value) {
+                if (this._functions.has(domain)) {
+                    const map = this._functions.get(domain);
+                    if (map.has(name)) {
+                        value = map.get(name);
+                    }
+                }
+            }
+            this._cache.set(key, value);
+        }
+        return this._cache.get(key);
+    }
+
+    attribute(type, domain, name) {
+        const key = domain + ':' + type + ':' + name;
         if (!this._attributeCache.has(key)) {
-            const schema = this.type(type);
+            const schema = this.type(type, domain);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
                     this._attributeCache.set(type + ':' + attribute.name, attribute);
@@ -1301,25 +1363,30 @@ onnx.Metadata = class {
         if (data) {
             const metadata = JSON.parse(data);
             for (const item of metadata) {
-                const name = item.name;
-                if (this._map.has(name)) {
-                    this._map.get(name).push(item);
+                if (!this._map.has(item.module)) {
+                    this._map.set(item.module, new Map());
                 }
-                else {
-                    this._map.set(name, [ item ]);
+                const map = this._map.get(item.module);
+                if (!map.has(item.name)) {
+                    map.set(item.name, []);
                 }
+                map.get(item.name).push(item);
             }
         }
     }
 
-    type(name, imports) {
+    type(name, domain, imports) {
+        domain = domain || 'ai.onnx';
         let current = null;
-        if (this._map.has(name)) {
-            for (const metadata of this._map.get(name)) {
-                const matchVersion = current ? current.version : -1;
-                const importVersion = imports.get(metadata.domain) || 0;
-                if (importVersion >= metadata.version && matchVersion < metadata.version) {
-                    current = metadata;
+        if (this._map.has(domain)) {
+            const map = this._map.get(domain);
+            if (map.has(name)) {
+                for (const metadata of map.get(name)) {
+                    const matchVersion = current ? current.version : -1;
+                    const importVersion = imports.get(metadata.module) || 0;
+                    if (importVersion >= metadata.version && matchVersion < metadata.version) {
+                        current = metadata;
+                    }
                 }
             }
         }

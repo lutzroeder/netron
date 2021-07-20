@@ -674,13 +674,10 @@ function loadModel(target, item) {
                 if (!node.type || typeof node.type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
+                sidebar.DocumentationSidebar.formatDocumentation(node.type);
                 node.name.toString();
                 node.name.length;
                 node.description;
-                if (node.metadata) {
-                    throw new Error("Invalid metadata object '" + node.type.name + "'.");
-                }
-                sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
                 node.attributes.slice();
                 for (const attribute of node.attributes) {
                     attribute.name.toString();

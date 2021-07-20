@@ -1341,10 +1341,6 @@ tf.Node = class {
         return '';
     }
 
-    get domain() {
-        return null;
-    }
-
     get inputs() {
         return this._inputs;
     }

@@ -3117,7 +3117,7 @@
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3171,7 +3171,7 @@
     "attributes": [
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
@@ -3187,7 +3187,7 @@
     "attributes": [
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
@@ -3204,7 +3204,7 @@
       { "name": "end", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3218,7 +3218,7 @@
       { "name": "end", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3233,7 +3233,7 @@
       { "name": "step", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3952,7 +3952,7 @@
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3965,7 +3965,7 @@
       { "name": "high", "type": "int64", "optional": true, "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
     ],
@@ -3980,7 +3980,7 @@
       { "name": "generator", "type": "Generator", "optional": true, "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -3995,7 +3995,7 @@
       { "name": "generator", "type": "Generator" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4009,7 +4009,7 @@
       { "name": "high", "type": "int64", "optional": true, "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [
@@ -4022,7 +4022,7 @@
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
-      { "name": "device", "type": "Device", "optiona": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
     ],
     "outputs": [

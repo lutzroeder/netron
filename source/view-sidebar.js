@@ -136,7 +136,8 @@ sidebar.NodeSidebar = class {
 
         if (node.type) {
             let showDocumentation = null;
-            if (node.type && Object.keys(node.type).length > 1) {
+            const type = node.type;
+            if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
                 showDocumentation = {};
                 showDocumentation.text = '?';
                 showDocumentation.callback = () => {
@@ -144,6 +145,9 @@ sidebar.NodeSidebar = class {
                 };
             }
             this._addProperty('type', new sidebar.ValueTextView(this._host, node.type.name, showDocumentation));
+            if (node.type.module) {
+                this._addProperty('module', new sidebar.ValueTextView(this._host, node.type.module));
+            }
         }
 
         if (node.name) {
@@ -152,10 +156,6 @@ sidebar.NodeSidebar = class {
 
         if (node.location) {
             this._addProperty('location', new sidebar.ValueTextView(this._host, node.location));
-        }
-
-        if (node.domain) {
-            this._addProperty('domain', new sidebar.ValueTextView(this._host, node.domain));
         }
 
         if (node.description) {
@@ -1028,45 +1028,187 @@ sidebar.DocumentationSidebar = class {
         return element;
     }
 
-    static formatDocumentation(data) {
-        if (data) {
-            data = JSON.parse(JSON.stringify(data));
+    static formatDocumentation(source) {
+        if (source) {
             const generator = new markdown.Generator();
-            if (data.summary) {
-                data.summary = generator.html(data.summary);
+            const target = {};
+            if (source.name !== undefined) {
+                target.name = source.name;
             }
-            if (data.description) {
-                data.description = generator.html(data.description);
+            if (source.module !== undefined) {
+                target.module = source.module;
             }
-            if (data.attributes) {
-                for (const attribute of data.attributes) {
-                    if (attribute.description) {
-                        attribute.description = generator.html(attribute.description);
+            if (source.category !== undefined) {
+                target.category = source.category;
+            }
+            if (source.summary !== undefined) {
+                target.summary = generator.html(source.summary);
+            }
+            if (source.description !== undefined) {
+                target.description = generator.html(source.description);
+            }
+            if (Array.isArray(source.attributes)) {
+                target.attributes = source.attributes.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type !== undefined) {
+                        target.type = source.type;
                     }
-                }
-            }
-            if (data.inputs) {
-                for (const input of data.inputs) {
-                    if (input.description) {
-                        input.description = generator.html(input.description);
+                    if (source.option !== undefined) {
+                        target.option = source.option;
                     }
-                }
-            }
-            if (data.outputs) {
-                for (const output of data.outputs) {
-                    if (output.description) {
-                        output.description = generator.html(output.description);
+                    if (source.optional !== undefined) {
+                        target.optional = source.optional;
                     }
-                }
-            }
-            if (data.references) {
-                for (const reference of data.references) {
-                    if (reference) {
-                        reference.description = generator.html(reference.description);
+                    if (source.required !== undefined) {
+                        target.required = source.required;
                     }
-                }
+                    if (source.minimum !== undefined) {
+                        target.minimum = source.minimum;
+                    }
+                    if (source.src !== undefined) {
+                        target.src = source.src;
+                    }
+                    if (source.src_type !== undefined) {
+                        target.src_type = source.src_type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.default !== undefined) {
+                        target.default = source.default;
+                    }
+                    if (source.visible !== undefined) {
+                        target.visible = source.visible;
+                    }
+                    return target;
+                });
             }
-            return data;
+            if (Array.isArray(source.inputs)) {
+                target.inputs = source.inputs.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type !== undefined) {
+                        target.type = source.type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.default !== undefined) {
+                        target.default = source.default;
+                    }
+                    if (source.src !== undefined) {
+                        target.src = source.src;
+                    }
+                    if (source.list !== undefined) {
+                        target.list = source.list;
+                    }
+                    if (source.isRef !== undefined) {
+                        target.isRef = source.isRef;
+                    }
+                    if (source.typeAttr !== undefined) {
+                        target.typeAttr = source.typeAttr;
+                    }
+                    if (source.numberAttr !== undefined) {
+                        target.numberAttr = source.numberAttr;
+                    }
+                    if (source.typeListAttr !== undefined) {
+                        target.typeListAttr = source.typeListAttr;
+                    }
+                    if (source.option !== undefined) {
+                        target.option = source.option;
+                    }
+                    if (source.optional !== undefined) {
+                        target.optional = source.optional;
+                    }
+                    if (source.visible !== undefined) {
+                        target.visible = source.visible;
+                    }
+                    return target;
+                });
+            }
+            if (Array.isArray(source.outputs)) {
+                target.outputs = source.outputs.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type) {
+                        target.type = source.type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.list !== undefined) {
+                        target.list = source.list;
+                    }
+                    if (source.typeAttr !== undefined) {
+                        target.typeAttr = source.typeAttr;
+                    }
+                    if (source.typeListAttr !== undefined) {
+                        target.typeListAttr = source.typeAttr;
+                    }
+                    if (source.numberAttr !== undefined) {
+                        target.numberAttr = source.numberAttr;
+                    }
+                    if (source.isRef !== undefined) {
+                        target.isRef = source.isRef;
+                    }
+                    if (source.option !== undefined) {
+                        target.option = source.option;
+                    }
+                    return target;
+                });
+            }
+            if (Array.isArray(source.references)) {
+                target.references = source.references.map((source) => {
+                    if (source) {
+                        target.description = generator.html(source.description);
+                    }
+                    return target;
+                });
+            }
+            if (source.version !== undefined) {
+                target.version = source.version;
+            }
+            if (source.operator !== undefined) {
+                target.operator = source.operator;
+            }
+            if (source.identifier !== undefined) {
+                target.identifier = source.identifier;
+            }
+            if (source.package !== undefined) {
+                target.package = source.package;
+            }
+            if (source.support_level !== undefined) {
+                target.support_level = source.support_level;
+            }
+            if (source.min_input !== undefined) {
+                target.min_input = source.min_input;
+            }
+            if (source.max_input !== undefined) {
+                target.max_input = source.max_input;
+            }
+            if (source.min_output !== undefined) {
+                target.min_output = source.min_output;
+            }
+            if (source.max_input !== undefined) {
+                target.max_output = source.max_output;
+            }
+            if (source.inputs_range !== undefined) {
+                target.inputs_range = source.inputs_range;
+            }
+            if (source.outputs_range !== undefined) {
+                target.outputs_range = source.outputs_range;
+            }
+            if (source.examples !== undefined) {
+                target.examples = source.examples;
+            }
+            if (source.constants !== undefined) {
+                target.constants = source.constants;
+            }
+            if (source.type_constraints !== undefined) {
+                target.type_constraints = source.type_constraints;
+            }
+            return target;
         }
         return '';
     }

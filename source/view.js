@@ -908,7 +908,7 @@ view.View = class {
 
     showNodeDocumentation(node) {
         const type = node.type;
-        if (type && Object.keys(type).length > 1) {
+        if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
