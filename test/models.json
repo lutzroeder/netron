@@ -3032,6 +3032,13 @@
   },
   {
     "type":   "onnx",
+    "target": "candy.ort",
+    "source": "https://github.com/lutzroeder/netron/files/6844795/candy.ort.zip[candy.ort]",
+    "format": "ONNX Runtime v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/767"
+  },
+  {
+    "type":   "onnx",
     "target": "conv_autopad.onnx",
     "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/conv_autopad.onnx",
     "format": "ONNX v3",
@@ -3230,20 +3237,6 @@
     "source": "https://raw.githubusercontent.com/Microsoft/onnxruntime/master/onnxruntime/test/testdata/mlnet_encoder.onnx",
     "format": "ONNX v3",
     "link":   "https://github.com/Microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
-  },
-  {
-    "type":   "onnx",
-    "target": "mobilenet_v2_float.ort",
-    "source": "https://github.com/lutzroeder/netron/files/6805664/mobilenet_v2_float.ort.zip[mobilenet_v2_float.ort]",
-    "format": "ONNX Runtime v6",
-    "link":   "https://github.com/lutzroeder/netron/issues/767"
-  },
-  {
-    "type":   "onnx",
-    "target": "mobilenet_v2_uint8.ort",
-    "source": "https://github.com/lutzroeder/netron/files/6805665/mobilenet_v2_uint8.ort.zip[mobilenet_v2_uint8.ort]",
-    "format": "ONNX Runtime v6",
-    "link":   "https://github.com/lutzroeder/netron/issues/767"
   },
   {
     "type":   "onnx",
