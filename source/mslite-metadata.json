@@ -19,7 +19,8 @@
       { "name": "alpha", "type": "float32", "default": 0.2 },
       { "name": "min_val", "type": "float32", "default": -1 },
       { "name": "max_val", "type": "float32", "default": 1 },
-      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" },
+      { "name": "approximate", "type": "boolean", "default": false }
     ],
     "inputs": [
       { "name": "input" }

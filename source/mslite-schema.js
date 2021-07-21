@@ -608,6 +608,7 @@ $root.mindspore.schema.Activation = class Activation {
         $.alpha = reader.float32_(position, 6, 0);
         $.min_val = reader.float32_(position, 8, 0);
         $.max_val = reader.float32_(position, 10, 0);
+        $.approximate = reader.bool_(position, 12, false);
         return $;
     }
 
@@ -617,6 +618,7 @@ $root.mindspore.schema.Activation = class Activation {
         $.alpha = reader.value(json.alpha, 0);
         $.min_val = reader.value(json.min_val, 0);
         $.max_val = reader.value(json.max_val, 0);
+        $.approximate = reader.value(json.approximate, false);
         return $;
     }
 };
