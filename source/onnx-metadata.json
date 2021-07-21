@@ -26801,7 +26801,7 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "node = onnx.helper.make_node(\n    'Shape',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ny = np.array([\n    2, 3,\n]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.array(x.shape).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape')"
+        "code": "x = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ntest_shape('_example', x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape('', x)  # preserve names of original test cases\n\ntest_shape('_start_1', x, start=1)\n\ntest_shape('_end_1', x, end=1)\n\ntest_shape('_start_negative_1', x, start=-1)\n\ntest_shape('_end_negative_1', x, end=-1)\n\ntest_shape('_start_1_end_negative_1', x, start=1, end=-1)\n\ntest_shape('_start_1_end_2', x, start=1, end=2)\n\ntest_shape('_clip_start', x, start=-10)\n\ntest_shape('_clip_end', x, end=10)"
       }
     ]
   },
@@ -26863,7 +26863,83 @@
     "examples": [
       {
         "summary": "shape",
-        "code": "node = onnx.helper.make_node(\n    'Shape',\n    inputs=['x'],\n    outputs=['y'],\n)\n\nx = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ny = np.array([\n    2, 3,\n]).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape_example')\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\ny = np.array(x.shape).astype(np.int64)\n\nexpect(node, inputs=[x], outputs=[y],\n       name='test_shape')"
+        "code": "x = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ntest_shape('_example', x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape('', x)  # preserve names of original test cases\n\ntest_shape('_start_1', x, start=1)\n\ntest_shape('_end_1', x, end=1)\n\ntest_shape('_start_negative_1', x, start=-1)\n\ntest_shape('_end_negative_1', x, end=-1)\n\ntest_shape('_start_1_end_negative_1', x, start=1, end=-1)\n\ntest_shape('_start_1_end_2', x, start=1, end=2)\n\ntest_shape('_clip_start', x, start=-10)\n\ntest_shape('_clip_end', x, end=10)"
+      }
+    ]
+  },
+  {
+    "name": "Shape",
+    "module": "ai.onnx",
+    "version": 15,
+    "support_level": "common",
+    "description": "Takes a tensor as input and outputs an 1D int64 tensor containing the shape of the input tensor.\nOptional attributes start and end can be used to compute a slice of the input tensor's shape.\nIf start axis is omitted, the slice starts from axis 0.\nThe end axis, if specified, is exclusive (and the returned value will not include the size of that axis).\nIf the end axis is omitted, the axes upto the last one will be included.\nNegative axes indicate counting back from the last axis.\nNote that axes will be clipped to the range [0, r-1], where r is the\nrank of the input tensor if they are out-of-range (after adding r in the case of\nnegative axis). Thus, specifying any end value > r is equivalent to specifying an end\nvalue of r, and specifying any start value < -r is equivalent to specifying a start\nvalue of 0.\n\nFor example:\nInput tensor with shape: [2, 3, 4] \nNo attributes specified.\nOutput: [2, 3, 4] \n\nInput tensor with shape: [2, 3, 4] \nstart: -1\nOutput: [4] \n\nInput tensor with shape: [2, 3, 4] \nend: -1\nOutput: [2, 3]\n\nInput tensor with shape: [2, 3, 4] \nstart: 1\nend: 2\nOutput: [3] \n",
+    "attributes": [
+      {
+        "name": "end",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) Ending axis for slicing the shape. Negative value means counting dimensions from the back. If omitted, sizes of all axes upto (including) the last one will be included."
+      },
+      {
+        "name": "start",
+        "type": "int64",
+        "required": false,
+        "description": "(Optional) Starting axis for slicing the shape. Default value is 0.Negative value means counting dimensions from the back."
+      }
+    ],
+    "inputs": [
+      {
+        "name": "data",
+        "type": "T",
+        "description": "An input tensor."
+      }
+    ],
+    "min_input": 1,
+    "max_input": 1,
+    "outputs": [
+      {
+        "name": "shape",
+        "type": "T1",
+        "description": "Shape of the input tensor"
+      }
+    ],
+    "min_output": 1,
+    "max_output": 1,
+    "type_constraints": [
+      {
+        "description": "Input tensor can be of arbitrary type.",
+        "type_param_str": "T",
+        "allowed_type_strs": [
+          "tensor(uint8)",
+          "tensor(uint16)",
+          "tensor(uint32)",
+          "tensor(uint64)",
+          "tensor(int8)",
+          "tensor(int16)",
+          "tensor(int32)",
+          "tensor(int64)",
+          "tensor(bfloat16)",
+          "tensor(float16)",
+          "tensor(float)",
+          "tensor(double)",
+          "tensor(string)",
+          "tensor(bool)",
+          "tensor(complex64)",
+          "tensor(complex128)"
+        ]
+      },
+      {
+        "description": "Constrain output to int64 tensor.",
+        "type_param_str": "T1",
+        "allowed_type_strs": [
+          "tensor(int64)"
+        ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "shape",
+        "code": "x = np.array([\n    [1, 2, 3],\n    [4, 5, 6],\n]).astype(np.float32)\ntest_shape('_example', x)  # preserve names of original test cases\n\nx = np.random.randn(3, 4, 5).astype(np.float32)\n\ntest_shape('', x)  # preserve names of original test cases\n\ntest_shape('_start_1', x, start=1)\n\ntest_shape('_end_1', x, end=1)\n\ntest_shape('_start_negative_1', x, start=-1)\n\ntest_shape('_end_negative_1', x, end=-1)\n\ntest_shape('_start_1_end_negative_1', x, start=1, end=-1)\n\ntest_shape('_start_1_end_2', x, start=1, end=2)\n\ntest_shape('_clip_start', x, start=-10)\n\ntest_shape('_clip_end', x, end=10)"
       }
     ]
   },
