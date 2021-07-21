@@ -142,8 +142,8 @@ def metadata():
 
     for schema in json_root:
         name = schema['name']
-        if 'package' in schema:
-            class_name = schema['package'] + '.' + name
+        if 'module' in schema:
+            class_name = schema['module'] + '.' + name
             class_definition = pydoc.locate(class_name)
             if not class_definition:
                 raise Exception('\'' + class_name + '\' not found.')

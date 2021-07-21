@@ -1,7 +1,7 @@
 [
   {
     "name": "Activation",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Applies an activation function to an output.",
     "attributes": [
       {
@@ -29,7 +29,7 @@
   },
   {
     "name": "ActivityRegularization",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Layer that applies an update to the cost function based input activity.",
     "attributes": [
       {
@@ -56,7 +56,7 @@
   },
   {
     "name": "Add",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Layer that adds a list of inputs.\n\nIt takes as input a list of tensors,\nall of the same shape, and returns\na single tensor (also of the same shape).",
     "inputs": [
       {
@@ -81,7 +81,7 @@
   },
   {
     "name": "Attention",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are `query` tensor of shape `[batch_size, Tq, dim]`, `value` tensor of\nshape `[batch_size, Tv, dim]` and `key` tensor of shape\n`[batch_size, Tv, dim]`. The calculation follows the steps:\n\n1. Calculate scores with shape `[batch_size, Tq, Tv]` as a `query`-`key` dot\n   product: `scores = tf.matmul(query, key, transpose_b=True)`.\n2. Use scores to calculate a distribution with shape\n   `[batch_size, Tq, Tv]`: `distribution = tf.nn.softmax(scores)`.\n3. Use `distribution` to create a linear combination of `value` with\n   shape `[batch_size, Tq, dim]`:\n   `return tf.matmul(distribution, value)`.",
     "attributes": [
       {
@@ -116,7 +116,7 @@
   },
   {
     "name": "Average",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Layer that averages a list of inputs element-wise.\n\nIt takes as input a list of tensors, all of the same shape, and returns\na single tensor (also of the same shape).",
     "inputs": [
@@ -142,7 +142,7 @@
   },
   {
     "name": "AveragePooling1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Average pooling for temporal data.\n\nDownsamples the input representation by taking the average value over the\nwindow defined by `pool_size`. The window is shifted by `strides`.  The\nresulting output when using \"valid\" padding option has a shape of:\n`output_shape = (input_shape - pool_size + 1) / strides)`\n\nThe resulting output shape when using the \"same\" padding option is:\n`output_shape = input_shape / strides`\n\nFor example, for strides=1 and padding=\"valid\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> x\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\n  array([[[1.],\n          [2.],\n          [3.],\n          [4.],\n          [5.]], dtype=float32)>\n>>> avg_pool_1d = tf.keras.layers.AveragePooling1D(pool_size=2,\n...    strides=1, padding='valid')\n>>> avg_pool_1d(x)\n<tf.Tensor: shape=(1, 4, 1), dtype=float32, numpy=\narray([[[1.5],\n        [2.5],\n        [3.5],\n        [4.5]]], dtype=float32)>\n```\n\nFor example, for strides=2 and padding=\"valid\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> x\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\n  array([[[1.],\n          [2.],\n          [3.],\n          [4.],\n          [5.]], dtype=float32)>\n>>> avg_pool_1d = tf.keras.layers.AveragePooling1D(pool_size=2,\n...    strides=2, padding='valid')\n>>> avg_pool_1d(x)\n<tf.Tensor: shape=(1, 2, 1), dtype=float32, numpy=\narray([[[1.5],\n        [3.5]]], dtype=float32)>\n```\n\nFor example, for strides=1 and padding=\"same\":\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> x\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\n  array([[[1.],\n          [2.],\n          [3.],\n          [4.],\n          [5.]], dtype=float32)>\n>>> avg_pool_1d = tf.keras.layers.AveragePooling1D(pool_size=2,\n...    strides=1, padding='same')\n>>> avg_pool_1d(x)\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\narray([[[1.5],\n        [2.5],\n        [3.5],\n        [4.5],\n        [5.]]], dtype=float32)>\n```",
     "attributes": [
@@ -178,7 +178,7 @@
   },
   {
     "name": "AveragePooling2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Average pooling operation for spatial data.\n\nDownsamples the input along its spatial dimensions (height and width)\nby taking the average value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.\n\nThe resulting output when using `\"valid\"` padding option has a shape\n(number of rows or columns) of:\n`output_shape = math.floor((input_shape - pool_size) / strides) + 1`\n(when `input_shape >= pool_size`)\n\nThe resulting output shape when using the `\"same\"` padding option is:\n`output_shape = math.floor((input_shape - 1) / strides) + 1`\n\nFor example, for `strides=(1, 1)` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> avg_pool_2d = tf.keras.layers.AveragePooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='valid')\n>>> avg_pool_2d(x)\n<tf.Tensor: shape=(1, 2, 2, 1), dtype=float32, numpy=\n  array([[[[3.],\n           [4.]],\n          [[6.],\n           [7.]]]], dtype=float32)>\n```\n\nFor example, for `stride=(2, 2)` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([[1., 2., 3., 4.],\n...                  [5., 6., 7., 8.],\n...                  [9., 10., 11., 12.]])\n>>> x = tf.reshape(x, [1, 3, 4, 1])\n>>> avg_pool_2d = tf.keras.layers.AveragePooling2D(pool_size=(2, 2),\n...    strides=(2, 2), padding='valid')\n>>> avg_pool_2d(x)\n<tf.Tensor: shape=(1, 1, 2, 1), dtype=float32, numpy=\n  array([[[[3.5],\n           [5.5]]]], dtype=float32)>\n```\n\nFor example, for `strides=(1, 1)` and `padding=\"same\"`:\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> avg_pool_2d = tf.keras.layers.AveragePooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='same')\n>>> avg_pool_2d(x)\n<tf.Tensor: shape=(1, 3, 3, 1), dtype=float32, numpy=\n  array([[[[3.],\n           [4.],\n           [4.5]],\n          [[6.],\n           [7.],\n           [7.5]],\n          [[7.5],\n           [8.5],\n           [9.]]]], dtype=float32)>\n```",
     "attributes": [
@@ -215,7 +215,7 @@
   },
   {
     "name": "AveragePooling3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Average pooling operation for 3D data (spatial or spatio-temporal).\n\nDownsamples the input along its spatial dimensions (depth, height, and width)\nby taking the average value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.",
     "attributes": [
       {
@@ -350,7 +350,7 @@
   },
   {
     "name": "BatchNormalization",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Normalization",
     "description": "Layer that normalizes its inputs.\n\nBatch normalization applies a transformation that maintains the mean output\nclose to 0 and the output standard deviation close to 1.\n\nImportantly, batch normalization works differently during training and\nduring inference.\n\n**During training** (i.e. when using `fit()` or when calling the layer/model\nwith the argument `training=True`), the layer normalizes its output using\nthe mean and standard deviation of the current batch of inputs. That is to\nsay, for each channel being normalized, the layer returns\n`gamma * (batch - mean(batch)) / sqrt(var(batch) + epsilon) + beta`, where:\n\n- `epsilon` is small constant (configurable as part of the constructor\narguments)\n- `gamma` is a learned scaling factor (initialized as 1), which\ncan be disabled by passing `scale=False` to the constructor.\n- `beta` is a learned offset factor (initialized as 0), which\ncan be disabled by passing `center=False` to the constructor.\n\n**During inference** (i.e. when using `evaluate()` or `predict()` or when\ncalling the layer/model with the argument `training=False` (which is the\ndefault), the layer normalizes its output using a moving average of the\nmean and standard deviation of the batches it has seen during training. That\nis to say, it returns\n`gamma * (batch - self.moving_mean) / sqrt(self.moving_var + epsilon) + beta`.\n\n`self.moving_mean` and `self.moving_var` are non-trainable variables that\nare updated each time the layer in called in training mode, as such:\n\n- `moving_mean = moving_mean * momentum + mean(batch) * (1 - momentum)`\n- `moving_var = moving_var * momentum + var(batch) * (1 - momentum)`\n\nAs such, the layer will only normalize its inputs during inference\n*after having been trained on data that has similar statistics as the\ninference data*.",
     "attributes": [
@@ -496,7 +496,7 @@
   },
   {
     "name": "Bidirectional",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Wrapper",
     "description": "Bidirectional wrapper for RNNs.",
     "attributes": [
@@ -536,7 +536,7 @@
   },
   {
     "name": "Concatenate",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Layer that concatenates a list of inputs.\n\nIt takes as input a list of tensors, all of the same shape except\nfor the concatenation axis, and returns a single tensor that is the\nconcatenation of all inputs.\n\n```\n>>> x = np.arange(20).reshape(2, 2, 5)\n>>> print(x)\n[[[ 0  1  2  3  4]\n  [ 5  6  7  8  9]]\n [[10 11 12 13 14]\n  [15 16 17 18 19]]]\n>>> y = np.arange(20, 30).reshape(2, 1, 5)\n>>> print(y)\n[[[20 21 22 23 24]]\n [[25 26 27 28 29]]]\n>>> tf.keras.layers.Concatenate(axis=1)([x, y])\n<tf.Tensor: shape=(2, 3, 5), dtype=int64, numpy=\narray([[[ 0,  1,  2,  3,  4],\n        [ 5,  6,  7,  8,  9],\n        [20, 21, 22, 23, 24]],\n       [[10, 11, 12, 13, 14],\n        [15, 16, 17, 18, 19],\n        [25, 26, 27, 28, 29]]])>\n```\n\n```\n>>> x1 = tf.keras.layers.Dense(8)(np.arange(10).reshape(5, 2))\n>>> x2 = tf.keras.layers.Dense(8)(np.arange(10, 20).reshape(5, 2))\n>>> concatted = tf.keras.layers.Concatenate()([x1, x2])\n>>> concatted.shape\nTensorShape([5, 16])\n```",
     "attributes": [
@@ -563,7 +563,7 @@
   },
   {
     "name": "Conv1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "1D convolution layer (e.g. temporal convolution).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input over a single spatial (or temporal) dimension\nto produce a tensor of outputs.\nIf `use_bias` is True, a bias vector is created and added to the outputs.\nFinally, if `activation` is not `None`,\nit is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide an `input_shape` argument\n(tuple of integers or `None`, e.g.\n`(10, 128)` for sequences of 10 vectors of 128-dimensional vectors,\nor `(None, 128)` for variable-length sequences of 128-dimensional vectors.",
     "attributes": [
@@ -690,7 +690,7 @@
   },
   {
     "name": "Conv2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`. You can use `None` when\na dimension has variable size.",
     "attributes": [
@@ -828,7 +828,7 @@
   },
   {
     "name": "Conv2DTranspose",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Transposed convolution layer (sometimes called Deconvolution).\n\nThe need for transposed convolutions generally arises\nfrom the desire to use a transformation going in the opposite direction\nof a normal convolution, i.e., from something that has the shape of the\noutput of some convolution to something that has the shape of its input\nwhile maintaining a connectivity pattern that is compatible with\nsaid convolution.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`.",
     "attributes": [
@@ -947,7 +947,7 @@
   },
   {
     "name": "Conv3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "3D convolution layer (e.g. spatial convolution over volumes).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 128, 1)` for 128x128x128 volumes\nwith a single channel,\nin `data_format=\"channels_last\"`.",
     "attributes": [
@@ -1046,7 +1046,7 @@
   },
   {
     "name": "ConvLSTM2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "2D Convolutional LSTM.\n\nSimilar to an LSTM layer, but the input transformations\nand recurrent transformations are both convolutional.",
     "attributes": [
       {
@@ -1193,7 +1193,7 @@
   },
   {
     "name": "Convolution2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "2D convolution layer (e.g. spatial convolution over images).\n\nThis layer creates a convolution kernel that is convolved\nwith the layer input to produce a tensor of\noutputs. If `use_bias` is True,\na bias vector is created and added to the outputs. Finally, if\n`activation` is not `None`, it is applied to the outputs as well.\n\nWhen using this layer as the first layer in a model,\nprovide the keyword argument `input_shape`\n(tuple of integers or `None`, does not include the sample axis),\ne.g. `input_shape=(128, 128, 3)` for 128x128 RGB pictures\nin `data_format=\"channels_last\"`. You can use `None` when\na dimension has variable size.",
     "attributes": [
@@ -1332,7 +1332,7 @@
   },
   {
     "name": "Cropping1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Cropping layer for 1D input (e.g. temporal sequence).\n\nIt crops along the time dimension (axis 1).",
     "attributes": [
@@ -1361,7 +1361,7 @@
   },
   {
     "name": "Cropping2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Cropping layer for 2D input (e.g. picture).\n\nIt crops along spatial dimensions, i.e. height and width.",
     "attributes": [
@@ -1394,7 +1394,7 @@
   },
   {
     "name": "Cropping3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Cropping layer for 3D data (e.g. spatial or spatio-temporal).\n\n  Examples:\n\n```\n>>> input_shape = (2, 28, 28, 10, 3)\n>>> x = np.arange(np.prod(input_shape)).reshape(input_shape)\n>>> y = tf.keras.layers.Cropping3D(cropping=(2, 4, 2))(x)\n>>> print(y.shape)\n(2, 24, 20, 6, 3)\n```",
     "attributes": [
@@ -1557,7 +1557,7 @@
   },
   {
     "name": "Dense",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Just your regular densely-connected NN layer.\n\n`Dense` implements the operation:\n`output = activation(dot(input, kernel) + bias)`\nwhere `activation` is the element-wise activation function\npassed as the `activation` argument, `kernel` is a weights matrix\ncreated by the layer, and `bias` is a bias vector created by the layer\n(only applicable if `use_bias` is `True`). These are all attributes of\n`Dense`.\n\nNote: If the input to the layer has a rank greater than 2, then `Dense`\ncomputes the dot product between the `inputs` and the `kernel` along the\nlast axis of the `inputs` and axis 0 of the `kernel` (using `tf.tensordot`).\nFor example, if input has dimensions `(batch_size, d0, d1)`,\nthen we create a `kernel` with shape `(d1, units)`, and the `kernel` operates\nalong axis 2 of the `input`, on every sub-tensor of shape `(1, 1, d1)`\n(there are `batch_size * d0` such sub-tensors).\nThe output in this case will have shape `(batch_size, d0, units)`.\n\nBesides, layer attributes cannot be modified after the layer has been called\nonce (except the `trainable` attribute).\nWhen a popular kwarg `input_shape` is passed, then keras will create\nan input layer to insert before the current layer. This can be treated\nequivalent to explicitly defining an `InputLayer`.",
     "attributes": [
@@ -1732,7 +1732,7 @@
   },
   {
     "name": "Dot",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Layer that computes a dot product between samples in two tensors.\n\nE.g. if applied to a list of two tensors `a` and `b` of shape\n`(batch_size, n)`, the output will be a tensor of shape `(batch_size, 1)`\nwhere each entry `i` will be the dot product between\n`a[i]` and `b[i]`.\n\n```\n>>> x = np.arange(10).reshape(1, 5, 2)\n>>> print(x)\n[[[0 1]\n  [2 3]\n  [4 5]\n  [6 7]\n  [8 9]]]\n>>> y = np.arange(10, 20).reshape(1, 2, 5)\n>>> print(y)\n[[[10 11 12 13 14]\n  [15 16 17 18 19]]]\n>>> tf.keras.layers.Dot(axes=(1, 2))([x, y])\n<tf.Tensor: shape=(1, 2, 2), dtype=int64, numpy=\narray([[[260, 360],\n        [320, 445]]])>\n```\n\n```\n>>> x1 = tf.keras.layers.Dense(8)(np.arange(10).reshape(5, 2))\n>>> x2 = tf.keras.layers.Dense(8)(np.arange(10, 20).reshape(5, 2))\n>>> dotted = tf.keras.layers.Dot(axes=1)([x1, x2])\n>>> dotted.shape\nTensorShape([5, 1])\n```",
     "attributes": [
       {
@@ -1764,7 +1764,7 @@
   },
   {
     "name": "Dropout",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Dropout",
     "description": "Applies Dropout to the input.\n\nThe Dropout layer randomly sets input units to 0 with a frequency of `rate`\nat each step during training time, which helps prevent overfitting.\nInputs not set to 0 are scaled up by 1/(1 - rate) such that the sum over\nall inputs is unchanged.\n\nNote that the Dropout layer only applies when `training` is set to True\nsuch that no values are dropped during inference. When using `model.fit`,\n`training` will be appropriately set to True automatically, and in other\ncontexts, you can set the kwarg explicitly to True when calling the layer.\n\n(This is in contrast to setting `trainable=False` for a Dropout layer.\n`trainable` does not affect the layer's behavior, as Dropout does\nnot have any variables/weights that can be frozen during training.)\n\n```\n>>> tf.random.set_seed(0)\n>>> layer = tf.keras.layers.Dropout(.2, input_shape=(2,))\n>>> data = np.arange(10).reshape(5, 2).astype(np.float32)\n>>> print(data)\n[[0. 1.]\n [2. 3.]\n [4. 5.]\n [6. 7.]\n [8. 9.]]\n>>> outputs = layer(data, training=True)\n>>> print(outputs)\ntf.Tensor(\n[[ 0.    1.25]\n [ 2.5   3.75]\n [ 5.    6.25]\n [ 7.5   8.75]\n [10.    0.  ]], shape=(5, 2), dtype=float32)\n```",
     "attributes": [
@@ -1799,7 +1799,7 @@
   },
   {
     "name": "ELU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Exponential Linear Unit.\n\nIt follows:\n\n```\n  f(x) =  alpha * (exp(x) - 1.) for x < 0\n  f(x) = x for x >= 0\n```",
     "attributes": [
@@ -1828,7 +1828,7 @@
   },
   {
     "name": "Embedding",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Transform",
     "description": "Turns positive integers (indexes) into dense vectors of fixed size.\n\ne.g. `[[4], [20]] -> [[0.25, 0.1], [0.6, -0.2]]`\n\nThis layer can only be used as the first layer in a model.",
     "attributes": [
@@ -1904,7 +1904,7 @@
   },
   {
     "name": "Flatten",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Flattens the input. Does not affect the batch size.\n\nNote: If inputs are shaped `(batch,)` without a feature axis, then\nflattening adds an extra channel dimension and output shape is `(batch, 1)`.",
     "attributes": [
@@ -1935,7 +1935,7 @@
   },
   {
     "name": "GlobalAveragePooling1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Global average pooling operation for temporal data.",
     "attributes": [
@@ -1968,7 +1968,7 @@
   },
   {
     "name": "GlobalAveragePooling2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Global average pooling operation for spatial data.",
     "attributes": [
@@ -2002,7 +2002,7 @@
   },
   {
     "name": "GlobalMaxPooling1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Global max pooling operation for 1D temporal data.\n\nDownsamples the input representation by taking the maximum value over\nthe time dimension.\n\nFor example:\n\n```\n>>> x = tf.constant([[1., 2., 3.], [4., 5., 6.], [7., 8., 9.]])\n>>> x = tf.reshape(x, [3, 3, 1])\n>>> x\n<tf.Tensor: shape=(3, 3, 1), dtype=float32, numpy=\narray([[[1.], [2.], [3.]],\n       [[4.], [5.], [6.]],\n       [[7.], [8.], [9.]]], dtype=float32)>\n>>> max_pool_1d = tf.keras.layers.GlobalMaxPooling1D()\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(3, 1), dtype=float32, numpy=\narray([[3.],\n       [6.],\n       [9.], dtype=float32)>\n```",
     "attributes": [
@@ -2030,7 +2030,7 @@
   },
   {
     "name": "GlobalMaxPooling2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Global max pooling operation for spatial data.",
     "attributes": [
@@ -2064,7 +2064,7 @@
   },
   {
     "name": "GRU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Gated Recurrent Unit - Cho et al. 2014.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the CuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. `reset_after` is `True`\n7. Inputs, if use masking, are strictly right-padded.\n8. Eager execution is enabled in the outermost context.\n\nThere are two variants of the GRU implementation. The default one is based on\n[v3](https://arxiv.org/abs/1406.1078v3) and has reset gate applied to hidden\nstate before matrix multiplication. The other one is based on\n[original](https://arxiv.org/abs/1406.1078v1) and has the order reversed.\n\nThe second variant is compatible with CuDNNGRU (GPU-only) and allows\ninference on CPU. Thus it has separate biases for `kernel` and\n`recurrent_kernel`. To use this variant, set `'reset_after'=True` and\n`recurrent_activation='sigmoid'`.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> gru = tf.keras.layers.GRU(4)\n>>> output = gru(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> gru = tf.keras.layers.GRU(4, return_sequences=True, return_state=True)\n>>> whole_sequence_output, final_state = gru(inputs)\n>>> print(whole_sequence_output.shape)\n(32, 10, 4)\n>>> print(final_state.shape)\n(32, 4)\n```",
     "attributes": [
@@ -2243,7 +2243,7 @@
   },
   {
     "name": "GRUCell",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Cell class for the GRU layer.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nThis class processes one step within the whole time sequence input, whereas\n`tf.keras.layer.GRU` processes the whole sequence.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> rnn = tf.keras.layers.RNN(tf.keras.layers.GRUCell(4))\n>>> output = rnn(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> rnn = tf.keras.layers.RNN(\n...    tf.keras.layers.GRUCell(4),\n...    return_sequences=True,\n...    return_state=True)\n>>> whole_sequence_output, final_state = rnn(inputs)\n>>> print(whole_sequence_output.shape)\n(32, 10, 4)\n>>> print(final_state.shape)\n(32, 4)\n```",
     "attributes": [
       {
@@ -2336,7 +2336,7 @@
   },
   {
     "name": "InputLayer",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Data",
     "description": "Layer to be used as an entry point into a Network (a graph of layers).\n\nIt can either wrap an existing tensor (pass an `input_tensor` argument)\nor create a placeholder tensor (pass arguments `input_shape`, and\noptionally, `dtype`).\n\nIt is generally recommend to use the functional layer API via `Input`,\n(which creates an `InputLayer`) without directly using `InputLayer`.\n\nWhen using InputLayer with Keras Sequential model, it can be skipped by\nmoving the input_shape parameter to the first layer after the InputLayer.\n\nThis class can create placeholders for tf.Tensors, tf.SparseTensors, and\ntf.RaggedTensors by choosing 'sparse=True' or 'ragged=True'. Note that\n'sparse' and 'ragged' can't be configured to True at same time.",
     "attributes": [
@@ -2381,7 +2381,7 @@
   },
   {
     "name": "InputSpec",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Data",
     "description": "Specifies the rank, dtype and shape of every input to a layer.\n\nLayers can expose (if appropriate) an `input_spec` attribute:\nan instance of `InputSpec`, or a nested structure of `InputSpec` instances\n(one per input tensor). These objects enable the layer to run input\ncompatibility checks for input structure, input rank, input shape, and\ninput dtype.\n\nA None entry in a shape is compatible with any dimension,\na None shape is compatible with any shape.",
     "attributes": [
@@ -2426,7 +2426,7 @@
   },
   {
     "name": "Lambda",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Wraps arbitrary expressions as a `Layer` object.\n\nThe `Lambda` layer exists so that arbitrary expressions can be used\nas a `Layer` when constructing `Sequential`\nand Functional API models. `Lambda` layers are best suited for simple\noperations or quick experimentation. For more advanced use cases, follow\n[this guide](https://www.tensorflow.org/guide/keras/custom_layers_and_models)\nfor subclassing `tf.keras.layers.Layer`.\n\nWARNING: `tf.keras.layers.Lambda` layers have (de)serialization limitations!\n\nThe main reason to subclass `tf.keras.layers.Layer` instead of using a\n`Lambda` layer is saving and inspecting a Model. `Lambda` layers\nare saved by serializing the Python bytecode, which is fundamentally\nnon-portable. They should only be loaded in the same environment where\nthey were saved. Subclassed layers can be saved in a more portable way\nby overriding their `get_config` method. Models that rely on\nsubclassed Layers are also often easier to visualize and reason about.",
     "attributes": [
       {
@@ -2470,7 +2470,7 @@
   },
   {
     "name": "LeakyReLU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Leaky version of a Rectified Linear Unit.\n\nIt allows a small gradient when the unit is not active:\n\n```\n  f(x) = alpha * x if x < 0\n  f(x) = x if x >= 0\n```",
     "attributes": [
@@ -2504,7 +2504,7 @@
   },
   {
     "name": "LocallyConnected1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Locally-connected layer for 1D inputs.\n\nThe `LocallyConnected1D` layer works similarly to\nthe `Conv1D` layer, except that weights are unshared,\nthat is, a different set of filters is applied at each different patch\nof the input.\n\nNote: layer attributes cannot be modified after the layer has been called\nonce (except the `trainable` attribute).",
     "attributes": [
@@ -2595,7 +2595,7 @@
   },
   {
     "name": "LocallyConnected2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Locally-connected layer for 2D inputs.\n\nThe `LocallyConnected2D` layer works similarly\nto the `Conv2D` layer, except that weights are unshared,\nthat is, a different set of filters is applied at each\ndifferent patch of the input.\n\nNote: layer attributes cannot be modified after the layer has been called\nonce (except the `trainable` attribute).",
     "attributes": [
@@ -2686,7 +2686,7 @@
   },
   {
     "name": "LSTM",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Long Short-Term Memory layer - Hochreiter 1997.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the CuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. Inputs, if use masking, are strictly right-padded.\n7. Eager execution is enabled in the outermost context.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> lstm = tf.keras.layers.LSTM(4)\n>>> output = lstm(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> lstm = tf.keras.layers.LSTM(4, return_sequences=True, return_state=True)\n>>> whole_seq_output, final_memory_state, final_carry_state = lstm(inputs)\n>>> print(whole_seq_output.shape)\n(32, 10, 4)\n>>> print(final_memory_state.shape)\n(32, 4)\n>>> print(final_carry_state.shape)\n(32, 4)\n```",
     "attributes": [
@@ -2849,7 +2849,7 @@
   },
   {
     "name": "LSTMCell",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Cell class for the LSTM layer.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nThis class processes one step within the whole time sequence input, whereas\n`tf.keras.layer.LSTM` processes the whole sequence.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> rnn = tf.keras.layers.RNN(tf.keras.layers.LSTMCell(4))\n>>> output = rnn(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> rnn = tf.keras.layers.RNN(\n...    tf.keras.layers.LSTMCell(4),\n...    return_sequences=True,\n...    return_state=True)\n>>> whole_seq_output, final_memory_state, final_carry_state = rnn(inputs)\n>>> print(whole_seq_output.shape)\n(32, 10, 4)\n>>> print(final_memory_state.shape)\n(32, 4)\n>>> print(final_carry_state.shape)\n(32, 4)\n```",
     "attributes": [
       {
@@ -2931,7 +2931,7 @@
   },
   {
     "name": "Masking",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Masks a sequence by using a mask value to skip timesteps.\n\nFor each timestep in the input tensor (dimension #1 in the tensor),\nif all values in the input tensor at that timestep\nare equal to `mask_value`, then the timestep will be masked (skipped)\nin all downstream layers (as long as they support masking).\n\nIf any downstream layer does not support masking yet receives such\nan input mask, an exception will be raised.",
     "attributes": [
       {
@@ -2948,7 +2948,7 @@
   },
   {
     "name": "Maximum",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Layer that computes the maximum (element-wise) a list of inputs.\n\nIt takes as input a list of tensors, all of the same shape, and returns\na single tensor (also of the same shape).\n\n```\n>>> tf.keras.layers.Maximum()([np.arange(5).reshape(5, 1),\n...                            np.arange(5, 10).reshape(5, 1)])\n<tf.Tensor: shape=(5, 1), dtype=int64, numpy=\narray([[5],\n     [6],\n     [7],\n     [8],\n     [9]])>\n```\n\n```\n>>> x1 = tf.keras.layers.Dense(8)(np.arange(10).reshape(5, 2))\n>>> x2 = tf.keras.layers.Dense(8)(np.arange(10, 20).reshape(5, 2))\n>>> maxed = tf.keras.layers.Maximum()([x1, x2])\n>>> maxed.shape\nTensorShape([5, 8])\n```",
     "inputs": [
@@ -2965,7 +2965,7 @@
   },
   {
     "name": "MaxPooling1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Max pooling operation for 1D temporal data.\n\nDownsamples the input representation by taking the maximum value over a\nspatial window of size `pool_size`. The window is shifted by `strides`.  The\nresulting output, when using the `\"valid\"` padding option, has a shape of:\n`output_shape = (input_shape - pool_size + 1) / strides)`\n\nThe resulting output shape when using the `\"same\"` padding option is:\n`output_shape = input_shape / strides`\n\nFor example, for `strides=1` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=1, padding='valid')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 4, 1), dtype=float32, numpy=\narray([[[2.],\n        [3.],\n        [4.],\n        [5.]]], dtype=float32)>\n```\n\nFor example, for `strides=2` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=2, padding='valid')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 2, 1), dtype=float32, numpy=\narray([[[2.],\n        [4.]]], dtype=float32)>\n```\n\nFor example, for `strides=1` and `padding=\"same\"`:\n\n```\n>>> x = tf.constant([1., 2., 3., 4., 5.])\n>>> x = tf.reshape(x, [1, 5, 1])\n>>> max_pool_1d = tf.keras.layers.MaxPooling1D(pool_size=2,\n...    strides=1, padding='same')\n>>> max_pool_1d(x)\n<tf.Tensor: shape=(1, 5, 1), dtype=float32, numpy=\narray([[[2.],\n        [3.],\n        [4.],\n        [5.],\n        [5.]]], dtype=float32)>\n```",
     "attributes": [
@@ -3011,7 +3011,7 @@
   },
   {
     "name": "MaxPooling2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Max pooling operation for 2D spatial data.\n\nDownsamples the input along its spatial dimensions (height and width)\nby taking the maximum value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.\n\nThe resulting output,\nwhen using the `\"valid\"` padding option, has a spatial shape\n(number of rows or columns) of:\n`output_shape = math.floor((input_shape - pool_size) / strides) + 1`\n(when `input_shape >= pool_size`)\n\nThe resulting output shape when using the `\"same\"` padding option is:\n`output_shape = math.floor((input_shape - 1) / strides) + 1`\n\nFor example, for `strides=(1, 1)` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='valid')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 2, 2, 1), dtype=float32, numpy=\n  array([[[[5.],\n           [6.]],\n          [[8.],\n           [9.]]]], dtype=float32)>\n```\n\nFor example, for `strides=(2, 2)` and `padding=\"valid\"`:\n\n```\n>>> x = tf.constant([[1., 2., 3., 4.],\n...                  [5., 6., 7., 8.],\n...                  [9., 10., 11., 12.]])\n>>> x = tf.reshape(x, [1, 3, 4, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(2, 2), padding='valid')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 1, 2, 1), dtype=float32, numpy=\n  array([[[[6.],\n           [8.]]]], dtype=float32)>\n```\n\nUsage Example:\n\n```\n>>> input_image = tf.constant([[[[1.], [1.], [2.], [4.]],\n...                            [[2.], [2.], [3.], [2.]],\n...                            [[4.], [1.], [1.], [1.]],\n...                            [[2.], [2.], [1.], [4.]]]])\n>>> output = tf.constant([[[[1], [0]],\n...                       [[0], [1]]]])\n>>> model = tf.keras.models.Sequential()\n>>> model.add(tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    input_shape=(4, 4, 1)))\n>>> model.compile('adam', 'mean_squared_error')\n>>> model.predict(input_image, steps=1)\narray([[[[2.],\n         [4.]],\n        [[4.],\n         [4.]]]], dtype=float32)\n```\n\nFor example, for stride=(1, 1) and padding=\"same\":\n\n```\n>>> x = tf.constant([[1., 2., 3.],\n...                  [4., 5., 6.],\n...                  [7., 8., 9.]])\n>>> x = tf.reshape(x, [1, 3, 3, 1])\n>>> max_pool_2d = tf.keras.layers.MaxPooling2D(pool_size=(2, 2),\n...    strides=(1, 1), padding='same')\n>>> max_pool_2d(x)\n<tf.Tensor: shape=(1, 3, 3, 1), dtype=float32, numpy=\n  array([[[[5.],\n           [6.],\n           [6.]],\n          [[8.],\n           [9.],\n           [9.]],\n          [[8.],\n           [9.],\n           [9.]]]], dtype=float32)>\n```",
     "attributes": [
@@ -3057,7 +3057,7 @@
   },
   {
     "name": "MaxPooling3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Pool",
     "description": "Max pooling operation for 3D data (spatial or spatio-temporal).\n\nDownsamples the input along its spatial dimensions (depth, height, and width)\nby taking the maximum value over an input window\n(of size defined by `pool_size`) for each channel of the input.\nThe window is shifted by `strides` along each dimension.",
     "attributes": [
@@ -3099,7 +3099,7 @@
   },
   {
     "name": "MultiHeadAttention",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "MultiHeadAttention layer.\n\nThis is an implementation of multi-headed attention as described in the paper\n\"Attention is all you Need\" (Vaswani et al., 2017).\nIf `query`, `key,` `value` are the same, then\nthis is self-attention. Each timestep in `query` attends to the\ncorresponding sequence in `key`, and returns a fixed-width vector.\n\nThis layer first projects `query`, `key` and `value`. These are\n(effectively) a list of tensors of length `num_attention_heads`, where the\ncorresponding shapes are `(batch_size, <query dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, key_dim)`,\n`(batch_size, <key/value dimensions>, value_dim)`.\n\nThen, the query and key tensors are dot-producted and scaled. These are\nsoftmaxed to obtain attention probabilities. The value tensors are then\ninterpolated by these probabilities, then concatenated back to a single\ntensor.\n\nFinally, the result tensor with the last dimension as value_dim can take an\nlinear projection and return.",
     "attributes": [
       {
@@ -3172,7 +3172,7 @@
   },
   {
     "name": "Multiply",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Layer that multiplies (element-wise) a list of inputs.\n\nIt takes as input a list of tensors, all of the same shape, and returns\na single tensor (also of the same shape).\n\n```\n>>> tf.keras.layers.Multiply()([np.arange(5).reshape(5, 1),\n...                             np.arange(5, 10).reshape(5, 1)])\n<tf.Tensor: shape=(5, 1), dtype=int64, numpy=\narray([[ 0],\n     [ 6],\n     [14],\n     [24],\n     [36]])>\n```\n\n```\n>>> x1 = tf.keras.layers.Dense(8)(np.arange(10).reshape(5, 2))\n>>> x2 = tf.keras.layers.Dense(8)(np.arange(10, 20).reshape(5, 2))\n>>> multiplied = tf.keras.layers.Multiply()([x1, x2])\n>>> multiplied.shape\nTensorShape([5, 8])\n```",
     "inputs": [
       {
@@ -3188,7 +3188,7 @@
   },
   {
     "name": "Permute",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Permutes the dimensions of the input according to a given pattern.\n\nUseful e.g. connecting RNNs and convnets.",
     "attributes": [
@@ -3217,7 +3217,7 @@
   },
   {
     "name": "PReLU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Parametric Rectified Linear Unit.\n\nIt follows:\n\n```\n  f(x) = alpha * x for x < 0\n  f(x) = x for x >= 0\n```\n\nwhere `alpha` is a learned array with the same shape as x.",
     "attributes": [
@@ -3262,7 +3262,7 @@
   },
   {
     "name": "ReLU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Rectified Linear Unit activation function.\n\nWith default values, it returns element-wise `max(x, 0)`.\n\nOtherwise, it follows:\n\n```\n  f(x) = max_value if x >= max_value\n  f(x) = x if threshold <= x < max_value\n  f(x) = negative_slope * (x - threshold) otherwise\n```",
     "attributes": [
@@ -3299,7 +3299,7 @@
   },
   {
     "name": "RepeatVector",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Repeats the input n times.",
     "attributes": [
@@ -3328,7 +3328,7 @@
   },
   {
     "name": "Reshape",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Shape",
     "description": "Layer that reshapes inputs into the given shape.",
     "attributes": [
@@ -3363,7 +3363,7 @@
   },
   {
     "name": "RNN",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Base class for recurrent layers.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.",
     "attributes": [
@@ -3433,7 +3433,7 @@
   },
   {
     "name": "SeparableConv1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Depthwise separable 1D convolution.\n\nThis layer performs a depthwise convolution that acts separately on\nchannels, followed by a pointwise convolution that mixes channels.\nIf `use_bias` is True and a bias initializer is provided,\nit adds a bias vector to the output.\nIt then optionally applies an activation function to produce the final output.",
     "attributes": [
@@ -3533,7 +3533,7 @@
   },
   {
     "name": "SeparableConv2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Depthwise separable 2D convolution.\n\nSeparable convolutions consist of first performing\na depthwise spatial convolution\n(which acts on each input channel separately)\nfollowed by a pointwise convolution which mixes the resulting\noutput channels. The `depth_multiplier` argument controls how many\noutput channels are generated per input channel in the depthwise step.\n\nIntuitively, separable convolutions can be understood as\na way to factorize a convolution kernel into two smaller kernels,\nor as an extreme version of an Inception block.",
     "attributes": [
@@ -3696,7 +3696,7 @@
   },
   {
     "name": "SimpleRNN",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Fully-connected RNN where the output is to be fed back to input.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.",
     "attributes": [
@@ -3849,7 +3849,7 @@
   },
   {
     "name": "SimpleRNNCell",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Cell class for SimpleRNN.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nThis class processes one step within the whole time sequence input, whereas\n`tf.keras.layer.SimpleRNN` processes the whole sequence.",
     "attributes": [
       {
@@ -3930,7 +3930,7 @@
   },
   {
     "name": "Softmax",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Softmax activation function.\n\nExample without mask:\n\n```\n>>> inp = np.asarray([1., 2., 1.])\n>>> layer = tf.keras.layers.Softmax()\n>>> layer(inp).numpy()\narray([0.21194157, 0.5761169 , 0.21194157], dtype=float32)\n>>> mask = np.asarray([True, False, True], dtype=bool)\n>>> layer(inp, mask).numpy()\narray([0.5, 0. , 0.5], dtype=float32)\n```",
     "inputs": [
@@ -3962,7 +3962,7 @@
   },
   {
     "name": "SpatialDropout1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Dropout",
     "description": "Spatial 1D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 1D feature maps instead of individual elements. If adjacent frames\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout1D will help promote independence\nbetween feature maps and should be used instead.",
     "attributes": [
@@ -3991,7 +3991,7 @@
   },
   {
     "name": "SpatialDropout2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Dropout",
     "description": "Spatial 2D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 2D feature maps instead of individual elements. If adjacent pixels\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout2D will help promote independence\nbetween feature maps and should be used instead.",
     "attributes": [
@@ -4024,7 +4024,7 @@
   },
   {
     "name": "SpatialDropout3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Dropout",
     "description": "Spatial 3D version of Dropout.\n\nThis version performs the same function as Dropout, however, it drops\nentire 3D feature maps instead of individual elements. If adjacent voxels\nwithin feature maps are strongly correlated (as is normally the case in\nearly convolution layers) then regular dropout will not regularize the\nactivations and will otherwise just result in an effective learning rate\ndecrease. In this case, SpatialDropout3D will help promote independence\nbetween feature maps and should be used instead.",
     "attributes": [
@@ -4057,7 +4057,7 @@
   },
   {
     "name": "StackedRNNCells",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Wrapper allowing a stack of RNN cells to behave as a single cell.\n\nUsed to implement efficient stacked RNNs.",
     "attributes": [
       {
@@ -4073,7 +4073,7 @@
   },
   {
     "name": "Subtract",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "description": "Layer that subtracts two inputs.\n\nIt takes as input a list of tensors of size 2,\nboth of the same shape, and returns a single tensor, (inputs[0] - inputs[1]),\nalso of the same shape.",
     "inputs": [
       {
@@ -4100,7 +4100,7 @@
   },
   {
     "name": "ThresholdedReLU",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Activation",
     "description": "Thresholded Rectified Linear Unit.\n\nIt follows:\n\n```\n  f(x) = x for x > theta\n  f(x) = 0 otherwise`\n```",
     "attributes": [
@@ -4129,7 +4129,7 @@
   },
   {
     "name": "TimeDistributed",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Wrapper",
     "description": "This wrapper allows to apply a layer to every temporal slice of an input.\n\nEvery input should be at least 3D, and the dimension of index one of the\nfirst input will be considered to be the temporal dimension.\n\nConsider a batch of 32 video samples, where each sample is a 128x128 RGB image\nwith `channels_last` data format, across 10 timesteps.\nThe batch input shape is `(32, 10, 128, 128, 3)`.\n\nYou can then use `TimeDistributed` to apply the same `Conv2D` layer to each\nof the 10 timesteps, independently:\n\n```\n>>> inputs = tf.keras.Input(shape=(10, 128, 128, 3))\n>>> conv_2d_layer = tf.keras.layers.Conv2D(64, (3, 3))\n>>> outputs = tf.keras.layers.TimeDistributed(conv_2d_layer)(inputs)\n>>> outputs.shape\nTensorShape([None, 10, 126, 126, 64])\n```\n\nBecause `TimeDistributed` applies the same instance of `Conv2D` to each of the\ntimestamps, the same set of weights are used at each timestamp.",
     "attributes": [
@@ -4151,7 +4151,7 @@
   },
   {
     "name": "UpSampling1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Upsampling layer for 1D inputs.\n\nRepeats each temporal step `size` times along the time axis.",
     "attributes": [
@@ -4184,7 +4184,7 @@
   },
   {
     "name": "UpSampling2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Upsampling layer for 2D inputs.\n\nRepeats the rows and columns of the data\nby `size[0]` and `size[1]` respectively.",
     "attributes": [
@@ -4222,7 +4222,7 @@
   },
   {
     "name": "UpSampling3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Layer",
     "description": "Upsampling layer for 3D inputs.\n\nRepeats the 1st, 2nd and 3rd dimensions\nof the data by `size[0]`, `size[1]` and `size[2]` respectively.",
     "attributes": [
@@ -4256,7 +4256,7 @@
   },
   {
     "name": "ZeroPadding1D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Zero-padding layer for 1D input (e.g. temporal sequence).",
     "attributes": [
@@ -4285,7 +4285,7 @@
   },
   {
     "name": "ZeroPadding2D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Zero-padding layer for 2D input (e.g. picture).\n\nThis layer can add rows and columns of zeros\nat the top, bottom, left and right side of an image tensor.",
     "attributes": [
@@ -4318,7 +4318,7 @@
   },
   {
     "name": "ZeroPadding3D",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "category": "Tensor",
     "description": "Zero-padding layer for 3D data (spatial or spatio-temporal).",
     "attributes": [
@@ -4351,7 +4351,7 @@
   },
   {
     "name": "Attention",
-    "package": "tensorflow.keras.layers",
+    "module": "tensorflow.keras.layers",
     "inputs": [
       {
         "name": "query"
