@@ -483,6 +483,10 @@ view.View = class {
         });
     }
 
+    _pushGraph(graph) {
+        return this._updateGraph(this._model, graph);
+    }
+
     renderGraph(model, graph) {
         try {
             const graphElement = this._getElementById('graph');
@@ -866,6 +870,7 @@ view.View = class {
             const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showNodeDocumentation(node);
+                // this._pushGraph(node.type);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
