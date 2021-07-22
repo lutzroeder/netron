@@ -2501,6 +2501,45 @@
     ]
   },
   {
+    "name": "AssignVariableXlaConcatND",
+    "summary": "Concats input tensor across all dimensions.",
+    "description": "An op which merges slices the input tensor based on the given num_splits\nattribute, strips paddings optionally, and writes the merged tensor without\npaddings to the resource variable.\n\nThis op may be generated via the TPU bridge.\n\nFor example, with `input` tensor:\n```\n[[0, 1],\n [4, 5]]\n[[2, 3],\n [6, 7]]\n[[8, 9],\n [12, 13]]\n[[10, 11],\n [14, 15]]\n```\n`num_splits`:\n```\n[2, 2]\n```\nand `paddings`:\n```\n[1, 1]\n```\nthe expected `outputs` is:\n```\n[[0, 1, 2],\n [4, 5, 6],\n [8, 9, 10]]\n```",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_concats",
+        "type": "int64[]",
+        "description": "Number of ways to merge per dimension."
+      },
+      {
+        "name": "paddings",
+        "type": "int64[]",
+        "description": "Optional list of right paddings per dimension to strip from the final merged\ntensor. These paddings must not exceed the dimension size of the merged result\nprior to stripping paddings.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "resource",
+        "description": "Resource variable for concatenated input tensors across all dimensions.\n  }\n  in_arg {\n    name: \"inputs\"\n    description: <<END\nInput tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nOutput tensor formed from merging input slices based on num_concats defined.",
+        "type": 20
+      },
+      {
+        "name": "inputs",
+        "numberAttr": "N",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "Atan",
     "summary": "Computes the trignometric inverse tangent of x element-wise.",
     "description": "The `tf.math.atan` operation returns the inverse of `tf.math.tan`, such that\nif `y = tf.math.tan(x)` then, `x = tf.math.atan(y)`.\n\n**Note**: The output of `tf.math.atan` will lie within the invertible range\nof tan, i.e (-pi/2, pi/2).\n\nFor example:\n\n```python\n# Note: [1.047, 0.785] ~= [(pi/3), (pi/4)]\nx = tf.constant([1.047, 0.785])\ny = tf.math.tan(x) # [1.731261, 0.99920404]\n\ntf.math.atan(y) # [1.047, 0.785] = x\n```\n",
@@ -37728,6 +37767,11 @@
       {
         "name": "external_state_policy",
         "type": "int64"
+      },
+      {
+        "name": "element_spec",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -59906,6 +59950,47 @@
     "outputs": [
       {
         "name": "z",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "XlaConcatND",
+    "summary": "Concats input tensor across all dimensions.",
+    "description": "An op which merges slices the input tensor based on the given num_splits\nattribute, strips paddings optionally, and returns the merged tensor without\npaddings.\n\nThis op may be generated via the TPU bridge.\n\nFor example, with `input` tensor:\n```\n[[0, 1],\n [4, 5]]\n[[2, 3],\n [6, 7]]\n[[8, 9],\n [12, 13]]\n[[10, 11],\n [14, 15]]\n```\n`num_splits`:\n```\n[2, 2]\n```\nand `paddings`:\n```\n[1, 1]\n```\nthe expected `outputs` is:\n```\n[[0, 1, 2],\n [4, 5, 6],\n [8, 9, 10]]\n```",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type"
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "num_concats",
+        "type": "int64[]",
+        "description": "Number of ways to merge per dimension."
+      },
+      {
+        "name": "paddings",
+        "type": "int64[]",
+        "description": "Optional list of right paddings per dimension to strip from the final merged\ntensor. These paddings must not exceed the dimension size of the merged result\nprior to stripping paddings.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "inputs",
+        "description": "Input tensor slices in row-major order to merge across all dimensions. All\ninputs must have the same shape.\n  }\n  out_arg {\n    name: \"output\"\n    description: <<END\nOutput tensor formed from merging input slices based on num_concats defined.",
+        "numberAttr": "N",
+        "typeAttr": "T"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output",
         "typeAttr": "T"
       }
     ]
