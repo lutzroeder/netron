@@ -2438,7 +2438,7 @@
         "name": "output_shape"
       },
       {
-        "description": "Optional dictionary of keyword arguments to be passed to the\n    function.",
+        "description": "Optional dictionary of keyword arguments to be passed to the\n    function.\nInput shape: Arbitrary. Use the keyword argument input_shape (tuple of\n  integers, does not include the samples axis) when using this layer as the\n  first layer in a model.\nOutput shape: Specified by `output_shape` argument",
         "name": "arguments"
       },
       {
@@ -3304,7 +3304,7 @@
     "description": "Repeats the input n times.",
     "attributes": [
       {
-        "description": "Integer, repetition factor.",
+        "description": "Integer, repetition factor.\nInput shape: 2D tensor of shape `(num_samples, features)`.\nOutput shape: 3D tensor of shape `(num_samples, n, features)`.",
         "name": "n"
       }
     ],
@@ -3973,7 +3973,7 @@
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape:\n`(samples, timesteps, channels)`",
+        "description": "3D tensor with shape: `(samples, timesteps, channels)`\nOutput shape: Same as input.\nReferences: - [Efficient Object Localization Using Convolutional\n    Networks](https://arxiv.org/abs/1411.4280)",
         "name": "input"
       }
     ],
@@ -4000,13 +4000,13 @@
         "name": "rate"
       },
       {
-        "description": "'channels_first' or 'channels_last'.\n    In 'channels_first' mode, the channels dimension\n    (the depth) is at index 1,\n    in 'channels_last' mode is it at index 3.\n    It defaults to the `image_data_format` value found in your\n    Keras config file at `~/.keras/keras.json`.\n    If you never set it, then it will be \"channels_last\".",
+        "description": "'channels_first' or 'channels_last'. In 'channels_first' mode,\n    the channels dimension (the depth) is at index 1, in 'channels_last' mode\n    is it at index 3. It defaults to the `image_data_format` value found in\n    your Keras config file at `~/.keras/keras.json`. If you never set it, then\n    it will be \"channels_last\".",
         "name": "data_format"
       }
     ],
     "inputs": [
       {
-        "description": "4D tensor with shape:\n`(samples, channels, rows, cols)` if data_format='channels_first'\nor 4D tensor with shape:\n`(samples, rows, cols, channels)` if data_format='channels_last'.",
+        "description": "4D tensor with shape: `(samples, channels, rows, cols)` if\n    data_format='channels_first'\n  or 4D tensor with shape: `(samples, rows, cols, channels)` if\n    data_format='channels_last'.\nOutput shape: Same as input.\nReferences: - [Efficient Object Localization Using Convolutional\n    Networks](https://arxiv.org/abs/1411.4280)",
         "name": "input"
       }
     ],
@@ -4033,13 +4033,13 @@
         "name": "rate"
       },
       {
-        "description": "'channels_first' or 'channels_last'.\n      In 'channels_first' mode, the channels dimension (the depth)\n      is at index 1, in 'channels_last' mode is it at index 4.\n      It defaults to the `image_data_format` value found in your\n      Keras config file at `~/.keras/keras.json`.\n      If you never set it, then it will be \"channels_last\".",
+        "description": "'channels_first' or 'channels_last'. In 'channels_first' mode,\n    the channels dimension (the depth) is at index 1, in 'channels_last' mode\n    is it at index 4. It defaults to the `image_data_format` value found in\n    your Keras config file at `~/.keras/keras.json`. If you never set it, then\n    it will be \"channels_last\".",
         "name": "data_format"
       }
     ],
     "inputs": [
       {
-        "description": "5D tensor with shape:\n`(samples, channels, dim1, dim2, dim3)` if data_format='channels_first'\nor 5D tensor with shape:\n`(samples, dim1, dim2, dim3, channels)` if data_format='channels_last'.",
+        "description": "5D tensor with shape: `(samples, channels, dim1, dim2, dim3)` if\n    data_format='channels_first'\n  or 5D tensor with shape: `(samples, dim1, dim2, dim3, channels)` if\n    data_format='channels_last'.\nOutput shape: Same as input.\nReferences: - [Efficient Object Localization Using Convolutional\n    Networks](https://arxiv.org/abs/1411.4280)",
         "name": "input"
       }
     ],
