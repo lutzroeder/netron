@@ -199,54 +199,51 @@ tf.ModelFactory = class {
                     throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
                 }
             };
-            const openTextProto = (context) => {
-                const tags = context.tags('pbtxt');
-                let format = null;
-                let saved_model = null;
-                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        saved_model = tf.proto.tensorflow.SavedModel.decodeText(reader);
-                        format = 'TensorFlow Saved Model';
-                        if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
-                            format = format + ' v' + saved_model.saved_model_schema_version.toString();
-                        }
-                    }
-                    catch (error) {
-                        throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
-                    }
+            const openTextGraphDef = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const graph_def = tf.proto.tensorflow.GraphDef.decodeText(reader);
+                    const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                    meta_graph.graph_def = graph_def;
+                    const saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                    const format = 'TensorFlow Graph';
+                    return openSavedModel(saved_model, format, null);
                 }
-                else if (tags.has('graph_def')) {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        const meta_graph = tf.proto.tensorflow.MetaGraphDef.decodeText(reader);
-                        saved_model = new tf.proto.tensorflow.SavedModel();
-                        saved_model.meta_graphs.push(meta_graph);
-                        format = 'TensorFlow MetaGraph';
-                    }
-                    catch (error) {
-                        throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
-                    }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
                 }
-                else if (tags.has('node')) {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        const graph_def = tf.proto.tensorflow.GraphDef.decodeText(reader);
-                        const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
-                        meta_graph.graph_def = graph_def;
-                        saved_model = new tf.proto.tensorflow.SavedModel();
-                        saved_model.meta_graphs.push(meta_graph);
-                        format = 'TensorFlow Graph';
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
-                    }
+            };
+            const openTextMetaGraphDef = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const meta_graph = tf.proto.tensorflow.MetaGraphDef.decodeText(reader);
+                    const saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                    const format = 'TensorFlow MetaGraph';
+                    return openSavedModel(saved_model, format, null);
                 }
-                return openSavedModel(saved_model, format, null);
+                catch (error) {
+                    throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
+                }
+            };
+            const openTextSavedModel = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const saved_model = tf.proto.tensorflow.SavedModel.decodeText(reader);
+                    let format = 'TensorFlow Saved Model';
+                    if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
+                        format = format + ' v' + saved_model.saved_model_schema_version.toString();
+                    }
+                    return openSavedModel(saved_model, format, null);
+                }
+                catch (error) {
+                    throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
+                }
             };
             const openBinaryProto = (stream, identifier) => {
                 let saved_model = null;
@@ -320,8 +317,12 @@ tf.ModelFactory = class {
                     return openEventFile(context);
                 case 'json':
                     return openJson(context);
-                case 'pbtxt':
-                    return openTextProto(context);
+                case 'pbtxt.GraphDef':
+                    return openTextGraphDef(context);
+                case 'pbtxt.MetaGraphDef':
+                    return openTextMetaGraphDef(context);
+                case 'pbtxt.SavedModel':
+                    return openTextSavedModel(context);
                 case 'pb':
                     return openBinaryProto(context.stream, context.identifier);
                 case 'saved_metadata':
@@ -346,12 +347,24 @@ tf.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return '';
             }
+            const stream = context.stream;
+            const reader = base.TextReader.open(stream.peek(), 65536);
+            const line = reader.read();
+            if (/\s*node\s*\{/.exec(line)) {
+                return 'pbtxt.GraphDef';
+            }
             const tags = context.tags('pbtxt');
             if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                 return '';
             }
-            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                return 'pbtxt';
+            if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                return 'pbtxt.SavedModel';
+            }
+            if (tags.has('graph_def')) {
+                return 'pbtxt.MetaGraphDef';
+            }
+            if (tags.has('node')) {
+                return 'pbtxt.GraphDef';
             }
         }
         if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
@@ -440,8 +453,14 @@ tf.ModelFactory = class {
                 if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                     return false;
                 }
-                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                    return true;
+                if (tags.has('node')) {
+                    return 'pbtxt.GraphDef';
+                }
+                if (tags.has('graph_def')) {
+                    return 'pbtxt.MetaGraphDef';
+                }
+                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                    return 'pbtxt.SavedModel';
                 }
             }
         }

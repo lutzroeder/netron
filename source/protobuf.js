@@ -500,6 +500,7 @@ protobuf.TextReader = class {
     static open(data) {
         const buffer = data instanceof Uint8Array ? data : data.peek();
         const decoder = base.TextDecoder.open(buffer);
+        let first = true;
         for (let i = 0; i < 0x100; i++) {
             const c = decoder.decode();
             if (c === undefined || c === '\0') {
@@ -508,10 +509,12 @@ protobuf.TextReader = class {
                 }
                 break;
             }
-            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+            const whitespace = c === ' ' || c === '\n' || c === '\r' || c === '\t';
+            if (c < ' ' && !whitespace) {
                 return null;
             }
-            if (i === 0) {
+            if (first && !whitespace) {
+                first = false;
                 if (c === '#' || c === '[') {
                     continue;
                 }
@@ -534,7 +537,7 @@ protobuf.TextReader = class {
         this.reset();
         try {
             this.start(false);
-            while (!this.end(false)) {
+            while (!this.end()) {
                 const tag = this.tag();
                 tags.set(tag, true);
                 if (this.token() === '{') {
@@ -576,13 +579,23 @@ protobuf.TextReader = class {
     }
 
     end() {
-        if (this._depth > 0 && this._token === '}') {
+        if (this._depth <= 0) {
+            throw new protobuf.Error('Invalid depth ' + this.location());
+        }
+        if (this._token === '}') {
             this.expect('}');
             this.match(';');
             this._depth--;
             return true;
         }
-        return this._token === undefined;
+        if (this._token === undefined) {
+            if (this._depth !== 1) {
+                throw new protobuf.Error('Unexpected end of input' + this.location());
+            }
+            this._depth--;
+            return true;
+        }
+        return false;
     }
 
     tag() {
@@ -728,7 +741,7 @@ protobuf.TextReader = class {
         else {
             value = Number.parseInt(token, 10);
             if (Number.isNaN(token - value)) {
-                throw new protobuf.Error("Couldn't parse enum '" + token + "'" + this.location());
+                throw new protobuf.Error("Couldn't parse enum '" + (token === undefined ? '' : token) + "'" + this.location());
             }
         }
         this.next();

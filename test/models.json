@@ -5251,6 +5251,12 @@
   },
   {
     "type":   "tf",
+    "target": "invalid_graph.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/6859459/invalid_graph.pbtxt.zip[invalid_graph.pbtxt]",
+    "error":  "File text format is not tensorflow.GraphDef (Unexpected end of input at 8:1) in 'invalid_graph.pbtxt'."
+  },
+  {
+    "type":   "tf",
     "target": "mask_rcnn_resnet50_atrous_coco_2018_01_28.ckpt.meta",
     "source": "http://download.tensorflow.org/models/object_detection/mask_rcnn_resnet50_atrous_coco_2018_01_28.tar.gz[mask_rcnn_resnet50_atrous_coco_2018_01_28/model.ckpt.meta]",
     "format": "TensorFlow MetaGraph",
