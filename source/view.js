@@ -2230,79 +2230,81 @@ view.Zoom = class {
 
     _touchMoved(event) {
         const currentTarget = event.currentTarget;
-        if (!currentTarget.__zooming) return;
-        const gesture = this._gesture(currentTarget);
-        const touches = event.changedTouches;
-        let t, p, l;
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        for (let i = 0; i < touches.length; i++) {
-            t = touches[i], p = this.pointer(t, currentTarget);
-            if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
-                gesture.touch0[0] = p;
+        if (currentTarget.__zooming) {
+            const gesture = this._gesture(currentTarget);
+            const touches = event.changedTouches;
+            let t, p, l;
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            for (let i = 0; i < touches.length; i++) {
+                t = touches[i], p = this.pointer(t, currentTarget);
+                if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
+                    gesture.touch0[0] = p;
+                }
+                else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+                    gesture.touch1[0] = p;
+                }
             }
-            else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
-                gesture.touch1[0] = p;
+            t = gesture.node.__zoom;
+            if (gesture.touch1) {
+                const p0 = gesture.touch0[0];
+                const l0 = gesture.touch0[1];
+                const p1 = gesture.touch1[0];
+                const l1 = gesture.touch1[1];
+                let dp, dl;
+                dp = (dp = p1[0] - p0[0]) * dp + (dp = p1[1] - p0[1]) * dp;
+                dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
+                t = this.scale(t, Math.sqrt(dp / dl));
+                p = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
+                l = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
             }
+            else if (gesture.touch0) {
+                p = gesture.touch0[0], l = gesture.touch0[1];
+            }
+            else {
+                return;
+            }
+            const transform = this.translate(t, p, l);
+            gesture.zoom('touch', this._constrain(transform, gesture.extent, this._translateExtent));
         }
-        t = gesture.node.__zoom;
-        if (gesture.touch1) {
-            const p0 = gesture.touch0[0];
-            const l0 = gesture.touch0[1];
-            const p1 = gesture.touch1[0];
-            const l1 = gesture.touch1[1];
-            let dp, dl;
-            dp = (dp = p1[0] - p0[0]) * dp + (dp = p1[1] - p0[1]) * dp;
-            dl = (dl = l1[0] - l0[0]) * dl + (dl = l1[1] - l0[1]) * dl;
-            t = this.scale(t, Math.sqrt(dp / dl));
-            p = [(p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2];
-            l = [(l0[0] + l1[0]) / 2, (l0[1] + l1[1]) / 2];
-        }
-        else if (gesture.touch0) {
-            p = gesture.touch0[0], l = gesture.touch0[1];
-        }
-        else {
-            return;
-        }
-        const transform = this.translate(t, p, l);
-        gesture.zoom('touch', this._constrain(transform, gesture.extent, this._translateExtent));
     }
 
     _touchEnded(event) {
         const currentTarget = event.currentTarget;
-        if (!currentTarget.__zooming) return;
-        const gesture = this._gesture(currentTarget);
-        const touches = event.changedTouches;
-        let t;
-        event.stopImmediatePropagation();
-        if (this._touchEnding) {
-            clearTimeout(this._touchEnding);
-        }
-        this._touchEnding = setTimeout(function() { this._touchEnding = null; }, this._touchDelay);
-        for (let i = 0; i < touches.length; i++) {
-            t = touches[i];
-            if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
-                delete gesture.touch0;
+        if (currentTarget.__zooming) {
+            const gesture = this._gesture(currentTarget);
+            const touches = event.changedTouches;
+            let t;
+            event.stopImmediatePropagation();
+            if (this._touchEnding) {
+                clearTimeout(this._touchEnding);
             }
-            else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+            this._touchEnding = setTimeout(function() { this._touchEnding = null; }, this._touchDelay);
+            for (let i = 0; i < touches.length; i++) {
+                t = touches[i];
+                if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
+                    delete gesture.touch0;
+                }
+                else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+                    delete gesture.touch1;
+                }
+            }
+            if (gesture.touch1 && !gesture.touch0) {
+                gesture.touch0 = gesture.touch1;
                 delete gesture.touch1;
             }
-        }
-        if (gesture.touch1 && !gesture.touch0) {
-            gesture.touch0 = gesture.touch1;
-            delete gesture.touch1;
-        }
-        if (gesture.touch0) {
-            gesture.touch0[1] = currentTarget.__zoom.invert(gesture.touch0[0]);
-        }
-        else {
-            gesture.end();
-            if (gesture.taps === 2) {
-                t = this.pointer(t, currentTarget);
-                if (Math.hypot(this._touchFirst[0] - t[0], this._touchFirst[1] - t[1]) < this._tapDistance) {
-                    const selection = new view.Zoom.Selection(currentTarget).on('dblclick.zoom');
-                    if (selection) {
-                        selection.apply(currentTarget, arguments);
+            if (gesture.touch0) {
+                gesture.touch0[1] = currentTarget.__zoom.invert(gesture.touch0[0]);
+            }
+            else {
+                gesture.end();
+                if (gesture.taps === 2) {
+                    t = this.pointer(t, currentTarget);
+                    if (Math.hypot(this._touchFirst[0] - t[0], this._touchFirst[1] - t[1]) < this._tapDistance) {
+                        const selection = new view.Zoom.Selection(currentTarget).on('dblclick.zoom');
+                        if (selection) {
+                            selection.apply(currentTarget, arguments);
+                        }
                     }
                 }
             }
