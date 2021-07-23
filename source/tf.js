@@ -347,12 +347,6 @@ tf.ModelFactory = class {
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
                 return '';
             }
-            const stream = context.stream;
-            const reader = base.TextReader.open(stream.peek(), 65536);
-            const line = reader.read();
-            if (/\s*node\s*\{/.exec(line)) {
-                return 'pbtxt.GraphDef';
-            }
             const tags = context.tags('pbtxt');
             if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
                 return '';

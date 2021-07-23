@@ -539,9 +539,9 @@ protobuf.TextReader = class {
             this.start(false);
             while (!this.end()) {
                 const tag = this.tag();
-                tags.set(tag, true);
                 if (this.token() === '{') {
                     this.start();
+                    tags.set(tag, true);
                     while (!this.end()) {
                         const subtag = this.tag();
                         tags.set(tag + '.' + subtag, true);
@@ -551,11 +551,12 @@ protobuf.TextReader = class {
                 }
                 else {
                     this.skip();
+                    tags.set(tag, true);
                 }
             }
         }
         catch (err) {
-            tags.clear();
+            // continue regardless of error
         }
         this.reset();
         return tags;
