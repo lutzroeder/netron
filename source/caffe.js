@@ -430,9 +430,11 @@ caffe.Node = class {
         let initializers = [];
         switch (version) {
             case 0: {
-                for (const attributeName of Object.keys(layer.layer)) {
-                    if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
-                        this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, attributeName), attributeName, layer.layer[attributeName]));
+                for (const name of Object.keys(layer.layer)) {
+                    if (name != 'type' && name != 'name' && name != 'blobs' && name != 'blobs_lr') {
+                        const value = layer.layer[name];
+                        const attribute = new caffe.Attribute(metadata.attribute(type, name), name, value);
+                        this._attributes.push(attribute);
                     }
                 }
                 initializers = layer.layer.blobs.map((blob) => new caffe.Tensor(blob));
@@ -443,7 +445,6 @@ caffe.Node = class {
                 for (const layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
                         const param = layer[layer_kind];
-                        let type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
                         }
@@ -451,20 +452,22 @@ caffe.Node = class {
                         for (const name of Object.keys(param)) {
                             const defaultValue = prototype[name];
                             const value = param[name];
-                            if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, name), name, value));
-                            }
+                            const attribute = new caffe.Attribute(metadata.attribute(type, name), name, value, defaultValue);
+                            this._attributes.push(attribute);
                         }
                     }
                 }
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'include'), 'include', layer.include));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'include'), 'include', layer.include);
+                    this._attributes.push(attribute);
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'exclude'), 'exclude', layer.exclude));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'exclude'), 'exclude', layer.exclude);
+                    this._attributes.push(attribute);
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, 'shape'), 'shape', layer.input_param.shape));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'shape'), 'shape', layer.input_param.shape);
+                    this._attributes.push(attribute);
                 }
                 initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
@@ -538,29 +541,40 @@ caffe.Node = class {
 
 caffe.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value, defaultValue) {
         this._name = name;
         this._value = value;
+        if (metadata && metadata.type) {
+            this._type = metadata.type;
+        }
         if (value instanceof caffe.proto.BlobShape) {
             this._value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
+            this._type = 'shape';
         }
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            this._visible = false;
+        }
+        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            defaultValue = metadata.default;
+        }
+        if (defaultValue !== undefined) {
+            if (this._value == defaultValue) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                const defaultValue = schema.default;
-                if (this._value == defaultValue) {
+            else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                if (this._value.length == defaultValue.length &&
+                    this._value.every((item, index) => { return item == defaultValue[index]; })) {
                     this._visible = false;
-                }
-                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
-                    if (this._value.length == defaultValue.length &&
-                        this._value.every((item, index) => { return item == defaultValue[index]; })) {
-                        this._visible = false;
-                    }
                 }
             }
         }
+        if (this._type) {
+            this._value = caffe.Utility.enum(this._type, this._value);
+        }
+    }
+
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -736,6 +750,26 @@ caffe.Utility = class {
         }
         return caffe.Utility._layerTypeMap.has(type) ? caffe.Utility._layerTypeMap.get(type) : type.toString();
     }
+
+    static enum(name, value) {
+        let type = caffe.proto;
+        const parts = name.split('.');
+        while (type && parts.length > 0) {
+            type = type[parts.shift()];
+        }
+        if (type) {
+            caffe.Utility._enumKeyMap = caffe.Utility._enumKeyMap || new Map();
+            if (!caffe.Utility._enumKeyMap.has(name)) {
+                const map = new Map(Object.entries(type).map((pair) => [ pair[1], pair[0] ]));
+                caffe.Utility._enumKeyMap.set(name, map);
+            }
+            const map = caffe.Utility._enumKeyMap.get(name);
+            if (map.has(value)) {
+                return map.get(value);
+            }
+        }
+        return value;
+    }
 };
 
 caffe.Metadata = class {
@@ -755,7 +789,7 @@ caffe.Metadata = class {
 
     constructor(data) {
         this._map = new Map();
-        this._attributeCache = {};
+        this._attributeCache = new Map();
         if (data) {
             const metadata = JSON.parse(data);
             this._map = new Map(metadata.map((item) => [ item.name, item ]));
@@ -767,18 +801,17 @@ caffe.Metadata = class {
     }
 
     attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+        const key = type + ':' + name;
+        if (!this._attributeCache.has(key)) {
+            this._attributeCache.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
+                for (const attribute of metadata.attributes) {
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[type] = map;
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 };
 

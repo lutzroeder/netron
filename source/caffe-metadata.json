@@ -20,8 +20,8 @@
     "name": "BatchNorm",
     "category": "Normalization",
     "attributes": [
-      { "name": "use_global_stats", "visible": false },
-      { "name": "eps", "default": 0.00001 }
+      { "name": "use_global_stats", "type": "boolean", "visible": false },
+      { "name": "eps", "type": "float32", "default": 0.00001 }
     ],
     "inputs": [
       { "name": "input" },
@@ -196,7 +196,9 @@
   {
     "name": "Eltwise",
     "attributes": [
-      { "name": "operation", "default": 1 }
+      { "name": "operation", "type": "EltwiseParameter.EltwiseOp", "default": 1 },
+      { "name": "coeff", "type": "float32[]", "default": [] },
+      { "name": "stable_prod_grad", "type": "boolean", "default": true }
     ],
     "inputs": [
       { "name": "inputs", "option": "variadic" }
@@ -313,7 +315,8 @@
     "name": "Pooling",
     "category": "Pool",
     "attributes": [
-      { "name": "pool", "default": 0 }
+      { "name": "pool", "type": "PoolingParameter.PoolMethod", "default": 0 },
+      { "name": "engine", "type": "PoolingParameter.Engine", "default": 0 }
     ],
     "inputs": [
       { "name": "input" }
@@ -338,6 +341,16 @@
   },
   {
     "name": "ReLU",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ReLU6",
     "category": "Activation",
     "inputs": [
       { "name": "input" }
