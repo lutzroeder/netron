@@ -415,16 +415,16 @@ tflite.Node = class {
 
 tflite.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value) {
         this._type = null;
         this._name = name;
         this._value = value;
         if (this._name == 'fused_activation_function') {
             this._visible = false;
         }
-        if (schema) {
-            if (schema.type) {
-                this._type = schema.type;
+        if (metadata) {
+            if (metadata.type) {
+                this._type = metadata.type;
             }
             if (this._type) {
                 switch (this._type) {
@@ -439,15 +439,15 @@ tflite.Attribute = class {
                         break;
                 }
             }
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+            if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
+            else if (Object.prototype.hasOwnProperty.call(metadata, 'default')) {
                 value = this._value;
                 if (typeof value == 'function') {
                     value = value();
                 }
-                if (value == schema.default) {
+                if (value == metadata.default) {
                     this._visible = false;
                 }
             }
