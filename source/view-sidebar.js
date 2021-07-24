@@ -1357,9 +1357,9 @@ sidebar.FindSidebar = class {
             }
 
             const name = node.name;
-            const operator = node.type;
+            const type = node.type.name;
             if (name && !nodes.has(name) &&
-                terms.every((term) => name.toLowerCase().indexOf(term) != -1 || (operator && operator.toLowerCase().indexOf(term) != -1))) {
+                terms.every((term) => name.toLowerCase().indexOf(term) != -1 || (type && type.toLowerCase().indexOf(term) != -1))) {
                 const nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
                 nameItem.id = 'node-name-' + node.name;
