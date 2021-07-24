@@ -3425,7 +3425,7 @@ python.Unpickler.OpCode = {
     PERSID: 80,            // 'P'
     BINPERSID: 81,         // 'Q'
     REDUCE: 82,            // 'R'
-    STRING: 83,             // 'S'
+    STRING: 83,            // 'S'
     BINSTRING: 84,         // 'T'
     SHORT_BINSTRING: 85,   // 'U'
     UNICODE: 86,           // 'V'
