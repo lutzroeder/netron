@@ -89,11 +89,11 @@
         "name": "use_scale"
       },
       {
-        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past.",
+        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past.\n    Defaults to `False`.",
         "name": "causal"
       },
       {
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Args:",
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:",
         "name": "dropout"
       },
       {
@@ -4376,11 +4376,11 @@
       },
       {
         "name": "causal",
-        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past."
+        "description": "Boolean. Set to `True` for decoder self-attention. Adds a mask such\n    that position `i` cannot attend to positions `j > i`. This prevents the\n    flow of information from the future towards the past.\n    Defaults to `False`."
       },
       {
         "name": "dropout",
-        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores.\n\nCall Args:"
+        "description": "Float between 0 and 1. Fraction of the units to drop for the\n    attention scores. Defaults to 0.0.\n\nCall Args:"
       },
       {
         "name": "inputs",
