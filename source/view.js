@@ -20,6 +20,7 @@ view.View = class {
         this._id = id ? ('-' + id) : '';
         this._host.initialize(this).then(() => {
             this._model = null;
+            this._graphs = [];
             this._selection = [];
             this._sidebar = new sidebar.Sidebar(this._host, id);
             this._showAttributes = false;
@@ -124,7 +125,7 @@ view.View = class {
 
     show(page) {
         if (!page) {
-            page = (!this._model && !this._activeGraph) ? 'welcome' : 'default';
+            page = (!this._model && !this._graphs[0]) ? 'welcome' : 'default';
         }
         this._host.screen(page);
         if (this._sidebar) {
@@ -150,10 +151,10 @@ view.View = class {
     }
 
     find() {
-        if (this._activeGraph) {
+        if (this._graphs[0]) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, this._activeGraph);
+            const view = new sidebar.FindSidebar(this._host, graphElement, this._graphs[0]);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -208,8 +209,8 @@ view.View = class {
 
     _reload() {
         this.show('welcome spinner');
-        if (this._model && this._activeGraph) {
-            this._updateGraph(this._model, this._activeGraph).catch((error) => {
+        if (this._model && this._graphs[0]) {
+            this._updateGraph(this._model, this._graphs).catch((error) => {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
                 }
@@ -431,7 +432,7 @@ view.View = class {
                 }
                 return this._timeout(20).then(() => {
                     const graph = model.graphs.length > 0 ? model.graphs[0] : null;
-                    return this._updateGraph(model, graph);
+                    return this._updateGraph(model, [ graph ]);
                 });
             });
         });
@@ -445,7 +446,7 @@ view.View = class {
             if (graph) {
                 this.show('welcome spinner');
                 this._timeout(200).then(() => {
-                    return this._updateGraph(model, graph).catch((error) => {
+                    return this._updateGraph(model, [ graph ]).catch((error) => {
                         if (error) {
                             this.error(error, 'Graph update failed.', 'welcome');
                         }
@@ -455,10 +456,10 @@ view.View = class {
         }
     }
 
-    _updateGraph(model, graph) {
+    _updateGraph(model, graphs) {
         return this._timeout(100).then(() => {
-            if (graph && graph != this._activeGraph) {
-                const nodes = graph.nodes;
+            if (graphs[0] && graphs[0] != this._graphs[0]) {
+                const nodes = graphs[0].nodes;
                 if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
@@ -467,14 +468,18 @@ view.View = class {
                     }
                 }
             }
-            return this.renderGraph(model, graph).then(() => {
+            return this.renderGraph(model, graphs[0]).then(() => {
                 this._model = model;
-                this._activeGraph = graph;
-                this.show('default');
+                this._graphs = graphs;
+                if (!graphs || graphs.length <= 1) {
+                    this.show('default');
+                }
                 return this._model;
             }).catch((error) => {
-                return this.renderGraph(this._model, this._activeGraph).then(() => {
-                    this.show('default');
+                return this.renderGraph(this._model, this._graphs[0]).then(() => {
+                    if (!graphs || graphs.length <= 1) {
+                        this.show('default');
+                    }
                     throw error;
                 }).catch(() => {
                     throw error;
@@ -484,7 +489,16 @@ view.View = class {
     }
 
     _pushGraph(graph) {
-        return this._updateGraph(this._model, graph);
+        if (graph !== this._graphs[0]) {
+            return this._updateGraph(this._model, [ graph ].concat(this._graphs));
+        }
+        return Promise.resolve();
+    }
+
+    _popGraph() {
+        if (this._graphs.length > 1) {
+            return this._updateGraph(this._model, this._graphs.subarray(1));
+        }
     }
 
     renderGraph(model, graph) {
@@ -787,7 +801,7 @@ view.View = class {
     export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
-        if (this._activeGraph && (extension === 'png' || extension === 'svg')) {
+        if (this._graphs[0] && (extension === 'png' || extension === 'svg')) {
             const graphElement = this._getElementById('canvas');
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
@@ -857,7 +871,7 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._activeGraph);
+            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._graphs[0]);
             modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
@@ -870,7 +884,6 @@ view.View = class {
             const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showNodeDocumentation(node);
-                // this._pushGraph(node.type);
             });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
@@ -914,6 +927,9 @@ view.View = class {
     showNodeDocumentation(node) {
         const type = node.type;
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
+            if (type.nodes) {
+                this._pushGraph(type);
+            }
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
