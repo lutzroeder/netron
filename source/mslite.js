@@ -221,9 +221,8 @@ mslite.Attribute = class {
     constructor(schema, attrName, value) {
         this._type = null;
         this._name = attrName;
-        this._visible = true;
+        this._visible = false;
         this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
-
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
