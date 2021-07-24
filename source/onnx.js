@@ -702,6 +702,14 @@ onnx.Attribute = class {
                 this._value = attribute.sparse_tensors.map((tensor) => new onnx.Tensor(tensor));
                 this._type = 'tensor[]';
                 break;
+            case onnx.AttributeType.TYPE_PROTO:
+                this._value = onnx.Utility.formatType(attribute.tp, context.imageFormat);
+                this._type = 'type';
+                break;
+            case onnx.AttributeType.TYPE_PROTOS:
+                this._value = attribute.type_protos.map((type) => onnx.Utility.formatType(type, context.imageFormat));
+                this._type = 'type[]';
+                break;
             default:
                 throw new onnx.Error("Unknown attribute type '" + attribute.type + "'.");
         }
@@ -1405,6 +1413,7 @@ onnx.AttributeType = {
     GRAPHS: 10,
     SPARSE_TENSOR: 11,
     SPARSE_TENSORS: 12,
+    TYPE_PROTO: 13,
     TYPE_PROTOS: 14
 };
 
