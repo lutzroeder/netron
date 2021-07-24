@@ -3350,7 +3350,7 @@ pytorch.Utility = class {
                 for (const key of Object.keys(obj)) {
                     const value = obj[key];
                     if (key.indexOf('optim') !== -1 || key.indexOf('opt') !== -1) {
-                        if (value.state && value.param_groups) {
+                        if (value === null || (value.state && value.param_groups)) {
                             continue;
                         }
                     }
