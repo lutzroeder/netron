@@ -72,7 +72,7 @@
       { "name": "kernel_w", "type": "int32", "default": 0 },
       { "name": "dilation_w", "type": "int32", "default": 1 },
       { "name": "stride_w", "type": "int32", "default": 1 },
-      { "name": "pad_w", "type": "int32", "default": 0 },
+      { "name": "pad_left", "type": "int32", "default": 0 },
       { "name": "bias_term", "default": 0, "visible": false },
       { "name": "weight_data_size", "type": "int32", "default": 0, "visible": false },
       { "name": "group", "type": "int32", "default": 0 },
@@ -82,7 +82,10 @@
       { "name": "kernel_h", "type": "int32", "default": 0 },
       { "name": "dilation_h", "type": "int32", "default": 1 },
       { "name": "stride_h", "type": "int32", "default": 1 },
-      { "name": "pad_h", "type": "int32", "default": 0 }
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_bottom", "type": "int32", "default": 0 },
+      { "name": "pad_value", "type": "float32", "default": 0 }
     ]
   },
   {
@@ -94,7 +97,7 @@
       { "name": "kernel_w", "default": 0 },
       { "name": "dilation_w", "default": 1 },
       { "name": "stride_w", "default": 1 },
-      { "name": "pad_w", "default": 0 },
+      { "name": "pad_left", "default": 0 },
       { "name": "bias_term", "default": 0, "visible": false },
       { "name": "weight_data_size", "default": 0, "visible": false },
       { "name": "group", "default": 0 },
@@ -104,7 +107,10 @@
       { "name": "kernel_h", "default": 0 },
       { "name": "dilation_h", "default": 1 },
       { "name": "stride_h", "default": 1 },
-      { "name": "pad_h", "default": 0 }
+      { "name": "pad_right", "type": "int32", "default": 0 },
+      { "name": "pad_top", "type": "int32", "default": 0 },
+      { "name": "pad_bottom", "type": "int32", "default": 0 },
+      { "name": "pad_value", "type": "float32", "default": 0 }
     ]
   },
   {
