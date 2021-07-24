@@ -292,7 +292,7 @@ mnn.Attribute = class {
         this._type = null;
         this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
         this._name = name;
-        this._visible = visible;
+        this._visible = visible ? true : false;
         if (schema) {
             if (schema.type) {
                 this._type = schema.type;
