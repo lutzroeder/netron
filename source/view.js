@@ -541,7 +541,7 @@ view.View = class {
                     options.ranker = 'longest-path';
                 }
 
-                const viewGraph = new view.Graph(this, groups, options);
+                const viewGraph = new view.Graph(this, model, groups, options);
 
                 const clusters = new Set();
                 const clusterParentMap = new Map();
@@ -941,12 +941,12 @@ view.View = class {
 
 view.Graph = class extends grapher.Graph {
 
-    constructor(view, compound, options) {
-        super(compound);
+    constructor(view, model, compound, options) {
+        super(compound, options);
         this.view = view;
+        this.model = model;
         this._arguments = new Map();
         this._nodeKey = 0;
-        this.setGraph(options);
     }
 
     createNode(node) {
@@ -1018,7 +1018,7 @@ view.Node = class extends grapher.Node {
             styles.push('node-item-type-' + category.toLowerCase());
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
+            const format = this.context.model && this.context.model.format ? this.context.model.format : '?';
             throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in format '" + format + "'.");
         }
         const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
