@@ -1969,8 +1969,6 @@ view.Zoom = class {
         this._touchEnding = false;
         this._touchDelay = 500;
         this._wheelDelay = 150;
-        this._clickDistance2 = 0;
-        this._tapDistance = 10;
         this._events = new Map([ [ 'start', [] ], [ 'zoom', [] ], [ 'end', [] ] ]);
         this._selection = new view.Zoom.Selection(node);
         this._selection.node.__zoom = view.Zoom.identity();
@@ -2183,7 +2181,7 @@ view.Zoom = class {
             event.stopImmediatePropagation();
             if (!gesture.moved) {
                 const dx = event.clientX - x0, dy = event.clientY - y0;
-                gesture.moved = dx * dx + dy * dy > this._clickDistance2;
+                gesture.moved = dx * dx + dy * dy > 0;
             }
             const transform = this.translate(gesture.node.__zoom, gesture.mouse[0] = this.pointer(event, currentTarget), gesture.mouse[1]);
             gesture.zoom('mouse', this._constrain(transform, gesture.extent, this._translateExtent));
@@ -2291,18 +2289,17 @@ view.Zoom = class {
         if (currentTarget.__zooming) {
             const gesture = this._gesture(currentTarget);
             const touches = event.changedTouches;
-            let t;
             event.stopImmediatePropagation();
             if (this._touchEnding) {
                 clearTimeout(this._touchEnding);
             }
             this._touchEnding = setTimeout(function() { this._touchEnding = null; }, this._touchDelay);
             for (let i = 0; i < touches.length; i++) {
-                t = touches[i];
-                if (gesture.touch0 && gesture.touch0[2] === t.identifier) {
+                const touch = touches[i];
+                if (gesture.touch0 && gesture.touch0[2] === touch.identifier) {
                     delete gesture.touch0;
                 }
-                else if (gesture.touch1 && gesture.touch1[2] === t.identifier) {
+                else if (gesture.touch1 && gesture.touch1[2] === touch.identifier) {
                     delete gesture.touch1;
                 }
             }
@@ -2315,15 +2312,6 @@ view.Zoom = class {
             }
             else {
                 gesture.end();
-                if (gesture.taps === 2) {
-                    t = this.pointer(t, currentTarget);
-                    if (Math.hypot(this._touchFirst[0] - t[0], this._touchFirst[1] - t[1]) < this._tapDistance) {
-                        const selection = new view.Zoom.Selection(currentTarget).on('dblclick.zoom');
-                        if (selection) {
-                            selection.apply(currentTarget, arguments);
-                        }
-                    }
-                }
             }
         }
     }
