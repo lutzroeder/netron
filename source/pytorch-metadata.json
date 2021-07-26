@@ -1733,6 +1733,18 @@
     ]
   },
   {
+    "name": "torch.pow_",
+    "attributes": [
+      { "name": "exponent", "type": "Tensor" }
+    ],
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.add:Tensor",
     "attributes": [
       { "name": "alpha", "type": "Scalar", "default": 1 }
@@ -4196,6 +4208,16 @@
     ]
   },
   {
+    "name": "torch.atan2:Tensor",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.tan_",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -4296,6 +4318,18 @@
       { "name": "self", "type": "Tensor" },
       { "name": "indices", "type": "Tensor[]", "optional": true },
       { "name": "values", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.scatter_add_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64"},
+      { "name": "index", "type": "Tensor" },
+      { "name": "src", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
