@@ -61,7 +61,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [
@@ -122,7 +122,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [
@@ -552,7 +552,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [
@@ -2450,7 +2450,7 @@
       {
         "description": "Arbitrary. Use the keyword argument input_shape (tuple of\nintegers, does not include the samples axis) when using this layer as the\nfirst layer in a model.",
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [
@@ -2954,7 +2954,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [
@@ -3177,7 +3177,7 @@
     "inputs": [
       {
         "name": "inputs",
-        "option": "variadic"
+        "list": true
       }
     ],
     "outputs": [

@@ -702,25 +702,25 @@ keras.Node = class {
             }
         }
 
-        this._metadata = metadata.type(type) || { name: type };
+        this._type = metadata.type(type) || { name: type };
         const innerType = this.inner ? this.inner.type : null;
         const innerSchema = innerType ? metadata.type(innerType) : null;
         let inputIndex = 0;
         while (inputs.length > 0) {
-            let variadic = false;
+            let list = false;
             let inputName = null;
             let visible = true;
             if (!innerSchema || inputIndex == 0) {
-                if (this._metadata && this._metadata.inputs && inputIndex < this._metadata.inputs.length) {
-                    const input = this._metadata.inputs[inputIndex];
+                if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
+                    const input = this._type.inputs[inputIndex];
                     inputName = input.name;
                     if (type === 'BatchNormalization' && inputName === 'gamma' && config.scale === false) {
                         inputIndex++;
                         continue;
                     }
                     visible = input.visible == false ? false : true;
-                    if (this._metadata.inputs[inputIndex].option == 'variadic') {
-                        variadic = true;
+                    if (this._type.inputs[inputIndex].list) {
+                        list = true;
                     }
                 }
             }
@@ -749,7 +749,7 @@ keras.Node = class {
                         break;
                 }
             }
-            const input = !variadic ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
+            const input = !list ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
             const inputArguments = input.map((id) => {
                 if (typeof id === 'string') {
                     return new keras.Argument(id, null, initializers[id]);
@@ -777,15 +777,19 @@ keras.Node = class {
 
         this._outputs = outputs.map((output, outputIndex) => {
             const outputName =
-                (this._metadata && this._metadata.outputs && outputIndex < this._metadata.outputs.length && this._metadata.outputs[outputIndex] && this._metadata.outputs[outputIndex].name) ?
-                    this._metadata.outputs[outputIndex].name :
+                (this._type && this._type.outputs && outputIndex < this._type.outputs.length && this._type.outputs[outputIndex] && this._type.outputs[outputIndex].name) ?
+                    this._type.outputs[outputIndex].name :
                     outputIndex.toString();
             return new keras.Parameter(outputName, true, [ new keras.Argument(output, null, null) ]);
         });
+
+        if (typeof this.type.name !== 'string' || !this.type.name.split) { // #416
+            throw new keras.Error("Unknown node type '" + JSON.stringify(this.type.name) + "'.");
+        }
     }
 
     get type() {
-        return this._metadata;
+        return this._type;
     }
 
     get name() {
