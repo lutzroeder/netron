@@ -1018,6 +1018,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.upsampling.UpsamplingBilinear2d', class {});
         this.registerType('torch.nn.modules.upsampling.UpsamplingNearest2d', class {});
         this.registerType('torch.nn.parallel.data_parallel.DataParallel', class {});
+        this.registerType('torch.nn.parallel.distributed._DDPUnevenInputsConfig', class {});
         this.registerType('torch.nn.parallel.distributed.DistributedDataParallel', class {});
         this.registerType('torch.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
