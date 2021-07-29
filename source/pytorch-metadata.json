@@ -4696,6 +4696,16 @@
     ]
   },
   {
+    "name": "torch.eq:Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.where:self",
     "inputs": [
       { "name": "condition", "type": "Tensor" },
@@ -5900,6 +5910,15 @@
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.nonzero_numpy",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
