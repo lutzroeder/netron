@@ -957,6 +957,12 @@ $root.paddle.framework.proto.VarDesc = class VarDesc {
                 case 4:
                     message.need_check_feed = reader.bool();
                     break;
+                case 5:
+                    message.is_parameter = reader.bool();
+                    break;
+                case 6:
+                    message.stop_gradient = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -989,6 +995,12 @@ $root.paddle.framework.proto.VarDesc = class VarDesc {
                 case "need_check_feed":
                     message.need_check_feed = reader.bool();
                     break;
+                case "is_parameter":
+                    message.is_parameter = reader.bool();
+                    break;
+                case "stop_gradient":
+                    message.stop_gradient = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -1006,6 +1018,8 @@ $root.paddle.framework.proto.VarDesc.prototype.name = "";
 $root.paddle.framework.proto.VarDesc.prototype.type = null;
 $root.paddle.framework.proto.VarDesc.prototype.persistable = false;
 $root.paddle.framework.proto.VarDesc.prototype.need_check_feed = false;
+$root.paddle.framework.proto.VarDesc.prototype.is_parameter = false;
+$root.paddle.framework.proto.VarDesc.prototype.stop_gradient = false;
 
 $root.paddle.framework.proto.BlockDesc = class BlockDesc {
 
