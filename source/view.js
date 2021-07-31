@@ -426,13 +426,19 @@ view.View = class {
         this._sidebar.close();
         return this._timeout(2).then(() => {
             return this._modelFactoryService.open(context).then((model) => {
-                const format = model.format;
-                if (format) {
-                    this._host.event('Model', 'Format', format + (model.producer ? ' (' + model.producer + ')' : ''));
+                const format = [];
+                if (model.format) {
+                    format.push(model.format);
+                }
+                if (model.producer) {
+                    format.push('(' + model.producer + ')');
+                }
+                if (format.length > 0) {
+                    this._host.event('Model', 'Format', format.join(' '));
                 }
                 return this._timeout(20).then(() => {
-                    const graph = model.graphs.length > 0 ? model.graphs[0] : null;
-                    return this._updateGraph(model, [ graph ]);
+                    const graphs = Array.isArray(model.graphs) && model.graphs.length > 0 ? [ model.graphs[0] ] : [];
+                    return this._updateGraph(model, graphs);
                 });
             });
         });
@@ -457,9 +463,10 @@ view.View = class {
     }
 
     _updateGraph(model, graphs) {
+        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
         return this._timeout(100).then(() => {
-            if (graphs[0] && graphs[0] != this._graphs[0]) {
-                const nodes = graphs[0].nodes;
+            if (graph && graph != this._graphs[0]) {
+                const nodes = graph.nodes;
                 if (nodes.length > 1400) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
@@ -468,7 +475,7 @@ view.View = class {
                     }
                 }
             }
-            return this.renderGraph(model, graphs[0]).then(() => {
+            return this.renderGraph(model, graph).then(() => {
                 this._model = model;
                 this._graphs = graphs;
                 if (!graphs || graphs.length <= 1) {

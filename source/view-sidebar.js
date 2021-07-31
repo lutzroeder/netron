@@ -779,52 +779,54 @@ sidebar.ModelSidebar = class {
         this._model = model;
         this._elements = [];
 
-        if (this._model.format) {
-            this._addProperty('format', new sidebar.ValueTextView(this._host, this._model.format));
+        if (model.format) {
+            this._addProperty('format', new sidebar.ValueTextView(this._host, model.format));
         }
-        if (this._model.producer) {
-            this._addProperty('producer', new sidebar.ValueTextView(this._host, this._model.producer));
+        if (model.producer) {
+            this._addProperty('producer', new sidebar.ValueTextView(this._host, model.producer));
         }
-        if (this._model.source) {
-            this._addProperty('source', new sidebar.ValueTextView(this._host, this._model.source));
+        if (model.source) {
+            this._addProperty('source', new sidebar.ValueTextView(this._host, model.source));
         }
-        if (this._model.name) {
-            this._addProperty('name', new sidebar.ValueTextView(this._host, this._model.name));
+        if (model.name) {
+            this._addProperty('name', new sidebar.ValueTextView(this._host, model.name));
         }
-        if (this._model.version) {
-            this._addProperty('version', new sidebar.ValueTextView(this._host, this._model.version));
+        if (model.version) {
+            this._addProperty('version', new sidebar.ValueTextView(this._host, model.version));
         }
-        if (this._model.description) {
-            this._addProperty('description', new sidebar.ValueTextView(this._host, this._model.description));
+        if (model.description) {
+            this._addProperty('description', new sidebar.ValueTextView(this._host, model.description));
         }
-        if (this._model.author) {
-            this._addProperty('author', new sidebar.ValueTextView(this._host, this._model.author));
+        if (model.author) {
+            this._addProperty('author', new sidebar.ValueTextView(this._host, model.author));
         }
-        if (this._model.company) {
-            this._addProperty('company', new sidebar.ValueTextView(this._host, this._model.company));
+        if (model.company) {
+            this._addProperty('company', new sidebar.ValueTextView(this._host, model.company));
         }
-        if (this._model.license) {
-            this._addProperty('license', new sidebar.ValueTextView(this._host, this._model.license));
+        if (model.license) {
+            this._addProperty('license', new sidebar.ValueTextView(this._host, model.license));
         }
-        if (this._model.domain) {
-            this._addProperty('domain', new sidebar.ValueTextView(this._host, this._model.domain));
+        if (model.domain) {
+            this._addProperty('domain', new sidebar.ValueTextView(this._host, model.domain));
         }
-        if (this._model.imports) {
-            this._addProperty('imports', new sidebar.ValueTextView(this._host, this._model.imports));
+        if (model.imports) {
+            this._addProperty('imports', new sidebar.ValueTextView(this._host, model.imports));
         }
-        if (this._model.runtime) {
-            this._addProperty('runtime', new sidebar.ValueTextView(this._host, this._model.runtime));
+        if (model.runtime) {
+            this._addProperty('runtime', new sidebar.ValueTextView(this._host, model.runtime));
         }
 
-        const metadata = this._model.metadata;
+        const metadata = model.metadata;
         if (metadata) {
-            for (const property of this._model.metadata) {
+            for (const property of model.metadata) {
                 this._addProperty(property.name, new sidebar.ValueTextView(this._host, property.value));
             }
         }
 
-        if (this._model._graphs.length > 1) {
-            const graphSelector = new sidebar.SelectView(this._host, this._model.graphs.map((g) => g.name), graph.name);
+        const graphs = Array.isArray(model.graphs) ? model.graphs : [];
+        if (graphs.length > 1) {
+            const name = graph && graph.name ? graph.name : '';
+            const graphSelector = new sidebar.SelectView(this._host, model.graphs.map((g) => g.name), name);
             graphSelector.on('change', (sender, data) => {
                 this._raise('update-active-graph', data);
             });
@@ -844,14 +846,12 @@ sidebar.ModelSidebar = class {
             if (graph.description) {
                 this._addProperty('description', new sidebar.ValueTextView(this._host, graph.description));
             }
-
             if (graph.inputs.length > 0) {
                 this._addHeader('Inputs');
                 for (const input of graph.inputs) {
                     this.addArgument(input.name, input);
                 }
             }
-
             if (graph.outputs.length > 0) {
                 this._addHeader('Outputs');
                 for (const output of graph.outputs) {
