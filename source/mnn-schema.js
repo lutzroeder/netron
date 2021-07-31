@@ -1411,7 +1411,7 @@ $root.MNN.OpType = {
     Dropout: 21,
     Eltwise: 22,
     ELU: 23,
-    Embed: 24,
+    Unique: 24,
     Exp: 25,
     ExpandDims: 26,
     Fill: 27,
@@ -1476,7 +1476,7 @@ $root.MNN.OpType = {
     SpaceToBatchND: 86,
     SpatialProduct: 87,
     Split: 88,
-    SPP: 89,
+    Segment: 89,
     Squeeze: 90,
     StridedSlice: 91,
     StringJoin: 92,
@@ -1944,6 +1944,7 @@ $root.MNN.Net = class Net {
         $.tensorNumber = reader.int32_(position, 20, 0);
         $.usage = reader.int8_(position, 22, 0);
         $.subgraphs = reader.tableArray(position, 24, $root.MNN.SubGraphProto.decode);
+        $.mnn_uuid = reader.string_(position, 26, null);
         return $;
     }
 };
