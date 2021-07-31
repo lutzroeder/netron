@@ -968,9 +968,9 @@ keras.Tensor = class {
     }
 
     get quantization() {
-        if (this._quantization && (this._quantization.scale != 0 || this._quantization.min != 0)) {
-            const scale = this._quantization.scale;
-            const min = this._quantization.min;
+        if (this._quantization && (this._quantization.scale !== 0 || this._quantization.min !== 0)) {
+            const scale = this._quantization.scale || 0;
+            const min = this._quantization.min || 0;
             return scale.toString() + ' * ' + (min == 0 ? 'q' : ('(q - ' + min.toString() + ')'));
         }
         return null;
