@@ -282,6 +282,9 @@ sidebar.NodeSidebar = class {
             case 'shape':
                 return value ? value.toString() : '(null)';
             case 'shape[]':
+                if (value && !Array.isArray(value)) {
+                    throw new Error("Invalid shape '" + JSON.stringify(value) + "'.");
+                }
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph':
                 return value ? value.toString() : '(null)';
