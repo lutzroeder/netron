@@ -507,7 +507,7 @@ tf.Model = class {
             while (graphs.length > 0) {
                 const graph = graphs.shift();
                 this._graphs.push(graph);
-                for (const func of graph.functions) {
+                for (const func of graph.functions || []) {
                     graphs.push(func);
                 }
             }
@@ -915,7 +915,9 @@ tf.Graph = class {
             if (graph.library) {
                 const funcs = graph.library.function;
                 for (const func of funcs) {
-                    this._functions.push(new tf.Function(this, func, metadata));
+                    const value = new tf.Function(this, func, metadata);
+                    metadata.add(value);
+                    this._functions.push(value);
                 }
             }
         }
@@ -1046,7 +1048,6 @@ tf.Function = class {
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._functions = [];
 
         const input_arg = func.signature.input_arg;
         const output_arg = func.signature.output_arg;
@@ -1221,10 +1222,6 @@ tf.Function = class {
 
     get nodes() {
         return this._nodes;
-    }
-
-    get functions() {
-        return this._functions;
     }
 };
 
@@ -2248,26 +2245,37 @@ tf.GraphMetadata = class {
 
     constructor(metadata) {
         this._metadata = metadata;
-        this._attributeCache = new Map();
+        this._functions = new Map();
+        this._attributes = new Map();
         this._visibleCache = new Map();
     }
 
-    type(operator) {
-        return this._metadata.type(operator);
+    add(func) {
+        if (this._functions.has(func.name)) {
+            throw new tf.Error("Duplicate function name '" + func.name + "'.");
+        }
+        this._functions.set(func.name, func);
+    }
+
+    type(name) {
+        if (this._functions.has(name)) {
+            return this._functions.get(name);
+        }
+        return this._metadata.type(name);
     }
 
     attribute(type, name) {
         const key = type + '::' + name;
-        if (!this._attributeCache.has(key)) {
+        if (!this._attributes.has(key)) {
             const schema = this.type(type);
             if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
                     const key = type + '::'  + attribute.name;
-                    this._attributeCache.set(key, attribute);
+                    this._attributes.set(key, attribute);
                 }
             }
         }
-        return this._attributeCache.get(key);
+        return this._attributes.get(key);
     }
 
     visible(type, name) {
