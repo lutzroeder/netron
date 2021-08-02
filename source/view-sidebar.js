@@ -139,7 +139,7 @@ sidebar.NodeSidebar = class {
             const type = node.type;
             if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
                 showDocumentation = {};
-                showDocumentation.text = '?';
+                showDocumentation.text = type.nodes ? '\u0192': '?';
                 showDocumentation.callback = () => {
                     this._raise('show-documentation', null);
                 };

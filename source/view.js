@@ -463,7 +463,10 @@ view.View = class {
     }
 
     _updateGraph(model, graphs) {
-        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        const active = (graphs) => {
+            return Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        };
+        const graph = active(graphs);
         return this._timeout(100).then(() => {
             if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
@@ -483,7 +486,7 @@ view.View = class {
                 }
                 return this._model;
             }).catch((error) => {
-                return this.renderGraph(this._model, this._graphs[0]).then(() => {
+                return this.renderGraph(this._model, active(this._graphs)).then(() => {
                     if (!graphs || graphs.length <= 1) {
                         this.show('default');
                     }
@@ -495,14 +498,14 @@ view.View = class {
         });
     }
 
-    _pushGraph(graph) {
+    pushGraph(graph) {
         if (graph !== this._graphs[0]) {
             return this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
         return Promise.resolve();
     }
 
-    _popGraph() {
+    popGraph() {
         if (this._graphs.length > 1) {
             return this._updateGraph(this._model, this._graphs.subarray(1));
         }
@@ -935,7 +938,7 @@ view.View = class {
         const type = node.type;
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes) {
-                this._pushGraph(type);
+                this.pushGraph(type);
             }
             const documentationSidebar = new sidebar.DocumentationSidebar(this._host, type);
             documentationSidebar.on('navigate', (sender, e) => {
@@ -1033,8 +1036,13 @@ view.Node = class extends grapher.Node {
         header.add(null, styles, content, tooltip, () => {
             this.context.view.showNodeProperties(node, null);
         });
-        if (node.function) {
-            header.add(null, [ 'node-item-function' ], '+', null, () => {
+        if (node.type.nodes) {
+            header.add(null, styles, '\u238B', 'Show Function Definition', () => {
+                this.context.view.pushGraph(node.type);
+            });
+        }
+        if (node.nodes) {
+            header.add(null, styles, '+', null, () => {
                 // debugger;
             });
         }
