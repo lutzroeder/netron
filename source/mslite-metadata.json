@@ -1667,6 +1667,20 @@
     ]
   },
   {
+    "name": "LSTMGrad",
+    "attributes": [
+      { "name": "bidirectional", "type": "boolean", "default": false },
+      { "name": "has_bias", "type": "boolean", "default": false },
+      { "name": "input_size", "type": "int64", "default": 0 },
+      { "name": "hidden_size", "type": "int64", "default": 0 },
+      { "name": "num_layers", "type": "int64", "default": 0 },
+      { "name": "num_directions", "type": "int64", "default": 0 },
+      { "name": "dropout", "type": "float32", "default": 0 },
+      { "name": "zoneout_cell", "type": "float32", "default": 0 },
+      { "name": "zoneout_hidden", "type": "float32", "default": 0 }
+    ]
+  },
+  {
     "name": "make_tuple"
   },
   {
@@ -2391,6 +2405,9 @@
     "outputs": [
       { "name": "output" }
     ]
+  },
+  {
+    "name": "ScatterNdUpdate"
   },
   {
     "name": "Select",

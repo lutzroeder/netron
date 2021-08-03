@@ -375,6 +375,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 199: return $root.mindspore.schema.TensorArrayWrite.decode(reader, position);
             case 200: return $root.mindspore.schema.Affine.decode(reader, position);
             case 201: return $root.mindspore.schema.Attention.decode(reader, position);
+            case 202: return $root.mindspore.schema.LSTMGrad.decode(reader, position);
+            case 203: return $root.mindspore.schema.ScatterNdUpdate.decode(reader, position);
         }
         return undefined;
     }
@@ -582,6 +584,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'TensorArrayWrite': return $root.mindspore.schema.TensorArrayWrite.decodeText(reader, json);
             case 'Affine': return $root.mindspore.schema.Affine.decodeText(reader, json);
             case 'Attention': return $root.mindspore.schema.Attention.decodeText(reader, json);
+            case 'LSTMGrad': return $root.mindspore.schema.LSTMGrad.decodeText(reader, json);
+            case 'ScatterNdUpdate': return $root.mindspore.schema.ScatterNdUpdate.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2071,6 +2075,37 @@ $root.mindspore.schema.LSTM = class LSTM {
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.LSTM();
+        $.bidirectional = reader.value(json.bidirectional, false);
+        $.has_bias = reader.value(json.has_bias, false);
+        $.input_size = reader.value(json.input_size, 0);
+        $.hidden_size = reader.value(json.hidden_size, 0);
+        $.num_layers = reader.value(json.num_layers, 0);
+        $.num_directions = reader.value(json.num_directions, 0);
+        $.dropout = reader.value(json.dropout, 0);
+        $.zoneout_cell = reader.value(json.zoneout_cell, 0);
+        $.zoneout_hidden = reader.value(json.zoneout_hidden, 0);
+        return $;
+    }
+};
+
+$root.mindspore.schema.LSTMGrad = class LSTMGrad {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.LSTMGrad();
+        $.bidirectional = reader.bool_(position, 4, false);
+        $.has_bias = reader.bool_(position, 6, false);
+        $.input_size = reader.int64_(position, 8, 0);
+        $.hidden_size = reader.int64_(position, 10, 0);
+        $.num_layers = reader.int64_(position, 12, 0);
+        $.num_directions = reader.int64_(position, 14, 0);
+        $.dropout = reader.float32_(position, 16, 0);
+        $.zoneout_cell = reader.float32_(position, 18, 0);
+        $.zoneout_hidden = reader.float32_(position, 20, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.LSTMGrad();
         $.bidirectional = reader.value(json.bidirectional, false);
         $.has_bias = reader.value(json.has_bias, false);
         $.input_size = reader.value(json.input_size, 0);
@@ -3948,6 +3983,19 @@ $root.mindspore.schema.Attention = class Attention {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.Attention();
+        return $;
+    }
+};
+
+$root.mindspore.schema.ScatterNdUpdate = class ScatterNdUpdate {
+
+    static decode(/* reader, position */) {
+        const $ = new $root.mindspore.schema.ScatterNdUpdate();
+        return $;
+    }
+
+    static decodeText(/* reader, json */) {
+        const $ = new $root.mindspore.schema.ScatterNdUpdate();
         return $;
     }
 };
