@@ -420,7 +420,7 @@ pytorch.Node = class {
         };
         if (!item.module && !item.node) {
             type(metadata, item.type);
-            this._function = item.children;
+            this._nodes = item.children;
             this._inputs = item.inputs;
             this._outputs = item.outputs;
             this._attributes = item.attributes.map((attribute) => {
@@ -548,10 +548,6 @@ pytorch.Node = class {
         return this._type;
     }
 
-    get function() {
-        return this._function;
-    }
-
     get attributes() {
         return this._attributes;
     }
@@ -562,6 +558,10 @@ pytorch.Node = class {
 
     get outputs() {
         return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
     }
 };
 
@@ -1978,19 +1978,13 @@ pytorch.Container.Tar = class {
         this._type = '';
         this._data = null;
         this._littleEndian = true;
-
         const execution = new pytorch.Execution(null, this._exceptionCallback);
-
         const entries = {};
         for (const entry of this._entries) {
-            switch (entry.name) {
-                case 'sys_info': entries.sys_info = entry.stream.peek(); break;
-                case 'pickle': entries.pickle = entry.stream.peek(); break;
-                case 'storages': entries.storages = entry.stream.peek(); break;
-                case 'tensors': entries.tensors = entry.stream.peek(); break;
-            }
+            const key = entry[0];
+            const value = entry[1];
+            entries[key] = value.peek();
         }
-
         this._exceptionCallback = null;
         this._entries = null;
 
@@ -3321,6 +3315,9 @@ pytorch.Utility = class {
             for (const obj of list) {
                 const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : '?';
                 const layer = { type: type, states: [], attributes: [] };
+                if (obj instanceof Map) {
+                    return null;
+                }
                 for (const key of Object.keys(obj)) {
                     const value = obj[key];
                     if (pytorch.Utility.isTensor(value)) {
