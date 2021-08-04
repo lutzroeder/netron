@@ -309,23 +309,23 @@ tf.ModelFactory = class {
                 });
             };
             switch (this._format(context)) {
-                case 'bundle':
+                case 'tf.bundle':
                     return openBundle(context, context.stream, context.identifier);
-                case 'data':
+                case 'tf.data':
                     return openData(context);
-                case 'events':
+                case 'tf.events':
                     return openEventFile(context);
-                case 'json':
+                case 'tf.json':
                     return openJson(context);
-                case 'pbtxt.GraphDef':
+                case 'tf.pbtxt.GraphDef':
                     return openTextGraphDef(context);
-                case 'pbtxt.MetaGraphDef':
+                case 'tf.pbtxt.MetaGraphDef':
                     return openTextMetaGraphDef(context);
-                case 'pbtxt.SavedModel':
+                case 'tf.pbtxt.SavedModel':
                     return openTextSavedModel(context);
-                case 'pb':
+                case 'tf.pb':
                     return openBinaryProto(context.stream, context.identifier);
-                case 'saved_metadata':
+                case 'tf.pb.keras.SavedMetadata':
                     return openSavedMetadata(context);
                 default:
                     throw new tf.Error('Unknown format.');
@@ -339,7 +339,7 @@ tf.ModelFactory = class {
         if (extension === 'meta') {
             const tags = context.tags('pb');
             if (tags.size !== 0) {
-                return 'pb';
+                return 'tf.pb';
             }
         }
         if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
@@ -352,13 +352,13 @@ tf.ModelFactory = class {
                 return '';
             }
             if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                return 'pbtxt.SavedModel';
+                return 'tf.pbtxt.SavedModel';
             }
             if (tags.has('graph_def')) {
-                return 'pbtxt.MetaGraphDef';
+                return 'tf.pbtxt.MetaGraphDef';
             }
             if (tags.has('node')) {
-                return 'pbtxt.GraphDef';
+                return 'tf.pbtxt.GraphDef';
             }
         }
         if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
@@ -405,11 +405,11 @@ tf.ModelFactory = class {
                         }
                         // third_party.tensorflow.python.keras.protobuf.SavedMetadata
                         if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                            return 'saved_metadata';
+                            return 'tf.pb.keras.SavedMetadata';
                         }
                     }
                     if (tags.get(1) !== 2) {
-                        return 'pb';
+                        return 'tf.pb';
                     }
                     const decode = (buffer, value) => {
                         const reader = protobuf.BinaryReader.open(buffer);
@@ -436,7 +436,7 @@ tf.ModelFactory = class {
                             const decoder = new TextDecoder('utf-8');
                             const name = decoder.decode(nameBuffer);
                             if (Array.from(name).filter((c) => c <= ' ').length < 256) {
-                                return 'pb';
+                                return 'tf.pb';
                             }
                         }
                     }
@@ -448,20 +448,20 @@ tf.ModelFactory = class {
                     return false;
                 }
                 if (tags.has('node')) {
-                    return 'pbtxt.GraphDef';
+                    return 'tf.pbtxt.GraphDef';
                 }
                 if (tags.has('graph_def')) {
-                    return 'pbtxt.MetaGraphDef';
+                    return 'tf.pbtxt.MetaGraphDef';
                 }
                 if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                    return 'pbtxt.SavedModel';
+                    return 'tf.pbtxt.SavedModel';
                 }
             }
         }
         if (extension === 'json') {
             const obj = context.open('json');
             if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
-                return 'json';
+                return 'tf.json';
             }
         }
         if (extension === 'index' || extension === 'ckpt') {
@@ -472,17 +472,17 @@ tf.ModelFactory = class {
                 stream.seek(0);
                 const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
                 if (buffer.every((value, index) => value === signature[index])) {
-                    return 'bundle';
+                    return 'tf.bundle';
                 }
             }
         }
         if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-            return 'data';
+            return 'tf.data';
         }
         if (/^events.out.tfevents./.exec(identifier)) {
             const stream = context.stream;
             if (tf.EventFileReader.open(stream)) {
-                return 'events';
+                return 'tf.events';
             }
         }
         return '';
