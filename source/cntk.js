@@ -193,9 +193,13 @@ cntk.Graph = class {
                     if (block.op == 57 && block.block_function_composite) {
                         const list = [ block.block_function_composite.root ];
                         const output = map.get(block.block_function_composite.root);
-                        const inputs = block.block_function_composite_arguments_map_keys.map((input) => {
-                            return new cntk.Parameter(input, [ arg(input, version) ]);
-                        });
+                        const keys = block.block_function_composite_arguments_map_keys;
+                        const values = block.block_function_composite_arguments_map_values;
+                        block.inputs = values;
+                        if (!Array.isArray(keys) || !Array.isArray(values) || keys.length !== values.length) {
+                            throw new cntk.Error('Invalid block function composite arguments.');
+                        }
+                        const inputs = keys.map((key) => new cntk.Parameter(key, [ arg(key, version) ]));
                         const outputs = [ new cntk.Parameter('output', [ arg(output.uid + '_Output_0', version) ]) ];
                         const nodes = [];
                         while (list.length > 0) {
@@ -334,7 +338,6 @@ cntk.Node = class {
         this._outputs = [];
         let inputs = [];
         let outputs = [];
-        const initializers = [];
         switch (version) {
             case 1: {
                 const type = obj.__type__;
@@ -347,9 +350,7 @@ cntk.Node = class {
                         this._attributes.push(new cntk.Attribute(metadata.attribute(type, name), name, value));
                     }
                 }
-                inputs = obj.inputs.map((input) => {
-                    return arg(input, version);
-                });
+                inputs = obj.inputs.map((input) => arg(input, version));
                 outputs = [ arg(this._name, version) ];
                 break;
             }
@@ -376,17 +377,8 @@ cntk.Node = class {
                         this._attributes.push(new cntk.Attribute(metadata.attribute(this._type, entry[0]), entry[0], entry[1]));
                     }
                 }
-                for (const input of obj.inputs) {
-                    const argument = arg(input, version);
-                    if (argument.initializer) {
-                        initializers.push(argument);
-                    }
-                    else {
-                        inputs.push(argument);
-                    }
-                }
+                inputs = obj.inputs.map((input) => arg(input, version));
                 outputs.push(arg(output + '_Output_0', version));
-                inputs.push(...initializers);
                 break;
             }
         }
@@ -394,7 +386,7 @@ cntk.Node = class {
         if (this._type && this._type.inputs) {
             for (const inputSchema of this._type.inputs) {
                 if (inputIndex < inputs.length || inputSchema.option != 'optional') {
-                    const inputCount = (inputSchema.option == 'variadic') ? (inputs.length - inputIndex) : 1;
+                    const inputCount = inputSchema.list ? (inputs.length - inputIndex) : 1;
                     const inputArguments = [];
                     for (const inputArgument of inputs.slice(inputIndex, inputIndex + inputCount)) {
                         if (inputArgument.name != '' || inputSchema.option != 'optional') {
@@ -413,8 +405,8 @@ cntk.Node = class {
         let outputIndex = 0;
         if (this._type && this._type.outputs) {
             for (const outputSchema of this._type.outputs) {
-                if (outputIndex < outputs.length || outputSchema.option != 'optional') {
-                    const outputCount = (outputSchema.option == 'variadic') ? (outputs.length - outputIndex) : 1;
+                if (outputIndex < outputs.length || !outputSchema.optional) {
+                    const outputCount = outputSchema.list ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new cntk.Parameter(outputSchema.name, outputs.slice(outputIndex, outputIndex + outputCount)));
                     outputIndex += outputCount;
                 }

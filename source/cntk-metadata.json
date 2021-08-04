@@ -88,7 +88,7 @@
     "operator": 44,
     "category": "Tensor",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "list": true }
     ],
     "outputs": [
       { "name": "output" }
@@ -652,7 +652,7 @@
     "operator": 43,
     "category": "Tensor",
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "list": true }
     ],
     "outputs": [
       { "name": "output" }
