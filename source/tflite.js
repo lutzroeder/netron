@@ -17,7 +17,7 @@ tflite.ModelFactory = class {
             let model = null;
             const attachments = new Map();
             switch (this._format(context)) {
-                case 'json': {
+                case 'tflite.flatbuffers.json': {
                     try {
                         const obj = context.open('json');
                         const reader = new flatbuffers.TextReader(obj);
@@ -29,7 +29,7 @@ tflite.ModelFactory = class {
                     }
                     break;
                 }
-                case 'flatbuffers': {
+                case 'tflite.flatbuffers': {
                     const stream = context.stream;
                     try {
                         const reader = flatbuffers.BinaryReader.open(stream);
@@ -62,7 +62,7 @@ tflite.ModelFactory = class {
     _format(context) {
         const tags = context.tags('flatbuffers');
         if (tags.get('file_identifier') === 'TFL3') {
-            return 'flatbuffers';
+            return 'tflite.flatbuffers';
         }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
@@ -73,13 +73,13 @@ tflite.ModelFactory = class {
             if (reader.root === 0x00000018) {
                 const version = reader.uint32_(reader.root, 4, 0);
                 if (version === 3) {
-                    return 'flatbuffers';
+                    return 'tflite.flatbuffers';
                 }
             }
         }
         const obj = context.open('json');
         if (obj && obj.subgraphs && obj.operator_codes) {
-            return 'json';
+            return 'tflite.flatbuffers.json';
         }
         return '';
     }
