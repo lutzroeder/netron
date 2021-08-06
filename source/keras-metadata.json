@@ -2066,7 +2066,7 @@
     "name": "GRU",
     "module": "tensorflow.keras.layers",
     "category": "Layer",
-    "description": "Gated Recurrent Unit - Cho et al. 2014.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the CuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. `reset_after` is `True`\n7. Inputs, if use masking, are strictly right-padded.\n8. Eager execution is enabled in the outermost context.\n\nThere are two variants of the GRU implementation. The default one is based on\n[v3](https://arxiv.org/abs/1406.1078v3) and has reset gate applied to hidden\nstate before matrix multiplication. The other one is based on\n[original](https://arxiv.org/abs/1406.1078v1) and has the order reversed.\n\nThe second variant is compatible with CuDNNGRU (GPU-only) and allows\ninference on CPU. Thus it has separate biases for `kernel` and\n`recurrent_kernel`. To use this variant, set `'reset_after'=True` and\n`recurrent_activation='sigmoid'`.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> gru = tf.keras.layers.GRU(4)\n>>> output = gru(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> gru = tf.keras.layers.GRU(4, return_sequences=True, return_state=True)\n>>> whole_sequence_output, final_state = gru(inputs)\n>>> print(whole_sequence_output.shape)\n(32, 10, 4)\n>>> print(final_state.shape)\n(32, 4)\n```",
+    "description": "Gated Recurrent Unit - Cho et al. 2014.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the cuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. `reset_after` is `True`\n7. Inputs, if use masking, are strictly right-padded.\n8. Eager execution is enabled in the outermost context.\n\nThere are two variants of the GRU implementation. The default one is based on\n[v3](https://arxiv.org/abs/1406.1078v3) and has reset gate applied to hidden\nstate before matrix multiplication. The other one is based on\n[original](https://arxiv.org/abs/1406.1078v1) and has the order reversed.\n\nThe second variant is compatible with CuDNNGRU (GPU-only) and allows\ninference on CPU. Thus it has separate biases for `kernel` and\n`recurrent_kernel`. To use this variant, set `reset_after=True` and\n`recurrent_activation='sigmoid'`.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> gru = tf.keras.layers.GRU(4)\n>>> output = gru(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> gru = tf.keras.layers.GRU(4, return_sequences=True, return_state=True)\n>>> whole_sequence_output, final_state = gru(inputs)\n>>> print(whole_sequence_output.shape)\n(32, 10, 4)\n>>> print(final_state.shape)\n(32, 4)\n```",
     "attributes": [
       {
         "default": "tanh",
@@ -2199,7 +2199,7 @@
         "name": "Default"
       },
       {
-        "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\",\n    True = \"after\" (default and CuDNN compatible).",
+        "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\",\n    True = \"after\" (default and cuDNN compatible).",
         "name": "reset_after"
       },
       {
@@ -2325,7 +2325,7 @@
         "name": "Default"
       },
       {
-        "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\",\n    True = \"after\" (default and CuDNN compatible).",
+        "description": "GRU convention (whether to apply reset gate after or\n    before matrix multiplication). False = \"before\",\n    True = \"after\" (default and cuDNN compatible).",
         "name": "reset_after"
       }
     ]
@@ -2338,18 +2338,18 @@
     "name": "InputLayer",
     "module": "tensorflow.keras.layers",
     "category": "Data",
-    "description": "Layer to be used as an entry point into a Network (a graph of layers).\n\nIt can either wrap an existing tensor (pass an `input_tensor` argument)\nor create a placeholder tensor (pass arguments `input_shape`, and\noptionally, `dtype`).\n\nIt is generally recommend to use the functional layer API via `Input`,\n(which creates an `InputLayer`) without directly using `InputLayer`.\n\nWhen using InputLayer with Keras Sequential model, it can be skipped by\nmoving the input_shape parameter to the first layer after the InputLayer.\n\nThis class can create placeholders for tf.Tensors, tf.SparseTensors, and\ntf.RaggedTensors by choosing 'sparse=True' or 'ragged=True'. Note that\n'sparse' and 'ragged' can't be configured to True at same time.",
+    "description": "Layer to be used as an entry point into a Network (a graph of layers).\n\nIt can either wrap an existing tensor (pass an `input_tensor` argument)\nor create a placeholder tensor (pass arguments `input_shape`, and\noptionally, `dtype`).\n\nIt is generally recommend to use the Keras Functional model via `Input`,\n(which creates an `InputLayer`) without directly using `InputLayer`.\n\nWhen using `InputLayer` with the Keras Sequential model, it can be skipped by\nmoving the `input_shape` parameter to the first layer after the `InputLayer`.\n\nThis class can create placeholders for `tf.Tensors`, `tf.SparseTensors`, and\n`tf.RaggedTensors` by choosing `sparse=True` or `ragged=True`. Note that\n`sparse` and `ragged` can't be configured to `True` at the same time.",
     "attributes": [
       {
         "description": "Shape tuple (not including the batch axis), or `TensorShape`\n      instance (not including the batch axis).",
         "name": "input_shape"
       },
       {
-        "description": "Optional input batch size (integer or None).",
+        "description": "Optional input batch size (integer or `None`).",
         "name": "batch_size"
       },
       {
-        "description": "Optional datatype of the input. When not provided, the Keras\n        default float type will be used.",
+        "description": "Optional datatype of the input. When not provided, the Keras\n        default `float` type will be used.",
         "name": "dtype"
       },
       {
@@ -2357,11 +2357,11 @@
         "name": "input_tensor"
       },
       {
-        "description": "Boolean, whether the placeholder created is meant to be sparse.\n        Default to False.",
+        "description": "Boolean, whether the placeholder created is meant to be sparse.\n        Default to `False`.",
         "name": "sparse"
       },
       {
-        "description": "Boolean, whether the placeholder created is meant to be ragged.\n        In this case, values of 'None' in the 'shape' argument represent\n        ragged dimensions. For more information about RaggedTensors, see\n        [this guide](https://www.tensorflow.org/guide/ragged_tensors).\n        Default to False.",
+        "description": "Boolean, whether the placeholder created is meant to be ragged.\n        In this case, values of `None` in the `shape` argument represent\n        ragged dimensions. For more information about `tf.RaggedTensor`, see\n        [this guide](https://www.tensorflow.org/guide/ragged_tensor).\n        Default to `False`.",
         "name": "ragged"
       },
       {
@@ -2369,7 +2369,7 @@
         "name": "name"
       },
       {
-        "description": "A `tf.TypeSpec` object to create Input from. This `tf.TypeSpec`\n        represents the entire batch. When provided, all other args except\n        name must be None.",
+        "description": "A `tf.TypeSpec` object to create Input from. This `tf.TypeSpec`\n        represents the entire batch. When provided, all other args except\n        name must be `None`.",
         "name": "type_spec"
       }
     ],
@@ -2688,7 +2688,7 @@
     "name": "LSTM",
     "module": "tensorflow.keras.layers",
     "category": "Layer",
-    "description": "Long Short-Term Memory layer - Hochreiter 1997.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the CuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. Inputs, if use masking, are strictly right-padded.\n7. Eager execution is enabled in the outermost context.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> lstm = tf.keras.layers.LSTM(4)\n>>> output = lstm(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> lstm = tf.keras.layers.LSTM(4, return_sequences=True, return_state=True)\n>>> whole_seq_output, final_memory_state, final_carry_state = lstm(inputs)\n>>> print(whole_seq_output.shape)\n(32, 10, 4)\n>>> print(final_memory_state.shape)\n(32, 4)\n>>> print(final_carry_state.shape)\n(32, 4)\n```",
+    "description": "Long Short-Term Memory layer - Hochreiter 1997.\n\nSee [the Keras RNN API guide](https://www.tensorflow.org/guide/keras/rnn)\nfor details about the usage of RNN API.\n\nBased on available runtime hardware and constraints, this layer\nwill choose different implementations (cuDNN-based or pure-TensorFlow)\nto maximize the performance. If a GPU is available and all\nthe arguments to the layer meet the requirement of the cuDNN kernel\n(see below for details), the layer will use a fast cuDNN implementation.\n\nThe requirements to use the cuDNN implementation are:\n\n1. `activation` == `tanh`\n2. `recurrent_activation` == `sigmoid`\n3. `recurrent_dropout` == 0\n4. `unroll` is `False`\n5. `use_bias` is `True`\n6. Inputs, if use masking, are strictly right-padded.\n7. Eager execution is enabled in the outermost context.\n\nFor example:\n\n```\n>>> inputs = tf.random.normal([32, 10, 8])\n>>> lstm = tf.keras.layers.LSTM(4)\n>>> output = lstm(inputs)\n>>> print(output.shape)\n(32, 4)\n>>> lstm = tf.keras.layers.LSTM(4, return_sequences=True, return_state=True)\n>>> whole_seq_output, final_memory_state, final_carry_state = lstm(inputs)\n>>> print(whole_seq_output.shape)\n(32, 10, 4)\n>>> print(final_memory_state.shape)\n(32, 4)\n>>> print(final_carry_state.shape)\n(32, 4)\n```",
     "attributes": [
       {
         "description": "Positive integer, dimensionality of the output space.",
