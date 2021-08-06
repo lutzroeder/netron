@@ -18918,6 +18918,38 @@
     ]
   },
   {
+    "name": "GetElementAtIndex",
+    "summary": "Gets the element at the specified index in a dataset.",
+    "attributes": [
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset",
+        "type": 21
+      },
+      {
+        "name": "index",
+        "type": 9
+      }
+    ],
+    "outputs": [
+      {
+        "name": "components",
+        "typeListAttr": "output_types"
+      }
+    ]
+  },
+  {
     "name": "GetOptions",
     "summary": "Returns the `tf.data.Options` attached to `input_dataset`.",
     "inputs": [
@@ -22355,58 +22387,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingADAMParametersGradAccumDebug",
-    "summary": "Load ADAM embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "momenta",
-        "description": "Value of momenta used in the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "velocities",
-        "description": "Value of velocities used in the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the ADAM optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingAdadeltaParameters",
     "summary": "Load Adadelta embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -22454,58 +22434,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingAdadeltaParametersGradAccumDebug",
-    "summary": "Load Adadelta parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Value of accumulators used in the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "updates",
-        "description": "Value of updates used in the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the Adadelta optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingAdagradParameters",
     "summary": "Load Adagrad embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -22543,53 +22471,6 @@
       {
         "name": "accumulators",
         "description": "Value of accumulators used in the Adagrad optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "LoadTPUEmbeddingAdagradParametersGradAccumDebug",
-    "summary": "Load Adagrad embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Value of accumulators used in the Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the Adagrad optimization algorithm.",
         "type": 1
       }
     ]
@@ -22694,58 +22575,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingFTRLParametersGradAccumDebug",
-    "summary": "Load FTRL embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Value of accumulators used in the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "linears",
-        "description": "Value of linears used in the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the FTRL optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingFrequencyEstimatorParameters",
     "summary": "Load frequency estimator embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -22783,53 +22612,6 @@
       {
         "name": "last_hit_step",
         "description": "Value of last_hit_step used in the frequency estimator optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "LoadTPUEmbeddingFrequencyEstimatorParametersGradAccumDebug",
-    "summary": "Load frequency estimator embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the frequency estimator optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "last_hit_step",
-        "description": "Value of last_hit_step used in the frequency estimator optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the frequency estimator optimization\nalgorithm.",
         "type": 1
       }
     ]
@@ -22929,53 +22711,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingMomentumParametersGradAccumDebug",
-    "summary": "Load Momentum embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the Momentum optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "momenta",
-        "description": "Value of momenta used in the Momentum optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the Momentum optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingProximalAdagradParameters",
     "summary": "Load proximal Adagrad embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -23018,53 +22753,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingProximalAdagradParametersGradAccumDebug",
-    "summary": "Load proximal Adagrad embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the proximal Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Value of accumulators used in the proximal Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the proximal Adagrad optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingProximalYogiParameters",
     "attributes": [
       {
@@ -23102,52 +22790,6 @@
       },
       {
         "name": "m",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "LoadTPUEmbeddingProximalYogiParametersGradAccumDebug",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "type": 1
-      },
-      {
-        "name": "v",
-        "type": 1
-      },
-      {
-        "name": "m",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
         "type": 1
       }
     ]
@@ -23200,58 +22842,6 @@
     ]
   },
   {
-    "name": "LoadTPUEmbeddingRMSPropParametersGradAccumDebug",
-    "summary": "Load RMSProp embedding parameters with debug support.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "ms",
-        "description": "Value of ms used in the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "mom",
-        "description": "Value of mom used in the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the RMSProp optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "LoadTPUEmbeddingStochasticGradientDescentParameters",
     "summary": "Load SGD embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -23284,48 +22874,6 @@
       {
         "name": "parameters",
         "description": "Value of parameters used in the stochastic gradient descent optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "LoadTPUEmbeddingStochasticGradientDescentParametersGradAccumDebug",
-    "summary": "Load SGD embedding parameters.",
-    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "inputs": [
-      {
-        "name": "parameters",
-        "description": "Value of parameters used in the stochastic gradient descent optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Value of gradient_accumulators used in the Adadelta optimization algorithm.",
         "type": 1
       }
     ]
@@ -41217,58 +40765,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingADAMParametersGradAccumDebug",
-    "summary": "Retrieve ADAM embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "momenta",
-        "description": "Parameter momenta updated by the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "velocities",
-        "description": "Parameter velocities updated by the ADAM optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the ADAM optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingAdadeltaParameters",
     "summary": "Retrieve Adadelta embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -41316,58 +40812,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingAdadeltaParametersGradAccumDebug",
-    "summary": "Retrieve Adadelta embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Parameter accumulators updated by the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "updates",
-        "description": "Parameter updates updated by the Adadelta optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the Adadelta optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingAdagradParameters",
     "summary": "Retrieve Adagrad embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -41405,53 +40849,6 @@
       {
         "name": "accumulators",
         "description": "Parameter accumulators updated by the Adagrad optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "RetrieveTPUEmbeddingAdagradParametersGradAccumDebug",
-    "summary": "Retrieve Adagrad embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Parameter accumulators updated by the Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the Adagrad optimization algorithm.",
         "type": 1
       }
     ]
@@ -41556,58 +40953,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingFTRLParametersGradAccumDebug",
-    "summary": "Retrieve FTRL embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Parameter accumulators updated by the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "linears",
-        "description": "Parameter linears updated by the FTRL optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the FTRL optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingFrequencyEstimatorParameters",
     "summary": "Retrieve frequency estimator embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -41645,53 +40990,6 @@
       {
         "name": "last_hit_step",
         "description": "Parameter last_hit_step updated by the frequency estimator optimization\nalgorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "RetrieveTPUEmbeddingFrequencyEstimatorParametersGradAccumDebug",
-    "summary": "Retrieve frequency estimator embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the frequency estimator optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "last_hit_step",
-        "description": "Parameter last_hit_step updated by the frequency estimator optimization\nalgorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the frequency estimator optimization\nalgorithm.",
         "type": 1
       }
     ]
@@ -41791,53 +41089,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingMomentumParametersGradAccumDebug",
-    "summary": "Retrieve Momentum embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the Momentum optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "momenta",
-        "description": "Parameter momenta updated by the Momentum optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the Momentum optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingProximalAdagradParameters",
     "summary": "Retrieve proximal Adagrad embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -41880,53 +41131,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingProximalAdagradParametersGradAccumDebug",
-    "summary": "Retrieve proximal Adagrad embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the proximal Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "accumulators",
-        "description": "Parameter accumulators updated by the proximal Adagrad optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the proximal Adagrad optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingProximalYogiParameters",
     "attributes": [
       {
@@ -41964,52 +41168,6 @@
       },
       {
         "name": "m",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "RetrieveTPUEmbeddingProximalYogiParametersGradAccumDebug",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "type": 1
-      },
-      {
-        "name": "v",
-        "type": 1
-      },
-      {
-        "name": "m",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
         "type": 1
       }
     ]
@@ -42062,58 +41220,6 @@
     ]
   },
   {
-    "name": "RetrieveTPUEmbeddingRMSPropParametersGradAccumDebug",
-    "summary": "Retrieve RMSProp embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "ms",
-        "description": "Parameter ms updated by the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "mom",
-        "description": "Parameter mom updated by the RMSProp optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the RMSProp optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
     "name": "RetrieveTPUEmbeddingStochasticGradientDescentParameters",
     "summary": "Retrieve SGD embedding parameters.",
     "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
@@ -42146,48 +41252,6 @@
       {
         "name": "parameters",
         "description": "Parameter parameters updated by the stochastic gradient descent optimization algorithm.",
-        "type": 1
-      }
-    ]
-  },
-  {
-    "name": "RetrieveTPUEmbeddingStochasticGradientDescentParametersGradAccumDebug",
-    "summary": "Retrieve SGD embedding parameters with debug support.",
-    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
-    "attributes": [
-      {
-        "name": "table_id",
-        "type": "int64",
-        "default": -1
-      },
-      {
-        "name": "table_name",
-        "type": "string",
-        "default": ""
-      },
-      {
-        "name": "num_shards",
-        "type": "int64"
-      },
-      {
-        "name": "shard_id",
-        "type": "int64"
-      },
-      {
-        "name": "config",
-        "type": "string",
-        "default": ""
-      }
-    ],
-    "outputs": [
-      {
-        "name": "parameters",
-        "description": "Parameter parameters updated by the stochastic gradient descent optimization algorithm.",
-        "type": 1
-      },
-      {
-        "name": "gradient_accumulators",
-        "description": "Parameter gradient_accumulators updated by the Adadelta optimization algorithm.",
         "type": 1
       }
     ]
