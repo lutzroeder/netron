@@ -706,6 +706,10 @@ cntk.Function = class {
         this._nodes = nodes;
     }
 
+    get type() {
+        return 'function';
+    }
+
     get name() {
         return this._name;
     }
