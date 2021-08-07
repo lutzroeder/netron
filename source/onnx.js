@@ -1206,6 +1206,10 @@ onnx.Function = class {
         }
     }
 
+    get type() {
+        return 'function';
+    }
+
     get name() {
         return this._name;
     }
