@@ -218,9 +218,13 @@ sidebar.NodeSidebar = class {
     }
 
     _addAttribute(name, attribute) {
-        const item = new sidebar.NameValueView(this._host, name, new NodeAttributeView(this._host, attribute));
-        this._attributes.push(item);
-        this._elements.push(item.render());
+        const item = new NodeAttributeView(this._host, attribute);
+        item.on('show-graph', (sender, graph) => {
+            this._raise('show-graph', graph);
+        });
+        const view = new sidebar.NameValueView(this._host, name, item);
+        this._attributes.push(view);
+        this._elements.push(view.render());
     }
 
     _addInput(name, input) {
@@ -295,6 +299,10 @@ sidebar.NodeSidebar = class {
                     return value.toString();
                 }
                 return '[...]';
+            case 'function':
+                return value.name;
+            case 'function[]':
+                return value ? value.map((item) => item.name).join(', ') : '(null)';
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
             return quote ? '"' + value + '"' : value;
@@ -492,7 +500,8 @@ class NodeAttributeView {
         this._element = this._host.document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 
-        if (attribute.type) {
+        const type = this._attribute.type;
+        if (type) {
             this._expander = this._host.document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -501,17 +510,32 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        let value = sidebar.NodeSidebar.formatAttributeValue(this._attribute.value, this._attribute.type);
-        if (value && value.length > 1000) {
-            value = value.substring(0, 1000) + '\u2026';
+        const value = this._attribute.value;
+        switch (type) {
+            case 'function': {
+                const line = this._host.document.createElement('div');
+                line.className = 'sidebar-view-item-value-line-link';
+                line.innerHTML = value.name;
+                line.addEventListener('click', () => {
+                    this._raise('show-graph', value);
+                });
+                this._element.appendChild(line);
+                break;
+            }
+            default: {
+                let text = sidebar.NodeSidebar.formatAttributeValue(value, type);
+                if (text && text.length > 1000) {
+                    text = text.substring(0, 1000) + '\u2026';
+                }
+                if (text && typeof text === 'string') {
+                    text = text.split('<').join('&lt;').split('>').join('&gt;');
+                }
+                const line = this._host.document.createElement('div');
+                line.className = 'sidebar-view-item-value-line';
+                line.innerHTML = (text ? text : '&nbsp;');
+                this._element.appendChild(line);
+            }
         }
-        if (value && typeof value === 'string') {
-            value = value.split('<').join('&lt;').split('>').join('&gt;');
-        }
-        const valueLine = this._host.document.createElement('div');
-        valueLine.className = 'sidebar-view-item-value-line';
-        valueLine.innerHTML = (value ? value : '&nbsp;');
-        this._element.appendChild(valueLine);
     }
 
     render() {
@@ -557,6 +581,20 @@ class NodeAttributeView {
             this._expander.innerText = '+';
             while (this._element.childElementCount > 2) {
                 this._element.removeChild(this._element.lastChild);
+            }
+        }
+    }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
+                callback(this, data);
             }
         }
     }

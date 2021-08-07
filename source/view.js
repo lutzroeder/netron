@@ -895,6 +895,9 @@ view.View = class {
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
                 this.showNodeDocumentation(node);
             });
+            nodeSidebar.on('show-graph', (sender, graph) => {
+                this.pushGraph(graph);
+            });
             nodeSidebar.on('export-tensor', (sender, tensor) => {
                 this._host.require('./numpy').then((numpy) => {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
