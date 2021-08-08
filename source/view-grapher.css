@@ -7,12 +7,12 @@
 
 .node-item-function path { fill: #fff; }
 .node-item-function text { fill: #000; }
-.node-item-function:hover { cursor: hand; }
+.node-item-function:hover { cursor: pointer; }
 .node-item-function:hover path { fill: #eee; }
 
 .node-item-type path { fill: #000; }
 .node-item-type text { fill: #fff; }
-.node-item-type:hover { cursor: hand; }
+.node-item-type:hover { cursor: pointer; }
 .node-item-type:hover path { fill: #fff; }
 .node-item-type:hover text { fill: #000; }
 
@@ -38,28 +38,28 @@
 .node-item-type-custom path { fill: rgb(128, 128, 128); }
 
 .node-item-input path { fill: #fff; }
-.node-item-input:hover { cursor: hand; }
+.node-item-input:hover { cursor: pointer; }
 .node-item-input:hover path { fill: #fff; }
 
 .node-item-constant path { fill: #eee; }
-.node-item-constant:hover { cursor: hand; }
+.node-item-constant:hover { cursor: pointer; }
 .node-item-constant:hover path { fill: #fff; }
 
 .node-item-undefined path { fill: #f00; }
-.node-item-undefined:hover { cursor: hand; }
+.node-item-undefined:hover { cursor: pointer; }
 .node-item-undefined:hover path { fill: #fff; }
 
-.node-attribute:hover { cursor: hand; }
+.node-attribute:hover { cursor: pointer; }
 .node-attribute text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 9px; font-weight: normal; text-rendering: geometricPrecision; }
 .node-attribute path { fill: #fff; stroke-width: 0; stroke: #000; }
 .node-attribute:hover path { fill: #f6f6f6; }
 
 .graph-item-input path { fill: #eee; }
-.graph-item-input:hover { cursor: hand; }
+.graph-item-input:hover { cursor: pointer; }
 .graph-item-input:hover path { fill: #fff; }
 
 .graph-item-output path { fill: #eee; }
-.graph-item-output:hover { cursor: hand; }
+.graph-item-output:hover { cursor: pointer; }
 .graph-item-output:hover path { fill: #fff; }
 
 .edge-label text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
@@ -90,12 +90,12 @@
 
     .node-item-function path { fill: #404040; }
     .node-item-function text { fill: #dfdfdfdf; }
-    .node-item-function:hover { cursor: hand; }
+    .node-item-function:hover { cursor: pointer; }
     .node-item-function:hover path { fill: #666666; }
     
     .node-item-type path { fill: #303030; }
     .node-item-type text { fill: #dfdfdf; }
-    .node-item-type:hover { cursor: hand; }
+    .node-item-type:hover { cursor: pointer; }
     .node-item-type:hover path { fill: #808080; }
     .node-item-type:hover text { fill: #dfdfdf; }
 
@@ -107,11 +107,11 @@
     .node-attribute:hover path { fill: #666666; }
 
     .graph-item-input path { fill: #404040; }
-    .graph-item-input:hover { cursor: hand; }
+    .graph-item-input:hover { cursor: pointer; }
     .graph-item-input:hover path { fill: #666666; }
 
     .graph-item-output path { fill: #404040; }
-    .graph-item-output:hover { cursor: hand; }
+    .graph-item-output:hover { cursor: pointer; }
     .graph-item-output:hover path { fill: #666666; }
 
     .node-item-input path { fill: #404040; }

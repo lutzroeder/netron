@@ -35,6 +35,12 @@ view.View = class {
             this._getElementById('zoom-out-button').addEventListener('click', () => {
                 this.zoomOut();
             });
+            this._getElementById('back-button').addEventListener('click', () => {
+                this.popGraph();
+            });
+            this._getElementById('name-button').addEventListener('click', () => {
+                this.showDocumentation(this.activeGraph);
+            });
             this._getElementById('sidebar').addEventListener('mousewheel', (e) => {
                 this._preventZoom(e);
             }, { passive: true });
@@ -125,7 +131,7 @@ view.View = class {
 
     show(page) {
         if (!page) {
-            page = (!this._model && !this._graphs[0]) ? 'welcome' : 'default';
+            page = (!this._model && !this.activeGraph) ? 'welcome' : 'default';
         }
         this._host.screen(page);
         if (this._sidebar) {
@@ -151,10 +157,11 @@ view.View = class {
     }
 
     find() {
-        if (this._graphs[0]) {
+        const graph = this.activeGraph;
+        if (graph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, this._graphs[0]);
+            const view = new sidebar.FindSidebar(this._host, graphElement, graph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -209,7 +216,7 @@ view.View = class {
 
     _reload() {
         this.show('welcome spinner');
-        if (this._model && this._graphs[0]) {
+        if (this._model && this._graphs.length > 0) {
             this._updateGraph(this._model, this._graphs).catch((error) => {
                 if (error) {
                     this.error(error, 'Graph update failed.', 'welcome');
@@ -462,11 +469,28 @@ view.View = class {
         }
     }
 
+    get activeGraph() {
+        return Array.isArray(this._graphs) && this._graphs.length > 0 ? this._graphs[0] : null;
+    }
+
     _updateGraph(model, graphs) {
-        const active = (graphs) => {
-            return Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        const update = () => {
+            const nameButton = this._getElementById('name-button');
+            const backButton = this._getElementById('back-button');
+            if (this._graphs.length > 1) {
+                // backButton.style.display = 'block';
+                // nameButton.style.display = 'block';
+                const graph = this.activeGraph;
+                nameButton.innerHTML = graph ? graph.name : '';
+                backButton.style.opacity = 1;
+                nameButton.style.opacity = 1;
+            }
+            else {
+                backButton.style.opacity = 0;
+                nameButton.style.opacity = 0;
+            }
         };
-        const graph = active(graphs);
+        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
         return this._timeout(100).then(() => {
             if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
@@ -484,12 +508,14 @@ view.View = class {
                 if (!graphs || graphs.length <= 1) {
                     this.show('default');
                 }
+                update();
                 return this._model;
             }).catch((error) => {
-                return this.renderGraph(this._model, active(this._graphs)).then(() => {
+                return this.renderGraph(this._model, this.activeGraph).then(() => {
                     if (!graphs || graphs.length <= 1) {
                         this.show('default');
                     }
+                    update();
                     throw error;
                 }).catch(() => {
                     throw error;
@@ -499,7 +525,7 @@ view.View = class {
     }
 
     pushGraph(graph) {
-        if (graph !== this._graphs[0]) {
+        if (graph !== this.activeGraph) {
             return this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
         return Promise.resolve();
@@ -507,7 +533,7 @@ view.View = class {
 
     popGraph() {
         if (this._graphs.length > 1) {
-            return this._updateGraph(this._model, this._graphs.subarray(1));
+            return this._updateGraph(this._model, this._graphs.slice(1));
         }
     }
 
@@ -811,7 +837,7 @@ view.View = class {
     export(file) {
         const lastIndex = file.lastIndexOf('.');
         const extension = (lastIndex != -1) ? file.substring(lastIndex + 1) : '';
-        if (this._graphs[0] && (extension === 'png' || extension === 'svg')) {
+        if (this.activeGraph && (extension === 'png' || extension === 'svg')) {
             const graphElement = this._getElementById('canvas');
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
@@ -881,7 +907,7 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this._graphs[0]);
+            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
             modelSidebar.on('update-active-graph', (sender, name) => {
                 this._updateActiveGraph(name);
             });
@@ -893,7 +919,7 @@ view.View = class {
         if (node) {
             const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
             nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                this.showNodeDocumentation(node);
+                this.showDocumentation(node.type);
             });
             nodeSidebar.on('show-graph', (sender, graph) => {
                 this.pushGraph(graph);
@@ -937,8 +963,7 @@ view.View = class {
         }
     }
 
-    showNodeDocumentation(node) {
-        const type = node.type;
+    showDocumentation(type) {
         if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
             if (type.nodes) {
                 this.pushGraph(type);
