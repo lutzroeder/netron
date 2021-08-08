@@ -7,9 +7,9 @@ dlc.ModelFactory = class {
     match(context) {
         const entries = context.entries('zip');
         if (entries.has('model')) {
-            return true;
+            return 'dlc';
         }
-        return false;
+        return '';
     }
 
     open(/* context */) {

@@ -8,9 +8,9 @@ tensorrt.ModelFactory = class {
         const stream = context.stream;
         const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
         if (stream.length >= 4 && stream.peek(4).every((value, index) => value === signature[index])) {
-            return true;
+            return 'tensorrt';
         }
-        return false;
+        return '';
     }
 
     open(context) {

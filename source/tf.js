@@ -10,10 +10,161 @@ var protobuf = protobuf || require('./protobuf');
 tf.ModelFactory = class {
 
     match(context) {
-        return this._format(context).length > 0;
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        if (extension === 'meta') {
+            const tags = context.tags('pb');
+            if (tags.size !== 0) {
+                return 'tf.pb';
+            }
+        }
+        if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
+            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+                return '';
+            }
+            const tags = context.tags('pbtxt');
+            if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
+                return '';
+            }
+            if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                return 'tf.pbtxt.SavedModel';
+            }
+            if (tags.has('graph_def')) {
+                return 'tf.pbtxt.MetaGraphDef';
+            }
+            if (tags.has('node')) {
+                return 'tf.pbtxt.GraphDef';
+            }
+        }
+        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
+            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+                return '';
+            }
+            if (identifier == 'tfhub_module.pb') {
+                const stream = context.stream;
+                const signature = [ 0x08, 0x03 ];
+                if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+                    return '';
+                }
+            }
+            const tags = context.tags('pb');
+            if (tags.size > 0) {
+                if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
+                    if (tags.size === 1 && tags.get(1) === 2) {
+                        const tags = context.tags('pb+');
+                        const match = (tags, schema) => {
+                            for (const pair of schema) {
+                                const key = pair[0];
+                                const inner = pair[1];
+                                if (!tags.has(key)) {
+                                    continue;
+                                }
+                                else if (inner === false) {
+                                    return false;
+                                }
+                                if (Array.isArray(inner)) {
+                                    const value = tags.get(key);
+                                    if (!(value instanceof Map) || !match(value, inner)) {
+                                        return false;
+                                    }
+                                }
+                                else if (inner !== tags.get(key)) {
+                                    return false;
+                                }
+                            }
+                            return true;
+                        };
+                        // mediapipe.BoxDetectorIndex
+                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                            return '';
+                        }
+                        // third_party.tensorflow.python.keras.protobuf.SavedMetadata
+                        if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
+                            return 'tf.pb.keras.SavedMetadata';
+                        }
+                    }
+                    if (tags.get(1) !== 2) {
+                        return 'tf.pb';
+                    }
+                    const decode = (buffer, value) => {
+                        const reader = protobuf.BinaryReader.open(buffer);
+                        const length = reader.length;
+                        while (reader.position < length) {
+                            const tag = reader.uint32();
+                            const number = tag >>> 3;
+                            const type = tag & 7;
+                            if (value === number) {
+                                return type === 2 ? reader.bytes() : null;
+                            }
+                            else {
+                                reader.skipType(type);
+                            }
+                        }
+                        return null;
+                    };
+                    const stream = context.stream;
+                    const buffer = stream.peek();
+                    const nodeBuffer = decode(buffer, 1);
+                    if (nodeBuffer) {
+                        const nameBuffer = decode(nodeBuffer, 1);
+                        if (nameBuffer) {
+                            const decoder = new TextDecoder('utf-8');
+                            const name = decoder.decode(nameBuffer);
+                            if (Array.from(name).filter((c) => c <= ' ').length < 256) {
+                                return 'tf.pb';
+                            }
+                        }
+                    }
+                }
+            }
+            else {
+                const tags = context.tags('pbtxt');
+                if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
+                    return false;
+                }
+                if (tags.has('node')) {
+                    return 'tf.pbtxt.GraphDef';
+                }
+                if (tags.has('graph_def')) {
+                    return 'tf.pbtxt.MetaGraphDef';
+                }
+                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                    return 'tf.pbtxt.SavedModel';
+                }
+            }
+        }
+        if (extension === 'json') {
+            const obj = context.open('json');
+            if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
+                return 'tf.json';
+            }
+        }
+        if (extension === 'index' || extension === 'ckpt') {
+            const stream = context.stream;
+            if (stream.length > 8) {
+                stream.seek(-8);
+                const buffer = stream.read(8);
+                stream.seek(0);
+                const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
+                if (buffer.every((value, index) => value === signature[index])) {
+                    return 'tf.bundle';
+                }
+            }
+        }
+        if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
+            return 'tf.data';
+        }
+        if (/^events.out.tfevents./.exec(identifier)) {
+            const stream = context.stream;
+            if (tf.EventFileReader.open(stream)) {
+                return 'tf.events';
+            }
+        }
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./tf-proto').then(() => {
             tf.proto = protobuf.get('tf');
             const openModel = (saved_model, format, producer, bundle) => {
@@ -313,7 +464,7 @@ tf.ModelFactory = class {
                     return openBinaryProto(stream, identifier);
                 });
             };
-            switch (this._format(context)) {
+            switch (match) {
                 case 'tf.bundle':
                     return openBundle(context, context.stream, context.identifier);
                 case 'tf.data':
@@ -333,164 +484,9 @@ tf.ModelFactory = class {
                 case 'tf.pb.keras.SavedMetadata':
                     return openSavedMetadata(context);
                 default:
-                    throw new tf.Error('Unknown format.');
+                    throw new tf.Error("Unknown TensorFlow format '" + match + "'.");
             }
         });
-    }
-
-    _format(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'meta') {
-            const tags = context.tags('pb');
-            if (tags.size !== 0) {
-                return 'tf.pb';
-            }
-        }
-        if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
-            if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-                identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-                return '';
-            }
-            const tags = context.tags('pbtxt');
-            if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                return '';
-            }
-            if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                return 'tf.pbtxt.SavedModel';
-            }
-            if (tags.has('graph_def')) {
-                return 'tf.pbtxt.MetaGraphDef';
-            }
-            if (tags.has('node')) {
-                return 'tf.pbtxt.GraphDef';
-            }
-        }
-        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
-            if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                return '';
-            }
-            if (identifier == 'tfhub_module.pb') {
-                const stream = context.stream;
-                const signature = [ 0x08, 0x03 ];
-                if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return '';
-                }
-            }
-            const tags = context.tags('pb');
-            if (tags.size > 0) {
-                if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
-                    if (tags.size === 1 && tags.get(1) === 2) {
-                        const tags = context.tags('pb+');
-                        const match = (tags, schema) => {
-                            for (const pair of schema) {
-                                const key = pair[0];
-                                const inner = pair[1];
-                                if (!tags.has(key)) {
-                                    continue;
-                                }
-                                else if (inner === false) {
-                                    return false;
-                                }
-                                if (Array.isArray(inner)) {
-                                    const value = tags.get(key);
-                                    if (!(value instanceof Map) || !match(value, inner)) {
-                                        return false;
-                                    }
-                                }
-                                else if (inner !== tags.get(key)) {
-                                    return false;
-                                }
-                            }
-                            return true;
-                        };
-                        // mediapipe.BoxDetectorIndex
-                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
-                            return '';
-                        }
-                        // third_party.tensorflow.python.keras.protobuf.SavedMetadata
-                        if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                            return 'tf.pb.keras.SavedMetadata';
-                        }
-                    }
-                    if (tags.get(1) !== 2) {
-                        return 'tf.pb';
-                    }
-                    const decode = (buffer, value) => {
-                        const reader = protobuf.BinaryReader.open(buffer);
-                        const length = reader.length;
-                        while (reader.position < length) {
-                            const tag = reader.uint32();
-                            const number = tag >>> 3;
-                            const type = tag & 7;
-                            if (value === number) {
-                                return type === 2 ? reader.bytes() : null;
-                            }
-                            else {
-                                reader.skipType(type);
-                            }
-                        }
-                        return null;
-                    };
-                    const stream = context.stream;
-                    const buffer = stream.peek();
-                    const nodeBuffer = decode(buffer, 1);
-                    if (nodeBuffer) {
-                        const nameBuffer = decode(nodeBuffer, 1);
-                        if (nameBuffer) {
-                            const decoder = new TextDecoder('utf-8');
-                            const name = decoder.decode(nameBuffer);
-                            if (Array.from(name).filter((c) => c <= ' ').length < 256) {
-                                return 'tf.pb';
-                            }
-                        }
-                    }
-                }
-            }
-            else {
-                const tags = context.tags('pbtxt');
-                if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                    return false;
-                }
-                if (tags.has('node')) {
-                    return 'tf.pbtxt.GraphDef';
-                }
-                if (tags.has('graph_def')) {
-                    return 'tf.pbtxt.MetaGraphDef';
-                }
-                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                    return 'tf.pbtxt.SavedModel';
-                }
-            }
-        }
-        if (extension === 'json') {
-            const obj = context.open('json');
-            if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
-                return 'tf.json';
-            }
-        }
-        if (extension === 'index' || extension === 'ckpt') {
-            const stream = context.stream;
-            if (stream.length > 8) {
-                stream.seek(-8);
-                const buffer = stream.read(8);
-                stream.seek(0);
-                const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
-                if (buffer.every((value, index) => value === signature[index])) {
-                    return 'tf.bundle';
-                }
-            }
-        }
-        if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-            return 'tf.data';
-        }
-        if (/^events.out.tfevents./.exec(identifier)) {
-            const stream = context.stream;
-            if (tf.EventFileReader.open(stream)) {
-                return 'tf.events';
-            }
-        }
-        return '';
     }
 };
 

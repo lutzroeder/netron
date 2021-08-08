@@ -13,50 +13,52 @@ cntk.ModelFactory = class {
         // CNTK v1
         const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return true;
+            return 'cntk.v1';
         }
         // CNTK v2
         const tags = context.tags('pb');
         if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return true;
+            return 'cntk.v2';
         }
-        return false;
+        return '';
     }
 
-    open(context) {
-        return context.require('./cntk-proto').then(() => {
-            let version = 0;
-            let obj = null;
-            try {
-                const stream = context.stream;
-                const signature = [ 0x42, 0x00, 0x43, 0x00, 0x4e, 0x00, 0x00, 0x00 ];
-                if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    obj = new cntk_v1.ComputationNetwork(stream.peek());
-                    version = 1;
+    open(context, match) {
+        return cntk.Metadata.open(context).then((metadata) => {
+            switch (match) {
+                case 'cntk.v1': {
+                    try {
+                        const stream = context.stream;
+                        const buffer = stream.peek();
+                        const obj = new cntk_v1.ComputationNetwork(buffer);
+                        return new cntk.Model(metadata, 1, obj);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
+                    }
+                }
+                case 'cntk.v2': {
+                    return context.require('./cntk-proto').then(() => {
+                        try {
+                            cntk_v2 = protobuf.get('cntk').CNTK.proto;
+                            cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
+                            const stream = context.stream;
+                            const reader = protobuf.BinaryReader.open(stream);
+                            const dictionary = cntk_v2.Dictionary.decode(reader);
+                            const obj = cntk.ModelFactory._convertDictionary(dictionary);
+                            return new cntk.Model(metadata, 2, obj);
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
+                        }
+                    });
+                }
+                default: {
+                    throw new cntk.Error("Unknown CNTK format '" + match + "'.");
                 }
             }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new cntk.Error('File format is not CNTK v1 (' + message.replace(/\.$/, '') + ').');
-            }
-            try {
-                if (!obj) {
-                    cntk_v2 = protobuf.get('cntk').CNTK.proto;
-                    cntk_v2.PoolingType = { 0: 'Max', 1: 'Average' };
-                    const stream = context.stream;
-                    const reader = protobuf.BinaryReader.open(stream);
-                    const dictionary = cntk_v2.Dictionary.decode(reader);
-                    obj = cntk.ModelFactory._convertDictionary(dictionary);
-                    version = 2;
-                }
-            }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new cntk.Error('File format is not cntk.Dictionary (' + message.replace(/\.$/, '') + ').');
-            }
-            return cntk.Metadata.open(context).then((metadata) => {
-                return new cntk.Model(metadata, version, obj);
-            });
         });
     }
 

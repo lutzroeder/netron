@@ -13,11 +13,11 @@ mnn.ModelFactory = class {
                 const buffer = stream.peek(4);
                 const reader = flatbuffers.BinaryReader.open(buffer);
                 if (reader.root === 0x00000018 || reader.root === 0x0000001C || reader.root === 0x00000020) {
-                    return true;
+                    return 'mnn';
                 }
             }
         }
-        return false;
+        return '';
     }
 
     open(context) {

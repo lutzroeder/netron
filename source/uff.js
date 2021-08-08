@@ -18,48 +18,47 @@ uff.ModelFactory = class {
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
                 tags.has(5) && tags.get(5) === 2) {
-                return true;
+                return 'uff.pb';
             }
         }
         if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
             const tags = context.tags('pbtxt');
             if (tags.has('version') && tags.has('descriptors') && tags.has('graphs')) {
-                return true;
+                return 'uff.pbtxt';
             }
         }
-        return false;
+        return '';
     }
 
-    open(context) {
-        return context.require('./uff-proto').then(() => {
-            let meta_graph = null;
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
-                try {
-                    uff.proto = protobuf.get('uff').uff;
-                    const stream = context.stream;
-                    const reader = protobuf.TextReader.open(stream);
-                    meta_graph = uff.proto.MetaGraph.decodeText(reader);
+    open(context, match) {
+        return uff.Metadata.open(context).then((metadata) => {
+            return context.require('./uff-proto').then(() => {
+                uff.proto = protobuf.get('uff').uff;
+                switch (match) {
+                    case 'uff.pb': {
+                        try {
+                            const stream = context.stream;
+                            const reader = protobuf.BinaryReader.open(stream);
+                            const meta_graph = uff.proto.MetaGraph.decode(reader);
+                            return new uff.Model(metadata, meta_graph);
+                        }
+                        catch (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
+                        }
+                    }
+                    case 'uff.pbtxt': {
+                        try {
+                            const stream = context.stream;
+                            const reader = protobuf.TextReader.open(stream);
+                            const meta_graph = uff.proto.MetaGraph.decodeText(reader);
+                            return new uff.Model(metadata, meta_graph);
+                        }
+                        catch (error) {
+                            throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
+                        }
+                    }
                 }
-                catch (error) {
-                    throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
-                }
-            }
-            else {
-                try {
-                    uff.proto = protobuf.get('uff').uff;
-                    const stream = context.stream;
-                    const reader = protobuf.BinaryReader.open(stream);
-                    meta_graph = uff.proto.MetaGraph.decode(reader);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
-                }
-            }
-            return uff.Metadata.open(context).then((metadata) => {
-                return new uff.Model(metadata, meta_graph);
             });
         });
     }

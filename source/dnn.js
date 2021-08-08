@@ -9,9 +9,9 @@ dnn.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if (tags.get(4) == 0 && tags.get(10) == 2) {
-            return true;
+            return 'dnn';
         }
-        return false;
+        return '';
     }
 
     open(context) {

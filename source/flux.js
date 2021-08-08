@@ -11,9 +11,9 @@ flux.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'bson') {
-            return true;
+            return 'flux.bson';
         }
-        return false;
+        return '';
     }
 
     open(context) {

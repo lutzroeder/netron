@@ -9,10 +9,10 @@ torch.ModelFactory = class {
         if (extension == 't7') {
             const stream = context.stream;
             if (stream.length >= 1 && stream.peek(1)[0] <= 58) {
-                return true;
+                return 'torch';
             }
         }
-        return false;
+        return '';
     }
 
     open(context) {

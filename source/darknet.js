@@ -11,7 +11,7 @@ darknet.ModelFactory = class {
         switch (extension) {
             case 'weights':
                 if (darknet.Weights.open(context.stream)) {
-                    return true;
+                    return 'darknet.weights';
                 }
                 break;
             default:
@@ -27,7 +27,7 @@ darknet.ModelFactory = class {
                             continue;
                         }
                         if (text.startsWith('[') && text.endsWith(']')) {
-                            return true;
+                            return 'darknet.model';
                         }
                         return false;
                     }
@@ -40,27 +40,30 @@ darknet.ModelFactory = class {
         return false;
     }
 
-    open(context) {
+    open(context, match) {
         return darknet.Metadata.open(context).then((metadata) => {
-            const open = (metadata, cfg, weights) => {
+            const openModel = (metadata, cfg, weights) => {
                 return new darknet.Model(metadata, cfg, darknet.Weights.open(weights));
             };
             const identifier = context.identifier;
             const parts = identifier.split('.');
-            const extension = parts.pop().toLowerCase();
+            parts.pop();
             const basename = parts.join('.');
-            switch (extension) {
-                case 'weights':
+            switch (match) {
+                case 'darknet.weights':
                     return context.request(basename + '.cfg', null).then((stream) => {
                         const buffer = stream.read();
-                        return open(metadata, buffer, context.stream);
+                        return openModel(metadata, buffer, context.stream);
                     });
-                default:
+                case 'darknet.model':
                     return context.request(basename + '.weights', null).then((stream) => {
-                        return open(metadata, context.stream.peek(), stream);
+                        return openModel(metadata, context.stream.peek(), stream);
                     }).catch(() => {
-                        return open(metadata, context.stream.peek(), null);
+                        return openModel(metadata, context.stream.peek(), null);
                     });
+                default: {
+                    throw new darknet.Error("Unknown Darknet format '" + match + "'.");
+                }
             }
         });
     }

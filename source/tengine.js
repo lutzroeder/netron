@@ -10,10 +10,10 @@ tengine.ModelFactory = class {
         if (stream.length > 4) {
             const buffer = stream.peek(2);
             if (buffer[0] < 4 && buffer[1] === 0) {
-                return true;
+                return 'tengine';
             }
         }
-        return false;
+        return '';
     }
 
     open(context) {

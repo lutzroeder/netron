@@ -1741,7 +1741,7 @@ view.ModelFactoryService = class {
     _openContext(context) {
         const modules = this._filter(context).filter((module) => module && module.length > 0);
         const errors = [];
-        let match = false;
+        let success = false;
         const nextModule = () => {
             if (modules.length > 0) {
                 const id = modules.shift();
@@ -1756,8 +1756,10 @@ view.ModelFactoryService = class {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
+                    let match = false;
                     try {
-                        if (!modelFactory.match(context)) {
+                        match = modelFactory.match(context);
+                        if (match === false || match.length === 0) {
                             return nextModule();
                         }
                     }
@@ -1765,8 +1767,8 @@ view.ModelFactoryService = class {
                         updateErrorContext(error, context);
                         return Promise.reject(error);
                     }
-                    match = true;
-                    return modelFactory.open(context).then((model) => {
+                    success = true;
+                    return modelFactory.open(context, match).then((model) => {
                         return model;
                     }).catch((error) => {
                         updateErrorContext(error, context);
@@ -1776,7 +1778,7 @@ view.ModelFactoryService = class {
                 });
             }
             else {
-                if (match) {
+                if (success) {
                     if (errors.length === 1) {
                         const error = errors[0];
                         return Promise.reject(error);

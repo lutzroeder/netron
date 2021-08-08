@@ -16,12 +16,12 @@ sklearn.ModelFactory = class {
             return false;
         };
         if (validate(obj)) {
-            return true;
+            return 'sklearn';
         }
         if (Array.isArray(obj) && obj.every((item) => validate(item))) {
-            return true;
+            return 'sklearn';
         }
-        return false;
+        return '';
     }
 
     open(context) {

@@ -7,16 +7,141 @@ var flatbuffers = flatbuffers || require('./flatbuffers');
 onnx.ModelFactory = class {
 
     match(context) {
-        return this._format(context).length > 0;
+        const identifier = context.identifier;
+        const extension = identifier.split('.').pop().toLowerCase();
+        if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
+            return '';
+        }
+        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
+            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
+            return '';
+        }
+        let tags = context.tags('pb');
+        if (tags.size > 0) {
+            if (tags.size === 1 && tags.get(1) === 2) {
+                const tags = context.tags('pb+');
+                const match = (tags, schema) => {
+                    for (const pair of schema) {
+                        const key = pair[0];
+                        const inner = pair[1];
+                        if (!tags.has(key)) {
+                            continue;
+                        }
+                        else if (inner === false) {
+                            return false;
+                        }
+                        if (Array.isArray(inner)) {
+                            const value = tags.get(key);
+                            if (!(value instanceof Map) || !match(value, inner)) {
+                                return false;
+                            }
+                        }
+                        else if (inner !== tags.get(key)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                };
+                // mediapipe.BoxDetectorIndex
+                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                    return '';
+                }
+                // third_party.tensorflow.python.keras.protobuf.SavedMetadata
+                if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
+                    return '';
+                }
+            }
+            if (Array.from(tags.keys()).every((tag) => tag <= 100) &&
+                Array.from(tags.values()).every((type) => type < 5)) {
+                // TensorProto
+                if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
+                    const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                        return 'onnx.pb.TensorProto';
+                    }
+                }
+                // GraphProto
+                if (tags.get(1) === 2) {
+                    const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                        const decode = (buffer, value) => {
+                            const reader = protobuf.BinaryReader.open(buffer);
+                            const length = reader.length;
+                            while (reader.position < length) {
+                                const tag = reader.uint32();
+                                const number = tag >>> 3;
+                                const type = tag & 7;
+                                if (value === number) {
+                                    return type === 2 ? reader.bytes() : null;
+                                }
+                                else {
+                                    reader.skipType(type);
+                                }
+                            }
+                            return null;
+                        };
+                        const stream = context.stream;
+                        const buffer = stream.peek();
+                        const nodeBuffer = decode(buffer, 1);
+                        if (nodeBuffer) {
+                            const nameBuffer = decode(nodeBuffer, 4);
+                            if (nameBuffer && nameBuffer.every((c) => c > 0x20 && c < 0x7f)) {
+                                return 'onnx.pb.GraphProto';
+                            }
+                        }
+                    }
+                }
+                // ModelProto
+                if (tags.get(7) === 2) {
+                    const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
+                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
+                        return 'onnx.pb.ModelProto';
+                    }
+                }
+            }
+        }
+        const stream = context.stream;
+        if (stream.length > 5) {
+            const buffer = stream.peek(Math.min(stream.length, 32));
+            if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
+                const producers = [
+                    'backend-test', 'BrainwaveCompiler',
+                    'CNTK',
+                    'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
+                    'darknet to ONNX example',
+                    'htshinichi',
+                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
+                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
+                    'PaddlePaddle', 'pytorch',
+                    'skl2onnx',
+                    'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
+                    'WinMLTools'
+                ];
+                if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
+                    return 'onnx.pb.ModelProto';
+                }
+            }
+        }
+        tags = context.tags('pbtxt');
+        if (tags.has('ir_version')) {
+            return 'onnx.pbtxt.ModelProto';
+        }
+        if (tags.has('graph') && extension !== 'model') {
+            return 'onnx.pbtxt.ModelProto';
+        }
+        if (context.tags('flatbuffers').get('file_identifier') === 'ORTM') {
+            return 'onnx.flatbuffers';
+        }
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         const open = (model, format) => {
             return onnx.Metadata.open(context).then((metadata) => {
                 return new onnx.Model(metadata, model, format);
             });
         };
-        switch (this._format(context)) {
+        switch (match) {
             case 'onnx.pbtxt.ModelProto':
                 return context.require('./onnx-proto').then(() => {
                     try {
@@ -145,138 +270,9 @@ onnx.ModelFactory = class {
                 });
             }
             default: {
-                throw new onnx.Error("Unknown ONNX format '" + this._format(context) + "'.");
+                throw new onnx.Error("Unknown ONNX format '" + match + "'.");
             }
         }
-    }
-
-    _format(context) {
-        const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-            return '';
-        }
-        if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
-            identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return '';
-        }
-        let tags = context.tags('pb');
-        if (tags.size > 0) {
-            if (tags.size === 1 && tags.get(1) === 2) {
-                const tags = context.tags('pb+');
-                const match = (tags, schema) => {
-                    for (const pair of schema) {
-                        const key = pair[0];
-                        const inner = pair[1];
-                        if (!tags.has(key)) {
-                            continue;
-                        }
-                        else if (inner === false) {
-                            return false;
-                        }
-                        if (Array.isArray(inner)) {
-                            const value = tags.get(key);
-                            if (!(value instanceof Map) || !match(value, inner)) {
-                                return false;
-                            }
-                        }
-                        else if (inner !== tags.get(key)) {
-                            return false;
-                        }
-                    }
-                    return true;
-                };
-                // mediapipe.BoxDetectorIndex
-                if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
-                    return '';
-                }
-                // third_party.tensorflow.python.keras.protobuf.SavedMetadata
-                if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                    return '';
-                }
-            }
-            if (Array.from(tags.keys()).every((tag) => tag <= 100) &&
-                Array.from(tags.values()).every((type) => type < 5)) {
-                // TensorProto
-                if (tags.get(1) === 0 && tags.get(2) === 0 && tags.get(9) === 2) {
-                    const schema = [[1,0],[2,0],[4,2],[5,2],[7,2],[8,2],[9,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        return 'onnx.pb.TensorProto';
-                    }
-                }
-                // GraphProto
-                if (tags.get(1) === 2) {
-                    const schema = [[1,2],[2,2],[3,2],[4,2],[5,2],[6,0],[7,0],[8,2],[9,2],[10,2],[11,2],[12,2],[13,2],[14,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        const decode = (buffer, value) => {
-                            const reader = protobuf.BinaryReader.open(buffer);
-                            const length = reader.length;
-                            while (reader.position < length) {
-                                const tag = reader.uint32();
-                                const number = tag >>> 3;
-                                const type = tag & 7;
-                                if (value === number) {
-                                    return type === 2 ? reader.bytes() : null;
-                                }
-                                else {
-                                    reader.skipType(type);
-                                }
-                            }
-                            return null;
-                        };
-                        const stream = context.stream;
-                        const buffer = stream.peek();
-                        const nodeBuffer = decode(buffer, 1);
-                        if (nodeBuffer) {
-                            const nameBuffer = decode(nodeBuffer, 4);
-                            if (nameBuffer && nameBuffer.every((c) => c > 0x20 && c < 0x7f)) {
-                                return 'onnx.pb.GraphProto';
-                            }
-                        }
-                    }
-                }
-                // ModelProto
-                if (tags.get(7) === 2) {
-                    const schema = [[1,0],[2,2],[3,2],[4,2][5,0],[6,2],[7,2],[8,2],[14,2],[20,2]];
-                    if (schema.every((pair) => !tags.has(pair[0]) || tags.get(pair[0]) === pair[1])) {
-                        return 'onnx.pb.ModelProto';
-                    }
-                }
-            }
-        }
-        const stream = context.stream;
-        if (stream.length > 5) {
-            const buffer = stream.peek(Math.min(stream.length, 32));
-            if (buffer[0] === 0x08 && buffer[1] < 0x0A && buffer[2] === 0x12) {
-                const producers = [
-                    'backend-test', 'BrainwaveCompiler',
-                    'CNTK',
-                    'keras2onnx', 'Kneron', 'kneron_formatter', 'kneron_kl530_test_case',
-                    'darknet to ONNX example',
-                    'htshinichi',
-                    'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
-                    'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
-                    'PaddlePaddle', 'pytorch',
-                    'skl2onnx',
-                    'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
-                    'WinMLTools'
-                ];
-                if (producers.some((producer) => Array.from(producer).every((ch, index) => index + 4 < buffer.length && ch.charCodeAt(0) === buffer[index + 4]))) {
-                    return 'onnx.pb.ModelProto';
-                }
-            }
-        }
-        tags = context.tags('pbtxt');
-        if (tags.has('ir_version')) {
-            return 'onnx.pbtxt.ModelProto';
-        }
-        if (tags.has('graph') && extension !== 'model') {
-            return 'onnx.pbtxt.ModelProto';
-        }
-        if (context.tags('flatbuffers').get('file_identifier') === 'ORTM') {
-            return 'onnx.flatbuffers';
-        }
-        return '';
     }
 };
 

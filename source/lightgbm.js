@@ -11,7 +11,7 @@ lightgbm.ModelFactory = class {
             const reader = base.TextReader.open(stream.peek(), 65536);
             const line = reader.read();
             if (line === 'tree') {
-                return true;
+                return 'lightgbm.text';
             }
         }
         catch (err) {
@@ -19,31 +19,34 @@ lightgbm.ModelFactory = class {
         }
         const obj = context.open('pkl');
         if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
-            return true;
+            return 'lightgbm.pickle';
         }
-        return false;
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         return new Promise((resolve, reject) => {
             try {
                 let model;
                 let format;
-                const obj = context.open('pkl');
-                if (obj) {
-                    format = 'LightGBM Pickle';
-                    model = obj;
-                    if (model && model.handle && typeof model.handle === 'string') {
-                        const reader = base.TextReader.open(model.handle);
+                switch (match) {
+                    case 'lightgbm.pickle': {
+                        format = 'LightGBM Pickle';
+                        const obj = context.open('pkl');
+                        model = obj;
+                        if (model && model.handle && typeof model.handle === 'string') {
+                            const reader = base.TextReader.open(model.handle);
+                            model = new lightgbm.basic.Booster(reader);
+                        }
+                        break;
+                    }
+                    case 'lightgbm.text': {
+                        format = 'LightGBM';
+                        const stream = context.stream;
+                        const buffer = stream.peek();
+                        const reader = base.TextReader.open(buffer);
                         model = new lightgbm.basic.Booster(reader);
                     }
-                }
-                else {
-                    format = 'LightGBM';
-                    const stream = context.stream;
-                    const buffer = stream.peek();
-                    const reader = base.TextReader.open(buffer);
-                    model = new lightgbm.basic.Booster(reader);
                 }
                 resolve(new lightgbm.Model(model, format));
             }

@@ -6,10 +6,35 @@ var json = json || require('./json');
 keras.ModelFactory = class {
 
     match(context) {
-        return this._format(context).length > 0;
+        const stream = context.stream;
+        const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
+        if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            return 'keras.h5';
+        }
+        const obj = context.open('json');
+        if (obj) {
+            if (obj.mxnet_version) {
+                return '';
+            }
+            if (obj.nodes && obj.arg_nodes && obj.heads) {
+                return '';
+            }
+            if (obj.modelTopology) {
+                if (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config) {
+                    return 'keras.json.tfjs';
+                }
+            }
+            if (obj.model_config || (obj.class_name && obj.config)) {
+                return 'keras.json';
+            }
+            if (Array.isArray(obj) && obj.every((item) => item.weights && item.paths)) {
+                return 'keras.json.tfjs.weights';
+            }
+        }
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         const openModel = (format, producer, backend, config, weights) => {
             return keras.Metadata.open(context).then((metadata) => {
                 return new keras.Model(metadata, format, producer, backend, config, weights);
@@ -67,7 +92,7 @@ keras.ModelFactory = class {
             });
         };
         const stream = context.stream;
-        switch (this._format(context)) {
+        switch (match) {
             case 'keras.h5': {
                 return context.require('./hdf5').then((hdf5) => {
                     const weights = new keras.Weights();
@@ -273,38 +298,9 @@ keras.ModelFactory = class {
                 });
             }
             default: {
-                throw new keras.Error("Unsupported Keras format '" + this._format(context) + "'.");
+                throw new keras.Error("Unsupported Keras format '" + match + "'.");
             }
         }
-    }
-
-    _format(context) {
-        const stream = context.stream;
-        const signature = [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ];
-        if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return 'keras.h5';
-        }
-        const obj = context.open('json');
-        if (obj) {
-            if (obj.mxnet_version) {
-                return '';
-            }
-            if (obj.nodes && obj.arg_nodes && obj.heads) {
-                return '';
-            }
-            if (obj.modelTopology) {
-                if (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config) {
-                    return 'keras.json.tfjs';
-                }
-            }
-            if (obj.model_config || (obj.class_name && obj.config)) {
-                return 'keras.json';
-            }
-            if (Array.isArray(obj) && obj.every((item) => item.weights && item.paths)) {
-                return 'keras.json.tfjs.weights';
-            }
-        }
-        return '';
     }
 };
 

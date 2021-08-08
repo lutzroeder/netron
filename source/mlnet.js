@@ -12,10 +12,10 @@ mlnet.ModelFactory = class {
         if (entries.size > 0) {
             const root = new Set([ 'TransformerChain', 'Predictor']);
             if (Array.from(entries.keys()).some((name) => root.has(name.split('\\').shift().split('/').shift()))) {
-                return true;
+                return 'mlnet';
             }
         }
-        return false;
+        return '';
     }
 
     open(context) {

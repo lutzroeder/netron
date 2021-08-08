@@ -16,7 +16,7 @@ tnn.ModelFactory = class {
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
-                            return true;
+                            return 'tnn.model';
                         }
                     }
                 }
@@ -29,31 +29,32 @@ tnn.ModelFactory = class {
             const stream = context.stream;
             for (const signature of [ [ 0x02, 0x00, 0xbc, 0xfa ], [ 0x04, 0x00, 0xbc, 0xfa ] ]) {
                 if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return true;
+                    return 'tnn.params';
                 }
             }
         }
-        return false;
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         return tnn.Metadata.open(context).then((metadata) => {
-            const identifier = context.identifier.toLowerCase();
-            if (identifier.endsWith('.tnnproto')) {
-                const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
-                return context.request(tnnmodel, null).then((stream) => {
-                    const buffer = stream.peek();
-                    return new tnn.Model(metadata, context.stream.peek(), buffer);
-                }).catch(() => {
-                    return new tnn.Model(metadata, context.stream.peek(), null);
-                });
-            }
-            else if (identifier.endsWith('.tnnmodel')) {
-                const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
-                return context.request(tnnproto, null).then((stream) => {
-                    const buffer = stream.peek();
-                    return new tnn.Model(metadata, buffer, context.stream.peek());
-                });
+            switch (match) {
+                case 'tnn.model': {
+                    const tnnmodel = context.identifier.substring(0, context.identifier.length - 9) + '.tnnmodel';
+                    return context.request(tnnmodel, null).then((stream) => {
+                        const buffer = stream.peek();
+                        return new tnn.Model(metadata, context.stream.peek(), buffer);
+                    }).catch(() => {
+                        return new tnn.Model(metadata, context.stream.peek(), null);
+                    });
+                }
+                case 'tnn.params': {
+                    const tnnproto = context.identifier.substring(0, context.identifier.length - 9) + '.tnnproto';
+                    return context.request(tnnproto, null).then((stream) => {
+                        const buffer = stream.peek();
+                        return new tnn.Model(metadata, buffer, context.stream.peek());
+                    });
+                }
             }
         });
     }
@@ -62,8 +63,9 @@ tnn.ModelFactory = class {
 tnn.Model = class {
 
     constructor(metadata, tnnproto, tnnmodel) {
-        this._graphs = [];
-        this._graphs.push(new tnn.Graph(metadata, tnnproto, tnnmodel));
+        this._graphs = [
+            new tnn.Graph(metadata, tnnproto, tnnmodel)
+        ];
     }
 
     get format() {

@@ -8,33 +8,31 @@ armnn.ModelFactory = class {
     match(context) {
         switch (context.identifier.split('.').pop().toLowerCase()) {
             case 'armnn': {
-                return true;
+                return 'armnn.flatbuffers';
             }
             case 'json': {
                 const obj = context.open('json');
                 if (obj && obj.layers && obj.inputIds && obj.outputIds) {
-                    return true;
+                    return 'armnn.flatbuffers.json';
                 }
             }
         }
-        return false;
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./armnn-schema').then((/* schema */) => {
             armnn.schema = flatbuffers.get('armnn').armnnSerializer;
             let model = null;
             try {
-                const identifier = context.identifier;
-                const extension = identifier.split('.').pop().toLowerCase();
-                switch (extension) {
-                    case 'armnn': {
+                switch (match) {
+                    case 'armnn.flatbuffers': {
                         const stream = context.stream;
                         const reader = flatbuffers.BinaryReader.open(stream);
                         model = armnn.schema.SerializedGraph.create(reader);
                         break;
                     }
-                    case 'json': {
+                    case 'armnn.flatbuffers.json': {
                         const obj = context.open('json');
                         const reader = flatbuffers.TextReader.open(obj);
                         model = armnn.schema.SerializedGraph.createText(reader);
