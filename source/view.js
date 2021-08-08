@@ -1756,10 +1756,10 @@ view.ModelFactoryService = class {
                         throw new view.Error("Failed to load module '" + id + "'.");
                     }
                     const modelFactory = new module.ModelFactory();
-                    let match = false;
+                    let match = undefined;
                     try {
                         match = modelFactory.match(context);
-                        if (match === false || match.length === 0) {
+                        if (!match) {
                             return nextModule();
                         }
                     }

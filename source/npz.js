@@ -8,17 +8,28 @@ var python = python || require('./python');
 npz.ModelFactory = class {
 
     match(context) {
-        switch (npz.Utility.format(context)) {
-            case 'npy':
-            case 'npz':
-            case 'pickle':
-            case 'numpy.ndarray':
-                return true;
+        const stream = context.stream;
+        const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            return 'npy';
         }
-        return false;
+        const entries = context.entries('zip');
+        if (entries.size > 0 && Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
+            return 'npz';
+        }
+        const obj = context.open('pkl');
+        if (obj) {
+            if (npz.Utility.isTensor(obj)) {
+                return 'numpy.ndarray';
+            }
+            if (npz.Utility.weights(obj)) {
+                return 'pickle';
+            }
+        }
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./numpy').then((numpy) => {
             let format = '';
             const groups = new Map();
@@ -36,7 +47,7 @@ npz.ModelFactory = class {
                     data: array.data,
                 };
             };
-            switch (npz.Utility.format(context)) {
+            switch (match) {
                 case 'npy': {
                     format = 'NumPy Array';
                     const stream = context.stream;
@@ -484,28 +495,6 @@ npz.TensorShape = class {
 };
 
 npz.Utility = class {
-
-    static format(context) {
-        const stream = context.stream;
-        const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return 'npy';
-        }
-        const entries = context.entries('zip');
-        if (entries.size > 0 && Array.from(entries.keys()).every((name) => name.endsWith('.npy'))) {
-            return 'npz';
-        }
-        const obj = context.open('pkl');
-        if (obj) {
-            if (npz.Utility.isTensor(obj)) {
-                return 'numpy.ndarray';
-            }
-            if (npz.Utility.weights(obj)) {
-                return 'pickle';
-            }
-        }
-        return null;
-    }
 
     static isTensor(obj) {
         return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';

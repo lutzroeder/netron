@@ -11,7 +11,7 @@ dnn.ModelFactory = class {
         if (tags.get(4) == 0 && tags.get(10) == 2) {
             return 'dnn';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

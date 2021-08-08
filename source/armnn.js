@@ -17,34 +17,39 @@ armnn.ModelFactory = class {
                 }
             }
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {
         return context.require('./armnn-schema').then((/* schema */) => {
             armnn.schema = flatbuffers.get('armnn').armnnSerializer;
             let model = null;
-            try {
-                switch (match) {
-                    case 'armnn.flatbuffers': {
+            switch (match) {
+                case 'armnn.flatbuffers': {
+                    try {
                         const stream = context.stream;
                         const reader = flatbuffers.BinaryReader.open(stream);
                         model = armnn.schema.SerializedGraph.create(reader);
-                        break;
                     }
-                    case 'armnn.flatbuffers.json': {
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
+                }
+                case 'armnn.flatbuffers.json': {
+                    try {
                         const obj = context.open('json');
                         const reader = flatbuffers.TextReader.open(obj);
                         model = armnn.schema.SerializedGraph.createText(reader);
-                        break;
                     }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw new armnn.Error('File text format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
                 }
             }
-            catch (error) {
-                const message = error && error.message ? error.message : error.toString();
-                throw new armnn.Error('File format is not armnn.SerializedGraph (' + message.replace(/\.$/, '') + ').');
-            }
-
             return armnn.Metadata.open(context).then((metadata) => {
                 return new armnn.Model(metadata, model);
             });

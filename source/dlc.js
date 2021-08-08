@@ -9,7 +9,7 @@ dlc.ModelFactory = class {
         if (entries.has('model')) {
             return 'dlc';
         }
-        return '';
+        return undefined;
     }
 
     open(/* context */) {

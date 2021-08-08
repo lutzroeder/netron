@@ -21,11 +21,11 @@ tf.ModelFactory = class {
         if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-                return '';
+                return undefined;
             }
             const tags = context.tags('pbtxt');
             if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                return '';
+                return undefined;
             }
             if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
                 return 'tf.pbtxt.SavedModel';
@@ -39,13 +39,13 @@ tf.ModelFactory = class {
         }
         if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                return '';
+                return undefined;
             }
             if (identifier == 'tfhub_module.pb') {
                 const stream = context.stream;
                 const signature = [ 0x08, 0x03 ];
                 if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return '';
+                    return undefined;
                 }
             }
             const tags = context.tags('pb');
@@ -77,7 +77,7 @@ tf.ModelFactory = class {
                         };
                         // mediapipe.BoxDetectorIndex
                         if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
-                            return '';
+                            return undefined;
                         }
                         // third_party.tensorflow.python.keras.protobuf.SavedMetadata
                         if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
@@ -121,7 +121,7 @@ tf.ModelFactory = class {
             else {
                 const tags = context.tags('pbtxt');
                 if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                    return false;
+                    return undefined;
                 }
                 if (tags.has('node')) {
                     return 'tf.pbtxt.GraphDef';
@@ -161,7 +161,7 @@ tf.ModelFactory = class {
                 return 'tf.events';
             }
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {

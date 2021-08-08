@@ -12,7 +12,7 @@ torch.ModelFactory = class {
                 return 'torch';
             }
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

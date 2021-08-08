@@ -13,7 +13,7 @@ flux.ModelFactory = class {
         if (extension === 'bson') {
             return 'flux.bson';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

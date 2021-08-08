@@ -29,7 +29,7 @@ tflite.ModelFactory = class {
         if (obj && obj.subgraphs && obj.operator_codes) {
             return 'tflite.flatbuffers.json';
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {

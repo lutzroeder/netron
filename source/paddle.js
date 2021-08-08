@@ -11,40 +11,38 @@ paddle.ModelFactory = class {
         if (identifier === '__model__' || extension === '__model__' || extension === 'paddle' || extension === 'pdmodel') {
             const tags = context.tags('pb');
             if (tags.get(1) === 2) {
-                return true;
+                return 'paddle.pb';
             }
         }
         if (extension === 'pbtxt' || extension === 'txt') {
             const tags = context.tags('pbtxt');
             if (tags.has('blocks')) {
-                return true;
+                return 'paddle.pbtxt';
             }
         }
         if (paddle.Container.open(context)) {
-            return true;
+            return 'paddle.container';
         }
         const stream = context.stream;
         if (stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
-            return true;
+            return 'paddle.params';
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return paddle.Metadata.open(context).then((metadata) => {
             return context.require('./paddle-proto').then(() => {
                 paddle.proto = protobuf.get('paddle').paddle.framework.proto;
-                const stream = context.stream;
                 const identifier = context.identifier;
                 const parts = identifier.split('.');
                 const extension = parts.pop().toLowerCase();
                 const base = parts.join('.');
-                const openProgram = (stream, extension) => {
+                const openProgram = (stream, match) => {
                     const program = {};
                     program.format = 'PaddlePaddle';
-                    switch (extension) {
-                        case 'pbtxt':
-                        case 'txt': {
+                    switch (match) {
+                        case 'paddle.pbtxt': {
                             try {
                                 const reader = protobuf.TextReader.open(stream);
                                 program.desc = paddle.proto.ProgramDesc.decodeText(reader);
@@ -55,7 +53,7 @@ paddle.ModelFactory = class {
                             }
                             break;
                         }
-                        default: {
+                        case 'paddle.pb': {
                             try {
                                 const reader = protobuf.BinaryReader.open(stream);
                                 program.desc = paddle.proto.ProgramDesc.decode(reader);
@@ -65,6 +63,9 @@ paddle.ModelFactory = class {
                                 throw new paddle.Error('File format is not paddle.ProgramDesc (' + message.replace(/\.$/, '') + ').');
                             }
                             break;
+                        }
+                        default: {
+                            throw new paddle.Error("Unknown Paddle format '" + match + "'.");
                         }
                     }
                     const programDesc = program.desc;
@@ -111,46 +112,49 @@ paddle.ModelFactory = class {
                     }
                     return new paddle.Model(metadata, program.format, program.desc, tensors);
                 };
-                const container = paddle.Container.open(context);
-                if (container) {
-                    return new paddle.Model(metadata, container.format, null, container.weights);
-                }
-                else if (stream.length > 16 && stream.peek(16).every((value) => value === 0x00)) {
-                    const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
-                    return context.request(file, null).then((stream) => {
-                        const program = openProgram(stream, '');
-                        return loadParams(metadata, program, context.stream);
-                    });
-                }
-                else {
-                    const program = openProgram(context.stream, extension);
-                    const loadEntries = (context, program) => {
-                        const promises = program.vars.map((name) => context.request(name, null));
-                        const tensors = new Map();
-                        return Promise.all(promises).then((streams) => {
-                            for (let i = 0; i < program.vars.length; i++) {
-                                tensors.set(program.vars[i], new paddle.Tensor(null, streams[i]));
-                            }
-                            return new paddle.Model(metadata, program.format, program.desc, tensors);
-                        }).catch((/* err */) => {
-                            return new paddle.Model(metadata, program.format, program.desc, tensors);
-                        });
-                    };
-                    if (extension === 'pdmodel') {
-                        return context.request(base + '.pdiparams', null).then((stream) => {
-                            return loadParams(metadata, program, stream);
-                        }).catch((/* err */) => {
-                            return loadEntries(context, program);
+                switch (match) {
+                    case 'paddle.container': {
+                        const container = paddle.Container.open(context);
+                        return new paddle.Model(metadata, container.format, null, container.weights);
+                    }
+                    case 'paddle.params': {
+                        const file = identifier !== 'params' ? base + '.pdmodel' : 'model';
+                        return context.request(file, null).then((stream) => {
+                            const program = openProgram(stream, 'paddle.pb');
+                            return loadParams(metadata, program, context.stream);
                         });
                     }
-                    if (identifier === 'model') {
-                        return context.request('params', null).then((stream) => {
-                            return loadParams(metadata, program, stream);
-                        }).catch((/* err */) => {
-                            return loadEntries(context, program);
-                        });
+                    case 'paddle.pb':
+                    case 'paddle.pbtxt': {
+                        const program = openProgram(context.stream, match);
+                        const loadEntries = (context, program) => {
+                            const promises = program.vars.map((name) => context.request(name, null));
+                            const tensors = new Map();
+                            return Promise.all(promises).then((streams) => {
+                                for (let i = 0; i < program.vars.length; i++) {
+                                    tensors.set(program.vars[i], new paddle.Tensor(null, streams[i]));
+                                }
+                                return new paddle.Model(metadata, program.format, program.desc, tensors);
+                            }).catch((/* err */) => {
+                                return new paddle.Model(metadata, program.format, program.desc, tensors);
+                            });
+                        };
+                        if (extension === 'pdmodel') {
+                            return context.request(base + '.pdiparams', null).then((stream) => {
+                                return loadParams(metadata, program, stream);
+                            }).catch((/* err */) => {
+                                return loadEntries(context, program);
+                            });
+                        }
+                        if (identifier === 'model') {
+                            return context.request('params', null).then((stream) => {
+                                return loadParams(metadata, program, stream);
+                            }).catch((/* err */) => {
+                                return loadEntries(context, program);
+                            });
+                        }
+                        return loadEntries(context, program);
                     }
-                    return loadEntries(context, program);
                 }
             });
         });

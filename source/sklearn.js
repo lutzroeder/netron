@@ -21,7 +21,7 @@ sklearn.ModelFactory = class {
         if (Array.isArray(obj) && obj.every((item) => validate(item))) {
             return 'sklearn';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

@@ -14,7 +14,7 @@ mxnet.ModelFactory = class {
             case 'json': {
                 const obj = context.open('json');
                 if (obj && obj.nodes && obj.arg_nodes && obj.heads) {
-                    return true;
+                    return 'mxnet.json';
                 }
                 break;
             }
@@ -22,15 +22,15 @@ mxnet.ModelFactory = class {
                 const stream = context.stream;
                 const signature = [ 0x12, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
                 if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value == signature[index])) {
-                    return true;
+                    return 'mxnet.params';
                 }
                 break;
             }
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return mxnet.Metadata.open(context).then((metadata) => {
             const basename = (base, identifier, extension, suffix, append) => {
                 if (!base) {
@@ -189,9 +189,8 @@ mxnet.ModelFactory = class {
                 return new mxnet.Model(metadata, manifest, symbol, parameters);
             };
             const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'json': {
+            switch (match) {
+                case 'mxnet.json': {
                     let symbol = null;
                     try {
                         symbol = context.open('json');
@@ -216,7 +215,7 @@ mxnet.ModelFactory = class {
                         return requestParams(manifest);
                     });
                 }
-                case 'params': {
+                case 'mxnet.params': {
                     const params = context.stream.peek();
                     const requestSymbol = (manifest) => {
                         const file = basename(manifest.symbol, identifier, '.params', null, '-symbol.json');
@@ -235,7 +234,7 @@ mxnet.ModelFactory = class {
                     });
                 }
                 default: {
-                    throw new mxnet.Error('Unsupported file extension.');
+                    throw new mxnet.Error("Unsupported MXNet format '" + match + "'.");
                 }
             }
         });

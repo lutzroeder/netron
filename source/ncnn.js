@@ -15,11 +15,11 @@ ncnn.ModelFactory = class {
             const signature = reader.read();
             if (signature !== undefined) {
                 if (signature.trim() === '7767517') {
-                    return true;
+                    return 'ncnn.model';
                 }
                 const header = signature.trim().split(' ');
                 if (header.length === 2 && header.every((value) => value >>> 0 === parseFloat(value))) {
-                    return true;
+                    return 'ncnn.model';
                 }
             }
         }
@@ -29,13 +29,13 @@ ncnn.ModelFactory = class {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature == 0x007685DD) {
-                    return true;
+                    return 'ncnn.model.bin';
                 }
             }
         }
         if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
             if (identifier == 'snapshot_blob.bin' || identifier === 'v8_context_snapshot.bin') {
-                return false;
+                return undefined;
             }
             const stream = context.stream;
             if (stream.length > 4) {
@@ -43,14 +43,14 @@ ncnn.ModelFactory = class {
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return true;
+                    return 'ncnn.weights';
                 }
             }
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return ncnn.Metadata.open(context).then((metadata) => {
             const identifier = context.identifier.toLowerCase();
             const openBinary = (param, bin) => {
@@ -62,46 +62,48 @@ ncnn.ModelFactory = class {
                 return new ncnn.Model(metadata, reader, bin);
             };
             let bin = null;
-            if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-                if (identifier.endsWith('.param')) {
-                    bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
-                }
-                else if (identifier.endsWith('.cfg.ncnn')) {
-                    bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
-                }
-                return context.request(bin, null).then((stream) => {
-                    const buffer = stream.read();
-                    return openText(context.stream.peek(), buffer);
-                }).catch(() => {
-                    return openText(context.stream.peek(), null);
-                });
-            }
-            else if (identifier.endsWith('.param.bin')) {
-                bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
-                return context.request(bin, null).then((stream) => {
-                    const buffer = stream.read();
-                    return openBinary(context.stream.peek(), buffer);
-                }).catch(() => {
-                    return openBinary(context.stream.peek(), null);
-                });
-            }
-            else if (identifier.endsWith('.bin') || identifier.endsWith('.weights.ncnn')) {
-                let text = null;
-                if (identifier.endsWith('bin')) {
-                    text = context.identifier.substring(0, context.identifier.length - 4) + '.param';
-                }
-                else if (identifier.endsWith('.weights.ncnn')) {
-                    text = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
-                }
-                return context.request(text, null).then((stream) => {
-                    const buffer = stream.peek();
-                    return openText(buffer, context.stream.peek());
-                }).catch(() => {
-                    return context.request(text + '.bin', null).then((stream) => {
-                        const buffer = stream.peek();
-                        return openBinary(buffer, context.stream.peek());
+            switch (match) {
+                case 'ncnn.model': {
+                    if (identifier.endsWith('.param')) {
+                        bin = context.identifier.substring(0, context.identifier.length - 6) + '.bin';
+                    }
+                    else if (identifier.endsWith('.cfg.ncnn')) {
+                        bin = context.identifier.substring(0, context.identifier.length - 9) + '.weights.ncnn';
+                    }
+                    return context.request(bin, null).then((stream) => {
+                        const buffer = stream.read();
+                        return openText(context.stream.peek(), buffer);
+                    }).catch(() => {
+                        return openText(context.stream.peek(), null);
                     });
-                });
+                }
+                case 'ncnn.model.bin': {
+                    bin = context.identifier.substring(0, context.identifier.length - 10) + '.bin';
+                    return context.request(bin, null).then((stream) => {
+                        const buffer = stream.read();
+                        return openBinary(context.stream.peek(), buffer);
+                    }).catch(() => {
+                        return openBinary(context.stream.peek(), null);
+                    });
+                }
+                case 'ncnn.weights': {
+                    let text = null;
+                    if (identifier.endsWith('bin')) {
+                        text = context.identifier.substring(0, context.identifier.length - 4) + '.param';
+                    }
+                    else if (identifier.endsWith('.weights.ncnn')) {
+                        text = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
+                    }
+                    return context.request(text, null).then((stream) => {
+                        const buffer = stream.peek();
+                        return openText(buffer, context.stream.peek());
+                    }).catch(() => {
+                        return context.request(text + '.bin', null).then((stream) => {
+                            const buffer = stream.peek();
+                            return openBinary(buffer, context.stream.peek());
+                        });
+                    });
+                }
             }
         });
     }

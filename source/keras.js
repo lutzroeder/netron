@@ -13,16 +13,11 @@ keras.ModelFactory = class {
         }
         const obj = context.open('json');
         if (obj) {
-            if (obj.mxnet_version) {
-                return '';
+            if (obj.mxnet_version || (obj.nodes && obj.arg_nodes && obj.heads)) {
+                return undefined;
             }
-            if (obj.nodes && obj.arg_nodes && obj.heads) {
-                return '';
-            }
-            if (obj.modelTopology) {
-                if (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config) {
-                    return 'keras.json.tfjs';
-                }
+            if (obj.modelTopology && (obj.format === 'layers-model' || obj.modelTopology.class_name || obj.modelTopology.model_config)) {
+                return 'keras.json.tfjs';
             }
             if (obj.model_config || (obj.class_name && obj.config)) {
                 return 'keras.json';
@@ -31,7 +26,7 @@ keras.ModelFactory = class {
                 return 'keras.json.tfjs.weights';
             }
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {

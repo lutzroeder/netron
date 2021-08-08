@@ -17,7 +17,7 @@ weka.ModelFactory = class {
                     const reader = new java.io.InputObjectStream(stream);
                     const obj = reader.read();
                     if (obj && obj.$class && obj.$class.name) {
-                        return true;
+                        return 'weka';
                     }
                 }
             }
@@ -25,7 +25,7 @@ weka.ModelFactory = class {
         catch (err) {
             // continue regardless of error
         }
-        return false;
+        return undefined;
     }
 
     open(context) {

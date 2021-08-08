@@ -29,7 +29,7 @@ darknet.ModelFactory = class {
                         if (text.startsWith('[') && text.endsWith(']')) {
                             return 'darknet.model';
                         }
-                        return false;
+                        return undefined;
                     }
                 }
                 catch (err) {
@@ -37,7 +37,7 @@ darknet.ModelFactory = class {
                 }
                 break;
         }
-        return false;
+        return undefined;
     }
 
     open(context, match) {

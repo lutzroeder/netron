@@ -13,7 +13,7 @@ tengine.ModelFactory = class {
                 return 'tengine';
             }
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

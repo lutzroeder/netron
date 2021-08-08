@@ -10,7 +10,7 @@ imgdnn.ModelFactory = class {
         if (stream.length >= signature.length && stream.peek(4).every((value, index) => value === signature[index])) {
             return 'imgdnn';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

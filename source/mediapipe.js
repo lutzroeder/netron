@@ -8,26 +8,27 @@ mediapipe.ModelFactory = class {
     match(context) {
         const tags = context.tags('pbtxt');
         if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-            return 'mediapipe';
+            return 'mediapipe.pbtxt';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {
         return Promise.resolve().then(() => {
         // return context.require('./mediapipe-proto').then(() => {
             mediapipe.proto = protobuf.get('mediapipe');
+            let config = null;
             try {
                 const stream = context.stream;
                 const reader = protobuf.TextReader.open(stream);
                 // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
-                const config = new mediapipe.Object(reader);
-                return new mediapipe.Model(config);
+                config = new mediapipe.Object(reader);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
             }
+            return new mediapipe.Model(config);
         });
     }
 };

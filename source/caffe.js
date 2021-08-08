@@ -9,62 +9,119 @@ caffe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
-            return true;
+            return 'caffe.pb';
         }
         if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return false;
+            return undefined;
         }
         const tags = context.tags('pbtxt');
-        if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            return true;
+        if (tags.has('layer') || tags.has('layers')) {
+            return 'caffe.pbtxt';
         }
-        return false;
+        if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
+            return 'caffe.pbtxt.solver';
+        }
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.get('caffe').caffe;
-            return caffe.Metadata.open(context).then((metadata) => {
-                const tags = context.tags('pbtxt');
-                if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-                    try {
-                        const stream = context.stream;
-                        const reader = protobuf.TextReader.open(stream);
-                        reader.field = function(tag, message) {
-                            if (message instanceof caffe.proto.SolverParameter) {
-                                message[tag] = this.read();
-                                return;
-                            }
-                            throw new Error("Unknown field '" + tag + "'" + this.location());
-                        };
-                        const solver = caffe.proto.SolverParameter.decodeText(reader);
-                        if (solver.net_param) {
-                            return new caffe.Model(metadata, solver.net_param);
+            const openModel = (context, netParameter) => {
+                return caffe.Metadata.open(context).then((metadata) => {
+                    return new caffe.Model(metadata, netParameter);
+                });
+            };
+            const openNetParameterText = (context, identifier, buffer) => {
+                let netParameter = null;
+                try {
+                    const reader = protobuf.TextReader.open(buffer);
+                    reader.field = function(tag, message) {
+                        const type = message.constructor.name;
+                        if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
+                            message[tag] = caffe.ModelFactory._decodeText(reader);
+                            return;
                         }
-                        else if (solver.net || solver.train_net) {
-                            let file = solver.net || solver.train_net;
-                            file = file.split('/').pop();
-                            return context.request(file, null).then((stream) => {
-                                const buffer = stream.peek();
-                                return this._openNetParameterText(metadata, file, buffer);
-                            }).catch((error) => {
-                                if (error) {
-                                    const message = error && error.message ? error.message : error.toString();
-                                    throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
+                        else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
+                            if (message[tag]) {
+                                if (!Array.isArray(message[tag])) {
+                                    message[tag] = [ message[tag] ];
                                 }
-                            });
+                                message[tag].push(this.read());
+                            }
+                            else {
+                                message[tag] = this.read();
+                            }
+                            return;
                         }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    reader.enum = function(type) {
+                        const token = this.token();
+                        this.next();
+                        this.semicolon();
+                        if (!Object.prototype.hasOwnProperty.call(type, token)) {
+                            const value = Number.parseInt(token, 10);
+                            if (!Number.isNaN(token - value)) {
+                                return value;
+                            }
+                            return token;
+                        }
+                        return type[token];
+                    };
+                    if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
+                        reader.integer = function() {
+                            const token = this.token();
+                            const value = Number.parseInt(token, 10);
+                            this.next();
+                            this.semicolon();
+                            if (Number.isNaN(token - value)) {
+                                return token;
+                            }
+                            return value;
+                        };
                     }
-                    catch (error) {
-                        // continue regardless of error
+                    netParameter = caffe.proto.NetParameter.decodeText(reader);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
+                }
+                return openModel(context, netParameter);
+            };
+            switch (match) {
+                case 'caffe.pbtxt.solver': {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    reader.field = function(tag, message) {
+                        if (message instanceof caffe.proto.SolverParameter) {
+                            message[tag] = this.read();
+                            return;
+                        }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    const solver = caffe.proto.SolverParameter.decodeText(reader);
+                    if (solver.net_param) {
+                        return openModel(context, solver.net_param);
                     }
+                    let file = solver.net || solver.train_net;
+                    file = file.split('/').pop();
+                    return context.request(file, null).then((stream) => {
+                        const buffer = stream.peek();
+                        return openNetParameterText(context, file, buffer);
+                    }).catch((error) => {
+                        if (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
+                        }
+                    });
                 }
-                else if (tags.has('layer') || tags.has('layers')) {
-                    return this._openNetParameterText(metadata, context.identifier, context.stream.peek());
+                case 'caffe.pbtxt': {
+                    return openNetParameterText(context, context.identifier, context.stream.peek());
                 }
-                else {
+                case 'caffe.pb': {
                     let netParameter = null;
                     try {
                         const stream = context.stream;
@@ -75,68 +132,13 @@ caffe.ModelFactory = class {
                         const message = error && error.message ? error.message : error.toString();
                         throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
                     }
-                    return new caffe.Model(metadata, netParameter);
+                    return openModel(context, netParameter);
                 }
-            });
-        });
-    }
-
-    _openNetParameterText(metadata, identifier, buffer) {
-        let netParameter = null;
-        try {
-            const reader = protobuf.TextReader.open(buffer);
-            reader.field = function(tag, message) {
-                const type = message.constructor.name;
-                if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
-                    message[tag] = caffe.ModelFactory._decodeText(reader);
-                    return;
+                default: {
+                    throw new caffe.Error("Unknown Caffe format '" + match + "'.");
                 }
-                else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
-                    if (message[tag]) {
-                        if (!Array.isArray(message[tag])) {
-                            message[tag] = [ message[tag] ];
-                        }
-                        message[tag].push(this.read());
-                    }
-                    else {
-                        message[tag] = this.read();
-                    }
-                    return;
-                }
-                throw new Error("Unknown field '" + tag + "'" + this.location());
-            };
-            reader.enum = function(type) {
-                const token = this.token();
-                this.next();
-                this.semicolon();
-                if (!Object.prototype.hasOwnProperty.call(type, token)) {
-                    const value = Number.parseInt(token, 10);
-                    if (!Number.isNaN(token - value)) {
-                        return value;
-                    }
-                    return token;
-                }
-                return type[token];
-            };
-            if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
-                reader.integer = function() {
-                    const token = this.token();
-                    const value = Number.parseInt(token, 10);
-                    this.next();
-                    this.semicolon();
-                    if (Number.isNaN(token - value)) {
-                        return token;
-                    }
-                    return value;
-                };
             }
-            netParameter = caffe.proto.NetParameter.decodeText(reader);
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
-        }
-        return new caffe.Model(metadata, netParameter);
+        });
     }
 
     static _decodeText(reader) {

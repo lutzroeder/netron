@@ -8,24 +8,25 @@ xmodel.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if (tags.get(5) === 2) {
-            return 'xmodel';
+            return 'xmodel.pb';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {
         return context.require('./xmodel-proto').then(() => {
+            let graph = null;
             try {
                 xmodel.proto = protobuf.get('xmodel').serial_v2;
                 const stream = context.stream;
                 const reader = protobuf.BinaryReader.open(stream);
-                const graph = xmodel.proto.Graph.decode(reader);
-                return new xmodel.Model(graph);
+                graph = xmodel.proto.Graph.decode(reader);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new xmodel.Error('File format is not serial_v2.Graph (' + message.replace(/\.$/, '') + ').');
             }
+            return new xmodel.Model(graph);
         });
     }
 };

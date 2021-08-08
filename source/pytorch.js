@@ -9,21 +9,19 @@ var base = base || require('./base');
 pytorch.ModelFactory = class {
 
     match(context) {
-        if (pytorch.Container.open(context)) {
-            return true;
-        }
-        return false;
+        return pytorch.Container.open(context);
     }
 
-    open(context) {
+    open(context, match) {
         const identifier = context.identifier;
         return pytorch.Metadata.open(context).then((metadata) => {
-            let container = null;
+            const container = match;
             try {
-                container = pytorch.Container.open(context, metadata, (error, fatal) => {
+                container.metadata = metadata;
+                container.exception = (error, fatal) => {
                     const message = error && error.message ? error.message : error.toString();
                     context.exception(new pytorch.Error(message.replace(/\.$/, '') + " in '" + identifier + "'."), fatal);
-                });
+                };
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
@@ -1927,19 +1925,19 @@ pytorch.Execution = class extends python.Execution {
 
 pytorch.Container = class {
 
-    static open(context, metadata, exception) {
-        const zip = pytorch.Container.Zip.open(context.entries('zip'), metadata, exception);
+    static open(context) {
+        const zip = pytorch.Container.Zip.open(context.entries('zip'));
         if (zip) {
             return zip;
         }
         const stream = context.stream;
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
-            return new pytorch.Container.Pickle(stream, exception);
+            return new pytorch.Container.Pickle(stream);
         }
         const entries = context.entries('tar');
         if (entries.has('pickle')) {
-            return new pytorch.Container.Tar(entries, exception);
+            return new pytorch.Container.Tar(entries);
         }
         return null;
     }
@@ -1947,9 +1945,16 @@ pytorch.Container = class {
 
 pytorch.Container.Tar = class {
 
-    constructor(entries, exceptionCallback) {
+    constructor(entries) {
         this._entries = entries;
-        this._exceptionCallack = exceptionCallback;
+    }
+
+    set metadata(value) {
+        this._metadata = value;
+    }
+
+    set exception(value) {
+        this._exceptionCallack = value;
     }
 
     get format() {
@@ -2066,9 +2071,16 @@ pytorch.Container.Tar = class {
 
 pytorch.Container.Pickle = class {
 
-    constructor(stream, exception) {
+    constructor(stream) {
         this._stream = stream;
-        this._exceptionCallback = exception;
+    }
+
+    set metadata(value) {
+        this._metadata = value;
+    }
+
+    set exception(value) {
+        this._exceptionCallback = value;
     }
 
     get format() {
@@ -2184,7 +2196,7 @@ pytorch.Container.Pickle = class {
 
 pytorch.Container.Zip = class {
 
-    static open(entries, metadata, exception) {
+    static open(entries) {
         const name = Array.from(entries.keys()).find((name) => name == 'model.json' || name == 'data.pkl' || name.endsWith('/model.json') || name.endsWith('/data.pkl'));
         if (!name) {
             return null;
@@ -2205,17 +2217,23 @@ pytorch.Container.Zip = class {
                 return null;
             }
         }
-        return new pytorch.Container.Zip(entries, name, model, metadata, exception);
+        return new pytorch.Container.Zip(entries, name, model);
     }
 
-    constructor(entries, name, model, metadata, exception) {
+    constructor(entries, name, model) {
         this._entries = entries;
-        this._metadata = metadata;
-        this._exceptionCallback = exception;
         // https://github.com/pytorch/pytorch/blob/master/torch/csrc/jit/docs/serialization.md
         this._model = model;
         const lastIndex = name.lastIndexOf('/');
         this._prefix = lastIndex === -1 ? '' : name.substring(0, lastIndex + 1);
+    }
+
+    set metadata(value) {
+        this._metadata = value;
+    }
+
+    set exception(value) {
+        this._exceptionCallback = value;
     }
 
     get format() {

@@ -20,7 +20,7 @@ cntk.ModelFactory = class {
         if (tags.get(1) === 0 && tags.get(2) === 2) {
             return 'cntk.v2';
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {
@@ -786,9 +786,9 @@ cntk.GraphMetadata = class {
     attribute(type, name) {
         const key = type + ':' + name;
         if (!this._attributes.has(key)) {
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
+            const metadata = this.type(type);
+            if (metadata && metadata.attributes && metadata.attributes.length > 0) {
+                for (const attribute of metadata.attributes) {
                     this._attributes.set(type + ':' + attribute.name, attribute);
                 }
             }

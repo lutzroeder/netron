@@ -11,23 +11,16 @@ acuity.ModelFactory = class {
         if (extension === 'json') {
             const obj = context.open('json');
             if (obj && obj.MetaData && obj.Layers) {
-                return true;
+                return 'acuity.json';
             }
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
         return acuity.Metadata.open(context).then((metadata) => {
-            const extension = context.identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'json': {
-                    const obj = context.open('json');
-                    if (obj && obj.MetaData && obj.Layers) {
-                        return new acuity.Model(metadata, obj);
-                    }
-                }
-            }
+            const obj = context.open('json');
+            return new acuity.Model(metadata, obj);
         });
     }
 };

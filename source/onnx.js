@@ -10,11 +10,11 @@ onnx.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (identifier.endsWith('saved_model.pb') || identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-            return '';
+            return undefined;
         }
         if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return '';
+            return undefined;
         }
         let tags = context.tags('pb');
         if (tags.size > 0) {
@@ -44,11 +44,11 @@ onnx.ModelFactory = class {
                 };
                 // mediapipe.BoxDetectorIndex
                 if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
-                    return '';
+                    return undefined;
                 }
                 // third_party.tensorflow.python.keras.protobuf.SavedMetadata
                 if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
-                    return '';
+                    return undefined;
                 }
             }
             if (Array.from(tags.keys()).every((tag) => tag <= 100) &&
@@ -132,7 +132,7 @@ onnx.ModelFactory = class {
         if (context.tags('flatbuffers').get('file_identifier') === 'ORTM') {
             return 'onnx.flatbuffers';
         }
-        return '';
+        return undefined;
     }
 
     open(context, match) {

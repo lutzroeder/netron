@@ -10,7 +10,7 @@ tensorrt.ModelFactory = class {
         if (stream.length >= 4 && stream.peek(4).every((value, index) => value === signature[index])) {
             return 'tensorrt';
         }
-        return '';
+        return undefined;
     }
 
     open(context) {

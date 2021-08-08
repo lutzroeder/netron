@@ -9,7 +9,7 @@ coreml.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return true;
+            return 'coreml.pb';
         }
         const stream = context.stream;
         const identifier = context.identifier.toLowerCase();
@@ -20,7 +20,7 @@ coreml.ModelFactory = class {
                 if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
                     const entries = Object.keys(obj.itemInfoEntries).map((key) => obj.itemInfoEntries[key]);
                     if (entries.filter((entry) => entry.path.toLowerCase().endsWith('.mlmodel').length === 1)){
-                        return true;
+                        return 'coreml.manifest';
                     }
                 }
                 break;
@@ -28,14 +28,14 @@ coreml.ModelFactory = class {
             case 'metadata.json': {
                 const obj = context.open('json');
                 if (obj && obj.rootModelIdentifier && obj.itemInfoEntries) {
-                    return true;
+                    return 'coreml.metadata';
                 }
                 break;
             }
             case 'featuredescriptions.json': {
                 const obj = context.open('json');
                 if (obj && (obj.Inputs || obj.Outputs)) {
-                    return true;
+                    return 'coreml.featuredescriptions';
                 }
                 break;
             }
@@ -45,14 +45,14 @@ coreml.ModelFactory = class {
             for (let i = 0; i < buffer.length - 4; i++) {
                 const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
                 if (signature === 0xdeadbeef) {
-                    return true;
+                    return 'coreml.weights';
                 }
             }
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./coreml-proto').then(() => {
             return coreml.Metadata.open(context).then((metadata) => {
                 const openModel = (stream, context, path, format) => {
@@ -144,25 +144,23 @@ coreml.ModelFactory = class {
                         return openManifest(obj, context, path);
                     });
                 };
-                const tags = context.tags('pb');
-                if (tags.get(1) === 0 && tags.get(2) === 2) {
-                    return openModel(context.stream, context, context.identifier);
-                }
-                const identifier = context.identifier.toLowerCase();
-                switch (identifier) {
-                    case 'manifest.json': {
+                switch (match) {
+                    case 'coreml.pb': {
+                        return openModel(context.stream, context, context.identifier);
+                    }
+                    case 'coreml.manifest': {
                         const obj = context.open('json');
                         return openManifest(obj, context, '');
                     }
-                    case 'featuredescriptions.json':
-                    case 'metadata.json': {
+                    case 'coreml.featuredescriptions':
+                    case 'coreml.metadata': {
                         return openManifestStream(context, '../../');
                     }
+                    case 'coreml.weights': {
+                        return openManifestStream(context, '../../../');
+                    }
                     default: {
-                        const extension = identifier.split('.').pop().toLowerCase();
-                        if (extension === 'bin') {
-                            return openManifestStream(context, '../../../');
-                        }
+                        throw new coreml.Error("Unknown Core ML format '" + match + "'.");
                     }
                 }
             });

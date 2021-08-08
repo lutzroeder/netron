@@ -17,7 +17,7 @@ openvino.ModelFactory = class {
                         break;
                     }
                     if (line.trim().startsWith('<net ')) {
-                        return true;
+                        return 'openvino.xml';
                     }
                 }
             }
@@ -30,19 +30,19 @@ openvino.ModelFactory = class {
                 case 'natives_blob.bin':
                 case 'snapshot_blob.bin':
                 case 'v8_context_snapshot.bin':
-                    return false;
+                    return undefined;
             }
             const stream = context.stream;
             const signature = [ 0x21, 0xA8, 0xEF, 0xBE, 0xAD, 0xDE ];
             if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                return false;
+                return undefined;
             }
             if (stream.length > 4) {
                 const buffer = stream.peek(4);
                 const signature = (buffer[0] | buffer[1] << 8 | buffer[2] << 16 | buffer [3] << 24) >>> 0;
                 if (signature === 0x00000000 || signature === 0x00000001 ||
                     signature === 0x01306B47 || signature === 0x000D4B38 || signature === 0x0002C056) {
-                    return false;
+                    return undefined;
                 }
             }
             if (stream.length > 4) {
@@ -50,16 +50,16 @@ openvino.ModelFactory = class {
                 for (let i = 0; i < buffer.length - 4; i++) {
                     const signature = (buffer[i] | buffer[i + 1] << 8 | buffer[i + 2] << 16 | buffer [i + 3] << 24) >>> 0;
                     if (signature === 0xdeadbeef) {
-                        return false;
+                        return undefined;
                     }
                 }
             }
-            return true;
+            return 'openvino.bin';
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         const open = (xml, bin) => {
             return openvino.Metadata.open(context).then((metadata) => {
                 let errors = false;
@@ -83,9 +83,8 @@ openvino.ModelFactory = class {
             });
         };
         const identifier = context.identifier;
-        const extension = identifier.split('.').pop().toLowerCase();
-        switch (extension) {
-            case 'xml':
+        switch (match) {
+            case 'openvino.xml':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((stream) => {
                     const buffer = stream.read();
                     const decoder = new TextDecoder('utf-8');
@@ -96,7 +95,7 @@ openvino.ModelFactory = class {
                     const xml = decoder.decode(context.stream.peek());
                     return open(xml, null);
                 });
-            case 'bin':
+            case 'openvino.bin':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
                     return open(xml, context.stream.peek());
                 });

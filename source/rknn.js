@@ -7,16 +7,12 @@ rknn.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        if (rknn.Container.open(stream)) {
-            return true;
-        }
-        return false;
+        return rknn.Container.open(stream);
     }
 
-    open(context) {
+    open(context, match) {
         return rknn.Metadata.open(context).then((metadata) => {
-            const stream = context.stream;
-            const container = rknn.Container.open(stream);
+            const container = match;
             return new rknn.Model(metadata, container.model, container.weights);
         });
     }
