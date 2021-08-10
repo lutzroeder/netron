@@ -526,6 +526,7 @@ view.View = class {
 
     pushGraph(graph) {
         if (graph !== this.activeGraph) {
+            this._sidebar.close();
             return this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
         return Promise.resolve();
@@ -533,6 +534,7 @@ view.View = class {
 
     popGraph() {
         if (this._graphs.length > 1) {
+            this._sidebar.close();
             return this._updateGraph(this._model, this._graphs.slice(1));
         }
     }
@@ -972,7 +974,8 @@ view.View = class {
             documentationSidebar.on('navigate', (sender, e) => {
                 this._host.openURL(e.link);
             });
-            this._sidebar.push(documentationSidebar.render(), 'Documentation');
+            const title = type.type === 'function' ? 'Function' : 'Documentation';
+            this._sidebar.push(documentationSidebar.render(), title);
         }
     }
 };
