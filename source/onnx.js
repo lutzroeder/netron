@@ -113,7 +113,7 @@ onnx.ModelFactory = class {
                     'MATLAB Deep Learning Toolbox Converter for ONNX Model Format', 'ML.NET', 'MVTec Software',
                     'onnx-caffe2', 'onnx-example', 'onnx.quantize', 'onnx.utils.extract_model', 'OnnxMLTools', 'onnx_test', 'onnxruntime-tools', 'onnxruntime.transformers',
                     'PaddlePaddle', 'pytorch',
-                    'skl2onnx',
+                    'sclblonnx', 'skl2onnx',
                     'Tencent YouTu', 'tf2onnx', 'tflite2onnx',
                     'WinMLTools'
                 ];
