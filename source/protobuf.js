@@ -138,7 +138,7 @@ protobuf.BinaryReader = class {
                             }
                         }
                         tags.set(field, type);
-                        if (!this.skipType(type)) {
+                        if (!this._skipType(type)) {
                             tags.clear();
                             break;
                         }
