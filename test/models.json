@@ -5449,6 +5449,13 @@
   },
   {
     "type":   "tf",
+    "target": "saved_model_xxx.pb",
+    "source": "https://github.com/lutzroeder/netron/files/6965264/saved_model_xxx.pb.zip[saved_model_xxx.pb]",
+    "format": "TensorFlow Saved Model v1",
+    "link":   "https://github.com/lutzroeder/netron/issues/782"
+  },
+  {
+    "type":   "tf",
     "target": "speech_commands_v0.pb",
     "source": "http://storage.googleapis.com/download.tensorflow.org/models/speech_commands_v0.01.zip[conv_actions_frozen.pb]",
     "format": "TensorFlow Graph"

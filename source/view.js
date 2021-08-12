@@ -1666,7 +1666,7 @@ view.ModelFactoryService = class {
         };
         const pb = () => {
             const tags = context.tags('pb+');
-            if (tags.size > 0) {
+            if (Object.keys(tags).length > 0) {
                 const formats = [
                     { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] },
                     { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] },
@@ -1676,19 +1676,19 @@ view.ModelFactoryService = class {
                     for (const pair of schema) {
                         const key = pair[0];
                         const inner = pair[1];
-                        if (!tags.has(key)) {
+                        if (tags[key] === undefined) {
                             continue;
                         }
                         else if (inner === false) {
                             return false;
                         }
                         if (Array.isArray(inner)) {
-                            const value = tags.get(key);
-                            if (!(value instanceof Map) || !match(value, inner)) {
+                            const value = tags[key];
+                            if (typeof value !== 'object' || !match(value, inner)) {
                                 return false;
                             }
                         }
-                        else if (inner !== tags.get(key)) {
+                        else if (inner !== tags[key]) {
                             return false;
                         }
                     }

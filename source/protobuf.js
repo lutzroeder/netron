@@ -57,16 +57,26 @@ protobuf.BinaryReader = class {
     }
 
     decode() {
-        const tags = new Map();
+        let tags = {};
         this._position = 0;
         try {
-            const decodeMessage = () => {
-                const length = this.uint32();
+            const decodeMessage = (max) => {
+                const length = this._uint32();
+                if (length === undefined) {
+                    return undefined;
+                }
                 const end = this.position + length;
+                if (end > max) {
+                    return undefined;
+                }
                 try {
-                    const tags = new Map();
+                    const tags = {};
                     while (this.position < end) {
-                        const tag = this.uint32();
+                        const tag = this._uint32();
+                        if (tag === undefined) {
+                            this.seek(end);
+                            return 2;
+                        }
                         const field = tag >>> 3;
                         const type = tag & 7;
                         if (type > 5 || field === 0) {
@@ -74,24 +84,35 @@ protobuf.BinaryReader = class {
                             return 2;
                         }
                         if (type === 2) {
-                            const type = tags.get(field);
+                            const type = tags[field];
                             if (type !== 2) {
-                                const inner = decodeMessage(this);
+                                const inner = decodeMessage(end);
+                                if (this.position > end) {
+                                    this.seek(end);
+                                    return 2;
+                                }
+                                if (inner === undefined) {
+                                    this.seek(end);
+                                    return 2;
+                                }
                                 if (inner === 2) {
-                                    tags.set(field, inner);
+                                    tags[field] = inner;
                                 }
                                 else if (!type) {
-                                    tags.set(field, inner);
+                                    tags[field] = inner;
                                 }
                                 else {
-                                    for (const pair of inner) {
-                                        type.set(pair[0], pair[1]);
+                                    for (const pair of Object.entries(inner)) {
+                                        if (type[pair[0]] === 2 && pair[1] !== 2) {
+                                            continue;
+                                        }
+                                        type[pair[0]] = pair[1];
                                     }
                                 }
                                 continue;
                             }
                         }
-                        tags.set(field, type);
+                        tags[field] = type;
                         if (!this._skipType(type)) {
                             this.seek(end);
                             return 2;
@@ -116,30 +137,37 @@ protobuf.BinaryReader = class {
                         const field = tag >>> 3;
                         const type = tag & 7;
                         if (type > 5 || field === 0) {
-                            tags.clear();
+                            tags = {};
                             break;
                         }
                         if (type === 2) {
-                            const type = tags.get(field);
+                            const type = tags[field];
                             if (type !== 2) {
-                                const inner = decodeMessage(this);
+                                const inner = decodeMessage(length);
+                                if (inner === undefined) {
+                                    tags = {};
+                                    break;
+                                }
                                 if (inner === 2) {
-                                    tags.set(field, inner);
+                                    tags[field] = inner;
                                 }
                                 else if (!type) {
-                                    tags.set(field, inner);
+                                    tags[field] = inner;
                                 }
                                 else {
-                                    for (const pair of inner) {
-                                        type.set(pair[0], pair[1]);
+                                    for (const pair of Object.entries(inner)) {
+                                        if (type[pair[0]] === 2 && pair[1] !== 2) {
+                                            continue;
+                                        }
+                                        type[pair[0]] = pair[1];
                                     }
                                 }
                                 continue;
                             }
                         }
-                        tags.set(field, type);
+                        tags[field] = type;
                         if (!this._skipType(type)) {
-                            tags.clear();
+                            tags = {};
                             break;
                         }
                     }
@@ -147,7 +175,7 @@ protobuf.BinaryReader = class {
             }
         }
         catch (err) {
-            tags.clear();
+            tags = {};
         }
         this._position = 0;
         return tags;
@@ -368,34 +396,106 @@ protobuf.BinaryReader = class {
         while (this._buffer[this._position++] & 128);
     }
 
+    _uint32() {
+        let c;
+        if (this._position < this._length) {
+            c = this._buffer[this._position++];
+            let value = (c & 127) >>> 0;
+            if (c < 128) {
+                return value;
+            }
+            if (this._position < this._length) {
+                c = this._buffer[this._position++];
+                value = (value | (c & 127) <<  7) >>> 0;
+                if (c < 128) {
+                    return value;
+                }
+                if (this._position < this._length) {
+                    c = this._buffer[this._position++];
+                    value = (value | (c & 127) << 14) >>> 0;
+                    if (c < 128) {
+                        return value;
+                    }
+                    if (this._position < this._length) {
+                        c = this._buffer[this._position++];
+                        value = (value | (c & 127) << 21) >>> 0;
+                        if (c < 128) {
+                            return value;
+                        }
+                        if (this._position < this._length) {
+                            c = this._buffer[this._position++];
+                            value = (value | (c & 15) << 28) >>> 0;
+                            if (c < 128) {
+                                return value;
+                            }
+                            if (this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 255 || this.byte() !== 1) {
+                                return undefined;
+                            }
+                            return value;
+                        }
+                    }
+                }
+            }
+        }
+        return undefined;
+    }
+
     _skipType(wireType) {
         switch (wireType) {
-            case 0:
+            case 0: {
+                // const max = this._position + 9;
                 do {
-                    if (this._position >= this._length) {
+                    if (this._position >= this._length /* || this._position > max */) {
                         return false;
                     }
                 }
                 while (this._buffer[this._position++] & 128);
                 break;
-            case 1:
-                this.skip(8);
+            }
+            case 1: {
+                if (this._position + 8 >= this._length) {
+                    return false;
+                }
+                this._position += 8;
                 break;
-            case 2:
-                this.skip(this.uint32());
+            }
+            case 2: {
+                const length = this._uint32();
+                if (length === undefined) {
+                    return false;
+                }
+                if (this._position + length > this._end) {
+                    return false;
+                }
+                this._position += length;
                 break;
-            case 3:
-                while ((wireType = this.uint32() & 7) !== 4) {
+            }
+            case 3: {
+                for (;;) {
+                    const tag = this._uint32();
+                    if (tag === undefined) {
+                        return false;
+                    }
+                    const wireType = tag & 7;
+                    if (wireType === 4) {
+                        break;
+                    }
                     if (!this._skipType(wireType)) {
                         return false;
                     }
                 }
                 break;
-            case 5:
-                this.skip(4);
+            }
+            case 5: {
+                if (this._position + 4 >= this._length) {
+                    return false;
+                }
+                this._position += 4;
                 break;
-            default:
+            }
+            default: {
                 return false;
+            }
         }
         return true;
     }

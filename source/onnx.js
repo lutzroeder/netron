@@ -24,19 +24,19 @@ onnx.ModelFactory = class {
                     for (const pair of schema) {
                         const key = pair[0];
                         const inner = pair[1];
-                        if (!tags.has(key)) {
+                        if (tags[key] === undefined) {
                             continue;
                         }
                         else if (inner === false) {
                             return false;
                         }
                         if (Array.isArray(inner)) {
-                            const value = tags.get(key);
-                            if (!(value instanceof Map) || !match(value, inner)) {
+                            const value = tags[key];
+                            if (typeof value !== 'object' || !match(value, inner)) {
                                 return false;
                             }
                         }
-                        else if (inner !== tags.get(key)) {
+                        else if (inner !== tags[key]) {
                             return false;
                         }
                     }
