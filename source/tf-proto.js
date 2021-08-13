@@ -2612,6 +2612,12 @@ $root.tensorflow.SavedObject = class SavedObject {
                 case 11:
                     reader.entry(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decode(reader, reader.uint32()));
                     break;
+                case 13:
+                    message.registered_name = reader.string();
+                    break;
+                case 14:
+                    message.serialized_user_proto = $root.google.protobuf.Any.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2659,6 +2665,12 @@ $root.tensorflow.SavedObject = class SavedObject {
                 case "saveable_objects":
                     reader.entry(message.saveable_objects, () => reader.string(), () => $root.tensorflow.SaveableObject.decodeText(reader));
                     break;
+                case "registered_name":
+                    message.registered_name = reader.string();
+                    break;
+                case "serialized_user_proto":
+                    message.serialized_user_proto = $root.google.protobuf.Any.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2667,6 +2679,9 @@ $root.tensorflow.SavedObject = class SavedObject {
         return message;
     }
 };
+
+$root.tensorflow.SavedObject.prototype.registered_name = "";
+$root.tensorflow.SavedObject.prototype.serialized_user_proto = null;
 
 $root.tensorflow.SavedUserObject = class SavedUserObject {
 
