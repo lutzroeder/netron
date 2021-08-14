@@ -1330,7 +1330,10 @@ view.ModelContext = class {
                                 const message = error && error.message ? error.message : error.toString();
                                 this.exception(new view.Error(message.replace(/\.$/, '') + " in '" + this.identifier + "'."), fatal);
                             });
-                            const obj = unpickler.load((name, args) => execution.invoke(name, args));
+                            const persistent_load = (saved_id) => {
+                                return saved_id;
+                            };
+                            const obj = unpickler.load((name, args) => execution.invoke(name, args), persistent_load);
                             this._content.set(type, obj);
                         }
                         break;
