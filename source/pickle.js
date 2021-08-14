@@ -17,7 +17,7 @@ pickle.ModelFactory = class {
         }
         const obj = context.open('pkl');
         if (obj !== undefined) {
-            return 'pikcle';
+            return 'pickle';
         }
         return undefined;
     }
