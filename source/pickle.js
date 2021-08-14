@@ -80,6 +80,11 @@ pickle.Graph = class {
                 this._nodes.push(new pickle.Node(item));
             }
         }
+        else if (obj && obj instanceof Map) {
+            for (const entry of obj) {
+                this._nodes.push(new pickle.Node(entry[1], entry[0]));
+            }
+        }
         else if (obj && obj.__class__) {
             this._nodes.push(new pickle.Node(obj));
         }
@@ -103,7 +108,8 @@ pickle.Graph = class {
 
 pickle.Node = class {
 
-    constructor(obj) {
+    constructor(obj, name) {
+        this._name = name || '';
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -126,7 +132,7 @@ pickle.Node = class {
     }
 
     get name() {
-        return '';
+        return this._name;
     }
 
     get inputs() {
