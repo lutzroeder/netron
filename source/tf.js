@@ -231,9 +231,9 @@ tf.ModelFactory = class {
                 }
                 return openModel(saved_model, format, producer, null);
             };
-            const openBundle = (context) => {
-                const stream = context.stream;
-                const identifier = context.identifier;
+            const openBundle = (context, stream, identifier) => {
+                stream = stream || context.stream;
+                identifier = identifier || context.identifier;
                 return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
                     return openModel(null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                 }).catch((error) => {
@@ -248,15 +248,15 @@ tf.ModelFactory = class {
                 base.pop();
                 const file = base.join('.') + '.index';
                 return context.request(file, null).then((stream) => {
-                    return open(stream, file, context);
+                    return openBundle(context, stream, file);
                 }).catch((/* error */) => {
                     const file = base.join('.') + '.ckpt';
                     return context.request(file, null).then((stream) => {
-                        open(stream, file, context);
+                        openBundle(context, stream, file);
                     });
                 });
             };
-            const openEventFile = () => {
+            const openEventFile = (context) => {
                 let format = 'TensorFlow Event File';
                 let producer = null;
                 const stream = context.stream;
