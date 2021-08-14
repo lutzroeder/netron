@@ -970,8 +970,12 @@ tf.Attribute = class {
                 this._value = tf.Utility.decodeText(value.s);
                 break;
             case 'func': {
+                const name = value.func.name;
                 this._type = 'function';
-                this._value = metadata.type(value.func.name);
+                this._value = metadata.type(name);
+                if (!this._value) {
+                    throw new tf.Error("Unknown function '" + name + "'.");
+                }
                 break;
             }
             case 'list': {
