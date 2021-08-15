@@ -90,12 +90,17 @@ keras.ModelFactory = class {
         switch (match) {
             case 'keras.h5': {
                 return context.require('./hdf5').then((hdf5) => {
-                    const weights = new keras.Weights();
-                    const file = hdf5.File.open(stream);
-                    const rootGroup = file.rootGroup;
+                    const find_root_group = (file) => {
+                        const root_group = file.rootGroup;
+                        const kerasmodel = root_group.group('model/kerasmodel');
+                        if (kerasmodel && kerasmodel.attributes.has('model_config')) {
+                            return kerasmodel;
+                        }
+                        return root_group;
+                    };
                     const read_model_config = (group) => {
                         if (group.attributes.has('model_config')) {
-                            const buffer = rootGroup.attributes.get('model_config');
+                            const buffer = group.attributes.get('model_config');
                             const reader = json.TextReader.open(buffer);
                             return reader.read();
                         }
@@ -117,12 +122,15 @@ keras.ModelFactory = class {
                         }
                         return null;
                     };
-                    const model_config = read_model_config(rootGroup);
+                    const weights = new keras.Weights();
+                    const file = hdf5.File.open(stream);
+                    const root_group = find_root_group(file);
+                    const model_config = read_model_config(root_group);
                     if (model_config) {
-                        const backend = rootGroup.attributes.get('backend') || '';
-                        const version = rootGroup.attributes.get('keras_version') || '';
+                        const backend = root_group.attributes.get('backend') || '';
+                        const version = root_group.attributes.get('keras_version') || '';
                         const format = 'Keras' + (version ? ' v' + version : '');
-                        const model_weights_group = rootGroup.group('model_weights');
+                        const model_weights_group = root_group.group('model_weights');
                         if (model_weights_group) {
                             const layer_names = load_attributes_from_hdf5_group(model_weights_group, 'layer_names');
                             for (const layer_name of layer_names) {
@@ -150,13 +158,13 @@ keras.ModelFactory = class {
                         }
                         return openModel(format, '', backend, model_config, weights);
                     }
-                    const layer_names = load_attributes_from_hdf5_group(rootGroup, 'layer_names');
+                    const layer_names = load_attributes_from_hdf5_group(root_group, 'layer_names');
                     if (layer_names && Array.isArray(layer_names)) {
-                        const version = rootGroup.attributes.get('keras_version') || '';
+                        const version = root_group.attributes.get('keras_version') || '';
                         const format = 'Keras Weights' + (version ? ' v' + version : '');
-                        const backend = rootGroup.attributes.get('backend') || '';
+                        const backend = root_group.attributes.get('backend') || '';
                         for (const layer_name of layer_names) {
-                            const layer_weights = rootGroup.group(layer_name);
+                            const layer_weights = root_group.group(layer_name);
                             if (layer_weights) {
                                 const weight_names = load_attributes_from_hdf5_group(layer_weights, 'weight_names');
                                 if (Array.isArray(weight_names) && weight_names.length > 0) {
@@ -177,21 +185,21 @@ keras.ModelFactory = class {
                         return openModel(format, '', backend, null, weights);
                     }
                     else {
-                        const rootKeys = new Set(rootGroup.attributes.keys());
+                        const rootKeys = new Set(root_group.attributes.keys());
                         rootKeys.delete('nb_layers');
-                        if (rootKeys.size > 0 || rootGroup.value !== null) {
+                        if (rootKeys.size > 0 || root_group.value !== null) {
                             throw new keras.Error('File format is not HDF5 Weights');
                         }
                         let format = 'HDF5 Weights';
-                        let weightsGroup = rootGroup;
-                        if (rootGroup.attributes.size === 0 && rootGroup.value === null && rootGroup.groups.size == 1) {
-                            const group = rootGroup.groups.values().next().value;
+                        let weights_group = root_group;
+                        if (root_group.attributes.size === 0 && root_group.value === null && root_group.groups.size == 1) {
+                            const group = root_group.groups.values().next().value;
                             if (group.attributes.size === 0 && group.value === null) {
-                                weightsGroup = group;
+                                weights_group = group;
                             }
                         }
                         const tensorKeys = new Set([ 'name', 'shape', 'quantization' ]);
-                        const groups = Array.from(weightsGroup.groups.values());
+                        const groups = Array.from(weights_group.groups.values());
                         if (groups.every((group) => group.attributes.size === 0 && group.groups.length == 0 && group.value !== null)) {
                             for (const group of groups) {
                                 const variable = group.value;
@@ -246,7 +254,7 @@ keras.ModelFactory = class {
                             }
                             throw new keras.Error('Module group format is not HDF5 Weights');
                         };
-                        walk(weightsGroup);
+                        walk(weights_group);
                         return openModel(format, '', '', null, weights);
                     }
                 });

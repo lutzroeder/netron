@@ -1971,6 +1971,13 @@
   },
   {
     "type":   "keras",
+    "target": "betago.hdf5",
+    "source": "https://raw.githubusercontent.com/maxpumperla/deep_learning_and_the_game_of_go/master/code/agents/betago.hdf5",
+    "format": "Keras v2.0.8",
+    "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":   "keras",
     "target": "bidirectional_lstm.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[bidirectional_lstm.h5]",
     "format": "Keras v2.1.2",

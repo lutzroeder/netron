@@ -89,18 +89,14 @@ hdf5.Group = class {
 
     group(path) {
         this._decodeGroups();
-        const index = path.indexOf('/');
-        if (index != -1) {
-            const childPath = path.substring(index + 1);
-            const subPath = path.substring(0, index);
-            const subGroup = this.group(subPath);
-            if (subGroup != null) {
-                return subGroup.group(childPath);
-            }
+        if (this._groups.has(path)) {
+            return this._groups.get(path);
         }
-        else {
-            if (this._groups.has(path)) {
-                return this._groups.get(path);
+        const split = path.split('/', 2);
+        if (split.length > 1) {
+            const group = this.group(split[0]);
+            if (group) {
+                return group.group(split[1]);
             }
         }
         return null;
