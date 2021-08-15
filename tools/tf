@@ -33,10 +33,8 @@ sync() {
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
-    [ -d "./third_party/source/tflite-support" ] || git clone --quiet --recursive https://github.com/tensorflow/tflite-support.git "./third_party/source/tflite-support"
-    pushd "./third_party/source/tflite-support" > /dev/null
-    git pull --quiet --prune
-    popd > /dev/null
+    mkdir -p "./third_party/source/tflite-support/tensorflow_lite_support/metadata"
+    curl --silent --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/blob/master/tensorflow_lite_support/metadata/metadata_schema.fbs?raw=true"
 }
 
 install() {
