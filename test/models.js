@@ -9,7 +9,9 @@ const process = require('process');
 const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
-const url = require('url');
+const util = require('util');
+const xmldom = require('xmldom');
+
 const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
@@ -19,26 +21,27 @@ const zip = require('../source/zip');
 const gzip = require('../source/gzip');
 const tar = require('../source/tar');
 const base = require('../source/base');
-const xmldom = require('xmldom');
 
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
+
 global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
+
 global.DOMParser = xmldom.DOMParser;
+
 global.TextDecoder = class {
 
     constructor(encoding) {
-        global.TextDecoder._TextDecoder = global.TextDecoder._TextDecoder || require('util').TextDecoder;
         if (encoding !== 'ascii') {
-            this._textDecoder = new global.TextDecoder._TextDecoder(encoding);
+            this._decoder = new util.TextDecoder(encoding);
         }
     }
 
     decode(data) {
-        if (this._textDecoder) {
-            return this._textDecoder.decode(data);
+        if (this._decoder) {
+            return this._decoder.decode(data);
         }
 
         if (data.length < 32) {
@@ -61,7 +64,7 @@ global.TextDecoder = class {
 };
 
 const filter = process.argv.length > 2 ? new RegExp('^' + process.argv[2].replace(/\./, '\\.').replace(/\*/, '.*')) : null;
-const dataFolder = __dirname + '/data';
+const dataFolder = path.normalize(__dirname + '/../third_party/test');
 const items = JSON.parse(fs.readFileSync(__dirname + '/models.json', 'utf-8'));
 
 class TestHost {
@@ -106,8 +109,13 @@ class TestHost {
         if (!fs.existsSync(pathname)) {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
-        const buffer = fs.readFileSync(pathname, encoding);
-        return Promise.resolve(encoding ? buffer : new TestBinaryStream(buffer));
+        if (encoding) {
+            const text = fs.readFileSync(pathname, encoding);
+            return Promise.resolve(text);
+        }
+        const buffer = fs.readFileSync(pathname, null);
+        const stream = new TestBinaryStream(buffer);
+        return Promise.resolve(stream);
     }
 
     event(/* category, action, label, value */) {
@@ -155,10 +163,16 @@ class TestBinaryStream {
 
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     skip(offset) {
         this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     peek(length) {
@@ -191,11 +205,12 @@ class TestBinaryStream {
 
 class TestContext {
 
-    constructor(host, folder, identifier, stream) {
+    constructor(host, folder, identifier, stream, entries) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
         this._stream = stream;
+        this._entries = entries;
     }
 
     get identifier() {
@@ -204,6 +219,10 @@ class TestContext {
 
     get stream() {
         return this._stream;
+    }
+
+    get entries() {
+        return this._entries;
     }
 
     request(file, encoding, base) {
@@ -342,33 +361,21 @@ function makeDir(dir) {
     }
 }
 
-function decompress(buffer, identifier) {
+function decompress(buffer) {
     let archive = null;
-    const extension = identifier.split('.').pop().toLowerCase();
-    if (extension == 'gz' || extension == 'tgz') {
+    if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
         archive = gzip.Archive.open(buffer);
-        if (archive.entries.length == 1) {
-            const entry = archive.entries[0];
-            if (entry.name) {
-                identifier = entry.name;
-            }
-            else {
-                identifier = identifier.substring(0, identifier.lastIndexOf('.'));
-                if (extension == 'tgz') {
-                    identifier += '.tar';
-                }
-            }
-            buffer = entry.data;
+        if (archive.entries.size == 1) {
+            const stream = archive.entries.values().next().value;
+            buffer = stream.peek();
         }
     }
-
-    switch (identifier.split('.').pop().toLowerCase()) {
-        case 'tar':
-            archive = tar.Archive.open(buffer);
+    const formats = [ zip, tar ];
+    for (const module of formats) {
+        archive = module.Archive.open(buffer);
+        if (archive) {
             break;
-        case 'zip':
-            archive = zip.Archive.open(buffer);
-            break;
+        }
     }
     return archive;
 }
@@ -376,7 +383,9 @@ function decompress(buffer, identifier) {
 function request(location, cookie) {
     const options = { rejectUnauthorized: false };
     let httpRequest = null;
-    switch (url.parse(location).protocol) {
+    const url = new URL(location);
+    const protocol = url.protocol;
+    switch (protocol) {
         case 'http:':
             httpRequest = http.request(location, options);
             break;
@@ -384,10 +393,13 @@ function request(location, cookie) {
             httpRequest = https.request(location, options);
             break;
     }
-    if (cookie && cookie.length > 0) {
-        httpRequest.setHeader('Cookie', cookie);
-    }
     return new Promise((resolve, reject) => {
+        if (!httpRequest) {
+            reject(new Error("Unknown HTTP request."));
+        }
+        if (cookie && cookie.length > 0) {
+            httpRequest.setHeader('Cookie', cookie);
+        }
         httpRequest.on('response', (response) => {
             resolve(response);
         });
@@ -400,8 +412,9 @@ function request(location, cookie) {
 
 function downloadFile(location, cookie) {
     return request(location, cookie).then((response) => {
+        const url = new URL(location);
         if (response.statusCode == 200 &&
-            url.parse(location).hostname == 'drive.google.com' &&
+            url.hostname == 'drive.google.com' &&
             response.headers['set-cookie'].some((cookie) => cookie.startsWith('download_warning_'))) {
             cookie = response.headers['set-cookie'];
             const download = cookie.filter((cookie) => cookie.startsWith('download_warning_')).shift();
@@ -410,9 +423,12 @@ function downloadFile(location, cookie) {
             return downloadFile(location, cookie);
         }
         if (response.statusCode == 301 || response.statusCode == 302) {
-            location = url.parse(response.headers.location).hostname ?
-                response.headers.location :
-                url.parse(location).protocol + '//' + url.parse(location).hostname + response.headers.location;
+            if (response.headers.location.startsWith('http://') || response.headers.location.startsWith('https://')) {
+                location = response.headers.location;
+            }
+            else {
+                location = url.protocol + '//' + url.hostname + response.headers.location;
+            }
             return downloadFile(location, cookie);
         }
         if (response.statusCode != 200) {
@@ -483,17 +499,28 @@ function download(folder, targets, sources) {
             }
             process.stdout.write('  decompress...\r');
             const archive = decompress(data, source.split('?').shift().split('/').pop());
-            for (const file of sourceFiles) {
+            for (const name of sourceFiles) {
                 if (process.stdout.clearLine) {
                     process.stdout.clearLine();
                 }
-                process.stdout.write('  write ' + file + '\n');
-                const entry = archive.entries.filter((entry) => entry.name == file)[0];
-                if (!entry) {
-                    throw new Error("Entry not found '" + file + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                process.stdout.write('  write ' + name + '\n');
+                if (name !== '.') {
+                    const stream = archive.entries.get(name);
+                    if (!stream) {
+                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                    }
+                    const target = targets.shift();
+                    const buffer = stream.peek();
+                    const file = path.join(folder, target);
+                    fs.writeFileSync(file, buffer, null);
                 }
-                const target = targets.shift();
-                fs.writeFileSync(folder + '/' + target, entry.data, null);
+                else {
+                    const target = targets.shift();
+                    const dir = path.join(folder, target);
+                    if (!fs.existsSync(dir)) {
+                        fs.mkdirSync(dir);
+                    }
+                }
             }
         }
         else {
@@ -541,15 +568,35 @@ function loadModel(target, item) {
     host.on('exception', (_, data) => {
         exceptions.push(data.exception);
     });
-    const folder = path.dirname(target);
     const identifier = path.basename(target);
-    const size = fs.statSync(target).size;
-    const buffer = new Uint8Array(size);
-    const fd = fs.openSync(target, 'r');
-    fs.readSync(fd, buffer, 0, size, 0);
-    fs.closeSync(fd);
-    const reader = new TestBinaryStream(buffer);
-    const context = new TestContext(host, folder, identifier, reader);
+    const stat = fs.statSync(target);
+    let context = null;
+    if (stat.isFile()) {
+        const buffer = fs.readFileSync(target, null);
+        const reader = new TestBinaryStream(buffer);
+        const dirname = path.dirname(target);
+        context = new TestContext(host, dirname, identifier, reader);
+    }
+    else if (stat.isDirectory()) {
+        const entries = new Map();
+        const walk = (dir) => {
+            for (const item of fs.readdirSync(dir)) {
+                const pathname = path.join(dir, item);
+                const stat = fs.statSync(pathname);
+                if (stat.isDirectory()) {
+                    walk(pathname);
+                }
+                else if (stat.isFile()) {
+                    const buffer = fs.readFileSync(pathname, null);
+                    const stream = new TestBinaryStream(buffer);
+                    const name = pathname.split(path.sep).join(path.posix.sep);
+                    entries.set(name, stream);
+                }
+            }
+        };
+        walk(target);
+        context = new TestContext(host, target, identifier, null, entries);
+    }
     const modelFactoryService = new view.ModelFactoryService(host);
     let opened = false;
     return modelFactoryService.open(context).then((model) => {
@@ -624,17 +671,13 @@ function loadModel(target, item) {
             for (const node of graph.nodes) {
                 node.type.toString();
                 node.type.length;
-                if (typeof node.type != 'string') {
+                if (!node.type || typeof node.type.name != 'string') {
                     throw new Error("Invalid node type '" + JSON.stringify(node.type) + "'.");
                 }
+                sidebar.DocumentationSidebar.formatDocumentation(node.type);
                 node.name.toString();
                 node.name.length;
                 node.description;
-                const metadata = node.metadata;
-                if (metadata !== null && metadata !== undefined && (typeof metadata !== 'object' || !metadata.name)) {
-                    throw new Error("Invalid metadata object '" + node.type + "'.");
-                }
-                sidebar.DocumentationSidebar.formatDocumentation(node.metadata);
                 node.attributes.slice();
                 for (const attribute of node.attributes) {
                     attribute.name.toString();

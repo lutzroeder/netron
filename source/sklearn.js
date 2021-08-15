@@ -7,20 +7,26 @@ var sklearn = sklearn || {};
 sklearn.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('pkl');
-        if (tags.size === 1) {
-            const key = tags.keys().next().value;
-            if (key.startsWith('sklearn.') || key.startsWith('xgboost.sklearn.') || key.startsWith('lightgbm.sklearn.')) {
-                return true;
+        const obj = context.open('pkl');
+        const validate = (obj) => {
+            if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__name__) {
+                const key = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+                return key.startsWith('sklearn.') || key.startsWith('xgboost.sklearn.') || key.startsWith('lightgbm.sklearn.');
             }
+            return false;
+        };
+        if (validate(obj)) {
+            return 'sklearn';
         }
-        return false;
+        if (Array.isArray(obj) && obj.every((item) => validate(item))) {
+            return 'sklearn';
+        }
+        return undefined;
     }
 
     open(context) {
         return sklearn.Metadata.open(context).then((metadata) => {
-            const tags = context.tags('pkl');
-            const obj = tags.values().next().value;
+            const obj = context.open('pkl');
             return new sklearn.Model(metadata, obj);
         });
     }
@@ -29,8 +35,17 @@ sklearn.ModelFactory = class {
 sklearn.Model = class {
 
     constructor(metadata, obj) {
-        this._format = 'scikit-learn' + (obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
-        this._graphs = [ new sklearn.Graph(metadata, obj) ];
+        this._format = 'scikit-learn';
+        this._graphs = [];
+        if (!Array.isArray(obj)) {
+            this._format += obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '';
+            this._graphs.push(new sklearn.Graph(metadata, '', obj));
+        }
+        else {
+            for (let i = 0; i < obj.length; i++) {
+                this._graphs.push(new sklearn.Graph(metadata, i.toString(), obj[i]));
+            }
+        }
     }
 
     get format() {
@@ -44,8 +59,8 @@ sklearn.Model = class {
 
 sklearn.Graph = class {
 
-    constructor(metadata, obj) {
-        this._name = '';
+    constructor(metadata, name, obj) {
+        this._name = name || '';
         this._metadata = metadata;
         this._nodes = [];
         this._groups = false;
@@ -53,7 +68,8 @@ sklearn.Graph = class {
     }
 
     _process(group, name, obj, inputs) {
-        switch ([ obj.__module__, obj.__name__].join('.')) {
+        const type = obj.__class__.__module__ + '.' + obj.__class__.__name__;
+        switch (type) {
             case 'sklearn.pipeline.Pipeline': {
                 this._groups = true;
                 name = name || 'pipeline';
@@ -191,10 +207,10 @@ sklearn.Argument = class {
 sklearn.Node = class {
 
     constructor(metadata, group, name, obj, inputs, outputs) {
-        this._metadata = metadata;
         this._group = group || '';
         this._name = name || '';
-        this._type = (obj.__module__ && obj.__name__) ? (obj.__module__ + '.' + obj.__name__) : (obj.__name__ ? obj.__name__ : 'Object');
+        const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+        this._type = metadata.type(type) || { name: type };
         this._inputs = inputs;
         this._outputs = outputs;
         this._attributes = [];
@@ -223,10 +239,6 @@ sklearn.Node = class {
 
     get group() {
         return this._group ? this._group : null;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get inputs() {
@@ -260,6 +272,9 @@ sklearn.Attribute = class {
                 }
             }
         }
+        if (value && value.__class__) {
+            this._type = value.__class__.__module__ + '.' + value.__class__.__name__;
+        }
     }
 
     get name() {
@@ -268,6 +283,10 @@ sklearn.Attribute = class {
 
     get value() {
         return this._value;
+    }
+
+    get type() {
+        return this._type;
     }
 
     get visible() {
@@ -343,9 +362,12 @@ sklearn.Tensor = class {
             this._kind = 'NumPy Array';
             this._type = new sklearn.TensorType(value.dtype.name, new sklearn.TensorShape(value.shape));
             this._data = value.data;
+            if (value.dtype.name === 'string') {
+                this._itemsize = value.dtype.itemsize;
+            }
         }
         else {
-            const type = [ value.__module__, value.__name__ ].join('.');
+            const type = value.__class__.__module__ + '.' + value.__class__.__name__;
             throw new sklearn.Error("Unknown tensor type '" + type + "'.");
         }
     }
@@ -415,7 +437,12 @@ sklearn.Tensor = class {
             case 'uint32':
             case 'int64':
             case 'uint64':
-                context.rawData = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                break;
+            case 'string':
+                context.data = this._data;
+                context.itemsize = this._itemsize;
+                context.decoder = new TextDecoder('utf-8');
                 break;
             default:
                 context.state = "Tensor data type '" + context.dataType + "' is not implemented.";
@@ -435,36 +462,51 @@ sklearn.Tensor = class {
                     return results;
                 }
                 switch (context.dataType) {
-                    case 'float32':
-                        results.push(context.rawData.getFloat32(context.index, true));
+                    case 'float32': {
+                        results.push(context.view.getFloat32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'float64':
-                        results.push(context.rawData.getFloat64(context.index, true));
+                    }
+                    case 'float64': {
+                        results.push(context.view.getFloat64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
-                    case 'int32':
-                        results.push(context.rawData.getInt32(context.index, true));
+                    }
+                    case 'int32': {
+                        results.push(context.view.getInt32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'uint32':
-                        results.push(context.rawData.getUint32(context.index, true));
+                    }
+                    case 'uint32': {
+                        results.push(context.view.getUint32(context.index, true));
                         context.index += 4;
                         context.count++;
                         break;
-                    case 'int64':
-                        results.push(context.rawData.getInt64(context.index, true));
+                    }
+                    case 'int64': {
+                        results.push(context.view.getInt64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
-                    case 'uint64':
-                        results.push(context.rawData.getUint64(context.index, true));
+                    }
+                    case 'uint64': {
+                        results.push(context.view.getUint64(context.index, true));
                         context.index += 8;
                         context.count++;
                         break;
+                    }
+                    case 'string': {
+                        const buffer = context.data.subarray(context.index, context.index + context.itemsize);
+                        const index = buffer.indexOf(0);
+                        const text = context.decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                        results.push(text);
+                        context.index += context.itemsize;
+                        context.count++;
+                        break;
+                    }
                 }
             }
         }
@@ -549,15 +591,8 @@ sklearn.Metadata = class {
         this._map = new Map();
         this._attributeCache = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
@@ -585,7 +620,7 @@ sklearn.Metadata = class {
 sklearn.Utility = class {
 
     static isTensor(obj) {
-        return obj && obj.__module__ === 'numpy' && obj.__name__ === 'ndarray';
+        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
     }
 
     static findWeights(obj) {

@@ -2,513 +2,100 @@ var $root = flatbuffers.get('mnn');
 
 $root.MNN = $root.MNN || {};
 
-$root.MNN.OpType = {
-    AbsVal: 0,
-    QuantizedAdd: 1,
-    ArgMax: 2,
-    AsString: 3,
-    InstanceNorm: 4,
-    BatchToSpaceND: 5,
-    Bias: 6,
-    BinaryOp: 7,
-    Bnll: 8,
-    Cast: 9,
-    Concat: 10,
-    Const: 11,
-    Convolution: 12,
-    ConvolutionDepthwise: 13,
-    Crop: 14,
-    CropAndResize: 15,
-    Cubic: 16,
-    Deconvolution: 17,
-    DeconvolutionDepthwise: 18,
-    Dequantize: 19,
-    DetectionOutput: 20,
-    Dropout: 21,
-    Eltwise: 22,
-    ELU: 23,
-    Embed: 24,
-    Exp: 25,
-    ExpandDims: 26,
-    Fill: 27,
-    Flatten: 28,
-    FloorMod: 29,
-    Gather: 30,
-    GatherV2: 31,
-    Im2Seq: 32,
-    InnerProduct: 33,
-    Input: 34,
-    Interp: 35,
-    Log: 36,
-    LRN: 37,
-    LSTM: 38,
-    MatMul: 39,
-    MVN: 40,
-    NonMaxSuppression: 41,
-    NonMaxSuppressionV2: 42,
-    Normalize: 43,
-    Pack: 44,
-    Padding: 45,
-    Permute: 46,
-    Pooling: 47,
-    Power: 48,
-    PReLU: 49,
-    PriorBox: 50,
-    Proposal: 51,
-    QuantizedAvgPool: 52,
-    QuantizedBiasAdd: 53,
-    QuantizedConcat: 54,
-    QuantizedDepthwiseConv2D: 55,
-    QuantizedLogistic: 56,
-    QuantizedMatMul: 57,
-    QuantizedMaxPool: 58,
-    QuantizedRelu: 59,
-    QuantizedRelu6: 60,
-    QuantizedReshape: 61,
-    QuantizedSoftmax: 62,
-    QuantizeMaxMin: 63,
-    QuantizeV2: 64,
-    Range: 65,
-    Rank: 66,
-    ReduceJoin: 67,
-    Reduction: 68,
-    ReLU: 69,
-    ReLU6: 70,
-    RequantizationRange: 71,
-    Requantize: 72,
-    Reshape: 73,
-    Resize: 74,
-    RNN: 75,
-    ROIPooling: 76,
-    Scale: 77,
-    Selu: 78,
-    Seq2Out: 79,
-    Shape: 80,
-    Sigmoid: 81,
-    Size: 82,
-    Slice: 83,
-    SliceTf: 84,
-    Softmax: 85,
-    SpaceToBatchND: 86,
-    SpatialProduct: 87,
-    Split: 88,
-    SPP: 89,
-    Squeeze: 90,
-    StridedSlice: 91,
-    StringJoin: 92,
-    StringSplit: 93,
-    StringToNumber: 94,
-    TanH: 95,
-    TfQuantizedConv2D: 96,
-    Threshold: 97,
-    Tile: 98,
-    TopKV2: 99,
-    Transpose: 100,
-    UnaryOp: 101,
-    Unpack: 102,
-    Where: 103,
-    Moments: 104,
-    RNNSequenceGRU: 105,
-    BatchMatMul: 106,
-    Unsqueeze: 107,
-    CosineSimilarity: 108,
-    DepthToSpace: 109,
-    SpaceToDepth: 110,
-    ReverseSequence: 111,
-    Pooling3D: 112,
-    Convolution3D: 113,
-    MatrixBandPart: 114,
-    GatherND: 115,
-    DetectionPostProcess: 116,
-    UnravelIndex: 117,
-    ScatterNd: 118,
-    OneHot: 119,
-    BroadcastTo: 120,
-    Dilation2D: 121,
-    Raster: 128,
-    ConvertTensor: 129,
-    ArgMin: 130,
-    LinSpace: 131,
-    RandomUniform: 132,
-    TensorArray: 133,
-    TensorArraySize: 134,
-    TensorArrayRead: 135,
-    TensorArrayWrite: 136,
-    TensorArrayGather: 137,
-    TensorArrayScatter: 138,
-    TensorArraySplit: 139,
-    TensorArrayConcat: 140,
-    LSTMBlockCell: 141,
-    Plugin: 256,
-    Select: 257,
-    ZerosLike: 258,
-    Broastcast: 259,
-    SetDiff1D: 260,
-    ReluGrad: 261,
-    Relu6Grad: 262,
-    PoolGrad: 263,
-    SoftmaxGrad: 264,
-    Conv2DBackPropFilter: 265,
-    TrainableParam: 266,
-    BatchNorm: 267,
-    ZeroGrad: 268,
-    Extra: 512,
-    ConvInt8: 513,
-    Int8ToFloat: 514,
-    DepthwiseConvInt8: 515,
-    PoolInt8: 516,
-    FloatToInt8: 517,
-    EltwiseInt8: 518,
-    While: 600,
-    If: 601,
-    LayerNorm: 603
+$root.MNN.NetSource = {
+    CAFFE: 0,
+    TENSORFLOW: 1,
+    TFLITE: 2,
+    ONNX: 3,
+    TORCH: 4
 };
 
-$root.MNN.Plugin = class Plugin {
+$root.MNN.DataType = {
+    DT_INVALID: 0,
+    DT_FLOAT: 1,
+    DT_DOUBLE: 2,
+    DT_INT32: 3,
+    DT_UINT8: 4,
+    DT_INT16: 5,
+    DT_INT8: 6,
+    DT_STRING: 7,
+    DT_COMPLEX64: 8,
+    DT_INT64: 9,
+    DT_BOOL: 10,
+    DT_QINT8: 11,
+    DT_QUINT8: 12,
+    DT_QINT32: 13,
+    DT_BFLOAT16: 14,
+    DT_QINT16: 15,
+    DT_QUINT16: 16,
+    DT_UINT16: 17,
+    DT_COMPLEX128: 18,
+    DT_HALF: 19,
+    DT_RESOURCE: 20,
+    DT_VARIANT: 21
+};
+
+$root.MNN.MNN_DATA_FORMAT = {
+    NCHW: 0,
+    NHWC: 1,
+    NC4HW4: 2,
+    NHWC4: 3,
+    UNKNOWN: 4
+};
+
+$root.MNN.Blob = class Blob {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.Plugin();
-        $.type = reader.string_(position, 4, null);
-        $.attr = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
+        const $ = new $root.MNN.Blob();
+        $.dims = reader.typedArray(position, 4, Int32Array);
+        $.dataFormat = reader.int8_(position, 6, 0);
+        $.dataType = reader.int32_(position, 8, 1);
+        $.uint8s = reader.typedArray(position, 10, Uint8Array);
+        $.int8s = reader.typedArray(position, 12, Int8Array);
+        $.int32s = reader.typedArray(position, 14, Int32Array);
+        $.int64s = reader.int64s_(position, 16);
+        $.float32s = reader.typedArray(position, 18, Float32Array);
+        $.strings = reader.strings_(position, 20);
         return $;
     }
 };
 
-$root.MNN.Extra = class Extra {
+$root.MNN.ListValue = class ListValue {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.Extra();
-        $.type = reader.string_(position, 4, null);
-        $.engine = reader.string_(position, 6, null);
-        $.info = reader.typedArray(position, 8, Int8Array);
-        $.attr = reader.tableArray(position, 10, $root.MNN.Attribute.decode);
+        const $ = new $root.MNN.ListValue();
+        $.s = reader.strings_(position, 4);
+        $.i = reader.typedArray(position, 6, Int32Array);
+        $.f = reader.typedArray(position, 8, Float32Array);
+        $.b = reader.bools_(position, 10);
+        $.type = reader.typedArray(position, 12, Int32Array);
         return $;
     }
 };
 
-$root.MNN.StringVec = class StringVec {
+$root.MNN.Attribute = class Attribute {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.StringVec();
-        $.data = reader.strings_(position, 4);
+        const $ = new $root.MNN.Attribute();
+        $.s = reader.string_(position, 4, null);
+        $.i = reader.int32_(position, 6, 0);
+        $.b = reader.bool_(position, 8, false);
+        $.key = reader.string_(position, 10, null);
+        $.type = reader.int32_(position, 12, 0);
+        $.f = reader.float32_(position, 14, 0);
+        $.tensor = reader.table(position, 16, $root.MNN.Blob.decode);
+        $.list = reader.table(position, 18, $root.MNN.ListValue.decode);
+        $.func = reader.table(position, 20, $root.MNN.NamedAttrList.decode);
         return $;
     }
 };
 
-$root.MNN.WhileParam = class WhileParam {
+$root.MNN.NamedAttrList = class NamedAttrList {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.WhileParam();
-        $.cond_graph = reader.string_(position, 4, null);
-        $.body_graph = reader.string_(position, 6, null);
-        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
-        $.aliases_outputs = reader.strings_(position, 10);
-        $.aliases_updates = reader.tableArray(position, 12, $root.MNN.StringVec.decode);
-        return $;
-    }
-};
-
-$root.MNN.IfParam = class IfParam {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.IfParam();
-        $.then_graph = reader.string_(position, 4, null);
-        $.else_graph = reader.string_(position, 6, null);
-        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
-        $.aliases_outputs = reader.tableArray(position, 10, $root.MNN.StringVec.decode);
-        return $;
-    }
-};
-
-$root.MNN.OpParameter = class {
-
-    static decode(reader, position, type) {
-        switch (type) {
-            case 1: return $root.MNN.QuantizedAdd.decode(reader, position);
-            case 2: return $root.MNN.ArgMax.decode(reader, position);
-            case 3: return $root.MNN.AsString.decode(reader, position);
-            case 4: return $root.MNN.Axis.decode(reader, position);
-            case 5: return $root.MNN.BatchNorm.decode(reader, position);
-            case 6: return $root.MNN.BinaryOp.decode(reader, position);
-            case 7: return $root.MNN.Blob.decode(reader, position);
-            case 8: return $root.MNN.CastParam.decode(reader, position);
-            case 9: return $root.MNN.Convolution2D.decode(reader, position);
-            case 10: return $root.MNN.Crop.decode(reader, position);
-            case 11: return $root.MNN.CropAndResize.decode(reader, position);
-            case 12: return $root.MNN.Dequantize.decode(reader, position);
-            case 13: return $root.MNN.DetectionOutput.decode(reader, position);
-            case 14: return $root.MNN.Eltwise.decode(reader, position);
-            case 15: return $root.MNN.ExpandDims.decode(reader, position);
-            case 16: return $root.MNN.Fill.decode(reader, position);
-            case 17: return $root.MNN.Flatten.decode(reader, position);
-            case 18: return $root.MNN.Gather.decode(reader, position);
-            case 19: return $root.MNN.GatherV2.decode(reader, position);
-            case 20: return $root.MNN.InnerProduct.decode(reader, position);
-            case 21: return $root.MNN.Input.decode(reader, position);
-            case 22: return $root.MNN.Interp.decode(reader, position);
-            case 23: return $root.MNN.LRN.decode(reader, position);
-            case 24: return $root.MNN.LSTM.decode(reader, position);
-            case 25: return $root.MNN.MatMul.decode(reader, position);
-            case 26: return $root.MNN.NonMaxSuppressionV2.decode(reader, position);
-            case 27: return $root.MNN.Normalize.decode(reader, position);
-            case 28: return $root.MNN.PackParam.decode(reader, position);
-            case 29: return $root.MNN.Permute.decode(reader, position);
-            case 30: return $root.MNN.Plugin.decode(reader, position);
-            case 31: return $root.MNN.Pool.decode(reader, position);
-            case 32: return $root.MNN.PRelu.decode(reader, position);
-            case 33: return $root.MNN.PriorBox.decode(reader, position);
-            case 34: return $root.MNN.Proposal.decode(reader, position);
-            case 35: return $root.MNN.QuantizedAvgPool.decode(reader, position);
-            case 36: return $root.MNN.QuantizedBiasAdd.decode(reader, position);
-            case 37: return $root.MNN.QuantizedConcat.decode(reader, position);
-            case 38: return $root.MNN.QuantizedLogistic.decode(reader, position);
-            case 39: return $root.MNN.QuantizedMatMul.decode(reader, position);
-            case 40: return $root.MNN.QuantizedMaxPool.decode(reader, position);
-            case 41: return $root.MNN.QuantizedRelu.decode(reader, position);
-            case 42: return $root.MNN.QuantizedRelu6.decode(reader, position);
-            case 43: return $root.MNN.QuantizedReshape.decode(reader, position);
-            case 44: return $root.MNN.QuantizedSoftmax.decode(reader, position);
-            case 45: return $root.MNN.QuantizeMaxMin.decode(reader, position);
-            case 46: return $root.MNN.QuantizeV2.decode(reader, position);
-            case 47: return $root.MNN.Range.decode(reader, position);
-            case 48: return $root.MNN.Rank.decode(reader, position);
-            case 49: return $root.MNN.ReduceJoin.decode(reader, position);
-            case 50: return $root.MNN.ReductionParam.decode(reader, position);
-            case 51: return $root.MNN.Relu.decode(reader, position);
-            case 52: return $root.MNN.Relu6.decode(reader, position);
-            case 53: return $root.MNN.RequantizationRange.decode(reader, position);
-            case 54: return $root.MNN.Requantize.decode(reader, position);
-            case 55: return $root.MNN.Reshape.decode(reader, position);
-            case 56: return $root.MNN.Resize.decode(reader, position);
-            case 57: return $root.MNN.RoiPooling.decode(reader, position);
-            case 58: return $root.MNN.Scale.decode(reader, position);
-            case 59: return $root.MNN.Selu.decode(reader, position);
-            case 60: return $root.MNN.Size.decode(reader, position);
-            case 61: return $root.MNN.Slice.decode(reader, position);
-            case 62: return $root.MNN.SliceTf.decode(reader, position);
-            case 63: return $root.MNN.SpaceBatch.decode(reader, position);
-            case 64: return $root.MNN.SqueezeParam.decode(reader, position);
-            case 65: return $root.MNN.StridedSliceParam.decode(reader, position);
-            case 66: return $root.MNN.TensorConvertInfo.decode(reader, position);
-            case 67: return $root.MNN.TfQuantizedConv2D.decode(reader, position);
-            case 68: return $root.MNN.TopKV2.decode(reader, position);
-            case 69: return $root.MNN.Transpose.decode(reader, position);
-            case 70: return $root.MNN.UnaryOp.decode(reader, position);
-            case 71: return $root.MNN.MomentsParam.decode(reader, position);
-            case 72: return $root.MNN.RNNParam.decode(reader, position);
-            case 73: return $root.MNN.BatchMatMulParam.decode(reader, position);
-            case 74: return $root.MNN.QuantizedFloatParam.decode(reader, position);
-            case 75: return $root.MNN.DepthSpaceParam.decode(reader, position);
-            case 76: return $root.MNN.EltwiseInt8.decode(reader, position);
-            case 77: return $root.MNN.ReverseSequenceParam.decode(reader, position);
-            case 78: return $root.MNN.Extra.decode(reader, position);
-            case 79: return $root.MNN.Pool3D.decode(reader, position);
-            case 80: return $root.MNN.Convolution3D.decode(reader, position);
-            case 81: return $root.MNN.ELU.decode(reader, position);
-            case 82: return $root.MNN.DetectionPostProcessParam.decode(reader, position);
-            case 83: return $root.MNN.OneHotParam.decode(reader, position);
-            case 84: return $root.MNN.PadParam.decode(reader, position);
-            case 85: return $root.MNN.WhileParam.decode(reader, position);
-            case 86: return $root.MNN.IfParam.decode(reader, position);
-            case 87: return $root.MNN.RandomUniform.decode(reader, position);
-            case 88: return $root.MNN.LayerNorm.decode(reader, position);
-            case 89: return $root.MNN.TensorArray.decode(reader, position);
-            case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
-        }
-        return undefined;
-    }
-
-    static decodeText(reader, json, type) {
-        switch (type) {
-            case 'QuantizedAdd': return $root.MNN.QuantizedAdd.decodeText(reader, json);
-            case 'ArgMax': return $root.MNN.ArgMax.decodeText(reader, json);
-            case 'AsString': return $root.MNN.AsString.decodeText(reader, json);
-            case 'Axis': return $root.MNN.Axis.decodeText(reader, json);
-            case 'BatchNorm': return $root.MNN.BatchNorm.decodeText(reader, json);
-            case 'BinaryOp': return $root.MNN.BinaryOp.decodeText(reader, json);
-            case 'Blob': return $root.MNN.Blob.decodeText(reader, json);
-            case 'CastParam': return $root.MNN.CastParam.decodeText(reader, json);
-            case 'Convolution2D': return $root.MNN.Convolution2D.decodeText(reader, json);
-            case 'Crop': return $root.MNN.Crop.decodeText(reader, json);
-            case 'CropAndResize': return $root.MNN.CropAndResize.decodeText(reader, json);
-            case 'Dequantize': return $root.MNN.Dequantize.decodeText(reader, json);
-            case 'DetectionOutput': return $root.MNN.DetectionOutput.decodeText(reader, json);
-            case 'Eltwise': return $root.MNN.Eltwise.decodeText(reader, json);
-            case 'ExpandDims': return $root.MNN.ExpandDims.decodeText(reader, json);
-            case 'Fill': return $root.MNN.Fill.decodeText(reader, json);
-            case 'Flatten': return $root.MNN.Flatten.decodeText(reader, json);
-            case 'Gather': return $root.MNN.Gather.decodeText(reader, json);
-            case 'GatherV2': return $root.MNN.GatherV2.decodeText(reader, json);
-            case 'InnerProduct': return $root.MNN.InnerProduct.decodeText(reader, json);
-            case 'Input': return $root.MNN.Input.decodeText(reader, json);
-            case 'Interp': return $root.MNN.Interp.decodeText(reader, json);
-            case 'LRN': return $root.MNN.LRN.decodeText(reader, json);
-            case 'LSTM': return $root.MNN.LSTM.decodeText(reader, json);
-            case 'MatMul': return $root.MNN.MatMul.decodeText(reader, json);
-            case 'NonMaxSuppressionV2': return $root.MNN.NonMaxSuppressionV2.decodeText(reader, json);
-            case 'Normalize': return $root.MNN.Normalize.decodeText(reader, json);
-            case 'PackParam': return $root.MNN.PackParam.decodeText(reader, json);
-            case 'Permute': return $root.MNN.Permute.decodeText(reader, json);
-            case 'Plugin': return $root.MNN.Plugin.decodeText(reader, json);
-            case 'Pool': return $root.MNN.Pool.decodeText(reader, json);
-            case 'PRelu': return $root.MNN.PRelu.decodeText(reader, json);
-            case 'PriorBox': return $root.MNN.PriorBox.decodeText(reader, json);
-            case 'Proposal': return $root.MNN.Proposal.decodeText(reader, json);
-            case 'QuantizedAvgPool': return $root.MNN.QuantizedAvgPool.decodeText(reader, json);
-            case 'QuantizedBiasAdd': return $root.MNN.QuantizedBiasAdd.decodeText(reader, json);
-            case 'QuantizedConcat': return $root.MNN.QuantizedConcat.decodeText(reader, json);
-            case 'QuantizedLogistic': return $root.MNN.QuantizedLogistic.decodeText(reader, json);
-            case 'QuantizedMatMul': return $root.MNN.QuantizedMatMul.decodeText(reader, json);
-            case 'QuantizedMaxPool': return $root.MNN.QuantizedMaxPool.decodeText(reader, json);
-            case 'QuantizedRelu': return $root.MNN.QuantizedRelu.decodeText(reader, json);
-            case 'QuantizedRelu6': return $root.MNN.QuantizedRelu6.decodeText(reader, json);
-            case 'QuantizedReshape': return $root.MNN.QuantizedReshape.decodeText(reader, json);
-            case 'QuantizedSoftmax': return $root.MNN.QuantizedSoftmax.decodeText(reader, json);
-            case 'QuantizeMaxMin': return $root.MNN.QuantizeMaxMin.decodeText(reader, json);
-            case 'QuantizeV2': return $root.MNN.QuantizeV2.decodeText(reader, json);
-            case 'Range': return $root.MNN.Range.decodeText(reader, json);
-            case 'Rank': return $root.MNN.Rank.decodeText(reader, json);
-            case 'ReduceJoin': return $root.MNN.ReduceJoin.decodeText(reader, json);
-            case 'ReductionParam': return $root.MNN.ReductionParam.decodeText(reader, json);
-            case 'Relu': return $root.MNN.Relu.decodeText(reader, json);
-            case 'Relu6': return $root.MNN.Relu6.decodeText(reader, json);
-            case 'RequantizationRange': return $root.MNN.RequantizationRange.decodeText(reader, json);
-            case 'Requantize': return $root.MNN.Requantize.decodeText(reader, json);
-            case 'Reshape': return $root.MNN.Reshape.decodeText(reader, json);
-            case 'Resize': return $root.MNN.Resize.decodeText(reader, json);
-            case 'RoiPooling': return $root.MNN.RoiPooling.decodeText(reader, json);
-            case 'Scale': return $root.MNN.Scale.decodeText(reader, json);
-            case 'Selu': return $root.MNN.Selu.decodeText(reader, json);
-            case 'Size': return $root.MNN.Size.decodeText(reader, json);
-            case 'Slice': return $root.MNN.Slice.decodeText(reader, json);
-            case 'SliceTf': return $root.MNN.SliceTf.decodeText(reader, json);
-            case 'SpaceBatch': return $root.MNN.SpaceBatch.decodeText(reader, json);
-            case 'SqueezeParam': return $root.MNN.SqueezeParam.decodeText(reader, json);
-            case 'StridedSliceParam': return $root.MNN.StridedSliceParam.decodeText(reader, json);
-            case 'TensorConvertInfo': return $root.MNN.TensorConvertInfo.decodeText(reader, json);
-            case 'TfQuantizedConv2D': return $root.MNN.TfQuantizedConv2D.decodeText(reader, json);
-            case 'TopKV2': return $root.MNN.TopKV2.decodeText(reader, json);
-            case 'Transpose': return $root.MNN.Transpose.decodeText(reader, json);
-            case 'UnaryOp': return $root.MNN.UnaryOp.decodeText(reader, json);
-            case 'MomentsParam': return $root.MNN.MomentsParam.decodeText(reader, json);
-            case 'RNNParam': return $root.MNN.RNNParam.decodeText(reader, json);
-            case 'BatchMatMulParam': return $root.MNN.BatchMatMulParam.decodeText(reader, json);
-            case 'QuantizedFloatParam': return $root.MNN.QuantizedFloatParam.decodeText(reader, json);
-            case 'DepthSpaceParam': return $root.MNN.DepthSpaceParam.decodeText(reader, json);
-            case 'EltwiseInt8': return $root.MNN.EltwiseInt8.decodeText(reader, json);
-            case 'ReverseSequenceParam': return $root.MNN.ReverseSequenceParam.decodeText(reader, json);
-            case 'Extra': return $root.MNN.Extra.decodeText(reader, json);
-            case 'Pool3D': return $root.MNN.Pool3D.decodeText(reader, json);
-            case 'Convolution3D': return $root.MNN.Convolution3D.decodeText(reader, json);
-            case 'ELU': return $root.MNN.ELU.decodeText(reader, json);
-            case 'DetectionPostProcessParam': return $root.MNN.DetectionPostProcessParam.decodeText(reader, json);
-            case 'OneHotParam': return $root.MNN.OneHotParam.decodeText(reader, json);
-            case 'PadParam': return $root.MNN.PadParam.decodeText(reader, json);
-            case 'WhileParam': return $root.MNN.WhileParam.decodeText(reader, json);
-            case 'IfParam': return $root.MNN.IfParam.decodeText(reader, json);
-            case 'RandomUniform': return $root.MNN.RandomUniform.decodeText(reader, json);
-            case 'LayerNorm': return $root.MNN.LayerNorm.decodeText(reader, json);
-            case 'TensorArray': return $root.MNN.TensorArray.decodeText(reader, json);
-            case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
-        }
-        return undefined;
-    }
-};
-
-$root.MNN.Op = class Op {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.Op();
-        $.inputIndexes = reader.typedArray(position, 4, Int32Array);
-        $.main = reader.union(position, 6, $root.MNN.OpParameter.decode);
-        $.name = reader.string_(position, 10, null);
-        $.outputIndexes = reader.typedArray(position, 12, Int32Array);
-        $.type = reader.int32_(position, 14, 0);
-        $.defaultDimentionFormat = reader.int8_(position, 16, 1);
-        return $;
-    }
-};
-
-$root.MNN.View = class View {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.View();
-        $.offset = reader.int32_(position, 4, 0);
-        $.stride = reader.typedArray(position, 6, Int32Array);
-        return $;
-    }
-};
-
-$root.MNN.Region = class Region {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.Region();
-        $.src = reader.table(position, 4, $root.MNN.View.decode);
-        $.dst = reader.table(position, 6, $root.MNN.View.decode);
-        $.size = reader.typedArray(position, 8, Int32Array);
-        $.origin = reader.int32_(position, 10, 0);
-        return $;
-    }
-};
-
-$root.MNN.TensorDescribe = class TensorDescribe {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.TensorDescribe();
-        $.blob = reader.table(position, 4, $root.MNN.Blob.decode);
-        $.index = reader.int32_(position, 6, 0);
-        $.name = reader.string_(position, 8, null);
-        $.regions = reader.tableArray(position, 10, $root.MNN.Region.decode);
-        return $;
-    }
-};
-
-$root.MNN.ForwardType = {
-    CPU: 0,
-    METAL: 1,
-    OPENCL: 2,
-    OPENGLES: 3,
-    VULKAN: 4
-};
-
-$root.MNN.Usage = {
-    INFERENCE: 0,
-    TRAIN: 1,
-    INFERENCE_STATIC: 2
-};
-
-$root.MNN.SubGraphProto = class SubGraphProto {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.SubGraphProto();
+        const $ = new $root.MNN.NamedAttrList();
         $.name = reader.string_(position, 4, null);
-        $.inputs = reader.typedArray(position, 6, Int32Array);
-        $.outputs = reader.typedArray(position, 8, Int32Array);
-        $.tensors = reader.strings_(position, 10);
-        $.nodes = reader.tableArray(position, 12, $root.MNN.Op.decode);
-        return $;
-    }
-};
-
-$root.MNN.Net = class Net {
-
-    static create(reader) {
-        return $root.MNN.Net.decode(reader, reader.root);
-    }
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.Net();
-        $.bizCode = reader.string_(position, 4, null);
-        $.extraTensorDescribe = reader.tableArray(position, 6, $root.MNN.TensorDescribe.decode);
-        $.gpulibrary = reader.table(position, 8, $root.MNN.GpuLibrary.decode);
-        $.oplists = reader.tableArray(position, 10, $root.MNN.Op.decode);
-        $.outputName = reader.strings_(position, 12);
-        $.preferForwardType = reader.int8_(position, 14, 0);
-        $.sourceType = reader.int8_(position, 16, 0);
-        $.tensorName = reader.strings_(position, 18);
-        $.tensorNumber = reader.int32_(position, 20, 0);
-        $.usage = reader.int8_(position, 22, 0);
-        $.subgraphs = reader.tableArray(position, 24, $root.MNN.SubGraphProto.decode);
+        $.attr = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
         return $;
     }
 };
@@ -539,6 +126,7 @@ $root.MNN.Convolution2DCommon = class Convolution2DCommon {
         $.relu6 = reader.bool_(position, 30, false);
         $.pads = reader.typedArray(position, 32, Int32Array);
         $.outPads = reader.typedArray(position, 34, Int32Array);
+        $.hasOutputShape = reader.bool_(position, 36, false);
         return $;
     }
 };
@@ -556,6 +144,21 @@ $root.MNN.Convolution3DCommon = class Convolution3DCommon {
         $.outputCount = reader.int32_(position, 16, 0);
         $.relu = reader.bool_(position, 18, false);
         $.relu6 = reader.bool_(position, 20, false);
+        return $;
+    }
+};
+
+$root.MNN.SparseAlgo = {
+    RANDOM: 0,
+    SIMD_OC: 1
+};
+
+$root.MNN.SparseCommon = class SparseCommon {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.SparseCommon();
+        $.method = reader.int8_(position, 4, 0);
+        $.args = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
         return $;
     }
 };
@@ -612,6 +215,7 @@ $root.MNN.Convolution2D = class Convolution2D {
         $.bias = reader.typedArray(position, 8, Float32Array);
         $.quanParameter = reader.table(position, 10, $root.MNN.IDSTQuan.decode);
         $.symmetricQuan = reader.table(position, 12, $root.MNN.QuantizedFloatParam.decode);
+        $.sparseParameter = reader.table(position, 14, $root.MNN.SparseCommon.decode);
         return $;
     }
 };
@@ -690,6 +294,7 @@ $root.MNN.Pool3D = class Pool3D {
         $.pads = reader.typedArray(position, 8, Int32Array);
         $.type = reader.int8_(position, 10, 0);
         $.padType = reader.int8_(position, 12, 0);
+        $.isGlobal = reader.bool_(position, 14, false);
         return $;
     }
 };
@@ -1005,103 +610,6 @@ $root.MNN.EltwiseInt8 = class EltwiseInt8 {
     }
 };
 
-$root.MNN.MNN_DATA_FORMAT = {
-    NCHW: 0,
-    NHWC: 1,
-    NC4HW4: 2,
-    NHWC4: 3,
-    UNKNOWN: 4
-};
-
-$root.MNN.Blob = class Blob {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.Blob();
-        $.dims = reader.typedArray(position, 4, Int32Array);
-        $.dataFormat = reader.int8_(position, 6, 0);
-        $.dataType = reader.int32_(position, 8, 1);
-        $.uint8s = reader.typedArray(position, 10, Uint8Array);
-        $.int8s = reader.typedArray(position, 12, Int8Array);
-        $.int32s = reader.typedArray(position, 14, Int32Array);
-        $.int64s = reader.int64s_(position, 16);
-        $.float32s = reader.typedArray(position, 18, Float32Array);
-        $.strings = reader.strings_(position, 20);
-        return $;
-    }
-};
-
-$root.MNN.ListValue = class ListValue {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.ListValue();
-        $.s = reader.strings_(position, 4);
-        $.i = reader.typedArray(position, 6, Int32Array);
-        $.f = reader.typedArray(position, 8, Float32Array);
-        $.b = reader.bools_(position, 10);
-        $.type = reader.typedArray(position, 12, Int32Array);
-        return $;
-    }
-};
-
-$root.MNN.Attribute = class Attribute {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.Attribute();
-        $.s = reader.string_(position, 4, null);
-        $.i = reader.int32_(position, 6, 0);
-        $.b = reader.bool_(position, 8, false);
-        $.key = reader.string_(position, 10, null);
-        $.type = reader.int32_(position, 12, 0);
-        $.f = reader.float32_(position, 14, 0);
-        $.tensor = reader.table(position, 16, $root.MNN.Blob.decode);
-        $.list = reader.table(position, 18, $root.MNN.ListValue.decode);
-        $.func = reader.table(position, 20, $root.MNN.NamedAttrList.decode);
-        return $;
-    }
-};
-
-$root.MNN.NamedAttrList = class NamedAttrList {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.NamedAttrList();
-        $.name = reader.string_(position, 4, null);
-        $.attr = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
-        return $;
-    }
-};
-
-$root.MNN.NetSource = {
-    CAFFE: 0,
-    TENSORFLOW: 1,
-    TFLITE: 2,
-    ONNX: 3
-};
-
-$root.MNN.DataType = {
-    DT_INVALID: 0,
-    DT_FLOAT: 1,
-    DT_DOUBLE: 2,
-    DT_INT32: 3,
-    DT_UINT8: 4,
-    DT_INT16: 5,
-    DT_INT8: 6,
-    DT_STRING: 7,
-    DT_COMPLEX64: 8,
-    DT_INT64: 9,
-    DT_BOOL: 10,
-    DT_QINT8: 11,
-    DT_QUINT8: 12,
-    DT_QINT32: 13,
-    DT_BFLOAT16: 14,
-    DT_QINT16: 15,
-    DT_QUINT16: 16,
-    DT_UINT16: 17,
-    DT_COMPLEX128: 18,
-    DT_HALF: 19,
-    DT_RESOURCE: 20,
-    DT_VARIANT: 21
-};
-
 $root.MNN.BinaryOpOperation = {
     ADD: 0,
     SUB: 1,
@@ -1294,7 +802,9 @@ $root.MNN.UnaryOpOperation = {
     ERFINV: 27,
     EXPM1: 28,
     SIGMOID: 29,
-    TANH: 30
+    TANH: 30,
+    HARDSWISH: 31,
+    GELU: 32
 };
 
 $root.MNN.UnaryOp = class UnaryOp {
@@ -1462,15 +972,18 @@ $root.MNN.RNNParam = class RNNParam {
         const $ = new $root.MNN.RNNParam();
         $.numUnits = reader.int32_(position, 4, 0);
         $.isBidirectionalRNN = reader.bool_(position, 6, false);
-        $.keepAllOutputs = reader.bool_(position, 8, false);
-        $.fwGateWeight = reader.table(position, 10, $root.MNN.Blob.decode);
-        $.fwGateBias = reader.table(position, 12, $root.MNN.Blob.decode);
-        $.fwCandidateWeight = reader.table(position, 14, $root.MNN.Blob.decode);
-        $.fwCandidateBias = reader.table(position, 16, $root.MNN.Blob.decode);
-        $.bwGateWeight = reader.table(position, 18, $root.MNN.Blob.decode);
-        $.bwGateBias = reader.table(position, 20, $root.MNN.Blob.decode);
-        $.bwCandidateWeight = reader.table(position, 22, $root.MNN.Blob.decode);
-        $.bwCandidateBias = reader.table(position, 24, $root.MNN.Blob.decode);
+        $.linearBeforeReset = reader.bool_(position, 8, false);
+        $.keepAllOutputs = reader.bool_(position, 10, false);
+        $.fwGateWeight = reader.table(position, 12, $root.MNN.Blob.decode);
+        $.fwGateBias = reader.table(position, 14, $root.MNN.Blob.decode);
+        $.fwCandidateWeight = reader.table(position, 16, $root.MNN.Blob.decode);
+        $.fwCandidateBias = reader.table(position, 18, $root.MNN.Blob.decode);
+        $.fwRecurrentBias = reader.table(position, 20, $root.MNN.Blob.decode);
+        $.bwGateWeight = reader.table(position, 22, $root.MNN.Blob.decode);
+        $.bwGateBias = reader.table(position, 24, $root.MNN.Blob.decode);
+        $.bwCandidateWeight = reader.table(position, 26, $root.MNN.Blob.decode);
+        $.bwCandidateBias = reader.table(position, 28, $root.MNN.Blob.decode);
+        $.bwRecurrentBias = reader.table(position, 30, $root.MNN.Blob.decode);
         return $;
     }
 };
@@ -1570,7 +1083,8 @@ $root.MNN.RandomUniform = class RandomUniform {
         $.seed = reader.int32_(position, 4, 0);
         $.seed2 = reader.int32_(position, 6, 0);
         $.type = reader.int32_(position, 8, 1);
-        $.T = reader.int32_(position, 10, 3);
+        $.low = reader.float32_(position, 10, 0);
+        $.high = reader.float32_(position, 12, 1);
         return $;
     }
 };
@@ -1830,77 +1344,12 @@ $root.MNN.TfQuantizedConv2D = class TfQuantizedConv2D {
     }
 };
 
-$root.MNN.STORAGE_TYPE = {
-    BUFFER: 0,
-    UNIFORM: 1,
-    IMAGE: 2
-};
-
-$root.MNN.ACCESS_TYPE = {
-    READ_ONLY: 0,
-    WRITE_ONLY: 1,
-    READ_WRITE: 2
-};
-
-$root.MNN.GpuBuffer = class GpuBuffer {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuBuffer();
-        $.access = reader.int8_(position, 4, 0);
-        $.storage = reader.int8_(position, 6, 0);
-        $.content = reader.table(position, 8, $root.MNN.Blob.decode);
-        return $;
-    }
-};
-
-$root.MNN.GpuPipeline = class GpuPipeline {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuPipeline();
-        $.localSize = reader.typedArray(position, 4, Int32Array);
-        $.key = reader.string_(position, 6, null);
-        $.metal = reader.typedArray(position, 8, Int8Array);
-        $.vulkan = reader.typedArray(position, 10, Int8Array);
-        $.openglComputeShader = reader.string_(position, 12, null);
-        $.openclKernel = reader.string_(position, 14, null);
-        return $;
-    }
-};
-
-$root.MNN.GpuStage = class GpuStage {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuStage();
-        $.pipeline = reader.string_(position, 4, null);
-        $.groupSize = reader.typedArray(position, 6, Int32Array);
-        $.inputIndexes = reader.typedArray(position, 8, Int32Array);
-        $.outputIndexes = reader.typedArray(position, 10, Int32Array);
-        $.middleBuffer = reader.tableArray(position, 12, $root.MNN.GpuBuffer.decode);
-        $.constBuffer = reader.tableArray(position, 14, $root.MNN.GpuBuffer.decode);
-        $.globalSizeIndex = reader.int32_(position, 16, 0);
-        $.globalSizeDivide = reader.typedArray(position, 18, Int32Array);
-        $.requireSize = reader.bool_(position, 20, false);
-        return $;
-    }
-};
-
-$root.MNN.GpuFunction = class GpuFunction {
-
-    static decode(reader, position) {
-        const $ = new $root.MNN.GpuFunction();
-        $.stags = reader.tableArray(position, 4, $root.MNN.GpuStage.decode);
-        $.name = reader.string_(position, 6, null);
-        return $;
-    }
-};
-
 $root.MNN.GpuLibrary = class GpuLibrary {
 
     static decode(reader, position) {
         const $ = new $root.MNN.GpuLibrary();
-        $.functions = reader.tableArray(position, 4, $root.MNN.GpuFunction.decode);
-        $.pipeline = reader.tableArray(position, 6, $root.MNN.GpuPipeline.decode);
-        $.name = reader.string_(position, 8, null);
+        $.buffer = reader.typedArray(position, 4, Int8Array);
+        $.name = reader.string_(position, 6, null);
         return $;
     }
 };
@@ -1911,6 +1360,591 @@ $root.MNN.TensorConvertInfo = class TensorConvertInfo {
         const $ = new $root.MNN.TensorConvertInfo();
         $.source = reader.int8_(position, 4, 0);
         $.dest = reader.int8_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.MNN.SampleMode = {
+    BILINEAR: 0,
+    NEAREST: 1
+};
+
+$root.MNN.BorderMode = {
+    ZEROS: 0,
+    CLAMP: 1,
+    REFLECTION: 2
+};
+
+$root.MNN.GridSample = class GridSample {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.GridSample();
+        $.mode = reader.int8_(position, 4, 0);
+        $.paddingMode = reader.int8_(position, 6, 0);
+        $.alignCorners = reader.bool_(position, 8, false);
+        return $;
+    }
+};
+
+$root.MNN.OpType = {
+    AbsVal: 0,
+    QuantizedAdd: 1,
+    ArgMax: 2,
+    AsString: 3,
+    InstanceNorm: 4,
+    BatchToSpaceND: 5,
+    Bias: 6,
+    BinaryOp: 7,
+    Bnll: 8,
+    Cast: 9,
+    Concat: 10,
+    Const: 11,
+    Convolution: 12,
+    ConvolutionDepthwise: 13,
+    Crop: 14,
+    CropAndResize: 15,
+    Cubic: 16,
+    Deconvolution: 17,
+    DeconvolutionDepthwise: 18,
+    Dequantize: 19,
+    DetectionOutput: 20,
+    Dropout: 21,
+    Eltwise: 22,
+    ELU: 23,
+    Unique: 24,
+    Exp: 25,
+    ExpandDims: 26,
+    Fill: 27,
+    Flatten: 28,
+    FloorMod: 29,
+    Gather: 30,
+    GatherV2: 31,
+    Im2Seq: 32,
+    InnerProduct: 33,
+    Input: 34,
+    Interp: 35,
+    Log: 36,
+    LRN: 37,
+    LSTM: 38,
+    MatMul: 39,
+    MVN: 40,
+    NonMaxSuppression: 41,
+    NonMaxSuppressionV2: 42,
+    Normalize: 43,
+    Pack: 44,
+    Padding: 45,
+    Permute: 46,
+    Pooling: 47,
+    Power: 48,
+    PReLU: 49,
+    PriorBox: 50,
+    Proposal: 51,
+    QuantizedAvgPool: 52,
+    QuantizedBiasAdd: 53,
+    QuantizedConcat: 54,
+    QuantizedDepthwiseConv2D: 55,
+    QuantizedLogistic: 56,
+    QuantizedMatMul: 57,
+    QuantizedMaxPool: 58,
+    QuantizedRelu: 59,
+    QuantizedRelu6: 60,
+    QuantizedReshape: 61,
+    QuantizedSoftmax: 62,
+    QuantizeMaxMin: 63,
+    QuantizeV2: 64,
+    Range: 65,
+    Rank: 66,
+    ReduceJoin: 67,
+    Reduction: 68,
+    ReLU: 69,
+    ReLU6: 70,
+    RequantizationRange: 71,
+    Requantize: 72,
+    Reshape: 73,
+    Resize: 74,
+    RNN: 75,
+    ROIPooling: 76,
+    Scale: 77,
+    Selu: 78,
+    Seq2Out: 79,
+    Shape: 80,
+    Sigmoid: 81,
+    Size: 82,
+    Slice: 83,
+    SliceTf: 84,
+    Softmax: 85,
+    SpaceToBatchND: 86,
+    SpatialProduct: 87,
+    Split: 88,
+    Segment: 89,
+    Squeeze: 90,
+    StridedSlice: 91,
+    StringJoin: 92,
+    StringSplit: 93,
+    StringToNumber: 94,
+    TanH: 95,
+    TfQuantizedConv2D: 96,
+    Threshold: 97,
+    Tile: 98,
+    TopKV2: 99,
+    Transpose: 100,
+    UnaryOp: 101,
+    Unpack: 102,
+    Where: 103,
+    Moments: 104,
+    RNNSequenceGRU: 105,
+    BatchMatMul: 106,
+    Unsqueeze: 107,
+    CosineSimilarity: 108,
+    DepthToSpace: 109,
+    SpaceToDepth: 110,
+    ReverseSequence: 111,
+    Pooling3D: 112,
+    Convolution3D: 113,
+    MatrixBandPart: 114,
+    GatherND: 115,
+    DetectionPostProcess: 116,
+    UnravelIndex: 117,
+    ScatterNd: 118,
+    OneHot: 119,
+    BroadcastTo: 120,
+    Dilation2D: 121,
+    Raster: 128,
+    ConvertTensor: 129,
+    ArgMin: 130,
+    LinSpace: 131,
+    RandomUniform: 132,
+    TensorArray: 133,
+    TensorArraySize: 134,
+    TensorArrayRead: 135,
+    TensorArrayWrite: 136,
+    TensorArrayGather: 137,
+    TensorArrayScatter: 138,
+    TensorArraySplit: 139,
+    TensorArrayConcat: 140,
+    LSTMBlockCell: 141,
+    Reverse: 142,
+    Plugin: 256,
+    Select: 257,
+    ZerosLike: 258,
+    Broastcast: 259,
+    SetDiff1D: 260,
+    ReluGrad: 261,
+    Relu6Grad: 262,
+    PoolGrad: 263,
+    SoftmaxGrad: 264,
+    Conv2DBackPropFilter: 265,
+    TrainableParam: 266,
+    BatchNorm: 267,
+    ZeroGrad: 268,
+    Extra: 512,
+    ConvInt8: 513,
+    Int8ToFloat: 514,
+    DepthwiseConvInt8: 515,
+    PoolInt8: 516,
+    FloatToInt8: 517,
+    EltwiseInt8: 518,
+    While: 600,
+    If: 601,
+    LayerNorm: 603,
+    GridSample: 604
+};
+
+$root.MNN.Plugin = class Plugin {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Plugin();
+        $.type = reader.string_(position, 4, null);
+        $.attr = reader.tableArray(position, 6, $root.MNN.Attribute.decode);
+        return $;
+    }
+};
+
+$root.MNN.Extra = class Extra {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Extra();
+        $.type = reader.string_(position, 4, null);
+        $.engine = reader.string_(position, 6, null);
+        $.info = reader.typedArray(position, 8, Int8Array);
+        $.attr = reader.tableArray(position, 10, $root.MNN.Attribute.decode);
+        return $;
+    }
+};
+
+$root.MNN.StringVec = class StringVec {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.StringVec();
+        $.data = reader.strings_(position, 4);
+        return $;
+    }
+};
+
+$root.MNN.WhileParam = class WhileParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.WhileParam();
+        $.cond_graph = reader.string_(position, 4, null);
+        $.body_graph = reader.string_(position, 6, null);
+        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
+        $.aliases_outputs = reader.strings_(position, 10);
+        $.aliases_updates = reader.tableArray(position, 12, $root.MNN.StringVec.decode);
+        return $;
+    }
+};
+
+$root.MNN.IfParam = class IfParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.IfParam();
+        $.then_graph = reader.string_(position, 4, null);
+        $.else_graph = reader.string_(position, 6, null);
+        $.aliases_inputs = reader.tableArray(position, 8, $root.MNN.StringVec.decode);
+        $.aliases_outputs = reader.tableArray(position, 10, $root.MNN.StringVec.decode);
+        return $;
+    }
+};
+
+$root.MNN.RegionCommand = class RegionCommand {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.RegionCommand();
+        $.op = reader.table(position, 4, $root.MNN.Op.decode);
+        $.steps = reader.typedArray(position, 6, Int32Array);
+        $.size = reader.typedArray(position, 8, Int32Array);
+        $.indexes = reader.typedArray(position, 10, Int32Array);
+        $.view = reader.tableArray(position, 12, $root.MNN.View.decode);
+        $.fuse = reader.int32_(position, 14, -1);
+        $.iterIndexes = reader.typedArray(position, 16, Int32Array);
+        return $;
+    }
+};
+
+$root.MNN.LoopParam = class LoopParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.LoopParam();
+        $.tensorNumber = reader.int32_(position, 4, 0);
+        $.outputIndexes = reader.typedArray(position, 6, Int32Array);
+        $.inputIndexes = reader.typedArray(position, 8, Int32Array);
+        $.midTensors = reader.tableArray(position, 10, $root.MNN.TensorDescribe.decode);
+        $.parallel = reader.bool_(position, 12, true);
+        $.loopNumber = reader.int32_(position, 14, 0);
+        $.commands = reader.tableArray(position, 16, $root.MNN.RegionCommand.decode);
+        return $;
+    }
+};
+
+$root.MNN.OpParameter = class {
+
+    static decode(reader, position, type) {
+        switch (type) {
+            case 1: return $root.MNN.QuantizedAdd.decode(reader, position);
+            case 2: return $root.MNN.ArgMax.decode(reader, position);
+            case 3: return $root.MNN.AsString.decode(reader, position);
+            case 4: return $root.MNN.Axis.decode(reader, position);
+            case 5: return $root.MNN.BatchNorm.decode(reader, position);
+            case 6: return $root.MNN.BinaryOp.decode(reader, position);
+            case 7: return $root.MNN.Blob.decode(reader, position);
+            case 8: return $root.MNN.CastParam.decode(reader, position);
+            case 9: return $root.MNN.Convolution2D.decode(reader, position);
+            case 10: return $root.MNN.Crop.decode(reader, position);
+            case 11: return $root.MNN.CropAndResize.decode(reader, position);
+            case 12: return $root.MNN.Dequantize.decode(reader, position);
+            case 13: return $root.MNN.DetectionOutput.decode(reader, position);
+            case 14: return $root.MNN.Eltwise.decode(reader, position);
+            case 15: return $root.MNN.ExpandDims.decode(reader, position);
+            case 16: return $root.MNN.Fill.decode(reader, position);
+            case 17: return $root.MNN.Flatten.decode(reader, position);
+            case 18: return $root.MNN.Gather.decode(reader, position);
+            case 19: return $root.MNN.GatherV2.decode(reader, position);
+            case 20: return $root.MNN.InnerProduct.decode(reader, position);
+            case 21: return $root.MNN.Input.decode(reader, position);
+            case 22: return $root.MNN.Interp.decode(reader, position);
+            case 23: return $root.MNN.LRN.decode(reader, position);
+            case 24: return $root.MNN.LSTM.decode(reader, position);
+            case 25: return $root.MNN.MatMul.decode(reader, position);
+            case 26: return $root.MNN.NonMaxSuppressionV2.decode(reader, position);
+            case 27: return $root.MNN.Normalize.decode(reader, position);
+            case 28: return $root.MNN.PackParam.decode(reader, position);
+            case 29: return $root.MNN.Permute.decode(reader, position);
+            case 30: return $root.MNN.Plugin.decode(reader, position);
+            case 31: return $root.MNN.Pool.decode(reader, position);
+            case 32: return $root.MNN.PRelu.decode(reader, position);
+            case 33: return $root.MNN.PriorBox.decode(reader, position);
+            case 34: return $root.MNN.Proposal.decode(reader, position);
+            case 35: return $root.MNN.QuantizedAvgPool.decode(reader, position);
+            case 36: return $root.MNN.QuantizedBiasAdd.decode(reader, position);
+            case 37: return $root.MNN.QuantizedConcat.decode(reader, position);
+            case 38: return $root.MNN.QuantizedLogistic.decode(reader, position);
+            case 39: return $root.MNN.QuantizedMatMul.decode(reader, position);
+            case 40: return $root.MNN.QuantizedMaxPool.decode(reader, position);
+            case 41: return $root.MNN.QuantizedRelu.decode(reader, position);
+            case 42: return $root.MNN.QuantizedRelu6.decode(reader, position);
+            case 43: return $root.MNN.QuantizedReshape.decode(reader, position);
+            case 44: return $root.MNN.QuantizedSoftmax.decode(reader, position);
+            case 45: return $root.MNN.QuantizeMaxMin.decode(reader, position);
+            case 46: return $root.MNN.QuantizeV2.decode(reader, position);
+            case 47: return $root.MNN.Range.decode(reader, position);
+            case 48: return $root.MNN.Rank.decode(reader, position);
+            case 49: return $root.MNN.ReduceJoin.decode(reader, position);
+            case 50: return $root.MNN.ReductionParam.decode(reader, position);
+            case 51: return $root.MNN.Relu.decode(reader, position);
+            case 52: return $root.MNN.Relu6.decode(reader, position);
+            case 53: return $root.MNN.RequantizationRange.decode(reader, position);
+            case 54: return $root.MNN.Requantize.decode(reader, position);
+            case 55: return $root.MNN.Reshape.decode(reader, position);
+            case 56: return $root.MNN.Resize.decode(reader, position);
+            case 57: return $root.MNN.RoiPooling.decode(reader, position);
+            case 58: return $root.MNN.Scale.decode(reader, position);
+            case 59: return $root.MNN.Selu.decode(reader, position);
+            case 60: return $root.MNN.Size.decode(reader, position);
+            case 61: return $root.MNN.Slice.decode(reader, position);
+            case 62: return $root.MNN.SliceTf.decode(reader, position);
+            case 63: return $root.MNN.SpaceBatch.decode(reader, position);
+            case 64: return $root.MNN.SqueezeParam.decode(reader, position);
+            case 65: return $root.MNN.StridedSliceParam.decode(reader, position);
+            case 66: return $root.MNN.TensorConvertInfo.decode(reader, position);
+            case 67: return $root.MNN.TfQuantizedConv2D.decode(reader, position);
+            case 68: return $root.MNN.TopKV2.decode(reader, position);
+            case 69: return $root.MNN.Transpose.decode(reader, position);
+            case 70: return $root.MNN.UnaryOp.decode(reader, position);
+            case 71: return $root.MNN.MomentsParam.decode(reader, position);
+            case 72: return $root.MNN.RNNParam.decode(reader, position);
+            case 73: return $root.MNN.BatchMatMulParam.decode(reader, position);
+            case 74: return $root.MNN.QuantizedFloatParam.decode(reader, position);
+            case 75: return $root.MNN.DepthSpaceParam.decode(reader, position);
+            case 76: return $root.MNN.EltwiseInt8.decode(reader, position);
+            case 77: return $root.MNN.ReverseSequenceParam.decode(reader, position);
+            case 78: return $root.MNN.Extra.decode(reader, position);
+            case 79: return $root.MNN.Pool3D.decode(reader, position);
+            case 80: return $root.MNN.Convolution3D.decode(reader, position);
+            case 81: return $root.MNN.ELU.decode(reader, position);
+            case 82: return $root.MNN.DetectionPostProcessParam.decode(reader, position);
+            case 83: return $root.MNN.OneHotParam.decode(reader, position);
+            case 84: return $root.MNN.PadParam.decode(reader, position);
+            case 85: return $root.MNN.WhileParam.decode(reader, position);
+            case 86: return $root.MNN.IfParam.decode(reader, position);
+            case 87: return $root.MNN.RandomUniform.decode(reader, position);
+            case 88: return $root.MNN.LayerNorm.decode(reader, position);
+            case 89: return $root.MNN.TensorArray.decode(reader, position);
+            case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
+            case 91: return $root.MNN.GridSample.decode(reader, position);
+            case 92: return $root.MNN.LoopParam.decode(reader, position);
+        }
+        return undefined;
+    }
+
+    static decodeText(reader, json, type) {
+        switch (type) {
+            case 'QuantizedAdd': return $root.MNN.QuantizedAdd.decodeText(reader, json);
+            case 'ArgMax': return $root.MNN.ArgMax.decodeText(reader, json);
+            case 'AsString': return $root.MNN.AsString.decodeText(reader, json);
+            case 'Axis': return $root.MNN.Axis.decodeText(reader, json);
+            case 'BatchNorm': return $root.MNN.BatchNorm.decodeText(reader, json);
+            case 'BinaryOp': return $root.MNN.BinaryOp.decodeText(reader, json);
+            case 'Blob': return $root.MNN.Blob.decodeText(reader, json);
+            case 'CastParam': return $root.MNN.CastParam.decodeText(reader, json);
+            case 'Convolution2D': return $root.MNN.Convolution2D.decodeText(reader, json);
+            case 'Crop': return $root.MNN.Crop.decodeText(reader, json);
+            case 'CropAndResize': return $root.MNN.CropAndResize.decodeText(reader, json);
+            case 'Dequantize': return $root.MNN.Dequantize.decodeText(reader, json);
+            case 'DetectionOutput': return $root.MNN.DetectionOutput.decodeText(reader, json);
+            case 'Eltwise': return $root.MNN.Eltwise.decodeText(reader, json);
+            case 'ExpandDims': return $root.MNN.ExpandDims.decodeText(reader, json);
+            case 'Fill': return $root.MNN.Fill.decodeText(reader, json);
+            case 'Flatten': return $root.MNN.Flatten.decodeText(reader, json);
+            case 'Gather': return $root.MNN.Gather.decodeText(reader, json);
+            case 'GatherV2': return $root.MNN.GatherV2.decodeText(reader, json);
+            case 'InnerProduct': return $root.MNN.InnerProduct.decodeText(reader, json);
+            case 'Input': return $root.MNN.Input.decodeText(reader, json);
+            case 'Interp': return $root.MNN.Interp.decodeText(reader, json);
+            case 'LRN': return $root.MNN.LRN.decodeText(reader, json);
+            case 'LSTM': return $root.MNN.LSTM.decodeText(reader, json);
+            case 'MatMul': return $root.MNN.MatMul.decodeText(reader, json);
+            case 'NonMaxSuppressionV2': return $root.MNN.NonMaxSuppressionV2.decodeText(reader, json);
+            case 'Normalize': return $root.MNN.Normalize.decodeText(reader, json);
+            case 'PackParam': return $root.MNN.PackParam.decodeText(reader, json);
+            case 'Permute': return $root.MNN.Permute.decodeText(reader, json);
+            case 'Plugin': return $root.MNN.Plugin.decodeText(reader, json);
+            case 'Pool': return $root.MNN.Pool.decodeText(reader, json);
+            case 'PRelu': return $root.MNN.PRelu.decodeText(reader, json);
+            case 'PriorBox': return $root.MNN.PriorBox.decodeText(reader, json);
+            case 'Proposal': return $root.MNN.Proposal.decodeText(reader, json);
+            case 'QuantizedAvgPool': return $root.MNN.QuantizedAvgPool.decodeText(reader, json);
+            case 'QuantizedBiasAdd': return $root.MNN.QuantizedBiasAdd.decodeText(reader, json);
+            case 'QuantizedConcat': return $root.MNN.QuantizedConcat.decodeText(reader, json);
+            case 'QuantizedLogistic': return $root.MNN.QuantizedLogistic.decodeText(reader, json);
+            case 'QuantizedMatMul': return $root.MNN.QuantizedMatMul.decodeText(reader, json);
+            case 'QuantizedMaxPool': return $root.MNN.QuantizedMaxPool.decodeText(reader, json);
+            case 'QuantizedRelu': return $root.MNN.QuantizedRelu.decodeText(reader, json);
+            case 'QuantizedRelu6': return $root.MNN.QuantizedRelu6.decodeText(reader, json);
+            case 'QuantizedReshape': return $root.MNN.QuantizedReshape.decodeText(reader, json);
+            case 'QuantizedSoftmax': return $root.MNN.QuantizedSoftmax.decodeText(reader, json);
+            case 'QuantizeMaxMin': return $root.MNN.QuantizeMaxMin.decodeText(reader, json);
+            case 'QuantizeV2': return $root.MNN.QuantizeV2.decodeText(reader, json);
+            case 'Range': return $root.MNN.Range.decodeText(reader, json);
+            case 'Rank': return $root.MNN.Rank.decodeText(reader, json);
+            case 'ReduceJoin': return $root.MNN.ReduceJoin.decodeText(reader, json);
+            case 'ReductionParam': return $root.MNN.ReductionParam.decodeText(reader, json);
+            case 'Relu': return $root.MNN.Relu.decodeText(reader, json);
+            case 'Relu6': return $root.MNN.Relu6.decodeText(reader, json);
+            case 'RequantizationRange': return $root.MNN.RequantizationRange.decodeText(reader, json);
+            case 'Requantize': return $root.MNN.Requantize.decodeText(reader, json);
+            case 'Reshape': return $root.MNN.Reshape.decodeText(reader, json);
+            case 'Resize': return $root.MNN.Resize.decodeText(reader, json);
+            case 'RoiPooling': return $root.MNN.RoiPooling.decodeText(reader, json);
+            case 'Scale': return $root.MNN.Scale.decodeText(reader, json);
+            case 'Selu': return $root.MNN.Selu.decodeText(reader, json);
+            case 'Size': return $root.MNN.Size.decodeText(reader, json);
+            case 'Slice': return $root.MNN.Slice.decodeText(reader, json);
+            case 'SliceTf': return $root.MNN.SliceTf.decodeText(reader, json);
+            case 'SpaceBatch': return $root.MNN.SpaceBatch.decodeText(reader, json);
+            case 'SqueezeParam': return $root.MNN.SqueezeParam.decodeText(reader, json);
+            case 'StridedSliceParam': return $root.MNN.StridedSliceParam.decodeText(reader, json);
+            case 'TensorConvertInfo': return $root.MNN.TensorConvertInfo.decodeText(reader, json);
+            case 'TfQuantizedConv2D': return $root.MNN.TfQuantizedConv2D.decodeText(reader, json);
+            case 'TopKV2': return $root.MNN.TopKV2.decodeText(reader, json);
+            case 'Transpose': return $root.MNN.Transpose.decodeText(reader, json);
+            case 'UnaryOp': return $root.MNN.UnaryOp.decodeText(reader, json);
+            case 'MomentsParam': return $root.MNN.MomentsParam.decodeText(reader, json);
+            case 'RNNParam': return $root.MNN.RNNParam.decodeText(reader, json);
+            case 'BatchMatMulParam': return $root.MNN.BatchMatMulParam.decodeText(reader, json);
+            case 'QuantizedFloatParam': return $root.MNN.QuantizedFloatParam.decodeText(reader, json);
+            case 'DepthSpaceParam': return $root.MNN.DepthSpaceParam.decodeText(reader, json);
+            case 'EltwiseInt8': return $root.MNN.EltwiseInt8.decodeText(reader, json);
+            case 'ReverseSequenceParam': return $root.MNN.ReverseSequenceParam.decodeText(reader, json);
+            case 'Extra': return $root.MNN.Extra.decodeText(reader, json);
+            case 'Pool3D': return $root.MNN.Pool3D.decodeText(reader, json);
+            case 'Convolution3D': return $root.MNN.Convolution3D.decodeText(reader, json);
+            case 'ELU': return $root.MNN.ELU.decodeText(reader, json);
+            case 'DetectionPostProcessParam': return $root.MNN.DetectionPostProcessParam.decodeText(reader, json);
+            case 'OneHotParam': return $root.MNN.OneHotParam.decodeText(reader, json);
+            case 'PadParam': return $root.MNN.PadParam.decodeText(reader, json);
+            case 'WhileParam': return $root.MNN.WhileParam.decodeText(reader, json);
+            case 'IfParam': return $root.MNN.IfParam.decodeText(reader, json);
+            case 'RandomUniform': return $root.MNN.RandomUniform.decodeText(reader, json);
+            case 'LayerNorm': return $root.MNN.LayerNorm.decodeText(reader, json);
+            case 'TensorArray': return $root.MNN.TensorArray.decodeText(reader, json);
+            case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
+            case 'GridSample': return $root.MNN.GridSample.decodeText(reader, json);
+            case 'LoopParam': return $root.MNN.LoopParam.decodeText(reader, json);
+        }
+        return undefined;
+    }
+};
+
+$root.MNN.Op = class Op {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Op();
+        $.inputIndexes = reader.typedArray(position, 4, Int32Array);
+        $.main = reader.union(position, 6, $root.MNN.OpParameter.decode);
+        $.name = reader.string_(position, 10, null);
+        $.outputIndexes = reader.typedArray(position, 12, Int32Array);
+        $.type = reader.int32_(position, 14, 0);
+        $.defaultDimentionFormat = reader.int8_(position, 16, 1);
+        return $;
+    }
+};
+
+$root.MNN.View = class View {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.View();
+        $.offset = reader.int32_(position, 4, 0);
+        $.stride = reader.typedArray(position, 6, Int32Array);
+        return $;
+    }
+};
+
+$root.MNN.Region = class Region {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Region();
+        $.src = reader.table(position, 4, $root.MNN.View.decode);
+        $.dst = reader.table(position, 6, $root.MNN.View.decode);
+        $.size = reader.typedArray(position, 8, Int32Array);
+        $.origin = reader.int32_(position, 10, 0);
+        return $;
+    }
+};
+
+$root.MNN.TensorDescribe = class TensorDescribe {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.TensorDescribe();
+        $.blob = reader.table(position, 4, $root.MNN.Blob.decode);
+        $.index = reader.int32_(position, 6, 0);
+        $.name = reader.string_(position, 8, null);
+        $.regions = reader.tableArray(position, 10, $root.MNN.Region.decode);
+        $.quantInfo = reader.table(position, 12, $root.MNN.TensorQuantInfo.decode);
+        return $;
+    }
+};
+
+$root.MNN.ForwardType = {
+    CPU: 0,
+    METAL: 1,
+    OPENCL: 2,
+    OPENGLES: 3,
+    VULKAN: 4
+};
+
+$root.MNN.Usage = {
+    INFERENCE: 0,
+    TRAIN: 1,
+    INFERENCE_STATIC: 2
+};
+
+$root.MNN.SubGraphProto = class SubGraphProto {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.SubGraphProto();
+        $.name = reader.string_(position, 4, null);
+        $.inputs = reader.typedArray(position, 6, Int32Array);
+        $.outputs = reader.typedArray(position, 8, Int32Array);
+        $.tensors = reader.strings_(position, 10);
+        $.nodes = reader.tableArray(position, 12, $root.MNN.Op.decode);
+        $.extraTensorDescribe = reader.tableArray(position, 14, $root.MNN.TensorDescribe.decode);
+        return $;
+    }
+};
+
+$root.MNN.TensorQuantInfo = class TensorQuantInfo {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.TensorQuantInfo();
+        $.scale = reader.float32_(position, 4, 0);
+        $.zero = reader.float32_(position, 6, 0);
+        $.min = reader.float32_(position, 8, -128);
+        $.max = reader.float32_(position, 10, 127);
+        $.type = reader.int32_(position, 12, 0);
+        return $;
+    }
+};
+
+$root.MNN.Net = class Net {
+
+    static create(reader) {
+        return $root.MNN.Net.decode(reader, reader.root);
+    }
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.Net();
+        $.bizCode = reader.string_(position, 4, null);
+        $.extraTensorDescribe = reader.tableArray(position, 6, $root.MNN.TensorDescribe.decode);
+        $.gpulibrary = reader.table(position, 8, $root.MNN.GpuLibrary.decode);
+        $.oplists = reader.tableArray(position, 10, $root.MNN.Op.decode);
+        $.outputName = reader.strings_(position, 12);
+        $.preferForwardType = reader.int8_(position, 14, 0);
+        $.sourceType = reader.int8_(position, 16, 0);
+        $.tensorName = reader.strings_(position, 18);
+        $.tensorNumber = reader.int32_(position, 20, 0);
+        $.usage = reader.int8_(position, 22, 0);
+        $.subgraphs = reader.tableArray(position, 24, $root.MNN.SubGraphProto.decode);
+        $.mnn_uuid = reader.string_(position, 26, null);
         return $;
     }
 };

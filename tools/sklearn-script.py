@@ -234,10 +234,8 @@ def update_attributes(schema, lines):
         description = '\n'.join(attribute_lines)
         update_attribute(schema, name, description, attribute_type, option, default)
 
-for entry in json_root:
-    name = entry['name']
-    entry['schema'] = entry['schema'] if 'schema' in entry else {}
-    schema = entry['schema']
+for schema in json_root:
+    name = schema['name']
     skip_modules = [
         'lightgbm.',
         'sklearn.svm.classes',
@@ -260,7 +258,7 @@ for entry in json_root:
             update_attributes(schema, headers['Parameters'])
 
 with io.open(json_file, 'w', newline='') as fout:
-    json_data = json.dumps(json_root, sort_keys=True, indent=2)
+    json_data = json.dumps(json_root, sort_keys=False, indent=2)
     for line in json_data.splitlines():
         fout.write(line.rstrip())
         fout.write('\n')

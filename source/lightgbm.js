@@ -8,23 +8,47 @@ lightgbm.ModelFactory = class {
     match(context) {
         try {
             const stream = context.stream;
-            const reader = base.TextReader.create(stream.peek(), 65536);
+            const reader = base.TextReader.open(stream.peek(), 65536);
             const line = reader.read();
             if (line === 'tree') {
-                return true;
+                return 'lightgbm.text';
             }
         }
         catch (err) {
             // continue regardless of error
         }
-        return false;
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ && obj.__class__.__module__.startsWith('lightgbm.')) {
+            return 'lightgbm.pickle';
+        }
+        return '';
     }
 
-    open(context) {
+    open(context, match) {
         return new Promise((resolve, reject) => {
             try {
-                const booster = new lightgbm.basic.Booster(context.stream);
-                resolve(new lightgbm.Model(booster));
+                let model;
+                let format;
+                switch (match) {
+                    case 'lightgbm.pickle': {
+                        format = 'LightGBM Pickle';
+                        const obj = context.open('pkl');
+                        model = obj;
+                        if (model && model.handle && typeof model.handle === 'string') {
+                            const reader = base.TextReader.open(model.handle);
+                            model = new lightgbm.basic.Booster(reader);
+                        }
+                        break;
+                    }
+                    case 'lightgbm.text': {
+                        format = 'LightGBM';
+                        const stream = context.stream;
+                        const buffer = stream.peek();
+                        const reader = base.TextReader.open(buffer);
+                        model = new lightgbm.basic.Booster(reader);
+                    }
+                }
+                resolve(new lightgbm.Model(model, format));
             }
             catch (err) {
                 reject(err);
@@ -35,13 +59,13 @@ lightgbm.ModelFactory = class {
 
 lightgbm.Model = class {
 
-    constructor(model) {
-        this._version = model.meta.version;
+    constructor(model, format) {
+        this._format = format + (model.meta && model.meta.version ? ' ' + model.meta.version : '');
         this._graphs = [ new lightgbm.Graph(model) ];
     }
 
     get format() {
-        return 'LightGBM' + (this._version ? ' ' + this._version : '');
+        return this._format;
     }
 
     get graphs() {
@@ -57,12 +81,14 @@ lightgbm.Graph = class {
         this._nodes = [];
 
         const args = [];
-        if (model.meta.feature_names) {
+        if (model.meta && model.meta.feature_names) {
             const feature_names = model.meta.feature_names.split(' ').map((item) => item.trim());
             for (const feature_name of feature_names) {
                 const arg = new lightgbm.Argument(feature_name);
                 args.push(arg);
-                this._inputs.push(new lightgbm.Parameter(feature_name, [ arg ]));
+                if (feature_names.length < 1000) {
+                    this._inputs.push(new lightgbm.Parameter(feature_name, [ arg ]));
+                }
             }
         }
 
@@ -127,13 +153,12 @@ lightgbm.Argument = class {
 lightgbm.Node = class {
 
     constructor(model, args) {
-        this._type = model.__module__ + '.' + model.__name__;
+        const type = model.__class__.__module__ + '.' + model.__class__.__name__;
+        this._type = { name: type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
         this._inputs.push(new lightgbm.Parameter('features', args));
-
         for (const key of Object.keys(model.params)) {
             this._attributes.push(new lightgbm.Attribute(key, model.params[key]));
         }
@@ -180,10 +205,12 @@ lightgbm.basic = {};
 
 lightgbm.basic.Booster = class {
 
-    constructor(stream) {
+    constructor(reader) {
 
-        this.__module__ = 'lightgbm.basic';
-        this.__name__ = 'Booster';
+        this.__class__ = {
+            __module__: 'lightgbm.basic',
+            __name__: 'Booster'
+        };
 
         this.params = {};
         this.feature_importances = {};
@@ -191,8 +218,6 @@ lightgbm.basic.Booster = class {
         this.trees = [];
 
         // GBDT::LoadModelFromString() in https://github.com/microsoft/LightGBM/blob/master/src/boosting/gbdt_model_text.cpp
-        const reader = base.TextReader.create(stream.peek());
-
         const signature = reader.read();
         if (!signature || signature.trim() !== 'tree') {
             throw new lightgbm.Error("Invalid signature '" + signature.trim() + "'.");
@@ -220,7 +245,7 @@ lightgbm.basic.Booster = class {
                 state = 'param';
                 continue;
             }
-            else if (line === 'feature_importances:') {
+            else if (line === 'feature_importances:' || line === 'feature importances:') {
                 state = 'feature_importances';
                 continue;
             }
@@ -235,11 +260,11 @@ lightgbm.basic.Booster = class {
             switch (state) {
                 case '': {
                     const param = line.split('=');
-                    if (param.length !== 2) {
+                    if (param.length !== 2 && !/^[A-Za-z0-9_]/.exec(param[0].trim())) {
                         throw new lightgbm.Error("Invalid property '" + line + "'.");
                     }
                     const name = param[0].trim();
-                    const value = param[1].trim();
+                    const value = param.length > 1 ? param[1].trim() : undefined;
                     this.meta[name] = value;
                     break;
                 }

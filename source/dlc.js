@@ -6,10 +6,10 @@ dlc.ModelFactory = class {
 
     match(context) {
         const entries = context.entries('zip');
-        if (entries.find((entry) => entry.name === 'model')) {
-            return true;
+        if (entries.has('model')) {
+            return 'dlc';
         }
-        return false;
+        return undefined;
     }
 
     open(/* context */) {
@@ -24,6 +24,7 @@ dlc.Error = class extends Error {
     constructor(message) {
         super(message);
         this.name = 'Error loading DLC model.';
+        this.stack = undefined;
     }
 };
 

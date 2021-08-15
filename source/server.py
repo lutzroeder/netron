@@ -2,8 +2,9 @@
 import codecs
 import errno
 import os
-import platform
+import random
 import re
+import socket
 import sys
 import threading
 import webbrowser
@@ -101,9 +102,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         if self.command != 'HEAD':
             if status_code == 404 and buffer is None:
                 self.wfile.write(bytes(status_code))
-            elif (status_code == 200 or status_code == 404) and buffer != None:
+            elif (status_code in (200, 404)) and buffer is not None:
                 self.wfile.write(buffer)
-        return
     def do_GET(self):
         self.handler()
     def do_HEAD(self):
@@ -111,16 +111,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         return
 
-class ThreadedHTTPServer(ThreadingMixIn, HTTPServer): pass
+class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
+    pass
 
 class HTTPServerThread(threading.Thread):
-    def __init__(self, data, file, log, port, host, url):
+    def __init__(self, data, file, address, log):
         threading.Thread.__init__(self)
-        self.port = port
-        self.host = host
+        self.address = address
+        self.url = 'http://' + address[0] + ':' + str(address[1])
         self.file = file
-        self.url = url
-        self.server = ThreadedHTTPServer((host, port), HTTPRequestHandler)
+        self.server = ThreadedHTTPServer(address, HTTPRequestHandler)
         self.server.timeout = 0.25
         if file:
             self.server.RequestHandlerClass.folder = os.path.dirname(file) if os.path.dirname(file) else '.'
@@ -147,7 +147,7 @@ class HTTPServerThread(threading.Thread):
 
     def stop(self):
         if self.alive():
-            sys.stdout.write("\nStopping " + self.url + "\n")
+            sys.stdout.write("Stopping " + self.url + "\n")
             self.stop_event.set()
             self.server.server_close()
             self.terminate_event.wait(1000)
@@ -155,76 +155,144 @@ class HTTPServerThread(threading.Thread):
     def alive(self):
         return not self.terminate_event.is_set()
 
-thread_list = []
+_thread_list = []
 
-def stop(port=8080, host='localhost'):
-    '''Stop serving model at host:port.
+def _add_thread(thread):
+    global _thread_list
+    _thread_list.append(thread)
+
+def _update_thread_list(address=None):
+    global _thread_list
+    _thread_list = [ thread for thread in _thread_list if thread.alive() ]
+    threads = _thread_list
+    if address is not None:
+        address = _make_address(address)
+        if address[1] is None:
+            threads = [ thread for thread in threads if address[0] == thread.address[0] ]
+        else:
+            threads = [ thread for thread in threads if address[0] == thread.address[0] and address[1] == thread.address[1] ]
+    return threads
+
+def _make_address(address):
+    if address is None or isinstance(address, int):
+        port = address
+        address = ('localhost', port)
+    if isinstance(address, tuple) and len(address) == 2:
+        host = address[0]
+        port = address[1]
+        if isinstance(host, str) and (port is None or isinstance(port, int)):
+            return address
+    raise ValueError('Invalid address.')
+
+def _make_port(address):
+    if address[1] is None or address[1] == 0:
+        ports = []
+        if address[1] != 0:
+            ports.append(8080)
+            ports.append(8081)
+            rnd = random.Random()
+            for _ in range(4):
+                port = rnd.randrange(15000, 25000)
+                if port not in ports:
+                    ports.append(port)
+        ports.append(0)
+        for port in ports:
+            temp_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            temp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            temp_socket.settimeout(1)
+            try:
+                temp_socket.bind((address[0], port))
+                sockname = temp_socket.getsockname()
+                address = (address[0], sockname[1])
+                return address
+            except:
+                pass
+            finally:
+                temp_socket.close()
+    if isinstance(address[1], int):
+        return address
+    raise ValueError('Failed to allocate port.')
+
+def stop(address=None):
+    '''Stop serving model at address.
 
     Args:
-        port (int, optional): port to stop. Default: 8080
-        host (string, optional): host to stop. Default: ''
+        address (tuple, optional): A (host, port) tuple, or a port number.
     '''
-    global thread_list
-    for thread in thread_list:
-        if port == thread.port and host == thread.host:
-            thread.stop()
-    thread_list = [ thread for thread in thread_list if thread.alive() ]
+    threads = _update_thread_list(address)
+    for thread in threads:
+        thread.stop()
+    _update_thread_list()
+
+def status(adrress=None):
+    '''Is model served at address.
+
+    Args:
+        address (tuple, optional): A (host, port) tuple, or a port number.
+    '''
+    threads = _update_thread_list(adrress)
+    return len(threads) > 0
 
 def wait():
     '''Wait for console exit and stop all model servers.'''
-    global thread_list
     try:
-        while len(thread_list) > 0:
-            thread_list = [ thread for thread in thread_list if thread.alive() ]
+        while len(_update_thread_list()) > 0:
             time.sleep(1000)
     except (KeyboardInterrupt, SystemExit):
-        for thread in thread_list:
-            thread.stop()
-        thread_list = [ thread for thread in thread_list if thread.alive() ]
+        sys.stdout.write('\n')
+        sys.stdout.flush()
+        stop()
 
-def serve(file, data, log=False, browse=False, port=8080, host='localhost'):
-    '''Start serving model from file or data buffer at host:port and open in web browser.
-    
+def serve(file, data, address=None, browse=False, log=False):
+    '''Start serving model from file or data buffer at address and open in web browser.
+
     Args:
         file (string): Model file to serve. Required to detect format.
         data (bytes): Model data to serve. None will load data from file.
         log (bool, optional): Log details to console. Default: False
-        browse (bool, optional): Launch web browser, Default: True
-        port (int, optional): Port to serve. Default: 8080
-        host (string, optional): Host to serve. Default: ''
-    '''
-    global thread_list
+        browse (bool, optional): Launch web browser. Default: True
+        address (tuple, optional): A (host, port) tuple, or a port number.
 
+    Returns:
+        A (host, port) address tuple.
+    '''
     if not data and file and not os.path.exists(file):
         raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), file)
 
-    stop(port, host)
+    _update_thread_list()
+    address = _make_address(address)
+    if isinstance(address[1], int) and address[1] != 0:
+        stop(address)
+    else:
+        address = _make_port(address)
+    _update_thread_list()
 
-    url = 'http://' + host + ':' + str(port)
-
-    thread_list = [ thread for thread in thread_list if thread.alive() ]
-    thread = HTTPServerThread(data, file, log, port, host, url)
+    thread = HTTPServerThread(data, file, address, log)
     thread.start()
     while not thread.alive():
         time.sleep(10)
-    thread_list.append(thread)
+    _add_thread(thread)
 
     if file:
-        sys.stdout.write("Serving '" + file + "' at " + url + "\n")
+        sys.stdout.write("Serving '" + file + "' at " + thread.url + "\n")
     else:
-        sys.stdout.write("Serving at " + url + "\n")
+        sys.stdout.write("Serving at " + thread.url + "\n")
     sys.stdout.flush()
     if browse:
-        webbrowser.open(url)
+        webbrowser.open(thread.url)
 
-def start(file=None, log=False, browse=True, port=8080, host='localhost'):
-    '''Start serving model file at host:port and open in web browser
-    
+    return address
+
+def start(file=None, address=None, browse=True, log=False):
+    '''Start serving model file at address and open in web browser.
+
     Args:
         file (string): Model file to serve.
         log (bool, optional): Log details to console. Default: False
         browse (bool, optional): Launch web browser, Default: True
-        port (int, optional): Port to serve. Default: 8080
-        host (string, optional): Host to serve. Default: ''
+        address (tuple, optional): A (host, port) tuple, or a port number.
+
+    Returns:
+        A (host, port) address tuple.
     '''
-    serve(file, None, log=log, browse=browse, port=port, host=host)
+    return serve(file, None, browse=browse, address=address, log=log)

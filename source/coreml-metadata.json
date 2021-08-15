@@ -1,513 +1,465 @@
 [
   {
-    "name": "convolution",
-    "schema": {
-      "category": "Layer",
-      "description": "A layer that performs spatial convolution or deconvolution.",
-      "attributes": [
-        { "name": "outputShape", "type": "uint64[]", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
-        { "name": "outputChannels", "type": "uint64", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
-        { "name": "kernelChannels", "type": "uint64", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
-        { "name": "nGroups", "type": "uint64", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
-        { "name": "isDeconvolution", "type": "boolean", "description": "Flag to specify whether it is a deconvolution layer." },
-        { "name": "valid", "type": "ValidPadding", "visible": false },
-        { "name": "same", "type": "SamePadding", "visible": false },
-        { "name": "dilationFactor", "type": "uint64[]", "default": [ 1, 1 ] },
-        { "name": "stride", "type": "uint64[]", "default": [ 1, 1 ] },
-        { "name": "kernelSize", "type": "uint64[]", "default": [ 3, 3 ] },
-        { "name": "hasBias", "type": "boolean", "description": "Flag to specify whether a bias is to be added or not.", "visible": false }
-      ]
-    }
-  },
-  {
-    "name": "innerProduct",
-    "schema": {
-      "category": "Layer",
-      "description": "A layer that performs a matrix vector product. This is equivalent to a fully-connected, or dense layer.",
-      "attributes": [
-        { "name": "inputChannels", "type": "uint64", "visible": false },
-        { "name": "outputChannels", "type": "uint64", "visible": false },
-        { "name": "hasBias", "type": "boolean", "visible": false }
-      ]
-   }
-  },
-  {
-    "name": "gru",
-    "schema": {
-      "category": "Layer",
-      "description": "Gated-Recurrent Unit (GRU) Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "h" },
-        { "name": "updateGateWeightMatrix", "visible": false },
-        { "name": "resetGateWeightMatrix", "visible": false },
-        { "name": "outputGateWeightMatrix", "visible": false },
-        { "name": "updateGateRecursionMatrix", "visible": false },
-        { "name": "resetGateRecursionMatrix", "visible": false },
-        { "name": "outputGateRecursionMatrix", "visible": false },
-        { "name": "updateGateBiasVector", "visible": false },
-        { "name": "resetGateBiasVector", "visible": false },
-        { "name": "outputGateBiasVector", "visible": false }
-      ],
-      "outputs": [
-        { "name": "output" },
-        { "name": "h" }
-      ]
-    }
-  },
-  {
-    "name": "uniDirectionalLSTM",
-    "schema": {
-      "category": "Layer",
-      "description": "A unidirectional long short-term memory (LSTM) layer.",
-      "inputs": [
-        { "name": "input" },
-        { "name": "h" },
-        { "name": "c" },
-        { "name": "inputGateWeightMatrix", "visible": false },
-        { "name": "forgetGateWeightMatrix", "visible": false },
-        { "name": "blockInputWeightMatrix", "visible": false },
-        { "name": "outputGateWeightMatrix", "visible": false },
-        { "name": "inputGateRecursionMatrix", "visible": false },
-        { "name": "forgetGateRecursionMatrix", "visible": false },
-        { "name": "blockInputRecursionMatrix", "visible": false },
-        { "name": "outputGateRecursionMatrix", "visible": false },
-        { "name": "inputGateBiasVector", "visible": false },
-        { "name": "forgetGateBiasVector", "visible": false },
-        { "name": "blockInputBiasVector", "visible": false },
-        { "name": "outputGateBiasVector", "visible": false }
-      ],
-      "outputs": [
-        { "name": "output" },
-        { "name": "h" },
-        { "name": "c" }
-      ]
-    }
-  },
-  {
-    "name": "biDirectionalLSTM",
-    "schema": {
-      "category": "Layer",
-      "description": "Bidirectional long short-term memory (LSTM) layer. The first LSTM operates on the input sequence in the forward direction. The second LSTM operates on the input sequence in the reverse direction.",
-      "inputs": [
-        { "name": "input" },
-        { "name": "h" },
-        { "name": "c" },
-        { "name": "h_rev" },
-        { "name": "c_rev" },
-        { "name": "inputGateWeightMatrix", "visible": false },
-        { "name": "forgetGateWeightMatrix", "visible": false },
-        { "name": "blockInputWeightMatrix", "visible": false },
-        { "name": "outputGateWeightMatrix", "visible": false },
-        { "name": "inputGateRecursionMatrix", "visible": false },
-        { "name": "forgetGateRecursionMatrix", "visible": false },
-        { "name": "blockInputRecursionMatrix", "visible": false },
-        { "name": "outputGateRecursionMatrix", "visible": false },
-        { "name": "inputGateBiasVector", "visible": false },
-        { "name": "forgetGateBiasVector", "visible": false },
-        { "name": "blockInputBiasVector", "visible": false },
-        { "name": "outputGateBiasVector", "visible": false },
-        { "name": "inputGateWeightMatrix_rev", "visible": false },
-        { "name": "forgetGateWeightMatrix_rev", "visible": false },
-        { "name": "blockInputWeightMatrix_rev", "visible": false },
-        { "name": "outputGateWeightMatrix_rev", "visible": false },
-        { "name": "inputGateRecursionMatrix_rev", "visible": false },
-        { "name": "forgetGateRecursionMatrix_rev", "visible": false },
-        { "name": "blockInputRecursionMatrix_rev", "visible": false },
-        { "name": "outputGateRecursionMatrix_rev", "visible": false },
-        { "name": "inputGateBiasVector_rev", "visible": false },
-        { "name": "forgetGateBiasVector_rev", "visible": false },
-        { "name": "blockInputBiasVector_rev", "visible": false },
-        { "name": "outputGateBiasVector_rev", "visible": false }
-      ],
-      "outputs": [
-        { "name": "output" },
-        { "name": "h" },
-        { "name": "c" },
-        { "name": "h_rev" },
-        { "name": "c_rev" }
-      ]
-    }
-  },
-  {
-    "name": "bias",
-    "schema": {
-      "category": "Layer",
-      "description": "A layer that performs elementwise addition of a bias, which is broadcasted to match the input shape."
-    }
-  },
-  {
     "name": "activation",
-    "schema": {
-      "category": "Activation",
-      "description": "Applies specified type of activation function to input."
-    }
-  },
-  {
-    "name": "softmax",
-    "schema": {
-      "category": "Activation",
-      "description": "A layer that performs softmax normalization. Normalization is done along the channel axis."
-    }
-  },
-  {
-    "name": "batchnorm",
-    "schema": {
-      "category": "Normalization",
-      "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present.",
-      "attributes": [
-        { "name": "epsilon", "default": 0.000009999999747378752 },
-        { "name": "computeMeanVar", "visible": false },
-        { "name": "instanceNormalization", "visible": false }
-      ]
-    }
-  },
-  {
-    "name": "l2normalize",
-    "schema": {
-      "category": "Normalization",
-      "description": "A layer that performs L2 normalization, i.e. divides by the the square root of the sum of squares of all elements of input."
-    }
-  },
-  {
-    "name": "lrn",
-    "schema": {
-      "category": "Normalization",
-      "description": "A layer that performs local response normalization (LRN).",
-      "attributes": [
-        { "name": "k", "default": 1 }
-      ]
-    }
-  },
-  {
-    "name": "pooling",
-    "schema": {
-      "category": "Pool",
-      "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
-      "attributes": [
-        { "name": "includeLastPixel", "type": "ValidCompletePadding", "visible": false },
-        { "name": "same", "type": "SamePadding", "visible": false },
-        { "name": "valid", "type": "ValidCompletePadding", "visible": false },
-        { "name": "type", "type": "PoolingLayerParams.PoolingType" },
-        { "name": "globalPooling", "type": "boolean", "default": false },
-        { "name": "stride", "type": "uint64", "default": [ 1, 1 ] },
-        { "name": "kernelSize", "type": "uint64[]", "default": [ 3, 3 ] },
-        { "name": "avgPoolExcludePadding", "type": "boolean", "default": false }
-      ]
-    }
-  },
-  {
-    "name": "permute",
-    "schema": {
-      "category": "Shape",
-      "description": "A layer that rearranges the dimensions and data of an input."
-    }
-  },
-  {
-    "name": "reduce",
-    "schema": {
-      "description": "A layer that reduces the input using a specified operation."
-    }
-  },
-  {
-    "name": "gelu",
-    "schema": {
-      "category": "Activation",
-      "description": "Gaussian error linear unit activation.",
-      "attributes": [
-        { "name": "mode", "type": "GeluLayerParams.GeluMode" }
-      ]
-    }
-  },
-  {
-    "name": "softmaxND",
-    "schema": {
-      "category": "Activation",
-      "description": "A layer that performs softmax normalization along a specified axis."
-    }
-  },
-  {
-    "name": "flatten",
-    "schema": {
-      "category": "Shape",
-      "description": "A layer that flattens the input.",
-      "attributes": [
-        { "name": "mode", "type": "FlattenLayerParams.FlattenOrder" }
-      ]
-    }
-  },
-  {
-    "name": "reshape",
-    "schema": {
-      "category": "Shape",
-      "description": "A layer that recasts the input into a new shape."
-    }
-  },
-  {
-    "name": "reorganizeData",
-    "schema": {
-      "category": "Shape",
-      "description": "A layer that reorganizes data in the input in: 1. SPACE_TO_DEPTH, 2. DEPTH_TO_SPACE."
-    }
-  },
-  {
-    "name": "padding",
-    "schema": {
-      "category": "Shape",
-      "description": "Fill a constant value in the padded region.",
-      "attributes": [
-        { "name": "paddingAmounts", "visible": false }
-      ]
-    }
-  },
-  {
-    "name": "crop",
-    "schema": {
-      "category": "Data",
-      "description": "A layer that crops the spatial dimensions of an input. If two inputs are provided, the shape of the second input is used as the reference shape.",
-      "inputs": [
-        { "name": "x1" },
-        { "name": "x2" }
-      ],
-      "outputs": [
-        { "name": "y" }
-      ]
-    }
-  },
-  {
-    "name": "sequenceRepeat",
-    "schema": {
-      "category": "Shape",
-      "description": "A layer that repeats a sequence."
-    }    
-  },
-  {
-    "name": "concat",
-    "schema": {
-      "category": "Tensor",
-      "description": "A layer that concatenates along the channel axis (default) or sequence axis.",
-      "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ]
-    }
+    "category": "Activation",
+    "description": "Applies specified type of activation function to input."
   },
   {
     "name": "add",
-    "schema": {
-      "description": "A layer that performs elementwise addition.",
-      "inputs": [
-        { "name": "x" },
-        { "name": "y" }
-      ],
-      "outputs": [
-        { "name": "z" }
-      ]
-    }
-  },
-  {
-    "name": "multiply",
-    "schema": {
-      "description": "A layer that performs elementwise multiplication.",
-      "inputs": [
-        { "name": "x" },
-        { "name": "y" }
-      ],
-      "outputs": [
-        { "name": "z" }
-      ]
-    }
-  },
-  {
-    "name": "max",
-    "schema": {
-      "description": "A layer that computes the elementwise maximum over the inputs."
-    }
-  },
-  {
-    "name": "min",
-    "schema": {
-      "description": "A layer that computes the elementwise minimum over the inputs."
-    }
+    "description": "A layer that performs elementwise addition.",
+    "inputs": [
+      { "name": "x" },
+      { "name": "y" }
+    ],
+    "outputs": [
+      { "name": "z" }
+    ]
   },
   {
     "name": "average",
-    "schema": {
-      "description": "A layer that computes the elementwise average of the inputs."
-    }
+    "description": "A layer that computes the elementwise average of the inputs."
   },
   {
-    "name": "unary",
-    "schema": {
-      "description": "A layer that applies a unary function.",
-      "attributes": [
-        { "name": "type", "type": "UnaryFunctionLayerParams.Operation" },
-        { "name": "alpha", "default": 1.0 },
-        { "name": "scale", "default": 1.0 },
-        { "name": "epsilon", "default": 9.999999974752427e-7 }
-      ],
-      "inputs": [
-        { "name": "x" }
-      ],
-      "outputs": [
-        { "name": "z" }
-      ]
-    }
+    "name": "batchnorm",
+    "category": "Normalization",
+    "description": "A layer that performs batch normalization, which is performed along the channel axis, and repeated along the other axes, if present.",
+    "attributes": [
+      { "name": "epsilon", "default": 0.000009999999747378752 },
+      { "name": "computeMeanVar", "visible": false },
+      { "name": "instanceNormalization", "visible": false }
+    ]
   },
   {
-    "name": "mvn",
-    "schema": {
-      "description": "Fill a constant value in the padded region."
-    }
+    "name": "bias",
+    "category": "Layer",
+    "description": "A layer that performs elementwise addition of a bias, which is broadcasted to match the input shape."
+  },
+  {
+    "name": "biDirectionalLSTM",
+    "category": "Layer",
+    "description": "Bidirectional long short-term memory (LSTM) layer. The first LSTM operates on the input sequence in the forward direction. The second LSTM operates on the input sequence in the reverse direction.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "h" },
+      { "name": "c" },
+      { "name": "h_rev" },
+      { "name": "c_rev" },
+      { "name": "inputGateWeightMatrix", "visible": false },
+      { "name": "forgetGateWeightMatrix", "visible": false },
+      { "name": "blockInputWeightMatrix", "visible": false },
+      { "name": "outputGateWeightMatrix", "visible": false },
+      { "name": "inputGateRecursionMatrix", "visible": false },
+      { "name": "forgetGateRecursionMatrix", "visible": false },
+      { "name": "blockInputRecursionMatrix", "visible": false },
+      { "name": "outputGateRecursionMatrix", "visible": false },
+      { "name": "inputGateBiasVector", "visible": false },
+      { "name": "forgetGateBiasVector", "visible": false },
+      { "name": "blockInputBiasVector", "visible": false },
+      { "name": "outputGateBiasVector", "visible": false },
+      { "name": "inputGateWeightMatrix_rev", "visible": false },
+      { "name": "forgetGateWeightMatrix_rev", "visible": false },
+      { "name": "blockInputWeightMatrix_rev", "visible": false },
+      { "name": "outputGateWeightMatrix_rev", "visible": false },
+      { "name": "inputGateRecursionMatrix_rev", "visible": false },
+      { "name": "forgetGateRecursionMatrix_rev", "visible": false },
+      { "name": "blockInputRecursionMatrix_rev", "visible": false },
+      { "name": "outputGateRecursionMatrix_rev", "visible": false },
+      { "name": "inputGateBiasVector_rev", "visible": false },
+      { "name": "forgetGateBiasVector_rev", "visible": false },
+      { "name": "blockInputBiasVector_rev", "visible": false },
+      { "name": "outputGateBiasVector_rev", "visible": false }
+    ],
+    "outputs": [
+      { "name": "output" },
+      { "name": "h" },
+      { "name": "c" },
+      { "name": "h_rev" },
+      { "name": "c_rev" }
+    ]
+  },
+  {
+    "name": "concat",
+    "category": "Tensor",
+    "description": "A layer that concatenates along the channel axis (default) or sequence axis.",
+    "inputs": [
+      { "name": "inputs", "option": "variadic" }
+    ]
+  },
+  {
+    "name": "convolution",
+    "category": "Layer",
+    "description": "A layer that performs spatial convolution or deconvolution.",
+    "attributes": [
+      { "name": "outputShape", "type": "uint64[]", "description": "Either None or a 2-tuple, specifying the output shape (output_height, output_width). Used only when is_deconv == True. When is_deconv == False, this parameter is ignored. If it is None, the output shape is calculated automatically using the border_mode. Kindly refer to NeuralNetwork.proto for details.", "visible": false },
+      { "name": "outputChannels", "type": "uint64", "description": "The number of kernels. Same as ``C_out`` used in the layer description.", "visible": false },
+      { "name": "kernelChannels", "type": "uint64", "description": "Channel dimension of the kernels. Must be equal to ``inputChannels / nGroups``, if isDeconvolution == False. Must be equal to ``inputChannels``, if isDeconvolution == True.", "visible": false },
+      { "name": "nGroups", "type": "uint64", "description": "Group convolution, i.e. weight reuse along channel axis. Input and kernels are divided into g groups and convolution / deconvolution is applied within the groups independently. If not set or 0, it is set to the default value 1.", "default": 1 },
+      { "name": "isDeconvolution", "type": "boolean", "description": "Flag to specify whether it is a deconvolution layer." },
+      { "name": "valid", "type": "ValidPadding", "visible": false },
+      { "name": "same", "type": "SamePadding", "visible": false },
+      { "name": "dilationFactor", "type": "uint64[]", "default": [   1,   1 ] },
+      { "name": "stride", "type": "uint64[]", "default": [   1,   1 ] },
+      { "name": "kernelSize", "type": "uint64[]", "default": [   3,   3 ] },
+      { "name": "hasBias", "type": "boolean", "description": "Flag to specify whether a bias is to be added or not.", "visible": false }
+    ]
+  },
+  {
+    "name": "crop",
+    "category": "Data",
+    "description": "A layer that crops the spatial dimensions of an input. If two inputs are provided, the shape of the second input is used as the reference shape.",
+    "inputs": [
+      { "name": "x1" },
+      { "name": "x2" }
+    ],
+    "outputs": [
+      { "name": "y" }
+    ]
   },
   {
     "name": "dot",
-    "schema": {
-      "description": "If true, inputs are normalized first, thereby computing the cosine similarity."
-    }
-  },
-  {
-    "name": "scale",
-    "schema": {
-      "category": "Layer",
-      "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias.",
-      "attributes": [
-        { "name": "hasBias", "type": "boolean", "visible": false }
-      ]
-    }
-  },
-  {
-    "name": "upsample",
-    "schema": {
-      "category": "Data",
-      "description": "A layer that scales up spatial dimensions. It supports two modes: nearest neighbour (default) and bilinear."
-    }
-  },
-  {
-    "name": "slice",
-    "schema": {
-      "description": "A layer that slices the input data along a given axis."
-    }
-  },
-  {
-    "name": "slice",
-    "schema": {
-      "description": "A layer that uniformly splits across the channel dimension to produce a specified number of outputs."
-    }
+    "description": "If true, inputs are normalized first, thereby computing the cosine similarity."
   },
   {
     "name": "embedding",
-    "schema": {
-      "category": "Transform",
-      "description": "A layer that performs a matrix lookup and optionally adds a bias."
-    }
+    "category": "Transform",
+    "description": "A layer that performs a matrix lookup and optionally adds a bias."
   },
   {
     "name": "featureVectorizer",
-    "schema": {
-      "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ]
-    }
+    "inputs": [
+      { "name": "inputs", "option": "variadic" }
+    ]
   },
   {
-    "name": "loadConstant",
-    "schema": {
-      "category": "Data"
-    }
+    "name": "flatten",
+    "category": "Shape",
+    "description": "A layer that flattens the input.",
+    "attributes": [
+      { "name": "mode", "type": "FlattenLayerParams.FlattenOrder" }
+    ]
   },
   {
-    "name": "stringClassLabels",
-    "schema": {
-      "category": "Data",
-      "outputs": [
-        { "name": "probabilities" },
-        { "name": "feature" }
-      ]
-    }
+    "name": "gelu",
+    "category": "Activation",
+    "description": "Gaussian error linear unit activation.",
+    "attributes": [
+      { "name": "mode", "type": "GeluLayerParams.GeluMode" }
+    ]
+  },
+  {
+    "name": "gru",
+    "category": "Layer",
+    "description": "Gated-Recurrent Unit (GRU) Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "h" },
+      { "name": "updateGateWeightMatrix", "visible": false },
+      { "name": "resetGateWeightMatrix", "visible": false },
+      { "name": "outputGateWeightMatrix", "visible": false },
+      { "name": "updateGateRecursionMatrix", "visible": false },
+      { "name": "resetGateRecursionMatrix", "visible": false },
+      { "name": "outputGateRecursionMatrix", "visible": false },
+      { "name": "updateGateBiasVector", "visible": false },
+      { "name": "resetGateBiasVector", "visible": false },
+      { "name": "outputGateBiasVector", "visible": false }
+    ],
+    "outputs": [
+      { "name": "output" },
+      { "name": "h" }
+    ]
+  },
+  {
+    "name": "innerProduct",
+    "category": "Layer",
+    "description": "A layer that performs a matrix vector product. This is equivalent to a fully-connected, or dense layer.",
+    "attributes": [
+      { "name": "inputChannels", "type": "uint64", "visible": false },
+      { "name": "outputChannels", "type": "uint64", "visible": false },
+      { "name": "hasBias", "type": "boolean", "visible": false }
+    ]
   },
   {
     "name": "int64ClassLabels",
-    "schema": {
-      "category": "Data",
-      "outputs": [
-        { "name": "probabilities" },
-        { "name": "feature" }
-      ]
-    }
-  },
-  {
-    "name": "scaler",
-    "schema": {
-      "category": "Data"
-    }
-  },
-  {
-    "name": "wordTagger",
-    "schema": {
-      "attributes": [
-        { "name": "revision", "visible": false }
-      ],
-      "outputs": [
-        { "name": "tokens" },
-        { "name": "tags" },
-        { "name": "locations" },
-        { "name": "lengths" }
-      ]
-    }
-  },
-  {
-    "name": "textClassifier",
-    "schema": {
-      "attributes": [
-        { "name": "revision", "visible": false }
-      ]
-    }
-  },
-  {
-    "name": "nonMaximumSuppression",
-    "schema": {
-      "attributes": [
-        { "name": "iouThreshold" },
-        { "name": "confidenceThreshold" }
-      ],
-      "inputs": [
-        { "name": "confidence" },
-        { "name": "coordinates" },
-        { "name": "iouThreshold" },
-        { "name": "confidenceThreshold" }
-      ],
-      "outputs": [
-        { "name": "confidence" },
-        { "name": "coordinates" }
-      ]
-    }
-  },
-  {
-    "name": "squeeze",
-    "schema": {
-      "category": "Transform"
-    }
-  },
-  {
-    "name": "mvn",
-    "schema": {
-      "category": "Normalization",
-      "description": "A layer that performs mean variance normalization, along axis = -3."
-    }
+    "category": "Data",
+    "outputs": [
+      { "name": "probabilities" },
+      { "name": "feature" }
+    ]
   },
   {
     "name": "itemSimilarityRecommender",
-    "schema": {
-      "inputs": [
-        { "name": "item" },
-        { "name": "numRecommendations" },
-        { "name": "itemRestriction" },
-        { "name": "itemExclusion" }
-      ],
-      "outputs": [
-        { "name": "recommendedItemList" },
-        { "name": "recommendedItemScore" }
-      ]
-    }
+    "inputs": [
+      { "name": "item" },
+      { "name": "numRecommendations" },
+      { "name": "itemRestriction" },
+      { "name": "itemExclusion" }
+    ],
+    "outputs": [
+      { "name": "recommendedItemList" },
+      { "name": "recommendedItemScore" }
+    ]
+  },
+  {
+    "name": "l2normalize",
+    "category": "Normalization",
+    "description": "A layer that performs L2 normalization, i.e. divides by the the square root of the sum of squares of all elements of input."
+  },
+  {
+    "name": "loadConstant",
+    "category": "Data"
+  },
+  {
+    "name": "lrn",
+    "category": "Normalization",
+    "description": "A layer that performs local response normalization (LRN).",
+    "attributes": [
+      { "name": "k", "default": 1 }
+    ]
+  },
+  {
+    "name": "max",
+    "description": "A layer that computes the elementwise maximum over the inputs."
+  },
+  {
+    "name": "min",
+    "description": "A layer that computes the elementwise minimum over the inputs."
+  },
+  {
+    "name": "multiply",
+    "description": "A layer that performs elementwise multiplication.",
+    "inputs": [
+      { "name": "x" },
+      { "name": "y" }
+    ],
+    "outputs": [
+      { "name": "z" }
+    ]
+  },
+  {
+    "name": "mvn",
+    "description": "Fill a constant value in the padded region."
+  },
+  {
+    "name": "mvn",
+    "category": "Normalization",
+    "description": "A layer that performs mean variance normalization, along axis = -3."
+  },
+  {
+    "name": "nonMaximumSuppression",
+    "attributes": [
+      { "name": "iouThreshold" },
+      { "name": "confidenceThreshold" }
+    ],
+    "inputs": [
+      { "name": "confidence" },
+      { "name": "coordinates" },
+      { "name": "iouThreshold" },
+      { "name": "confidenceThreshold" }
+    ],
+    "outputs": [
+      { "name": "confidence" },
+      { "name": "coordinates" }
+    ]
+  },
+  {
+    "name": "padding",
+    "category": "Shape",
+    "description": "Fill a constant value in the padded region.",
+    "attributes": [
+      { "name": "paddingAmounts", "visible": false }
+    ]
+  },
+  {
+    "name": "permute",
+    "category": "Shape",
+    "description": "A layer that rearranges the dimensions and data of an input."
+  },
+  {
+    "name": "pooling",
+    "category": "Pool",
+    "description": "Spatial Pooling layer to reduce dimensions of input using the specified kernel size and type.",
+    "attributes": [
+      { "name": "includeLastPixel", "type": "ValidCompletePadding", "visible": false },
+      { "name": "same", "type": "SamePadding", "visible": false },
+      { "name": "valid", "type": "ValidCompletePadding", "visible": false },
+      { "name": "type", "type": "PoolingLayerParams.PoolingType" },
+      { "name": "globalPooling", "type": "boolean", "default": false },
+      { "name": "stride", "type": "uint64", "default": [   1,   1 ] },
+      { "name": "kernelSize", "type": "uint64[]", "default": [   3,   3 ] },
+      { "name": "avgPoolExcludePadding", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "reduce",
+    "description": "A layer that reduces the input using a specified operation."
+  },
+  {
+    "name": "reorganizeData",
+    "category": "Shape",
+    "description": "A layer that reorganizes data in the input in: 1. SPACE_TO_DEPTH, 2. DEPTH_TO_SPACE."
+  },
+  {
+    "name": "reshape",
+    "category": "Shape",
+    "description": "A layer that recasts the input into a new shape."
+  },
+  {
+    "name": "scale",
+    "category": "Layer",
+    "description": "A layer that performs elmentwise multiplication by a scale factor and optionally adds a bias.",
+    "attributes": [
+      { "name": "hasBias", "type": "boolean", "visible": false }
+    ]
+  },
+  {
+    "name": "scaler",
+    "category": "Data"
+  },
+  {
+    "name": "sequenceRepeat",
+    "category": "Shape",
+    "description": "A layer that repeats a sequence."
+  },
+  {
+    "name": "slice",
+    "description": "A layer that slices the input data along a given axis."
+  },
+  {
+    "name": "slice",
+    "description": "A layer that uniformly splits across the channel dimension to produce a specified number of outputs."
+  },
+  {
+    "name": "softmax",
+    "category": "Activation",
+    "description": "A layer that performs softmax normalization. Normalization is done along the channel axis."
+  },
+  {
+    "name": "softmaxND",
+    "category": "Activation",
+    "description": "A layer that performs softmax normalization along a specified axis."
+  },
+  {
+    "name": "squeeze",
+    "category": "Transform"
+  },
+  {
+    "name": "stringClassLabels",
+    "category": "Data",
+    "outputs": [
+      { "name": "probabilities" },
+      { "name": "feature" }
+    ]
+  },
+  {
+    "name": "textClassifier",
+    "attributes": [
+      { "name": "revision", "visible": false }
+    ]
+  },
+  {
+    "name": "unary",
+    "description": "A layer that applies a unary function.",
+    "attributes": [
+      { "name": "type", "type": "UnaryFunctionLayerParams.Operation" },
+      { "name": "alpha", "default": 1 },
+      { "name": "scale", "default": 1 },
+      { "name": "epsilon", "default": 9.999999974752427e-7 }
+    ],
+    "inputs": [
+      { "name": "x" }
+    ],
+    "outputs": [
+      { "name": "z" }
+    ]
+  },
+  {
+    "name": "uniDirectionalLSTM",
+    "category": "Layer",
+    "description": "A unidirectional long short-term memory (LSTM) layer.",
+    "inputs": [
+      { "name": "input" },
+      { "name": "h" },
+      { "name": "c" },
+      { "name": "inputGateWeightMatrix", "visible": false },
+      { "name": "forgetGateWeightMatrix", "visible": false },
+      { "name": "blockInputWeightMatrix", "visible": false },
+      { "name": "outputGateWeightMatrix", "visible": false },
+      { "name": "inputGateRecursionMatrix", "visible": false },
+      { "name": "forgetGateRecursionMatrix", "visible": false },
+      { "name": "blockInputRecursionMatrix", "visible": false },
+      { "name": "outputGateRecursionMatrix", "visible": false },
+      { "name": "inputGateBiasVector", "visible": false },
+      { "name": "forgetGateBiasVector", "visible": false },
+      { "name": "blockInputBiasVector", "visible": false },
+      { "name": "outputGateBiasVector", "visible": false }
+    ],
+    "outputs": [
+      { "name": "output" },
+      { "name": "h" },
+      { "name": "c" }
+    ]
+  },
+  {
+    "name": "upsample",
+    "category": "Data",
+    "description": "A layer that scales up spatial dimensions. It supports two modes: nearest neighbour (default) and bilinear."
+  },
+  {
+    "name": "wordTagger",
+    "attributes": [
+      { "name": "revision", "visible": false }
+    ],
+    "outputs": [
+      { "name": "tokens" },
+      { "name": "tags" },
+      { "name": "locations" },
+      { "name": "lengths" }
+    ]
+  },
+  {
+    "name": "program:conv",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "program:linear",
+    "category": "Layer",
+    "inputs": [
+      { "name": "x" },
+      { "name": "weight" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "program:pad",
+    "category": "Tensor"
+  },
+  {
+    "name": "program:transpose",
+    "category": "Transform"
+  },
+  {
+    "name": "program:sigmoid",
+    "category": "Activation"
+  },
+  {
+    "name": "program:softmax",
+    "category": "Activation"
+  },
+  {
+    "name": "program:relu",
+    "category": "Activation"
+  },
+  {
+    "name": "program:relu6",
+    "category": "Activation"
+  },
+  {
+    "name": "program:reshape",
+    "category": "Shape"
   }
 ]

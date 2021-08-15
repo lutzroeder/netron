@@ -36,32 +36,16 @@ sync() {
 
 install() {
     echo "pytorch install"
-    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
-    ${python} -m pip install --quiet --upgrade future protobuf
-        echo "- macos arm64 [skip]"
-        # pytorch/pytorch#51854
-        # [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
-        # export OPENBLAS=$(brew --prefix openblas)
-        # venv
-        # ${python} -m pip install --quiet --upgrade future protobuf
-        # ${python} -m pip install --upgrade --quiet pybind11
-        # ${python} -m pip install --upgrade --quiet cython
-        # ${python} -m pip install --upgrade --quiet pyyaml
-        # ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
-        # rm -rf ./third_party/source/scipy
-        # git clone --quiet https://github.com/scipy/scipy.git ./third_party/source/scipy
-        # export CFLAGS="-falign-functions=8 ${CFLAGS}"
-        # pushd ./third_party/source/scipy > /dev/null
-        # python setup.py install --quiet >/dev/null 2>&1
-        # popd > /dev/null
-        # rm -rf ./third_party/source/scipy
-        # ${python} -m pip install --quiet ./third_party/source/pytorch
-        # deactivate
-        return
-    fi
     venv
     ${python} -m pip install --quiet --upgrade future protobuf
-    ${python} -m pip install --quiet --upgrade scipy
+    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
+        [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
+        export OPENBLAS=$(brew --prefix openblas)
+        ${python} -m pip install --upgrade --quiet pybind11 cython pyyaml
+        ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
+    else
+        ${python} -m pip install --quiet --upgrade scipy
+    fi
     ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
@@ -77,10 +61,6 @@ schema() {
 
 metadata() {
     echo "pytorch metadata"
-    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
-        echo "- macos arm64 [skip]" # pytorch/pytorch#51854
-        return
-    fi
     venv
     export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
     if [[ $(grep -U $'\x0D' ./source/pytorch-metadata.json) ]]; then crlf=1; else crlf=; fi
@@ -99,18 +79,6 @@ metadata() {
     deactivate
 }
 
-zoo() {
-    echo "pytorch zoo"
-    rm -rf "./third_party/env/pytorch"
-    venv
-    ${python} -m pip install --quiet --upgrade future protobuf scipy
-    ${python} -m pip install --quiet --upgrade --pre torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
-    export PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python
-    ${python} ./tools/pytorch-script.py zoo
-    deactivate
-    rm -rf "./third_party/env/pytorch"
-}
-
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
@@ -119,6 +87,5 @@ while [ "$#" != 0 ]; do
         "install") install;;
         "schema") schema;;
         "metadata") metadata;;
-        "zoo") zoo;;
     esac
 done

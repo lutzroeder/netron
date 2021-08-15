@@ -5,18 +5,20 @@ var zip = zip || require('./zip');
 
 gzip.Archive = class {
 
-    static open(buffer) {
-        const stream = buffer instanceof Uint8Array ? new gzip.BinaryReader(buffer) : buffer;
+    static open(data) {
+        const stream = data instanceof Uint8Array ? new gzip.BinaryReader(data) : data;
         const signature = [ 0x1f, 0x8b ];
         if (stream.length > 18 && stream.peek(2).every((value, index) => value === signature[index])) {
             return new gzip.Archive(stream);
         }
-        throw new gzip.Error('Invalid gzip archive.');
+        return null;
     }
 
     constructor(stream) {
-        this._entries = [ new gzip.Entry(stream) ];
-        stream.seek(0);
+        const position = stream.position;
+        const entry = new gzip.Entry(stream);
+        this._entries = new Map([ [ entry.name, entry.stream ] ]);
+        stream.seek(position);
     }
 
     get entries() {
@@ -32,19 +34,6 @@ gzip.Entry = class {
             !stream.read(2).every((value, index) => value === signature[index])) {
             throw new gzip.Error('Invalid gzip signature.');
         }
-        let reader = new gzip.BinaryReader(stream.read(8));
-        const compressionMethod = reader.byte();
-        if (compressionMethod != 8) {
-            throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
-        }
-        const flags = reader.byte();
-        reader.uint32(); // MTIME
-        reader.byte();
-        reader.byte(); // OS
-        if ((flags & 4) != 0) { // FEXTRA
-            const xlen = stream.byte() | (stream.byte() << 8);
-            stream.skip(xlen);
-        }
         const string = () => {
             let text = '';
             while (stream.position < stream.length) {
@@ -56,20 +45,27 @@ gzip.Entry = class {
             }
             return text;
         };
-        if ((flags & 8) != 0) { // FNAME
-            this._name = string();
+        const reader = new gzip.BinaryReader(stream.read(8));
+        const compressionMethod = reader.byte();
+        if (compressionMethod != 8) {
+            throw new gzip.Error("Invalid compression method '" + compressionMethod.toString() + "'.");
         }
+        const flags = reader.byte();
+        reader.uint32(); // MTIME
+        reader.byte(); // XFL
+        reader.byte(); // OS
+        if ((flags & 4) != 0) { // FEXTRA
+            const xlen = stream.byte() | (stream.byte() << 8);
+            stream.skip(xlen);
+        }
+        this._name = (flags & 8) != 0 ? string() : ''; // FNAME
         if ((flags & 16) != 0) { // FCOMMENT
             string();
         }
-        if ((flags & 1) != 0) { // CRC16x
+        if ((flags & 1) != 0) { // FHCRC
             stream.skip(2);
         }
-        const compressedStream = stream.stream(stream.length - stream.position - 8);
-        reader = new gzip.BinaryReader(stream.read(8));
-        reader.uint32(); // CRC32
-        const length = reader.uint32();
-        this._stream = new gzip.InflaterStream(compressedStream, length);
+        this._stream = new gzip.InflaterStream(stream);
     }
 
     get name() {
@@ -79,18 +75,16 @@ gzip.Entry = class {
     get stream() {
         return this._stream;
     }
-
-    get data() {
-        return this.stream.peek();
-    }
 };
 
 gzip.InflaterStream = class {
 
-    constructor(stream, length) {
-        this._stream = stream;
+    constructor(stream) {
+        this._stream = stream.stream(stream.length - stream.position - 8);
+        const reader = new gzip.BinaryReader(stream.read(8));
+        reader.uint32(); // CRC32
+        this._length = reader.uint32(); // ISIZE
         this._position = 0;
-        this._length = length;
     }
 
     get position() {

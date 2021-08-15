@@ -32,7 +32,7 @@ $root.caffe.BlobShape = class BlobShape {
             const tag = reader.tag();
             switch (tag) {
                 case "dim":
-                    reader.array(message.dim, () => reader.integer());
+                    reader.array(message.dim, () => reader.int64());
                     break;
                 default:
                     reader.field(tag, message);
@@ -109,22 +109,22 @@ $root.caffe.BlobProto = class BlobProto {
                     reader.array(message.diff, () => reader.float());
                     break;
                 case "double_data":
-                    reader.array(message.double_data, () => reader.float());
+                    reader.array(message.double_data, () => reader.double());
                     break;
                 case "double_diff":
-                    reader.array(message.double_diff, () => reader.float());
+                    reader.array(message.double_diff, () => reader.double());
                     break;
                 case "num":
-                    message.num = reader.integer();
+                    message.num = reader.int32();
                     break;
                 case "channels":
-                    message.channels = reader.integer();
+                    message.channels = reader.int32();
                     break;
                 case "height":
-                    message.height = reader.integer();
+                    message.height = reader.int32();
                     break;
                 case "width":
-                    message.width = reader.integer();
+                    message.width = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -230,25 +230,25 @@ $root.caffe.Datum = class Datum {
             const tag = reader.tag();
             switch (tag) {
                 case "channels":
-                    message.channels = reader.integer();
+                    message.channels = reader.int32();
                     break;
                 case "height":
-                    message.height = reader.integer();
+                    message.height = reader.int32();
                     break;
                 case "width":
-                    message.width = reader.integer();
+                    message.width = reader.int32();
                     break;
                 case "data":
                     message.data = reader.bytes();
                     break;
                 case "label":
-                    message.label = reader.integer();
+                    message.label = reader.int32();
                     break;
                 case "float_data":
                     reader.array(message.float_data, () => reader.float());
                     break;
                 case "encoded":
-                    message.encoded = reader.boolean();
+                    message.encoded = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -334,7 +334,7 @@ $root.caffe.FillerParameter = class FillerParameter {
                     message.std = reader.float();
                     break;
                 case "sparse":
-                    message.sparse = reader.integer();
+                    message.sparse = reader.int32();
                     break;
                 case "variance_norm":
                     message.variance_norm = reader.enum($root.caffe.FillerParameter.VarianceNorm);
@@ -430,16 +430,16 @@ $root.caffe.NetParameter = class NetParameter {
                     message.input_shape.push($root.caffe.BlobShape.decodeText(reader));
                     break;
                 case "input_dim":
-                    reader.array(message.input_dim, () => reader.integer());
+                    reader.array(message.input_dim, () => reader.int32());
                     break;
                 case "force_backward":
-                    message.force_backward = reader.boolean();
+                    message.force_backward = reader.bool();
                     break;
                 case "state":
                     message.state = $root.caffe.NetState.decodeText(reader);
                     break;
                 case "debug_info":
-                    message.debug_info = reader.boolean();
+                    message.debug_info = reader.bool();
                     break;
                 case "layer":
                     message.layer.push($root.caffe.LayerParameter.decodeText(reader));
@@ -643,31 +643,31 @@ $root.caffe.SolverParameter = class SolverParameter {
                     message.test_state.push($root.caffe.NetState.decodeText(reader));
                     break;
                 case "test_iter":
-                    reader.array(message.test_iter, () => reader.integer());
+                    reader.array(message.test_iter, () => reader.int32());
                     break;
                 case "test_interval":
-                    message.test_interval = reader.integer();
+                    message.test_interval = reader.int32();
                     break;
                 case "test_compute_loss":
-                    message.test_compute_loss = reader.boolean();
+                    message.test_compute_loss = reader.bool();
                     break;
                 case "test_initialization":
-                    message.test_initialization = reader.boolean();
+                    message.test_initialization = reader.bool();
                     break;
                 case "base_lr":
                     message.base_lr = reader.float();
                     break;
                 case "display":
-                    message.display = reader.integer();
+                    message.display = reader.int32();
                     break;
                 case "average_loss":
-                    message.average_loss = reader.integer();
+                    message.average_loss = reader.int32();
                     break;
                 case "max_iter":
-                    message.max_iter = reader.integer();
+                    message.max_iter = reader.int32();
                     break;
                 case "iter_size":
-                    message.iter_size = reader.integer();
+                    message.iter_size = reader.int32();
                     break;
                 case "lr_policy":
                     message.lr_policy = reader.string();
@@ -688,22 +688,22 @@ $root.caffe.SolverParameter = class SolverParameter {
                     message.regularization_type = reader.string();
                     break;
                 case "stepsize":
-                    message.stepsize = reader.integer();
+                    message.stepsize = reader.int32();
                     break;
                 case "stepvalue":
-                    reader.array(message.stepvalue, () => reader.integer());
+                    reader.array(message.stepvalue, () => reader.int32());
                     break;
                 case "clip_gradients":
                     message.clip_gradients = reader.float();
                     break;
                 case "snapshot":
-                    message.snapshot = reader.integer();
+                    message.snapshot = reader.int32();
                     break;
                 case "snapshot_prefix":
                     message.snapshot_prefix = reader.string();
                     break;
                 case "snapshot_diff":
-                    message.snapshot_diff = reader.boolean();
+                    message.snapshot_diff = reader.bool();
                     break;
                 case "snapshot_format":
                     message.snapshot_format = reader.enum($root.caffe.SolverParameter.SnapshotFormat);
@@ -712,10 +712,10 @@ $root.caffe.SolverParameter = class SolverParameter {
                     message.solver_mode = reader.enum($root.caffe.SolverParameter.SolverMode);
                     break;
                 case "device_id":
-                    message.device_id = reader.integer();
+                    message.device_id = reader.int32();
                     break;
                 case "random_seed":
-                    message.random_seed = reader.integer();
+                    message.random_seed = reader.int64();
                     break;
                 case "type":
                     message.type = reader.string();
@@ -730,16 +730,16 @@ $root.caffe.SolverParameter = class SolverParameter {
                     message.rms_decay = reader.float();
                     break;
                 case "debug_info":
-                    message.debug_info = reader.boolean();
+                    message.debug_info = reader.bool();
                     break;
                 case "snapshot_after_train":
-                    message.snapshot_after_train = reader.boolean();
+                    message.snapshot_after_train = reader.bool();
                     break;
                 case "solver_type":
                     message.solver_type = reader.enum($root.caffe.SolverParameter.SolverType);
                     break;
                 case "layer_wise_reduce":
-                    message.layer_wise_reduce = reader.boolean();
+                    message.layer_wise_reduce = reader.bool();
                     break;
                 case "weights":
                     reader.array(message.weights, () => reader.string());
@@ -848,7 +848,7 @@ $root.caffe.SolverState = class SolverState {
             const tag = reader.tag();
             switch (tag) {
                 case "iter":
-                    message.iter = reader.integer();
+                    message.iter = reader.int32();
                     break;
                 case "learned_net":
                     message.learned_net = reader.string();
@@ -857,7 +857,7 @@ $root.caffe.SolverState = class SolverState {
                     message.history.push($root.caffe.BlobProto.decodeText(reader));
                     break;
                 case "current_step":
-                    message.current_step = reader.integer();
+                    message.current_step = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -916,7 +916,7 @@ $root.caffe.NetState = class NetState {
                     message.phase = reader.enum($root.caffe.Phase);
                     break;
                 case "level":
-                    message.level = reader.integer();
+                    message.level = reader.int32();
                     break;
                 case "stage":
                     reader.array(message.stage, () => reader.string());
@@ -979,10 +979,10 @@ $root.caffe.NetStateRule = class NetStateRule {
                     message.phase = reader.enum($root.caffe.Phase);
                     break;
                 case "min_level":
-                    message.min_level = reader.integer();
+                    message.min_level = reader.int32();
                     break;
                 case "max_level":
-                    message.max_level = reader.integer();
+                    message.max_level = reader.int32();
                     break;
                 case "stage":
                     reader.array(message.stage, () => reader.string());
@@ -1309,7 +1309,7 @@ $root.caffe.LayerParameter = class LayerParameter {
                     message.blobs.push($root.caffe.BlobProto.decodeText(reader));
                     break;
                 case "propagate_down":
-                    reader.array(message.propagate_down, () => reader.boolean());
+                    reader.array(message.propagate_down, () => reader.bool());
                     break;
                 case "include":
                     message.include.push($root.caffe.NetStateRule.decodeText(reader));
@@ -1577,10 +1577,10 @@ $root.caffe.TransformationParameter = class TransformationParameter {
                     message.scale = reader.float();
                     break;
                 case "mirror":
-                    message.mirror = reader.boolean();
+                    message.mirror = reader.bool();
                     break;
                 case "crop_size":
-                    message.crop_size = reader.integer();
+                    message.crop_size = reader.uint32();
                     break;
                 case "mean_file":
                     message.mean_file = reader.string();
@@ -1589,10 +1589,10 @@ $root.caffe.TransformationParameter = class TransformationParameter {
                     reader.array(message.mean_value, () => reader.float());
                     break;
                 case "force_color":
-                    message.force_color = reader.boolean();
+                    message.force_color = reader.bool();
                     break;
                 case "force_gray":
-                    message.force_gray = reader.boolean();
+                    message.force_gray = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1645,13 +1645,13 @@ $root.caffe.LossParameter = class LossParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "ignore_label":
-                    message.ignore_label = reader.integer();
+                    message.ignore_label = reader.int32();
                     break;
                 case "normalization":
                     message.normalization = reader.enum($root.caffe.LossParameter.NormalizationMode);
                     break;
                 case "normalize":
-                    message.normalize = reader.boolean();
+                    message.normalize = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1708,13 +1708,13 @@ $root.caffe.AccuracyParameter = class AccuracyParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "top_k":
-                    message.top_k = reader.integer();
+                    message.top_k = reader.uint32();
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "ignore_label":
-                    message.ignore_label = reader.integer();
+                    message.ignore_label = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1764,13 +1764,13 @@ $root.caffe.ArgMaxParameter = class ArgMaxParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "out_max_val":
-                    message.out_max_val = reader.boolean();
+                    message.out_max_val = reader.bool();
                     break;
                 case "top_k":
-                    message.top_k = reader.integer();
+                    message.top_k = reader.uint32();
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1866,10 +1866,10 @@ $root.caffe.ConcatParameter = class ConcatParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "concat_dim":
-                    message.concat_dim = reader.integer();
+                    message.concat_dim = reader.uint32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -1918,7 +1918,7 @@ $root.caffe.BatchNormParameter = class BatchNormParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "use_global_stats":
-                    message.use_global_stats = reader.boolean();
+                    message.use_global_stats = reader.bool();
                     break;
                 case "moving_average_fraction":
                     message.moving_average_fraction = reader.float();
@@ -1974,10 +1974,10 @@ $root.caffe.BiasParameter = class BiasParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "num_axes":
-                    message.num_axes = reader.integer();
+                    message.num_axes = reader.int32();
                     break;
                 case "filler":
                     message.filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -2030,7 +2030,7 @@ $root.caffe.ContrastiveLossParameter = class ContrastiveLossParameter {
                     message.margin = reader.float();
                     break;
                 case "legacy_version":
-                    message.legacy_version = reader.boolean();
+                    message.legacy_version = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2128,43 +2128,43 @@ $root.caffe.ConvolutionParameter = class ConvolutionParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "num_output":
-                    message.num_output = reader.integer();
+                    message.num_output = reader.uint32();
                     break;
                 case "bias_term":
-                    message.bias_term = reader.boolean();
+                    message.bias_term = reader.bool();
                     break;
                 case "pad":
-                    reader.array(message.pad, () => reader.integer());
+                    reader.array(message.pad, () => reader.uint32());
                     break;
                 case "kernel_size":
-                    reader.array(message.kernel_size, () => reader.integer());
+                    reader.array(message.kernel_size, () => reader.uint32());
                     break;
                 case "stride":
-                    reader.array(message.stride, () => reader.integer());
+                    reader.array(message.stride, () => reader.uint32());
                     break;
                 case "dilation":
-                    reader.array(message.dilation, () => reader.integer());
+                    reader.array(message.dilation, () => reader.uint32());
                     break;
                 case "pad_h":
-                    message.pad_h = reader.integer();
+                    message.pad_h = reader.uint32();
                     break;
                 case "pad_w":
-                    message.pad_w = reader.integer();
+                    message.pad_w = reader.uint32();
                     break;
                 case "kernel_h":
-                    message.kernel_h = reader.integer();
+                    message.kernel_h = reader.uint32();
                     break;
                 case "kernel_w":
-                    message.kernel_w = reader.integer();
+                    message.kernel_w = reader.uint32();
                     break;
                 case "stride_h":
-                    message.stride_h = reader.integer();
+                    message.stride_h = reader.uint32();
                     break;
                 case "stride_w":
-                    message.stride_w = reader.integer();
+                    message.stride_w = reader.uint32();
                     break;
                 case "group":
-                    message.group = reader.integer();
+                    message.group = reader.uint32();
                     break;
                 case "weight_filler":
                     message.weight_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -2176,10 +2176,10 @@ $root.caffe.ConvolutionParameter = class ConvolutionParameter {
                     message.engine = reader.enum($root.caffe.ConvolutionParameter.Engine);
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "force_nd_im2col":
-                    message.force_nd_im2col = reader.boolean();
+                    message.force_nd_im2col = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2244,10 +2244,10 @@ $root.caffe.CropParameter = class CropParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "offset":
-                    reader.array(message.offset, () => reader.integer());
+                    reader.array(message.offset, () => reader.uint32());
                     break;
                 default:
                     reader.field(tag, message);
@@ -2319,10 +2319,10 @@ $root.caffe.DataParameter = class DataParameter {
                     message.source = reader.string();
                     break;
                 case "batch_size":
-                    message.batch_size = reader.integer();
+                    message.batch_size = reader.uint32();
                     break;
                 case "rand_skip":
-                    message.rand_skip = reader.integer();
+                    message.rand_skip = reader.uint32();
                     break;
                 case "backend":
                     message.backend = reader.enum($root.caffe.DataParameter.DB);
@@ -2334,16 +2334,16 @@ $root.caffe.DataParameter = class DataParameter {
                     message.mean_file = reader.string();
                     break;
                 case "crop_size":
-                    message.crop_size = reader.integer();
+                    message.crop_size = reader.uint32();
                     break;
                 case "mirror":
-                    message.mirror = reader.boolean();
+                    message.mirror = reader.bool();
                     break;
                 case "force_encoded_color":
-                    message.force_encoded_color = reader.boolean();
+                    message.force_encoded_color = reader.bool();
                     break;
                 case "prefetch":
-                    message.prefetch = reader.integer();
+                    message.prefetch = reader.uint32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2468,16 +2468,16 @@ $root.caffe.DummyDataParameter = class DummyDataParameter {
                     message.shape.push($root.caffe.BlobShape.decodeText(reader));
                     break;
                 case "num":
-                    reader.array(message.num, () => reader.integer());
+                    reader.array(message.num, () => reader.uint32());
                     break;
                 case "channels":
-                    reader.array(message.channels, () => reader.integer());
+                    reader.array(message.channels, () => reader.uint32());
                     break;
                 case "height":
-                    reader.array(message.height, () => reader.integer());
+                    reader.array(message.height, () => reader.uint32());
                     break;
                 case "width":
-                    reader.array(message.width, () => reader.integer());
+                    reader.array(message.width, () => reader.uint32());
                     break;
                 default:
                     reader.field(tag, message);
@@ -2530,7 +2530,7 @@ $root.caffe.EltwiseParameter = class EltwiseParameter {
                     reader.array(message.coeff, () => reader.float());
                     break;
                 case "stable_prod_grad":
-                    message.stable_prod_grad = reader.boolean();
+                    message.stable_prod_grad = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2633,13 +2633,13 @@ $root.caffe.EmbedParameter = class EmbedParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "num_output":
-                    message.num_output = reader.integer();
+                    message.num_output = reader.uint32();
                     break;
                 case "input_dim":
-                    message.input_dim = reader.integer();
+                    message.input_dim = reader.uint32();
                     break;
                 case "bias_term":
-                    message.bias_term = reader.boolean();
+                    message.bias_term = reader.bool();
                     break;
                 case "weight_filler":
                     message.weight_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -2750,10 +2750,10 @@ $root.caffe.FlattenParameter = class FlattenParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "end_axis":
-                    message.end_axis = reader.integer();
+                    message.end_axis = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2805,10 +2805,10 @@ $root.caffe.HDF5DataParameter = class HDF5DataParameter {
                     message.source = reader.string();
                     break;
                 case "batch_size":
-                    message.batch_size = reader.integer();
+                    message.batch_size = reader.uint32();
                     break;
                 case "shuffle":
-                    message.shuffle = reader.boolean();
+                    message.shuffle = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -2977,22 +2977,22 @@ $root.caffe.ImageDataParameter = class ImageDataParameter {
                     message.source = reader.string();
                     break;
                 case "batch_size":
-                    message.batch_size = reader.integer();
+                    message.batch_size = reader.uint32();
                     break;
                 case "rand_skip":
-                    message.rand_skip = reader.integer();
+                    message.rand_skip = reader.uint32();
                     break;
                 case "shuffle":
-                    message.shuffle = reader.boolean();
+                    message.shuffle = reader.bool();
                     break;
                 case "new_height":
-                    message.new_height = reader.integer();
+                    message.new_height = reader.uint32();
                     break;
                 case "new_width":
-                    message.new_width = reader.integer();
+                    message.new_width = reader.uint32();
                     break;
                 case "is_color":
-                    message.is_color = reader.boolean();
+                    message.is_color = reader.bool();
                     break;
                 case "scale":
                     message.scale = reader.float();
@@ -3001,10 +3001,10 @@ $root.caffe.ImageDataParameter = class ImageDataParameter {
                     message.mean_file = reader.string();
                     break;
                 case "crop_size":
-                    message.crop_size = reader.integer();
+                    message.crop_size = reader.uint32();
                     break;
                 case "mirror":
-                    message.mirror = reader.boolean();
+                    message.mirror = reader.bool();
                     break;
                 case "root_folder":
                     message.root_folder = reader.string();
@@ -3066,7 +3066,7 @@ $root.caffe.InfogainLossParameter = class InfogainLossParameter {
                     message.source = reader.string();
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3124,10 +3124,10 @@ $root.caffe.InnerProductParameter = class InnerProductParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "num_output":
-                    message.num_output = reader.integer();
+                    message.num_output = reader.uint32();
                     break;
                 case "bias_term":
-                    message.bias_term = reader.boolean();
+                    message.bias_term = reader.bool();
                     break;
                 case "weight_filler":
                     message.weight_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -3136,10 +3136,10 @@ $root.caffe.InnerProductParameter = class InnerProductParameter {
                     message.bias_filler = $root.caffe.FillerParameter.decodeText(reader);
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "transpose":
-                    message.transpose = reader.boolean();
+                    message.transpose = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3298,7 +3298,7 @@ $root.caffe.LRNParameter = class LRNParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "local_size":
-                    message.local_size = reader.integer();
+                    message.local_size = reader.uint32();
                     break;
                 case "alpha":
                     message.alpha = reader.float();
@@ -3380,16 +3380,16 @@ $root.caffe.MemoryDataParameter = class MemoryDataParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "batch_size":
-                    message.batch_size = reader.integer();
+                    message.batch_size = reader.uint32();
                     break;
                 case "channels":
-                    message.channels = reader.integer();
+                    message.channels = reader.uint32();
                     break;
                 case "height":
-                    message.height = reader.integer();
+                    message.height = reader.uint32();
                     break;
                 case "width":
-                    message.width = reader.integer();
+                    message.width = reader.uint32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3440,10 +3440,10 @@ $root.caffe.MVNParameter = class MVNParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "normalize_variance":
-                    message.normalize_variance = reader.boolean();
+                    message.normalize_variance = reader.bool();
                     break;
                 case "across_channels":
-                    message.across_channels = reader.boolean();
+                    message.across_channels = reader.bool();
                     break;
                 case "eps":
                     message.eps = reader.float();
@@ -3571,37 +3571,37 @@ $root.caffe.PoolingParameter = class PoolingParameter {
                     message.pool = reader.enum($root.caffe.PoolingParameter.PoolMethod);
                     break;
                 case "pad":
-                    message.pad = reader.integer();
+                    message.pad = reader.uint32();
                     break;
                 case "pad_h":
-                    message.pad_h = reader.integer();
+                    message.pad_h = reader.uint32();
                     break;
                 case "pad_w":
-                    message.pad_w = reader.integer();
+                    message.pad_w = reader.uint32();
                     break;
                 case "kernel_size":
-                    message.kernel_size = reader.integer();
+                    message.kernel_size = reader.uint32();
                     break;
                 case "kernel_h":
-                    message.kernel_h = reader.integer();
+                    message.kernel_h = reader.uint32();
                     break;
                 case "kernel_w":
-                    message.kernel_w = reader.integer();
+                    message.kernel_w = reader.uint32();
                     break;
                 case "stride":
-                    message.stride = reader.integer();
+                    message.stride = reader.uint32();
                     break;
                 case "stride_h":
-                    message.stride_h = reader.integer();
+                    message.stride_h = reader.uint32();
                     break;
                 case "stride_w":
-                    message.stride_w = reader.integer();
+                    message.stride_w = reader.uint32();
                     break;
                 case "engine":
                     message.engine = reader.enum($root.caffe.PoolingParameter.Engine);
                     break;
                 case "global_pooling":
-                    message.global_pooling = reader.boolean();
+                    message.global_pooling = reader.bool();
                     break;
                 case "round_mode":
                     message.round_mode = reader.enum($root.caffe.PoolingParameter.RoundMode);
@@ -3749,7 +3749,7 @@ $root.caffe.PythonParameter = class PythonParameter {
                     message.param_str = reader.string();
                     break;
                 case "share_in_parallel":
-                    message.share_in_parallel = reader.boolean();
+                    message.share_in_parallel = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3806,7 +3806,7 @@ $root.caffe.RecurrentParameter = class RecurrentParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "num_output":
-                    message.num_output = reader.integer();
+                    message.num_output = reader.uint32();
                     break;
                 case "weight_filler":
                     message.weight_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -3815,10 +3815,10 @@ $root.caffe.RecurrentParameter = class RecurrentParameter {
                     message.bias_filler = $root.caffe.FillerParameter.decodeText(reader);
                     break;
                 case "debug_info":
-                    message.debug_info = reader.boolean();
+                    message.debug_info = reader.bool();
                     break;
                 case "expose_hidden":
-                    message.expose_hidden = reader.boolean();
+                    message.expose_hidden = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);
@@ -3873,7 +3873,7 @@ $root.caffe.ReductionParameter = class ReductionParameter {
                     message.operation = reader.enum($root.caffe.ReductionParameter.ReductionOp);
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "coeff":
                     message.coeff = reader.float();
@@ -3991,10 +3991,10 @@ $root.caffe.ReshapeParameter = class ReshapeParameter {
                     message.shape = $root.caffe.BlobShape.decodeText(reader);
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "num_axes":
-                    message.num_axes = reader.integer();
+                    message.num_axes = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4050,16 +4050,16 @@ $root.caffe.ScaleParameter = class ScaleParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "num_axes":
-                    message.num_axes = reader.integer();
+                    message.num_axes = reader.int32();
                     break;
                 case "filler":
                     message.filler = $root.caffe.FillerParameter.decodeText(reader);
                     break;
                 case "bias_term":
-                    message.bias_term = reader.boolean();
+                    message.bias_term = reader.bool();
                     break;
                 case "bias_filler":
                     message.bias_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -4163,13 +4163,13 @@ $root.caffe.SliceParameter = class SliceParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "slice_point":
-                    reader.array(message.slice_point, () => reader.integer());
+                    reader.array(message.slice_point, () => reader.uint32());
                     break;
                 case "slice_dim":
-                    message.slice_dim = reader.integer();
+                    message.slice_dim = reader.uint32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4218,7 +4218,7 @@ $root.caffe.SoftmaxParameter = class SoftmaxParameter {
                     message.engine = reader.enum($root.caffe.SoftmaxParameter.Engine);
                     break;
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4360,10 +4360,10 @@ $root.caffe.TileParameter = class TileParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "axis":
-                    message.axis = reader.integer();
+                    message.axis = reader.int32();
                     break;
                 case "tiles":
-                    message.tiles = reader.integer();
+                    message.tiles = reader.int32();
                     break;
                 default:
                     reader.field(tag, message);
@@ -4493,13 +4493,13 @@ $root.caffe.WindowDataParameter = class WindowDataParameter {
                     message.mean_file = reader.string();
                     break;
                 case "batch_size":
-                    message.batch_size = reader.integer();
+                    message.batch_size = reader.uint32();
                     break;
                 case "crop_size":
-                    message.crop_size = reader.integer();
+                    message.crop_size = reader.uint32();
                     break;
                 case "mirror":
-                    message.mirror = reader.boolean();
+                    message.mirror = reader.bool();
                     break;
                 case "fg_threshold":
                     message.fg_threshold = reader.float();
@@ -4511,13 +4511,13 @@ $root.caffe.WindowDataParameter = class WindowDataParameter {
                     message.fg_fraction = reader.float();
                     break;
                 case "context_pad":
-                    message.context_pad = reader.integer();
+                    message.context_pad = reader.uint32();
                     break;
                 case "crop_mode":
                     message.crop_mode = reader.string();
                     break;
                 case "cache_images":
-                    message.cache_images = reader.boolean();
+                    message.cache_images = reader.bool();
                     break;
                 case "root_folder":
                     message.root_folder = reader.string();
@@ -4580,7 +4580,7 @@ $root.caffe.SPPParameter = class SPPParameter {
             const tag = reader.tag();
             switch (tag) {
                 case "pyramid_height":
-                    message.pyramid_height = reader.integer();
+                    message.pyramid_height = reader.uint32();
                     break;
                 case "pool":
                     message.pool = reader.enum($root.caffe.SPPParameter.PoolMethod);
@@ -5146,10 +5146,10 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     message.type = reader.string();
                     break;
                 case "num_output":
-                    message.num_output = reader.integer();
+                    message.num_output = reader.uint32();
                     break;
                 case "biasterm":
-                    message.biasterm = reader.boolean();
+                    message.biasterm = reader.bool();
                     break;
                 case "weight_filler":
                     message.weight_filler = $root.caffe.FillerParameter.decodeText(reader);
@@ -5158,16 +5158,16 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     message.bias_filler = $root.caffe.FillerParameter.decodeText(reader);
                     break;
                 case "pad":
-                    message.pad = reader.integer();
+                    message.pad = reader.uint32();
                     break;
                 case "kernelsize":
-                    message.kernelsize = reader.integer();
+                    message.kernelsize = reader.uint32();
                     break;
                 case "group":
-                    message.group = reader.integer();
+                    message.group = reader.uint32();
                     break;
                 case "stride":
-                    message.stride = reader.integer();
+                    message.stride = reader.uint32();
                     break;
                 case "pool":
                     message.pool = reader.enum($root.caffe.V0LayerParameter.PoolMethod);
@@ -5176,7 +5176,7 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     message.dropout_ratio = reader.float();
                     break;
                 case "local_size":
-                    message.local_size = reader.integer();
+                    message.local_size = reader.uint32();
                     break;
                 case "alpha":
                     message.alpha = reader.float();
@@ -5197,13 +5197,13 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     message.meanfile = reader.string();
                     break;
                 case "batchsize":
-                    message.batchsize = reader.integer();
+                    message.batchsize = reader.uint32();
                     break;
                 case "cropsize":
-                    message.cropsize = reader.integer();
+                    message.cropsize = reader.uint32();
                     break;
                 case "mirror":
-                    message.mirror = reader.boolean();
+                    message.mirror = reader.bool();
                     break;
                 case "blobs":
                     message.blobs.push($root.caffe.BlobProto.decodeText(reader));
@@ -5215,7 +5215,7 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     reader.array(message.weight_decay, () => reader.float());
                     break;
                 case "rand_skip":
-                    message.rand_skip = reader.integer();
+                    message.rand_skip = reader.uint32();
                     break;
                 case "det_fg_threshold":
                     message.det_fg_threshold = reader.float();
@@ -5227,28 +5227,28 @@ $root.caffe.V0LayerParameter = class V0LayerParameter {
                     message.det_fg_fraction = reader.float();
                     break;
                 case "det_context_pad":
-                    message.det_context_pad = reader.integer();
+                    message.det_context_pad = reader.uint32();
                     break;
                 case "det_crop_mode":
                     message.det_crop_mode = reader.string();
                     break;
                 case "new_num":
-                    message.new_num = reader.integer();
+                    message.new_num = reader.int32();
                     break;
                 case "new_channels":
-                    message.new_channels = reader.integer();
+                    message.new_channels = reader.int32();
                     break;
                 case "new_height":
-                    message.new_height = reader.integer();
+                    message.new_height = reader.int32();
                     break;
                 case "new_width":
-                    message.new_width = reader.integer();
+                    message.new_width = reader.int32();
                     break;
                 case "shuffle_images":
-                    message.shuffle_images = reader.boolean();
+                    message.shuffle_images = reader.bool();
                     break;
                 case "concat_dim":
-                    message.concat_dim = reader.integer();
+                    message.concat_dim = reader.uint32();
                     break;
                 case "hdf5_output_param":
                     message.hdf5_output_param = $root.caffe.HDF5OutputParameter.decodeText(reader);
@@ -5339,7 +5339,7 @@ $root.caffe.PReLUParameter = class PReLUParameter {
                     message.filler = $root.caffe.FillerParameter.decodeText(reader);
                     break;
                 case "channel_shared":
-                    message.channel_shared = reader.boolean();
+                    message.channel_shared = reader.bool();
                     break;
                 default:
                     reader.field(tag, message);

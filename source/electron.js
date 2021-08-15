@@ -29,11 +29,8 @@ host.ElectronHost = class {
                 /* eslint-enable no-undef */
             }
         });
-        this._version = electron.remote.app.getVersion();
-        this._environment = new Map();
-        this._environment.set('zoom', 'd3');
-        // this._environment.set('zoom', 'scroll');
-        this._openFileQueue = [];
+        this._environment = electron.ipcRenderer.sendSync('get-environment', {});
+        this._queue = [];
     }
 
     get window() {
@@ -45,7 +42,7 @@ host.ElectronHost = class {
     }
 
     get version() {
-        return this._version;
+        return this._environment.version;
     }
 
     get type() {
@@ -59,11 +56,11 @@ host.ElectronHost = class {
     initialize(view) {
         this._view = view;
         electron.ipcRenderer.on('open', (_, data) => {
-            this._openFile(data.file);
+            this._openPath(data.path);
         });
         return new Promise((resolve /*, reject */) => {
             const accept = () => {
-                if (electron.remote.app.isPackaged) {
+                if (this._environment.package) {
                     this._telemetry = new host.Telemetry('UA-54146-13', this._getConfiguration('userId'), navigator.userAgent, this.type, this.version);
                 }
                 resolve();
@@ -108,12 +105,12 @@ host.ElectronHost = class {
     start() {
         this._view.show('welcome');
 
-        if (this._openFileQueue !== null) {
-            const queue = this._openFileQueue;
-            this._openFileQueue = null;
+        if (this._queue) {
+            const queue = this._queue;
+            delete this._queue;
             if (queue.length > 0) {
-                const file = queue.pop();
-                this._openFile(file);
+                const path = queue.pop();
+                this._openPath(path);
             }
         }
 
@@ -191,40 +188,36 @@ host.ElectronHost = class {
         });
         this.document.body.addEventListener('drop', (e) => {
             e.preventDefault();
-            const files = Array.from(e.dataTransfer.files).map(((file) => file.path));
-            if (files.length > 0) {
-                electron.ipcRenderer.send('drop-files', { files: files });
+            const paths = Array.from(e.dataTransfer.files).map(((file) => file.path));
+            if (paths.length > 0) {
+                electron.ipcRenderer.send('drop-paths', { paths: paths });
             }
             return false;
         });
     }
 
     environment(name) {
-        return this._environment.get(name);
+        return this._environment[name];
     }
 
     error(message, detail) {
-        const owner = electron.remote.getCurrentWindow();
-        const options = {
+        electron.ipcRenderer.sendSync('show-message-box', {
             type: 'error',
             message: message,
             detail: detail,
-        };
-        electron.remote.dialog.showMessageBoxSync(owner, options);
+        });
     }
 
     confirm(message, detail) {
-        const owner = electron.remote.getCurrentWindow();
-        const options = {
+        const result = electron.ipcRenderer.sendSync('show-message-box', {
             type: 'question',
             message: message,
             detail: detail,
             buttons: ['Yes', 'No'],
             defaultId: 0,
             cancelId: 1
-        };
-        const result = electron.remote.dialog.showMessageBoxSync(owner, options);
-        return result == 0;
+        });
+        return result === 0;
     }
 
     require(id) {
@@ -237,14 +230,12 @@ host.ElectronHost = class {
     }
 
     save(name, extension, defaultPath, callback) {
-        const owner = electron.remote.BrowserWindow.getFocusedWindow();
-        const showSaveDialogOptions = {
+        const selectedFile = electron.ipcRenderer.sendSync('show-save-dialog', {
             title: 'Export Tensor',
             defaultPath: defaultPath,
             buttonLabel: 'Export',
             filters: [ { name: name, extensions: [ extension ] } ]
-        };
-        const selectedFile = electron.remote.dialog.showSaveDialogSync(owner, showSaveDialogOptions);
+        });
         if (selectedFile) {
             callback(selectedFile);
         }
@@ -282,17 +273,17 @@ host.ElectronHost = class {
     request(file, encoding, base) {
         return new Promise((resolve, reject) => {
             const pathname = path.join(base || __dirname, file);
-            fs.stat(pathname, (err, stats) => {
+            fs.stat(pathname, (err, stat) => {
                 if (err && err.code === 'ENOENT') {
                     reject(new Error("The file '" + file + "' does not exist."));
                 }
                 else if (err) {
                     reject(err);
                 }
-                else if (!stats.isFile()) {
+                else if (!stat.isFile()) {
                     reject(new Error("The path '" + file + "' is not a file."));
                 }
-                else if (stats && stats.size < 0x7ffff000) {
+                else if (stat && stat.size < 0x7ffff000) {
                     fs.readFile(pathname, encoding, (err, data) => {
                         if (err) {
                             reject(err);
@@ -303,10 +294,10 @@ host.ElectronHost = class {
                     });
                 }
                 else if (encoding) {
-                    reject(new Error("The file '" + file + "' size (" + stats.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
+                    reject(new Error("The file '" + file + "' size (" + stat.size.toString() + ") for encoding '" + encoding + "' is greater than 2 GB."));
                 }
                 else {
-                    resolve(new host.ElectronHost.FileStream(pathname, 0, stats.size, stats.mtimeMs));
+                    resolve(new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs));
                 }
             });
         });
@@ -319,12 +310,22 @@ host.ElectronHost = class {
     exception(error, fatal) {
         if (this._telemetry && error && error.telemetry !== false) {
             try {
-                const description = [];
-                description.push((error && error.name ? (error.name + ': ') : '') + (error && error.message ? error.message : '(null)'));
+                const name = error && error.name ? error.name + ': ' : '';
+                const message = error && error.message ? error.message : '(null)';
+                const description = [ name + message ];
                 if (error.stack) {
-                    const match = error.stack.match(/\n {4}at (.*)\((.*)\)/);
+                    const format = (file, line, column) => {
+                        return file.split('\\').join('/').split('/').pop() + ':' + line + ':' + column;
+                    };
+                    const match = error.stack.match(/\n {4}at (.*) \((.*):(\d*):(\d*)\)/);
                     if (match) {
-                        description.push(match[1] + '(' + match[2].split('/').pop().split('\\').pop() + ')');
+                        description.push(match[1] + ' (' + format(match[2], match[3], match[4]) + ')');
+                    }
+                    else {
+                        const match = error.stack.match(/\n {4}at (.*):(\d*):(\d*)/);
+                        if (match) {
+                            description.push('(' + format(match[1], match[2], match[3]) + ')');
+                        }
                     }
                 }
                 this._telemetry.exception(description.join(' @ '), fatal);
@@ -357,21 +358,49 @@ host.ElectronHost = class {
         }
     }
 
-    _openFile(file) {
-        if (this._openFileQueue) {
-            this._openFileQueue.push(file);
+    _context(location) {
+        const basename = path.basename(location);
+        const stat = fs.statSync(location);
+        if (stat.isFile()) {
+            const dirname = path.dirname(location);
+            return this.request(basename, null, dirname).then((stream) => {
+                return new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
+            });
+        }
+        else if (stat.isDirectory()) {
+            const entries = new Map();
+            const walk = (dir) => {
+                for (const item of fs.readdirSync(dir)) {
+                    const pathname = path.join(dir, item);
+                    const stat = fs.statSync(pathname);
+                    if (stat.isDirectory()) {
+                        walk(pathname);
+                    }
+                    else if (stat.isFile()) {
+                        const stream = new host.ElectronHost.FileStream(pathname, 0, stat.size, stat.mtimeMs);
+                        const name = pathname.split(path.sep).join(path.posix.sep);
+                        entries.set(name, stream);
+                    }
+                }
+            };
+            walk(location);
+            return Promise.resolve(new host.ElectronHost.ElectonContext(this, location, basename, null, entries));
+        }
+        throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
+    }
+
+    _openPath(path) {
+        if (this._queue) {
+            this._queue.push(path);
             return;
         }
-        if (file && this._view.accept(file)) {
+        if (path && this._view.accept(path)) {
             this._view.show('welcome spinner');
-            const dirname = path.dirname(file);
-            const basename = path.basename(file);
-            this.request(basename, null, dirname).then((stream) => {
-                const context = new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
+            this._context(path).then((context) => {
                 this._view.open(context).then((model) => {
                     this._view.show(null);
                     if (model) {
-                        this._update('path', file);
+                        this._update('path', path);
                     }
                     this._update('show-attributes', this._view.showAttributes);
                     this._update('show-initializers', this._view.showInitializers);
@@ -398,7 +427,7 @@ host.ElectronHost = class {
             const options = {
                 headers: headers
             };
-            const request = httpModule.get(url, options, (response) => {
+            const request = httpModule.request(url, options, (response) => {
                 if (response.statusCode !== 200) {
                     const err = new Error("The web request failed with status code " + response.statusCode + " at '" + url + "'.");
                     err.type = 'error';
@@ -418,31 +447,29 @@ host.ElectronHost = class {
                         resolve(data);
                     });
                 }
-            }).on("error", (err) => {
+            });
+            request.on("error", (err) => {
                 reject(err);
             });
             if (timeout) {
                 request.setTimeout(timeout, () => {
-                    request.abort();
+                    request.destroy();
                     const err = new Error("The web request timed out at '" + url + "'.");
                     err.type = 'timeout';
                     err.url = url;
                     reject(err);
                 });
             }
+            request.end();
         });
     }
 
     _getConfiguration(name) {
-        const configuration = electron.remote.getGlobal('global').application.service('configuration');
-        return configuration && configuration.has(name) ? configuration.get(name) : undefined;
+        return electron.ipcRenderer.sendSync('get-configuration', { name: name });
     }
 
     _setConfiguration(name, value) {
-        const configuration = electron.remote.getGlobal('global').application.service('configuration');
-        if (configuration) {
-            configuration.set(name, value);
-        }
+        electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
     _update(name, value) {
@@ -506,7 +533,7 @@ host.Telemetry = class {
             response.on('error', (/* error */) => {});
         });
         request.setTimeout(5000, () => {
-            request.abort();
+            request.destroy();
         });
         request.on('error', (/* error */) => {});
         request.write(body);
@@ -537,10 +564,16 @@ host.ElectronHost.BinaryStream = class {
 
     seek(position) {
         this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     skip(offset) {
         this._position += offset;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     peek(length) {
@@ -593,8 +626,6 @@ host.ElectronHost.FileStream = class {
         const file = new host.ElectronHost.FileStream(this._file, this._position, length, this._mtime);
         this.skip(length);
         return file;
-        // const buffer = this.read(length);
-        // return new host.ElectronHost.BinaryStream(buffer);
     }
 
     seek(position) {
@@ -672,11 +703,12 @@ host.ElectronHost.FileStream = class {
 
 host.ElectronHost.ElectonContext = class {
 
-    constructor(host, folder, identifier, stream) {
+    constructor(host, folder, identifier, stream, entries) {
         this._host = host;
         this._folder = folder;
         this._identifier = identifier;
         this._stream = stream;
+        this._entries = entries || new Map();
     }
 
     get identifier() {
@@ -685,6 +717,10 @@ host.ElectronHost.ElectonContext = class {
 
     get stream() {
         return this._stream;
+    }
+
+    get entries() {
+        return this._entries;
     }
 
     request(file, encoding, base) {

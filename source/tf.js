@@ -12,54 +12,170 @@ tf.ModelFactory = class {
     match(context) {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'meta') {
-            const tags = context.tags('pb');
-            if (tags.size !== 0) {
-                return true;
-            }
-        }
         if (extension === 'pbtxt' || extension === 'prototxt' || extension === 'pt') {
             if (identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
                 identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-                return false;
+                return undefined;
             }
             const tags = context.tags('pbtxt');
             if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                return false;
+                return undefined;
             }
-            if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                return true;
+            if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                return 'tf.pbtxt.SavedModel';
+            }
+            if (tags.has('graph_def')) {
+                return 'tf.pbtxt.MetaGraphDef';
+            }
+            if (tags.has('node')) {
+                return 'tf.pbtxt.GraphDef';
             }
         }
-        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef') {
+        if (extension === 'pb' || extension === 'pbtxt' || extension === 'prototxt' || extension === 'graphdef' || extension === 'meta') {
             if (identifier.endsWith('predict_net.pb') || identifier.endsWith('init_net.pb')) {
-                return false;
+                return undefined;
             }
             if (identifier == 'tfhub_module.pb') {
                 const stream = context.stream;
                 const signature = [ 0x08, 0x03 ];
                 if (signature.length === stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-                    return false;
+                    return undefined;
                 }
             }
             const tags = context.tags('pb');
-            if (tags.size === 0) {
-                const tags = context.tags('pbtxt');
-                if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-                    return false;
-                }
-                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                    return true;
+            if (tags.size > 0) {
+                if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
+                    const match = (tags, schema) => {
+                        for (const pair of schema) {
+                            const key = pair[0];
+                            const inner = pair[1];
+                            if (tags[key] === undefined) {
+                                continue;
+                            }
+                            else if (inner === false) {
+                                return false;
+                            }
+                            if (Array.isArray(inner)) {
+                                const value = tags[key];
+                                if (typeof value !== 'object' || !match(value, inner)) {
+                                    return false;
+                                }
+                            }
+                            else if (inner !== tags[key]) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    };
+                    const signatureGraphDef = [
+                        [1 /* node */, [
+                            [1 /* name */, 2],
+                            [2 /* op */, 2],
+                            [3 /* input */, 2],
+                            [4 /* device */,2],
+                            [5 /* attr */, [
+                                [1,2],
+                                [2,[]]
+                            ]],
+                            [6 /* experimental_debug_info */, []]
+                        ]],
+                        [2 /* library */, []],
+                        [3 /* version */, 0],
+                        [4 /* versions */, [[1,0],[2,0]]]
+                    ];
+                    const signatureMetaGraphDef = [
+                        [1 /* meta_info_def */, [[1,2],[2,[]],[3,[]],[4,2],[6,2],[7,0],[8,[]]]],
+                        [2 /* graph_def */, signatureGraphDef],
+                        [3 /* saver_def */, [[1,2],[2,2],[3,2],[4,0],[5,0],[6,5],[7,0]]],
+                        [4 /* collection_def */,[]],
+                        [5 /* signature_def */, []],
+                        [6 /* asset_file_def */, []],
+                        [7 /* object_graph_def */, []]
+                    ];
+                    const signatureSavedModel = [[1,0],[2,signatureMetaGraphDef]];
+                    if (tags.size === 1 && tags.get(1) === 2) {
+                        const tags = context.tags('pb+');
+                        // mediapipe.BoxDetectorIndex
+                        if (match(tags, [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] )) {
+                            return undefined;
+                        }
+                        // third_party.tensorflow.python.keras.protobuf.SavedMetadata
+                        if (match(tags, [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]])) {
+                            return 'tf.pb.keras.SavedMetadata';
+                        }
+                    }
+                    if ((!tags.has(1) || tags.get(1) === 0) && tags.get(2) === 2) {
+                        const tags = context.tags('pb+');
+                        if (match(tags, signatureSavedModel)) {
+                            return 'tf.pb.SavedModel';
+                        }
+                    }
+                    if ((!tags.has(1) || tags.get(1) === 2) &&
+                        (!tags.has(2) || tags.get(2) === 2) &&
+                        (!tags.has(3) || tags.get(3) === 2) &&
+                        (!tags.has(4) || tags.get(4) === 2)) {
+                        const tags = context.tags('pb+');
+                        if (match(tags, signatureMetaGraphDef)) {
+                            return 'tf.pb.MetaGraphDef';
+                        }
+                    }
+                    if (tags.get(1) !== 2) {
+                        const tags = context.tags('pb+');
+                        if (match(tags, signatureGraphDef)) {
+                            return 'tf.pb.GraphDef';
+                        }
+                    }
+                    const decode = (buffer, value) => {
+                        const reader = protobuf.BinaryReader.open(buffer);
+                        const length = reader.length;
+                        while (reader.position < length) {
+                            const tag = reader.uint32();
+                            const number = tag >>> 3;
+                            const type = tag & 7;
+                            if (value === number) {
+                                return type === 2 ? reader.bytes() : null;
+                            }
+                            else {
+                                reader.skipType(type);
+                            }
+                        }
+                        return null;
+                    };
+                    const stream = context.stream;
+                    const buffer = stream.peek();
+                    const nodeBuffer = decode(buffer, 1);
+                    if (nodeBuffer) {
+                        const nameBuffer = decode(nodeBuffer, 1);
+                        if (nameBuffer) {
+                            const decoder = new TextDecoder('utf-8');
+                            const name = decoder.decode(nameBuffer);
+                            if (Array.from(name).filter((c) => c <= ' ').length < 256) {
+                                return 'tf.pb.GraphDef';
+                            }
+                        }
+                    }
                 }
             }
-            else if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
-                return true;
+            else {
+                const tags = context.tags('pbtxt');
+                if (['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
+                    return undefined;
+                }
+                if (tags.has('node')) {
+                    return 'tf.pbtxt.GraphDef';
+                }
+                if (tags.has('graph_def')) {
+                    return 'tf.pbtxt.MetaGraphDef';
+                }
+                if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
+                    return 'tf.pbtxt.SavedModel';
+                }
             }
         }
         if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('format') && tags.get('format') === 'graph-model' && tags.has('modelTopology')) {
-                return true;
+            const obj = context.open('json');
+            if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
+                return 'tf.json';
             }
         }
         if (extension === 'index' || extension === 'ckpt') {
@@ -70,195 +186,31 @@ tf.ModelFactory = class {
                 stream.seek(0);
                 const signature = [ 0x57, 0xfb, 0x80, 0x8b, 0x24, 0x75, 0x47, 0xdb ];
                 if (buffer.every((value, index) => value === signature[index])) {
-                    return true;
+                    return 'tf.bundle';
                 }
             }
         }
         if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-            return true;
+            return 'tf.data';
         }
         if (/^events.out.tfevents./.exec(identifier)) {
-            if (tf.EventFileReader.open(context.stream)) {
-                return true;
+            const stream = context.stream;
+            if (tf.EventFileReader.open(stream)) {
+                return 'tf.events';
             }
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./tf-proto').then(() => {
-            tf.proto = protobuf.get('tf').tensorflow;
-            let saved_model = null;
-            let format = null;
-            let producer = null;
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'ckpt' || extension === 'index' || /.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier)) {
-                return tf.ModelFactory._openBundle(context);
-            }
-            else if (/^events.out.tfevents./.exec(identifier)) {
-                format = 'TensorFlow Event File';
-                const eventFileReader = tf.EventFileReader.open(context.stream);
-                saved_model = new tf.proto.SavedModel();
-                for (;;) {
-                    const event = eventFileReader.read();
-                    if (!event) {
-                        break;
-                    }
-                    switch (event.what) {
-                        case 'file_version': {
-                            switch (event.file_version) {
-                                case 'brain.Event:1':
-                                    format = 'TensorFlow Event File v1';
-                                    break;
-                                case 'brain.Event:2':
-                                    format = 'TensorFlow Event File v2';
-                                    break;
-                            }
-                            break;
-                        }
-                        case 'graph_def': {
-                            const buffer = event.graph_def;
-                            const reader = protobuf.Reader.create(buffer);
-                            const graph_def = tf.proto.GraphDef.decode(reader);
-                            const meta_graph = new tf.proto.MetaGraphDef();
-                            meta_graph.meta_info_def = new tf.proto.MetaGraphDef.MetaInfoDef();
-                            meta_graph.meta_info_def.any_info = event.wall_time.toString();
-                            meta_graph.graph_def = graph_def;
-                            saved_model.meta_graphs.push(meta_graph);
-                            break;
-                        }
-                    }
-                }
-            }
-            else if (extension === 'json') {
-                try {
-                    const root = context.tags('json').get('');
-                    const graph_def = new tf.proto.GraphDef();
-                    const meta_graph = new tf.proto.MetaGraphDef();
-                    meta_graph.graph_def = graph_def;
-                    saved_model = new tf.proto.SavedModel();
-                    saved_model.meta_graphs.push(meta_graph);
-                    for (const node of root.modelTopology.node) {
-                        graph_def.node.push(node);
-                        node.input = node.input || [];
-                    }
-                    format = 'TensorFlow.js ' + root.format;
-                    producer = root.convertedBy || root.generatedBy || '';
-                }
-                catch (error) {
-                    throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
-                }
-            }
-            else {
-                const tags = context.tags('pbtxt');
-                if (tags.has('node') || tags.has('saved_model_schema_version') || tags.has('meta_graphs') || tags.has('graph_def')) {
-                    if (tags.has('saved_model_schema_version') || tags.has('meta_graphs')) {
-                        try {
-                            if (identifier.endsWith('saved_model.pbtxt') || identifier.endsWith('saved_model.prototxt')) {
-                                const buffer = context.stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
-                                saved_model = tf.proto.SavedModel.decodeText(reader);
-                                format = 'TensorFlow Saved Model';
-                                if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
-                                    format = format + ' v' + saved_model.saved_model_schema_version.toString();
-                                }
-                            }
-                        }
-                        catch (error) {
-                            throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
-                        }
-                    }
-                    else if (tags.has('graph_def')) {
-                        try {
-                            if (!saved_model) {
-                                const buffer = context.stream.peek();
-                                const reader = protobuf.TextReader.create(buffer);
-                                const meta_graph = tf.proto.MetaGraphDef.decodeText(reader);
-                                saved_model = new tf.proto.SavedModel();
-                                saved_model.meta_graphs.push(meta_graph);
-                                format = 'TensorFlow MetaGraph';
-                            }
-                        }
-                        catch (error) {
-                            throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
-                        }
-                    }
-                    else if (tags.has('node')) {
-                        try {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.TextReader.create(buffer);
-                            const graph_def = tf.proto.GraphDef.decodeText(reader);
-                            const meta_graph = new tf.proto.MetaGraphDef();
-                            meta_graph.graph_def = graph_def;
-                            saved_model = new tf.proto.SavedModel();
-                            saved_model.meta_graphs.push(meta_graph);
-                            format = 'TensorFlow Graph';
-                        }
-                        catch (error) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                }
-                else {
-                    try {
-                        if (identifier.endsWith('saved_model.pb')) {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            saved_model = tf.proto.SavedModel.decode(reader);
-                            format = 'TensorFlow Saved Model';
-                            if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
-                                format = format + ' v' + saved_model.saved_model_schema_version.toString();
-                            }
-                        }
-                    }
-                    catch (error) {
-                        const stream = context.stream;
-                        const signature = [ 0x08, 0x01, 0x12 ];
-                        if (signature.length < stream.length && stream.peek(3).every((value, index) => value === signature[index])) {
-                            const message = error && error.message ? error.message : error.toString();
-                            throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
-                        }
-                    }
-                    try {
-                        if (!saved_model && extension == 'meta') {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            const meta_graph = tf.proto.MetaGraphDef.decode(reader);
-                            saved_model = new tf.proto.SavedModel();
-                            saved_model.meta_graphs.push(meta_graph);
-                            format = 'TensorFlow MetaGraph';
-                        }
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new tf.Error('File format is not tensorflow.MetaGraphDef (' + message.replace(/\.$/, '') + ').');
-                    }
-                    try {
-                        if (!saved_model) {
-                            const buffer = context.stream.peek();
-                            const reader = protobuf.Reader.create(buffer);
-                            const graph_def = tf.proto.GraphDef.decode(reader);
-                            const meta_graph = new tf.proto.MetaGraphDef();
-                            meta_graph.graph_def = graph_def;
-                            saved_model = new tf.proto.SavedModel();
-                            saved_model.meta_graphs.push(meta_graph);
-                            format = 'TensorFlow Graph';
-                        }
-                    }
-                    catch (error) {
-                        const message = error && error.message ? error.message : error.toString();
-                        throw new tf.Error('File format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
-                    }
-                }
-                if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
-                    saved_model.meta_graphs[0].meta_info_def &&
-                    Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
-                    producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
-                }
-            }
-            return tf.Metadata.open(context).then((metadata) => {
+            tf.proto = protobuf.get('tf');
+            const openModel = (saved_model, format, producer, bundle) => {
+                return tf.Metadata.open(context).then((metadata) => {
+                    return new tf.Model(metadata, saved_model, format, producer, bundle);
+                });
+            };
+            const openSavedModel = (saved_model, format, producer) => {
                 if (saved_model.meta_graphs.length === 1 &&
                     saved_model.meta_graphs[0].object_graph_def &&
                     saved_model.meta_graphs[0].object_graph_def.nodes &&
@@ -266,45 +218,318 @@ tf.ModelFactory = class {
                     const identifier = 'variables/variables.index';
                     return context.request(identifier, null).then((stream) => {
                         return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
-                            return new tf.Model(metadata, saved_model, format, producer, bundle);
-
+                            return openModel(saved_model, format, producer, bundle);
                         });
                     }).catch(() => {
-                        return new tf.Model(metadata, saved_model, format, producer, null);
-
+                        return openModel(saved_model, format, producer, null);
                     });
                 }
-                return new tf.Model(metadata, saved_model, format, producer, null);
-            });
-        });
-    }
-
-    static _openBundle(context) {
-        return tf.Metadata.open(context).then((metadata) => {
-            const open = (stream, identifier, context) => {
+                if (saved_model && saved_model.meta_graphs && saved_model.meta_graphs.length > 0 &&
+                    saved_model.meta_graphs[0].meta_info_def &&
+                    Object.prototype.hasOwnProperty.call(saved_model.meta_graphs[0].meta_info_def, 'tensorflow_version')) {
+                    producer = 'TensorFlow v' + saved_model.meta_graphs[0].meta_info_def.tensorflow_version;
+                }
+                return openModel(saved_model, format, producer, null);
+            };
+            const openBundle = (context, stream, identifier) => {
+                stream = stream || context.stream;
+                identifier = identifier || context.identifier;
                 return tf.TensorBundle.open(stream, identifier, context).then((bundle) => {
-                    return new tf.Model(metadata, null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
+                    return openModel(null, 'TensorFlow Tensor Bundle v' + bundle.format.toString(), null, bundle);
                 }).catch((error) => {
                     context.exception(error, false);
                     const message = error && error.message ? error.message : error.toString();
                     throw new tf.Error(message.replace(/\.$/, '') + " in '" + identifier + "'.");
                 });
             };
-            const identifier = context.identifier;
-            if (/.data-[0-9][0-9][0-9][0-9][0-9]-of-[0-9][0-9][0-9][0-9][0-9]$/.exec(identifier.toLowerCase())) {
+            const openData = (context) => {
+                const identifier = context.identifier;
                 const base = identifier.split('.');
                 base.pop();
-                const index = base.join('.') + '.index';
-                return context.request(index, null).then((stream) => {
-                    return open(stream, index, context);
+                const file = base.join('.') + '.index';
+                return context.request(file, null).then((stream) => {
+                    return openBundle(context, stream, file);
                 }).catch((/* error */) => {
-                    const ckpt = base.join('.') + '.ckpt';
-                    return context.request(ckpt, null).then((stream) => {
-                        open(stream, ckpt, context);
+                    const file = base.join('.') + '.ckpt';
+                    return context.request(file, null).then((stream) => {
+                        openBundle(context, stream, file);
                     });
                 });
+            };
+            const openEventFile = (context) => {
+                let format = 'TensorFlow Event File';
+                let producer = null;
+                const stream = context.stream;
+                const eventFileReader = tf.EventFileReader.open(stream);
+                const saved_model = new tf.proto.tensorflow.SavedModel();
+                for (;;) {
+                    const event = eventFileReader.read();
+                    if (!event) {
+                        break;
+                    }
+                    switch (event.what) {
+                        case 'file_version': {
+                            const formats = new Map([
+                                [ 'brain.Event:1', 'TensorFlow Event File v1' ],
+                                [ 'brain.Event:2', 'TensorFlow Event File v2' ]
+                            ]);
+                            if (!formats.has(event.file_version)) {
+                                throw new tf.Error("Unknown event file version '" + event.file_version + "'.");
+                            }
+                            format = formats.get(event.file_version);
+                            break;
+                        }
+                        case 'graph_def': {
+                            const buffer = event.graph_def;
+                            const reader = protobuf.BinaryReader.open(buffer);
+                            const graph_def = tf.proto.tensorflow.GraphDef.decode(reader);
+                            const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                            meta_graph.meta_info_def = new tf.proto.tensorflow.MetaGraphDef.MetaInfoDef();
+                            meta_graph.meta_info_def.any_info = event.wall_time.toString();
+                            meta_graph.graph_def = graph_def;
+                            saved_model.meta_graphs.push(meta_graph);
+                            break;
+                        }
+                    }
+                }
+                if (saved_model.meta_graphs.every((meta_graph) => meta_graph.graph_def.node.every((node) => node.op.startsWith('aten::') || node.op.startsWith('prim::') || node.op === 'IO Node'))) {
+                    producer = 'PyTorch';
+                    const openPyTorchMetadata = (context, saved_model) => {
+                        return context.request('pytorch-metadata.json', 'utf-8', null).then((data) => {
+                            const metadata = new Map();
+                            for (const item of JSON.parse(data)) {
+                                const index = item.name.indexOf(':');
+                                const key = (index !== -1) ? item.name.substring(0, index) : item.name;
+                                const name = key.replace(/^torch\./, 'aten::');
+                                if (!metadata.has(name)) {
+                                    metadata.set(name, []);
+                                }
+                                metadata.get(name).push(item);
+                            }
+                            for (const meta_graph of saved_model.meta_graphs) {
+                                for (const node of meta_graph.graph_def.node) {
+                                    node.__metadata__ = Array.from(metadata.get(node.op) || []);
+                                }
+                            }
+                            return saved_model;
+                        }).catch(() => {
+                            return saved_model;
+                        });
+                    };
+                    return openPyTorchMetadata(context, saved_model).then((saved_model) => {
+                        return openModel(saved_model, format, producer, null);
+                    });
+                }
+                return openSavedModel(saved_model, format, producer);
+            };
+            const openJson = (context) => {
+                try {
+                    const obj = context.open('json');
+                    const format = 'TensorFlow.js ' + (obj.format || 'graph-model');
+                    const producer = obj.convertedBy || obj.generatedBy || '';
+                    const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                    meta_graph.graph_def = tf.JsonReader.decodeGraphDef(obj.modelTopology);
+                    const saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                    const nodes = new Map();
+                    for (const node of meta_graph.graph_def.node) {
+                        node.input = node.input || [];
+                        if (node.op === 'Const') {
+                            nodes.set(node.name, node);
+                        }
+                    }
+                    const shards = new Map();
+                    const manifests = Array.isArray(obj.weightsManifest) ? obj.weightsManifest : [];
+                    for (const manifest of manifests) {
+                        for (const path of manifest.paths) {
+                            if (!shards.has(path)) {
+                                shards.set(path, context.request(path, null));
+                            }
+                        }
+                    }
+                    const openShards = (shards) => {
+                        const dtype_size_map = new Map([ [ 'float16', 2 ], [ 'float32', 4 ], [ 'float64', 8 ], [ 'int8', 1 ], [ 'int16', 2 ], [ 'int32', 4 ], [ 'int64', 8 ], [ 'uint8', 1 ], [ 'uint16', 2 ], [ 'uint32', 4 ], [ 'uint64', 8 ], [ 'bool', 1 ] ]);
+                        for (const manifest of manifests) {
+                            let buffer = null;
+                            if (Array.isArray(manifest.paths) && manifest.paths.length > 0 && manifest.paths.every((path) => shards.has(path))) {
+                                const list = manifest.paths.map((path) => shards.get(path));
+                                const size = list.reduce((a, b) => a + b.length, 0);
+                                buffer = new Uint8Array(size);
+                                let offset = 0;
+                                for (const item of list) {
+                                    buffer.set(item, offset);
+                                    offset += item.length;
+                                }
+                            }
+                            let offset = 0;
+                            for (const weight of manifest.weights) {
+                                const dtype = weight.quantization && weight.quantization.dtype ? weight.quantization.dtype : weight.dtype;
+                                if (!dtype_size_map.has(dtype)) {
+                                    throw new tf.Error("Unknown weight data type size '" + dtype + "'.");
+                                }
+                                const itemsize = dtype_size_map.get(dtype);
+                                const size = weight.shape.reduce((a, b) => a * b, 1);
+                                const length = itemsize * size;
+                                const tensor_content = buffer ? buffer.slice(offset, offset + length) : null;
+                                offset += length;
+                                if (nodes.has(weight.name)) {
+                                    const node = nodes.get(weight.name);
+                                    node.attr.value.tensor.dtype = tf.Utility.dataTypeKey(dtype);
+                                    node.attr.value.tensor.tensor_content = tensor_content;
+                                }
+                            }
+                        }
+                        return openSavedModel(saved_model, format, producer, null);
+                    };
+                    return Promise.all(shards.values()).then((streams) => {
+                        for (const key of shards.keys()) {
+                            shards.set(key, streams.shift().peek());
+                        }
+                        return openShards(shards);
+                    }).catch(() => {
+                        shards.clear();
+                        return openShards(shards);
+                    });
+                }
+                catch (error) {
+                    throw new tf.Error('File text format is not TensorFlow.js graph-model (' + error.message + ').');
+                }
+            };
+            const openTextGraphDef = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const graph_def = tf.proto.tensorflow.GraphDef.decodeText(reader);
+                    const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                    meta_graph.graph_def = graph_def;
+                    const saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                    const format = 'TensorFlow Graph';
+                    return openSavedModel(saved_model, format, null);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File text format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
+                }
+            };
+            const openTextMetaGraphDef = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const meta_graph = tf.proto.tensorflow.MetaGraphDef.decodeText(reader);
+                    const saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                    const format = 'TensorFlow MetaGraph';
+                    return openSavedModel(saved_model, format, null);
+                }
+                catch (error) {
+                    throw new tf.Error('File text format is not tensorflow.MetaGraphDef (' + error.message + ').');
+                }
+            };
+            const openTextSavedModel = (context) => {
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    const saved_model = tf.proto.tensorflow.SavedModel.decodeText(reader);
+                    let format = 'TensorFlow Saved Model';
+                    if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
+                        format = format + ' v' + saved_model.saved_model_schema_version.toString();
+                    }
+                    return openSavedModel(saved_model, format, null);
+                }
+                catch (error) {
+                    throw new tf.Error('File text format is not tensorflow.SavedModel (' + error.message + ').');
+                }
+            };
+            const openBinaryGraphDef = (context) => {
+                let saved_model = null;
+                const format = 'TensorFlow Graph';
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const graph_def = tf.proto.tensorflow.GraphDef.decode(reader);
+                    const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                    meta_graph.graph_def = graph_def;
+                    saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File format is not tensorflow.GraphDef (' + message.replace(/\.$/, '') + ').');
+                }
+                return openSavedModel(saved_model, format, null);
+            };
+            const openBinaryMetaGraphDef = (context) => {
+                let saved_model = null;
+                const format = 'TensorFlow MetaGraph';
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    const meta_graph = tf.proto.tensorflow.MetaGraphDef.decode(reader);
+                    saved_model = new tf.proto.tensorflow.SavedModel();
+                    saved_model.meta_graphs.push(meta_graph);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File format is not tensorflow.MetaGraphDef (' + message.replace(/\.$/, '') + ').');
+                }
+                return openSavedModel(saved_model, format, null);
+            };
+            const openBinarySavedModel = (context) => {
+                let saved_model = null;
+                let format = 'TensorFlow Saved Model';
+                try {
+                    const stream = context.stream;
+                    const reader = protobuf.BinaryReader.open(stream);
+                    saved_model = tf.proto.tensorflow.SavedModel.decode(reader);
+                    if (saved_model && Object.prototype.hasOwnProperty.call(saved_model, 'saved_model_schema_version')) {
+                        format = format + ' v' + saved_model.saved_model_schema_version.toString();
+                    }
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new tf.Error('File format is not tensorflow.SavedModel (' + message.replace(/\.$/, '') + ').');
+                }
+                return openSavedModel(saved_model, format, null);
+            };
+            const openSavedMetadata = (context) => {
+                /*
+                const stream = context.stream;
+                const reader = protobuf.BinaryReader.open(stream);
+                const saved_metadata = tf.proto.third_party.tensorflow.python.keras.protobuf.SavedMetadata.decode(reader);
+                debugger;
+                */
+                const identifier = 'saved_model.pb';
+                return context.request(identifier, null).then((stream) => {
+                    return openBinarySavedModel({ stream: stream });
+                });
+            };
+            switch (match) {
+                case 'tf.bundle':
+                    return openBundle(context);
+                case 'tf.data':
+                    return openData(context);
+                case 'tf.events':
+                    return openEventFile(context);
+                case 'tf.json':
+                    return openJson(context);
+                case 'tf.pbtxt.GraphDef':
+                    return openTextGraphDef(context);
+                case 'tf.pbtxt.MetaGraphDef':
+                    return openTextMetaGraphDef(context);
+                case 'tf.pbtxt.SavedModel':
+                    return openTextSavedModel(context);
+                case 'tf.pb.GraphDef':
+                    return openBinaryGraphDef(context);
+                case 'tf.pb.MetaGraphDef':
+                    return openBinaryMetaGraphDef(context);
+                case 'tf.pb.SavedModel':
+                    return openBinarySavedModel(context);
+                case 'tf.pb.keras.SavedMetadata':
+                    return openSavedMetadata(context);
+                default:
+                    throw new tf.Error("Unknown TensorFlow format '" + match + "'.");
             }
-            return open(context.stream, identifier, context);
         });
     }
 };
@@ -316,25 +541,17 @@ tf.Model = class {
         this._producer = producer || '';
         this._graphs = [];
         if (model) {
-            const graphs = [];
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
                 const name = (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) ? meta_graph.meta_info_def.any_info.toString() : ((model.meta_graphs.length > 1) ? i.toString() : '-');
-                graphs.push(new tf.Graph(metadata, meta_graph, name, bundle));
-            }
-            // Recursively add all subgraphs.
-            while (graphs.length > 0) {
-                const graph = graphs.shift();
+                const graph = new tf.Graph(metadata, meta_graph, name, bundle);
                 this._graphs.push(graph);
-                for (const func of graph.functions) {
-                    graphs.push(func);
-                }
             }
         }
         else {
-            this._graphs.push(new tf.Graph(metadata, null, '', bundle));
+            const graph = new tf.Graph(metadata, null, '', bundle);
+            this._graphs.push(graph);
         }
-
     }
 
     get format() {
@@ -357,15 +574,13 @@ tf.Model = class {
 tf.Graph = class {
 
     constructor(metadata, meta_graph, name, bundle) {
-        this._version = null;
         this._name = name;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._functions = [];
+        this._version = null;
 
         if (meta_graph && meta_graph.graph_def) {
-            metadata = new tf.GraphMetadata(metadata, meta_graph.meta_info_def);
             const graph = meta_graph.graph_def;
             if (graph.versions) {
                 this._version = 'v' + graph.versions.producer.toString();
@@ -379,144 +594,12 @@ tf.Graph = class {
             if (meta_graph.meta_info_def && meta_graph.meta_info_def.tags) {
                 this._tags = meta_graph.meta_info_def.tags.join(', ');
             }
-
-            const nodes = graph.node;
-            if (nodes) {
-                const node_map = new Map();
-                const namespaces = new Set();
-                for (const node of nodes) {
-                    const nodeName = node.name;
-                    node_map.set(nodeName, node);
-                    if (node.op != 'Const') {
-                        const lastIndex = nodeName.lastIndexOf('/');
-                        if (lastIndex != -1) {
-                            const namespace = nodeName.substring(0, lastIndex);
-                            namespaces.add(namespace);
-                        }
-                    }
-                    node.output = [];
-                    node.in = [];
-                    node.out = [];
-                }
-                for (const node of nodes) {
-                    const inputs = node.input;
-                    node.input = [];
-                    node.controlDependencies = [];
-                    for (const input of inputs) {
-                        const split = input.split(':', 2);
-                        const input_name = split[0];
-                        const input_index = split.length == 1 ? 0 : parseInt(split[1]);
-                        const input_node_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
-                        const input_node = node_map.get(input_node_name);
-                        const output_name = input_index == 0 ? input_node_name : input_node_name + ':' + input_index.toString();
-                        if (input_name.startsWith('^')) {
-                            node.controlDependencies.push(output_name);
-                        }
-                        else {
-                            node.input.push(output_name);
-                        }
-                        if (input_node) {
-                            node.in.push(input_node);
-                            input_node.out.push(node);
-                            for (let j = input_node.output.length; j <= input_index; j++) {
-                                input_node.output.push('');
-                            }
-                            input_node.output[input_index] = output_name;
-                        }
-                    }
-                }
-
-                const initializers = new Map();
-                const map_tensor = (name, node, kind) => {
-                    if (node.op === 'Const' && node.in.length === 0 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                        const value = node.attr.value;
-                        if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
-                            const tensor = new tf.Tensor(value.tensor, name, kind);
-                            return new tf.Argument(name, tensor.type, tensor);
-                        }
-                    }
-                    return null;
-                };
-                const map_resource = (name, node, tensor) => {
-                    if (node.op === 'Placeholder' && node.in.length === 0 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                        const dtype = node.attr.dtype.type;
-                        if (dtype === tf.proto.DataType.DT_RESOURCE) {
-                            return new tf.Argument(name, null, tensor);
-                        }
-                    }
-                    return null;
-                };
-                for (const node of node_map.values()) {
-                    if (node.op === 'Identity' && node.in.length === 1 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                        const initializer = map_tensor(node.name, node.in[0], 'Identity Constant');
-                        if (initializer) {
-                            initializers.set(initializer.name, initializer);
-                            node_map.delete(initializer.name);
-                            node_map.delete(node.in[0].name);
-                        }
-                        const identity = node.in[0];
-                        if (identity.op === 'Identity' && identity.in.length === 1 && identity.out.length === 1 && node.controlDependencies.length === 0) {
-                            const initializer = map_tensor(node.name, identity.in[0], 'Identity Constant');
-                            if (initializer) {
-                                initializers.set(initializer.name, initializer);
-                                node_map.delete(initializer.name);
-                                node_map.delete(initializer.name);
-                                node_map.delete(identity.name);
-                                node_map.delete(node.name);
-                            }
-                        }
-                    }
-                }
-                for (const node of node_map.values()) {
-                    const initializer = map_tensor(node.name, node, 'Constant');
-                    if (initializer) {
-                        initializers.set(initializer.name, initializer);
-                        node_map.delete(node.name);
-                        node_map.delete(initializer.name);
-                    }
-                }
-                for (const node of node_map.values()) {
-                    if (node.op === 'ReadVariableOp' && node.in.length === 1 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                        if (node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
-                            const tensor = new tf.proto.TensorProto();
-                            tensor.dtype = node.attr.dtype.type;
-                            tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
-                            const initializer = map_resource(node.name, node.in[0], new tf.Tensor(tensor, name, 'Resource Variable'));
-                            if (initializer) {
-                                initializers.set(initializer.name, initializer);
-                                node_map.delete(initializer.name);
-                                node_map.delete(node.in[0].name);
-                            }
-                        }
-                    }
-                }
-                const input_map = new Map();
-                for (const node of node_map.values()) {
-                    if (node.op == 'Placeholder' && node.in.length == 0 && node.out.length == 1 && node.controlDependencies.length == 0) {
-                        const dtype = node.attr.dtype;
-                        const shape = node.attr.shape;
-                        if (dtype && dtype.type && shape && shape.shape) {
-                            const name = node.name;
-                            const type = new tf.TensorType(dtype.type, shape.shape);
-                            const argument = new tf.Argument(name, type, null);
-                            input_map.set(name, new tf.Parameter(name, [ argument ]));
-                            node_map.delete(name);
-                        }
-                    }
-                }
-                this._inputs = Array.from(input_map.values());
-
-                for (const node of node_map.values()) {
-                    this._nodes.push(new tf.Node(metadata, namespaces, node, node.op, node.name, initializers, null));
-                }
-            }
-
-            if (graph.library) {
-                const funcs = graph.library.function;
-                for (const func of funcs) {
-                    this._functions.push(new tf.Function(this, func, metadata));
-                }
-            }
+            metadata = new tf.GraphMetadata(metadata, graph.library);
+            const nodes = graph.node || [];
+            const context = tf.Utility.createGraph(metadata, nodes);
+            this._nodes = context.nodes;
+            this._inputs = context.inputs;
+            this._outputs = context.outputs;
         }
         else if (bundle) {
             const nodeNames = [];
@@ -545,8 +628,8 @@ tf.Graph = class {
                 nodeMap.get(nodeName).push({ name: tensorName, value: tensor });
             }
             const namespaces = new Set();
-            for (const nodeName of nodeNames) {
-                this._nodes.push(new tf.Node(metadata, namespaces, null, 'Node', nodeName, null, nodeMap.get(nodeName)));
+            for (const name of nodeNames) {
+                this._nodes.push(new tf.Node(metadata, namespaces, null, 'Node', name, null, nodeMap.get(name)));
             }
         }
     }
@@ -582,10 +665,6 @@ tf.Graph = class {
 
     get metadata() {
         return this._metadata;
-    }
-
-    get functions() {
-        return this._functions;
     }
 };
 
@@ -637,15 +716,14 @@ tf.Argument = class {
 };
 
 tf.Function = class {
+    constructor(metadata, func) {
 
-    constructor(graph, func, metadata) {
         this._name = func.signature.name;
         this._version = null;
         this._tags = null;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
-        this._functions = [];
 
         const input_arg = func.signature.input_arg;
         const output_arg = func.signature.output_arg;
@@ -673,126 +751,15 @@ tf.Function = class {
                 output_arg_map.set(name, output.name);
             }
         }
+        const nodes = func.node_def || [];
+        const context = tf.Utility.createGraph(metadata, nodes, output_arg_map);
+        this._nodes = context.nodes;
+        this._inputs = this._inputs.concat(context.inputs);
+        this._outputs = this._outputs.concat(context.outputs);
+    }
 
-        const namespaces = new Set();
-        const nodes = func.node_def;
-        if (nodes) {
-            const node_map = new Map();
-            for (const node of nodes) {
-                const nodeName = node.name;
-                node_map.set(nodeName, node);
-                if (node.op != 'Const') {
-                    const lastIndex = nodeName.lastIndexOf('/');
-                    if (lastIndex != -1) {
-                        const namespace = nodeName.substring(0, lastIndex);
-                        namespaces.add(namespace);
-                    }
-                }
-                node.output = [];
-                node.in = [];
-                node.out = [];
-            }
-            for (const node of nodes) {
-                const inputs = node.input;
-                node.input = [];
-                node.controlDependencies = [];
-                for (const input of inputs) {
-                    const split = input.split(':', 3);
-                    const input_name = split[0];
-                    const input_index = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
-                    const input_node_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
-                    const input_node = node_map.get(input_node_name);
-                    const output_name = input_index == 0 ? input_node_name : input_node_name + ':' + input_index.toString();
-                    if (input_name.startsWith('^')) {
-                        node.controlDependencies.push(output_name);
-                    }
-                    else {
-                        node.input.push(output_name);
-                    }
-                    if (input_node) {
-                        node.in.push(input_node);
-                        input_node.out.push(node);
-                        for (let j = input_node.output.length; j <= input_index; j++) {
-                            input_node.output.push('');
-                        }
-                        input_node.output[input_index] = output_name;
-                    }
-                }
-            }
-
-            for (const node of nodes) {
-                if (output_arg_map.has(node.name)) {
-                    node.output.push(node.name);
-                }
-            }
-
-            const initializers = new Map();
-            const map_tensor = (name, node, kind) => {
-                if (node.op === 'Const' && node.in.length === 0 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                    const value = node.attr.value;
-                    if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
-                        const tensor = new tf.Tensor(value.tensor, name, kind);
-                        return new tf.Argument(name, tensor.type, tensor);
-                    }
-                }
-                return null;
-            };
-            const map_resource = (name, node, tensor) => {
-                if (node.op === 'Placeholder' && node.in.length === 0 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                    const dtype = node.attr.dtype.type;
-                    if (dtype === tf.proto.DataType.DT_RESOURCE) {
-                        return new tf.Argument(name, null, tensor);
-                    }
-                }
-                return null;
-            };
-            for (const node of node_map.values()) {
-                if (node.op === 'Identity' && node.in.length === 1 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                    const initializer = map_tensor(node.name, node.in[0], 'Identity Constant');
-                    if (initializer) {
-                        initializers.set(initializer.name, initializer);
-                        node_map.delete(initializer.name);
-                        node_map.delete(node.in[0].name);
-                    }
-                    const identity = node.in[0];
-                    if (identity.op === 'Identity' && identity.in.length === 1 && identity.out.length === 1 && node.controlDependencies.length === 0) {
-                        const initializer = map_tensor(node.name, identity.in[0], 'Identity Constant');
-                        if (initializer) {
-                            initializers.set(initializer.name, initializer);
-                            node_map.delete(initializer.name);
-                            node_map.delete(initializer.name);
-                            node_map.delete(identity.name);
-                            node_map.delete(node.name);
-                        }
-                    }
-                }
-            }
-            for (const node of node_map.values()) {
-                const initializer = map_tensor(node.name, node, 'Constant');
-                if (initializer) {
-                    initializers.set(initializer.name, initializer);
-                    node_map.delete(node.name);
-                    node_map.delete(initializer.name);
-                }
-            }
-            for (const node of node_map.values()) {
-                if (node.op === 'ReadVariableOp' && node.in.length === 1 && node.out.length === 1 && node.controlDependencies.length === 0) {
-                    const tensor = new tf.proto.TensorProto();
-                    tensor.dtype = node.attr.dtype.type;
-                    tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
-                    const initializer = map_resource(node.name, node.in[0], new tf.Tensor(tensor, name, 'Resource Variable'));
-                    if (initializer) {
-                        initializers.set(initializer.name, initializer);
-                        node_map.delete(initializer.name);
-                        node_map.delete(node.in[0].name);
-                    }
-                }
-            }
-
-            for (const node of node_map.values()) {
-                this._nodes.push(new tf.Node(metadata, namespaces, node, node.op, node.name, initializers, null));
-            }
-        }
+    get type() {
+        return 'function';
     }
 
     get name() {
@@ -823,17 +790,14 @@ tf.Function = class {
     get nodes() {
         return this._nodes;
     }
-
-    get functions() {
-        return this._functions;
-    }
 };
 
 tf.Node = class {
 
     constructor(metadata, namespaces, node, op, name, initializers, tensors) {
-        this._metadata = metadata;
-        this._type = op;
+        this._type = Object.assign({}, node && node.metadata ? node.metadata : metadata.type(op) || { name: op });
+        this._type.identifier = this._type.name;
+        this._type.name = op;
         this._name = name;
         this._attributes = [];
         this._inputs = [];
@@ -854,21 +818,19 @@ tf.Node = class {
         }
 
         if (node) {
-            if (Object.prototype.hasOwnProperty.call(node, 'device')) {
+            if (node.device !== undefined) {
                 this._device = node.device;
             }
             if (node.attr) {
-                for (const attributeName of Object.keys(node.attr)) {
-                    const schema = metadata.attribute(this._type, attributeName);
-                    const visible = metadata.getAttributeVisibleMap(this._type)[attributeName] ? false : true;
-                    this._attributes.push(new tf.Attribute(schema, attributeName, node.attr[attributeName], visible));
-                }
+                this._attributes = Object.keys(node.attr).map((name) => {
+                    const value = node.attr[name];
+                    return new tf.Attribute(metadata, op, name, value);
+                });
             }
-            const schema = metadata.type(this._type);
             let inputIndex = 0;
-            const inputs = node.input.filter(input => !input.startsWith('^'));
-            if (schema && schema.inputs) {
-                for (const input of schema.inputs) {
+            const inputs = node.input.filter((input) => !input.name.startsWith('^'));
+            if (this._type && this._type.inputs) {
+                for (const input of this._type.inputs) {
                     let inputCount = 1;
                     if (input.numberAttr) {
                         const inputNumber = node.attr[input.numberAttr];
@@ -882,22 +844,22 @@ tf.Node = class {
                             inputCount = inputTypeListAttr.list.type.length;
                         }
                     }
-                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((name) => {
-                        return initializers.has(name) ? initializers.get(name) : new tf.Argument(name, null, null);
+                    const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).map((input) => {
+                        return initializers.has(input.name) ? initializers.get(input.name) : new tf.Argument(input.name, null, null);
                     });
                     this._inputs.push(new tf.Parameter(input.name, inputArguments));
                     inputIndex += inputCount;
                 }
             }
-            this._inputs.push(...inputs.slice(inputIndex).map((name, index) => {
-                return new tf.Parameter((inputIndex + index).toString(), [
-                    initializers.has(name) ? initializers.get(name) : new tf.Argument(name, null, null)
+            this._inputs.push(...inputs.slice(inputIndex).map((input, index) => {
+                return new tf.Parameter(input.label ? input.label : (inputIndex + index).toString(), [
+                    initializers.has(input.name) ? initializers.get(input.name) : new tf.Argument(input.name, null, null)
                 ]);
             }));
             let outputIndex = 0;
             const outputs = node.output;
-            if (schema && schema.outputs) {
-                for (const output of schema.outputs) {
+            if (this._type && this._type.outputs) {
+                for (const output of this._type.outputs) {
                     let outputCount = 1;
                     if (output.numberAttr) {
                         const outputNumber = node.attr[output.numberAttr];
@@ -911,8 +873,8 @@ tf.Node = class {
                             outputCount = outputTypeListAttr.list.type.length;
                         }
                     }
-                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => {
-                        return new tf.Argument(id, null, null);
+                    const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
+                        return new tf.Argument(output.name ? output.name : '-', null, null);
                     });
                     this._outputs.push(new tf.Parameter(output.name, outputArguments));
                     outputIndex += outputCount;
@@ -920,10 +882,10 @@ tf.Node = class {
             }
             this._outputs.push(...outputs.slice(outputIndex).map((output, index) => {
                 return new tf.Parameter((outputIndex + index).toString(), [
-                    new tf.Argument(output, null, null)
+                    new tf.Argument(output.name ? output.name : '-', null, null)
                 ]);
             }));
-            this._controlDependencies = node.controlDependencies;
+            this._controlDependencies = node.controlDependencies.map((input) => input.name);
         }
         else if (tensors) {
             for (const tensor of tensors) {
@@ -954,14 +916,6 @@ tf.Node = class {
         return '';
     }
 
-    get domain() {
-        return null;
-    }
-
-    get metadata() {
-        return this._metadata.type(this.type);
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -981,10 +935,12 @@ tf.Node = class {
 
 tf.Attribute = class {
 
-    constructor(schema, name, value, visible) {
+    constructor(metadata, op, name, value) {
         this._name = name;
         this._value = null;
         this._type = null;
+        const schema = value && value.metadata ? value.metadata : metadata.attribute(op, name);
+        const visible = metadata.visible(op, name);
         if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
             this._type = 'tensor';
             this._value = new tf.Tensor(value.tensor);
@@ -995,7 +951,7 @@ tf.Attribute = class {
         switch (value.value) {
             case 'type':
                 this._type = 'type';
-                this._value = tf.Tensor.formatDataType(value.type);
+                this._value = tf.Utility.dataType(value.type);
                 break;
             case 'i':
                 this._value = value.i;
@@ -1014,9 +970,12 @@ tf.Attribute = class {
                 this._value = tf.Utility.decodeText(value.s);
                 break;
             case 'func': {
-                const func = value.func;
+                const name = value.func.name;
                 this._type = 'function';
-                this._value = func.name;
+                this._value = metadata.type(name);
+                if (!this._value) {
+                    throw new tf.Error("Unknown function '" + name + "'.");
+                }
                 break;
             }
             case 'list': {
@@ -1032,11 +991,15 @@ tf.Attribute = class {
                 }
                 else if (list.type && list.type.length > 0) {
                     this._type = 'type[]';
-                    this._value = list.type.map((type) => tf.Tensor.formatDataType(type));
+                    this._value = list.type.map((type) => tf.Utility.dataType(type));
                 }
                 else if (list.shape && list.shape.length > 0) {
                     this._type = 'shape[]';
                     this._value = list.shape.map((shape) => new tf.TensorShape(shape));
+                }
+                else if (list.func && list.func.length > 0) {
+                    this._type = 'function[]';
+                    this._value = list.func.map((func) => metadata.type(func.name));
                 }
                 else {
                     this._value = [];
@@ -1054,7 +1017,7 @@ tf.Attribute = class {
                     if (!Array.isArray(defaultValue) && defaultValue === Object(defaultValue)) {
                         switch (defaultValue.type) {
                             case 'type':
-                                defaultValue = tf.Tensor.formatDataType(defaultValue.value);
+                                defaultValue = tf.Utility.dataType(defaultValue.value);
                                 break;
                             case 'shape':
                             case 'tensor':
@@ -1121,43 +1084,49 @@ tf.Attribute = class {
 tf.Tensor = class {
 
     constructor(tensor, name, kind) {
-        this._type = new tf.TensorType(tensor.dtype, tensor.tensor_shape || tensor.tensorShape);
         this._name = name;
         this._kind = kind || null;
-        this._tensor = tensor;
-
-        if (Object.prototype.hasOwnProperty.call(tensor, 'tensor_content')) {
-            this._buffer = tensor.tensor_content;
+        if (tensor) {
+            this._type = new tf.TensorType(tensor.dtype, tensor.tensor_shape || tensor.tensorShape);
+            this._tensor = tensor;
+            if (Object.prototype.hasOwnProperty.call(tensor, 'tensor_content')) {
+                this._buffer = tensor.tensor_content;
+            }
+            else {
+                const DataType = tf.proto.tensorflow.DataType;
+                switch (tensor.dtype) {
+                    case DataType.DT_FLOAT:
+                        this._data = tensor.float_val || null;
+                        break;
+                    case DataType.DT_DOUBLE:
+                        this._data = tensor.double_val || null;
+                        break;
+                    case DataType.DT_INT8:
+                    case DataType.DT_UINT8:
+                    case DataType.DT_INT32:
+                        this._data = tensor.int_val || null;
+                        break;
+                    case DataType.DT_UINT32:
+                        this._data = tensor.uint32_val || null;
+                        break;
+                    case DataType.DT_INT64:
+                        this._data = tensor.int64_val || null;
+                        break;
+                    case DataType.DT_UINT64:
+                        this._data = tensor.uint64_val || null;
+                        break;
+                    case DataType.DT_BOOL:
+                        this._data = tensor.bool_val || null;
+                        break;
+                    case DataType.DT_STRING:
+                        this._data = tensor.string_val || null;
+                        break;
+                }
+            }
         }
         else {
-            switch (tensor.dtype) {
-                case tf.proto.DataType.DT_FLOAT:
-                    this._data = tensor.float_val || null;
-                    break;
-                case tf.proto.DataType.DT_DOUBLE:
-                    this._data = tensor.double_val || null;
-                    break;
-                case tf.proto.DataType.DT_INT8:
-                case tf.proto.DataType.DT_UINT8:
-                case tf.proto.DataType.DT_INT32:
-                    this._data = tensor.int_val || null;
-                    break;
-                case tf.proto.DataType.DT_UINT32:
-                    this._data = tensor.uint32_val || null;
-                    break;
-                case tf.proto.DataType.DT_INT64:
-                    this._data = tensor.int64_val || null;
-                    break;
-                case tf.proto.DataType.DT_UINT64:
-                    this._data = tensor.uint64_val || null;
-                    break;
-                case tf.proto.DataType.DT_BOOL:
-                    this._data = tensor.bool_val || null;
-                    break;
-                case tf.proto.DataType.DT_STRING:
-                    this._data = tensor.string_val || null;
-                    break;
-            }
+            this._type = new tf.TensorType('?', null);
+            this._tensor = null;
         }
     }
 
@@ -1207,6 +1176,11 @@ tf.Tensor = class {
         context.count = 0;
         context.size = 1;
 
+        if (!this._tensor) {
+            context.state = 'Tensor has content.';
+            return context;
+        }
+
         if (!this._tensor.dtype) {
             context.state = 'Tensor has no data type.';
             return context;
@@ -1222,17 +1196,20 @@ tf.Tensor = class {
         }
 
         if (this._buffer) {
+            const DataType = tf.proto.tensorflow.DataType;
             switch (this._tensor.dtype) {
-                case tf.proto.DataType.DT_FLOAT:
-                case tf.proto.DataType.DT_DOUBLE:
-                case tf.proto.DataType.DT_QINT8:
-                case tf.proto.DataType.DT_QUINT8:
-                case tf.proto.DataType.DT_INT8:
-                case tf.proto.DataType.DT_UINT8:
-                case tf.proto.DataType.DT_INT32:
-                case tf.proto.DataType.DT_UINT32:
-                case tf.proto.DataType.DT_INT64:
-                case tf.proto.DataType.DT_UINT64:
+                case DataType.DT_FLOAT:
+                case DataType.DT_DOUBLE:
+                case DataType.DT_QINT8:
+                case DataType.DT_QUINT8:
+                case DataType.DT_INT8:
+                case DataType.DT_UINT8:
+                case DataType.DT_INT16:
+                case DataType.DT_UINT16:
+                case DataType.DT_INT32:
+                case DataType.DT_UINT32:
+                case DataType.DT_INT64:
+                case DataType.DT_UINT64:
                     context.rawData = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
                     break;
             }
@@ -1278,58 +1255,68 @@ tf.Tensor = class {
                 }
                 if (context.data) {
                     const value = context.data[context.index++];
-                    results.push((this._tensor.dtype == tf.proto.DataType.DT_STRING) ? tf.Utility.decodeText(value) : value);
+                    results.push((this._tensor.dtype == tf.proto.tensorflow.DataType.DT_STRING) ? tf.Utility.decodeText(value) : value);
                     context.count++;
                 }
                 else {
                     if (context.rawData) {
                         switch (this._tensor.dtype) {
-                            case tf.proto.DataType.DT_FLOAT:
+                            case tf.proto.tensorflow.DataType.DT_FLOAT:
                                 results.push(context.rawData.getFloat32(context.index, true));
                                 context.index += 4;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_DOUBLE:
+                            case tf.proto.tensorflow.DataType.DT_DOUBLE:
                                 results.push(context.rawData.getFloat64(context.index, true));
                                 context.index += 8;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_INT8:
+                            case tf.proto.tensorflow.DataType.DT_INT8:
                                 results.push(context.rawData.getInt8(context.index));
                                 context.index += 1;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_UINT8:
+                            case tf.proto.tensorflow.DataType.DT_UINT8:
                                 results.push(context.rawData.getUint8(context.index));
-                                context.index += 4;
+                                context.index += 1;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_INT32:
+                            case tf.proto.tensorflow.DataType.DT_INT16:
+                                results.push(context.rawData.getInt16(context.index));
+                                context.index += 2;
+                                context.count++;
+                                break;
+                            case tf.proto.tensorflow.DataType.DT_UINT16:
+                                results.push(context.rawData.getUint16(context.index));
+                                context.index += 2;
+                                context.count++;
+                                break;
+                            case tf.proto.tensorflow.DataType.DT_INT32:
                                 results.push(context.rawData.getInt32(context.index, true));
                                 context.index += 4;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_UINT32:
+                            case tf.proto.tensorflow.DataType.DT_UINT32:
                                 results.push(context.rawData.getUint32(context.index, true));
                                 context.index += 4;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_INT64:
+                            case tf.proto.tensorflow.DataType.DT_INT64:
                                 results.push(context.rawData.getInt64(context.index, true));
                                 context.index += 8;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_UINT64:
+                            case tf.proto.tensorflow.DataType.DT_UINT64:
                                 results.push(context.rawData.getUint64(context.index, true));
                                 context.index += 8;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_QINT8:
+                            case tf.proto.tensorflow.DataType.DT_QINT8:
                                 results.push(context.rawData.getInt8(context.index, true));
                                 context.index += 1;
                                 context.count++;
                                 break;
-                            case tf.proto.DataType.DT_QUINT8:
+                            case tf.proto.tensorflow.DataType.DT_QUINT8:
                                 results.push(context.rawData.getUint8(context.index, true));
                                 context.index += 1;
                                 context.count++;
@@ -1354,22 +1341,6 @@ tf.Tensor = class {
             return results[0];
         }
         return results;
-    }
-
-    static formatDataType(type) {
-        if (!tf.Tensor.dataType) {
-            tf.Tensor.dataType = {};
-            for (let key of Object.keys(tf.proto.DataType)) {
-                const value = tf.proto.DataType[key];
-                key = key.startsWith('DT_') ? key.substring(3) : key;
-                tf.Tensor.dataType[value] = key.toLowerCase();
-            }
-            tf.Tensor.dataType[tf.proto.DataType.DT_HALF] = 'float16';
-            tf.Tensor.dataType[tf.proto.DataType.DT_FLOAT] = 'float32';
-            tf.Tensor.dataType[tf.proto.DataType.DT_DOUBLE] = 'float64';
-            tf.Tensor.dataType['DT_FLOAT'] = 'float32';
-        }
-        return tf.Tensor.dataType[type] || '?';
     }
 
     static _stringify(value, indentation, indent) {
@@ -1407,7 +1378,7 @@ tf.TensorType = class {
     }
 
     get dataType() {
-        return this._dtype ? tf.Tensor.formatDataType(this._dtype) : '?';
+        return this._dtype ? tf.Utility.dataType(this._dtype) : '?';
     }
 
     get shape() {
@@ -1469,9 +1440,9 @@ tf.TensorBundle = class {
         if (format === 1) {
             return Promise.resolve(new tf.TensorBundle(format, table.entries, []));
         }
-        const entry = table.entries.get('');
-        const reader = protobuf.Reader.create(entry);
-        const header = tf.proto.BundleHeaderProto.decode(reader);
+        const buffer = table.entries.get('');
+        const reader = protobuf.BinaryReader.open(buffer);
+        const header = tf.proto.tensorflow.BundleHeaderProto.decode(reader);
         const numShards = header.num_shards;
         const promises = [];
         for (let i = 0; i < numShards; i++) {
@@ -1497,13 +1468,14 @@ tf.TensorBundle = class {
         switch (format) {
             case 1: {
                 const buffer = entries.get('');
-                const reader = protobuf.Reader.create(buffer);
-                const header = tf.proto.SavedTensorSlices.decode(reader);
+                const reader = protobuf.BinaryReader.open(buffer);
+                const header = tf.proto.tensorflow.SavedTensorSlices.decode(reader);
                 const data = new Map();
                 for (const pair of entries) {
                     if (pair[0] !== '' && pair[0] !== 'global_step') {
-                        const reader = protobuf.Reader.create(pair[1]);
-                        const slices = tf.proto.SavedTensorSlices.decode(reader);
+                        const buffer = pair[1];
+                        const reader = protobuf.BinaryReader.open(buffer);
+                        const slices = tf.proto.tensorflow.SavedTensorSlices.decode(reader);
                         const name = slices.data.name;
                         const tensor = slices.data.data;
                         if (!data.has(name)) {
@@ -1530,7 +1502,7 @@ tf.TensorBundle = class {
                 }
                 for (const meta of header.meta.tensor) {
                     if (meta.name !== 'global_step') {
-                        const tensor = new tf.proto.TensorProto();
+                        const tensor = new tf.proto.tensorflow.TensorProto();
                         tensor.dtype = meta.type;
                         tensor.tensor_shape = meta.shape;
                         const item = data.get(meta.name);
@@ -1543,11 +1515,11 @@ tf.TensorBundle = class {
                 break;
             }
             case 2: {
-                entries.forEach((value, name) => {
+                entries.forEach((buffer, name) => {
                     if (name !== '') {
-                        const reader = protobuf.Reader.create(value);
-                        const entry = tf.proto.BundleEntryProto.decode(reader);
-                        const tensor = new tf.proto.TensorProto();
+                        const reader = protobuf.BinaryReader.open(buffer);
+                        const entry = tf.proto.tensorflow.BundleEntryProto.decode(reader);
+                        const tensor = new tf.proto.tensorflow.TensorProto();
                         tensor.dtype = entry.dtype;
                         tensor.tensor_shape = entry.shape;
                         const offset = Number.isInteger(entry.offset) ? entry.offset : entry.offset.toNumber();
@@ -1811,20 +1783,13 @@ tf.EventFileReader = class {
             crc = crc >>> 0;
             return crc;
         };
-        const reader = new tf.BinaryReader(stream.peek(12));
+        const buffer = stream.peek(12);
+        const reader = new tf.BinaryReader(buffer);
         const length_bytes = reader.read(8);
         const length_crc = reader.uint32();
         if (masked_crc32c(length_bytes) !== length_crc) {
             return null;
         }
-        // reader.skip(-12);
-        // const length = reader.uint64().toNumber();
-        // reader.uint32(); // masked crc of length
-        // const data = reader.read(length);
-        // const data_crc = reader.uint32();
-        // if (masked_crc32c(data) !== data_crc) {
-        //     return null;
-        // }
         return new tf.EventFileReader(stream);
     }
 
@@ -1834,11 +1799,16 @@ tf.EventFileReader = class {
 
     read() {
         if (this._stream.position < this._stream.length) {
-            const reader = new tf.BinaryReader(this._stream.read(12));
-            const length = reader.uint64().toNumber();
-            reader.uint32(); // masked crc of length
-            const data = this._stream.read(length);
-            const event = tf.proto.Event.decode(protobuf.Reader.create(data));
+            const uint64 = (stream) => {
+                const buffer = stream.read(8);
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                return view.getUint64(0, true).toNumber();
+            };
+            const length = uint64(this._stream);
+            this._stream.skip(4); // masked crc of length
+            const buffer = this._stream.read(length);
+            const reader = protobuf.BinaryReader.open(buffer);
+            const event = tf.proto.tensorflow.Event.decode(reader);
             this._stream.skip(4); // masked crc of data
             return event;
         }
@@ -1847,72 +1817,83 @@ tf.EventFileReader = class {
 
 tf.GraphMetadata = class {
 
-    constructor(metadata) {
+    constructor(metadata, library) {
         this._metadata = metadata;
-        this._map = {};
-        this._attributeCache = {};
-    }
+        this._functions = new Map();
+        this._attributes = new Map();
+        this._visibleCache = new Map();
 
-    type(operator) {
-        var schema = this._metadata.type(operator);
-        if (!schema) {
-            schema = this._map[operator];
+        if (library && Array.isArray(library.function)) {
+            for (const func of library.function) {
+                const name = func.signature.name;
+                if (this._functions.has(func.name)) {
+                    throw new tf.Error("Duplicate function name '" + func.name + "'.");
+                }
+                this._functions.set(name, func);
+            }
         }
-        return schema;
+
     }
 
-    attribute(operator, name) {
-        let map = this._attributeCache[operator];
-        if (!map) {
-            map = {};
-            const schema = this.type(operator);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
+    type(name) {
+        if (this._functions.has(name)) {
+            const func = this._functions.get(name);
+            if (func instanceof tf.Function) {
+                return func;
+            }
+            this._functions.set(name, new tf.Function(this, func));
+            return this._functions.get(name);
+        }
+        return this._metadata.type(name);
+    }
+
+    attribute(type, name) {
+        const key = type + '::' + name;
+        if (!this._attributes.has(key)) {
+            const schema = this.type(type);
+            if (schema && schema.attributes) {
                 for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+                    const key = type + '::'  + attribute.name;
+                    this._attributes.set(key, attribute);
                 }
             }
-            this._attributeCache[operator] = map;
         }
-        return map[name] || null;
+        return this._attributes.get(key);
     }
 
-    getAttributeVisibleMap(operator) {
-        const schema = this.type(operator);
-        if (schema) {
-            let map = schema.__visisbleAttributeMap__;
-            if (!map) {
-                map = {};
-                if (schema.inputs) {
-                    for (const input of schema.inputs) {
-                        if (input.typeAttr) {
-                            map[input.typeAttr] = true;
-                        }
-                        else if (input.typeListAttr) {
-                            map[input.typeListAttr] = true;
-                        }
-                        if (input.numberAttr) {
-                            map[input.numberAttr] = true;
-                        }
+    visible(type, name) {
+        if (!this._visibleCache.has(type)) {
+            const set = new Set();
+            const schema = this.type(type);
+            if (schema && schema.inputs) {
+                for (const input of schema.inputs) {
+                    if (input.typeAttr) {
+                        set.add(input.typeAttr);
+                    }
+                    else if (input.typeListAttr) {
+                        set.add(input.typeListAttr);
+                    }
+                    if (input.numberAttr) {
+                        set.add(input.numberAttr);
                     }
                 }
-                if (schema.outputs) {
-                    for (const output of schema.outputs) {
-                        if (output.typeAttr) {
-                            map[output.typeAttr] = true;
-                        }
-                        else if (output.typeListAttr) {
-                            map[output.typeListAttr] = true;
-                        }
-                        if (output.numberAttr) {
-                            map[output.numberAttr] = true;
-                        }
-                    }
-                }
-                schema.__visisbleAttributeMap__ = map;
             }
-            return map;
+            if (schema && schema.outputs) {
+                for (const output of schema.outputs) {
+                    if (output.typeAttr) {
+                        set.add(output.typeAttr);
+                    }
+                    else if (output.typeListAttr) {
+                        set.add(output.typeListAttr);
+                    }
+                    if (output.numberAttr) {
+                        set.add(output.numberAttr);
+                    }
+                }
+            }
+            this._visibleCache.set(type, set);
         }
-        return {};
+        return !this._visibleCache.get(type).has(name);
     }
 };
 
@@ -1932,24 +1913,15 @@ tf.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         if (data) {
-            if (data) {
-                const items = JSON.parse(data);
-                if (items) {
-                    for (const item of items) {
-                        if (item.name && item.schema) {
-                            item.schema.name = item.name;
-                            this._map[item.name] = item.schema;
-                        }
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(operator) {
-        return this._map[operator];
+        return this._map.get(operator);
     }
 };
 
@@ -1965,8 +1937,513 @@ tf.Utility = class {
         tf.Utility._utf8Decoder = tf.Utility._utf8Decoder || new TextDecoder('utf-8');
         return tf.Utility._utf8Decoder.decode(value);
     }
+
+    static dataType(type) {
+        if (!tf.Utility._dataTypes) {
+            const dataTypes = new Map();
+            const DataType = tf.proto.tensorflow.DataType;
+            for (let key of Object.keys(DataType)) {
+                const value = DataType[key];
+                key = key.startsWith('DT_') ? key.substring(3) : key;
+                dataTypes.set(value, key.toLowerCase());
+            }
+            dataTypes.set(DataType.DT_HALF, 'float16');
+            dataTypes.set(DataType.DT_FLOAT, 'float32');
+            dataTypes.set(DataType.DT_DOUBLE, 'float64');
+            tf.Utility._dataTypes = dataTypes;
+        }
+        return tf.Utility._dataTypes.has(type) ? tf.Utility._dataTypes.get(type) : '?';
+    }
+
+    static dataTypeKey(type) {
+        if (!tf.Utility._dataTypeKeys) {
+            const dataTypeKeys = new Map();
+            const DataType = tf.proto.tensorflow.DataType;
+            for (let key of Object.keys(DataType)) {
+                const value = DataType[key];
+                key = key.startsWith('DT_') ? key.substring(3) : key;
+                dataTypeKeys.set(key.toLowerCase(), value);
+            }
+            dataTypeKeys.set('float16', DataType.DT_HALF);
+            dataTypeKeys.set('float32', DataType.DT_FLOAT);
+            dataTypeKeys.set('float64', DataType.DT_DOUBLE);
+            tf.Utility._dataTypeKeys = dataTypeKeys;
+        }
+        return tf.Utility._dataTypeKeys.get(type);
+    }
+
+    static createGraph(metadata, nodes, output_arg_map) {
+        const context = {};
+        context.inputs = [];
+        context.outputs = [];
+        context.nodes = [];
+        const namespaces = new Set();
+        const node_map = new Map();
+        for (const node of nodes) {
+            const nodeName = node.name;
+            node_map.set(nodeName, node);
+            if (node.op != 'Const') {
+                const index = nodeName.lastIndexOf('/');
+                if (index != -1) {
+                    const namespace = nodeName.substring(0, index);
+                    namespaces.add(namespace);
+                }
+            }
+            node.output = [];
+        }
+        for (const node of nodes) {
+            const inputs = node.input;
+            node.input = [];
+            node.controlDependencies = [];
+            for (const input of inputs) {
+                const split = input.split(':', 3);
+                const input_name = split[0];
+                const input_index = split.length == 1 ? 0 : parseInt(split[split.length - 1]);
+                const from_name = input_name.startsWith('^') ? input_name.substring(1) : input_name;
+                const from = node_map.get(from_name);
+                const output_name = input_index == 0 ? from_name : from_name + ':' + input_index.toString();
+                const input_arg = from ? { name: output_name, from: from } : { name: output_name };
+                if (input_name.startsWith('^')) {
+                    node.controlDependencies.push(input_arg);
+                }
+                else {
+                    node.input.push(input_arg);
+                }
+                if (from) {
+                    for (let i = from.output.length; i <= input_index; i++) {
+                        from.output.push({ name: i === 0 ? from_name : from_name + ':' + i.toString(), to: [] });
+                    }
+                    from.output[input_index].to.push(node);
+                }
+            }
+        }
+        if (output_arg_map) {
+            for (const node of nodes) {
+                if (output_arg_map.has(node.name)) {
+                    node.output.push({ name: node.name, to: [] });
+                }
+            }
+        }
+        const initializers = new Map();
+        const map_tensor = (name, node, kind) => {
+            if (node && node.op === 'Const' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                const value = node.attr.value;
+                if (value && Object.prototype.hasOwnProperty.call(value, 'tensor')) {
+                    const tensor = new tf.Tensor(value.tensor, name, kind);
+                    return new tf.Argument(name, tensor.type, tensor);
+                }
+            }
+            return null;
+        };
+        const map_resource = (name, node, tensor) => {
+            if (node && node.op === 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                const dtype = node.attr.dtype.type;
+                if (dtype === tf.proto.tensorflow.DataType.DT_RESOURCE) {
+                    return new tf.Argument(name, null, tensor);
+                }
+            }
+            return null;
+        };
+        for (const node of node_map.values()) {
+            if (node.op === 'Identity' && node.input.length === 1 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                const initializer = map_tensor(node.name, node.input[0].from, 'Identity Constant');
+                if (initializer) {
+                    initializers.set(initializer.name, initializer);
+                    node_map.delete(initializer.name);
+                    node_map.delete(node.input[0].name);
+                }
+                const identity = node.input[0].from;
+                if (identity && identity.op === 'Identity' && identity.input.length === 1 && identity.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                    const initializer = map_tensor(node.name, identity.input[0].from, 'Identity Constant');
+                    if (initializer) {
+                        initializers.set(initializer.name, initializer);
+                        node_map.delete(initializer.name);
+                        node_map.delete(initializer.name);
+                        node_map.delete(identity.name);
+                        node_map.delete(node.name);
+                    }
+                }
+            }
+        }
+        for (const node of node_map.values()) {
+            const initializer = map_tensor(node.name, node, 'Const');
+            if (initializer) {
+                initializers.set(initializer.name, initializer);
+                node_map.delete(node.name);
+                node_map.delete(initializer.name);
+            }
+        }
+        for (const node of node_map.values()) {
+            if (node.op === 'ReadVariableOp' && node.input.length === 1 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                if (node.attr && node.attr.dtype && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape) {
+                    const tensor = new tf.proto.tensorflow.TensorProto();
+                    tensor.dtype = node.attr.dtype.type;
+                    tensor.tensor_shape = node.attr._output_shapes.list.shape[0];
+                    const name = node.name;
+                    const initializer = map_resource(name, node.input[0].from,  new tf.Tensor(tensor, name, 'Resource Variable'));
+                    if (initializer) {
+                        initializers.set(initializer.name, initializer);
+                        node_map.delete(initializer.name);
+                        node_map.delete(node.input[0].name);
+                    }
+                }
+            }
+        }
+        const input_map = new Map();
+        for (const node of node_map.values()) {
+            if (node.op == 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+                const dtype = node.attr.dtype;
+                const shape = node.attr.shape;
+                if (dtype && dtype.type && shape && shape.shape) {
+                    const name = node.name;
+                    const type = new tf.TensorType(dtype.type, shape.shape);
+                    const argument = new tf.Argument(name, type, null);
+                    input_map.set(name, new tf.Parameter(name, [ argument ]));
+                    node_map.delete(name);
+                }
+            }
+        }
+        const updatePyTorch = (node_map) => {
+            for (const node of node_map.values()) {
+                if (node.op === 'prim::Constant' && node.input.length === 0 && node.controlDependencies.length === 0 && node.attr && Object.keys(node.attr).length === 1 && node.attr.attr && node.attr.attr.s) {
+                    const value = tf.Utility.decodeText(node.attr.attr.s);
+                    const match = /{\s*value\s*:\s*(.*)\s*}/.exec(value);
+                    if (match) {
+                        node.value = match[1].trim();
+                    }
+                    const empty = /{\s*}/.exec(value);
+                    if (empty) {
+                        node.value = null;
+                    }
+                }
+                if (node.op === 'prim::GetAttr' && node.input.length === 1 && node.controlDependencies.length === 0 && node.attr && Object.keys(node.attr).length === 1 && node.attr.attr && node.attr.attr.s) {
+                    const value = tf.Utility.decodeText(node.attr.attr.s);
+                    const match = /{\s*name\s*:\s*([A-za-z0-9_]*)\s*}/.exec(value);
+                    if (match) {
+                        node.value = match[1].trim();
+                    }
+                }
+                if (node.op === 'IO Node' && node.controlDependencies.length === 0) {
+                    const shape = node.attr && node.attr._output_shapes && node.attr._output_shapes.list && node.attr._output_shapes.list.shape ? node.attr._output_shapes.list.shape[0] : null;
+                    const type = shape ? new tf.TensorType('?', shape) : null;
+                    if (node.input.length === 0 && node.output.length === 1) {
+                        context.inputs.push(new tf.Parameter(node.name, [
+                            new tf.Argument(node.output[0].name, type, null)
+                        ]));
+                        node_map.delete(node.name);
+                    }
+                    if (node.input.length === 1 && node.output.length === 0) {
+                        context.outputs.push(new tf.Parameter(node.name, [
+                            new tf.Argument(node.input[0].name, type, null)
+                        ]));
+                        node_map.delete(node.name);
+                    }
+                }
+                if (Object.keys(node.attr).length === 2 &&
+                    node.attr.attr && node.attr.attr.s && node.attr._output_shapes) {
+                    const value = tf.Utility.decodeText(node.attr.attr.s);
+                    if (/\s*/.exec(value) || /{\s*}/.exec(value)) {
+                        node.attr = {};
+                        delete node._output_shapes;
+                    }
+                }
+            }
+            const remove_input = (input, node) => {
+                const from = input.from;
+                if (from) {
+                    for (const output of from.output) {
+                        output.to = output.to.filter((to) => to !== node);
+                    }
+                    if (from.output.every((output) => output.to.length === 0) && from.controlDependencies.length === 0) {
+                        from.remove = true;
+                    }
+                    delete input.from;
+                }
+            };
+            for (const node of node_map.values()) {
+                if (node.op === 'prim::ListConstruct' && node.input.every((input) => input.from.value !== undefined) && node.controlDependencies.length === 0) {
+                    node.value = node.input.map((input) => input.from.value);
+                    for (const input of node.input) {
+                        remove_input(input, node);
+                    }
+                    node.input = [];
+                }
+            }
+            for (const node of node_map.values()) {
+                const remove = new Set();
+                for (let i = 0; i < node.input.length; i++) {
+                    const input = node.input[i];
+                    const from = input.from;
+                    if (from) {
+                        if (from.op === 'prim::GetAttr' && from.input.length === 1 && from.output.length === 1 && from.controlDependencies.length === 0 && from.value !== undefined) {
+                            remove_input(input, node);
+                            input.label = from.value;
+                            const tensor = new tf.Tensor(null, input.name, from.op);
+                            const argument = new tf.Argument(input.name, null, tensor);
+                            initializers.set(input.name, argument);
+                        }
+                        if (from.op === 'prim::Constant' && from.input.length === 0 && from.controlDependencies.length === 0 && from.value !== undefined) {
+                            input.constant = from.value;
+                            remove_input(input, node);
+                            remove.add(input.name);
+                        }
+                        if (from.op === 'prim::ListConstruct' && from.output.length === 1 && from.controlDependencies.length === 0 && from.value !== undefined) {
+                            input.list = from.value;
+                            remove_input(input, node);
+                            remove.add(input.name);
+                        }
+                    }
+                }
+                if (node.__metadata__) {
+                    for (const metadata of node.__metadata__) {
+                        const parameters = Array.prototype.slice.call(metadata.inputs || []).concat(Array.prototype.slice.call(metadata.attributes || []));
+                        let match = true;
+                        const inputs = Array.from(node.input);
+                        if (inputs.length > parameters.length) {
+                            match = false;
+                        }
+                        while (inputs.length > 0 && match) {
+                            match = false;
+                            const input = inputs.shift();
+                            delete input.metadata;
+                            const parameter = parameters.shift();
+                            switch (parameter.type) {
+                                case 'Tensor': {
+                                    if ((input.constant === undefined && input.list === undefined) || input.constant === null) {
+                                        input.metadata = parameter;
+                                        match = true;
+                                    }
+                                    else {
+                                        inputs.unshift(input);
+                                        match = true;
+                                    }
+                                    break;
+                                }
+                                case 'int64': {
+                                    const value = parseInt(input.constant);
+                                    if (input.constant !== undefined && Number.isInteger(value)) {
+                                        input.attr = new tf.proto.tensorflow.AttrValue();
+                                        input.attr.i = value;
+                                        input.attr.metadata = parameter;
+                                        match = true;
+                                    }
+                                    break;
+                                }
+                                case 'float32': {
+                                    const value = parseFloat(input.constant);
+                                    if (input.constant !== undefined && !isNaN(value)) {
+                                        input.attr = new tf.proto.tensorflow.AttrValue();
+                                        input.attr.f = value;
+                                        input.attr.metadata = parameter;
+                                        match = true;
+                                    }
+                                    break;
+                                }
+                                case 'int64[]': {
+                                    if (Array.isArray(input.list)) {
+                                        const list = input.list.map((item) => parseInt(item));
+                                        if (list.every((value) => Number.isInteger(value))) {
+                                            input.attr = new tf.proto.tensorflow.AttrValue();
+                                            input.attr.list = new tf.proto.tensorflow.ListValue();
+                                            input.attr.list.i = list;
+                                            input.attr.metadata = parameter;
+                                            match = true;
+                                        }
+                                    }
+                                    break;
+                                }
+                                case 'boolean': {
+                                    if (input.constant === 'false' || input.constant === '0') {
+                                        input.attr = new tf.proto.tensorflow.AttrValue();
+                                        input.attr.b = false;
+                                        input.attr.metadata = parameter;
+                                        match = true;
+                                    }
+                                    else if (input.constant === 'true' || input.constant === '1') {
+                                        input.attr = new tf.proto.tensorflow.AttrValue();
+                                        input.attr.b = true;
+                                        input.attr.metadata = parameter;
+                                        match = true;
+                                    }
+                                    break;
+                                }
+                                case 'Scalar': {
+                                    const value = parseInt(input.constant);
+                                    if (input.constant !== undefined && Number.isInteger(value)) {
+                                        input.attr = new tf.proto.tensorflow.AttrValue();
+                                        input.attr.i = value;
+                                        input.attr.metadata = parameter;
+                                        match = true;
+                                    }
+                                    break;
+                                }
+                                default:
+                                    break;
+                            }
+                        }
+                        if (match) {
+                            node.metadata = metadata;
+                            break;
+                        }
+                        else {
+                            for (const input of node.input) {
+                                delete input.metadata;
+                                delete input.attr;
+                            }
+                        }
+                    }
+                }
+                node.input = node.input.filter((input, index) => {
+                    if (input.attr) {
+                        const name = input.attr.metadata ? input.attr.metadata.name : index.toString();
+                        node.attr[name] = input.attr;
+                    }
+                    else if (input.constant !== undefined && input.constant !== null) {
+                        const attr = new tf.proto.tensorflow.AttrValue();
+                        attr.s = input.constant;
+                        node.attr[index.toString()] = attr;
+                    }
+                    else if (input.list !== undefined) {
+                        const attr = new tf.proto.tensorflow.AttrValue();
+                        attr.list = new tf.proto.tensorflow.ListValue();
+                        attr.list.s = input.list;
+                        node.attr[index.toString()] = attr;
+                    }
+                    return !remove.has(input.name);
+                });
+            }
+            for (const node of node_map.values()) {
+                if (node.op === 'prim::GetAttr' && node.remove) {
+                    node_map.delete(node.name);
+                }
+                if (node.op === 'prim::Constant' && node.remove) {
+                    node_map.delete(node.name);
+                }
+                if (node.op === 'prim::ListConstruct' && node.remove) {
+                    node_map.delete(node.name);
+                }
+            }
+        };
+        updatePyTorch(node_map);
+        for (const input of input_map.values()) {
+            context.inputs.push(input);
+        }
+        for (const node of node_map.values()) {
+            context.nodes.push(new tf.Node(metadata, namespaces, node, node.op, node.name, initializers, null));
+        }
+        return context;
+    }
 };
 
+tf.JsonReader = class {
+
+    static decodeGraphDef(json) {
+        const message = new tf.proto.tensorflow.GraphDef();
+        message.node = json.node.map((node) => tf.JsonReader.decodeNodeDef(node));
+        return message;
+    }
+
+    static decodeNodeDef(json) {
+        const message = new tf.proto.tensorflow.NodeDef();
+        message.name = json.name;
+        message.op = json.op;
+        message.input = json.input || [];
+        if (json.device) {
+            message.device = json.device;
+        }
+        message.attr = {};
+        if (json.attr) {
+            for (const key of Object.keys(json.attr)) {
+                message.attr[key] = tf.JsonReader.decodeAttrValue(json.attr[key]);
+            }
+        }
+        return message;
+    }
+
+    static decodeAttrValue(json) {
+        const message = new tf.proto.tensorflow.AttrValue();
+        const keys = Object.keys(json);
+        if (keys.length !== 1) {
+            throw new tf.Error("Unsupported JSON tensorflow.AttrValue '" + JSON.stringify(keys) + "'.");
+        }
+        const key = keys[0];
+        const value = json[key];
+        switch (key) {
+            case 'type':
+                message.type = tf.proto.tensorflow.DataType[value];
+                break;
+            case 'shape':
+                message.shape = tf.JsonReader.decodeTensorShapeProto(value);
+                break;
+            case 'tensor':
+                message.tensor = tf.JsonReader.decodeTensorProto(value);
+                break;
+            case 'b':
+                message[key] = value;
+                break;
+            case 'f':
+                message[key] = parseFloat(value);
+                break;
+            case 'i':
+                message[key] = parseInt(value, 10);
+                break;
+            case 's':
+                message[key] = typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value));
+                break;
+            case 'list':
+                message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
+                break;
+            default:
+                throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue." + key + "'.");
+        }
+        return message;
+    }
+
+    static decodeAttrValueListValue(json) {
+        const message = new tf.proto.tensorflow.AttrValue.ListValue();
+        const properties = Object.keys(json);
+        if (properties.length > 0) {
+            const keys = properties.filter((key) => Array.isArray(json[key]) && json[key].length > 0);
+            if (keys.length !== 1) {
+                throw new tf.Error("Unsupported JSON tensorflow.AttrValue.ListValue '" + JSON.stringify(keys) + "'.");
+            }
+            const key = keys[0];
+            const list = json[key];
+            switch (key) {
+                case 'i':
+                    message[key] = list.map((value) => parseInt(value, 10));
+                    break;
+                case 's':
+                    message[key] = list.map((value) => typeof value === 'string' ? atob(value) : tf.Utility.decodeText(Uint8Array.from(value)));
+                    break;
+                case 'type':
+                    message[key] = list.map((value) => tf.proto.tensorflow.DataType[value]);
+                    break;
+                default:
+                    throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");
+            }
+        }
+        return message;
+    }
+
+    static decodeTensorProto(json) {
+        const message = new tf.proto.tensorflow.TensorProto();
+        message.dtype = tf.proto.tensorflow.DataType[json.dtype];
+        message.tensor_shape = tf.JsonReader.decodeTensorShapeProto(json.tensorShape);
+        return message;
+    }
+
+    static decodeTensorShapeProto(json) {
+        const message = new tf.proto.tensorflow.TensorShapeProto();
+        message.dim = (json.dim || []).map((json) => {
+            const message = new tf.proto.tensorflow.TensorShapeProto.Dim();
+            message.size = json.size;
+            message.name = json.name;
+            return message;
+        });
+        return message;
+    }
+};
 
 tf.Error = class extends Error {
 

@@ -2,6 +2,7 @@
 
 const protoc = {};
 const fs = require('fs');
+const path = require('path');
 
 protoc.Object = class {
 
@@ -149,15 +150,17 @@ protoc.Root = class extends protoc.Namespace {
             new protoc.Field(type, 'type_url', 1, 'string');
             new protoc.Field(type, 'value', 2, 'bytes');
         });
-
         this.load(paths, files);
     }
 
     load(paths, files) {
         for (const file of files) {
-            const resolved = this._resolvePath(paths, '', file);
+            const resolved = this._resolve(file, '', paths);
             if (resolved) {
                 this._loadFile(paths, resolved);
+            }
+            else {
+                throw new protoc.Error("File '" + file + "' not found.");
             }
         }
         return this;
@@ -166,17 +169,19 @@ protoc.Root = class extends protoc.Namespace {
     _loadFile(paths, file, weak) {
         if (!this._files.has(file)) {
             this._files.add(file);
-            if (this._library.has(file)) {
-                this._library.get(file)();
-                return;
-            }
-            try {
-                this._parseFile(paths, file);
-            }
-            catch (err) {
-                if (!weak) {
-                    throw err;
+            if (!this._library.has(file)) {
+                try {
+                    this._parseFile(paths, file);
                 }
+                catch (err) {
+                    if (!weak) {
+                        throw err;
+                    }
+                }
+            }
+            else {
+                const callback = this._library.get(file);
+                callback();
             }
         }
     }
@@ -186,84 +191,40 @@ protoc.Root = class extends protoc.Namespace {
         const parser = new protoc.Parser(source, file, this);
         const parsed = parser.parse();
         for (const item of parsed.imports) {
-            const importFile = this._resolvePath(paths, file, item);
-            if (importFile) {
-                this._loadFile(paths, importFile);
+            const resolved = this._resolve(item, file, paths);
+            if (!resolved) {
+                throw new protoc.Error("File '" + item + "' not found.");
             }
+            this._loadFile(paths, resolved);
         }
-        for (const item of parsed.imports) {
-            const importFile = this._resolvePath(paths, file, item);
-            if (importFile) {
-                this._loadFile(paths, importFile, true);
+        for (const item of parsed.weakImports) {
+            const resolved = this._resolve(item, file, paths);
+            if (resolved) {
+                this._loadFile(paths, resolved);
             }
         }
     }
 
-    _resolvePath(paths, origin, target) {
-        const normOrigin = protoc.Root._normalize(origin);
-        const normTarget = protoc.Root._normalize(target);
-        let resolved = protoc.Root._resolve(normOrigin, normTarget);
-        const index = resolved.lastIndexOf('google/protobuf/');
+    _resolve(target, source, paths) {
+        const file = path.resolve(source, target);
+        const posix = file.split(path.sep).join(path.posix.sep);
+        const index = posix.lastIndexOf('google/protobuf/');
         if (index > -1) {
-            const name = resolved.substring(index);
+            const name = posix.substring(index);
             if (this._library.has(name)) {
-                resolved = name;
+                return name;
             }
         }
-        if (fs.existsSync(resolved)) {
-            return resolved;
+        if (fs.existsSync(file)) {
+            return file;
         }
-        for (let i = 0; i < paths.length; ++i) {
-            const resolved = protoc.Root._resolve(paths[i] + '/', target);
-            if (fs.existsSync(resolved)) {
-                return resolved;
+        for (const dir of paths) {
+            const file = path.resolve(dir, target);
+            if (fs.existsSync(file)) {
+                return file;
             }
         }
-        return resolved;
-    }
-
-    static _isAbsolute(path) {
-        return /^(?:\/|\w+:)/.test(path);
-    }
-
-    static _normalize(path) {
-        path = path.replace(/\\/g, '/').replace(/\/{2,}/g, '/');
-        const parts = path.split('/');
-        const absolute = protoc.Root._isAbsolute(path);
-        const prefix = absolute ? parts.shift() + '/' : '';
-        for (let i = 0; i < parts.length;) {
-            if (parts[i] === '..') {
-                if (i > 0 && parts[i - 1] !== '..') {
-                    parts.splice(--i, 2);
-                }
-                else if (absolute) {
-                    parts.splice(i, 1);
-                }
-                else {
-                    i++;
-                }
-            }
-            else if (parts[i] === '.') {
-                parts.splice(i, 1);
-            }
-            else {
-                i++;
-            }
-        }
-        return prefix + parts.join('/');
-    }
-
-    static _resolve(originPath, includePath, alreadyNormalized) {
-        if (!alreadyNormalized) {
-            includePath = protoc.Root._normalize(includePath);
-        }
-        if (protoc.Root._isAbsolute(includePath)) {
-            return includePath;
-        }
-        if (!alreadyNormalized) {
-            originPath = protoc.Root._normalize(originPath);
-        }
-        return (originPath = originPath.replace(/(?:\/|^)[^/]+$/, '')).length ? protoc.Root._normalize(originPath + '/' + includePath) : includePath;
+        return null;
     }
 };
 
@@ -318,9 +279,8 @@ protoc.Enum = class extends protoc.Type {
 
 protoc.PrimitiveType = class extends protoc.Type {
 
-    constructor(name, text, long, mapKey, packed, defaultValue) {
+    constructor(name, long, mapKey, packed, defaultValue) {
         super(null, name);
-        this.text = text;
         this.long = long;
         this.mapKey = mapKey;
         this.packed = packed;
@@ -331,21 +291,21 @@ protoc.PrimitiveType = class extends protoc.Type {
         if (!this._map) {
             this._map = new Map();
             const register = (type) => this._map.set(type.name, type);
-            register(new protoc.PrimitiveType('double', 'float', false, false, true, 0));
-            register(new protoc.PrimitiveType('float', 'float', false, false, true, 0));
-            register(new protoc.PrimitiveType('int32', 'integer', false, true, true, 0));
-            register(new protoc.PrimitiveType('uint32', 'integer', false, true, true, 0));
-            register(new protoc.PrimitiveType('sint32', 'integer', false, true, true, 0));
-            register(new protoc.PrimitiveType('fixed32', 'integer', false, true, true, 0));
-            register(new protoc.PrimitiveType('sfixed32', 'integer', false, true, true, 0));
-            register(new protoc.PrimitiveType('int64', 'integer', true, true, true, 0));
-            register(new protoc.PrimitiveType('uint64', 'integer', true, true, true, 0));
-            register(new protoc.PrimitiveType('sint64', 'integer', true, true, true, 0));
-            register(new protoc.PrimitiveType('fixed64', 'integer', true, true, true, 0));
-            register(new protoc.PrimitiveType('sfixed64', 'integer', true, true, true, 0));
-            register(new protoc.PrimitiveType('bool', 'boolean', false, true, true, false));
-            register(new protoc.PrimitiveType('string', 'string', false, true, false, ''));
-            register(new protoc.PrimitiveType('bytes', 'bytes', false, true, false, []));
+            register(new protoc.PrimitiveType('double', false, false, true, 0));
+            register(new protoc.PrimitiveType('float', false, false, true, 0));
+            register(new protoc.PrimitiveType('int32', false, true, true, 0));
+            register(new protoc.PrimitiveType('uint32', false, true, true, 0));
+            register(new protoc.PrimitiveType('sint32', false, true, true, 0));
+            register(new protoc.PrimitiveType('fixed32', false, true, true, 0));
+            register(new protoc.PrimitiveType('sfixed32', false, true, true, 0));
+            register(new protoc.PrimitiveType('int64', true, true, true, 0));
+            register(new protoc.PrimitiveType('uint64', true, true, true, 0));
+            register(new protoc.PrimitiveType('sint64', true, true, true, 0));
+            register(new protoc.PrimitiveType('fixed64', true, true, true, 0));
+            register(new protoc.PrimitiveType('sfixed64', true, true, true, 0));
+            register(new protoc.PrimitiveType('bool', false, true, true, false));
+            register(new protoc.PrimitiveType('string', false, true, false, ''));
+            register(new protoc.PrimitiveType('bytes', false, true, false, []));
         }
         return this._map.get(name);
     }
@@ -1399,14 +1359,14 @@ protoc.Generator = class {
                                     const value = field.type instanceof protoc.PrimitiveType ?
                                         'reader.' + field.type.name + '()' :
                                         typeName(field.type) + '.decodeText(reader)';
-                                    this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.text + '(), () => ' + value + ');');
+                                    this._builder.add('reader.entry(' + variable + ', () => reader.' + field.keyType.name + '(), () => ' + value + ');');
                                 }
                                 else if (field.repeated) { // Repeated fields
                                     if (field.type instanceof protoc.Enum) {
                                         this._builder.add('reader.array(' + variable + ', () => reader.enum(' + typeName(field.type) + '));');
                                     }
                                     else if (field.type instanceof protoc.PrimitiveType) {
-                                        this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.text + '());');
+                                        this._builder.add('reader.array(' + variable + ', () => reader.' + field.type.name + '());');
                                     }
                                     else if (field.type.fullName === '.google.protobuf.Any') {
                                         this._builder.add('reader.anyarray(' + variable + ', () => new ' + typeName(field.type) + '());');
@@ -1420,7 +1380,7 @@ protoc.Generator = class {
                                     this._builder.add(variable + ' = reader.enum(' + typeName(field.type) + ');');
                                 }
                                 else if (field.type instanceof protoc.PrimitiveType) {
-                                    this._builder.add(variable + ' = reader.' + field.type.text + '();');
+                                    this._builder.add(variable + ' = reader.' + field.type.name + '();');
                                 }
                                 else {
                                     this._builder.add(variable + ' = ' + typeName(field.type) + '.decodeText(reader);');
@@ -1541,9 +1501,10 @@ const main = (args) => {
     }
 
     try {
-        const content = new protoc.Generator(new protoc.Root(options.root, options.paths, options.files), options.text).content;
+        const root = new protoc.Root(options.root, options.paths, options.files);
+        const generator = new protoc.Generator(root, options.text);
         if (options.out) {
-            fs.writeFileSync(options.out, content, 'utf-8');
+            fs.writeFileSync(options.out, generator.content, 'utf-8');
         }
     }
     catch (err) {
@@ -1558,4 +1519,13 @@ const main = (args) => {
     return 0;
 };
 
-process.exit(main(process.argv.slice(2)));
+if (typeof process === 'object' && Array.isArray(process.argv) &&
+    process.argv.length > 1 && process.argv[1] === __filename) {
+    const args = process.argv.slice(2);
+    const code = main(args);
+    process.exit(code);
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Root = protoc.Root;
+}

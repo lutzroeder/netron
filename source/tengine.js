@@ -10,10 +10,10 @@ tengine.ModelFactory = class {
         if (stream.length > 4) {
             const buffer = stream.peek(2);
             if (buffer[0] < 4 && buffer[1] === 0) {
-                return true;
+                return 'tengine';
             }
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
@@ -149,26 +149,24 @@ tengine.Argument = class {
 tengine.Node = class {
 
     constructor(metadata, node, tensors) {
-        this._metadata = metadata;
         this._name = node.name;
-        this._type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
-        this._version = node.version;
+        const type = node.type; + (node.version && node.version !== 1 ? ':' + node.version.toString() : '');
+        const version = node.version;
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-
-        const schema = metadata.type(this._type, this._version);
+        this._type = metadata.type(type, version) || { name: type };
 
         for (let i = 0; i < node.params.length; i++) {
-            const attributeSchema = (schema && schema.attributes && i < schema.attributes.length) ? schema.attributes[i] : null;
+            const attributeSchema = (this._type && this._type.attributes && i < this._type.attributes.length) ? this._type.attributes[i] : null;
             const attributeName = attributeSchema ? attributeSchema.name : i.toString();
             this._attributes.push(new tengine.Attribute(attributeSchema, attributeName, node.params[i]));
         }
 
         const inputs = node.inputs;
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = (inputDef.option == 'variadic') ? (inputs.length - inputIndex) : 1;
                     const inputArguments = inputs.slice(inputIndex, inputIndex + inputCount).filter((id) => id != '' || inputDef.option != 'optional').map((id) => tensors[id]);
@@ -186,8 +184,8 @@ tengine.Node = class {
 
         const outputs = node.outputs;
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length || outputDef.option != 'optional') {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     const outputArguments = outputs.slice(outputIndex, outputIndex + outputCount).map((id) => tensors[id]);
@@ -210,10 +208,6 @@ tengine.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type, this._version);
     }
 
     get attributes() {
@@ -467,15 +461,12 @@ tengine.Metadata = class {
     constructor(data) {
         this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        const version = item.version || 0;
-                        const name = item.name + ':' + version.toString();
-                        this._map.set(name, item.schema);
-                    }
+            const metadata = JSON.parse(data);
+            for (const item of metadata) {
+                if (item.name) {
+                    const version = item.version || 0;
+                    const name = item.name + ':' + version.toString();
+                    this._map.set(name, item);
                 }
             }
         }
@@ -552,7 +543,7 @@ tengine.ModelFileReader = class {
         register(21, 0, 'ReLU6', []);
         register(22, 0, 'Reorg', [ 'i' ]);
         register(23, 0, 'Reshape', [ 'i', 'i', 'i', 'i', 'i', 'i' ]);
-        register(23, 2, 'Reshape', [ 'i', 'i', 'i[]' ]);
+        // register(23, 0, 'Reshape', [ 'i', 'i', 'i[]' ]);
         register(24, 0, 'RoiPooling', [ 'i', 'i', 'f' ]);
         register(25, 0, 'RPN', [ 'f[]', 'f[]', 'i', 'i', 'i', 'i', 'i', 'f', 'anchors' ]);
         register(26, 0, 'Scale', [ 'i', 'i', 'i' ]);
@@ -627,7 +618,12 @@ tengine.ModelFileReader = class {
         register(95, 0, 'Where', []);
         register(96, 0, 'Tile', ['i','i']);
         register(97, 0, 'Mish', []);
-        register(98, 0, 'Num', []);
+        register(98, 0, 'L2Pool', []);
+        register(99, 0, 'LogSoftmax', []);
+        register(100, 0, 'ReLU1', []);
+        register(101, 0, 'L2Normalization', []);
+        register(102, 0, 'PackModel', ['i','i']);
+        register(103, 0, 'Num', []);
 
         const reader = new tengine.BinaryReader(buffer);
         this._majorVersion = reader.uint16();
@@ -803,6 +799,9 @@ tengine.ModelFileReader = class {
             case 8: return 'DLA v' + this._subFormat;
             case 9: return 'ncnn';
             case 10: return 'MegEngine';
+            case 11: return 'OneFlow';
+            case 12: return 'Horizon';
+            case 13: return 'Bitman';
             default: throw new tengine.Error("Unknown source '" + this._originalFormat.toString() + "'.");
         }
     }

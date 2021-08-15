@@ -12,9 +12,14 @@ flatbuffers.get = (name) => {
     return flatbuffers._map.get(name);
 };
 
-flatbuffers.Reader = class {
+flatbuffers.BinaryReader = class {
 
-    constructor(buffer) {
+    static open(data) {
+        return new flatbuffers.BinaryReader(data);
+    }
+
+    constructor(data) {
+        const buffer = data instanceof Uint8Array ? data : data.peek();
         this._buffer = buffer;
         this._position = 0;
         this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
@@ -260,8 +265,14 @@ flatbuffers.Reader = class {
         throw new flatbuffers.Error('Not implemented.');
     }
 
-    structArray(/* position, offset, size, decode */) {
-        throw new flatbuffers.Error('Not implemented.');
+    structArray(position, offset, size, decode) {
+        offset = this._offset(position, offset);
+        const length = offset ? this._length(position + offset) : 0;
+        const list = new Array(length);
+        for (let i = 0; i < length; i++) {
+            list[i] = decode(this, this._indirect(this._vector(position + offset) + i * 4));
+        }
+        return list;
     }
 
     tableArray(position, offset, decode) {
@@ -298,9 +309,12 @@ flatbuffers.Reader = class {
 
 flatbuffers.TextReader = class {
 
-    constructor(buffer) {
-        const reader = json.TextReader.create(buffer);
-        this._root = reader.read();
+    static open(obj) {
+        return new flatbuffers.TextReader(obj);
+    }
+
+    constructor(obj) {
+        this._root = obj;
     }
 
     get root() {
@@ -368,7 +382,7 @@ flatbuffers.Error = class extends Error {
 };
 
 if (typeof module !== "undefined" && typeof module.exports === "object") {
-    module.exports.Reader = flatbuffers.Reader;
+    module.exports.BinaryReader = flatbuffers.BinaryReader;
     module.exports.TextReader = flatbuffers.TextReader;
     module.exports.get = flatbuffers.get;
 }

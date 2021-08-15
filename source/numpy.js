@@ -133,7 +133,7 @@ numpy.Array = class {
         header += ' '.repeat(16 - ((header.length + 2 + 8 + 1) & 0x0f)) + '\n';
         writer.string(header);
 
-        const size = context.itemSize * this._shape.reduce((a, b) => a * b);
+        const size = context.itemSize * this._shape.reduce((a, b) => a * b, 1);
         context.data = new Uint8Array(size);
         context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
         numpy.Array._encodeDimension(context, this._data, 0);

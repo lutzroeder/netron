@@ -21,12 +21,12 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v1
         with:
-          node-version: 12
+          node-version: 16
 
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.7
+          python-version: 3.9
 
       - name: Install npm packages 
         run: make install
@@ -45,10 +45,10 @@ jobs:
               CSC_IDENTITY_AUTO_DISCOVERY=false npx electron-builder --mac --universal --publish never -c.mac.identity=null
               ;;
             ubuntu*)
-              npx electron-builder --linux appimage --publish never
-              npx electron-builder --linux snap --publish never
+              npx electron-builder --linux appimage --x64 --publish never
+              npx electron-builder --linux snap --x64 --publish never
               ;;
             windows*)
-              npx electron-builder --win --publish never
+              npx electron-builder --win --x64 --arm64 --publish never
               ;;
           esac

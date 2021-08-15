@@ -1,89 +1,71 @@
 [
   {
-    "name": "VSI_NN_OP_CONV2D",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "weights" },
-        { "name": "bias" }
-      ]
-    }
-  },
-  {
-    "name": "VSI_NN_OP_DECONVOLUTION",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "weights" },
-        { "name": "bias" }
-      ]
-    }
-  },
-  {
-    "name": "VSI_NN_OP_RELU",
-    "schema": {
-      "category": "Activation"
-    }
-  },
-  {
-    "name": "VSI_NN_OP_LEAKY_RELU",
-    "schema": {
-      "category": "Activation"
-    }
-  },
-  {
-    "name": "VSI_NN_OP_LEAKY_SIGMOID",
-    "schema": {
-      "category": "Activation"
-    }
-  },
-  {
-    "name": "VSI_NN_OP_POOL",
-    "schema": {
-      "category": "Pool"
-    }
-  },
-  {
-    "name": "VSI_NN_OP_FCL",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "weights" },
-        { "name": "bias" }
-      ]
-    }
-  },
-  {
-    "name": "VSI_NN_OP_RESHAPE",
-    "schema": {
-      "category": "Shape" 
-    }
-  },
-  {
-    "name": "VSI_NN_OP_PERMUTE",
-    "schema": {
-      "category": "Shape" 
-    }
+    "name": "VSI_NN_OP_ADD",
+    "inputs": [
+      { "name": "input" },
+      { "name": "other" }
+    ]
   },
   {
     "name": "VSI_NN_OP_CONCAT",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "inputs", "list": true }
-      ]
-    }
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ]
   },
   {
-    "name": "VSI_NN_OP_ADD",
-    "schema": {
-      "inputs": [
-        { "name": "input" },
-        { "name": "other" }
-      ]
-    }
+    "name": "VSI_NN_OP_CONV2D",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "VSI_NN_OP_DECONVOLUTION",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "VSI_NN_OP_FCL",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
+    "name": "VSI_NN_OP_LEAKY_RELU",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_LEAKY_SIGMOID",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_PERMUTE",
+    "category": "Shape"
+  },
+  {
+    "name": "VSI_NN_OP_POOL",
+    "category": "Pool"
+  },
+  {
+    "name": "VSI_NN_OP_RELU",
+    "category": "Activation"
+  },
+  {
+    "name": "VSI_NN_OP_RESHAPE",
+    "category": "Shape"
+  },
+  {
+    "name": "VSI_NN_OP_SIGMOID",
+    "category": "Activation"
   }
 ]

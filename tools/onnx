@@ -19,9 +19,10 @@ venv() {
 }
 
 clean() {
-    echo "sklearn clean"
+    echo "onnx clean"
     rm -rf "./third_party/env/onnx"
     rm -rf "./third_party/source/onnx"
+    rm -rf "./third_party/source/onnxruntime"
 }
 
 sync() {
@@ -32,6 +33,8 @@ sync() {
     git submodule sync --quiet
     git submodule update --quiet --init --recursive
     popd > /dev/null
+    mkdir -p "./third_party/source/onnxruntime/core/flatbuffers/schema"
+    curl --silent --location --output "./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs" "https://github.com/microsoft/onnxruntime/blob/master/onnxruntime/core/flatbuffers/schema/ort.fbs?raw=true"
 }
 
 install() {
@@ -39,8 +42,19 @@ install() {
     case "${OSTYPE}" in
         linux*)
             [ -x "$(command -v cmake)" ] || sudo apt install -y cmake
-            [ -x "$(command -v protoc)" ] || sudo apt install -y protobuf-compiler libprotoc-dev
-            protobuf=protobuf
+            protoc_version=3.16.0
+            protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
+            if [ ! -f "${protoc_dir}/bin/protoc" ]; then
+                rm -rf ${protoc_dir}
+                git -c advice.detachedHead=false clone --quiet --recursive --depth=1 --branch v${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+                pushd "${protoc_dir}/src/cmake" > /dev/null
+                cmake ../cmake -DCMAKE_CXX_FLAGS="-w" -Dprotobuf_BUILD_SHARED_LIBS=OFF -DCMAKE_INSTALL_PREFIX="..\.." -DCMAKE_INSTALL_SYSCONFDIR=/etc -DCMAKE_POSITION_INDEPENDENT_CODE=ON -Dprotobuf_BUILD_TESTS=OFF -DCMAKE_BUILD_TYPE=Release > /dev/null
+                make -j$(nproc) > /dev/null
+                make install > /dev/null
+                popd > /dev/null
+            fi
+            protobuf="protobuf==${protoc_version}"
+            export PATH="${protoc_dir}\bin":${PATH}
             ;;
         darwin*)
             [ -x "$(command -v cmake)" ] || brew install cmake > /dev/null
@@ -61,14 +75,15 @@ install() {
             ;;
         msys*)
             [ ! -z "$(choco list --local-only --exacty --limit-output visualstudio2017-workload-vctools)" ] || $(choco install -yes visualstudio2017-workload-vctools) > /dev/null
-            protoc_version=3.9.x
+            protoc_version=3.16.0
             protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             programfiles_x86_dir=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
             cmake_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2017\BuildTools\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin"
             msbuild_dir="${programfiles_x86_dir}\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin"
             if [ ! -f "${protoc_dir}/bin/protoc.exe" ]; then
                 rm -rf ${protoc_dir}
-                git clone --quiet --branch ${protoc_version} https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+                git clone --quiet https://github.com/protocolbuffers/protobuf.git ${protoc_dir}/src
+                git -C "${protoc_dir}/src" checkout v${protoc_version}
                 pushd "${protoc_dir}/src/cmake" > /dev/null
                 "${cmake_dir}\cmake.exe" -G "Visual Studio 15 2017 Win64" -Dprotobuf_MSVC_STATIC_RUNTIME=OFF -Dprotobuf_BUILD_TESTS=OFF -Dprotobuf_BUILD_EXAMPLES=OFF -DCMAKE_INSTALL_PREFIX="..\.." > /dev/null
                 "${msbuild_dir}\MSBuild.exe" protobuf.sln //m //p:Configuration=Release > /dev/null
@@ -83,9 +98,7 @@ install() {
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
     ${python} -m pip install --quiet --upgrade numpy ${pep517}
-    export ONNX_ML=1
-    export ONNX_NAMESPACE=onnx
-    ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517}
+    ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517} --use-feature=in-tree-build
     deactivate
 }
 
@@ -95,6 +108,11 @@ schema() {
     node ./tools/protoc.js --text --root onnx --out ./source/onnx-proto.js --path ./third_party/source/onnx onnx/onnx-ml.proto onnx/onnx-operators-ml.proto
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
+    fi
+    [[ $(grep -U $'\x0D' ./source/ort-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root ort --out ./source/ort-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/ort-schema.js ./source/ort-schema.js
     fi
 }
 

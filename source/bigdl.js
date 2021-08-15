@@ -10,9 +10,9 @@ bigdl.ModelFactory = class {
     match(context) {
         const tags = context.tags('pb');
         if (tags.has(2) && tags.has(7) && tags.has(8) && tags.has(9) && tags.has(10) && tags.has(11) && tags.has(12)) {
-            return true;
+            return 'bigdl';
         }
-        return false;
+        return '';
     }
 
     open(context) {
@@ -21,7 +21,8 @@ bigdl.ModelFactory = class {
             try {
                 // https://github.com/intel-analytics/BigDL/blob/master/spark/dl/src/main/resources/serialization/bigdl.proto
                 bigdl.proto = protobuf.get('bigdl').com.intel.analytics.bigdl.serialization;
-                const reader = protobuf.Reader.create(context.stream.peek());
+                const stream = context.stream;
+                const reader = protobuf.BinaryReader.open(stream);
                 module = bigdl.proto.BigDLModule.decode(reader);
             }
             catch (error) {
@@ -169,16 +170,15 @@ bigdl.Argument = class {
 bigdl.Node = class {
 
     constructor(metadata, group, module) {
-        this._metadata = metadata;
         this._group = group;
-        this._type = module.moduleType.split('.').pop();
+        const type = module.moduleType.split('.').pop();
         this._name = module.name;
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
         this._inputs.push(new bigdl.Parameter('input', module.preModules.map((id) => new bigdl.Argument(id, null, null))));
-        const schema =  metadata.type(this.type);
-        const inputs = (schema && schema.inputs) ? schema.inputs.slice() : [];
+        this._type =  metadata.type(type);
+        const inputs = (this._type && this._type.inputs) ? this._type.inputs.slice() : [];
         inputs.shift();
         if (module.weight) {
             inputs.shift();
@@ -233,10 +233,6 @@ bigdl.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get name() {
@@ -437,23 +433,16 @@ bigdl.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         this._attributeCache = {};
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map[name] || null;
+        return this._map.get(name);
     }
 };
 

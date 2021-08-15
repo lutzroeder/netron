@@ -1,17 +1,18 @@
 
 
 const fs = require('fs');
+const path = require('path');
 const http = require('http');
 const https = require('https');
 const crypto = require('crypto');
 
-const packageManifestFile = process.argv[2];
-const caskFile = process.argv[3];
+const configuration = require('../package.json');
+const caskFile = process.argv[2];
 
-const request = (url, timeout) => {
+const get = (url, timeout) => {
     return new Promise((resolve, reject) => {
         const httpModule = url.split(':').shift() === 'https' ? https : http;
-        httpModule.get(url, (response) => {
+        const request = httpModule.request(url, {}, (response) => {
             if (response.statusCode === 200) {
                 const data = [];
                 let position = 0;
@@ -28,10 +29,10 @@ const request = (url, timeout) => {
                 });
             }
             else if (response.statusCode === 302) {
-                request(response.headers.location).then((data) => {
+                get(response.headers.location).then((data) => {
                     resolve(data);
                 }).catch((err) => {
-                    request(err);
+                    reject(err);
                 });
             }
             else {
@@ -41,32 +42,38 @@ const request = (url, timeout) => {
                 err.status = response.statusCode;
                 reject(err);
             }
-        }).on("error", (err) => {
+        });
+        request.on("error", (err) => {
             reject(err);
         });
         if (timeout) {
             request.setTimeout(timeout, () => {
-                request.abort();
+                request.destroy();
                 const err = new Error("The web request timed out at '" + url + "'.");
                 err.type = 'timeout';
                 err.url = url;
                 reject(err);
             });
         }
+        request.end();
     });
 };
 
-const packageManifest = JSON.parse(fs.readFileSync(packageManifestFile, 'utf-8'));
-const name = packageManifest.name;
-const version = packageManifest.version;
-const productName = packageManifest.productName;
-const description = packageManifest.description;
-const repository = 'https://github.com/' + packageManifest.repository;
+const name = configuration.name;
+const version = configuration.version;
+const productName = configuration.productName;
+const description = configuration.description;
+const repository = 'https://github.com/' + configuration.repository;
 const url = repository + '/releases/download/v#{version}/' + productName + '-#{version}-mac.zip';
+const location = url.replace(/#{version}/g, version);
 
-request(url.replace(/#{version}/g, version)).then((data) => {
+get(location).then((data) => {
     const sha256 = crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
-    const lines = [
+    const caskDir = path.dirname(caskFile);
+    if (!fs.existsSync(caskDir)){
+        fs.mkdirSync(caskDir, { recursive: true });
+    }
+    fs.writeFileSync(caskFile, [
         'cask "' + name + '" do',
         '  version "' + version + '"',
         '  sha256 "' + sha256 + '"',
@@ -87,9 +94,7 @@ request(url.replace(/#{version}/g, version)).then((data) => {
         '  app "' + productName + '.app"',
         'end',
         ''
-    ];
-    fs.writeFileSync(caskFile, lines.join('\n'));
-
+    ].join('\n'));
 }).catch((err) => {
     console.log(err.message);
 });

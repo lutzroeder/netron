@@ -1,772 +1,992 @@
 [
   {
-    "name": "Conv2D",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input", "description": "4D tensor" },
-        { "name": "filter" },
-        { "name": "bias", "description":"(optional)" }
-      ],
-      "outputs": [
-        { "name": "output", "description": "result of 2D convolution of the input tensor" }
-      ],
-      "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME", "description": "`SAME`|`VALID`" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE", "description": "`NONE`|`RELU`|`RELU6`" },
-        { "name": "stride_w", "type": "int32", "default": 1, "description": "stride of the filter window" },
-        { "name": "stride_h", "type": "int32", "default": 1, "description": "stride of the filter window" },
-        { "name": "dilation_w_factor", "type": "int32", "default": 1 },
-        { "name": "dilation_h_factor", "type": "int32", "default": 1 }
-      ]
-    }
-  },
-  {
-    "name": "LSTM",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input", "type": "T", "description": "Input tensor." },
-        { "name": "input_input_weights", "type": "T", "option": "optional", "description": "Input to input weights tensor.", "visible": false },
-        { "name": "input_forget_weights", "type": "T", "description": "Input to forget weights tensor.", "visible": false },
-        { "name": "input_cell_weights", "type": "T", "description": "Input to cell weights tensor.", "visible": false },
-        { "name": "input_output_weights", "type": "T", "description": "Input to output weights tensor.", "visible": false },
-        { "name": "recurrent_input_weights", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor.", "visible": false },
-        { "name": "recurrent_forget_weights", "type": "T", "description": "Recurrent to forget weights tensor.", "visible": false },
-        { "name": "recurrent_cell_weights", "type": "T", "description": "Recurrent to cell weights tensor.", "visible": false },
-        { "name": "recurrent_output_weights", "type": "T", "description": "Recurrent to output weights tensor.", "visible": false },
-        { "name": "cell_input_weights", "type": "T", "option": "optional", "description": "Cell to input weights tensor.", "visible": false },
-        { "name": "cell_forget_weights", "type": "T", "option": "optional", "description": "Cell to forget weights tensor.", "visible": false },
-        { "name": "cell_output_weights", "type": "T", "option": "optional", "description": "Cell to output weights tensor.", "visible": false },
-        { "name": "input_bias", "type": "T", "option": "optional", "description": "Input gate bias tensor.", "visible": false },
-        { "name": "forget_bias", "type": "T", "description": "Forget gate bias tensor.", "visible": false },
-        { "name": "cell_bias", "type": "T", "description": "Cell gate bias tensor.", "visible": false },
-        { "name": "output_bias", "type": "T", "description": "Output gate bias tensor.", "visible": false },
-        { "name": "projection_weights", "type": "T", "option": "optional", "description": "Projection weights tensor.", "visible": false },
-        { "name": "projection_bias", "type": "T", "option": "optional", "description": "Projection bias tensor.", "visible": false }
-      ],
-      "outputs": [
-        { "name": "scratch", "type": "T" },
-        { "name": "output_state", "type": "T" },
-        { "name": "cell_state", "type": "T" },
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "cell_clip", "type": "float32", "default": 0.0 },
-        { "name": "proj_clip", "type": "float32", "default": 0.0 },
-        { "name": "kernel_type", "type": "LSTMKernelType", "default": "FULL" }
-      ]
-    }
-  },
-  {
-    "name": "RNN",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "X", "type": "T" },
-        { "name": "W", "type": "T" },
-        { "name": "R", "type": "T" },
-        { "name": "b", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "hidden", "type": "T" },
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "FullyConnected",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "weights", "type": "T" },
-        { "name": "bias", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
-        { "name": "keep_num_dims", "type": "boolean" }
-      ]
-    }
-  },
-  {
-    "name": "DepthwiseConv2D",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "weights", "type": "T" },
-        { "name": "bias", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int32", "default": 1 },
-        { "name": "stride_h", "type": "int32", "default": 1 },
-        { "name": "depth_multiplier", "type": "int32", "default": 1 },
-        { "name": "dilation_w_factor", "type": "int32", "default": 1 },
-        { "name": "dilation_h_factor", "type": "int32", "default": 1 }
-      ]
-    }
-  },
-  {
-    "name": "AveragePool2D",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int32" },
-        { "name": "stride_h", "type": "int32" },
-        { "name": "filter_width", "type": "int32" },
-        { "name": "filter_height", "type": "int32" }
-      ]
-    }
-  },
-  {
-    "name": "Softmax",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "LogSoftmax",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "Relu",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "Relu6",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "Prelu",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "slope", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "Tanh",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "Reshape",
-    "schema": {
-      "category": "Shape",
-      "attributes": [
-        { "name": "new_shape", "type": "shape"}
-      ],
-      "inputs": [
-        { "name": "data", "type": "T" },
-        { "name": "shape", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "reshaped", "type": "T" }
-      ]
-    }
-  },
-  {
-    "name": "MaxPool2D",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "padding", "type": "Padding", "default": "SAME" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
-        { "name": "stride_w", "type": "int32" },
-        { "name": "stride_h", "type": "int32" },
-        { "name": "filter_width", "type": "int32" },
-        { "name": "filter_height", "type": "int32" }
-      ]
-    }
-  },
-  {
-    "name": "LSHProjection",
-    "schema": {
-      "inputs": [
-        { "name": "hash" },
-        { "name": "input" },
-        { "name": "weight" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ],
-      "attributes": [
-        { "name": "type", "type": "LSHProjectionType" }
-      ]
-    }
-  },
-  {
-    "name": "Normalize",
-    "schema": {
-      "category": "Normalization",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "LocalResponseNormalization",
-    "schema": {
-      "category": "Normalization",
-      "attributes": [
-        { "name": "radius", "type": "int32", "default": 5 },
-        { "name": "bias", "type": "float32", "default": 1 },
-        { "name": "alpha", "type": "float32", "default": 1 },
-        { "name": "beta", "type": "float32", "default": 0.5 }
-      ],
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Predict",
-    "schema": {
-      "inputs": [
-        { "name": "hashes" },
-        { "name": "keys" },
-        { "name": "labels" },
-        { "name": "weights" }
-      ],
-      "outputs": [
-        { "name": "label" },
-        { "name": "weight" }
-      ]
-    }
-  },
-  {
-    "name": "HashtableLookup",
-    "schema": {
-      "inputs": [
-        { "name": "key" },
-        { "name": "keys" },
-        { "name": "values" }
-      ],
-      "outputs": [
-        { "name": "value" },
-        { "name": "hits" }
-      ]
-    }
-  },
-  {
-    "name": "ExtractFeatures",
-    "schema": {
-      "inputs": [
-        { "name": "ngrams" }
-      ],
-      "outputs": [
-        { "name": "features" },
-        { "name": "weights" }
-      ]
-    }
-  },
-  {
-    "name": "SkipGram",
-    "schema": {
-      "inputs": [
-        { "name": "inputs" }
-      ],
-      "outputs": [
-        { "name": "ngrams" }
-      ]
-    }
-  },
-  {
-    "name": "Concatenation",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ],
-      "attributes": [
-        { "name": "axis", "type": "int32" },
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "Pad",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "input" },
-        { "name": "paddings" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Split",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "axis" },
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Squeeze",
-    "schema": {
-      "category": "Transform",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "StridedSlice",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "input" },
-        { "name": "begin" },
-        { "name": "end" },
-        { "name": "strides" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "SVDF",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "feature", "type": "T" },
-        { "name": "time", "type": "T" },
-        { "name": "bias", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "state", "type": "T" },
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
     "name": "Add",
-    "schema": {
-      "inputs": [
-        { "name": "A", "type": "T" },
-        { "name": "B", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "C", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "Sub",
-    "schema": {
-      "inputs": [
-        { "name": "A", "type": "T" },
-        { "name": "B", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "C", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "Mul",
-    "schema": {
-      "inputs": [
-        { "name": "A", "type": "T" },
-        { "name": "B", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "C", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "Div",
-    "schema": {
-      "inputs": [
-        { "name": "A", "type": "T" },
-        { "name": "B", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "C", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
-      ]
-    }
-  },
-  {
-    "name": "Sum",
-    "schema": {
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "axis", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "keep_dims", "type": "boolean" }
-      ]
-    }
-  },
-  {
-    "name": "ReduceMax",
-    "schema": {
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "axis", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "keep_dims", "type": "boolean" }
-      ]
-    }
-  },
-  {
-    "name": "ReduceMin",
-    "schema": {
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "axis", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "keep_dims", "type": "boolean" }
-      ]
-    }
-  },
-  {
-    "name": "Mean",
-    "schema": {
-      "inputs": [
-        { "name": "input", "type": "T" },
-        { "name": "axis", "type": "T" }
-      ],
-      "outputs": [
-        { "name": "output", "type": "T" }
-      ],
-      "attributes": [
-        { "name": "keep_dims", "type": "boolean" }
-      ]
-    }
-  },
-  {
-    "name": "Logistic",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "ResizeBilinear",
-    "schema": {
-      "attributes": [
-        { "name": "align_corners", "default": false }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "size" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Gather",
-    "schema": {
-      "attributes": [
-        { "name": "axis", "default": 0 }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "positions" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Cast",
-    "schema": {
-      "attributes": [
-        { "name": "in_data_type", "type": "TensorType" },
-        { "name": "out_data_type", "type": "TensorType" }
-      ],
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "pot_scale_int16", "type": "boolean", "default": true }
+    ],
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
+    ]
   },
   {
     "name": "ArgMax",
-    "schema": {
-      "attributes": [
-        { "name": "output_type", "type": "TensorType" }
-      ]
-    }
+    "attributes": [
+      { "name": "output_type", "type": "TensorType", "default": "FLOAT32" }
+    ]
   },
   {
     "name": "ArgMin",
-    "schema": {
-      "attributes": [
-        { "name": "output_type", "type": "TensorType" }
-      ]
-    }
+    "attributes": [
+      { "name": "output_type", "type": "TensorType", "default": "FLOAT32" }
+    ]
   },
   {
-    "name": "TransposeConv",
-    "schema": {
-      "category": "Layer",
-      "attributes": [
-        { "name": "padding", "type": "Padding" },
-        { "name": "stride_w", "type": "int32" },
-        { "name": "stride_h", "type": "int32" }
-      ],
-      "inputs": [
-        { "name": "output_shape" },
-        { "name": "weights" },
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "AveragePool2D",
+    "category": "Pool",
+    "attributes": [
+      { "name": "padding", "type": "Padding", "default": "SAME" },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "stride_w", "type": "int32" },
+      { "name": "stride_h", "type": "int32" },
+      { "name": "filter_width", "type": "int32" },
+      { "name": "filter_height", "type": "int32" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
   },
   {
-    "name": "Shape",
-    "schema": {
-      "attributes": [
-        { "name": "out_type", "type": "TensorType" }
-      ]
-    }
+    "name": "BatchMatMul",
+    "attributes": [
+      { "name": "adj_x", "type": "boolean", "default": false },
+      { "name": "adj_y", "type": "boolean", "default": false },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ]
   },
   {
-    "name": "Unique",
-    "schema": {
-      "attributes": [
-        { "name": "idx_out_type", "type": "TensorType", "default": "int32" }
-      ]
-    }
+    "name": "BidirectionalSequenceLSTM",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "cell_clip", "type": "float32", "default": 0 },
+      { "name": "proj_clip", "type": "float32", "default": 0 },
+      { "name": "merge_outputs", "type": "boolean", "default": false },
+      { "name": "time_major", "type": "boolean", "default": true },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ]
   },
   {
-    "name": "Slice",
-    "schema": {
-      "category": "Tensor",
-      "inputs": [
-        { "name": "input" },
-        { "name": "begin" },
-        { "name": "size" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "BidirectionalSequenceRNN",
+    "attributes": [
+      { "name": "time_major", "type": "boolean", "default": false },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "merge_outputs", "type": "boolean", "default": false },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ]
   },
   {
-    "name": "Transpose",
-    "schema": {
-      "category": "Transform",
-      "inputs": [
-        { "name": "input" },
-        { "name": "perm" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Call",
+    "attributes": [
+      { "name": "subgraph", "type": "uint32", "default": 0 }
+    ]
   },
   {
-    "name": "Quantize",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "CallOnce",
+    "attributes": [
+      { "name": "init_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Cast",
+    "attributes": [
+      { "name": "in_data_type", "type": "TensorType", "default": "FLOAT32" },
+      { "name": "out_data_type", "type": "TensorType", "default": "FLOAT32" }
+    ],
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConcatEmbeddings",
+    "attributes": [
+      { "name": "num_channels", "type": "int32", "default": 0 },
+      { "name": "num_columns_per_channel", "type": "int32[]", "default": 0 },
+      { "name": "embedding_dim_per_channel", "type": "int32[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "Concatenation",
+    "category": "Tensor",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": 0 },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ],
+    "inputs": [
+      { "name": "inputs", "option": "variadic" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Conv2D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "padding", "type": "Padding", "default": "SAME", "description": "`SAME`|`VALID`" },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE", "description": "`NONE`|`RELU`|`RELU6`" },
+      { "name": "stride_w", "type": "int32", "default": 0, "description": "stride of the filter window" },
+      { "name": "stride_h", "type": "int32", "default": 0, "description": "stride of the filter window" },
+      { "name": "dilation_w_factor", "type": "int32", "default": 1 },
+      { "name": "dilation_h_factor", "type": "int32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input", "description": "4D tensor" },
+      { "name": "filter" },
+      { "name": "bias", "description": "(optional)" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "result of 2D convolution of the input tensor" }
+    ]
+  },
+  {
+    "name": "Cumsum",
+    "attributes": [
+      { "name": "exclusive", "type": "boolean", "default": false },
+      { "name": "reverse", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "Densify",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "DepthToSpace",
+    "attributes": [
+      { "name": "block_size", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "DepthwiseConv2D",
+    "category": "Layer",
+    "attributes": [
+      { "name": "padding", "type": "Padding", "default": "SAME" },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "stride_w", "type": "int32", "default": 0 },
+      { "name": "stride_h", "type": "int32", "default": 0 },
+      { "name": "depth_multiplier", "type": "int32", "default": 0 },
+      { "name": "dilation_w_factor", "type": "int32", "default": 1 },
+      { "name": "dilation_h_factor", "type": "int32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "weights", "type": "T" },
+      { "name": "bias", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
   },
   {
     "name": "Dequantize",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
   },
   {
-    "name": "Minimum",
-    "schema": {
-      "inputs": [
-        { "name": "input1" },
-        { "name": "input2" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Div",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ],
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
+    ]
   },
   {
-    "name": "Maximum",
-    "schema": {
-      "inputs": [
-        { "name": "input1" },
-        { "name": "input2" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "HardSwish",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Sin",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "EmbeddingLookupSparse",
+    "attributes": [
+      { "name": "combiner", "type": "CombinerType", "default": "SUM" }
+    ]
   },
   {
     "name": "Exp",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ExpandDims",
+    "inputs": [
+      { "name": "input" },
+      { "name": "axis_param" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ExtractFeatures",
+    "inputs": [
+      { "name": "ngrams" }
+    ],
+    "outputs": [
+      { "name": "features" },
+      { "name": "weights" }
+    ]
+  },
+  {
+    "name": "FakeQuant",
+    "attributes": [
+      { "name": "min", "type": "float32", "default": 0 },
+      { "name": "max", "type": "float32", "default": 0 },
+      { "name": "num_bits", "type": "int32", "default": 0 },
+      { "name": "narrow_range", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "Fill",
+    "inputs": [
+      { "name": "dims", "type": "T" },
+      { "name": "value", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "FullyConnected",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
+      { "name": "keep_num_dims", "type": "boolean", "default": false },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "weights", "type": "T" },
+      { "name": "bias", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Gather",
+    "category": "Transform",
+    "attributes": [
+      { "name": "axis", "default": 0, "type": "int32" },
+      { "name": "batch_dims", "type": "int32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "positions" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "HardSwish",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Hashtable",
+    "attributes": [
+      { "name": "table_id", "type": "int32", "default": 0 },
+      { "name": "key_dtype", "type": "TensorType", "default": "FLOAT32" },
+      { "name": "value_dtype", "type": "TensorType", "default": "FLOAT32" }
+    ]
+  },
+  {
+    "name": "HashtableLookup",
+    "inputs": [
+      { "name": "key" },
+      { "name": "keys" },
+      { "name": "values" }
+    ],
+    "outputs": [
+      { "name": "value" },
+      { "name": "hits" }
+    ]
+  },
+  {
+    "name": "If",
+    "attributes": [
+      { "name": "then_subgraph_index", "type": "int32", "default": 0 },
+      { "name": "else_subgraph_index", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "LeakyRelu",
+    "attributes": [
+      { "name": "alpha", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "LocalResponseNormalization",
+    "category": "Normalization",
+    "attributes": [
+      { "name": "radius", "type": "int32", "default": 0 },
+      { "name": "bias", "type": "float32", "default": 0 },
+      { "name": "alpha", "type": "float32", "default": 0 },
+      { "name": "beta", "type": "float32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "LogicalOr",
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
+    ]
+  },
+  {
+    "name": "Logistic",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "LogSoftmax",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "LSHProjection",
+    "attributes": [
+      { "name": "type", "type": "LSHProjectionType", "default": "UNKNOWN" }
+    ],
+    "inputs": [
+      { "name": "hash" },
+      { "name": "input" },
+      { "name": "weight" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "LSTM",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "cell_clip", "type": "float32", "default": 0 },
+      { "name": "proj_clip", "type": "float32", "default": 0 },
+      { "name": "kernel_type", "type": "LSTMKernelType", "default": "FULL" },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T", "description": "Input tensor." },
+      { "name": "input_input_weights", "type": "T", "option": "optional", "description": "Input to input weights tensor.", "visible": false },
+      { "name": "input_forget_weights", "type": "T", "description": "Input to forget weights tensor.", "visible": false },
+      { "name": "input_cell_weights", "type": "T", "description": "Input to cell weights tensor.", "visible": false },
+      { "name": "input_output_weights", "type": "T", "description": "Input to output weights tensor.", "visible": false },
+      { "name": "recurrent_input_weights", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor.", "visible": false },
+      { "name": "recurrent_forget_weights", "type": "T", "description": "Recurrent to forget weights tensor.", "visible": false },
+      { "name": "recurrent_cell_weights", "type": "T", "description": "Recurrent to cell weights tensor.", "visible": false },
+      { "name": "recurrent_output_weights", "type": "T", "description": "Recurrent to output weights tensor.", "visible": false },
+      { "name": "cell_input_weights", "type": "T", "option": "optional", "description": "Cell to input weights tensor.", "visible": false },
+      { "name": "cell_forget_weights", "type": "T", "option": "optional", "description": "Cell to forget weights tensor.", "visible": false },
+      { "name": "cell_output_weights", "type": "T", "option": "optional", "description": "Cell to output weights tensor.", "visible": false },
+      { "name": "input_gate_bias", "type": "T", "option": "optional", "description": "Input gate bias tensor.", "visible": false },
+      { "name": "forget_gate_bias", "type": "T", "description": "Forget gate bias tensor.", "visible": false },
+      { "name": "cell_gate_bias", "type": "T", "description": "Cell gate bias tensor.", "visible": false },
+      { "name": "output_gate_bias", "type": "T", "description": "Output gate bias tensor.", "visible": false },
+      { "name": "projection_weights", "type": "T", "option": "optional", "description": "Projection weights tensor.", "visible": false },
+      { "name": "projection_bias", "type": "T", "option": "optional", "description": "Projection bias tensor.", "visible": false }
+    ],
+    "outputs": [
+      { "name": "scratch", "type": "T" },
+      { "name": "output_state", "type": "T" },
+      { "name": "cell_state", "type": "T" },
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Maximum",
+    "inputs": [
+      { "name": "input1" },
+      { "name": "input2" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "MaxPool2D",
+    "category": "Pool",
+    "attributes": [
+      { "name": "padding", "type": "Padding", "default": "SAME" },
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "stride_w", "type": "int32" },
+      { "name": "stride_h", "type": "int32" },
+      { "name": "filter_width", "type": "int32" },
+      { "name": "filter_height", "type": "int32" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Mean",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "axis", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Minimum",
+    "inputs": [
+      { "name": "input1" },
+      { "name": "input2" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "MirrorPad",
+    "attributes": [
+      { "name": "mode", "type": "MirrorPadMode", "default": "REFLECT" }
+    ]
+  },
+  {
+    "name": "Mul",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ],
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
+    ]
+  },
+  {
+    "name": "Normalize",
+    "category": "Normalization",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "NotEqual",
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "OneHot",
+    "attributes": [
+      { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Pack",
+    "attributes": [
+      { "name": "values_count", "type": "int32", "default": 0 },
+      { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Pad",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "paddings" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Predict",
+    "inputs": [
+      { "name": "hashes" },
+      { "name": "keys" },
+      { "name": "labels" },
+      { "name": "weights" }
+    ],
+    "outputs": [
+      { "name": "label" },
+      { "name": "weight" }
+    ]
+  },
+  {
+    "name": "Prelu",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "slope", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Quantize",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Range",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "start", "type": "T" },
+      { "name": "limit", "type": "T" },
+      { "name": "delta", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "ReduceMax",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "axis", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "ReduceMin",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "axis", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Relu",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Relu6",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "category": "Shape",
+    "attributes": [
+      { "name": "new_shape", "type": "int32[]", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "data", "type": "T" },
+      { "name": "shape", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "reshaped", "type": "T" }
+    ]
+  },
+  {
+    "name": "ResizeBilinear",
+    "attributes": [
+      { "name": "align_corners", "default": false, "type": "boolean" },
+      { "name": "new_height", "type": "int32", "default": 0 },
+      { "name": "new_width", "type": "int32", "default": 0 },
+      { "name": "half_pixel_centers", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ResizeNearestNeighbor",
+    "attributes": [
+      { "name": "align_corners", "type": "boolean", "default": false },
+      { "name": "half_pixel_centers", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "ReverseSequence",
+    "attributes": [
+      { "name": "seq_dim", "type": "int32", "default": 0 },
+      { "name": "batch_dim", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "RNN",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "X", "type": "T" },
+      { "name": "W", "type": "T" },
+      { "name": "R", "type": "T" },
+      { "name": "b", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "hidden", "type": "T" },
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Rsqrt",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Shape",
+    "attributes": [
+      { "name": "out_type", "type": "TensorType", "default": "FLOAT32" }
+    ]
+  },
+  {
+    "name": "Sin",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "SkipGram",
+    "inputs": [
+      { "name": "inputs" }
+    ],
+    "outputs": [
+      { "name": "ngrams" }
+    ],
+    "attributes": [
+      { "name": "ngram_size", "type": "int32", "default": 0 },
+      { "name": "max_skip_size", "type": "int32", "default": 0 },
+      { "name": "include_all_ngrams", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "Slice",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "begin" },
+      { "name": "size" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Softmax",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ],
+    "attributes": [
+      { "name": "beta", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "SpaceToDepth",
+    "attributes": [
+      { "name": "block_size", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "SparseToDense",
+    "attributes": [
+      { "name": "validate_indices", "type": "boolean", "default": false }
+    ]
+  },
+  {
+    "name": "Split",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "axis" },
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ],
+    "attributes": [
+      { "name": "num_splits", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "SplitV",
+    "attributes": [
+      { "name": "num_splits", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Squeeze",
+    "category": "Transform",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ],
+    "attributes": [
+      { "name": "squeeze_dims", "type": "int32[]", "default": 0 }
+    ]
+  },
+  {
+    "name": "StridedSlice",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "begin" },
+      { "name": "end" },
+      { "name": "strides" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ],
+    "attributes": [
+      { "name": "begin_mask", "type": "int32", "default": 0 },
+      { "name": "end_mask", "type": "int32", "default": 0 },
+      { "name": "ellipsis_mask", "type": "int32", "default": 0 },
+      { "name": "new_axis_mask", "type": "int32", "default": 0 },
+      { "name": "shrink_axis_mask", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "Sub",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "pot_scale_int16", "type": "boolean", "default": true }
+    ],
+    "inputs": [
+      { "name": "A", "type": "T" },
+      { "name": "B", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "C", "type": "T" }
+    ]
+  },
+  {
+    "name": "Sum",
+    "attributes": [
+      { "name": "keep_dims", "type": "boolean" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "axis", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "SVDF",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "rank", "type": "int32", "default": 0 },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "feature", "type": "T" },
+      { "name": "time", "type": "T" },
+      { "name": "bias", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "state", "type": "T" },
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Tanh",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
+    ]
+  },
+  {
+    "name": "Tile",
+    "inputs": [
+      { "name": "input" },
+      { "name": "multipliers" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Transpose",
+    "category": "Transform",
+    "inputs": [
+      { "name": "input" },
+      { "name": "perm" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "TransposeConv",
+    "category": "Layer",
+    "attributes": [
+      { "name": "padding", "type": "Padding", "default": "SAME" },
+      { "name": "stride_w", "type": "int32", "default": 0 },
+      { "name": "stride_h", "type": "int32", "default": 0 }
+    ],
+    "inputs": [
+      { "name": "output_shape" },
+      { "name": "weights" },
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "UnidirectionalSequenceLSTM",
+    "category": "Layer",
+    "attributes": [
+      { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
+      { "name": "cell_clip", "type": "float32", "default": 0 },
+      { "name": "proj_clip", "type": "float32", "default": 0 },
+      { "name": "time_major", "type": "boolean", "default": false },
+      { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T", "description": "Input tensor." },
+      { "name": "input_input_weights", "type": "T", "option": "optional", "description": "Input to input weights tensor.", "visible": false },
+      { "name": "input_forget_weights", "type": "T", "description": "Input to forget weights tensor.", "visible": false },
+      { "name": "input_cell_weights", "type": "T", "description": "Input to cell weights tensor.", "visible": false },
+      { "name": "input_output_weights", "type": "T", "description": "Input to output weights tensor.", "visible": false },
+      { "name": "recurrent_input_weights", "type": "T", "option": "optional", "description": "Recurrent to input weights tensor.", "visible": false },
+      { "name": "recurrent_forget_weights", "type": "T", "description": "Recurrent to forget weights tensor.", "visible": false },
+      { "name": "recurrent_cell_weights", "type": "T", "description": "Recurrent to cell weights tensor.", "visible": false },
+      { "name": "recurrent_output_weights", "type": "T", "description": "Recurrent to output weights tensor.", "visible": false },
+      { "name": "cell_input_weights", "type": "T", "option": "optional", "description": "Cell to input weights tensor.", "visible": false },
+      { "name": "cell_forget_weights", "type": "T", "option": "optional", "description": "Cell to forget weights tensor.", "visible": false },
+      { "name": "cell_output_weights", "type": "T", "option": "optional", "description": "Cell to output weights tensor.", "visible": false },
+      { "name": "input_gate_bias", "type": "T", "option": "optional", "description": "Input gate bias tensor.", "visible": false },
+      { "name": "forget_gate_bias", "type": "T", "description": "Forget gate bias tensor.", "visible": false },
+      { "name": "cell_gate_bias", "type": "T", "description": "Cell gate bias tensor.", "visible": false },
+      { "name": "output_gate_bias", "type": "T", "description": "Output gate bias tensor.", "visible": false },
+      { "name": "projection_weights", "type": "T", "option": "optional", "description": "Projection weights tensor.", "visible": false },
+      { "name": "projection_bias", "type": "T", "option": "optional", "description": "Projection bias tensor.", "visible": false },
+      { "name": "output_state_in", "type": "T", "option": "optional", "visible": false },
+      { "name": "cell_state_in", "type": "T", "option": "optional", "visible": false },
+      { "name": "activation", "type": "T", "option": "optional", "visible": false },
+      { "name": "cell_clip", "type": "T", "option": "optional", "visible": false },
+      { "name": "proj_clip", "type": "T", "option": "optional", "visible": false },
+      { "name": "time_major", "type": "T", "option": "optional", "visible": false },
+      { "name": "input_layer_norm_weights", "type": "T", "option": "optional", "visible": false },
+      { "name": "forget_layer_norm_weights", "type": "T", "option": "optional", "visible": false },
+      { "name": "cell_layer_norm_weights", "type": "T", "option": "optional", "visible": false },
+      { "name": "output_layer_norm_weights", "type": "T", "option": "optional", "visible": false }
+    ]
+  },
+  {
+    "name": "Unique",
+    "attributes": [
+      { "name": "idx_out_type", "type": "TensorType", "default": "INT32" }
+    ]
+  },
+  {
+    "name": "Unpack",
+    "attributes": [
+      { "name": "num", "type": "int32", "default": 0 },
+      { "name": "axis", "type": "int32", "default": 0 }
+    ]
+  },
+  {
+    "name": "VarHandle",
+    "attributes": [
+      { "name": "container", "type": "string", "default": null },
+      { "name": "shared_name", "type": "string", "default": null }
+    ]
+  },
+  {
+    "name": "While",
+    "attributes": [
+      { "name": "cond_subgraph_index", "type": "int32", "default": 0 },
+      { "name": "body_subgraph_index", "type": "int32", "default": 0 }
+    ]
   }
 ]

@@ -27,6 +27,9 @@ fileAssociations:
     ext: meta
   - name: "Core ML Model"
     ext: mlmodel
+  - name: "Core ML Model Package"
+    ext: mlpackage
+    isPackage: true
   - name: "MNN Model"
     ext: mnn
   - name: "Model"
@@ -63,8 +66,12 @@ fileAssociations:
     ext: paddle
   - name: "PaddlePaddle"
     ext: pdmodel
+  - name: "PaddlePaddle"
+    ext: pdparams
   - name: "RKNN"
     ext: rknn
+  - name: "Vitis-AI xmodel"
+    ext: xmodel
 afterSign: "./publish/notarize.js"
 publish:
   - provider: github

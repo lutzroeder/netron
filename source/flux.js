@@ -11,16 +11,17 @@ flux.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'bson') {
-            return true;
+            return 'flux.bson';
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
         return Promise.resolve().then(() => {
             let root = null;
             try {
-                const reader = json.BinaryReader.create(context.stream.peek());
+                const stream = context.stream;
+                const reader = json.BinaryReader.open(stream);
                 root = reader.read();
             }
             catch (error) {

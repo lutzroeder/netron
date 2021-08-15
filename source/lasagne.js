@@ -7,17 +7,17 @@ var lasagne = lasagne || {};
 lasagne.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('pkl');
-        if (tags.size === 1 && tags.keys().next().value === 'nolearn.lasagne.base.NeuralNet') {
-            return true;
+        const obj = context.open('pkl');
+        if (obj && obj.__class__ && obj.__class__.__module__ === 'nolearn.lasagne.base' && obj.__class__.__name__ == 'NeuralNet') {
+            return 'lasagne';
         }
-        return false;
+        return '';
     }
 
     open(context) {
         return lasagne.Metadata.open(context).then((metadata) => {
-            const model = context.tags('pkl').values().next().value;
-            return new lasagne.Model(metadata, model);
+            const obj = context.open('pkl');
+            return new lasagne.Model(metadata, obj);
         });
     }
 };
@@ -62,7 +62,7 @@ lasagne.Graph = class {
         for (const pair of model.layers) {
             const name = pair[0];
             const layer = model.layers_[name];
-            if (layer && layer.__module__ === 'lasagne.layers.input' && layer.__name__ === 'InputLayer') {
+            if (layer && layer.__class__ && layer.__class__.__module__ === 'lasagne.layers.input' && layer.__class__.__name__ === 'InputLayer') {
                 const type = new lasagne.TensorType(layer.input_var.type.dtype, new lasagne.TensorShape(layer.shape));
                 this._inputs.push(new lasagne.Parameter(layer.name, [ arg(layer.name, type) ]));
                 continue;
@@ -148,19 +148,19 @@ lasagne.Node = class {
 
     constructor(metadata, layer, arg) {
         this._name = layer.name || '';
-        this._type = layer.__module__ + '.' + layer.__name__;
-        this._metadata = metadata.type(this._type);
+        const type = layer.__class__ ? layer.__class__.__module__ + '.' + layer.__class__.__name__ : '';
+        this._type = metadata.type(type) || { name: type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
 
         const params = new Map();
         for (const key of Object.keys(layer)) {
-            if (key === 'name' || key === 'params' || key === 'input_layer' || key === 'input_shape' || key === '__module__' || key === '__name__') {
+            if (key === 'name' || key === 'params' || key === 'input_layer' || key === 'input_shape') {
                 continue;
             }
             const value = layer[key];
-            if (value && value.__module__ === 'theano.tensor.sharedvar' && value.__name__ === 'TensorSharedVariable') {
+            if (value && value.__class__ && value.__class__.__module__ === 'theano.tensor.sharedvar' && value.__class__.__name__ === 'TensorSharedVariable') {
                 params.set(value.name, key);
                 continue;
             }
@@ -195,10 +195,6 @@ lasagne.Node = class {
         return this._name;
     }
 
-    get metadata() {
-        return this._metadata;
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -217,6 +213,9 @@ lasagne.Attribute = class {
     constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
+        if (value && value.__class_) {
+            this._type = value.__class_.__module__ + '.' + value.__class_.__name__;
+        }
     }
 
     get name() {
@@ -225,6 +224,10 @@ lasagne.Attribute = class {
 
     get value() {
         return this._value;
+    }
+
+    get type() {
+        return this._type;
     }
 };
 
@@ -246,20 +249,13 @@ lasagne.Metadata = class {
     constructor(data) {
         this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.has(name) ? this._map.get(name) : null;
+        return this._map.get(name);
     }
 
     attribute(type, name) {

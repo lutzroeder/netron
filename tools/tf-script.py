@@ -17,6 +17,7 @@ def metadata():
         'AvgPool': 'Pool',
         'BatchNormWithGlobalNormalization': 'Normalization',
         'BiasAdd': 'Layer',
+        'Concat': 'Tensor',
         'ConcatV2': 'Tensor',
         'Const': 'Constant',
         'Conv2D': 'Layer',
@@ -26,6 +27,7 @@ def metadata():
         'FusedBatchNorm': 'Normalization',
         'FusedBatchNormV2': 'Normalization',
         'FusedBatchNormV3': 'Normalization',
+        'Gather': 'Transform',
         'Identity': 'Control',
         'LeakyRelu': 'Activation',
         'LRN': 'Normalization',
@@ -275,6 +277,7 @@ def metadata():
     for op in ops_list.op:
         # print(op.name)
         json_schema = {}
+        json_schema['name'] = op.name
         if op.name in categories:
             json_schema['category'] = categories[op.name]
         api_def = api_def_pb2.ApiDef()
@@ -362,14 +365,11 @@ def metadata():
             if output_arg.is_ref:
                 json_output['isRef'] = True
             json_schema['outputs'].append(json_output)
-        json_root.append({
-            'name': op.name,
-            'schema': json_schema 
-        })
+        json_root.append(json_schema)
 
     json_file = os.path.join(os.path.dirname(__file__), '../source/tf-metadata.json')
     with io.open(json_file, 'w', newline='') as fout:
-        json_data = json.dumps(json_root, sort_keys=True, indent=2)
+        json_data = json.dumps(json_root, sort_keys=False, indent=2)
         for line in json_data.splitlines():
             line = line.rstrip()
             fout.write(line)
@@ -377,5 +377,5 @@ def metadata():
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata }
-    command = sys.argv[1] # if len(sys.argv) > 1 else 'metadata'
+    command = sys.argv[1] if len(sys.argv) > 1 else 'metadata'
     command_table[command]()

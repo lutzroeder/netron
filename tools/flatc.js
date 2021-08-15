@@ -1,6 +1,7 @@
 
 const flatc = {};
 const fs = require('fs');
+const path = require('path');
 
 flatc.Object = class {
 
@@ -17,7 +18,7 @@ flatc.Object = class {
     resolve() {
         if (!this.resolved) {
             for (const key of this.metadata.keys()) {
-                if (key !== 'force_align' && key !== 'deprecated') {
+                if (key !== 'force_align' && key !== 'deprecated' && key !== 'key') {
                     throw new flatc.Error("Unsupported attribute '" + key + "'.");
                 }
             }
@@ -119,6 +120,7 @@ flatc.Enum = class extends flatc.Type {
                 }
                 index = this.values.get(key) + 1;
             }
+            this.keys = new Map(Array.from(this.values).map((pair) => [ pair[1], pair[0] ]));
             super.resolve();
         }
     }
@@ -222,7 +224,10 @@ flatc.Field = class extends flatc.Object {
                 }
                 this.type = this.type.resolve(this);
                 if (this.defaultValue === undefined) {
-                    const type = this.type instanceof flatc.Enum ? this.type.base : this.type;
+                    let type = this.type instanceof flatc.Enum ? this.type.base : this.type;
+                    if (type instanceof flatc.TypeReference) {
+                        type = type.resolve(this);
+                    }
                     if (type instanceof flatc.PrimitiveType) {
                         this.defaultValue = type.defaultValue;
                     }
@@ -305,18 +310,18 @@ flatc.Parser = class {
         this._context = root.defineNamespace('');
     }
 
-    parse() {
-
+    include() {
         const includes = [];
-        const attributes = [];
-
         while (!this._tokenizer.match('eof') && this._tokenizer.eat('id', 'include')) {
             includes.push(this._tokenizer.string());
             this._tokenizer.expect(';');
         }
+        return includes;
+    }
 
+    parse() {
+        const attributes = [];
         while (!this._tokenizer.match('eof')) {
-
             if (this._tokenizer.eat('id', 'namespace')) {
                 let name = this._tokenizer.identifier();
                 while (this._tokenizer.eat('.')) {
@@ -376,7 +381,8 @@ flatc.Parser = class {
                 this._parseMetadata(union.metadata);
                 this._tokenizer.expect('{');
                 while (!this._tokenizer.eat('}')) {
-                    const key = this._tokenizer.identifier();
+                    const name = this._tokenizer.identifier();
+                    const key = this._tokenizer.eat(':') ? this._tokenizer.identifier() : name;
                     const value = this._tokenizer.eat('=') ? this._tokenizer.integer() : undefined;
                     union.values.set(key, value);
                     if (this._tokenizer.eat(',')) {
@@ -428,7 +434,6 @@ flatc.Parser = class {
             }
             throw new flatc.Error("Unexpected token '" + this._tokenizer.peek().token + "'" + this._tokenizer.location());
         }
-        return includes;
     }
 
     _parseTypeReference() {
@@ -742,7 +747,7 @@ flatc.Root = class extends flatc.Object {
 
     constructor(root, paths, files) {
         super(null, root);
-        this.namespaces = new Map();
+        this._namespaces = new Map();
         this._files = new Set();
         for (const file of files) {
             this._parseFile(paths, file);
@@ -752,7 +757,7 @@ flatc.Root = class extends flatc.Object {
 
     resolve() {
         if (!this.resolved) {
-            for (const namespace of this.namespaces.values()) {
+            for (const namespace of this._namespaces.values()) {
                 namespace.resolve();
             }
             super.resolve();
@@ -761,6 +766,10 @@ flatc.Root = class extends flatc.Object {
 
     get root() {
         return this;
+    }
+
+    get namespaces() {
+        return this._namespaces;
     }
 
     set(name, value) {
@@ -772,16 +781,16 @@ flatc.Root = class extends flatc.Object {
     }
 
     defineNamespace(name) {
-        if (!this.namespaces.has(name)) {
-            this.namespaces.set(name, new flatc.Namespace(this, name));
+        if (!this._namespaces.has(name)) {
+            this._namespaces.set(name, new flatc.Namespace(this, name));
         }
-        return this.namespaces.get(name);
+        return this._namespaces.get(name);
     }
 
     find(name, type) {
         if (type === flatc.Namespace) {
-            if (this.namespaces.has(name)) {
-                return this.namespaces.get(name);
+            if (this._namespaces.has(name)) {
+                return this._namespaces.get(name);
             }
         }
         return super.find(name, type);
@@ -792,31 +801,28 @@ flatc.Root = class extends flatc.Object {
             this._files.add(file);
             const text = fs.readFileSync(file, 'utf-8');
             const parser = new flatc.Parser(text, file, this);
-            const includes = parser.parse();
+            const includes = parser.include();
             for (const include of includes) {
-                const includeFile = this._resolvePath(paths, file, include);
+                const includeFile = this._resolve(paths, file, include);
                 if (includeFile) {
                     this._parseFile(paths, includeFile);
                     continue;
                 }
                 throw new flatc.Error("Include '" + include + "' not found.");
             }
+            parser.parse();
         }
     }
 
-    _resolvePath(paths, origin, target) {
-        const originParts = origin.split('/');
-        originParts[originParts.length - 1] = target;
-        const originIncludeFile = originParts.join('/');
-        if (fs.existsSync(originIncludeFile)) {
-            return originIncludeFile;
+    _resolve(paths, origin, target) {
+        const file = path.join(path.dirname(origin), target);
+        if (fs.existsSync(file)) {
+            return file;
         }
-        for (const path of paths) {
-            const pathParts = path.split('/');
-            pathParts.push(target);
-            const pathIncludeFile = pathParts.join('/');
-            if (fs.existsSync(pathIncludeFile)) {
-                return pathIncludeFile;
+        for (const current of paths) {
+            const file = path.join(current, target);
+            if (fs.existsSync(file)) {
+                return file;
             }
         }
         return null;
@@ -998,7 +1004,8 @@ flatc.Generator = class {
                                 throw new flatc.Error('Not implemented.');
                             }
                             else if (field.type instanceof flatc.Struct) {
-                                throw new flatc.Error('Not implemented.');
+                                const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
+                                this._builder.add('$.' + field.name + ' = ' + fieldType + '.decode(reader, position + ' + field.offset + ');');
                             }
                             else {
                                 const fieldType = '$root.' + field.type.parent.name + '.' + field.type.name;
@@ -1238,9 +1245,10 @@ const main = (args) => {
     }
 
     try {
-        const content = new flatc.Generator(new flatc.Root(options.root, options.paths, options.files), options.text).content;
+        const root = new flatc.Root(options.root, options.paths, options.files);
+        const generator = new flatc.Generator(root, options.text);
         if (options.out) {
-            fs.writeFileSync(options.out, content, 'utf-8');
+            fs.writeFileSync(options.out, generator.content, 'utf-8');
         }
     }
     catch (err) {
@@ -1255,4 +1263,16 @@ const main = (args) => {
     return 0;
 };
 
-process.exit(main(process.argv.slice(2)));
+if (typeof process === 'object' && Array.isArray(process.argv) &&
+    process.argv.length > 1 && process.argv[1] === __filename) {
+    const args = process.argv.slice(2);
+    const code = main(args);
+    process.exit(code);
+}
+
+if (typeof module !== 'undefined' && typeof module.exports === 'object') {
+    module.exports.Root = flatc.Root;
+    module.exports.Namespace = flatc.Namespace;
+    module.exports.Type = flatc.Type;
+    module.exports.Enum = flatc.Enum;
+}

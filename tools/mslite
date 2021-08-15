@@ -13,6 +13,7 @@ sync() {
     mkdir -p "./third_party/source/mindspore/mindspore/lite/schema/"
     curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/model.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/model.fbs?raw=true"
     curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/ops.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/mindspore/mindspore/lite/schema/ops_types.fbs" "https://github.com/mindspore-ai/mindspore/blob/master/mindspore/lite/schema/ops_types.fbs?raw=true"
 }
 
 schema() {
@@ -24,11 +25,21 @@ schema() {
     fi
 }
 
+metadata() {
+    echo "mslite metadata"
+    [[ $(grep -U $'\x0D' ./source/mslite-metadata.json) ]] && crlf=1
+    node ./tools/mslite-script.js
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/mslite-metadata.json ./source/mslite-metadata.json
+    fi
+}
+
 while [ "$#" != 0 ]; do
     command="$1" && shift
     case "${command}" in
         "clean") clean;;
         "sync") sync;;
         "schema") schema;;
+        "metadata") metadata;;
     esac
 done

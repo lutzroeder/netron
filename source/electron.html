@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,14 +10,19 @@
 <style>
 html { touch-action: none; overflow: hidden; width: 100%; height: 100%; -ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-text-rendering: optimizeLegibility; -moz-text-rendering: optimizeLegibility; -ms-text-rendering: optimizeLegibility; -o-text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-font-smoothing: antialiased; -ms-font-smoothing: antialiased; -o-font-smoothing: antialiased; }
 body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 12px; text-rendering: geometricPrecision; }
+button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; }
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
 .graph { touch-action: pan-x pan-y; overflow: auto; height: 100%; }
 .canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
-.toolbar-button { background: None; border-radius: 6px; border: 0; margin: 0; padding: 0; fill: None; stroke: #777; cursor: hand; width: 24px; height: 24px; }
 .toolbar button:focus { outline: 0; }
+.toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
+.toolbar-back-button { float: left; background: #777; border-top-left-radius: 6px; border-bottom-left-radius: 6px; border: 0px solid; border-color: #777; margin: 2px 0 2px 8px; padding: 0 8px 0 8px; cursor: pointer; height: 20px; color: #ffffff; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-back-button:hover { background: #000000; border-color: #000000; }
+.toolbar-name-button { float: left; background: rgba(255, 255, 255, 0.95); border-top-right-radius: 6px; border-bottom-right-radius: 6px; border: 1px solid #777; color: #777; border-left: 1px; border-left-color: #ffffff; margin: 2px 0 2px 0; padding: 0 12px 0 6px; cursor: pointer; width: auto; height: 20px; font-size: 11px; line-height: 0; transition: 0.1s; }
+.toolbar-name-button:hover { color: #000000; }
 .icon .border { stroke: #fff; }
 .icon .stroke { stroke: #808080; }
 .icon:hover .stroke { stroke: #000000; }
@@ -38,7 +43,7 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 .welcome .logo-message { display: none; }
 .welcome .logo-github { display: none; }
 .welcome button { font-size: 12px; font-weight: bold; line-height: 1.25; text-align: center; vertical-align: middle; min-width: 60px; height: 32px; border-radius: 16px; transition: 0.1s; user-select: none; -webkit-user-select: none; -moz-user-select: none; color: #444444; background-color: #ececec; border: 1px solid #444444; }
-.welcome button:hover { color: #ececec; background-color: #444444; cursor: hand; transition: 0.2s; }
+.welcome button:hover { color: #ececec; background-color: #444444; cursor: pointer; transition: 0.2s; }
 .welcome button:focus { outline: 0; }
 .welcome .open-file-button { top: 170px; left: -150px; width: 125px; opacity: 1; }
 .welcome .github-button { top: 170px; left: 150px; width: 125px; opacity: 1; }
@@ -62,7 +67,7 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 .default { background-color: #ffffff; }
 .default .logo { display: none; }
 .default .graph { display: block; opacity: 1; }
-.default .toolbar { display: block; }
+.default .toolbar { display: table; }
 @media (prefers-color-scheme: dark) {
 .default { background-color: #404040; }
 .graph { background-color: #404040; }
@@ -82,6 +87,10 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 .dropdown button { color: #ffffff; }
 .dropdown button:hover { color: #ffffff; background-color: #1d59d1; }
 .dropdown .separator { border-color: #5a5a5a; }
+.toolbar-back-button { background: #aaaaaa; border-color: #aaaaaa; color: #333333; }
+.toolbar-back-button:hover { background: #dfdfdf; border-color: #dfdfdf; }
+.toolbar-name-button { background: #404040; border-color: #aaaaaa; color: #cccccc; }
+.toolbar-name-button:hover { color: #dfdfdf; }
 }
 @media all and (max-width: 640px) {
 .welcome .logo { width: 240px; }
@@ -98,6 +107,8 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
 }
 @media only screen and (max-device-width: 1024px) {
 .toolbar-button { width: 32px; height: 32px; }
+.toolbar-back-button { margin-top: 6px; margin-bottom: 6px; }
+.toolbar-name-button { margin-top: 6px; margin-bottom: 6px; }
 }
 </style>
 </head>
@@ -140,6 +151,11 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
             <line class="stroke" x1="38" y1="50" x2="62" y2="50" stroke-width="4" stroke-linecap="round"></line>
             <line class="stroke" x1="78" y1="78" x2="82" y2="82" stroke-width="8" stroke-linecap="square"></line>
         </svg>
+    </button>
+    <button id="back-button" class="toolbar-back-button" title="Back">
+        &#x276E;
+    </button>
+    <button id="name-button" class="toolbar-name-button" title="Name">
     </button>
 </div>
 <div class="center logo">
@@ -288,7 +304,7 @@ body { touch-action: none; overflow: hidden; width: 100%; height: 100%; margin: 
     <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
     <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
     <button id="github-button" class="center github-button">GitHub</button>
-    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept=".onnx, .pb, .meta, .tflite, .lite, .tfl, .keras, .h5, .hd5, .hdf5, .json, .model, .mar, .params, .param, .armnn, .mnn, .ncnn, .tnnproto, .nn, .uff, .paddle, .pdmodel, .dnn, .cmf, .mlmodel, .caffemodel, .pbtxt, .prototxt, .pkl, .pt, .pth, .t7, .joblib, .cfg, .xml">
+    <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept="">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->
     <div style="font-weight: normal; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>
     <div style="font-weight: bold; color: rgba(0, 0, 0, 0.01); user-select: none;">.</div>

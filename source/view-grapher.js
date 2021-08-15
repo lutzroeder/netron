@@ -3,112 +3,129 @@
 var grapher = grapher || {};
 var dagre = dagre || require('dagre');
 
-grapher.Renderer = class {
+grapher.Graph = class {
 
-    constructor(document, svgElement) {
-        this._document = document;
-        this._svgElement = svgElement;
+    constructor(compound, options) {
+        this._isCompound = compound;
+        this._options = options;
+        this._nodes = new Map();
+        this._edges = new Map();
+        this._children = {};
+        this._children['\x00'] = {};
+        this._parent = {};
     }
 
-    render(graph) {
+    graph() {
+        return this._options;
+    }
 
-        const svgClusterGroup = this.createElement('g');
-        svgClusterGroup.setAttribute('id', 'clusters');
-        svgClusterGroup.setAttribute('class', 'clusters');
-        this._svgElement.appendChild(svgClusterGroup);
+    setNode(node) {
+        this._nodes.set(node.name, node);
+        if (this._isCompound) {
+            this._parent[node.name] = '\x00';
+            this._children[node.name] = {};
+            this._children['\x00'][node.name] = true;
+        }
+        return this;
+    }
 
-        const svgEdgePathGroup = this.createElement('g');
-        svgEdgePathGroup.setAttribute('id', 'edge-paths');
-        svgEdgePathGroup.setAttribute('class', 'edge-paths');
-        this._svgElement.appendChild(svgEdgePathGroup);
+    setEdge(edge) {
+        if (!this._nodes.has(edge.v)) {
+            throw new grapher.Error();
+        }
+        if (!this._nodes.has(edge.w)) {
+            throw new grapher.Error();
+        }
+        const key = edge.v + ' ' + edge.w + ' ';
+        if (!this._edges.has(key)) {
+            this._edges.set(key, edge);
+        }
+        return this;
+    }
 
-        const svgEdgeLabelGroup = this.createElement('g');
-        svgEdgeLabelGroup.setAttribute('id', 'edge-labels');
-        svgEdgeLabelGroup.setAttribute('class', 'edge-labels');
-        this._svgElement.appendChild(svgEdgeLabelGroup);
-
-        const svgNodeGroup = this.createElement('g');
-        svgNodeGroup.setAttribute('id', 'nodes');
-        svgNodeGroup.setAttribute('class', 'nodes');
-        this._svgElement.appendChild(svgNodeGroup);
-
-        for (const nodeId of graph.nodes()) {
-            if (graph.children(nodeId).length == 0) {
-                const node = graph.node(nodeId);
-                const element = this.createElement('g');
-                if (node.id) {
-                    element.setAttribute('id', node.id);
-                }
-                element.setAttribute('class', Object.prototype.hasOwnProperty.call(node, 'class') ? ('node ' + node.class) : 'node');
-                element.style.opacity = 0;
-                const container = this.createElement('g');
-                container.appendChild(node.label);
-                element.appendChild(container);
-                svgNodeGroup.appendChild(element);
-                const nodeBox = node.label.getBBox();
-                const nodeX = - nodeBox.width / 2;
-                const nodeY = - nodeBox.height / 2;
-                container.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
-                node.width = nodeBox.width;
-                node.height = nodeBox.height;
-                node.element = element;
+    setParent(node, parent) {
+        if (!this._isCompound) {
+            throw new Error("Cannot set parent in a non-compound graph");
+        }
+        parent += "";
+        for (var ancestor = parent; ancestor; ancestor = this.parent(ancestor)) {
+            if (ancestor === node) {
+                throw new Error("Setting " + parent + " as parent of " + node + " would create a cycle");
             }
         }
+        delete this._children[this._parent[node]][node];
+        this._parent[node] = parent;
+        this._children[parent][node] = true;
+        return this;
+    }
 
-        for (const edgeId of graph.edges()) {
-            const edge = graph.edge(edgeId);
-            if (edge.label) {
-                const tspan = this.createElement('tspan');
-                tspan.setAttribute('xml:space', 'preserve');
-                tspan.setAttribute('dy', '1em');
-                tspan.setAttribute('x', '1');
-                tspan.appendChild(this._document.createTextNode(edge.label));
-                const text = this.createElement('text');
-                text.appendChild(tspan);
-                const textContainer = this.createElement('g');
-                textContainer.appendChild(text);
-                const labelElement = this.createElement('g');
-                labelElement.style.opacity = 0;
-                labelElement.setAttribute('class', 'edge-label');
-                if (edge.id) {
-                    labelElement.setAttribute('id', 'edge-label-' + edge.id);
-                }
-                labelElement.appendChild(textContainer);
-                svgEdgeLabelGroup.appendChild(labelElement);
-                const edgeBox = textContainer.getBBox();
-                const edgeX = - edgeBox.width / 2;
-                const edgeY = - edgeBox.height / 2;
-                textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
-                edge.width = edgeBox.width;
-                edge.height = edgeBox.height;
-                edge.labelElement = labelElement;
+    nodes() {
+        return Array.from(this._nodes.keys());
+    }
+
+    hasNode(key) {
+        return this._nodes.has(key);
+    }
+
+    node(key) {
+        return this._nodes.get(key);
+    }
+
+    edges() {
+        return Array.from(this._edges.values());
+    }
+
+    edge(key) {
+        return key;
+    }
+
+    parent(key) {
+        if (this._isCompound) {
+            var parent = this._parent[key];
+            if (parent !== '\x00') {
+                return parent;
             }
         }
+    }
 
-        dagre.layout(graph);
-
-        for (const nodeId of graph.nodes()) {
-            if (graph.children(nodeId).length == 0) {
-                const node = graph.node(nodeId);
-                node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                node.element.style.opacity = 1;
-                delete node.element;
+    children(key) {
+        key = key === undefined ? '\x00' : key;
+        if (this._isCompound) {
+            const children = this._children[key];
+            if (children) {
+                return Object.keys(children);
             }
         }
-
-        for (const edgeId of graph.edges()) {
-            const edge = graph.edge(edgeId);
-            if (edge.labelElement) {
-                edge.labelElement.setAttribute('transform', 'translate(' + edge.x + ',' + edge.y + ')');
-                edge.labelElement.style.opacity = 1;
-                delete edge.labelElement;
-            }
+        else if (key === '\x00') {
+            return this.nodes();
         }
+        else if (this.hasNode(key)) {
+            return [];
+        }
+    }
 
-        const edgePathGroupDefs = this.createElement('defs');
-        svgEdgePathGroup.appendChild(edgePathGroupDefs);
+    build(document, originElement) {
+
+        const createElement = (name) => {
+            return document.createElementNS('http://www.w3.org/2000/svg', name);
+        };
+        const createGroup = (name) => {
+            const element = createElement('g');
+            element.setAttribute('id', name);
+            element.setAttribute('class', name);
+            originElement.appendChild(element);
+            return element;
+        };
+
+        const clusterGroup = createGroup('clusters');
+        const edgePathGroup = createGroup('edge-paths');
+        const edgeLabelGroup = createGroup('edge-labels');
+        const nodeGroup = createGroup('nodes');
+
+        const edgePathGroupDefs = createElement('defs');
+        edgePathGroup.appendChild(edgePathGroupDefs);
         const marker = (id) => {
-            const element = this.createElement('marker');
+            const element = createElement('marker');
             element.setAttribute('id', id);
             element.setAttribute('viewBox', '0 0 10 10');
             element.setAttribute('refX', 9);
@@ -117,7 +134,7 @@ grapher.Renderer = class {
             element.setAttribute('markerWidth', 8);
             element.setAttribute('markerHeight', 6);
             element.setAttribute('orient', 'auto');
-            const markerPath = this.createElement('path');
+            const markerPath = createElement('path');
             markerPath.setAttribute('d', 'M 0 0 L 10 5 L 0 10 L 4 5 z');
             markerPath.style.setProperty('stroke-width', 1);
             element.appendChild(markerPath);
@@ -126,117 +143,97 @@ grapher.Renderer = class {
         edgePathGroupDefs.appendChild(marker("arrowhead-vee"));
         edgePathGroupDefs.appendChild(marker("arrowhead-vee-select"));
 
-        for (const edgeId of graph.edges()) {
-            const edge = graph.edge(edgeId);
-            const edgePath = grapher.Renderer._computeCurvePath(edge, graph.node(edgeId.v), graph.node(edgeId.w));
-            const edgeElement = this.createElement('path');
-            edgeElement.setAttribute('class', Object.prototype.hasOwnProperty.call(edge, 'class') ? ('edge-path ' + edge.class) : 'edge-path');
-            edgeElement.setAttribute('d', edgePath);
-            if (edge.id) {
-                edgeElement.setAttribute('id', edge.id);
+        for (const nodeId of this.nodes()) {
+            const node = this.node(nodeId);
+            if (this.children(nodeId).length == 0) {
+                // node
+                node.build(document, nodeGroup);
             }
-            svgEdgePathGroup.appendChild(edgeElement);
-        }
-
-        for (const nodeId of graph.nodes()) {
-            if (graph.children(nodeId).length > 0) {
-                const node = graph.node(nodeId);
-                const nodeElement = this.createElement('g');
-                nodeElement.setAttribute('class', 'cluster');
-                nodeElement.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                const rect = this.createElement('rect');
-                rect.setAttribute('x', - node.width / 2);
-                rect.setAttribute('y', - node.height / 2 );
-                rect.setAttribute('width', node.width);
-                rect.setAttribute('height', node.height);
+            else {
+                // cluster
+                node.rectangle = createElement('rect');
                 if (node.rx) {
-                    rect.setAttribute('rx', node.rx);
+                    node.rectangle.setAttribute('rx', node.rx);
                 }
                 if (node.ry) {
-                    rect.setAttribute('ry', node.ry);
+                    node.rectangle.setAttribute('ry', node.ry);
                 }
-                nodeElement.appendChild(rect);
-                svgClusterGroup.appendChild(nodeElement);
+                node.element = createElement('g');
+                node.element.setAttribute('class', 'cluster');
+                node.element.appendChild(node.rectangle);
+                clusterGroup.appendChild(node.element);
             }
+        }
+
+        for (const edgeId of this.edges()) {
+            const edge = this.edge(edgeId);
+            edge.build(document, edgePathGroup, edgeLabelGroup);
         }
     }
 
-    createElement(name) {
-        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
+    layout() {
 
-    static _computeCurvePath(edge, tail, head) {
-        const points = edge.points.slice(1, edge.points.length - 1);
-        points.unshift(grapher.Renderer.intersectRect(tail, points[0]));
-        points.push(grapher.Renderer.intersectRect(head, points[points.length - 1]));
+        dagre.layout(this);
 
-        const path = new Path();
-        const curve = new Curve(path);
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            if (i == 0) {
-                curve.lineStart();
+        for (const nodeId of this.nodes()) {
+            const node = this.node(nodeId);
+            if (this.children(nodeId).length == 0) {
+                // node
+                node.layout();
             }
-            curve.point(point.x, point.y);
-            if (i == points.length - 1) {
-                curve.lineEnd();
+            else {
+                // cluster
+                const node = this.node(nodeId);
+                node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
+                node.rectangle.setAttribute('x', - node.width / 2);
+                node.rectangle.setAttribute('y', - node.height / 2 );
+                node.rectangle.setAttribute('width', node.width);
+                node.rectangle.setAttribute('height', node.height);
             }
         }
 
-        return path.data;
-    }
-
-    static intersectRect(node, point) {
-        const x = node.x;
-        const y = node.y;
-        const dx = point.x - x;
-        const dy = point.y - y;
-        let w = node.width / 2;
-        let h = node.height / 2;
-        let sx;
-        let sy;
-        if (Math.abs(dy) * w > Math.abs(dx) * h) {
-            if (dy < 0) {
-                h = -h;
-            }
-            sx = dy === 0 ? 0 : h * dx / dy;
-            sy = h;
+        for (const edgeId of this.edges()) {
+            const edge = this.edge(edgeId);
+            edge.layout();
         }
-        else {
-            if (dx < 0) {
-                w = -w;
-            }
-            sx = w;
-            sy = dx === 0 ? 0 : w * dy / dx;
-        }
-        return {x: x + sx, y: y + sy};
     }
 };
 
-grapher.NodeElement = class {
+grapher.Node = class {
 
-    constructor(document) {
-        this._document = document;
+    constructor() {
         this._blocks = [];
     }
 
-    block(type) {
-        this._block = null;
-        switch (type) {
-            case 'header':
-                this._block = new grapher.NodeElement.Header(this._document);
-                break;
-            case 'list':
-                this._block = new grapher.NodeElement.List(this._document);
-                break;
-        }
-        this._blocks.push(this._block);
-        return this._block;
+    header() {
+        const block = new grapher.Node.Header();
+        this._blocks.push(block);
+        return block;
     }
 
-    format(contextElement) {
-        const rootElement = this.createElement('g');
-        contextElement.appendChild(rootElement);
+    list() {
+        const block = new grapher.Node.List();
+        this._blocks.push(block);
+        return block;
+    }
+
+    build(document, contextElement) {
+        const createElement = (name) => {
+            return document.createElementNS('http://www.w3.org/2000/svg', name);
+        };
+        this.label = createElement('g');
+
+        this.element = createElement('g');
+        if (this.id) {
+            this.element.setAttribute('id', this.id);
+        }
+        this.element.setAttribute('class', this.class ? 'node ' + this.class : 'node');
+        this.element.style.opacity = 0;
+        this.element.appendChild(this.label);
+
+        contextElement.appendChild(this.element);
+
+        // contextElement.appendChild(this.label);
 
         let width = 0;
         let height = 0;
@@ -244,7 +241,7 @@ grapher.NodeElement = class {
 
         for (const block of this._blocks) {
             tops.push(height);
-            block.layout(rootElement);
+            block.build(document, this.label);
             if (width < block.width) {
                 width = block.width;
             }
@@ -253,16 +250,25 @@ grapher.NodeElement = class {
 
         for (let i = 0; i < this._blocks.length; i++) {
             const top = tops.shift();
-            this._blocks[i].update(rootElement, top, width, i == 0, i == this._blocks.length - 1);
+            this._blocks[i].update(this.label, top, width, i == 0, i == this._blocks.length - 1);
         }
 
-        const borderElement = this.createElement('path');
+        const borderElement = createElement('path');
         borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
-        borderElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, height, true, true, true, true));
-        rootElement.appendChild(borderElement);
+        borderElement.setAttribute('d', grapher.Node.roundedRect(0, 0, width, height, true, true, true, true));
+        this.label.appendChild(borderElement);
 
-        contextElement.innerHTML = '';
-        return rootElement;
+        const nodeBox = this.label.getBBox();
+        const nodeX = - nodeBox.width / 2;
+        const nodeY = - nodeBox.height / 2;
+        this.width = nodeBox.width;
+        this.height = nodeBox.height;
+        this.label.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
+    }
+
+    layout() {
+        this.element.setAttribute('transform', 'translate(' + this.x + ',' + this.y + ')');
+        this.element.style.opacity = 1;
     }
 
     static roundedRect(x, y, width, height, r1, r2, r3, r4) {
@@ -282,16 +288,11 @@ grapher.NodeElement = class {
             "a" + r1 + "," + r1 + " 0 0 1 " + r1 + "," + -r1 +
             "z";
     }
-
-    createElement(name) {
-        return this._document.createElementNS('http://www.w3.org/2000/svg', name);
-    }
 };
 
-grapher.NodeElement.Header = class {
+grapher.Node.Header = class {
 
-    constructor(document) {
-        this._document = document;
+    constructor() {
         this._items = [];
     }
 
@@ -305,7 +306,8 @@ grapher.NodeElement.Header = class {
         });
     }
 
-    layout(parentElement) {
+    build(document, parentElement) {
+        this._document = document;
         this._width = 0;
         this._height = 0;
         this._elements = [];
@@ -393,7 +395,7 @@ grapher.NodeElement.Header = class {
             const r2 = i == this._elements.length - 1 && first;
             const r3 = i == this._elements.length - 1 && last;
             const r4 = i == 0 && last;
-            element.path.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
+            element.path.setAttribute('d', grapher.Node.roundedRect(0, 0, element.width, element.height, r1, r2, r3, r4));
             element.text.setAttribute('x', 6);
             element.text.setAttribute('y', element.ty);
         }
@@ -428,10 +430,9 @@ grapher.NodeElement.Header = class {
     }
 };
 
-grapher.NodeElement.List = class {
+grapher.Node.List = class {
 
-    constructor(document) {
-        this._document = document;
+    constructor() {
         this._items = [];
     }
 
@@ -447,7 +448,8 @@ grapher.NodeElement.List = class {
         this._handler = handler;
     }
 
-    layout(parentElement) {
+    build(document, parentElement) {
+        this._document = document;
         this._width = 0;
         this._height = 0;
         const x = 0;
@@ -517,7 +519,7 @@ grapher.NodeElement.List = class {
         const r2 = first;
         const r3 = last;
         const r4 = last;
-        this._backgroundElement.setAttribute('d', grapher.NodeElement.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
+        this._backgroundElement.setAttribute('d', grapher.Node.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
 
         if (!first) {
             const lineElement = this.createElement('line');
@@ -534,7 +536,6 @@ grapher.NodeElement.List = class {
         return this._document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 };
-
 
 class Path {
 
@@ -644,7 +645,116 @@ class Curve {
     }
 }
 
+grapher.Edge = class {
+
+    constructor(from, to) {
+        this.from = from;
+        this.to = to;
+    }
+
+    get arrowhead() {
+        return 'vee';
+    }
+
+    build(document, edgePathGroupElement, edgeLabelGroupElement) {
+        const createElement = (name) => {
+            return document.createElementNS('http://www.w3.org/2000/svg', name);
+        };
+        this.element = createElement('path');
+        if (this.id) {
+            this.element.setAttribute('id', this.id);
+        }
+        this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
+        edgePathGroupElement.appendChild(this.element);
+
+        if (this.label) {
+            const tspan = createElement('tspan');
+            tspan.setAttribute('xml:space', 'preserve');
+            tspan.setAttribute('dy', '1em');
+            tspan.setAttribute('x', '1');
+            tspan.appendChild(document.createTextNode(this.label));
+            const text = createElement('text');
+            text.appendChild(tspan);
+            const textContainer = createElement('g');
+            textContainer.appendChild(text);
+            this.labelElement = createElement('g');
+            this.labelElement.style.opacity = 0;
+            this.labelElement.setAttribute('class', 'edge-label');
+            if (this.id) {
+                this.labelElement.setAttribute('id', 'edge-label-' + this.id);
+            }
+            this.labelElement.appendChild(textContainer);
+            edgeLabelGroupElement.appendChild(this.labelElement);
+            const edgeBox = textContainer.getBBox();
+            const edgeX = - edgeBox.width / 2;
+            const edgeY = - edgeBox.height / 2;
+            textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
+            this.width = edgeBox.width;
+            this.height = edgeBox.height;
+        }
+    }
+
+    layout() {
+        const edgePath = grapher.Edge._computeCurvePath(this, this.from, this.to);
+        this.element.setAttribute('d', edgePath);
+
+        if (this.labelElement) {
+            this.labelElement.setAttribute('transform', 'translate(' + this.x + ',' + this.y + ')');
+            this.labelElement.style.opacity = 1;
+        }
+    }
+
+    static _computeCurvePath(edge, tail, head) {
+        const points = edge.points.slice(1, edge.points.length - 1);
+        points.unshift(grapher.Edge._intersectRect(tail, points[0]));
+        points.push(grapher.Edge._intersectRect(head, points[points.length - 1]));
+
+        const path = new Path();
+        const curve = new Curve(path);
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            if (i == 0) {
+                curve.lineStart();
+            }
+            curve.point(point.x, point.y);
+            if (i == points.length - 1) {
+                curve.lineEnd();
+            }
+        }
+
+        return path.data;
+    }
+
+    static _intersectRect(node, point) {
+        const x = node.x;
+        const y = node.y;
+        const dx = point.x - x;
+        const dy = point.y - y;
+        let w = node.width / 2;
+        let h = node.height / 2;
+        let sx;
+        let sy;
+        if (Math.abs(dy) * w > Math.abs(dx) * h) {
+            if (dy < 0) {
+                h = -h;
+            }
+            sx = dy === 0 ? 0 : h * dx / dy;
+            sy = h;
+        }
+        else {
+            if (dx < 0) {
+                w = -w;
+            }
+            sx = w;
+            sy = dx === 0 ? 0 : w * dy / dx;
+        }
+        return {x: x + sx, y: y + sy};
+    }
+};
+
+
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.Renderer = grapher.Renderer;
-    module.exports.NodeElement = grapher.NodeElement;
+    module.exports.Graph = grapher.Graph;
+    module.exports.Node = grapher.Node;
+    module.exports.Edge = grapher.Edge;
 }

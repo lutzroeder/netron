@@ -9,144 +9,136 @@ caffe.ModelFactory = class {
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension == 'caffemodel') {
-            return true;
+            return 'caffe.pb';
         }
         if (identifier == 'saved_model.pbtxt' || identifier == 'saved_model.prototxt' ||
             identifier.endsWith('predict_net.pbtxt') || identifier.endsWith('predict_net.prototxt') ||
             identifier.endsWith('init_net.pbtxt') || identifier.endsWith('init_net.prototxt')) {
-            return false;
-        }
-        if (extension == 'pt') {
-            const stream = context.stream;
-            const signatures = [
-                // Reject PyTorch models
-                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ],
-                // Reject TorchScript models
-                [ 0x50, 0x4b ]
-            ];
-            if (signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value))) {
-                return false;
-            }
+            return undefined;
         }
         const tags = context.tags('pbtxt');
-        if (tags.has('layer') || tags.has('layers') || tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-            return true;
+        if (tags.has('layer') || tags.has('layers')) {
+            return 'caffe.pbtxt';
         }
-        return false;
+        if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
+            return 'caffe.pbtxt.solver';
+        }
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./caffe-proto').then(() => {
             caffe.proto = protobuf.get('caffe').caffe;
-            return caffe.Metadata.open(context).then((metadata) => {
-                const tags = context.tags('pbtxt');
-                if (tags.has('net') || tags.has('train_net') || tags.has('net_param')) {
-                    try {
-                        const reader = protobuf.TextReader.create(context.stream.peek());
-                        reader.field = function(tag, message) {
-                            if (message instanceof caffe.proto.SolverParameter) {
-                                message[tag] = this.read();
-                                return;
-                            }
-                            throw new Error("Unknown field '" + tag + "'" + this.location());
-                        };
-                        const solver = caffe.proto.SolverParameter.decodeText(reader);
-                        if (solver.net_param) {
-                            return new caffe.Model(metadata, solver.net_param);
+            const openModel = (context, netParameter) => {
+                return caffe.Metadata.open(context).then((metadata) => {
+                    return new caffe.Model(metadata, netParameter);
+                });
+            };
+            const openNetParameterText = (context, identifier, buffer) => {
+                let netParameter = null;
+                try {
+                    const reader = protobuf.TextReader.open(buffer);
+                    reader.field = function(tag, message) {
+                        const type = message.constructor.name;
+                        if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
+                            message[tag] = caffe.ModelFactory._decodeText(reader);
+                            return;
                         }
-                        else if (solver.net || solver.train_net) {
-                            let file = solver.net || solver.train_net;
-                            file = file.split('/').pop();
-                            return context.request(file, null).then((stream) => {
-                                const buffer = stream.peek();
-                                return this._openNetParameterText(metadata, file, buffer);
-                            }).catch((error) => {
-                                if (error) {
-                                    const message = error && error.message ? error.message : error.toString();
-                                    throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
+                        else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
+                            if (message[tag]) {
+                                if (!Array.isArray(message[tag])) {
+                                    message[tag] = [ message[tag] ];
                                 }
-                            });
+                                message[tag].push(this.read());
+                            }
+                            else {
+                                message[tag] = this.read();
+                            }
+                            return;
                         }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    reader.enum = function(type) {
+                        const token = this.token();
+                        this.next();
+                        this.semicolon();
+                        if (!Object.prototype.hasOwnProperty.call(type, token)) {
+                            const value = Number.parseInt(token, 10);
+                            if (!Number.isNaN(token - value)) {
+                                return value;
+                            }
+                            return token;
+                        }
+                        return type[token];
+                    };
+                    if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
+                        reader.integer = function() {
+                            const token = this.token();
+                            const value = Number.parseInt(token, 10);
+                            this.next();
+                            this.semicolon();
+                            if (Number.isNaN(token - value)) {
+                                return token;
+                            }
+                            return value;
+                        };
                     }
-                    catch (error) {
-                        // continue regardless of error
+                    netParameter = caffe.proto.NetParameter.decodeText(reader);
+                }
+                catch (error) {
+                    const message = error && error.message ? error.message : error.toString();
+                    throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
+                }
+                return openModel(context, netParameter);
+            };
+            switch (match) {
+                case 'caffe.pbtxt.solver': {
+                    const stream = context.stream;
+                    const reader = protobuf.TextReader.open(stream);
+                    reader.field = function(tag, message) {
+                        if (message instanceof caffe.proto.SolverParameter) {
+                            message[tag] = this.read();
+                            return;
+                        }
+                        throw new Error("Unknown field '" + tag + "'" + this.location());
+                    };
+                    const solver = caffe.proto.SolverParameter.decodeText(reader);
+                    if (solver.net_param) {
+                        return openModel(context, solver.net_param);
                     }
+                    let file = solver.net || solver.train_net;
+                    file = file.split('/').pop();
+                    return context.request(file, null).then((stream) => {
+                        const buffer = stream.peek();
+                        return openNetParameterText(context, file, buffer);
+                    }).catch((error) => {
+                        if (error) {
+                            const message = error && error.message ? error.message : error.toString();
+                            throw new caffe.Error("Failed to load '" + file + "' (" + message.replace(/\.$/, '') + ').');
+                        }
+                    });
                 }
-                else if (tags.has('layer') || tags.has('layers')) {
-                    return this._openNetParameterText(metadata, context.identifier, context.stream.peek());
+                case 'caffe.pbtxt': {
+                    return openNetParameterText(context, context.identifier, context.stream.peek());
                 }
-                else {
+                case 'caffe.pb': {
                     let netParameter = null;
                     try {
-                        const reader = protobuf.Reader.create(context.stream.peek());
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
                         netParameter = caffe.proto.NetParameter.decode(reader);
                     }
                     catch (error) {
                         const message = error && error.message ? error.message : error.toString();
                         throw new caffe.Error('File format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
                     }
-                    return new caffe.Model(metadata, netParameter);
+                    return openModel(context, netParameter);
                 }
-            });
-        });
-    }
-
-    _openNetParameterText(metadata, identifier, buffer) {
-        let netParameter = null;
-        try {
-            const reader = protobuf.TextReader.create(buffer);
-            reader.field = function(tag, message) {
-                const type = message.constructor.name;
-                if (tag.endsWith('_param') && (type == 'LayerParameter' || type == 'V1LayerParameter' || type == 'V0LayerParameter')) {
-                    message[tag] = caffe.ModelFactory._decodeText(reader);
-                    return;
+                default: {
+                    throw new caffe.Error("Unknown Caffe format '" + match + "'.");
                 }
-                else if (message.constructor.name.endsWith('Parameter') || message.constructor.name === 'ParamSpec') {
-                    if (message[tag]) {
-                        if (!Array.isArray(message[tag])) {
-                            message[tag] = [ message[tag] ];
-                        }
-                        message[tag].push(this.read());
-                    }
-                    else {
-                        message[tag] = this.read();
-                    }
-                    return;
-                }
-                throw new Error("Unknown field '" + tag + "'" + this.location());
-            };
-            reader.enum = function(type) {
-                const token = this.token();
-                this.next();
-                this.semicolon();
-                if (!Object.prototype.hasOwnProperty.call(type, token)) {
-                    const value = Number.parseInt(token, 10);
-                    if (!Number.isNaN(token - value)) {
-                        return value;
-                    }
-                    return token;
-                }
-                return type[token];
-            };
-            if (/MobileNetSSD_train_template.prototxt/.exec(identifier)) {
-                reader.integer = function() {
-                    const token = this.token();
-                    const value = Number.parseInt(token, 10);
-                    this.next();
-                    this.semicolon();
-                    if (Number.isNaN(token - value)) {
-                        return token;
-                    }
-                    return value;
-                };
             }
-            netParameter = caffe.proto.NetParameter.decodeText(reader);
-        }
-        catch (error) {
-            const message = error && error.message ? error.message : error.toString();
-            throw new caffe.Error('File text format is not caffe.NetParameter (' + message.replace(/\.$/, '') + ').');
-        }
-        return new caffe.Model(metadata, netParameter);
+        });
     }
 
     static _decodeText(reader) {
@@ -289,7 +281,8 @@ caffe.Graph = class {
                     if (layer.input.length == 0 && layer.output.length == 1 &&
                         layer.input_param && layer.input_param.shape &&
                         layer.input_param.shape.length == 1 && layer.input_param.shape[0].dim) {
-                        const type = new caffe.TensorType(null, new caffe.TensorShape(layer.input_param.shape[0].dim));
+                        const shape = new caffe.TensorShape(layer.input_param.shape[0].dim.map((dim) => dim.toNumber()));
+                        const type = new caffe.TensorType(null, shape);
                         this._inputs.push(new caffe.Parameter(layer.output[0], [ new caffe.Argument(layer.output[0], type) ]));
                         layer = null;
                     }
@@ -316,12 +309,14 @@ caffe.Graph = class {
                 if (net.input_shape && i < net.input_shape.length) {
                     const blobShape = net.input_shape[i];
                     if (blobShape && blobShape.dim) {
-                        inputType = new caffe.TensorType(null, new caffe.TensorShape(blobShape.dim));
+                        const shape = new caffe.TensorShape(blobShape.dim.map((dim) => dim.toNumber()));
+                        inputType = new caffe.TensorType(null, shape);
                     }
                 }
                 const dim = i * 4;
                 if (!inputType && net.input_dim && net.input_dim.length >= dim) {
-                    inputType = new caffe.TensorType(null, new caffe.TensorShape(net.input_dim.slice(dim, dim + 4)));
+                    const shape = new caffe.TensorShape(net.input_dim.slice(dim, dim + 4));
+                    inputType = new caffe.TensorType(null, shape);
                 }
                 this._inputs.push(new caffe.Parameter(input, [ new caffe.Argument(input, inputType, null) ]));
             }
@@ -412,33 +407,36 @@ caffe.Argument = class {
 caffe.Node = class {
 
     constructor(metadata, layer, version) {
-        this._metadata = metadata;
         this._chain = [];
         this._attributes = [];
+        let type;
         switch (version) {
             case 0: {
                 this._name = layer.layer.name;
-                this._type = layer.layer.type;
+                type = layer.layer.type;
                 break;
             }
             case 1: {
                 this._name = layer.name;
-                this._type = caffe.Utility.layerType(layer.type);
+                type = caffe.Utility.layerType(layer.type);
                 break;
             }
             case 2: {
                 this._name = layer.name;
-                this._type = layer.type;
+                type = layer.type;
                 break;
             }
         }
+        this._type = metadata.type(type) || { name: type };
 
         let initializers = [];
         switch (version) {
             case 0: {
-                for (const attributeName of Object.keys(layer.layer)) {
-                    if (attributeName != 'type' && attributeName != 'name' && attributeName != 'blobs' && attributeName != 'blobs_lr') {
-                        this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, attributeName), attributeName, layer.layer[attributeName]));
+                for (const name of Object.keys(layer.layer)) {
+                    if (name != 'type' && name != 'name' && name != 'blobs' && name != 'blobs_lr') {
+                        const value = layer.layer[name];
+                        const attribute = new caffe.Attribute(metadata.attribute(type, name), name, value);
+                        this._attributes.push(attribute);
                     }
                 }
                 initializers = layer.layer.blobs.map((blob) => new caffe.Tensor(blob));
@@ -449,7 +447,6 @@ caffe.Node = class {
                 for (const layer_kind of Object.keys(layer)) {
                     if (layer_kind.endsWith('_param') || layer_kind == 'transform_param') {
                         const param = layer[layer_kind];
-                        let type = this._type;
                         if (type == 'Deconvolution') {
                             type = 'Convolution';
                         }
@@ -457,32 +454,32 @@ caffe.Node = class {
                         for (const name of Object.keys(param)) {
                             const defaultValue = prototype[name];
                             const value = param[name];
-                            if (value != defaultValue && (!Array.isArray(value) || !Array.isArray(defaultValue) || value.length != 0 || defaultValue.length != 0)) {
-                                this._attributes.push(new caffe.Attribute(metadata.attribute(this.type, name), name, value));
-                            }
+                            const attribute = new caffe.Attribute(metadata.attribute(type, name), name, value, defaultValue);
+                            this._attributes.push(attribute);
                         }
                     }
                 }
                 if (layer.include && layer.include.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'include'), 'include', layer.include));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'include'), 'include', layer.include);
+                    this._attributes.push(attribute);
                 }
                 if (layer.exclude && layer.exclude.length > 0) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'exclude'), 'exclude', layer.exclude));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'exclude'), 'exclude', layer.exclude);
+                    this._attributes.push(attribute);
                 }
                 if (this._type == 'Data' && layer.input_param && layer.input_param.shape) {
-                    this._attributes.push(new caffe.Attribute(this._metadata.attribute(this.type, 'shape'), 'shape', layer.input_param.shape));
+                    const attribute = new caffe.Attribute(metadata.attribute(type, 'shape'), 'shape', layer.input_param.shape);
+                    this._attributes.push(attribute);
                 }
                 initializers = layer.blobs.map((blob) => new caffe.Tensor(blob));
                 break;
             }
         }
-
-        const schema = this._metadata.type(this.type);
         this._inputs = [];
         const inputs = layer.input.concat(initializers);
         let inputIndex = 0;
-        if (schema && schema.inputs) {
-            for (const inputDef of schema.inputs) {
+        if (this._type && this._type.inputs) {
+            for (const inputDef of this._type.inputs) {
                 if (inputIndex < inputs.length || inputDef.option != 'optional') {
                     const inputCount = inputDef.option == 'variadic' ? inputs.length - inputIndex : 1;
                     this._inputs.push(new caffe.Parameter(inputDef.name, inputs.slice(inputIndex, inputIndex + inputCount).filter((input) => input !== '' || inputDef.option != 'optional').map((input) => {
@@ -501,8 +498,8 @@ caffe.Node = class {
         this._outputs = [];
         const outputs = layer.output;
         let outputIndex = 0;
-        if (schema && schema.outputs) {
-            for (const outputDef of schema.outputs) {
+        if (this._type && this._type.outputs) {
+            for (const outputDef of this._type.outputs) {
                 if (outputIndex < outputs.length) {
                     const outputCount = (outputDef.option == 'variadic') ? (outputs.length - outputIndex) : 1;
                     this._outputs.push(new caffe.Parameter(outputDef.name, outputs.slice(outputIndex, outputIndex + outputCount).map((output) => {
@@ -521,10 +518,6 @@ caffe.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get name() {
@@ -550,29 +543,40 @@ caffe.Node = class {
 
 caffe.Attribute = class {
 
-    constructor(schema, name, value) {
+    constructor(metadata, name, value, defaultValue) {
         this._name = name;
         this._value = value;
-        if (value instanceof caffe.proto.BlobShape) {
-            this._value = new caffe.TensorShape(value.dim);
+        if (metadata && metadata.type) {
+            this._type = metadata.type;
         }
-        if (schema) {
-            if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
+        if (value instanceof caffe.proto.BlobShape) {
+            this._value = new caffe.TensorShape(value.dim.map((dim) => dim.toNumber()));
+            this._type = 'shape';
+        }
+        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
+            this._visible = false;
+        }
+        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'default')) {
+            defaultValue = metadata.default;
+        }
+        if (defaultValue !== undefined) {
+            if (this._value == defaultValue) {
                 this._visible = false;
             }
-            else if (Object.prototype.hasOwnProperty.call(schema, 'default')) {
-                const defaultValue = schema.default;
-                if (this._value == defaultValue) {
+            else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
+                if (this._value.length == defaultValue.length &&
+                    this._value.every((item, index) => { return item == defaultValue[index]; })) {
                     this._visible = false;
-                }
-                else if (Array.isArray(this._value) && Array.isArray(defaultValue)) {
-                    if (this._value.length == defaultValue.length &&
-                        this._value.every((item, index) => { return item == defaultValue[index]; })) {
-                        this._visible = false;
-                    }
                 }
             }
         }
+        if (this._type) {
+            this._value = caffe.Utility.enum(this._type, this._value);
+        }
+    }
+
+    get type() {
+        return this._type;
     }
 
     get name() {
@@ -612,7 +616,7 @@ caffe.Tensor = class {
             }
         }
         else if (Object.prototype.hasOwnProperty.call(blob, 'shape')) {
-            shape = blob.shape.dim;
+            shape = blob.shape.dim.map((dim) => dim.toNumber());
         }
 
         let dataType = '?';
@@ -722,7 +726,7 @@ caffe.TensorType = class {
 caffe.TensorShape = class {
 
     constructor(dimensions) {
-        this._dimensions = dimensions.map((dimension) => Number.isInteger(dimension) ? dimension : dimension.toNumber());
+        this._dimensions = dimensions;
     }
 
     get dimensions() {
@@ -748,6 +752,26 @@ caffe.Utility = class {
         }
         return caffe.Utility._layerTypeMap.has(type) ? caffe.Utility._layerTypeMap.get(type) : type.toString();
     }
+
+    static enum(name, value) {
+        let type = caffe.proto;
+        const parts = name.split('.');
+        while (type && parts.length > 0) {
+            type = type[parts.shift()];
+        }
+        if (type) {
+            caffe.Utility._enumKeyMap = caffe.Utility._enumKeyMap || new Map();
+            if (!caffe.Utility._enumKeyMap.has(name)) {
+                const map = new Map(Object.entries(type).map((pair) => [ pair[1], pair[0] ]));
+                caffe.Utility._enumKeyMap.set(name, map);
+            }
+            const map = caffe.Utility._enumKeyMap.get(name);
+            if (map.has(value)) {
+                return map.get(value);
+            }
+        }
+        return value;
+    }
 };
 
 caffe.Metadata = class {
@@ -766,38 +790,30 @@ caffe.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
-        this._attributeCache = {};
+        this._map = new Map();
+        this._attributeCache = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map[item.name] = item.schema;
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map[name] || null;
+        return this._map.get(name);
     }
 
     attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+        const key = type + ':' + name;
+        if (!this._attributeCache.has(key)) {
+            this._attributeCache.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes) && metadata.attributes.length > 0) {
+                for (const attribute of metadata.attributes) {
+                    this._attributeCache.set(type + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[type] = map;
         }
-        return map[name] || null;
+        return this._attributeCache.get(key);
     }
 };
 

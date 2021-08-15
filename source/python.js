@@ -6,8 +6,9 @@ var python = python || {};
 
 python.Parser = class {
 
-    constructor(text, file) {
+    constructor(text, file, debug) {
         this._tokenizer = new python.Tokenizer(text, file);
+        this._debug = debug;
         if (!python.Parser._precedence) {
             python.Parser._precedence = {
                 'or': 2, 'and': 3, 'not' : 4,
@@ -1610,152 +1611,169 @@ python.Execution = class {
         this._exceptionCallback = exceptionCallback;
         this._utf8Decoder = new TextDecoder('utf-8');
         this._packages = new Map();
-        this._knownPackageMap = new Set();
         this._unknownNameMap = new Set();
         this._context = new python.Execution.Context();
         this._context.scope.builtins = {};
         this._context.scope.builtins.type = { __module__: 'builtins', __name__: 'type' };
+        this._context.scope.builtins.type.__class__ = this._context.scope.builtins.type;
         this._context.scope.builtins.module = { __module__: 'builtins', __name__: 'module', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.function = { __module__: 'builtins', __name__: 'function', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.method = { __module__: 'builtins', __name__: 'method', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.dict = { __module__: 'builtins', __name__: 'dict', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.list = { __module__: 'builtins', __name__: 'list', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.bool = { __module__: 'builtins', __name__: 'bool', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.int = { __module__: 'builtins', __name__: 'int', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.float = { __module__: 'builtins', __name__: 'float', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.str = { __module__: 'builtins', __name__: 'str', __class__: this._context.scope.builtins.type };
-        this._context.scope.builtins.tuple = { __module__: 'builtins', __name__: 'tuple', __class__: this._context.scope.builtins.type };
-        this._context.scope.typing = { __name__: 'typing', __class__: this._context.scope.builtins.module };
-        this._context.scope.typing._GenericAlias = { __module__: 'typing', __name__: '_GenericAlias', __class__: this._context.scope.builtins.type };
-        this._context.scope.typing._SpecialForm = { __module__: 'typing', __name__: '_SpecialForm', __class__: this._context.scope.builtins.type };
-        this._context.scope.typing._VariadicGenericAlias = { __module__: 'typing', __name__: '_VariadicGenericAlias', __class__: this._context.scope.builtins.type };
-        this._context.scope.typing.Dict = { __module__: 'typing', _name: 'Dict', __class__: this._context.scope.typing._VariadicGenericAlias, __origin__: this._context.scope.builtins.dict };
-        this._context.scope.typing.List = { __module__: 'typing', _name: 'List', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.list };
-        this._context.scope.typing.Optional = { __module__: 'typing', _name: 'Optional', __class__: this._context.scope.typing._SpecialForm };
-        this._context.scope.typing.Tuple = { __module__: 'typing', _name: 'Tuple', __class__: this._context.scope.typing._GenericAlias, __origin__: this._context.scope.builtins.tuple };
-        this.registerKnownPackage('__builtin__');
-        this.registerKnownPackage('_codecs');
-        this.registerKnownPackage('argparse');
-        this.registerKnownPackage('builtins');
-        this.registerKnownPackage('collections');
-        this.registerKnownPackage('copy_reg');
-        this.registerKnownPackage('gensim');
-        this.registerKnownPackage('joblib');
-        this.registerKnownPackage('lightgbm');
-        this.registerKnownPackage('numpy');
-        this.registerKnownPackage('nolearn');
-        this.registerKnownPackage('sklearn');
-        this.registerKnownPackage('xgboost');
-        this.registerConstructor('argparse.Namespace', function (args) {
-            this.args = args;
+        this._context.scope.builtins.module.__type__ = this._context.scope.builtins.module;
+        this.registerModule('__builtin__');
+        this.registerModule('_codecs');
+        this.registerModule('argparse');
+        this.registerModule('collections');
+        this.registerModule('copy_reg');
+        this.registerModule('cuml');
+        this.registerModule('gensim');
+        this.registerModule('joblib');
+        this.registerModule('lightgbm');
+        this.registerModule('numpy');
+        this.registerModule('nolearn');
+        this.registerModule('sklearn');
+        this.registerModule('typing');
+        this.registerModule('xgboost');
+        const builtins = this._context.scope.builtins;
+        const numpy = this._context.scope.numpy;
+        const typing = this._context.scope.typing;
+        this.registerType('builtins.function', class {});
+        this.registerType('builtins.method', class {});
+        this.registerType('builtins.dict', class {});
+        this.registerType('builtins.list', class {});
+        this.registerType('builtins.bool', class {});
+        this.registerType('builtins.int', class {});
+        this.registerType('builtins.float', class {});
+        this.registerType('builtins.object', class {});
+        this.registerType('builtins.str', class {});
+        this.registerType('builtins.tuple', class {});
+        this.registerType('typing._Final', class {});
+        this.registerType('typing._SpecialForm', class extends typing._Final {});
+        this.registerType('typing._BaseGenericAlias', class extends typing._Final {});
+        this.registerType('typing._GenericAlias', class extends typing._BaseGenericAlias {});
+        this.registerType('typing._SpecialGenericAlias', class extends typing._BaseGenericAlias {});
+        this.registerType('typing._TupleType', class extends typing._SpecialGenericAlias {});
+        typing.Optional = self.invoke('typing._SpecialForm', []);
+        typing.List = self.invoke('typing._SpecialGenericAlias', []);
+        typing.Dict = self.invoke('typing._SpecialGenericAlias', []);
+        typing.Tuple = self.invoke('typing._TupleType', []);
+        this.registerType('argparse.Namespace', class {
+            constructor(args) {
+                this.args = args;
+            }
         });
-        this.registerConstructor('numpy.core._multiarray_umath.scalar', function(dtype, rawData) {
-            let data = rawData;
-            if (typeof rawData === 'string') {
-                data = new Uint8Array(rawData.length);
-                for (let i = 0; i < rawData.length; i++) {
-                    data[i] = rawData.charCodeAt(i);
+        this.registerType('collections.deque', class {
+            constructor(iterable) {
+                if (iterable) {
+                    let i = 0;
+                    for (const value of iterable) {
+                        this[i++] = value;
+                    }
+                    this.length = i;
                 }
             }
-            const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
-            switch (dtype.name) {
-                case 'uint8':
-                    return dataView.getUint8(0);
-                case 'float32':
-                    return dataView.getFloat32(0, true);
-                case 'float64':
-                    return dataView.getFloat64(0, true);
-                case 'int8':
-                    return dataView.getInt8(0, true);
-                case 'int16':
-                    return dataView.getInt16(0, true);
-                case 'int32':
-                    return dataView.getInt32(0, true);
-                case 'int64':
-                    return dataView.getInt64(0, true);
-            }
-            throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
-        this.registerConstructor('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
-            this.subtype = subtype;
-            this.shape = shape;
-            this.dtype = dtype;
-            this.__setstate__ = function(state) {
-                this.version = state[0];
-                this.shape = state[1];
-                this.typecode = state[2];
-                this.is_f_order = state[3];
-                this.rawdata = state[4];
-            };
-            this.__read__ = function(unpickler) {
-                const array = {};
-                const subtype = this.subtype.split('.');
-                array.__name__ = subtype.pop();
-                array.__module__ = subtype.join('.');
-                array.dtype = this.typecode;
-                array.shape = this.shape;
-                const dims = array.shape && array.shape.length > 0 ? array.shape.reduce((a, b) => a * b) : 1;
-                const size = array.dtype.itemsize * dims;
-                if (typeof this.rawdata == 'string') {
-                    array.data = unpickler.unescape(this.rawdata, size);
-                    if (array.data.length != size) {
-                        throw new python.Error('Invalid string array data size.');
+        this.registerType('collections.OrderedDict', class extends Map {
+            constructor(items) {
+                super();
+                if (items) {
+                    for (const pair of items) {
+                        this.__setitem__(pair[0], pair[1]);
                     }
                 }
-                else {
-                    array.data = this.rawdata;
-                    if (array.data.length != size) {
-                        // throw new pytorch.Error('Invalid array data size.');
+            }
+            __setitem__(key, value) {
+                this.set(key, value);
+            }
+        });
+        this.registerType('cuml.common.array_descriptor.CumlArrayDescriptorMeta', class {});
+        this.registerType('cuml.ensemble.randomforestclassifier.RandomForestClassifier', class {});
+        this.registerType('cuml.raft.common.handle.Handle', class {
+            __setstate__(state) {
+                this._handle = state;
+            }
+        });
+        this.registerType('haiku._src.data_structures.FlatMapping', class {
+            constructor(dict) {
+                for (const key of Object.keys(dict)) {
+                    this[key] = dict[key];
+                }
+            }
+        });
+        this.registerType('numpy.core._multiarray_umath.scalar', class {
+            constructor(dtype, rawData) {
+                let data = rawData;
+                if (typeof rawData === 'string') {
+                    data = new Uint8Array(rawData.length);
+                    for (let i = 0; i < rawData.length; i++) {
+                        data[i] = rawData.charCodeAt(i);
                     }
                 }
-                return array;
-            };
-        });
-        this.registerConstructor('numpy.dtype', function(obj, align, copy) {
-            this.align = align;
-            this.copy = copy;
-            switch (obj) {
-                case 'i1': this.name = 'int8'; this.itemsize = 1; break;
-                case 'i2': this.name = 'int16'; this.itemsize = 2; break;
-                case 'i4': this.name = 'int32'; this.itemsize = 4; break;
-                case 'i8': this.name = 'int64'; this.itemsize = 8; break;
-                case 'b1': this.name = 'int8'; this.itemsize = 1; break;
-                case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
-                case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
-                case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
-                case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
-                case 'f2': this.name = 'float16'; this.itemsize = 2; break;
-                case 'f4': this.name = 'float32'; this.itemsize = 4; break;
-                case 'f8': this.name = 'float64'; this.itemsize = 8; break;
-                case 'c8':  this.name = 'complex64'; this.itemsize = 8; break;
-                case 'c16': this.name = 'complex128'; this.itemsize = 16; break;
-                default:
-                    if (obj.startsWith('V')) {
-                        this.itemsize = Number(obj.substring(1));
-                        this.name = 'void' + (this.itemsize * 8).toString();
-                    }
-                    else if (obj.startsWith('O')) {
-                        this.itemsize = Number(obj.substring(1));
-                        this.name = 'object';
-                    }
-                    else if (obj.startsWith('S')) {
-                        this.itemsize = Number(obj.substring(1));
-                        this.name = 'string';
-                    }
-                    else if (obj.startsWith('U')) {
-                        this.itemsize = Number(obj.substring(1));
-                        this.name = 'string';
-                    }
-                    else if (obj.startsWith('M')) {
-                        this.itemsize = Number(obj.substring(1));
-                        this.name = 'datetime';
-                    }
-                    else {
-                        throw new python.Error("Unknown dtype '" + obj.toString() + "'.");
-                    }
-                    break;
+                const dataView = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                switch (dtype.name) {
+                    case 'uint8':
+                        return dataView.getUint8(0);
+                    case 'float32':
+                        return dataView.getFloat32(0, true);
+                    case 'float64':
+                        return dataView.getFloat64(0, true);
+                    case 'int8':
+                        return dataView.getInt8(0, true);
+                    case 'int16':
+                        return dataView.getInt16(0, true);
+                    case 'int32':
+                        return dataView.getInt32(0, true);
+                    case 'int64':
+                        return dataView.getInt64(0, true);
+                }
+                throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
             }
-            this.__setstate__ = function(state) {
+        });
+        this.registerType('numpy.dtype', class {
+            constructor(obj, align, copy) {
+                this.align = align;
+                this.copy = copy;
+                switch (obj) {
+                    case 'i1': this.name = 'int8'; this.itemsize = 1; break;
+                    case 'i2': this.name = 'int16'; this.itemsize = 2; break;
+                    case 'i4': this.name = 'int32'; this.itemsize = 4; break;
+                    case 'i8': this.name = 'int64'; this.itemsize = 8; break;
+                    case 'b1': this.name = 'int8'; this.itemsize = 1; break;
+                    case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
+                    case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
+                    case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
+                    case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
+                    case 'f2': this.name = 'float16'; this.itemsize = 2; break;
+                    case 'f4': this.name = 'float32'; this.itemsize = 4; break;
+                    case 'f8': this.name = 'float64'; this.itemsize = 8; break;
+                    case 'c8':  this.name = 'complex64'; this.itemsize = 8; break;
+                    case 'c16': this.name = 'complex128'; this.itemsize = 16; break;
+                    default:
+                        if (obj.startsWith('V')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'void' + (this.itemsize * 8).toString();
+                        }
+                        else if (obj.startsWith('O')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'object';
+                        }
+                        else if (obj.startsWith('S')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
+                        else if (obj.startsWith('U')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'string';
+                        }
+                        else if (obj.startsWith('M')) {
+                            this.itemsize = Number(obj.substring(1));
+                            this.name = 'datetime';
+                        }
+                        else {
+                            throw new python.Error("Unknown dtype '" + obj.toString() + "'.");
+                        }
+                        break;
+                }
+            }
+            __setstate__(state) {
                 switch (state.length) {
                     case 8:
                         this.version = state[0];
@@ -1781,334 +1799,389 @@ python.Execution = class {
                     default:
                         throw new python.Error("Unknown numpy.dtype setstate length '" + state.length.toString() + "'.");
                 }
-            };
+            }
         });
-        this.registerConstructor('gensim.models.doc2vec.Doctag', function() {});
-        this.registerConstructor('gensim.models.doc2vec.Doc2Vec', function() {});
-        this.registerConstructor('gensim.models.doc2vec.Doc2VecTrainables', function() {});
-        this.registerConstructor('gensim.models.doc2vec.Doc2VecVocab', function() {});
-        this.registerConstructor('gensim.models.fasttext.FastText', function() {});
-        this.registerConstructor('gensim.models.fasttext.FastTextTrainables', function() {});
-        this.registerConstructor('gensim.models.fasttext.FastTextVocab', function() {});
-        this.registerConstructor('gensim.models.fasttext.FastTextKeyedVectors', function() {});
-        this.registerConstructor('gensim.models.keyedvectors.Doc2VecKeyedVectors', function() {});
-        this.registerConstructor('gensim.models.keyedvectors.FastTextKeyedVectors', function() {});
-        this.registerConstructor('gensim.models.keyedvectors.Vocab', function() {});
-        this.registerConstructor('gensim.models.keyedvectors.Word2VecKeyedVectors', function() {});
-        this.registerConstructor('gensim.models.phrases.Phrases', function() {});
-        this.registerConstructor('gensim.models.tfidfmodel.TfidfModel', function() {});
-        this.registerConstructor('gensim.models.word2vec.Vocab', function() {});
-        this.registerConstructor('gensim.models.word2vec.Word2Vec', function() {});
-        this.registerConstructor('gensim.models.word2vec.Word2VecTrainables', function() {});
-        this.registerConstructor('gensim.models.word2vec.Word2VecVocab', function() {});
-        this.registerConstructor('joblib.numpy_pickle.NumpyArrayWrapper', function(/* subtype, shape, dtype */) {
-            this.__setstate__ = function(state) {
+        this.registerType('gensim.models.doc2vec.Doctag', class {});
+        this.registerType('gensim.models.doc2vec.Doc2Vec', class {});
+        this.registerType('gensim.models.doc2vec.Doc2VecTrainables', class {});
+        this.registerType('gensim.models.doc2vec.Doc2VecVocab', class {});
+        this.registerType('gensim.models.fasttext.FastText', class {});
+        this.registerType('gensim.models.fasttext.FastTextTrainables', class {});
+        this.registerType('gensim.models.fasttext.FastTextVocab', class {});
+        this.registerType('gensim.models.fasttext.FastTextKeyedVectors', class {});
+        this.registerType('gensim.models.keyedvectors.Doc2VecKeyedVectors', class {});
+        this.registerType('gensim.models.keyedvectors.FastTextKeyedVectors', class {});
+        this.registerType('gensim.models.keyedvectors.Vocab', class {});
+        this.registerType('gensim.models.keyedvectors.Word2VecKeyedVectors', class {});
+        this.registerType('gensim.models.phrases.Phrases', class {});
+        this.registerType('gensim.models.tfidfmodel.TfidfModel', class {});
+        this.registerType('gensim.models.word2vec.Vocab', class {});
+        this.registerType('gensim.models.word2vec.Word2Vec', class {});
+        this.registerType('gensim.models.word2vec.Word2VecTrainables', class {});
+        this.registerType('gensim.models.word2vec.Word2VecVocab', class {});
+        this.registerType('joblib.numpy_pickle.NumpyArrayWrapper', class {
+            constructor(/* subtype, shape, dtype */) {
+            }
+            __setstate__(state) {
                 this.subclass = state.subclass;
                 this.dtype = state.dtype;
                 this.shape = state.shape;
                 this.order = state.order;
                 this.allow_mmap = state.allow_mmap;
-            };
-            this.__read__ = function(unpickler) {
+            }
+            __read__(unpickler) {
                 if (this.dtype.name == 'object') {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
                 else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                     this.data = unpickler.read(size);
                 }
-                const obj = {
-                    dtype: this.dtype,
-                    shape: this.shape,
-                    data: this.data,
-                };
-                python.Utility.applyType(obj, this.subclass);
-                return obj;
-            };
+                return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+            }
         });
-        this.registerConstructor('lightgbm.sklearn.LGBMRegressor', function() {});
-        this.registerConstructor('lightgbm.sklearn.LGBMClassifier', function() {});
-        this.registerConstructor('lightgbm.basic.Booster', function() {});
-        this.registerConstructor('nolearn.lasagne.base.BatchIterator', function() {});
-        this.registerConstructor('nolearn.lasagne.base.Layers', function() {});
-        this.registerConstructor('nolearn.lasagne.base.NeuralNet', function() {});
-        this.registerConstructor('nolearn.lasagne.base.TrainSplit', function() {});
-        this.registerConstructor('nolearn.lasagne.handlers.PrintLayerInfo', function() {});
-        this.registerConstructor('nolearn.lasagne.handlers.PrintLog', function() {});
-        this.registerConstructor('pathlib.PosixPath', function() {
-            this.path = Array.from(arguments).join('/');
+        this.registerType('lightgbm.sklearn.LGBMRegressor', class {});
+        this.registerType('lightgbm.sklearn.LGBMClassifier', class {});
+        this.registerType('lightgbm.basic.Booster', class {});
+        this.registerType('nolearn.lasagne.base.BatchIterator', class {});
+        this.registerType('nolearn.lasagne.base.Layers', class {});
+        this.registerType('nolearn.lasagne.base.NeuralNet', class {});
+        this.registerType('nolearn.lasagne.base.TrainSplit', class {});
+        this.registerType('nolearn.lasagne.handlers.PrintLayerInfo', class {});
+        this.registerType('nolearn.lasagne.handlers.PrintLog', class {});
+        this.registerType('numpy.ndarray', class {
+            constructor(shape, dtype, buffer, offset, strides, order) {
+                this.shape = shape;
+                this.dtype = dtype;
+                this.data = buffer !== undefined ? buffer : null;
+                this.offset = offset !== undefined ? offset : 0;
+                this.strides = strides !== undefined ? strides : null;
+                this.order = offset !== undefined ? order : null;
+            }
+            __setstate__(state) {
+                this.version = state[0];
+                this.shape = state[1];
+                this.dtype = state[2];
+                this.isFortran = state[3];
+                this.data = state[4];
+            }
+            __read__(unpickler) {
+                const dims = (this.shape || []).reduce((a, b) => a * b, 1);
+                const size = this.dtype.itemsize * dims;
+                if (typeof this.data == 'string') {
+                    this.data = unpickler.unescape(this.data, size);
+                    if (this.data.length != size) {
+                        throw new python.Error('Invalid string array data size.');
+                    }
+                }
+                else {
+                    if (this.data.length != size) {
+                        // throw new pytorch.Error('Invalid array data size.');
+                    }
+                }
+                return this;
+            }
         });
-        this.registerConstructor('sklearn.calibration._CalibratedClassifier', function() {});
-        this.registerConstructor('sklearn.calibration._SigmoidCalibration', function() {});
-        this.registerConstructor('sklearn.calibration.CalibratedClassifierCV', function() {});
-        this.registerConstructor('sklearn.compose._column_transformer.ColumnTransformer', function() {});
-        this.registerConstructor('sklearn.compose._target.TransformedTargetRegressor', function() {});
-        this.registerConstructor('sklearn.cluster._dbscan.DBSCAN', function() {});
-        this.registerConstructor('sklearn.cluster._kmeans.KMeans', function() {});
-        this.registerConstructor('sklearn.decomposition._pca.PCA', function() {});
-        this.registerConstructor('sklearn.decomposition.PCA', function() {});
-        this.registerConstructor('sklearn.decomposition.pca.PCA', function() {});
-        this.registerConstructor('sklearn.decomposition._truncated_svd.TruncatedSVD', function() {});
-        this.registerConstructor('sklearn.decomposition.truncated_svd.TruncatedSVD', function() {});
-        this.registerConstructor('sklearn.discriminant_analysis.LinearDiscriminantAnalysis', function() {});
-        this.registerConstructor('sklearn.dummy.DummyClassifier', function() {});
-        this.registerConstructor('sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper', function(/* subtype, shape, dtype */) {
-            this.__setstate__ = function(state) {
+        this.registerType('numpy.ma.core.MaskedArray', class extends numpy.ndarray {
+            constructor(data /*, mask, dtype, copy, subok, ndmin, fill_value, keep_mask, hard_mask, shrink, order */) {
+                super(data.shape, data.dtype, data.data);
+            }
+        });
+        this.registerType('pathlib.PosixPath', class {
+            constructor() {
+                this.path = Array.from(arguments).join('/');
+            }
+        });
+        this.registerType('sklearn.calibration._CalibratedClassifier', class {});
+        this.registerType('sklearn.calibration._SigmoidCalibration', class {});
+        this.registerType('sklearn.calibration.CalibratedClassifierCV', class {});
+        this.registerType('sklearn.compose._column_transformer.ColumnTransformer', class {});
+        this.registerType('sklearn.compose._target.TransformedTargetRegressor', class {});
+        this.registerType('sklearn.cluster._dbscan.DBSCAN', class {});
+        this.registerType('sklearn.cluster._kmeans.KMeans', class {});
+        this.registerType('sklearn.decomposition._pca.PCA', class {});
+        this.registerType('sklearn.decomposition.PCA', class {});
+        this.registerType('sklearn.decomposition.pca.PCA', class {});
+        this.registerType('sklearn.decomposition._truncated_svd.TruncatedSVD', class {});
+        this.registerType('sklearn.decomposition.truncated_svd.TruncatedSVD', class {});
+        this.registerType('sklearn.discriminant_analysis.LinearDiscriminantAnalysis', class {});
+        this.registerType('sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis', class {});
+        this.registerType('sklearn.dummy.DummyClassifier', class {});
+        this.registerType('sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper', class {
+            constructor(/* subtype, shape, dtype */) {
+            }
+            __setstate__(state) {
                 this.subclass = state.subclass;
                 this.dtype = state.dtype;
                 this.shape = state.shape;
                 this.order = state.order;
                 this.allow_mmap = state.allow_mmap;
-            };
-            this.__read__ = function(unpickler) {
+            }
+            __read__(unpickler) {
                 if (this.dtype.name == 'object') {
                     return unpickler.load((name, args) => self.invoke(name, args), null);
                 }
                 else {
-                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b);
+                    const size = this.dtype.itemsize * this.shape.reduce((a, b) => a * b, 1);
                     this.data = unpickler.read(size);
                 }
-                const obj = {
-                    dtype: this.dtype,
-                    shape: this.shape,
-                    data: this.data,
-                };
-                python.Utility.applyType(obj, this.subclass);
-                return obj;
-            };
+                return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
+            }
         });
-        this.registerConstructor('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', function() {});
-        this.registerConstructor('sklearn.ensemble._bagging.BaggingClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble._forest.RandomForestRegressor', function() {});
-        this.registerConstructor('sklearn.ensemble._forest.RandomForestClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble._forest.ExtraTreesClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble._gb_losses.BinomialDeviance', function() {});
-        this.registerConstructor('sklearn.ensemble._gb_losses.LeastSquaresError', function() {});
-        this.registerConstructor('sklearn.ensemble._gb_losses.MultinomialDeviance', function() {});
-        this.registerConstructor('sklearn.ensemble._gb.GradientBoostingClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble._gb.GradientBoostingRegressor', function() {});
-        this.registerConstructor('sklearn.ensemble._iforest.IsolationForest', function() {});
-        this.registerConstructor('sklearn.ensemble._voting.VotingClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble.forest.RandomForestClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble.forest.RandomForestRegressor', function() {});
-        this.registerConstructor('sklearn.ensemble.forest.ExtraTreesClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble.gradient_boosting.BinomialDeviance', function() {});
-        this.registerConstructor('sklearn.ensemble.gradient_boosting.GradientBoostingClassifier', function() {});
-        this.registerConstructor('sklearn.ensemble.gradient_boosting.LogOddsEstimator', function() {});
-        this.registerConstructor('sklearn.ensemble.gradient_boosting.MultinomialDeviance', function() {});
-        this.registerConstructor('sklearn.ensemble.gradient_boosting.PriorProbabilityEstimator', function() {});
-        this.registerConstructor('sklearn.ensemble.weight_boosting.AdaBoostClassifier', function() {});
-        this.registerConstructor('sklearn.feature_extraction._hashing.FeatureHasher', function() {});
-        this.registerConstructor('sklearn.feature_extraction.text.CountVectorizer', function() {});
-        this.registerConstructor('sklearn.feature_extraction.text.HashingVectorizer', function() {});
-        this.registerConstructor('sklearn.feature_extraction.text.TfidfTransformer', function() {});
-        this.registerConstructor('sklearn.feature_extraction.text.TfidfVectorizer', function() {});
-        this.registerConstructor('sklearn.feature_selection._from_model.SelectFromModel', function() {});
-        this.registerConstructor('sklearn.feature_selection._univariate_selection.SelectKBest', function() {});
-        this.registerConstructor('sklearn.feature_selection._univariate_selection.SelectPercentile', function() {});
-        this.registerConstructor('sklearn.feature_selection._variance_threshold.VarianceThreshold', function() {});
-        this.registerConstructor('sklearn.feature_selection.univariate_selection.SelectKBest', function() {});
-        this.registerConstructor('sklearn.feature_selection.variance_threshold.VarianceThreshold', function() {});
-        this.registerConstructor('sklearn.impute._base.SimpleImputer', function() {});
-        this.registerConstructor('sklearn.impute.SimpleImputer', function() {});
-        this.registerConstructor('sklearn.isotonic.IsotonicRegression', function() {});
-        this.registerConstructor('sklearn.linear_model._base.LinearRegression', function() {});
-        this.registerConstructor('sklearn.linear_model._coordinate_descent.ElasticNet', function() {});
-        this.registerConstructor('sklearn.linear_model._logistic.LogisticRegression', function() {});
-        this.registerConstructor('sklearn.linear_model._sgd_fast.ModifiedHuber', function() {});
-        this.registerConstructor('sklearn.linear_model._sgd_fast.SquaredHinge', function() {});
-        this.registerConstructor('sklearn.linear_model._stochastic_gradient.SGDClassifier', function() {});
-        this.registerConstructor('sklearn.linear_model.base.LinearRegression', function() {});
-        this.registerConstructor('sklearn.linear_model.sgd_fast.Hinge', function() {});
-        this.registerConstructor('sklearn.linear_model.LogisticRegression', function() {});
-        this.registerConstructor('sklearn.linear_model.logistic.LogisticRegression', function() {});
-        this.registerConstructor('sklearn.linear_model.logistic.LogisticRegressionCV', function() {});
-        this.registerConstructor('sklearn.linear_model.LassoLars​', function() {});
-        this.registerConstructor('sklearn.linear_model.ridge.Ridge', function() {});
-        this.registerConstructor('sklearn.linear_model.sgd_fast.Log', function() {});
-        this.registerConstructor('sklearn.linear_model.stochastic_gradient.SGDClassifier', function() {});
-        this.registerConstructor('sklearn.metrics._scorer._PredictScorer', function() {});
-        this.registerConstructor('sklearn.metrics.scorer._PredictScorer', function() {});
-        this.registerConstructor('sklearn.model_selection._search.GridSearchCV', function() {});
-        this.registerConstructor('sklearn.model_selection._search.RandomizedSearchCV', function() {});
-        this.registerConstructor('sklearn.multiclass.OneVsRestClassifier', function() {});
-        this.registerConstructor('sklearn.multioutput.MultiOutputRegressor', function() {});
-        this.registerConstructor('sklearn.naive_bayes.BernoulliNB', function() {});
-        this.registerConstructor('sklearn.naive_bayes.ComplementNB', function() {});
-        this.registerConstructor('sklearn.naive_bayes.GaussianNB', function() {});
-        this.registerConstructor('sklearn.naive_bayes.MultinomialNB', function() {});
-        this.registerConstructor('sklearn.neighbors._classification.KNeighborsClassifier', function() {});
-        this.registerConstructor('sklearn.neighbors._dist_metrics.newObj', function() {});
-        this.registerConstructor('sklearn.neighbors._kd_tree.newObj', function() {});
-        this.registerConstructor('sklearn.neighbors._regression.KNeighborsRegressor', function() {});
-        this.registerConstructor('sklearn.neighbors.classification.KNeighborsClassifier', function() {});
-        this.registerConstructor('sklearn.neighbors.dist_metrics.newObj', function() {});
-        this.registerConstructor('sklearn.neighbors.kd_tree.newObj', function() {});
-        this.registerConstructor('sklearn.neighbors.KNeighborsClassifier', function() {});
-        this.registerConstructor('sklearn.neighbors.KNeighborsRegressor', function() {});
-        this.registerConstructor('sklearn.neighbors.regression.KNeighborsRegressor', function() {});
-        this.registerConstructor('sklearn.neighbors.unsupervised.NearestNeighbors', function() {});
-        this.registerConstructor('sklearn.neural_network._multilayer_perceptron.MLPClassifier', function() {});
-        this.registerConstructor('sklearn.neural_network._multilayer_perceptron.MLPRegressor', function() {});
-        this.registerConstructor('sklearn.neural_network._stochastic_optimizers.AdamOptimizer', function() {});
-        this.registerConstructor('sklearn.neural_network._stochastic_optimizers.SGDOptimizer', function() {});
-        this.registerConstructor('sklearn.neural_network.rbm.BernoulliRBM', function() {});
-        this.registerConstructor('sklearn.neural_network.multilayer_perceptron.MLPClassifier', function() {});
-        this.registerConstructor('sklearn.neural_network.multilayer_perceptron.MLPRegressor', function() {});
-        this.registerConstructor('sklearn.neural_network.stochastic_gradient.SGDClassifier', function() {});
-        this.registerConstructor('sklearn.pipeline.Pipeline', function() {});
-        this.registerConstructor('sklearn.pipeline.FeatureUnion', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.MinMaxScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.MaxAbsScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.Normalizer', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.PolynomialFeatures', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.QuantileTransformer', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.RobustScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing._data.StandardScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing._discretization.KBinsDiscretizer', function() {});
-        this.registerConstructor('sklearn.preprocessing._encoders.OneHotEncoder', function() {});
-        this.registerConstructor('sklearn.preprocessing._function_transformer.FunctionTransformer', function() {});
-        this.registerConstructor('sklearn.preprocessing._label.LabelBinarizer', function() {});
-        this.registerConstructor('sklearn.preprocessing._label.LabelEncoder', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.Binarizer', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.MaxAbsScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.MinMaxScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.Normalizer', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.OneHotEncoder', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.PolynomialFeatures', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.PowerTransformer', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.RobustScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.QuantileTransformer', function() {});
-        this.registerConstructor('sklearn.preprocessing.data.StandardScaler', function() {});
-        this.registerConstructor('sklearn.preprocessing.imputation.Imputer', function() {});
-        this.registerConstructor('sklearn.preprocessing.label.LabelBinarizer', function() {});
-        this.registerConstructor('sklearn.preprocessing.label.LabelEncoder', function() {});
-        this.registerConstructor('sklearn.preprocessing.label.MultiLabelBinarizer', function() {});
-        this.registerConstructor('sklearn.svm._classes.SVC', function() {});
-        this.registerConstructor('sklearn.svm._classes.SVR', function() {});
-        this.registerConstructor('sklearn.svm.classes.LinearSVC', function() {});
-        this.registerConstructor('sklearn.svm.classes.SVC', function() {});
-        this.registerConstructor('sklearn.svm.classes.SVR', function() {});
-        this.registerConstructor('sklearn.tree._classes.DecisionTreeClassifier', function() {});
-        this.registerConstructor('sklearn.tree._classes.DecisionTreeRegressor', function() {});
-        this.registerConstructor('sklearn.tree._classes.ExtraTreeClassifier', function() {});
-        this.registerConstructor('sklearn.tree._classes.ExtraTreeRegressor', function() {});
-        this.registerConstructor('sklearn.tree._tree.Tree', function(n_features, n_classes, n_outputs) {
-            this.n_features = n_features;
-            this.n_classes = n_classes;
-            this.n_outputs = n_outputs;
-            this.__setstate__ = function(state) {
+        this.registerType('sklearn.externals.joblib.numpy_pickle.NDArrayWrapper', class {});
+        this.registerType('sklearn.ensemble._bagging.BaggingClassifier', class {});
+        this.registerType('sklearn.ensemble._forest.RandomForestRegressor', class {});
+        this.registerType('sklearn.ensemble._forest.RandomForestClassifier', class {});
+        this.registerType('sklearn.ensemble._forest.ExtraTreesClassifier', class {});
+        this.registerType('sklearn.ensemble._gb_losses.BinomialDeviance', class {});
+        this.registerType('sklearn.ensemble._gb_losses.LeastSquaresError', class {});
+        this.registerType('sklearn.ensemble._gb_losses.MultinomialDeviance', class {});
+        this.registerType('sklearn.ensemble._gb.GradientBoostingClassifier', class {});
+        this.registerType('sklearn.ensemble._gb.GradientBoostingRegressor', class {});
+        this.registerType('sklearn.ensemble._iforest.IsolationForest', class {});
+        this.registerType('sklearn.ensemble._stacking.StackingClassifier', class {});
+        this.registerType('sklearn.ensemble._voting.VotingClassifier', class {});
+        this.registerType('sklearn.ensemble.forest.RandomForestClassifier', class {});
+        this.registerType('sklearn.ensemble.forest.RandomForestRegressor', class {});
+        this.registerType('sklearn.ensemble.forest.ExtraTreesClassifier', class {});
+        this.registerType('sklearn.ensemble.gradient_boosting.BinomialDeviance', class {});
+        this.registerType('sklearn.ensemble.gradient_boosting.GradientBoostingClassifier', class {});
+        this.registerType('sklearn.ensemble.gradient_boosting.LogOddsEstimator', class {});
+        this.registerType('sklearn.ensemble.gradient_boosting.MultinomialDeviance', class {});
+        this.registerType('sklearn.ensemble.gradient_boosting.PriorProbabilityEstimator', class {});
+        this.registerType('sklearn.ensemble.weight_boosting.AdaBoostClassifier', class {});
+        this.registerType('sklearn.feature_extraction._hashing.FeatureHasher', class {});
+        this.registerType('sklearn.feature_extraction.text.CountVectorizer', class {});
+        this.registerType('sklearn.feature_extraction.text.HashingVectorizer', class {});
+        this.registerType('sklearn.feature_extraction.text.TfidfTransformer', class {});
+        this.registerType('sklearn.feature_extraction.text.TfidfVectorizer', class {});
+        this.registerType('sklearn.feature_selection._from_model.SelectFromModel', class {});
+        this.registerType('sklearn.feature_selection._univariate_selection.SelectKBest', class {});
+        this.registerType('sklearn.feature_selection._univariate_selection.SelectPercentile', class {});
+        this.registerType('sklearn.feature_selection._variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.feature_selection.univariate_selection.SelectKBest', class {});
+        this.registerType('sklearn.feature_selection.variance_threshold.VarianceThreshold', class {});
+        this.registerType('sklearn.gaussian_process.gpc.GaussianProcessClassifier', class {});
+        this.registerType('sklearn.gaussian_process.kernels.ConstantKernel', class {});
+        this.registerType('sklearn.gaussian_process.kernels.Product', class {});
+        this.registerType('sklearn.gaussian_process.kernels.RBF', class {});
+        this.registerType('sklearn.grid_search._CVScoreTuple', class {});
+        this.registerType('sklearn.grid_search.GridSearchCV', class {});
+        this.registerType('sklearn.impute._base.SimpleImputer', class {});
+        this.registerType('sklearn.impute.SimpleImputer', class {});
+        this.registerType('sklearn.isotonic.IsotonicRegression', class {});
+        this.registerType('sklearn.linear_model._base.LinearRegression', class {});
+        this.registerType('sklearn.linear_model._bayes.BayesianRidge', class {});
+        this.registerType('sklearn.linear_model._coordinate_descent.ElasticNetCV', class {});
+        this.registerType('sklearn.linear_model._coordinate_descent.ElasticNet', class {});
+        this.registerType('sklearn.linear_model._logistic.LogisticRegression', class {});
+        this.registerType('sklearn.linear_model._ridge.Ridge', class {});
+        this.registerType('sklearn.linear_model._sgd_fast.Hinge', class {});
+        this.registerType('sklearn.linear_model._sgd_fast.Log', class {});
+        this.registerType('sklearn.linear_model._sgd_fast.ModifiedHuber', class {});
+        this.registerType('sklearn.linear_model._sgd_fast.SquaredHinge', class {});
+        this.registerType('sklearn.linear_model._stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.linear_model.base.LinearRegression', class {});
+        this.registerType('sklearn.linear_model.sgd_fast.Hinge', class {});
+        this.registerType('sklearn.linear_model.LogisticRegression', class {});
+        this.registerType('sklearn.linear_model.logistic.LogisticRegression', class {});
+        this.registerType('sklearn.linear_model.logistic.LogisticRegressionCV', class {});
+        this.registerType('sklearn.linear_model.LassoLars​', class {});
+        this.registerType('sklearn.linear_model.ridge.Ridge', class {});
+        this.registerType('sklearn.linear_model.sgd_fast.Log', class {});
+        this.registerType('sklearn.linear_model.stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.metrics._scorer._PredictScorer', class {});
+        this.registerType('sklearn.metrics.scorer._PredictScorer', class {});
+        this.registerType('sklearn.mixture._bayesian_mixture.BayesianGaussianMixture', class {});
+        this.registerType('sklearn.model_selection._search.GridSearchCV', class {});
+        this.registerType('sklearn.model_selection._search.RandomizedSearchCV', class {});
+        this.registerType('sklearn.model_selection._split.KFold', class {});
+        this.registerType('sklearn.multiclass.OneVsRestClassifier', class {});
+        this.registerType('sklearn.multioutput.MultiOutputRegressor', class {});
+        this.registerType('sklearn.naive_bayes.BernoulliNB', class {});
+        this.registerType('sklearn.naive_bayes.ComplementNB', class {});
+        this.registerType('sklearn.naive_bayes.GaussianNB', class {});
+        this.registerType('sklearn.naive_bayes.MultinomialNB', class {});
+        this.registerType('sklearn.neighbors._classification.KNeighborsClassifier', class {});
+        this.registerType('sklearn.neighbors._dist_metrics.newObj', class {});
+        this.registerType('sklearn.neighbors._kd_tree.newObj', class {});
+        this.registerType('sklearn.neighbors._regression.KNeighborsRegressor', class {});
+        this.registerType('sklearn.neighbors.classification.KNeighborsClassifier', class {});
+        this.registerType('sklearn.neighbors.dist_metrics.newObj', class {});
+        this.registerType('sklearn.neighbors.kd_tree.newObj', class {});
+        this.registerType('sklearn.neighbors.KNeighborsClassifier', class {});
+        this.registerType('sklearn.neighbors.KNeighborsRegressor', class {});
+        this.registerType('sklearn.neighbors.regression.KNeighborsRegressor', class {});
+        this.registerType('sklearn.neighbors.unsupervised.NearestNeighbors', class {});
+        this.registerType('sklearn.neural_network._multilayer_perceptron.MLPClassifier', class {});
+        this.registerType('sklearn.neural_network._multilayer_perceptron.MLPRegressor', class {});
+        this.registerType('sklearn.neural_network._stochastic_optimizers.AdamOptimizer', class {});
+        this.registerType('sklearn.neural_network._stochastic_optimizers.SGDOptimizer', class {});
+        this.registerType('sklearn.neural_network.rbm.BernoulliRBM', class {});
+        this.registerType('sklearn.neural_network.multilayer_perceptron.MLPClassifier', class {});
+        this.registerType('sklearn.neural_network.multilayer_perceptron.MLPRegressor', class {});
+        this.registerType('sklearn.neural_network.stochastic_gradient.SGDClassifier', class {});
+        this.registerType('sklearn.pipeline.Pipeline', class {});
+        this.registerType('sklearn.pipeline.FeatureUnion', class {});
+        this.registerType('sklearn.preprocessing._data.MinMaxScaler', class {});
+        this.registerType('sklearn.preprocessing._data.MaxAbsScaler', class {});
+        this.registerType('sklearn.preprocessing._data.Normalizer', class {});
+        this.registerType('sklearn.preprocessing._data.PolynomialFeatures', class {});
+        this.registerType('sklearn.preprocessing._data.QuantileTransformer', class {});
+        this.registerType('sklearn.preprocessing._data.RobustScaler', class {});
+        this.registerType('sklearn.preprocessing._data.StandardScaler', class {});
+        this.registerType('sklearn.preprocessing._discretization.KBinsDiscretizer', class {});
+        this.registerType('sklearn.preprocessing._encoders.OneHotEncoder', class {});
+        this.registerType('sklearn.preprocessing._function_transformer.FunctionTransformer', class {});
+        this.registerType('sklearn.preprocessing._label.LabelBinarizer', class {});
+        this.registerType('sklearn.preprocessing._label.LabelEncoder', class {});
+        this.registerType('sklearn.preprocessing.data.Binarizer', class {});
+        this.registerType('sklearn.preprocessing.data.MaxAbsScaler', class {});
+        this.registerType('sklearn.preprocessing.data.MinMaxScaler', class {});
+        this.registerType('sklearn.preprocessing.data.Normalizer', class {});
+        this.registerType('sklearn.preprocessing.data.OneHotEncoder', class {});
+        this.registerType('sklearn.preprocessing.data.PolynomialFeatures', class {});
+        this.registerType('sklearn.preprocessing.data.PowerTransformer', class {});
+        this.registerType('sklearn.preprocessing.data.RobustScaler', class {});
+        this.registerType('sklearn.preprocessing.data.QuantileTransformer', class {});
+        this.registerType('sklearn.preprocessing.data.StandardScaler', class {});
+        this.registerType('sklearn.preprocessing.imputation.Imputer', class {});
+        this.registerType('sklearn.preprocessing.label.LabelBinarizer', class {});
+        this.registerType('sklearn.preprocessing.label.LabelEncoder', class {});
+        this.registerType('sklearn.preprocessing.label.MultiLabelBinarizer', class {});
+        this.registerType('sklearn.svm._classes.SVC', class {});
+        this.registerType('sklearn.svm._classes.SVR', class {});
+        this.registerType('sklearn.svm.classes.LinearSVC', class {});
+        this.registerType('sklearn.svm.classes.OneClassSVM', class {});
+        this.registerType('sklearn.svm.classes.SVC', class {});
+        this.registerType('sklearn.svm.classes.SVR', class {});
+        this.registerType('sklearn.tree._classes.DecisionTreeClassifier', class {});
+        this.registerType('sklearn.tree._classes.DecisionTreeRegressor', class {});
+        this.registerType('sklearn.tree._classes.ExtraTreeClassifier', class {});
+        this.registerType('sklearn.tree._classes.ExtraTreeRegressor', class {});
+        this.registerType('sklearn.tree._tree.Tree', class {
+            constructor(n_features, n_classes, n_outputs) {
+                this.n_features = n_features;
+                this.n_classes = n_classes;
+                this.n_outputs = n_outputs;
+            }
+            __setstate__(state) {
                 this.max_depth = state.max_depth;
                 this.node_count = state.node_count;
                 this.nodes = state.nodes;
                 this.values = state.values;
-            };
+            }
         });
-        this.registerConstructor('sklearn.tree.tree.DecisionTreeClassifier', function() {});
-        this.registerConstructor('sklearn.tree.tree.DecisionTreeRegressor', function() {});
-        this.registerConstructor('sklearn.tree.tree.ExtraTreeClassifier', function() {});
-        this.registerConstructor('sklearn.utils.deprecation.DeprecationDict', function() {});
-        this.registerConstructor('re.Pattern', function(pattern, flags) {
+        this.registerType('sklearn.tree.tree.DecisionTreeClassifier', class {});
+        this.registerType('sklearn.tree.tree.DecisionTreeRegressor', class {});
+        this.registerType('sklearn.tree.tree.ExtraTreeClassifier', class {});
+        this.registerType('sklearn.utils.deprecation.DeprecationDict', class {});
+        this.registerType('re.Pattern', function(pattern, flags) {
             this.pattern = pattern;
             this.flags = flags;
         });
-        this.registerConstructor('spacy._ml.PrecomputableAffine', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('spacy._ml.PrecomputableAffine', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('spacy.syntax._parser_model.ParserModel', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('spacy.syntax._parser_model.ParserModel', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.describe.Biases', function() {
-            this.__setstate__ = function(state) {
+        this.registerType('thinc.describe.Biases', class {
+            __setstate__(state) {
                 Object.assign(this, state);
-            };
+            }
         });
-        this.registerConstructor('thinc.describe.Dimension', function() {
-            this.__setstate__ = function(state) {
+        this.registerType('thinc.describe.Dimension', class {
+            __setstate__(state) {
                 Object.assign(this, state);
-            };
+            }
         });
-        this.registerConstructor('thinc.describe.Gradient', function() {
-            this.__setstate__ = function(state) {
+        this.registerType('thinc.describe.Gradient', class {
+            __setstate__(state) {
                 Object.assign(this, state);
-            };
+            }
         });
-        this.registerConstructor('thinc.describe.Weights', function() {
-            this.__setstate__ = function(state) {
+        this.registerType('thinc.describe.Weights', class {
+            __setstate__(state) {
                 Object.assign(this, state);
-            };
+            }
         });
-        this.registerConstructor('thinc.describe.Synapses', function() {
-            this.__setstate__ = function(state) {
+        this.registerType('thinc.describe.Synapses', class {
+            __setstate__(state) {
                 Object.assign(this, state);
-            };
+            }
         });
-        this.registerConstructor('thinc.neural._classes.affine.Affine', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.affine.Affine', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.convolution.ExtractWindow', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.convolution.ExtractWindow', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.feature_extracter.FeatureExtracter', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.feature_extracter.FeatureExtracter', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.feed_forward.FeedForward', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.feed_forward.FeedForward', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.function_layer.FunctionLayer', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.function_layer.FunctionLayer', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.hash_embed.HashEmbed', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.hash_embed.HashEmbed', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.layernorm.LayerNorm', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.layernorm.LayerNorm', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.maxout.Maxout', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.maxout.Maxout', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.resnet.Residual', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.resnet.Residual', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural._classes.softmax.Softmax', function() {
-            this.__setstate__ = function(state) {
-                Object.assign(this, new python.Unpickler(state).load((name, args) => self.invoke(name, args), null));
-            };
+        this.registerType('thinc.neural._classes.softmax.Softmax', class {
+            __setstate__(state) {
+                Object.assign(this, python.Unpickler.open(state).load((name, args) => self.invoke(name, args), null));
+            }
         });
-        this.registerConstructor('thinc.neural.mem.Memory', function() {
+        this.registerType('thinc.neural.mem.Memory', class {
         });
-        this.registerConstructor('thinc.neural.ops.NumpyOps', function() {
+        this.registerType('thinc.neural.ops.NumpyOps', class {
         });
-        this.registerConstructor('types.CodeType', function(/* args */) {
+        this.registerType('types.CodeType', class {
+            constructor(/* args */) {
+            }
         });
-        this.registerConstructor('types.MethodType', function(/* args */) {
+        this.registerType('types.MethodType', class {
+            constructor(/* args */) {
+            }
         });
-        this.registerConstructor('xgboost.compat.XGBoostLabelEncoder', function() {});
-        this.registerConstructor('xgboost.core.Booster', function() {});
-        this.registerConstructor('xgboost.sklearn.XGBClassifier', function() {});
-        this.registerConstructor('xgboost.sklearn.XGBRegressor', function() {});
+        this.registerType('types.ObjectType', builtins.object);
+        this.registerType('xgboost.compat.XGBoostLabelEncoder', class {});
+        this.registerType('xgboost.core.Booster', class {});
+        this.registerType('xgboost.sklearn.XGBClassifier', class {});
+        this.registerType('xgboost.sklearn.XGBRegressor', class {});
         this.registerFunction('__builtin__.bytearray', function(source, encoding /*, errors */) {
             if (source) {
                 if (encoding === 'latin-1') {
@@ -2177,31 +2250,22 @@ python.Execution = class {
         this.registerFunction('collections.Counter', function(/* iterable */) {
             return { __module__: 'collections', __name__: 'Counter' };
         });
-        this.registerFunction('collections.OrderedDict', function(args) {
-            const obj = new Map();
-            obj.__setitem__ = function(key, value) {
-                obj.set(key, value);
-            };
-            if (args) {
-                for (const arg of args) {
-                    obj.__setitem__(arg[0], arg[1]);
-                }
-            }
-            return obj;
-        });
         this.registerFunction('collections.defaultdict', function(/* default_factory */) {
             return {};
         });
         this.registerFunction('copy_reg._reconstructor', function(cls, base, state) {
-            if (base == '__builtin__.object') {
-                const obj = {};
-                python.Utility.applyType(obj, cls);
+            // copyreg._reconstructor in Python 3
+            if (base === '__builtin__.object' || base === builtins.object) {
+                return self.invoke(cls, []);
+            }
+            else if (base === '__builtin__.tuple' || base === builtins.tuple) {
+                const obj = self.invoke(cls, []);
+                for (let i = 0; i < state.length; i++) {
+                    obj[i] = state[i];
+                }
                 return obj;
             }
-            if (base == '__builtin__.tuple') {
-                return state;
-            }
-            throw new python.Error("Unknown base type '" + base + "'.");
+            throw new python.Error("Unknown copy_reg._reconstructor base type '" + base + "'.");
         });
         this.registerFunction('dill._dill._create_cell', function(/* args */) {
             return function() {
@@ -2222,14 +2286,33 @@ python.Execution = class {
             }
             return undefined;
         });
+        this.registerFunction('dill._dill._import_module', function(import_name, safe) {
+            try {
+                return self.context.getx(import_name);
+            }
+            catch (err) {
+                if (safe) {
+                    return null;
+                }
+            }
+        });
+        this.registerFunction('dill.dill._load_type', function(name) {
+            return self.context.getx('types.' + name);
+        });
         this.registerFunction('dill._dill._load_type', function(name) {
-            return self.conext.getx('types.' + name);
+            return self.context.getx('types.' + name);
         });
         this.registerFunction('getattr', function(obj, name, defaultValue) {
             if (Object.prototype.hasOwnProperty.call(obj, name)) {
                 return obj[name];
             }
             return defaultValue;
+        });
+        this.registerFunction('numpy.core._multiarray_umath._reconstruct', function(subtype, shape, dtype) {
+            return self.invoke(subtype, [ shape, dtype ]);
+        });
+        this.registerFunction('numpy.core.multiarray._reconstruct', function(subtype, shape, dtype) {
+            return self.invoke(subtype, [ shape, dtype ]);
         });
         this.registerFunction('numpy.core.multiarray.scalar', function(dtype, rawData) {
             let data = rawData;
@@ -2258,13 +2341,11 @@ python.Execution = class {
             }
             throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
-        this.registerFunction('numpy.ma.core._mareconstruct', function(subtype /* , baseclass, baseshape, basetype */) {
-            // _data = ndarray.__new__(baseclass, baseshape, basetype)
-            // _mask = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
-            // return subtype.__new__(subtype, _data, mask=_mask, dtype=basetype,)
-            const obj = {};
-            python.Utility.applyType(obj, subtype);
-            return obj;
+        this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
+            const data = self.invoke(baseclass, [ baseshape, basetype ]);
+            // = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
+            const mask = self.invoke('numpy.ndarray', [ baseshape, '' ]);
+            return self.invoke(subtype, [ data, mask, basetype ]);
         });
         this.registerFunction('numpy.random.__RandomState_ctor', function() {
             return {};
@@ -2289,11 +2370,19 @@ python.Execution = class {
         return this._context;
     }
 
+    source(file) {
+        return this._sources.has(file) ? this._sources.get(file) : null;
+    }
+
+    debug(/* file */) {
+    }
+
     parse(file) {
-        if (this._sources.has(file)) {
-            const buffer = this._sources.get(file);
+        const buffer = this.source(file);
+        if (buffer) {
+            const debug = this.debug(file);
             const code = this._utf8Decoder.decode(buffer);
-            const reader = new python.Parser(code, file);
+            const reader = new python.Parser(code, file, debug);
             const program = reader.parse();
             if (!program) {
                 throw new python.Error("Module '" + file + "' parse error.");
@@ -2303,9 +2392,13 @@ python.Execution = class {
         return null;
     }
 
-    package(name, file, raw) {
-        if (python && !this._packages.has(name)) {
-            file = file || 'code/' + name.split('.').join('/') + '.py';
+    package(name) {
+        const index = name.lastIndexOf('.');
+        if (index > 0) {
+            this.package(name.substring(0, index));
+        }
+        if (!this._packages.has(name)) {
+            const file = 'code/' + name.split('.').join('/') + '.py';
             const program = this.parse(file);
             if (program) {
                 let globals = this._context.getx(name);
@@ -2319,9 +2412,6 @@ python.Execution = class {
                 this._packages.set(name, globals);
                 const context = this._context.push(globals);
                 this.block(program.body, context);
-                if (raw) {
-                    return program;
-                }
             }
         }
         return this._packages.get(name);
@@ -2343,9 +2433,12 @@ python.Execution = class {
     }
 
     invoke(name, args) {
-        const target = this.type(name);
+        const target = name.__class__ ? name : this.type(name);
         if (target) {
             if (target.__class__ === this._context.scope.builtins.type) {
+                if (target.prototype && target.prototype.__class__ === target) {
+                    return Reflect.construct(target, args);
+                }
                 const obj = {};
                 obj.__proto__ = target;
                 obj.__class__ = target;
@@ -2357,7 +2450,6 @@ python.Execution = class {
             else if (target.__class__ === this._context.scope.builtins.function) {
                 if (target.__call__) {
                     return target.__call__(args);
-                    // throw new pytorch.Error('Unexpected function __call__.');
                 }
                 else {
                     return target.apply(null, args);
@@ -2365,13 +2457,8 @@ python.Execution = class {
             }
         }
         this._raiseUnkownName(name);
-        const typeParts = name.split('.');
-        const typeName = typeParts.pop();
-        const typeModule = typeParts.join('.');
-        return {
-            __module__: typeModule,
-            __name__: typeName
-        };
+        this.registerType(name, class {});
+        return this.invoke(name, []);
     }
 
     call(target, name, args, context) {
@@ -2392,6 +2479,9 @@ python.Execution = class {
         }
         const func = name ? callTarget[name] : callTarget;
         if (func.__class__ === this._context.scope.builtins.type) {
+            if (func.prototype && func.prototype.__class__ === func) {
+                return Reflect.construct(func, args);
+            }
             const obj = {};
             obj.__proto__ = func;
             obj.__class__ = func;
@@ -2420,7 +2510,11 @@ python.Execution = class {
         const locals = Array.prototype.slice.call(args);
         context = context.push();
         for (const parameter of method.parameters) {
-            context.set(parameter.name, locals.shift());
+            let value = locals.shift();
+            if (value === undefined && parameter.initializer) {
+                value = this.expression(parameter.initializer, context);
+            }
+            context.set(parameter.name, value);
         }
         return this.block(method.body.statements, context);
     }
@@ -2429,114 +2523,132 @@ python.Execution = class {
         statements = Array.prototype.slice.call(statements);
         while (statements.length > 0) {
             const statement = statements.shift();
-            switch (statement.type) {
-                case 'pass': {
-                    break;
-                }
-                case 'return': {
-                    return this.expression(statement.expression, context);
-                }
-                case 'def': {
-                    const module = context.get('__name__');
-                    const self = this;
-                    const parent = context.get('__class__');
-                    let type = null;
-                    if (parent === this._context.scope.builtins.type) {
-                        type = this._context.scope.builtins.method;
-                    }
-                    else if (parent === this._context.scope.builtins.module) {
-                        type = this._context.scope.builtins.function;
-                    }
-                    else {
-                        throw new python.Error('Invalid function scope.');
-                    }
-                    const func = {
-                        __class__: type,
-                        __globals__: context,
-                        __module__: module,
-                        __name__: statement.name,
-                        __code__: statement,
-                        __call__: function(args) {
-                            return self.apply(this.__code__, args, this.__globals__);
-                        }
-                    };
-                    context.set(statement.name, func);
-                    break;
-                }
-                case 'class': {
-                    const scope = {
-                        __class__:this._context.scope.builtins.type,
-                        __module__: context.get('__name__'),
-                        __name__: statement.name,
-                    };
-                    context.set(statement.name, scope);
-                    context = context.push(scope);
-                    this.block(statement.body.statements, context);
-                    context = context.pop();
-                    break;
-                }
-                case 'var': {
-                    context.set(statement.name, undefined);
-                    break;
-                }
-                case '=': {
-                    this.expression(statement, context);
-                    break;
-                }
-                case 'if': {
-                    const condition = this.expression(statement.condition, context);
-                    if (condition === true || condition) {
-                        statements = statement.then.statements.concat(statements);
-                        break;
-                    }
-                    else if (condition === false) {
-                        statements = statement.else.statements.concat(statements);
-                        break;
-                    }
-                    throw new python.Error("Unknown condition.");
-                }
-                case 'for': {
-                    if (statement.target.length == 1 &&
-                        statement.variable.length === 1 && statement.variable[0].type === 'id') {
-                        const range = this.expression(statement.target[0], context);
-                        const variable = statement.variable[0];
-                        const loop = [];
-                        for (const value of range) {
-                            loop.push({ type: '=', target: variable, expression: { type: 'number', value: value }});
-                            loop.push(...statement.body.statements);
-                        }
-                        statements = loop.concat(statements);
-                        break;
-                    }
-                    throw new python.Error("Unsupported 'for' statement.");
-                }
-                case 'while': {
-                    const condition = this.expression(statement.condition, context);
-                    if (condition) {
-                        throw new python.Error("Unsupported 'while' statement.");
-                    }
-                    break;
-                }
-                case 'call': {
-                    this.expression(statement, context);
-                    break;
-                }
-                case 'import': {
-                    for (const module of statement.modules) {
-                        const moduleName = python.Utility.target(module.name);
-                        const globals = this.package(moduleName);
-                        if (module.as) {
-                            context.set(module.as, globals);
-                        }
-                    }
-                    break;
-                }
-                default: {
-                    throw new python.Error("Unknown statement '" + statement.type + "'.");
-                }
+            const value = this.statement(statement, context);
+            if (value !== undefined) {
+                return value;
             }
         }
     }
+
+    statement(statement, context) {
+        switch (statement.type) {
+            case 'pass': {
+                break;
+            }
+            case 'return': {
+                return this.expression(statement.expression, context);
+            }
+            case 'def': {
+                const module = context.get('__name__');
+                const self = this;
+                const parent = context.get('__class__');
+                let type = null;
+                if (parent === this._context.scope.builtins.type) {
+                    type = this._context.scope.builtins.method;
+                }
+                else if (parent === this._context.scope.builtins.module) {
+                    type = this._context.scope.builtins.function;
+                }
+                else {
+                    throw new python.Error('Invalid function scope.');
+                }
+                const func = {
+                    __class__: type,
+                    __globals__: context,
+                    __module__: module,
+                    __name__: statement.name,
+                    __code__: statement,
+                    __call__: function(args) {
+                        return self.apply(this.__code__, args, this.__globals__);
+                    }
+                };
+                context.set(statement.name, func);
+                break;
+            }
+            case 'class': {
+                const scope = {
+                    __class__:this._context.scope.builtins.type,
+                    __module__: context.get('__name__'),
+                    __name__: statement.name,
+                };
+                context.set(statement.name, scope);
+                context = context.push(scope);
+                this.block(statement.body.statements, context);
+                context = context.pop();
+                break;
+            }
+            case 'var': {
+                context.set(statement.name, undefined);
+                break;
+            }
+            case '=': {
+                this.expression(statement, context);
+                break;
+            }
+            case 'if': {
+                const condition = this.expression(statement.condition, context);
+                if (condition === true || condition) {
+                    const value = this.block(statement.then.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    break;
+                }
+                else if (condition === false) {
+                    const value = this.block(statement.else.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    break;
+                }
+                throw new python.Error("Unknown condition.");
+            }
+            case 'for': {
+                if (statement.target.length == 1 &&
+                    statement.variable.length === 1 && statement.variable[0].type === 'id') {
+                    const range = this.expression(statement.target[0], context);
+                    const variable = statement.variable[0];
+                    for (const current of range) {
+                        this.statement({ type: '=', target: variable, expression: { type: 'number', value: current }}, context);
+                        const value = this.block(statement.body.statements, context);
+                        if (value !== undefined) {
+                            return value;
+                        }
+                    }
+                    break;
+                }
+                throw new python.Error("Unsupported 'for' statement.");
+            }
+            case 'while': {
+                const condition = this.expression(statement.condition, context);
+                if (condition) {
+                    const value = this.block(statement.body.statements, context);
+                    if (value !== undefined) {
+                        return value;
+                    }
+                }
+                break;
+            }
+            case 'call': {
+                this.expression(statement, context);
+                break;
+            }
+            case 'import': {
+                for (const module of statement.modules) {
+                    const moduleName = python.Utility.target(module.name);
+                    const globals = this.package(moduleName);
+                    if (module.as) {
+                        context.set(module.as, globals);
+                    }
+                }
+                break;
+            }
+            default: {
+                throw new python.Error("Unknown statement '" + statement.type + "'.");
+            }
+        }
+    }
+
 
     expression(expression, context) {
         const self = context.getx('self');
@@ -2566,7 +2678,13 @@ python.Execution = class {
                 }
                 else if (target.type === 'tuple') {
                     const value = this.expression(expression.expression, context);
-                    if  (target.value.length == value.length && target.value.every((item) => item.type === 'id')) {
+                    if  (target.value.every((item) => item.type === 'id')) {
+                        if (target.value.length < value.length) {
+                            throw new python.Error('ValueError: too many values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
+                        }
+                        if (target.value.length > value.length) {
+                            throw new python.Error('ValueError: not enough values to unpack (expected ' + target.value.length + ', actual ' + value.length + ').');
+                        }
                         for (let i = 0; i < value.length; i++) {
                             context.set(target.value[i].value, value[i]);
                         }
@@ -2590,13 +2708,14 @@ python.Execution = class {
                     expression.arguments.value.length === 1) {
                     if (context.get(expression.target.value)) {
                         const index = this.expression(expression.arguments.value[0], context);
-                        return context.get(expression.target.value)[index];
+                        const target = context.get(expression.target.value);
+                        return target[index < 0 ? target.length + index : index];
                     }
                 }
                 const target = this.expression(expression.target, context);
                 if (target && expression.arguments.type === 'list' &&
-                    (target.__class__ === this.context.scope.typing._VariadicGenericAlias ||
-                     target.__class__ === this.context.scope.typing._GenericAlias ||
+                    (target.__class__ === this.context.scope.typing._TupleType ||
+                     target.__class__ === this.context.scope.typing._SpecialGenericAlias ||
                      target.__class__ === this.context.scope.typing._SpecialForm)) {
                     const type = Object.assign({}, target);
                     type.__args__ = expression.arguments.value.map((arg) => this.expression(arg, context));
@@ -2604,7 +2723,7 @@ python.Execution = class {
                 }
                 if (expression.arguments.type === 'list' && expression.arguments.value.length === 1) {
                     const index = this.expression(expression.arguments.value[0], context);
-                    return target[index];
+                    return target[index < 0 ? target.length + index : index];
                 }
                 break;
             }
@@ -2616,9 +2735,6 @@ python.Execution = class {
                 throw new python.Error("Unsupported field expression.");
             }
             case 'call': {
-                if (expression.target.type === 'id' && expression.target.value === 'annotate' && expression.arguments.length === 2) {
-                    return this.expression(expression.arguments[1], context);
-                }
                 if (expression.target.type === 'id' && expression.target.value === 'unchecked_cast' && expression.arguments.length === 2) {
                     return this.expression(expression.arguments[1], context);
                 }
@@ -2634,18 +2750,29 @@ python.Execution = class {
                     case 'True': return true;
                     case 'False': return false;
                 }
-                const type =
-                    this._context.scope.builtins[expression.value] ||
-                    this._context.scope.typing[expression.value] ||
-                    this._context.scope.torch[expression.value];
-                if (type &&
-                    (type.__class__ === this._context.scope.builtins.type ||
-                     type.__class__ === this._context.scope.typing._VariadicGenericAlias ||
-                     type.__class__ === this._context.scope.typing._GenericAlias ||
-                     type.__class__ === this._context.scope.typing._SpecialForm)) {
-                    return type;
+                const type = (value) => {
+                    return value &&
+                        (value.__class__ === this._context.scope.builtins.type ||
+                         value.__class__ === this._context.scope.typing._TupleType ||
+                         value.__class__ === this._context.scope.typing._SpecialGenericAlias ||
+                         value.__class__ === this._context.scope.typing._SpecialForm);
+                };
+                const builtin = this._context.scope.builtins[expression.value];
+                if (type(builtin)) {
+                    return builtin;
                 }
-                return context.get(expression.value);
+                const value = context.get(expression.value);
+                if (value === undefined) {
+                    const typing = this._context.scope.typing[expression.value];
+                    if (type(typing)) {
+                        return typing;
+                    }
+                    const torch = this._context.scope.torch[expression.value];
+                    if (type(torch)) {
+                        return torch;
+                    }
+                }
+                return value;
             }
             case 'tuple': {
                 return expression.value.map((expression) => this.expression(expression, context));
@@ -2688,7 +2815,10 @@ python.Execution = class {
             if (!target) {
                 target = this.package(packageName);
                 if (!target) {
-                    throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    target = context.getx(packageName);
+                    if (!target) {
+                        throw new python.Error("Failed to resolve module '" + packageName + "'.");
+                    }
                 }
             }
             return target;
@@ -2707,32 +2837,33 @@ python.Execution = class {
         this._context.setx(name, callback);
     }
 
-    registerConstructor(name, callback) {
+    registerType(name, type) {
         if (this._context.getx(name)) {
-            throw new python.Error("Constructor '" + name + "' is already registered.");
+            throw new python.Error("Class '" + name + "' is already registered.");
         }
         const parts = name.split('.');
-        const typeName = parts.pop();
-        const typeModule = parts.join('.');
-        const type = {
-            __class__: this._context.scope.builtins.type,
-            __name__: typeName,
-            __module__: typeModule,
-            __init__: function() {
-                callback.apply(this, arguments);
-            }
-        };
+        type.__class__ = this._context.scope.builtins.type;
+        type.__name__ = parts.pop();
+        type.__module__ = parts.join('.');
+        type.prototype.__class__ = type;
         this._context.setx(name, type);
     }
 
-    registerKnownPackage(name) {
-        this._knownPackageMap.add(name);
+    registerModule(name) {
+        let scope = this._context.scope;
+        const items = name.split('.');
+        while (items.length > 0) {
+            const item = items.shift();
+            scope[item] = { __name__: name, __class__: this._context.scope.builtins.module };
+            scope = scope[item];
+        }
     }
 
     _raiseUnkownName(name) {
         if (name && !this._unknownNameMap.has(name)) {
             this._unknownNameMap.add(name);
-            if (this._knownPackageMap.has(name.split('.').shift())) {
+            const module = name.split('.').shift();
+            if (this._context.scope[module] && this._context.scope[module].__class__ == this._context.scope.builtins.module) {
                 this._exceptionCallback(new python.Error("Unknown function '" + name + "'."), false);
             }
         }
@@ -2799,7 +2930,7 @@ python.Execution.Context = class {
     getx(name) {
         const parts = name.split('.');
         let value = this.get(parts[0]);
-        if (value) {
+        if (value !== undefined) {
             parts.shift();
             while (parts.length > 0 && value[parts[0]]) {
                 value = value[parts[0]];
@@ -2824,20 +2955,29 @@ python.Utility = class {
         }
         return null;
     }
-
-    static applyType(obj, name){
-        if (name) {
-            const parts = name.split('.');
-            obj.__name__ = parts.pop();
-            obj.__module__ = parts.join('.');
-        }
-    }
 };
 
 python.Unpickler = class {
 
-    constructor(buffer) {
-        this._reader = buffer instanceof Uint8Array ? new python.Unpickler.BinaryReader(buffer) : new python.Unpickler.StreamReader(buffer);
+    static open(data) {
+        const reader = data instanceof Uint8Array ? new python.Unpickler.BinaryReader(data) : new python.Unpickler.StreamReader(data);
+        if (reader.length > 2) {
+            const head = reader.peek(2);
+            if (head[0] === 0x80 && head[1] < 7) {
+                return new python.Unpickler(reader);
+            }
+            reader.seek(-1);
+            const tail = reader.peek(1);
+            reader.seek(0);
+            if (tail[0] === 0x2e) {
+                return new python.Unpickler(reader);
+            }
+        }
+        return null;
+    }
+
+    constructor(reader) {
+        this._reader = reader;
     }
 
     load(function_call, persistent_load) {
@@ -2908,6 +3048,15 @@ python.Unpickler = class {
                 case OpCode.BINGET:
                     stack.push(memo.get(reader.byte()));
                     break;
+                case OpCode.INST: {
+                    const module = reader.line();
+                    const name = reader.line();
+                    const type = module + '.' + name;
+                    const items = stack;
+                    stack = marker.pop();
+                    stack.push(function_call(type, items));
+                    break;
+                }
                 case OpCode.LONG_BINGET:
                     stack.push(memo.get(reader.uint32()));
                     break;
@@ -3070,7 +3219,7 @@ python.Unpickler = class {
                         }
                     }
                     else if (ArrayBuffer.isView(state) || Object(state) !== state) {
-                        throw new python.Error('Invalid state dict' + (obj && obj.__module__ && obj.__name__ ? " for '" + obj.__module__ + '.' + obj.__name__ + "'": '') + '.');
+                        obj.__state__ = state;
                     }
                     else if (obj instanceof Map) {
                         for (const key in state) {
@@ -3159,6 +3308,14 @@ python.Unpickler = class {
 
     stream(size) {
         return this._reader.stream(size);
+    }
+
+    int32() {
+        return this._reader.int32();
+    }
+
+    int64() {
+        return this._reader.int64();
     }
 
     unescape(token, size) {
@@ -3268,7 +3425,7 @@ python.Unpickler.OpCode = {
     PERSID: 80,            // 'P'
     BINPERSID: 81,         // 'Q'
     REDUCE: 82,            // 'R'
-    STRING: 83,             // 'S'
+    STRING: 83,            // 'S'
     BINSTRING: 84,         // 'T'
     SHORT_BINSTRING: 85,   // 'U'
     UNICODE: 86,           // 'V'
@@ -3281,6 +3438,7 @@ python.Unpickler.OpCode = {
     APPENDS: 101,          // 'e'
     GET: 103,              // 'g'
     BINGET: 104,           // 'h'
+    INST: 105,             // 'i'
     LONG_BINGET: 106,      // 'j'
     LIST: 108,             // 'l'
     OBJ: 111,              // 'o'
@@ -3321,7 +3479,7 @@ python.Unpickler.BinaryReader = class {
         this._buffer = buffer;
         this._length = buffer.length;
         this._position = 0;
-        this._dataView = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
         this._utf8Decoder = new TextDecoder('utf-8');
         this._asciiDecoder = new TextDecoder('ascii');
     }
@@ -3332,6 +3490,13 @@ python.Unpickler.BinaryReader = class {
 
     get length() {
         return this._length;
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+        if (this._position > this._buffer.length) {
+            throw new Error('Expected ' + (this._position - this._buffer.length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
     }
 
     skip(offset) {
@@ -3371,46 +3536,43 @@ python.Unpickler.BinaryReader = class {
     byte() {
         const position = this._position;
         this.skip(1);
-        return this._dataView.getUint8(position);
+        return this._view.getUint8(position);
     }
 
     uint16() {
         const position = this._position;
         this.skip(2);
-        return this._dataView.getUint16(position, true);
+        return this._view.getUint16(position, true);
     }
 
     int32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getInt32(position, true);
+        return this._view.getInt32(position, true);
     }
 
     uint32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getUint32(position, true);
+        return this._view.getUint32(position, true);
     }
 
     int64() {
-        const low = this.uint32();
-        const high = this.uint32();
-        if (high !== 0) {
-            throw new python.Error('Unsupported 64-bit integer value.');
-        }
-        return low;
+        const position = this._position;
+        this.skip(8);
+        return this._view.getInt64(position, true).toNumber();
     }
 
     float32() {
         const position = this._position;
         this.skip(4);
-        return this._dataView.getFloat32(position, true);
+        return this._view.getFloat32(position, true);
     }
 
     float64() {
         const position = this._position;
         this.skip(8);
-        return this._dataView.getFloat64(position, true);
+        return this._view.getFloat64(position, true);
     }
 
     string(size, encoding) {
@@ -3450,6 +3612,11 @@ python.Unpickler.StreamReader = class {
         return this._length;
     }
 
+    seek(position) {
+        this._stream.seek(position);
+        this._position = this._stream.position;
+    }
+
     skip(offset) {
         this._position += offset;
         if (this._position > this._length) {
@@ -3463,6 +3630,11 @@ python.Unpickler.StreamReader = class {
         return this._stream.stream(length);
     }
 
+    peek(length) {
+        this._stream.seek(this._position);
+        return this._stream.peek(length);
+    }
+
     read(length) {
         this._stream.seek(this._position);
         this.skip(length);
@@ -3471,41 +3643,37 @@ python.Unpickler.StreamReader = class {
 
     byte() {
         const position = this._fill(1);
-        return this._dataView.getUint8(position);
+        return this._view.getUint8(position);
     }
 
     uint16() {
         const position = this._fill(2);
-        return this._dataView.getUint16(position, true);
+        return this._view.getUint16(position, true);
     }
 
     int32() {
         const position = this._fill(4);
-        return this._dataView.getInt32(position, true);
+        return this._view.getInt32(position, true);
     }
 
     uint32() {
         const position = this._fill(4);
-        return this._dataView.getUint32(position, true);
+        return this._view.getUint32(position, true);
     }
 
     int64() {
-        const low = this.uint32();
-        const high = this.uint32();
-        if (high !== 0) {
-            throw new python.Error('Unsupported 64-bit integer value.');
-        }
-        return low;
+        const position = this._fill(8);
+        return this._view.getInt64(position, true).toNumber();
     }
 
     float32() {
         const position = this._fill(4);
-        return this._dataView.getFloat32(position, true);
+        return this._view.getFloat32(position, true);
     }
 
     float64() {
         const position = this._fill(8);
-        return this._dataView.getFloat64(position, true);
+        return this._view.getFloat64(position, true);
     }
 
     string(size, encoding) {
@@ -3516,11 +3684,19 @@ python.Unpickler.StreamReader = class {
     }
 
     line() {
-        const index = this._buffer.indexOf(0x0A, this._position);
+        let position = this._fill(0);
+        let index = this._buffer.indexOf(0x0A, position);
         if (index == -1) {
-            throw new python.Error("Could not find end of line.");
+            const size = Math.min(0x1000000, this._stream.length - this._position);
+            this._fill(size);
+            this.skip(-size);
+            position = this._fill(0);
+            index = this._buffer.indexOf(0x0A, position);
+            if (index == -1) {
+                throw new python.Error("Could not find end of line.");
+            }
         }
-        const size = index - this._position;
+        const size = index - position;
         const text = this.string(size, 'ascii');
         this.skip(1);
         return text;
@@ -3534,7 +3710,7 @@ python.Unpickler.StreamReader = class {
             this._offset = this._position;
             this._stream.seek(this._offset);
             this._buffer = this._stream.read(Math.min(0x10000000, this._length - this._offset));
-            this._dataView = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
+            this._view = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
         }
         const position = this._position;
         this._position += length;

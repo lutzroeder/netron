@@ -9,25 +9,18 @@ acuity.ModelFactory = class {
     match(context) {
         const extension = context.identifier.split('.').pop().toLowerCase();
         if (extension === 'json') {
-            const tags = context.tags('json');
-            if (tags.has('MetaData') && tags.has('Layers')) {
-                return true;
+            const obj = context.open('json');
+            if (obj && obj.MetaData && obj.Layers) {
+                return 'acuity.json';
             }
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
         return acuity.Metadata.open(context).then((metadata) => {
-            const extension = context.identifier.split('.').pop().toLowerCase();
-            switch (extension) {
-                case 'json': {
-                    const model = context.tags('json').get('');
-                    if (model && model.MetaData && model.Layers) {
-                        return new acuity.Model(metadata, model);
-                    }
-                }
-            }
+            const obj = context.open('json');
+            return new acuity.Model(metadata, obj);
         });
     }
 };
@@ -142,33 +135,29 @@ acuity.Graph = class {
 acuity.Node = class {
 
     constructor(metadata, name, layer, args) {
-        this._metadata = metadata;
         this._name = name;
-        this._type = layer.op;
+        this._type = metadata.type(layer.op) || { name: layer.op };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
         this._layer = layer;
-
-        const schema = this._metadata.type(layer.op);
-        if (schema) {
+        if (this._type) {
             if (layer.parameters) {
                 for (const key of Object.keys(layer.parameters)) {
-                    const metadata = this._metadata.attribute(this._type, key);
-                    this._attributes.push(new acuity.Attribute(metadata, key, layer.parameters[key]));
+                    const attributeMetadata = metadata.attribute(this._type, key);
+                    this._attributes.push(new acuity.Attribute(attributeMetadata, key, layer.parameters[key]));
                 }
             }
         }
-
         for (let i = 0; i < layer.inputs.length; i++) {
             const input = layer.inputs[i];
             const arg = args.get(input.name);
-            const name = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i].name : 'input' + i.toString();
+            const name = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + i.toString();
             this._inputs.push(new acuity.Parameter(name, true, [ arg ]));
         }
 
-        if (schema && schema.constants) {
-            for (const constant of schema.constants) {
+        if (this._type && this._type.constants) {
+            for (const constant of this._type.constants) {
                 // const name = "@" + this._name + ":" + constant.name;
                 const type = new acuity.TensorType(null, new acuity.TensorShape(null));
                 const argument = new acuity.Argument('', type, null, new acuity.Tensor(type));
@@ -179,7 +168,7 @@ acuity.Node = class {
         for (let i = 0; i < layer.outputs.length; i++) {
             const output = layer.outputs[i];
             const arg = args.get(output.name);
-            const name = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i].name : 'output' + i.toString();
+            const name = this._type && this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + i.toString();
             this._outputs.push(new acuity.Parameter(name, true, [arg]));
         }
     }
@@ -190,10 +179,6 @@ acuity.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata.type(this.type);
     }
 
     get inputs() {
@@ -394,18 +379,13 @@ acuity.Metadata = class {
     constructor(data) {
         this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map.set(item.name, item.schema);
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.has(name) ? this._map.get(name) : null;
+        return this._map.get(name);
     }
 
     attribute(type, name) {

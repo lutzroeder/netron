@@ -7,17 +7,12 @@ rknn.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
-        const signature = [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ];
-        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
-            return true;
-        }
-        return false;
+        return rknn.Container.open(stream);
     }
 
-    open(context) {
+    open(context, match) {
         return rknn.Metadata.open(context).then((metadata) => {
-            const buffer = context.stream.peek();
-            const container = rknn.Container.open(buffer);
+            const container = match;
             return new rknn.Model(metadata, container.model, container.weights);
         });
     }
@@ -78,6 +73,13 @@ rknn.Graph = class {
             const argument = new rknn.Argument(name, type, null);
             args.set(name, argument);
         }
+        const arg = (name) => {
+            if (!args.has(name)) {
+                const argument = new rknn.Argument(name, null, null);
+                args.set(name, argument);
+            }
+            return args.get(name);
+        };
 
         for (const node of model.nodes) {
             node.input = [];
@@ -99,8 +101,8 @@ rknn.Graph = class {
 
         for (const graph of model.graph) {
             const key = graph.right + ':' + graph.right_tensor_id.toString();
-            const argument = args.get(key);
-            const name = graph.left + ((graph.left_tensor_id === 0) ? '' : graph.left_tensor_id.toString());
+            const argument = arg(key);
+            const name = graph.left + (graph.left_tensor_id === 0 ? '' : graph.left_tensor_id.toString());
             const parameter = new rknn.Parameter(name, [ argument ]);
             switch (graph.left) {
                 case 'input': {
@@ -114,9 +116,7 @@ rknn.Graph = class {
             }
         }
 
-        for (const node of model.nodes) {
-            this._nodes.push(new rknn.Node(metadata, node, args));
-        }
+        this._nodes = model.nodes.map((node) => new rknn.Node(metadata, node, arg));
     }
 
     get name() {
@@ -182,24 +182,25 @@ rknn.Argument = class {
 
 rknn.Node = class {
 
-    constructor(metadata, node, args) {
-        this._metadata = metadata;
+    constructor(metadata, node, arg) {
         this._name = node.name || '';
-        this._type = node.op;
+        this._type = Object.assign({}, metadata.type(node.op) || { name: node.op });
+        for (const prefix of [ 'VSI_NN_OP_', 'RKNN_OP_' ]) {
+            this._type.name = this._type.name.startsWith(prefix) ? this._type.name.substring(prefix.length) : this._type.name;
+        }
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        const schema = this._metadata.type(this._type);
         node.input = node.input || [];
         for (let i = 0; i < node.input.length; ) {
-            const input = schema && schema.inputs && i < schema.inputs.length ? schema.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
+            const input = this._type && this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i] : { name: i === 0 ? 'input' : i.toString() };
             const count = input.list ? node.input.length - i : 1;
             const list = node.input.slice(i, i + count).map((input) => {
                 if (input.right_tensor) {
-                    return args.get(input.right_tensor.type + ':' + input.right_tensor.tensor_id.toString());
+                    return arg(input.right_tensor.type + ':' + input.right_tensor.tensor_id.toString());
                 }
                 if (input.right_node) {
-                    return args.get(input.right_node.node_id.toString() + ':' + input.right_node.tensor_id.toString());
+                    return arg(input.right_node.node_id.toString() + ':' + input.right_node.tensor_id.toString());
                 }
                 throw new rknn.Error('Invalid input argument.');
             });
@@ -208,14 +209,14 @@ rknn.Node = class {
         }
         node.output = node.output || [];
         for (let i = 0; i < node.output.length; ) {
-            const output = schema && schema.outputs && i < schema.outputs.length ? schema.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
+            const output = this._metadata && this._metadata.outputs && i < this._metadata.outputs.length ? this._metadata.outputs[i] : { name: i === 0 ? 'output' : i.toString() };
             const count = output.list ? node.output.length - i : 1;
             const list = node.output.slice(i, i + count).map((output) => {
                 if (output.right_tensor) {
-                    return args.get(output.right_tensor.type + ':' + output.right_tensor.tensor_id.toString());
+                    return arg(output.right_tensor.type + ':' + output.right_tensor.tensor_id.toString());
                 }
                 if (output.right_node) {
-                    return args.get(output.right_node.node_id.toString() + ':' + output.right_node.tensor_id.toString());
+                    return arg(output.right_node.node_id.toString() + ':' + output.right_node.tensor_id.toString());
                 }
                 throw new rknn.Error('Invalid output argument.');
             });
@@ -239,12 +240,7 @@ rknn.Node = class {
     }
 
     get type() {
-        const prefix = 'VSI_NN_OP_';
-        return this._type.startsWith(prefix) ? this._type.substring(prefix.length) : this.type;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
+        return this._type;
     }
 
     get inputs() {
@@ -289,7 +285,7 @@ rknn.Tensor = class {
             case 'float32': size = 4; break;
         }
         const shape = type.shape.dimensions;
-        size = size * (shape.length === 0 ? 1 : shape.reduce((a, b) => a * b));
+        size = size * shape.reduce((a, b) => a * b, 1);
         if (size > 0) {
             this._data = weights.slice(offset, offset + size);
         }
@@ -398,13 +394,17 @@ rknn.Tensor = class {
 rknn.TensorType = class {
 
     constructor(dataType, shape) {
-        switch (dataType.vx_type) {
-            case 'VSI_NN_TYPE_UINT8': this._dataType = 'uint8'; break;
-            case 'VSI_NN_TYPE_INT8': this._dataType = 'int8'; break;
-            case 'VSI_NN_TYPE_INT16': this._dataType = 'int16'; break;
-            case 'VSI_NN_TYPE_INT32': this._dataType = 'int32'; break;
-            case 'VSI_NN_TYPE_FLOAT16': this._dataType = 'float16'; break;
-            case 'VSI_NN_TYPE_FLOAT32': this._dataType = 'float32'; break;
+        const type = dataType.vx_type.startsWith('VSI_NN_TYPE_') ? dataType.vx_type.split('_').pop().toLowerCase() : dataType.vx_type;
+        switch (type) {
+            case 'uint8':
+            case 'int8':
+            case 'int16':
+            case 'int32':
+            case 'int64':
+            case 'float16':
+            case 'float32':
+                this._dataType = type;
+                break;
             default:
                 throw new rknn.Error("Invalid data type '" + JSON.stringify(dataType) + "'.");
         }
@@ -444,41 +444,72 @@ rknn.TensorShape = class {
 
 rknn.Container = class {
 
-    static open(buffer) {
-        if (buffer && buffer.length > 4 && [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ].every((value, index) => buffer[index] === value)) {
-            return new rknn.Container(buffer);
+    static open(stream) {
+        const signature = [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ];
+        if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
+            return new rknn.Container(stream);
         }
         return null;
     }
 
-    constructor(buffer) {
-        this._buffer = buffer;
-        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-        this._version = view.getUint64(8, true).toNumber();
-        let position = 16;
-        this._blocks = [];
-        while (position < buffer.length) {
-            const size = view.getUint64(position, true).toNumber();
-            position += 8;
-            this._blocks.push({ start: position, end: position + size });
-            position += size;
-        }
+    constructor(stream) {
+        this._reader = new rknn.Container.StreamReader(stream);
     }
 
     get version() {
+        this._read();
         return this._version;
     }
 
     get weights() {
-        const block = this._blocks[0];
-        return this._buffer.subarray(block.start, block.end);
+        this._read();
+        return this._weights;
     }
 
     get model() {
-        const block = this._blocks[1];
-        const buffer = this._buffer.subarray(block.start, block.end);
-        const reader = json.TextReader.create(buffer);
-        return reader.read();
+        this._read();
+        return this._model;
+    }
+
+    _read() {
+        if (this._reader) {
+            this._reader.uint64();
+            this._version = this._reader.uint64();
+            this._weights = this._reader.read();
+            const buffer = this._reader.read();
+            const reader = json.TextReader.open(buffer);
+            this._model = reader.read();
+            delete this._reader;
+        }
+    }
+};
+
+rknn.Container.StreamReader = class {
+
+    constructor(stream) {
+        this._stream = stream;
+        this._length = stream.length;
+        this._position = 0;
+    }
+
+    skip(offset) {
+        this._position += offset;
+        if (this._position > this._length) {
+            throw new rknn.Error('Expected ' + (this._position - this._length) + ' more bytes. The file might be corrupted. Unexpected end of file.');
+        }
+    }
+
+    uint64() {
+        this.skip(8);
+        const buffer = this._stream.read(8);
+        const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+        return view.getUint64(0, true).toNumber();
+    }
+
+    read() {
+        const size = this.uint64();
+        this.skip(size);
+        return this._stream.read(size);
     }
 };
 
@@ -500,13 +531,8 @@ rknn.Metadata = class {
     constructor(data) {
         this._map = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map.set(item.name, item.schema);
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 

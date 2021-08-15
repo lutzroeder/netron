@@ -136,14 +136,18 @@ sidebar.NodeSidebar = class {
 
         if (node.type) {
             let showDocumentation = null;
-            if (node.metadata) {
+            const type = node.type;
+            if (type && (type.description || type.inputs || type.outputs || type.attributes)) {
                 showDocumentation = {};
-                showDocumentation.text = '?';
+                showDocumentation.text = type.nodes ? '\u0192': '?';
                 showDocumentation.callback = () => {
                     this._raise('show-documentation', null);
                 };
             }
-            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type, showDocumentation));
+            this._addProperty('type', new sidebar.ValueTextView(this._host, node.type.name, showDocumentation));
+            if (node.type.module) {
+                this._addProperty('module', new sidebar.ValueTextView(this._host, node.type.module));
+            }
         }
 
         if (node.name) {
@@ -152,10 +156,6 @@ sidebar.NodeSidebar = class {
 
         if (node.location) {
             this._addProperty('location', new sidebar.ValueTextView(this._host, node.location));
-        }
-
-        if (node.domain) {
-            this._addProperty('domain', new sidebar.ValueTextView(this._host, node.domain));
         }
 
         if (node.description) {
@@ -218,9 +218,13 @@ sidebar.NodeSidebar = class {
     }
 
     _addAttribute(name, attribute) {
-        const item = new sidebar.NameValueView(this._host, name, new NodeAttributeView(this._host, attribute));
-        this._attributes.push(item);
-        this._elements.push(item.render());
+        const item = new NodeAttributeView(this._host, attribute);
+        item.on('show-graph', (sender, graph) => {
+            this._raise('show-graph', graph);
+        });
+        const view = new sidebar.NameValueView(this._host, name, item);
+        this._attributes.push(view);
+        this._elements.push(view.render());
     }
 
     _addInput(name, input) {
@@ -228,6 +232,9 @@ sidebar.NodeSidebar = class {
             const view = new sidebar.ParameterView(this._host, input);
             view.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
+            });
+            view.on('error', (sender, tensor) => {
+                this._raise('error', tensor);
             });
             const item = new sidebar.NameValueView(this._host, name, view);
             this._inputs.push(item);
@@ -279,6 +286,9 @@ sidebar.NodeSidebar = class {
             case 'shape':
                 return value ? value.toString() : '(null)';
             case 'shape[]':
+                if (value && !Array.isArray(value)) {
+                    throw new Error("Invalid shape '" + JSON.stringify(value) + "'.");
+                }
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph':
                 return value ? value.toString() : '(null)';
@@ -289,6 +299,10 @@ sidebar.NodeSidebar = class {
                     return value.toString();
                 }
                 return '[...]';
+            case 'function':
+                return value.name;
+            case 'function[]':
+                return value ? value.map((item) => item.name).join(', ') : '(null)';
         }
         if (typeof value === 'string' && (!type || type != 'string')) {
             return quote ? '"' + value + '"' : value;
@@ -459,10 +473,15 @@ sidebar.ValueTextView = class {
             element.appendChild(this._action);
         }
 
-        const line = this._host.document.createElement('div');
-        line.className = 'sidebar-view-item-value-line';
-        line.innerText = value;
-        element.appendChild(line);
+        const list = Array.isArray(value) ? value : [ value ];
+        let className = 'sidebar-view-item-value-line';
+        for (const item of list) {
+            const line = this._host.document.createElement('div');
+            line.className = className;
+            line.innerText = item;
+            element.appendChild(line);
+            className = 'sidebar-view-item-value-line-border';
+        }
     }
 
     render() {
@@ -481,7 +500,8 @@ class NodeAttributeView {
         this._element = this._host.document.createElement('div');
         this._element.className = 'sidebar-view-item-value';
 
-        if (attribute.type) {
+        const type = this._attribute.type;
+        if (type) {
             this._expander = this._host.document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -490,17 +510,32 @@ class NodeAttributeView {
             });
             this._element.appendChild(this._expander);
         }
-        let value = sidebar.NodeSidebar.formatAttributeValue(this._attribute.value, this._attribute.type);
-        if (value && value.length > 1000) {
-            value = value.substring(0, 1000) + '\u2026';
+        const value = this._attribute.value;
+        switch (type) {
+            case 'function': {
+                const line = this._host.document.createElement('div');
+                line.className = 'sidebar-view-item-value-line-link';
+                line.innerHTML = value.name;
+                line.addEventListener('click', () => {
+                    this._raise('show-graph', value);
+                });
+                this._element.appendChild(line);
+                break;
+            }
+            default: {
+                let text = sidebar.NodeSidebar.formatAttributeValue(value, type);
+                if (text && text.length > 1000) {
+                    text = text.substring(0, 1000) + '\u2026';
+                }
+                if (text && typeof text === 'string') {
+                    text = text.split('<').join('&lt;').split('>').join('&gt;');
+                }
+                const line = this._host.document.createElement('div');
+                line.className = 'sidebar-view-item-value-line';
+                line.innerHTML = (text ? text : '&nbsp;');
+                this._element.appendChild(line);
+            }
         }
-        if (value && typeof value === 'string') {
-            value = value.split('<').join('&lt;').split('>').join('&gt;');
-        }
-        const valueLine = this._host.document.createElement('div');
-        valueLine.className = 'sidebar-view-item-value-line';
-        valueLine.innerHTML = (value ? value : '&nbsp;');
-        this._element.appendChild(valueLine);
     }
 
     render() {
@@ -549,6 +584,20 @@ class NodeAttributeView {
             }
         }
     }
+
+    on(event, callback) {
+        this._events = this._events || {};
+        this._events[event] = this._events[event] || [];
+        this._events[event].push(callback);
+    }
+
+    _raise(event, data) {
+        if (this._events && this._events[event]) {
+            for (const callback of this._events[event]) {
+                callback(this, data);
+            }
+        }
+    }
 }
 
 sidebar.ParameterView = class {
@@ -561,6 +610,9 @@ sidebar.ParameterView = class {
             const item = new sidebar.ArgumentView(host, argument);
             item.on('export-tensor', (sender, tensor) => {
                 this._raise('export-tensor', tensor);
+            });
+            item.on('error', (sender, tensor) => {
+                this._raise('error', tensor);
             });
             this._items.push(item);
             this._elements.push(item.render());
@@ -608,7 +660,8 @@ sidebar.ArgumentView = class {
 
         const quantization = argument.quantization;
         const type = argument.type;
-        if (type || initializer || quantization) {
+        const location = this._argument.location !== undefined;
+        if (type || initializer || quantization || location) {
             this._expander = this._host.document.createElement('div');
             this._expander.className = 'sidebar-view-item-value-expander';
             this._expander.innerText = '+';
@@ -620,13 +673,9 @@ sidebar.ArgumentView = class {
 
         let name = this._argument.name || '';
         this._hasId = name ? true : false;
-        if (initializer && !this._hasId) {
-            const kindLine = this._host.document.createElement('div');
-            kindLine.className = 'sidebar-view-item-value-line';
-            kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
-            this._element.appendChild(kindLine);
-        }
-        else {
+        this._hasKind = initializer && initializer.kind ? true : false;
+        if (this._hasId || (!this._hasKind && !type)) {
+            this._hasId = true;
             const nameLine = this._host.document.createElement('div');
             nameLine.className = 'sidebar-view-item-value-line';
             if (typeof name !== 'string') {
@@ -636,6 +685,18 @@ sidebar.ArgumentView = class {
             name = name || ' ';
             nameLine.innerHTML = '<span class=\'sidebar-view-item-value-line-content\'>name: <b>' + name + '</b></span>';
             this._element.appendChild(nameLine);
+        }
+        else if (this._hasKind) {
+            const kindLine = this._host.document.createElement('div');
+            kindLine.className = 'sidebar-view-item-value-line';
+            kindLine.innerHTML = 'kind: <b>' + initializer.kind + '</b>';
+            this._element.appendChild(kindLine);
+        }
+        else if (type) {
+            const typeLine = this._host.document.createElement('div');
+            typeLine.className = 'sidebar-view-item-value-line-border';
+            typeLine.innerHTML = 'type: <code><b>' + type.toString().split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
+            this._element.appendChild(typeLine);
         }
     }
 
@@ -649,24 +710,19 @@ sidebar.ArgumentView = class {
                 this._expander.innerText = '-';
 
                 const initializer = this._argument.initializer;
-                if (initializer && this._hasId) {
-                    const kind = initializer.kind;
-                    if (kind) {
-                        const kindLine = this._host.document.createElement('div');
-                        kindLine.className = 'sidebar-view-item-value-line-border';
-                        kindLine.innerHTML = 'kind: ' + '<b>' + kind + '</b>';
-                        this._element.appendChild(kindLine);
-                    }
+                if (this._hasId && this._hasKind) {
+                    const kindLine = this._host.document.createElement('div');
+                    kindLine.className = 'sidebar-view-item-value-line-border';
+                    kindLine.innerHTML = 'kind: ' + '<b>' + initializer.kind + '</b>';
+                    this._element.appendChild(kindLine);
                 }
-
-                let type = '?';
+                let type = null;
                 let denotation = null;
                 if (this._argument.type) {
                     type = this._argument.type.toString();
                     denotation = this._argument.type.denotation || null;
                 }
-
-                if (type) {
+                if (type && (this._hasId || this._hasKind)) {
                     const typeLine = this._host.document.createElement('div');
                     typeLine.className = 'sidebar-view-item-value-line-border';
                     typeLine.innerHTML = 'type: <code><b>' + type.split('<').join('&lt;').split('>').join('&gt;') + '</b></code>';
@@ -695,7 +751,7 @@ sidebar.ArgumentView = class {
                     this._element.appendChild(quantizationLine);
                 }
 
-                if (this._argument.location) {
+                if (this._argument.location !== undefined) {
                     const location = this._host.document.createElement('div');
                     location.className = 'sidebar-view-item-value-line-border';
                     location.innerHTML = 'location: ' + '<b>' + this._argument.location + '</b>';
@@ -703,35 +759,28 @@ sidebar.ArgumentView = class {
                 }
 
                 if (initializer) {
-                    const reference = initializer.reference;
-                    if (reference) {
-                        const referenceLine = this._host.document.createElement('div');
-                        referenceLine.className = 'sidebar-view-item-value-line-border';
-                        referenceLine.innerHTML = 'reference: ' + '<b>' + reference + '</b>';
-                        this._element.appendChild(referenceLine);
-                    }
-                    const state = initializer.state;
-                    if (state === null && this._host.save &&
-                        initializer.type.dataType && initializer.type.dataType != '?' &&
-                        initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
-                        this._saveButton = this._host.document.createElement('div');
-                        this._saveButton.className = 'sidebar-view-item-value-expander';
-                        this._saveButton.innerHTML = '&#x1F4BE;';
-                        this._saveButton.addEventListener('click', () => {
-                            this._raise('export-tensor', initializer);
-                        });
-                        this._element.appendChild(this._saveButton);
-                    }
-
-                    const valueLine = this._host.document.createElement('div');
-                    valueLine.className = 'sidebar-view-item-value-line-border';
                     const contentLine = this._host.document.createElement('pre');
+                    const valueLine = this._host.document.createElement('div');
                     try {
+                        const state = initializer.state;
+                        if (state === null && this._host.save &&
+                            initializer.type.dataType && initializer.type.dataType != '?' &&
+                            initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
+                            this._saveButton = this._host.document.createElement('div');
+                            this._saveButton.className = 'sidebar-view-item-value-expander';
+                            this._saveButton.innerHTML = '&#x1F4BE;';
+                            this._saveButton.addEventListener('click', () => {
+                                this._raise('export-tensor', initializer);
+                            });
+                            this._element.appendChild(this._saveButton);
+                        }
+
+                        valueLine.className = 'sidebar-view-item-value-line-border';
                         contentLine.innerHTML = state || initializer.toString();
                     }
                     catch (err) {
                         contentLine.innerHTML = err.toString();
-                        this._host.exception(err, false);
+                        this._raise('error', err);
                     }
                     valueLine.appendChild(contentLine);
                     this._element.appendChild(valueLine);
@@ -768,52 +817,54 @@ sidebar.ModelSidebar = class {
         this._model = model;
         this._elements = [];
 
-        if (this._model.format) {
-            this._addProperty('format', new sidebar.ValueTextView(this._host, this._model.format));
+        if (model.format) {
+            this._addProperty('format', new sidebar.ValueTextView(this._host, model.format));
         }
-        if (this._model.producer) {
-            this._addProperty('producer', new sidebar.ValueTextView(this._host, this._model.producer));
+        if (model.producer) {
+            this._addProperty('producer', new sidebar.ValueTextView(this._host, model.producer));
         }
-        if (this._model.source) {
-            this._addProperty('source', new sidebar.ValueTextView(this._host, this._model.source));
+        if (model.source) {
+            this._addProperty('source', new sidebar.ValueTextView(this._host, model.source));
         }
-        if (this._model.name) {
-            this._addProperty('name', new sidebar.ValueTextView(this._host, this._model.name));
+        if (model.name) {
+            this._addProperty('name', new sidebar.ValueTextView(this._host, model.name));
         }
-        if (this._model.version) {
-            this._addProperty('version', new sidebar.ValueTextView(this._host, this._model.version));
+        if (model.version) {
+            this._addProperty('version', new sidebar.ValueTextView(this._host, model.version));
         }
-        if (this._model.description) {
-            this._addProperty('description', new sidebar.ValueTextView(this._host, this._model.description));
+        if (model.description) {
+            this._addProperty('description', new sidebar.ValueTextView(this._host, model.description));
         }
-        if (this._model.author) {
-            this._addProperty('author', new sidebar.ValueTextView(this._host, this._model.author));
+        if (model.author) {
+            this._addProperty('author', new sidebar.ValueTextView(this._host, model.author));
         }
-        if (this._model.company) {
-            this._addProperty('company', new sidebar.ValueTextView(this._host, this._model.company));
+        if (model.company) {
+            this._addProperty('company', new sidebar.ValueTextView(this._host, model.company));
         }
-        if (this._model.license) {
-            this._addProperty('license', new sidebar.ValueTextView(this._host, this._model.license));
+        if (model.license) {
+            this._addProperty('license', new sidebar.ValueTextView(this._host, model.license));
         }
-        if (this._model.domain) {
-            this._addProperty('domain', new sidebar.ValueTextView(this._host, this._model.domain));
+        if (model.domain) {
+            this._addProperty('domain', new sidebar.ValueTextView(this._host, model.domain));
         }
-        if (this._model.imports) {
-            this._addProperty('imports', new sidebar.ValueTextView(this._host, this._model.imports));
+        if (model.imports) {
+            this._addProperty('imports', new sidebar.ValueTextView(this._host, model.imports));
         }
-        if (this._model.runtime) {
-            this._addProperty('runtime', new sidebar.ValueTextView(this._host, this._model.runtime));
+        if (model.runtime) {
+            this._addProperty('runtime', new sidebar.ValueTextView(this._host, model.runtime));
         }
 
-        const metadata = this._model.metadata;
+        const metadata = model.metadata;
         if (metadata) {
-            for (const property of this._model.metadata) {
+            for (const property of model.metadata) {
                 this._addProperty(property.name, new sidebar.ValueTextView(this._host, property.value));
             }
         }
 
-        if (this._model._graphs.length > 1) {
-            const graphSelector = new sidebar.SelectView(this._host, this._model.graphs.map((g) => g.name), graph.name);
+        const graphs = Array.isArray(model.graphs) ? model.graphs : [];
+        if (graphs.length > 1) {
+            const name = graph && graph.name ? graph.name : '';
+            const graphSelector = new sidebar.SelectView(this._host, model.graphs.map((g) => g.name), name);
             graphSelector.on('change', (sender, data) => {
                 this._raise('update-active-graph', data);
             });
@@ -833,14 +884,12 @@ sidebar.ModelSidebar = class {
             if (graph.description) {
                 this._addProperty('description', new sidebar.ValueTextView(this._host, graph.description));
             }
-
             if (graph.inputs.length > 0) {
                 this._addHeader('Inputs');
                 for (const input of graph.inputs) {
                     this.addArgument(input.name, input);
                 }
             }
-
             if (graph.outputs.length > 0) {
                 this._addHeader('Outputs');
                 for (const output of graph.outputs) {
@@ -971,9 +1020,9 @@ sidebar.DocumentationSidebar = class {
                 }
             }
 
-            if (documentation.domain && documentation.since_version && documentation.support_level) {
+            if (documentation.domain && documentation.version && documentation.support_level) {
                 this._append(element, 'h2', 'Support');
-                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.since_version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
+                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
             }
 
             if (!this._host.browser) {
@@ -1020,45 +1069,187 @@ sidebar.DocumentationSidebar = class {
         return element;
     }
 
-    static formatDocumentation(data) {
-        if (data) {
-            data = JSON.parse(JSON.stringify(data));
+    static formatDocumentation(source) {
+        if (source) {
             const generator = new markdown.Generator();
-            if (data.summary) {
-                data.summary = generator.html(data.summary);
+            const target = {};
+            if (source.name !== undefined) {
+                target.name = source.name;
             }
-            if (data.description) {
-                data.description = generator.html(data.description);
+            if (source.module !== undefined) {
+                target.module = source.module;
             }
-            if (data.attributes) {
-                for (const attribute of data.attributes) {
-                    if (attribute.description) {
-                        attribute.description = generator.html(attribute.description);
+            if (source.category !== undefined) {
+                target.category = source.category;
+            }
+            if (source.summary !== undefined) {
+                target.summary = generator.html(source.summary);
+            }
+            if (source.description !== undefined) {
+                target.description = generator.html(source.description);
+            }
+            if (Array.isArray(source.attributes)) {
+                target.attributes = source.attributes.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type !== undefined) {
+                        target.type = source.type;
                     }
-                }
-            }
-            if (data.inputs) {
-                for (const input of data.inputs) {
-                    if (input.description) {
-                        input.description = generator.html(input.description);
+                    if (source.option !== undefined) {
+                        target.option = source.option;
                     }
-                }
-            }
-            if (data.outputs) {
-                for (const output of data.outputs) {
-                    if (output.description) {
-                        output.description = generator.html(output.description);
+                    if (source.optional !== undefined) {
+                        target.optional = source.optional;
                     }
-                }
-            }
-            if (data.references) {
-                for (const reference of data.references) {
-                    if (reference) {
-                        reference.description = generator.html(reference.description);
+                    if (source.required !== undefined) {
+                        target.required = source.required;
                     }
-                }
+                    if (source.minimum !== undefined) {
+                        target.minimum = source.minimum;
+                    }
+                    if (source.src !== undefined) {
+                        target.src = source.src;
+                    }
+                    if (source.src_type !== undefined) {
+                        target.src_type = source.src_type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.default !== undefined) {
+                        target.default = source.default;
+                    }
+                    if (source.visible !== undefined) {
+                        target.visible = source.visible;
+                    }
+                    return target;
+                });
             }
-            return data;
+            if (Array.isArray(source.inputs)) {
+                target.inputs = source.inputs.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type !== undefined) {
+                        target.type = source.type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.default !== undefined) {
+                        target.default = source.default;
+                    }
+                    if (source.src !== undefined) {
+                        target.src = source.src;
+                    }
+                    if (source.list !== undefined) {
+                        target.list = source.list;
+                    }
+                    if (source.isRef !== undefined) {
+                        target.isRef = source.isRef;
+                    }
+                    if (source.typeAttr !== undefined) {
+                        target.typeAttr = source.typeAttr;
+                    }
+                    if (source.numberAttr !== undefined) {
+                        target.numberAttr = source.numberAttr;
+                    }
+                    if (source.typeListAttr !== undefined) {
+                        target.typeListAttr = source.typeListAttr;
+                    }
+                    if (source.option !== undefined) {
+                        target.option = source.option;
+                    }
+                    if (source.optional !== undefined) {
+                        target.optional = source.optional;
+                    }
+                    if (source.visible !== undefined) {
+                        target.visible = source.visible;
+                    }
+                    return target;
+                });
+            }
+            if (Array.isArray(source.outputs)) {
+                target.outputs = source.outputs.map((source) => {
+                    const target = {};
+                    target.name = source.name;
+                    if (source.type) {
+                        target.type = source.type;
+                    }
+                    if (source.description !== undefined) {
+                        target.description = generator.html(source.description);
+                    }
+                    if (source.list !== undefined) {
+                        target.list = source.list;
+                    }
+                    if (source.typeAttr !== undefined) {
+                        target.typeAttr = source.typeAttr;
+                    }
+                    if (source.typeListAttr !== undefined) {
+                        target.typeListAttr = source.typeAttr;
+                    }
+                    if (source.numberAttr !== undefined) {
+                        target.numberAttr = source.numberAttr;
+                    }
+                    if (source.isRef !== undefined) {
+                        target.isRef = source.isRef;
+                    }
+                    if (source.option !== undefined) {
+                        target.option = source.option;
+                    }
+                    return target;
+                });
+            }
+            if (Array.isArray(source.references)) {
+                target.references = source.references.map((source) => {
+                    if (source) {
+                        target.description = generator.html(source.description);
+                    }
+                    return target;
+                });
+            }
+            if (source.version !== undefined) {
+                target.version = source.version;
+            }
+            if (source.operator !== undefined) {
+                target.operator = source.operator;
+            }
+            if (source.identifier !== undefined) {
+                target.identifier = source.identifier;
+            }
+            if (source.package !== undefined) {
+                target.package = source.package;
+            }
+            if (source.support_level !== undefined) {
+                target.support_level = source.support_level;
+            }
+            if (source.min_input !== undefined) {
+                target.min_input = source.min_input;
+            }
+            if (source.max_input !== undefined) {
+                target.max_input = source.max_input;
+            }
+            if (source.min_output !== undefined) {
+                target.min_output = source.min_output;
+            }
+            if (source.max_input !== undefined) {
+                target.max_output = source.max_output;
+            }
+            if (source.inputs_range !== undefined) {
+                target.inputs_range = source.inputs_range;
+            }
+            if (source.outputs_range !== undefined) {
+                target.outputs_range = source.outputs_range;
+            }
+            if (source.examples !== undefined) {
+                target.examples = source.examples;
+            }
+            if (source.constants !== undefined) {
+                target.constants = source.constants;
+            }
+            if (source.type_constraints !== undefined) {
+                target.type_constraints = source.type_constraints;
+            }
+            return target;
         }
         return '';
     }
@@ -1153,10 +1344,10 @@ sidebar.FindSidebar = class {
             this._resultElement.removeChild(this._resultElement.lastChild);
         }
 
-        const text = searchText.toLowerCase();
+        const terms = searchText.trim().toLowerCase().split(' ').map((term) => term.trim()).filter((term) => term.length > 0);
 
-        const nodeMatches = new Set();
-        const edgeMatches = new Set();
+        const nodes = new Set();
+        const edges = new Set();
 
         for (const node of this._graph.nodes) {
 
@@ -1164,36 +1355,57 @@ sidebar.FindSidebar = class {
 
             for (const input of node.inputs) {
                 for (const argument of input.arguments) {
-                    const match =
-                        (argument.name && argument.name.toLowerCase().indexOf(text) != -1) ||
-                        (argument.type && argument.type.dataType && argument.type.dataType.toLowerCase() === text) ||
-                        (argument.type && argument.type.shape && argument.type.shape.dimensions && argument.type.shape.dimensions.some((dimension) => dimension && dimension.toString() === text)) ||
-                        (argument.type && argument.type.shape && argument.type.shape.dimensions && (argument.type.shape.toString() === text || argument.type.shape.toString() === '[' + text + ']'));
-                    if (match && !edgeMatches.has(argument.name)) {
-                        if (!argument.initializer) {
-                            const inputItem = this._host.document.createElement('li');
-                            inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
-                            inputItem.id = 'edge-' + argument.name;
-                            this._resultElement.appendChild(inputItem);
-                            edgeMatches.add(argument.name);
-                        }
-                        else {
-                            initializers.push(argument);
+                    if (argument.name && !edges.has(argument.name)) {
+                        const match = (argument, term) => {
+                            if (argument.name && argument.name.toLowerCase().indexOf(term) !== -1) {
+                                return true;
+                            }
+                            if (argument.type) {
+                                if (argument.type.dataType && term === argument.type.dataType.toLowerCase()) {
+                                    return true;
+                                }
+                                if (argument.type.shape) {
+                                    if (term === argument.type.shape.toString().toLowerCase()) {
+                                        return true;
+                                    }
+                                    if (argument.type.shape && Array.isArray(argument.type.shape.dimensions)) {
+                                        const dimensions = argument.type.shape.dimensions.map((dimension) => dimension ? dimension.toString().toLowerCase() : '');
+                                        if (term === dimensions.join(',')) {
+                                            return true;
+                                        }
+                                        if (dimensions.some((dimension) => term === dimension)) {
+                                            return true;
+                                        }
+                                    }
+                                }
+                            }
+                            return false;
+                        };
+                        if (terms.every((term) => match(argument, term))) {
+                            if (!argument.initializer) {
+                                const inputItem = this._host.document.createElement('li');
+                                inputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
+                                inputItem.id = 'edge-' + argument.name;
+                                this._resultElement.appendChild(inputItem);
+                                edges.add(argument.name);
+                            }
+                            else {
+                                initializers.push(argument);
+                            }
                         }
                     }
                 }
             }
 
             const name = node.name;
-            const operator = node.type;
-            if (!nodeMatches.has(name) && name &&
-                ((name.toLowerCase().indexOf(text) != -1) ||
-                (operator && operator.toLowerCase().indexOf(text) != -1))) {
+            const type = node.type.name;
+            if (name && !nodes.has(name) &&
+                terms.every((term) => name.toLowerCase().indexOf(term) != -1 || (type && type.toLowerCase().indexOf(term) != -1))) {
                 const nameItem = this._host.document.createElement('li');
                 nameItem.innerText = '\u25A2 ' + node.name;
-                nameItem.id = 'node-' + node.name;
+                nameItem.id = 'node-name-' + node.name;
                 this._resultElement.appendChild(nameItem);
-                nodeMatches.add(node.name);
+                nodes.add(node.name);
             }
 
             for (const argument of initializers) {
@@ -1209,12 +1421,12 @@ sidebar.FindSidebar = class {
         for (const node of this._graph.nodes) {
             for (const output of node.outputs) {
                 for (const argument of output.arguments) {
-                    if (argument.name && argument.name.toLowerCase().indexOf(text) != -1 && !edgeMatches.has(argument.name)) {
+                    if (argument.name && !edges.has(argument.name) && terms.every((term) => argument.name.toLowerCase().indexOf(term) != -1)) {
                         const outputItem = this._host.document.createElement('li');
                         outputItem.innerText = '\u2192 ' + argument.name.split('\n').shift(); // custom argument id
                         outputItem.id = 'edge-' + argument.name;
                         this._resultElement.appendChild(outputItem);
-                        edgeMatches.add(argument.name);
+                        edges.add(argument.name);
                     }
                 }
             }

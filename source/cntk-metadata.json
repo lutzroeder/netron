@@ -1,1170 +1,795 @@
 [
   {
-    "name": "Negate",
-    "schema": {
-      "operator": 0,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Sigmoid",
-    "schema": {
-      "category": "Activation",
-      "operator": 1,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Tanh",
-    "schema": {
-      "category": "Activation",
-      "operator": 2,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "ReLU",
-    "schema": {
-      "category": "Activation",
-      "operator": 3,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "RectifiedLinear",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Exp",
-    "schema": {
-      "operator": 4,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Log",
-    "schema": {
-      "operator": 5,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Sqrt",
-    "schema": {
-      "operator": 6,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Floor",
-    "schema": {
-      "operator": 7,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
     "name": "Abs",
-    "schema": {
-      "operator": 8
-    }
-  },
-  {
-    "name": "Reciprocal",
-    "schema": {
-      "operator": 9,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Softmax",
-    "schema": {
-      "category": "Activation",
-      "operator": 10,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Hardmax",
-    "schema": {
-      "category": "Activation",
-      "operator": 11
-    }
-  },
-  {
-    "name": "TransposeAxes",
-    "schema": {
-      "category": "Activation",
-      "operator": 12
-    }
-  },
-  {
-    "name": "TransposeDimensions",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Where",
-    "schema": {
-      "operator": 13,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Slice",
-    "schema": {
-      "category": "Tensor",
-      "operator": 14,
-      "inputs": [
-        { "name": "input" },
-        { "name": "begin" },
-        { "name": "end" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Dropout",
-    "schema": {
-      "category": "Dropout",
-      "operator": 15,
-      "attributes": [
-        { "name": "rngSeed", "visible": false },
-        { "name": "rngOffset", "visible": false }
-      ],
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Reshape",
-    "schema": {
-      "category": "Shape",
-      "operator": 16,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "MaxPooling",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "AveragePooling",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Pooling",
-    "schema": {
-      "category": "Pool",
-      "operator": 17,
-      "attributes": [
-        { "name": "transpose", "default": false },
-        { "name": "includePad", "default": false },
-        { "name": "ceilOutDim", "default": false },
-        { "name": "autoPadding", "default": [ false, null ] },
-        { "name": "sharing", "default": [ true, null] },
-        { "name": "strides", "default": [ 1, null ] },
-        { "name": "lowerPad", "default": [ 0, null ] },
-        { "name": "upperPad", "default": [ 0, null ] },
-        { "name": "outputShape", "default": 0 },
-        { "name": "maxTempMemSizeInSamples", "default": 0 },
-        { "name": "poolingType", "type": "PoolingType", "default": "Max" },
-        { "name": "poolKind", "type": "PoolKind", "default": "None" },
-        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
-      ],
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "SumAll",
-    "schema": {
-      "operator": 18
-    }
-  },
-  {
-    "name": "Plus",
-    "schema": {
-      "operator": 19,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "Minus",
-    "schema": {
-      "operator": 20,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "ElementTimes",
-    "schema": {
-      "operator": 21,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "Equal",
-    "schema": {
-      "operator": 22,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "NotEqual",
-    "schema": {
-      "operator": 23,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "Less",
-    "schema": {
-      "operator": 24,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "LessEqual",
-    "schema": {
-      "operator": 25,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "Greater",
-    "schema": {
-      "operator": 26,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "GreaterEqual",
-    "schema": {
-      "operator": 27,
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "PackedIndex",
-    "schema": {
-      "operator": 28,
-      "inputs": [
-        { "name": "source" },
-        { "name": "index" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "GatherPacked",
-    "schema": {
-      "operator": 29,
-      "inputs": [
-        { "name": "index" },
-        { "name": "source" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "ScatterPacked",
-    "schema": {
-      "operator": 30
-    }
-  },
-  {
-    "name": "Times",
-    "schema": {
-      "operator": 31,
-      "attributes": [
-        { "name": "outputRank", "default": 1 },
-        { "name": "inferInputRankToMap", "visible": false, "default": -1 }
-      ],
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
-  },
-  {
-    "name": "TransposeTimes",
-    "schema": {
-      "operator": 32
-    }
-  },
-  {
-    "name": "Convolution",
-    "schema": {
-      "category": "Layer",
-      "operator": 33,
-      "attributes": [
-        { "name": "transpose", "default": false },
-        { "name": "maxTempMemSizeInSamples", "default": 0 },
-        { "name": "dilation", "default": [ 1, null] },
-        { "name": "outputShape", "default": 0 },
-        { "name": "sharing", "default": [ true, null] },
-        { "name": "strides", "default": [ 1, null ] },
-        { "name": "includePad", "default": false },
-        { "name": "ceilOutDim", "default": false },
-        { "name": "autoPadding", "default": [ true, null ] },
-        { "name": "lowerPad", "default": [ 0, null ] },
-        { "name": "upperPad", "default": [ 0, null ] },
-        { "name": "convolution2D", "visible": false },
-        { "name": "poolKind", "type": "PoolKind", "default": "None" },
-        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "W" },
-        { "name": "b" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "SquaredError",
-    "schema": {
-      "operator": 34
-    }
-  },
-  {
-    "name": "CrossEntropyWithSoftmax",
-    "schema": {
-      "operator": 35,
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "ClassificationError",
-    "schema": {
-      "operator": 36,
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "PastValue",
-    "schema": {
-      "operator": 37,
-      "attributes": [
-        { "name": "offset", "type": "uint32", "default": 1 }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "initialState" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "FutureValue",
-    "schema": {
-      "operator": 38,
-      "attributes": [
-        { "name": "offset", "type": "uint32", "default": 1 }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "initialState" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "ReduceElements",
-    "schema": {
-      "operator": 39,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "BatchNormalization",
-    "schema": {
-      "category": "Normalization",
-      "operator": 40,
-      "attributes": [
-        { "name": "disableRegularization", "default": false },
-        { "name": "useCuDNNEngine", "visible": false },
-        { "name": "useCntkEngine", "visible": false },
-        { "name": "runCountUntied", "visible": false },
-        { "name": "epsilon", "default": 0.00001 },
-        { "name": "normalizationTimeConstant", "default": 0 },
-        { "name": "disableRegularization", "default": false },
-        { "name": "blendTimeConstant", "default": 0 },
-        { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
-      ],
-      "inputs": [
-        { "name": "input" },
-        { "name": "scale" },
-        { "name": "bias" },
-        { "name": "mean" },
-        { "name": "variance" },
-        { "name": "count" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Clip",
-    "schema": {
-      "operator": 41
-    }
-  },
-  {
-    "name": "Select",
-    "schema": {
-      "operator": 42
-    }
-  },
-  {
-    "name": "Splice",
-    "schema": {
-      "category": "Tensor",
-      "operator": 43,
-      "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Combine",
-    "schema": {
-      "category": "Tensor",
-      "operator": 44,
-      "inputs": [
-        { "name": "inputs", "option": "variadic" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "RandomSample",
-    "schema": {
-      "operator": 45
-    }
-  },
-  {
-    "name": "RandomSampleInclusionFrequency",
-    "schema": {
-      "operator": 46
-    }
-  },
-  {
-    "name": "ROIPooling",
-    "schema": {
-      "operator": 47,
-      "category": "Pool",
-      "attributes": [
-        { "name": "spatialScale", "default": 0.0625 },
-        { "name": "poolKind", "type": "PoolKind", "default": "None" }
-      ],
-      "inputs": [
-        { "name": "inputs" },
-        { "name": "ROIs" }
-      ],
-      "outputs": [
-        { "name": "outputs" }
-      ]
-    }
-  },
-  {
-    "name": "Logistic",
-    "schema": {
-      "operator": 48
-    }
-  },
-  {
-    "name": "OptimizedRNNStack",
-    "schema": {
-      "operator": 49
-    }
-  },
-  {
-    "name": "ReconcileDynamicAxis",
-    "schema": {
-      "operator": 50
-    }
-  },
-  {
-    "name": "LogSoftmax",
-    "schema": {
-      "operator": 51
-    }
-  },
-  {
-    "name": "LogPlus",
-    "schema": {
-      "operator": 52
-    }
-  },
-  {
-    "name": "CosDistance",
-    "schema": {
-      "operator": 53
-    }
-  },
-  {
-    "name": "Sin",
-    "schema": {
-      "operator": 54
-    }
-  },
-  {
-    "name": "Cos",
-    "schema": {
-      "operator": 55
-    }
-  },
-  {
-    "name": "Pass",
-    "schema": {
-      "operator": 56
-    }
-  },
-  {
-    "name": "Block",
-    "schema": {
-      "operator": 57
-    }
-  },
-  {
-    "name": "Unpooling",
-    "schema": {
-      "operator": 58
-    }
-  },
-  {
-    "name": "LambdaRank",
-    "schema": {
-      "operator": 59
-    }
-  },
-  {
-    "name": "NDCG",
-    "schema": {
-      "operator": 60
-    }
-  },
-  {
-    "name": "EditDistanceError",
-    "schema": {
-      "operator": 61
-    }
-  },
-  {
-    "name": "NoOp",
-    "schema": {
-      "operator": 62,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "LabelsToGraph",
-    "schema": {
-      "operator": 63
-    }
-  },
-  {
-    "name": "StopGradient",
-    "schema": {
-      "operator": 64
-    }
-  },
-  {
-    "name": "ELU",
-    "schema": {
-      "operator": 65
-    }
-  },
-  {
-    "name": "ForwardBackward",
-    "schema": {
-      "operator": 66
-    }
-  },
-  {
-    "name": "CosDistanceWithNegativeSamples",
-    "schema": {
-      "operator": 67
-    }
-  },
-  {
-    "name": "OneHot",
-    "schema": {
-      "operator": 68
-    }
-  },
-  {
-    "name": "Pow",
-    "schema": {
-      "operator": 69
-    }
-  },
-  {
-    "name": "ToSequence",
-    "schema": {
-      "operator": 70
-    }
-  },
-  {
-    "name": "ToSequenceLike",
-    "schema": {
-      "operator": 71
-    }
-  },
-  {
-    "name": "UnpackSequence",
-    "schema": {
-      "operator": 72
-    }
-  },
-  {
-    "name": "Assign",
-    "schema": {
-      "operator": 73
-    }
-  },
-  {
-    "name": "Gather",
-    "schema": {
-      "operator": 74
-    }
-  },
-  {
-    "name": "StableSigmoid",
-    "schema": {
-      "operator": 75,
-      "category": "Activation",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "RandomDistribution",
-    "schema": {
-      "operator": 76
-    }
-  },
-  {
-    "name": "Sinh",
-    "schema": {
-      "operator": 77
-    }
-  },
-  {
-    "name": "Cosh",
-    "schema": {
-      "operator": 78
-    }
-  },
-  {
-    "name": "UnpackBatch",
-    "schema": {
-      "operator": 79
-    }
-  },
-  {
-    "name": "ToBatch",
-    "schema": {
-      "operator": 80
-    }
-  },
-  {
-    "name": "Asin",
-    "schema": {
-      "operator": 81
-    }
+    "operator": 8
   },
   {
     "name": "Acos",
-    "schema": {
-      "operator": 82
-    }
+    "operator": 82
   },
   {
-    "name": "Pad",
-    "schema": {
-      "operator": 83,
-      "category": "Shape",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Crop",
-    "schema": {
-      "operator": 84,
-      "category": "Data"
-    }
-  },
-  {
-    "name": "Atanh",  
-    "schema": {
-      "operator": 85
-    }
+    "name": "Asin",
+    "operator": 81
   },
   {
     "name": "Asinh",
-    "schema": {
-      "operator": 86
-    }
+    "operator": 86
   },
   {
-    "name": "TopK",
-    "schema": {
-      "operator": 87,
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
-  },
-  {
-    "name": "Squeeze",
-    "schema": {
-      "operator": 88,
-      "category": "Transform"
-    }
-  },
-  {
-    "name": "ConstantOp",
-    "schema": {
-      "operator": 89
-    }
-  },
-  {
-    "name": "LatticeSequenceWithSoftmax",
-    "schema": {
-      "operator": 90
-    }
-  },
-  {
-    "name": "Cast",
-    "schema": {
-      "operator": 91
-    }
-  },
-  {
-    "name": "EyeLikeOp",
-    "schema": {
-      "operator": 92
-    }
-  },
-  {
-    "name": "CustomProxyOp",
-    "schema": {
-      "operator": 93
-    }
-  },
-  {
-    "name": "StraightThrough",
-    "schema": {
-      "operator": 94
-    }
-  },
-  {
-    "name": "Tan",
-    "schema": {
-      "operator": 95
-    }
+    "name": "Assign",
+    "operator": 73
   },
   {
     "name": "Atan",
-    "schema": {
-      "operator": 96
-    }
+    "operator": 96
+  },
+  {
+    "name": "Atanh",
+    "operator": 85
+  },
+  {
+    "name": "AveragePooling",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "BatchNormalization",
+    "operator": 40,
+    "category": "Normalization",
+    "attributes": [
+      { "name": "disableRegularization", "default": false },
+      { "name": "useCuDNNEngine", "visible": false },
+      { "name": "useCntkEngine", "visible": false },
+      { "name": "runCountUntied", "visible": false },
+      { "name": "epsilon", "default": 0.00001 },
+      { "name": "normalizationTimeConstant", "default": 0 },
+      { "name": "disableRegularization", "default": false },
+      { "name": "blendTimeConstant", "default": 0 },
+      { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "scale" },
+      { "name": "bias" },
+      { "name": "mean" },
+      { "name": "variance" },
+      { "name": "count" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Block",
+    "operator": 57
+  },
+  {
+    "name": "Cast",
+    "operator": 91
+  },
+  {
+    "name": "ClassificationError",
+    "operator": 36,
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Clip",
+    "operator": 41
+  },
+  {
+    "name": "Combine",
+    "operator": 44,
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ConstantOp",
+    "operator": 89
+  },
+  {
+    "name": "Convolution",
+    "operator": 33,
+    "category": "Layer",
+    "attributes": [
+      { "name": "transpose", "default": false },
+      { "name": "maxTempMemSizeInSamples", "default": 0 },
+      { "name": "dilation", "default": [   1,   null ] },
+      { "name": "outputShape", "default": 0 },
+      { "name": "sharing", "default": [   true,   null ] },
+      { "name": "strides", "default": [   1,   null ] },
+      { "name": "includePad", "default": false },
+      { "name": "ceilOutDim", "default": false },
+      { "name": "autoPadding", "default": [   true,   null ] },
+      { "name": "lowerPad", "default": [   0,   null ] },
+      { "name": "upperPad", "default": [   0,   null ] },
+      { "name": "convolution2D", "visible": false },
+      { "name": "poolKind", "type": "PoolKind", "default": "None" },
+      { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "W" },
+      { "name": "b" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
   },
   {
     "name": "ConvolutionSequenceShape",
-    "schema": {
-      "operator": 97
-    }
+    "operator": 97
   },
   {
-    "name": "Function:Dense",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "W" },
-        { "name": "b" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Cos",
+    "operator": 55
   },
   {
-    "name": "Function:Convolution",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "CosDistance",
+    "operator": 53
   },
   {
-    "name": "Function:ConvolutionTranspose",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "CosDistanceWithNegativeSamples",
+    "operator": 67
   },
   {
-    "name": "Function:Softmax",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Cosh",
+    "operator": 78
   },
   {
-    "name": "Function:linear",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "input" },
-        { "name": "scale" },
-        { "name": "b" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Crop",
+    "operator": 84,
+    "category": "Data"
   },
   {
-    "name": "Function:lrn",
-    "schema": {
-      "category": "Normalization",
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "CrossEntropyWithSoftmax",
+    "operator": 35,
+    "outputs": [
+      { "name": "output" }
+    ]
   },
   {
-    "name": "Function:PReLU",
-    "schema": {
-      "category": "Activation",
-      "inputs": [
-        { "name": "x" },
-        { "name": "axis" },
-        { "name": "slope" }
-      ],
-      "outputs": [
-        { "name": "y" }
-      ]
-    }
-  },
-
-  
-  { 
-    "name": "Function:ElementDivide",
-    "schema": {
-      "inputs": [
-        { "name": "A" },
-        { "name": "B" }
-      ],
-      "outputs": [
-        { "name": "C" }
-      ]
-    }
+    "name": "CustomProxyOp",
+    "operator": 93
   },
   {
-    "name": "Function:BatchNormalization",
-    "schema": {
-      "category": "Normalization",
-      "inputs": [
-        { "name": "input" },
-        { "name": "scale" },
-        { "name": "bias" },
-        { "name": "mean" },
-        { "name": "variance" },
-        { "name": "count" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Dropout",
+    "operator": 15,
+    "category": "Dropout",
+    "attributes": [
+      { "name": "rngSeed", "visible": false },
+      { "name": "rngOffset", "visible": false }
+    ],
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
   },
   {
-    "name": "Function:MaxPooling",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "EditDistanceError",
+    "operator": 61
   },
   {
-    "name": "Function:AveragePooling",
-    "schema": {
-      "category": "Pool",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "ElementTimes",
+    "operator": 21,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
-    "name": "Function:Dropout",
-    "schema": {
-      "category": "Dropout",
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "ELU",
+    "operator": 65
   },
   {
-    "name": "Function:LSTM",
-    "schema": {
-      "category": "Layer",
-      "inputs": [
-        { "name": "0" },
-        { "name": "1" },
-        { "name": "2" },
-        { "name": "b" },
-        { "name": "W" },
-        { "name": "H" }
-      ]
-    }
+    "name": "Equal",
+    "operator": 22,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
   },
   {
-    "name": "Mean",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "name": "Exp",
+    "operator": 4,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "EyeLikeOp",
+    "operator": 92
+  },
+  {
+    "name": "Floor",
+    "operator": 7,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ForwardBackward",
+    "operator": 66
+  },
+  {
+    "name": "FutureValue",
+    "operator": 38,
+    "attributes": [
+      { "name": "offset", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "initialState" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Gather",
+    "operator": 74,
+    "category": "Transform"
+  },
+  {
+    "name": "GatherPacked",
+    "operator": 29,
+    "inputs": [
+      { "name": "index" },
+      { "name": "source" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Greater",
+    "operator": 26,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "GreaterEqual",
+    "operator": 27,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "Hardmax",
+    "operator": 11,
+    "category": "Activation"
   },
   {
     "name": "InvStdDev",
-    "schema": {
-      "inputs": [
-        { "name": "input" }
-      ],
-      "outputs": [
-        { "name": "output" }
-      ]
-    }
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "LabelsToGraph",
+    "operator": 63
+  },
+  {
+    "name": "LambdaRank",
+    "operator": 59
+  },
+  {
+    "name": "LatticeSequenceWithSoftmax",
+    "operator": 90
+  },
+  {
+    "name": "Less",
+    "operator": 24,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "LessEqual",
+    "operator": 25,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "Log",
+    "operator": 5,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Logistic",
+    "operator": 48
+  },
+  {
+    "name": "LogPlus",
+    "operator": 52
+  },
+  {
+    "name": "LogSoftmax",
+    "operator": 51
+  },
+  {
+    "name": "MaxPooling",
+    "category": "Pool",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Mean",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Minus",
+    "operator": 20,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "NDCG",
+    "operator": 60
+  },
+  {
+    "name": "Negate",
+    "operator": 0,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "NoOp",
+    "operator": 62,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "NotEqual",
+    "operator": 23,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "OneHot",
+    "operator": 68
+  },
+  {
+    "name": "OptimizedRNNStack",
+    "operator": 49
+  },
+  {
+    "name": "PackedIndex",
+    "operator": 28,
+    "inputs": [
+      { "name": "source" },
+      { "name": "index" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Pad",
+    "operator": 83,
+    "category": "Shape",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Pass",
+    "operator": 56
+  },
+  {
+    "name": "PastValue",
+    "operator": 37,
+    "attributes": [
+      { "name": "offset", "type": "uint32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input" },
+      { "name": "initialState" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Plus",
+    "operator": 19,
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "Pooling",
+    "operator": 17,
+    "category": "Pool",
+    "attributes": [
+      { "name": "transpose", "default": false },
+      { "name": "includePad", "default": false },
+      { "name": "ceilOutDim", "default": false },
+      { "name": "autoPadding", "default": [   false,   null ] },
+      { "name": "sharing", "default": [   true,   null ] },
+      { "name": "strides", "default": [   1,   null ] },
+      { "name": "lowerPad", "default": [   0,   null ] },
+      { "name": "upperPad", "default": [   0,   null ] },
+      { "name": "outputShape", "default": 0 },
+      { "name": "maxTempMemSizeInSamples", "default": 0 },
+      { "name": "poolingType", "type": "PoolingType", "default": "Max" },
+      { "name": "poolKind", "type": "PoolKind", "default": "None" },
+      { "name": "imageLayoutKind", "type": "ImageLayoutKind", "visible": false }
+    ],
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Pow",
+    "operator": 69
+  },
+  {
+    "name": "RandomDistribution",
+    "operator": 76
+  },
+  {
+    "name": "RandomSample",
+    "operator": 45
+  },
+  {
+    "name": "RandomSampleInclusionFrequency",
+    "operator": 46
+  },
+  {
+    "name": "Reciprocal",
+    "operator": 9,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ReconcileDynamicAxis",
+    "operator": 50
+  },
+  {
+    "name": "RectifiedLinear",
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ReduceElements",
+    "operator": 39,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ReLU",
+    "operator": 3,
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Reshape",
+    "operator": 16,
+    "category": "Shape",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ROIPooling",
+    "operator": 47,
+    "category": "Pool",
+    "attributes": [
+      { "name": "spatialScale", "default": 0.0625 },
+      { "name": "poolKind", "type": "PoolKind", "default": "None" }
+    ],
+    "inputs": [
+      { "name": "inputs" },
+      { "name": "ROIs" }
+    ],
+    "outputs": [
+      { "name": "outputs" }
+    ]
+  },
+  {
+    "name": "ScatterPacked",
+    "operator": 30
+  },
+  {
+    "name": "Select",
+    "operator": 42
+  },
+  {
+    "name": "Sigmoid",
+    "operator": 1,
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Sin",
+    "operator": 54
+  },
+  {
+    "name": "Sinh",
+    "operator": 77
+  },
+  {
+    "name": "Slice",
+    "operator": 14,
+    "category": "Tensor",
+    "inputs": [
+      { "name": "input" },
+      { "name": "begin" },
+      { "name": "end" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Softmax",
+    "operator": 10,
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Splice",
+    "operator": 43,
+    "category": "Tensor",
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Sqrt",
+    "operator": 6,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "SquaredError",
+    "operator": 34
+  },
+  {
+    "name": "Squeeze",
+    "operator": 88,
+    "category": "Transform"
+  },
+  {
+    "name": "StableSigmoid",
+    "operator": 75,
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "StopGradient",
+    "operator": 64
+  },
+  {
+    "name": "StraightThrough",
+    "operator": 94
+  },
+  {
+    "name": "SumAll",
+    "operator": 18
+  },
+  {
+    "name": "Tan",
+    "operator": 95
+  },
+  {
+    "name": "Tanh",
+    "operator": 2,
+    "category": "Activation",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "Times",
+    "operator": 31,
+    "attributes": [
+      { "name": "outputRank", "default": 1 },
+      { "name": "inferInputRankToMap", "visible": false, "default": -1 }
+    ],
+    "inputs": [
+      { "name": "A" },
+      { "name": "B" }
+    ],
+    "outputs": [
+      { "name": "C" }
+    ]
+  },
+  {
+    "name": "ToBatch",
+    "operator": 80
+  },
+  {
+    "name": "TopK",
+    "operator": 87,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "ToSequence",
+    "operator": 70
+  },
+  {
+    "name": "ToSequenceLike",
+    "operator": 71
+  },
+  {
+    "name": "TransposeAxes",
+    "operator": 12,
+    "category": "Activation"
+  },
+  {
+    "name": "TransposeDimensions",
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
+    "name": "TransposeTimes",
+    "operator": 32
+  },
+  {
+    "name": "UnpackBatch",
+    "operator": 79
+  },
+  {
+    "name": "UnpackSequence",
+    "operator": 72
+  },
+  {
+    "name": "Unpooling",
+    "operator": 58
+  },
+  {
+    "name": "Where",
+    "operator": 13,
+    "inputs": [
+      { "name": "input" }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
   }
 ]

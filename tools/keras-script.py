@@ -140,11 +140,10 @@ def metadata():
     json_root = json.loads(json_file.read())
     json_file.close()
 
-    for entry in json_root:
-        name = entry['name']
-        schema = entry['schema']
-        if 'package' in schema:
-            class_name = schema['package'] + '.' + name
+    for schema in json_root:
+        name = schema['name']
+        if 'module' in schema:
+            class_name = schema['module'] + '.' + name
             class_definition = pydoc.locate(class_name)
             if not class_definition:
                 raise Exception('\'' + class_name + '\' not found.')
@@ -182,32 +181,12 @@ def metadata():
                     raise Exception('')
 
     json_file = open(json_path, 'w')
-    json_data = json.dumps(json_root, sort_keys=True, indent=2)
+    json_data = json.dumps(json_root, sort_keys=False, indent=2)
     for line in json_data.splitlines():
         json_file.write(line.rstrip() + '\n')
     json_file.close()
 
-def zoo():
-    def download_model(type, file):
-        file = os.path.expandvars(file)
-        if not os.path.exists(file):
-            folder = os.path.dirname(file)
-            if not os.path.exists(folder):
-                os.makedirs(folder)
-            model_type = pydoc.locate(type)
-            model = model_type(weights=None)
-            model.save(file)
-    if not os.environ.get('test'):
-        os.environ['test'] = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '../test'))
-    download_model('tensorflow.keras.applications.DenseNet121', '${test}/data/keras/DenseNet121.h5')
-    download_model('tensorflow.keras.applications.InceptionResNetV2', '${test}/data/keras/InceptionResNetV2.h5')
-    download_model('tensorflow.keras.applications.InceptionV3', '${test}/data/keras/InceptionV3.h5')
-    download_model('tensorflow.keras.applications.MobileNetV2', '${test}/data/keras/MobileNetV2.h5')
-    download_model('tensorflow.keras.applications.NASNetMobile', '${test}/data/keras/NASNetMobile.h5')
-    download_model('tensorflow.keras.applications.ResNet50', '${test}/data/keras/ResNet50.h5')
-    download_model('tensorflow.keras.applications.VGG19', '${test}/data/keras/VGG19.h5')
-
 if __name__ == '__main__':
-    command_table = { 'metadata': metadata, 'zoo': zoo }
+    command_table = { 'metadata': metadata }
     command = sys.argv[1]
     command_table[command]()

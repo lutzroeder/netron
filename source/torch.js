@@ -9,10 +9,10 @@ torch.ModelFactory = class {
         if (extension == 't7') {
             const stream = context.stream;
             if (stream.length >= 1 && stream.peek(1)[0] <= 58) {
-                return true;
+                return 'torch';
             }
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
@@ -230,7 +230,6 @@ torch.Argument = class {
 torch.Node = class {
 
     constructor(metadata, module, groups, name, inputs, outputs) {
-        this._metadata = metadata;
         this._group = groups.join('/');
         if (module.name && typeof module.name === 'string') {
             this._name = module.name;
@@ -239,17 +238,13 @@ torch.Node = class {
         else {
             this._name = this._group ? (this._group + ':' + name) : name;
         }
-        this._type = module.__type__ || 'nn.Module';
+        const type = module.__type__ || 'nn.Module';
+        this._type = metadata.type(type);
         let initializers = [];
         for (const key of Object.keys(module)) {
             const obj = module[key];
             if (obj && obj.__type__ && obj.__type__.startsWith('torch.') && obj.__type__.endsWith('Storage')) {
-                const array = [];
-                obj.reset();
-                for (let i = 0; i < obj.size; i++) {
-                    array.push(obj.read());
-                }
-                module[key] = array;
+                module[key] = obj.data();
             }
         }
         delete module.iSize;
@@ -270,7 +265,7 @@ torch.Node = class {
         delete module.tmp_in;
         delete module.tmp_out;
         delete module.accUpdateGradParameters;
-        switch (this._type) {
+        switch (this._type.name) {
             case 'nn.Linear':
                 delete module.addBuffer;
                 break;
@@ -356,7 +351,7 @@ torch.Node = class {
                 if (key == 'modules' || (obj.__type__ && obj.__type__ != 'Function')) {
                     continue;
                 }
-                this._attributes.push(new torch.Attribute(this._metadata, this._type, key, obj));
+                this._attributes.push(new torch.Attribute(metadata, type, key, obj));
             }
         }
         this._inputs = [];
@@ -396,10 +391,6 @@ torch.Node = class {
 
     get group() {
         return this._group;
-    }
-
-    get metadata() {
-        return this._metadata.type(this._type);
     }
 
     get attributes() {
@@ -476,6 +467,7 @@ torch.Tensor = class {
     constructor(tensor) {
         this._type = new torch.TensorType(tensor);
         this._storage = tensor.storage;
+        this._offset = tensor.storage_offset;
     }
 
     get type() {
@@ -510,7 +502,13 @@ torch.Tensor = class {
         context.state = null;
         context.index = 0;
         context.count = 0;
-        if (!this._storage || !this._storage.reader) {
+        if (!this._storage) {
+            context.state = 'Tensor data is empty.';
+            return context;
+        }
+        context.data = this._storage.data();
+        context.index = this._offset;
+        if (!context.data) {
             context.state = 'Tensor data is empty.';
             return context;
         }
@@ -532,8 +530,6 @@ torch.Tensor = class {
             context.state =  'Tensor has no dimensions.';
             return context;
         }
-        context.storage = this._storage;
-        context.storage.reset();
         return context;
     }
 
@@ -546,7 +542,7 @@ torch.Tensor = class {
                     results.push('...');
                     return results;
                 }
-                results.push(context.storage.read());
+                results.push(context.data[context.index]);
                 context.index++;
                 context.count++;
             }
@@ -622,21 +618,21 @@ torch.Metadata = class {
     }
 
     constructor(data) {
-        this._map = {};
+        this._map = new Map();
         this._attributeCache = {};
         if (data) {
             const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    item.schema.name = item.name;
-                    this._map[item.name] = item.schema;
-                }
+            for (const item of items) {
+                this._map.set(item.name, item);
             }
         }
     }
 
     type(name) {
-        return this._map[name] || null;
+        if (!this._map.has(name)) {
+            this._map.set(name, { name: name });
+        }
+        return this._map.get(name);
     }
 
     attribute(type, name) {
@@ -776,6 +772,7 @@ torch.T7Reader = class {
         this._registry['nn.SpatialFullConvolution'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialLPPooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialMaxPooling'] = function(reader) { reader.nn(this); };
+        this._registry['nn.SpatialMaxUnpooling'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReflectionPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialReplicationPadding'] = function(reader) { reader.nn(this); };
         this._registry['nn.SpatialSoftMax'] = function(reader) { reader.nn(this); };
@@ -994,27 +991,41 @@ torch.T7Reader = class {
         obj.itemSize = itemSize;
         obj.size = this.int64();
         obj.reader = this._reader.storage(obj.size, obj.itemSize, dataType);
-        obj.reset = function() {
-            this.reader.reset();
-        };
-        obj.read = function() {
-            switch (dataType) {
-                case 'uint8':
-                    return this.reader.byte();
-                case 'int8':
-                    return this.reader.int8();
-                case 'int16':
-                    return this.reader.int16();
-                case 'int32':
-                    return this.reader.int32();
-                case 'int64':
-                    return this.reader.int64();
-                case 'float32':
-                    return this.reader.float32();
-                case 'float64':
-                    return this.reader.float64();
+        obj.data = function() {
+            if (this.reader) {
+                const reader = this.reader;
+                reader.reset();
+                const size = obj.size;
+                const array = new Array(size);
+                for (let i = 0; i < size; i++) {
+                    switch (dataType) {
+                        case 'uint8':
+                            array[i] = this.reader.byte();
+                            break;
+                        case 'int8':
+                            array[i] = this.reader.int8();
+                            break;
+                        case 'int16':
+                            array[i] = this.reader.int16();
+                            break;
+                        case 'int32':
+                            array[i] = this.reader.int32();
+                            break;
+                        case 'int64':
+                            array[i] = this.reader.int64();
+                            break;
+                        case 'float32':
+                            array[i] = this.reader.float32();
+                            break;
+                        case 'float64':
+                            array[i] = this.reader.float64();
+                            break;
+                    }
+                }
+                obj._data = array;
+                delete obj.reader;
             }
-            return null;
+            return obj._data;
         };
     }
 };

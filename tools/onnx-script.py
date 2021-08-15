@@ -136,52 +136,20 @@ def generate_json(schemas, json_file):
     json_root = []
     for schema in schemas:
         json_schema = {}
+        json_schema['name'] = schema.name
         if schema.domain:
-            json_schema['domain'] = schema.domain
+            json_schema['module'] = schema.domain
         else:
-            json_schema['domain'] = 'ai.onnx'
-        json_schema['since_version'] = schema.since_version
+            json_schema['module'] = 'ai.onnx'
+        json_schema['version'] = schema.since_version
         json_schema['support_level'] = generate_json_support_level_name(schema.support_level)
         if schema.doc:
             json_schema['description'] = format_description(schema.doc.lstrip())
-        if schema.inputs:
-            json_schema['inputs'] = []
-            for input in schema.inputs:
-                json_input = {}
-                json_input['name'] = input.name
-                json_input['description'] = format_description(input.description)
-                json_input['type'] = input.typeStr
-                if input.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
-                    json_input['option'] = 'optional'
-                elif input.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
-                    json_input['list'] = True
-                json_schema['inputs'].append(json_input)
-        json_schema['min_input'] = schema.min_input
-        json_schema['max_input'] = schema.max_input
-        if schema.outputs:
-            json_schema['outputs'] = []
-            for output in schema.outputs:
-                json_output = {}
-                json_output['name'] = output.name
-                json_output['description'] = format_description(output.description)
-                json_output['type'] = output.typeStr
-                if output.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
-                    json_output['option'] = 'optional'
-                elif output.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
-                    json_output['list'] = True
-                json_schema['outputs'].append(json_output)
-        json_schema['min_output'] = schema.min_output
-        json_schema['max_output'] = schema.max_output
-        if schema.min_input != schema.max_input:
-            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input)
-        if schema.min_output != schema.max_output:
-            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output)
         if schema.attributes:
             json_schema['attributes'] = []
             for _, attribute in sorted(schema.attributes.items()):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
-                json_attribute['description'] = format_description(attribute.description)
                 attribute_type = generate_json_attr_type(attribute.type)
                 if attribute_type:
                     json_attribute['type'] = attribute_type
@@ -191,7 +159,40 @@ def generate_json(schemas, json_file):
                 default_value = generate_json_attr_default_value(attribute.default_value)
                 if default_value:
                     json_attribute['default'] = default_value
+                json_attribute['description'] = format_description(attribute.description)
                 json_schema['attributes'].append(json_attribute)
+        if schema.inputs:
+            json_schema['inputs'] = []
+            for input in schema.inputs:
+                json_input = {}
+                json_input['name'] = input.name
+                json_input['type'] = input.typeStr
+                if input.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
+                    json_input['option'] = 'optional'
+                elif input.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
+                    json_input['list'] = True
+                json_input['description'] = format_description(input.description)
+                json_schema['inputs'].append(json_input)
+        json_schema['min_input'] = schema.min_input
+        json_schema['max_input'] = schema.max_input
+        if schema.outputs:
+            json_schema['outputs'] = []
+            for output in schema.outputs:
+                json_output = {}
+                json_output['name'] = output.name
+                json_output['type'] = output.typeStr
+                if output.option == onnx.defs.OpSchema.FormalParameterOption.Optional:
+                    json_output['option'] = 'optional'
+                elif output.option == onnx.defs.OpSchema.FormalParameterOption.Variadic:
+                    json_output['list'] = True
+                json_output['description'] = format_description(output.description)
+                json_schema['outputs'].append(json_output)
+        json_schema['min_output'] = schema.min_output
+        json_schema['max_output'] = schema.max_output
+        if schema.min_input != schema.max_input:
+            json_schema['inputs_range'] = format_range(schema.min_input) + ' - ' + format_range(schema.max_input)
+        if schema.min_output != schema.max_output:
+            json_schema['outputs_range'] = format_range(schema.min_output) + ' - ' + format_range(schema.max_output)
         if schema.type_constraints:
             json_schema['type_constraints'] = []
             for type_constraint in schema.type_constraints:
@@ -201,20 +202,25 @@ def generate_json(schemas, json_file):
                     'allowed_type_strs': type_constraint.allowed_type_strs
                 })
         if schema.name in snippets:
+            def update_code(code):
+                lines = code.splitlines()
+                while len(lines) > 0 and re.search("\\s*#", lines[-1]):
+                    lines.pop()
+                    if len(lines) > 0 and len(lines[-1]) == 0:
+                        lines.pop()
+                return '\n'.join(lines)
             json_schema['examples'] = []
             for summary, code in sorted(snippets[schema.name]):
                 json_schema['examples'].append({
                     'summary': summary,
-                    'code': code
+                    'code': update_code(code)
                 })
         if schema.name in categories:
             json_schema['category'] = categories[schema.name]
-        json_root.append({
-            'name': schema.name,
-            'schema': json_schema 
-        })
+        json_root.append(json_schema);
+    json_root = sorted(json_root, key=lambda item: item['name'] + ':' + str(item['version'] if 'version' in item else 0).zfill(4))
     with io.open(json_file, 'w', newline='') as fout:
-        json_root = json.dumps(json_root, sort_keys=True, indent=2)
+        json_root = json.dumps(json_root, indent=2)
         for line in json_root.splitlines():
             line = line.rstrip()
             if sys.version_info[0] < 3:
@@ -223,10 +229,9 @@ def generate_json(schemas, json_file):
             fout.write('\n')
 
 def metadata():
-    schemas = onnx.defs.get_all_schemas_with_history()
-    schemas = sorted(schemas, key=lambda schema: schema.name)
     json_file = os.path.join(os.path.dirname(__file__), '../source/onnx-metadata.json')
-    generate_json(schemas, json_file)
+    all_schemas_with_history = onnx.defs.get_all_schemas_with_history()
+    generate_json(all_schemas_with_history, json_file)
 
 def optimize():
     import onnx

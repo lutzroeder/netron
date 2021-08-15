@@ -9,7 +9,7 @@ barracuda.ModelFactory = class {
         const stream = context.stream;
         if (stream.length > 12) {
             const buffer = stream.peek(12);
-            if (buffer[0] <= 0x10 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
+            if (buffer[0] <= 0x20 && buffer.subarray(1, 8).every((value) => value == 0x00)) {
                 return true;
             }
         }
@@ -70,7 +70,7 @@ barracuda.Graph = class {
         }
 
         for (const layer of layers) {
-            this._nodes.push(new barracuda.Node(metadata, layer, initializers));
+            this._nodes.push(new barracuda.Node(metadata, layer, null, initializers));
         }
     }
 
@@ -135,17 +135,14 @@ barracuda.Argument = class {
 
 barracuda.Node = class {
 
-    constructor(metadata, layer, initializers) {
-
+    constructor(metadata, layer, type, initializers) {
         this._name = layer.name || '';
-        this._metadata = metadata.type(layer.type) || { name: layer.type.toString() };
-        this._type = this._metadata.name;
-
+        this._type = type ? type : metadata.type(layer.type) || { name: layer.type.toString() };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
-        const inputs = Array.prototype.slice.call(this._metadata.inputs || [ 'input' ]);
-        if (this._metadata.inputs && this._metadata.inputs.length === 1 && this._metadata.inputs[0] === 'inputs') {
+        const inputs = Array.prototype.slice.call(this._type.inputs || [ 'input' ]);
+        if (this._type.inputs && this._type.inputs.length === 1 && this._type.inputs[0].name === 'inputs') {
             this._inputs.push(new barracuda.Parameter('inputs', layer.inputs.map((input) => {
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
                 return new barracuda.Argument(input, initializer ? initializer.type : null, initializer);
@@ -155,7 +152,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.inputs.length; i++) {
                 const input = layer.inputs[i];
                 const initializer = initializers.has(input) ? initializers.get(input) : null;
-                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
+                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift().name : i.toString(), [
                     new barracuda.Argument(input, initializer ? initializer.type : null, initializer)
                 ]));
             }
@@ -164,7 +161,7 @@ barracuda.Node = class {
             for (let i = 0; i < layer.tensors.length; i++) {
                 const tensor = layer.tensors[i];
                 const initializer = new barracuda.Tensor(tensor);
-                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift() : i.toString(), [
+                this._inputs.push(new barracuda.Parameter(inputs.length > 0 ? inputs.shift().name : i.toString(), [
                     new barracuda.Argument(tensor.name, initializer.type, initializer)
                 ]));
             }
@@ -174,14 +171,16 @@ barracuda.Node = class {
                 new barracuda.Argument(this._name)
             ]));
         }
-        if (!barracuda.Activation[layer.activation]) {
-            throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
-        }
-        if (this._type === 'Activation') {
-            this._type = barracuda.Activation[layer.activation];
-        }
-        else if (layer.activation !== 0) {
-            this._chain = [ new barracuda.Node(metadata, { type: 50, activation: layer.activation }, initializers) ];
+        /* if (this._type.name === 'Activation') {
+            const type = barracuda.Activation[layer.activation];
+            this._type = metadata.type(layer.activation) || { name: type };
+        } */
+        if (layer.activation && layer.activation !== 0) {
+            const type = barracuda.Activation[layer.activation];
+            if (!type) {
+                throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
+            }
+            this._chain = [ new barracuda.Node(metadata, {}, { name: type, category: 'Activation' }, initializers) ];
         }
         const attribute = (name, type, value, defaultValue) => {
             if (value === undefined) {
@@ -212,10 +211,6 @@ barracuda.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get metadata() {
-        return this._metadata;
     }
 
     get attributes() {
@@ -409,36 +404,32 @@ barracuda.NNModel = class {
 
     constructor(buffer) {
 
-        // https://github.com/Unity-Technologies/ml-agents/blob/master/ml-agents/mlagents/trainers/barracuda.py
-        // https://github.com/Unity-Technologies/ml-agents/blob/master/ml-agents/mlagents/trainers/tensorflow_to_barracuda.py
+        // https://github.com/Unity-Technologies/barracuda-release/blob/release/1.3.2/Barracuda/Runtime/Core/Model.cs
 
         const reader = new barracuda.BinaryReader(buffer);
         this._version = reader.int32();
         reader.int32();
 
-        this._inputs = [];
-        const modelInputsLength = reader.int32();
-        for (let i = 0; i < modelInputsLength; i++) {
-            this._inputs.push({
+        this._inputs = new Array(reader.int32());
+        for (let i = 0; i < this._inputs.length; i++) {
+            this._inputs[i] = {
                 name: reader.string(),
                 shape: reader.shape()
-            });
+            };
         }
         this._outputs = reader.strings();
 
-        this._memories = [];
-        const memoriesLength = reader.int32();
-        for (let i = 0; i < memoriesLength; i++) {
-            this._memories.push({
+        this._memories = new Array(reader.int32());
+        for (let i = 0; i < this._memories.length; i++) {
+            this._memories[i] = {
                 shape: reader.shape(),
                 in: reader.string(),
                 out: reader.string()
-            });
+            };
         }
 
-        this._layers = [];
-        const layersLength = reader.int32();
-        for (let i = 0; i < layersLength; i++) {
+        this._layers = new Array(reader.int32());
+        for (let i = 0; i < this._layers.length; i++) {
             const layer = {};
             layer.name = reader.string();
             layer.type = reader.int32();
@@ -464,7 +455,7 @@ barracuda.NNModel = class {
                     length: reader.int32()
                 });
             }
-            this._layers.push(layer);
+            this._layers[i] = layer;
         }
         for (const layer of this._layers) {
             for (const tensor of layer.tensors) {
@@ -609,7 +600,7 @@ barracuda.Metadata = class {
         this._register(37, 'GlobalMaxPool3D', 'Pool');
         this._register(38, 'GlobalAvgPool3D', 'Pool');
         this._register(39, 'Border3D', '');
-        this._register(50, 'Activation', 'Activation');
+        this._register(50, 'Activation', '');
         this._register(51, 'ScaleBias', 'Normalization', [ 'input', 'scale', 'bias' ]);
         this._register(52, 'Normalization', 'Normalization');
         this._register(53, 'LRN', 'Normalization');
@@ -663,10 +654,14 @@ barracuda.Metadata = class {
         this._register(210, 'Concat', 'Tensor', [ 'inputs' ]);
         this._register(211, 'StridedSlice', 'Shape');
         this._register(212, 'Tile', '');
+        this._register(213, 'Shape', '');
+        this._register(214, 'NonMaxSuppression', '');
+        this._register(215, 'LSTM', '');
+        this._register(255, 'Load', '');
     }
 
     _register(id, name, category, inputs) {
-        this._map.set(id, { name: name, category: category, inputs: inputs });
+        this._map.set(id, { name: name, category: category, inputs: (inputs || []).map((input) => { return { name: input }; }) });
     }
 
     type(name) {

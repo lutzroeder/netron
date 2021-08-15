@@ -13,43 +13,54 @@ pickle.ModelFactory = class {
         const signature = [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ];
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) {
             // Reject PyTorch models with .pkl file extension.
-            return false;
+            return undefined;
         }
-        const tags = context.tags('pkl');
-        if (tags.size === 1) {
-            return true;
+        const obj = context.open('pkl');
+        if (obj !== undefined) {
+            return 'pickle';
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
         return new Promise((resolve) => {
-            const value = context.tags('pkl').values().next().value;
-            if (value === null || value === undefined) {
+            let format = 'Pickle';
+            const obj = context.open('pkl');
+            if (obj === null || obj === undefined) {
                 context.exception(new pickle.Error('Unknown Pickle null object.'));
             }
-            else if (Array.isArray(value)) {
+            else if (Array.isArray(obj)) {
                 context.exception(new pickle.Error('Unknown Pickle array object.'));
             }
-            else if (value && value.__module__ && value.__name__) {
-                context.exception(new pickle.Error("Unknown Pickle type '" + value.__module__ + "." + value.__name__ + "'."));
+            else if (obj && obj.__class__) {
+                const formats = new Map([
+                    [ 'cuml.ensemble.randomforestclassifier.RandomForestClassifier', 'cuML' ]
+                ]);
+                const type = obj.__class__.__module__ + "." + obj.__class__.__name__;
+                if (formats.has(type)) {
+                    format = formats.get(type);
+                }
+                else {
+                    context.exception(new pickle.Error("Unknown Pickle type '" + type + "'."));
+                }
             }
             else {
                 context.exception(new pickle.Error('Unknown Pickle object.'));
             }
-            resolve(new pickle.Model(value));
+            resolve(new pickle.Model(obj, format));
         });
     }
 };
 
 pickle.Model = class {
 
-    constructor(value) {
+    constructor(value, format) {
+        this._format = format;
         this._graphs = [ new pickle.Graph(value) ];
     }
 
     get format() {
-        return 'Pickle';
+        return this._format;
     }
 
     get graphs() {
@@ -59,10 +70,27 @@ pickle.Model = class {
 
 pickle.Graph = class {
 
-    constructor(/* value */) {
+    constructor(obj) {
         this._inputs = [];
         this._outputs = [];
-        this._nodes = [ new pickle.Node() ];
+        this._nodes = [];
+
+        if (Array.isArray(obj) && obj.every((item) => item.__class__)) {
+            for (const item of obj) {
+                this._nodes.push(new pickle.Node(item));
+            }
+        }
+        else if (obj && obj instanceof Map) {
+            for (const entry of obj) {
+                this._nodes.push(new pickle.Node(entry[1], entry[0]));
+            }
+        }
+        else if (obj && obj.__class__) {
+            this._nodes.push(new pickle.Node(obj));
+        }
+        else if (obj && Object(obj) === obj) {
+            this._nodes.push(new pickle.Node(obj));
+        }
     }
 
     get inputs() {
@@ -80,18 +108,31 @@ pickle.Graph = class {
 
 pickle.Node = class {
 
-    constructor(/* value */) {
+    constructor(obj, name) {
+        this._name = name || '';
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        if (Array.isArray(obj)) {
+            this._type = { name: 'List' };
+            this._attributes.push(new pickle.Attribute('value', obj));
+        }
+        else {
+            const type = obj.__class__ ? obj.__class__.__module__ + '.' + obj.__class__.__name__ : 'Object';
+            this._type = { name: type };
+            for (const key of Object.keys(obj)) {
+                const value = obj[key];
+                this._attributes.push(new pickle.Attribute(key, value));
+            }
+        }
     }
 
     get type() {
-        return '?';
+        return this._type;
     }
 
     get name() {
-        return '';
+        return this._name;
     }
 
     get inputs() {
@@ -107,6 +148,28 @@ pickle.Node = class {
     }
 };
 
+pickle.Attribute = class {
+
+    constructor(name, value) {
+        this._name = name;
+        this._value = value;
+        if (value && value.__class__) {
+            this._type = value.__class__.__module__ + '.' + value.__class__.__name__;
+        }
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    get type() {
+        return this._type;
+    }
+};
 
 pickle.Error = class extends Error {
 

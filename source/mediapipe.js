@@ -8,26 +8,27 @@ mediapipe.ModelFactory = class {
     match(context) {
         const tags = context.tags('pbtxt');
         if (tags.has('node') && ['input_stream', 'output_stream', 'input_side_packet', 'output_side_packet'].some((key) => tags.has(key) || tags.has('node.' + key))) {
-            return true;
+            return 'mediapipe.pbtxt';
         }
-        return false;
+        return undefined;
     }
 
     open(context) {
         return Promise.resolve().then(() => {
         // return context.require('./mediapipe-proto').then(() => {
             mediapipe.proto = protobuf.get('mediapipe');
+            let config = null;
             try {
-                const buffer = context.stream.peek();
-                const reader = protobuf.TextReader.create(buffer);
+                const stream = context.stream;
+                const reader = protobuf.TextReader.open(stream);
                 // const config = mediapipe.proto.mediapipe.CalculatorGraphConfig.decodeText(reader);
-                const config = new mediapipe.Object(reader);
-                return new mediapipe.Model(config);
+                config = new mediapipe.Object(reader);
             }
             catch (error) {
                 const message = error && error.message ? error.message : error.toString();
                 throw new mediapipe.Error('File text format is not mediapipe.CalculatorGraphConfig (' + message.replace(/\.$/, '') + ').');
             }
+            return new mediapipe.Model(config);
         });
     }
 };
@@ -124,8 +125,8 @@ mediapipe.Graph = class {
 mediapipe.Node = class {
 
     constructor(node) {
-        this._type = node.calculator || '?';
-        this._type = this._type.replace(/Calculator$/, '');
+        const type = node.calculator || '?';
+        this._type = { name: type.replace(/Calculator$/, '') };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -177,7 +178,7 @@ mediapipe.Node = class {
         const options = new Map();
         if (node.options) {
             for (const key of Object.keys(node.options)) {
-                options.set(key, options[key]);
+                options.set(key, node.options[key]);
             }
         }
         const node_options = node.node_options ? Array.isArray(node.node_options) ? node.node_options : [ node.node_options ] : [];
@@ -185,7 +186,7 @@ mediapipe.Node = class {
             for (const entry of node_options) {
                 const value = new RegExp(/^\{(.*)\}\s*$/, 's').exec(entry.value);
                 const buffer = new TextEncoder('utf-8').encode(value[1]);
-                const reader = protobuf.TextReader.create(buffer);
+                const reader = protobuf.TextReader.open(buffer);
                 if (entry.type_url.startsWith('type.googleapis.com/mediapipe.')) {
                     const type = entry.type_url.split('.').pop();
                     if (mediapipe.proto && mediapipe.proto.mediapipe && mediapipe.proto.mediapipe[type]) {
@@ -222,10 +223,6 @@ mediapipe.Node = class {
 
     get type() {
         return this._type;
-    }
-
-    get metadata() {
-        return null;
     }
 
     get inputs() {
@@ -386,6 +383,7 @@ mediapipe.Object = class {
                 }
                 this[tag] = obj;
             }
+            reader.match(',');
         }
     }
 };

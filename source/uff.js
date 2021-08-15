@@ -18,44 +18,45 @@ uff.ModelFactory = class {
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
                 tags.has(5) && tags.get(5) === 2) {
-                return true;
+                return 'uff.pb';
             }
         }
         if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
             const tags = context.tags('pbtxt');
             if (tags.has('version') && tags.has('descriptors') && tags.has('graphs')) {
-                return true;
+                return 'uff.pbtxt';
             }
         }
-        return false;
+        return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return context.require('./uff-proto').then(() => {
+            uff.proto = protobuf.get('uff').uff;
             let meta_graph = null;
-            const identifier = context.identifier;
-            const extension = identifier.split('.').pop().toLowerCase();
-            if (extension === 'pbtxt' || identifier.toLowerCase().endsWith('.uff.txt')) {
-                try {
-                    uff.proto = protobuf.get('uff').uff;
-                    const buffer = context.stream.peek();
-                    const reader = protobuf.TextReader.create(buffer);
-                    meta_graph = uff.proto.MetaGraph.decodeText(reader);
+            switch (match) {
+                case 'uff.pb': {
+                    try {
+                        const stream = context.stream;
+                        const reader = protobuf.BinaryReader.open(stream);
+                        meta_graph = uff.proto.MetaGraph.decode(reader);
+                    }
+                    catch (error) {
+                        const message = error && error.message ? error.message : error.toString();
+                        throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
+                    }
+                    break;
                 }
-                catch (error) {
-                    throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
-                }
-            }
-            else {
-                try {
-                    uff.proto = protobuf.get('uff').uff;
-                    const buffer = context.stream.peek();
-                    const reader = protobuf.Reader.create(buffer);
-                    meta_graph = uff.proto.MetaGraph.decode(reader);
-                }
-                catch (error) {
-                    const message = error && error.message ? error.message : error.toString();
-                    throw  new uff.Error('File format is not uff.MetaGraph (' + message.replace(/\.$/, '') + ').');
+                case 'uff.pbtxt': {
+                    try {
+                        const stream = context.stream;
+                        const reader = protobuf.TextReader.open(stream);
+                        meta_graph = uff.proto.MetaGraph.decodeText(reader);
+                    }
+                    catch (error) {
+                        throw new uff.Error('File text format is not uff.MetaGraph (' + error.message + ').');
+                    }
+                    break;
                 }
             }
             return uff.Metadata.open(context).then((metadata) => {
@@ -69,7 +70,7 @@ uff.Model = class {
 
     constructor(metadata, meta_graph) {
         this._version = meta_graph.version;
-        this._imports = meta_graph.descriptors.map((descriptor) => descriptor.id + ' v' + descriptor.version.toString()).join(', ');
+        this._imports = meta_graph.descriptors.map((descriptor) => descriptor.id + ' v' + descriptor.version.toString());
         const references = new Map(meta_graph.referenced_data.map((item) => [ item.key, item.value ]));
         for (const graph of meta_graph.graphs) {
             for (const node of graph.nodes) {
@@ -216,17 +217,15 @@ uff.Node = class {
 
     constructor(metadata, node, args) {
         this._name = node.id;
-        this._operation = node.operation;
-        this._metadata = metadata.type(node.operation);
+        this._type = metadata.type(node.operation) || { name: node.operation };
         this._attributes = [];
         this._inputs = [];
         this._outputs = [];
 
-        const schema = metadata.type(node.operation);
         if (node.inputs && node.inputs.length > 0) {
             let inputIndex = 0;
-            if (schema && schema.inputs) {
-                for (const inputSchema of schema.inputs) {
+            if (this._type && this._type.inputs) {
+                for (const inputSchema of this._type.inputs) {
                     if (inputIndex < node.inputs.length || inputSchema.optional !== true) {
                         const inputCount = inputSchema.list ? (node.inputs.length - inputIndex) : 1;
                         const inputArguments = node.inputs.slice(inputIndex, inputIndex + inputCount).map((id) => {
@@ -248,7 +247,7 @@ uff.Node = class {
         ]));
 
         for (const field of node.fields) {
-            this._attributes.push(new uff.Attribute(metadata.attribute(this._operation, field.key), field.key, field.value));
+            this._attributes.push(new uff.Attribute(metadata.attribute(node.operation, field.key), field.key, field.value));
         }
     }
 
@@ -257,11 +256,7 @@ uff.Node = class {
     }
 
     get type() {
-        return this._operation;
-    }
-
-    get metadata() {
-        return this._metadata;
+        return this._type;
     }
 
     get inputs() {
@@ -517,15 +512,8 @@ uff.Metadata = class {
         this._map = new Map();
         this._attributeCache = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    if (item.name && item.schema) {
-                        item.schema.name = item.name;
-                        this._map.set(item.name, item.schema);
-                    }
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._map = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 

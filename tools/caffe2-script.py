@@ -122,7 +122,8 @@ def update_input(schema, input_desc):
         input_arg = {}
         input_arg['name'] = input_name
         schema['inputs'].append(input_arg)
-    input_arg['description'] = description
+    if description:
+        input_arg['description'] = description
     if len(input_desc) > 2:
         return
 
@@ -140,7 +141,8 @@ def update_output(operator_name, schema, output_desc):
         output_arg = {}
         output_arg['name'] = output_name
         schema['outputs'].append(output_arg)
-    output_arg['description'] = description
+    if description:
+        output_arg['description'] = description
     if len(output_desc) > 2:
         return
 
@@ -160,10 +162,9 @@ def metadata():
 
     schema_map = {}
 
-    for entry in json_root:
-        operator_name = entry['name']
-        schema = entry['schema']
-        schema_map[operator_name] = schema
+    for schema in json_root:
+        name = schema['name']
+        schema_map[name] = schema
 
     for operator_name in caffe2.python.core._GetRegisteredOperators():
         op_schema = caffe2.python.workspace.C.OpSchema.get(operator_name)
@@ -173,11 +174,11 @@ def metadata():
             if operator_name in schema_map:
                 schema = schema_map[operator_name]
             else:
-                schema = {}
-                entry = { 'name': operator_name, 'schema': schema }
-                schema_map[operator_name] = entry
-                json_root.append(entry)
-            schema['description'] = op_schema.doc
+                schema = { 'name': operator_name }
+                schema_map[operator_name] = schema
+                json_root.append(schema)
+            if op_schema.doc:
+                schema['description'] = op_schema.doc
             for arg in op_schema.args:
                 update_argument(schema, arg)
             for input_desc in op_schema.input_desc:
@@ -187,7 +188,7 @@ def metadata():
             schema['support_level'] = get_support_level(os.path.dirname(op_schema.file))
 
     with io.open(json_file, 'w', newline='') as fout:
-        json_data = json.dumps(json_root, sort_keys=True, indent=2)
+        json_data = json.dumps(json_root, sort_keys=False, indent=2)
         for line in json_data.splitlines():
             line = line.rstrip()
             if sys.version_info[0] < 3:
@@ -197,5 +198,5 @@ def metadata():
 
 if __name__ == '__main__':
     command_table = { 'metadata': metadata }
-    command = sys.argv[1];
+    command = sys.argv[1]
     command_table[command]()
