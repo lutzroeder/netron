@@ -5656,6 +5656,13 @@
   },
   {
     "type":   "tflite",
+    "target": "mobilenet_v1_0.75_160_quantized.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/4569400/mobilenet_v1_0.75_160_quantized.zip[mobilenet_v1_0.75_160_quantized.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/lutzroeder/netron/issues/481"
+  },
+  {
+    "type":   "tflite",
     "target": "mobilenet_v1_1.0_224.tflite",
     "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224.tgz[./mobilenet_v1_1.0_224.tflite]",
     "format": "TensorFlow Lite v3",
@@ -5667,13 +5674,6 @@
     "source": "http://download.tensorflow.org/models/mobilenet_v1_2018_08_02/mobilenet_v1_1.0_224_quant.tgz[./mobilenet_v1_1.0_224_quant.tflite]",
     "format": "TensorFlow Lite v3",
     "link":   "https://www.tensorflow.org/lite/models"
-  },
-  {
-    "type":   "tflite",
-    "target": "mobilenet_v1_0.75_160_quantized.tflite",
-    "source": "https://github.com/lutzroeder/netron/files/4569400/mobilenet_v1_0.75_160_quantized.zip[mobilenet_v1_0.75_160_quantized.tflite]",
-    "format": "TensorFlow Lite v3",
-    "link":   "https://github.com/lutzroeder/netron/issues/481"
   },
   {
     "type":   "tflite",
