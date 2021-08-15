@@ -123,7 +123,8 @@ hdf5.Group = class {
 
     _decodeDataObject() {
         if (!this._dataObjectHeader) {
-            this._dataObjectHeader = new hdf5.DataObjectHeader(this._reader.at(this._entry.objectHeaderAddress));
+            const reader = this._reader.at(this._entry.objectHeaderAddress);
+            this._dataObjectHeader = new hdf5.DataObjectHeader(reader);
         }
         if (!this._attributes) {
             this._attributes = new Map();
@@ -504,7 +505,8 @@ hdf5.SymbolTableNode = class {
             const entriesUsed = reader.uint16();
             this.entries = [];
             for (let i = 0; i < entriesUsed; i++) {
-                this.entries.push(new hdf5.SymbolTableEntry(reader));
+                const entry = new hdf5.SymbolTableEntry(reader);
+                this.entries.push(entry);
             }
         }
         else {
@@ -553,12 +555,12 @@ hdf5.DataObjectHeader = class {
                 reader.align(8);
                 let end = reader.position + objectHeaderSize;
                 for (let i = 0; i < messageCount; i++) {
-                    const messageType = reader.uint16();
-                    const messageSize = reader.uint16();
-                    const messageFlags = reader.byte();
+                    const type = reader.uint16();
+                    const size = reader.uint16();
+                    const flags = reader.byte();
                     reader.skip(3);
                     reader.align(8);
-                    const next = this._readMessage(reader, messageType, messageSize, messageFlags);
+                    const next = this._readMessage(reader, type, size, flags);
                     if ((!next || reader.position >= end) && this.continuations.length > 0) {
                         const continuation = this.continuations.shift();
                         reader = reader.at(continuation.offset);
@@ -573,34 +575,35 @@ hdf5.DataObjectHeader = class {
             case 2: {
                 const flags = reader.byte();
                 if ((flags & 0x20) != 0) {
-                    reader.uint32();
-                    reader.uint32();
-                    reader.uint32();
-                    reader.uint32();
+                    reader.uint32(); // access time
+                    reader.uint32(); // modification time
+                    reader.uint32(); // change time
+                    reader.uint32(); // birth time
                 }
                 if ((flags & 0x10) != 0) {
-                    reader.uint16();
-                    reader.uint16();
+                    reader.uint16(); // max compact attributes
+                    reader.uint16(); // min compact attributes
                 }
+                const order = (flags & 0x04) != 0;
                 const size = reader.uint(flags & 0x03);
                 let next = true;
                 let end = reader.position + size;
                 while (next && reader.position < end) {
-                    const messageType = reader.byte();
-                    const messageSize = reader.uint16();
-                    const messageFlags = reader.byte();
+                    const type = reader.byte();
+                    const size = reader.uint16();
+                    const flags = reader.byte();
                     if (reader.position < end) {
-                        if ((flags & 0x04) != 0) {
-                            reader.uint16();
+                        if (order) {
+                            reader.uint16(); // creation order
                         }
-                        next = this._readMessage(reader, messageType, messageSize, messageFlags);
+                        next = this._readMessage(reader, type, size, flags);
                     }
                     if ((!next || reader.position >= end) && this.continuations.length > 0) {
                         const continuation = this.continuations.shift();
                         reader = reader.at(continuation.offset);
                         end = continuation.offset + continuation.length;
                         if (!reader.match('OCHK')) {
-                            throw new hdf5.Error("Invalid continuation block signature.");
+                            throw new hdf5.Error('Invalid continuation block signature.');
                         }
                         next = true;
                     }
@@ -608,7 +611,7 @@ hdf5.DataObjectHeader = class {
                 break;
             }
             default: {
-                throw new hdf5.Error('Unsupported data object header version \'' + version + '\'.');
+                throw new hdf5.Error("Unsupported data object header version '" + version + "'.");
             }
         }
     }
@@ -1316,7 +1319,8 @@ hdf5.Tree = class {
                     reader.length();
                     const childPointer = reader.offset();
                     if (this.level == 0) {
-                        this.nodes.push(new hdf5.SymbolTableNode(reader.at(childPointer)));
+                        const node = new hdf5.SymbolTableNode(reader.at(childPointer));
+                        this.nodes.push(node);
                     }
                     else {
                         const tree = new hdf5.Tree(reader.at(childPointer));
