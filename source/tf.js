@@ -541,11 +541,20 @@ tf.Model = class {
         this._producer = producer || '';
         this._graphs = [];
         if (model) {
+            const graphs = [];
             for (let i = 0; i < model.meta_graphs.length; i++) {
                 const meta_graph = model.meta_graphs[i];
                 const name = (meta_graph.meta_info_def && meta_graph.meta_info_def.any_info) ? meta_graph.meta_info_def.any_info.toString() : ((model.meta_graphs.length > 1) ? i.toString() : '-');
                 const graph = new tf.Graph(metadata, meta_graph, name, bundle);
+                graphs.push(graph);
+            }
+            // Recursively add all subgraphs.
+            while (graphs.length > 0) {
+                const graph = graphs.shift();
                 this._graphs.push(graph);
+                for (const func of graph.functions || []) {
+                    graphs.push(func);
+                }
             }
         }
         else {
@@ -579,6 +588,7 @@ tf.Graph = class {
         this._outputs = [];
         this._nodes = [];
         this._version = null;
+        this._functions = [];
 
         if (meta_graph && meta_graph.graph_def) {
             const graph = meta_graph.graph_def;
@@ -600,6 +610,13 @@ tf.Graph = class {
             this._nodes = context.nodes;
             this._inputs = context.inputs;
             this._outputs = context.outputs;
+
+            if (graph.library) {
+                const funcs = graph.library.function;
+                for (const func of funcs) {
+                    this._functions.push(metadata.type(func.signature.name));
+                }
+            }
         }
         else if (bundle) {
             const nodeNames = [];
@@ -665,6 +682,10 @@ tf.Graph = class {
 
     get metadata() {
         return this._metadata;
+    }
+
+    get functions() {
+        return this._functions;
     }
 };
 
