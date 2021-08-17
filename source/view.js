@@ -1068,7 +1068,7 @@ view.Node = class extends grapher.Node {
             this.context.view.showNodeProperties(node, null);
         });
         if (node.type.nodes) {
-            header.add(null, styles, '\u238B', 'Show Function Definition', () => {
+            header.add(null, styles, '\u0192', 'Show Function Definition', () => {
                 this.context.view.pushGraph(node.type);
             });
         }
