@@ -355,13 +355,19 @@ class DOMTokenList {
     }
 }
 
-function makeDir(dir) {
+const makeDir = (dir) => {
     if (!fs.existsSync(dir)){
         fs.mkdirSync(dir, { recursive: true });
     }
-}
+};
 
-function decompress(buffer) {
+const clearLine = () => {
+    if (process.stdout.clearLine) {
+        process.stdout.clearLine();
+    }
+};
+
+const decompress = (buffer) => {
     let archive = null;
     if (buffer.length >= 18 && buffer[0] === 0x1f && buffer[1] === 0x8b) {
         archive = gzip.Archive.open(buffer);
@@ -378,9 +384,9 @@ function decompress(buffer) {
         }
     }
     return archive;
-}
+};
 
-function request(location, cookie) {
+const request = (location, cookie) => {
     const options = { rejectUnauthorized: false };
     let httpRequest = null;
     const url = new URL(location);
@@ -408,9 +414,9 @@ function request(location, cookie) {
         });
         httpRequest.end();
     });
-}
+};
 
-function downloadFile(location, cookie) {
+const downloadFile = (location, cookie) => {
     return request(location, cookie).then((response) => {
         const url = new URL(location);
         if (response.statusCode == 200 &&
@@ -457,9 +463,9 @@ function downloadFile(location, cookie) {
             });
         });
     });
-}
+};
 
-function download(folder, targets, sources) {
+const download = (folder, targets, sources) => {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
         return Promise.resolve();
     }
@@ -494,16 +500,12 @@ function download(folder, targets, sources) {
     }
     return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {
-            if (process.stdout.clearLine) {
-                process.stdout.clearLine();
-            }
+            clearLine();
             process.stdout.write('  decompress...\r');
             const archive = decompress(data, source.split('?').shift().split('/').pop());
+            clearLine();
             for (const name of sourceFiles) {
-                if (process.stdout.clearLine) {
-                    process.stdout.clearLine();
-                }
-                process.stdout.write('  write ' + name + '\n');
+                process.stdout.write('  write ' + name + '\r');
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
@@ -521,27 +523,24 @@ function download(folder, targets, sources) {
                         fs.mkdirSync(dir);
                     }
                 }
+                clearLine();
             }
         }
         else {
             const target = targets.shift();
-            if (process.stdout.clearLine) {
-                process.stdout.clearLine();
-            }
+            clearLine();
             process.stdout.write('  write ' + target + '\r');
             fs.writeFileSync(folder + '/' + target, data, null);
         }
-        if (process.stdout.clearLine) {
-            process.stdout.clearLine();
-        }
+        clearLine();
         if (sources.length > 0) {
             return download(folder, targets, sources);
         }
         return;
     });
-}
+};
 
-function script(folder, targets, command, args) {
+const script = (folder, targets, command, args) => {
     if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
         return Promise.resolve();
     }
@@ -560,9 +559,9 @@ function script(folder, targets, command, args) {
             reject(error);
         }
     });
-}
+};
 
-function loadModel(target, item) {
+const loadModel = (target, item) => {
     const host = new TestHost();
     const exceptions = [];
     host.on('exception', (_, data) => {
@@ -729,9 +728,9 @@ function loadModel(target, item) {
         }
         return model;
     });
-}
+};
 
-function render(model) {
+const render = (model) => {
     try {
         const host = new TestHost();
         const currentView = new view.View(host);
@@ -746,9 +745,9 @@ function render(model) {
     catch (error) {
         return Promise.reject(error);
     }
-}
+};
 
-function next() {
+const next = () => {
     if (items.length == 0) {
         return;
     }
@@ -770,9 +769,7 @@ function next() {
         next();
         return;
     }
-    if (process.stdout.clearLine) {
-        process.stdout.clearLine();
-    }
+    clearLine();
 
     let promise = null;
     if (item.script) {
@@ -812,6 +809,6 @@ function next() {
             return next();
         }
     });
-}
+};
 
 next();
