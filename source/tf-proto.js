@@ -2373,10 +2373,12 @@ $root.tensorflow.FullTypeId = {
     "TFT_VAR": 1,
     "TFT_ANY": 2,
     "TFT_PRODUCT": 3,
+    "TFT_NAMED": 4,
     "TFT_CALLABLE": 100,
     "TFT_TENSOR": 1000,
     "TFT_ARRAY": 1001,
     "TFT_OPTIONAL": 1002,
+    "TFT_LITERAL": 1003,
     "TFT_DATASET": 10102,
     "TFT_BOOL": 200,
     "TFT_UINT8": 201,
@@ -2403,7 +2405,7 @@ $root.tensorflow.FullTypeDef = class FullTypeDef {
     }
 
     get attr() {
-        $root.tensorflow.FullTypeDef.attrSet = $root.tensorflow.FullTypeDef.attrSet || new Set([ "s"]);
+        $root.tensorflow.FullTypeDef.attrSet = $root.tensorflow.FullTypeDef.attrSet || new Set([ "s", "i"]);
         return Object.keys(this).find((key) => $root.tensorflow.FullTypeDef.attrSet.has(key) && this[key] != null);
     }
 
@@ -2421,6 +2423,9 @@ $root.tensorflow.FullTypeDef = class FullTypeDef {
                     break;
                 case 3:
                     message.s = reader.string();
+                    break;
+                case 4:
+                    message.i = reader.int64();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -2444,6 +2449,9 @@ $root.tensorflow.FullTypeDef = class FullTypeDef {
                     break;
                 case "s":
                     message.s = reader.string();
+                    break;
+                case "i":
+                    message.i = reader.int64();
                     break;
                 default:
                     reader.field(tag, message);
