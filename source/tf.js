@@ -1054,7 +1054,6 @@ tf.Attribute = class {
         }
         if (name == '_output_shapes') {
             this._visible = false;
-            this._type = 'shape[]';
         }
         if (name == '_class') {
             this._visible = false;
