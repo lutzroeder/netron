@@ -9,7 +9,7 @@ const process = require('process');
 const http = require('http');
 const https = require('https');
 const util = require('util');
-const xmldom = require('xmldom');
+const xmldom = require('@xmldom/xmldom');
 
 const json = require('../source/json');
 const protobuf = require('../source/protobuf');

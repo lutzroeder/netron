@@ -25,6 +25,6 @@
         "electron-builder": "22.11.7",
         "electron-notarize": "1.1.0",
         "eslint": "7.32.0",
-        "xmldom": "0.6.0"
+        "@xmldom/xmldom": "0.7.2"
     }
 }
