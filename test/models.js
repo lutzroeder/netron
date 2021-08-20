@@ -6,7 +6,6 @@
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
-const child_process = require('child_process');
 const http = require('http');
 const https = require('https');
 const util = require('util');
@@ -540,27 +539,6 @@ const download = (folder, targets, sources) => {
     });
 };
 
-const script = (folder, targets, command, args) => {
-    if (targets.every((file) => fs.existsSync(folder + '/' + file))) {
-        return Promise.resolve();
-    }
-    return new Promise((resolve, reject) => {
-        try {
-            const comspec = process.env.COMSPEC;
-            if (process.platform === 'win32' && process.env.SHELL) {
-                process.env.COMSPEC = process.env.SHELL;
-                command = '/' + command.split(':').join('').split('\\').join('/');
-            }
-            child_process.execSync(command + ' ' + args, { stdio: [ 0, 1 , 2] });
-            process.env.COMSPEC = comspec;
-            resolve();
-        }
-        catch (error) {
-            reject(error);
-        }
-    });
-};
-
 const loadModel = (target, item) => {
     const host = new TestHost();
     const exceptions = [];
@@ -730,7 +708,10 @@ const loadModel = (target, item) => {
     });
 };
 
-const render = (model) => {
+const renderModel = (model, item) => {
+    if (item.actions.has('skip-render')) {
+        return Promise.resolve();
+    }
     try {
         const host = new TestHost();
         const currentView = new view.View(host);
@@ -765,34 +746,17 @@ const next = () => {
         return;
     }
     process.stdout.write(item.type + '/' + target + '\n');
-    if (item.action && item.action.split(';').some((action) => action == 'skip')) {
+    item.actions = new Set((item.action || '').split(';'));
+    if (item.actions.has('skip')) {
         next();
         return;
     }
     clearLine();
 
-    let promise = null;
-    if (item.script) {
-        const index = item.script.search(' ');
-        const root = path.dirname(__dirname);
-        const command = path.resolve(root, item.script.substring(0, index));
-        const args = item.script.substring(index + 1);
-        promise = script(folder, targets, command, args);
-    }
-    else {
-        const sources = item.source;
-        promise = download(folder, targets, sources);
-    }
-    return promise.then(() => {
+    const sources = item.source;
+    return download(folder, targets, sources).then(() => {
         return loadModel(folder + '/' + target, item).then((model) => {
-            let promise = null;
-            if (item.action && item.action.split(';').some((action) => action == 'skip-render')) {
-                promise = Promise.resolve();
-            }
-            else {
-                promise = render(model);
-            }
-            return promise.then(() => {
+            return renderModel(model, item).then(() => {
                 if (item.error) {
                     console.error('Expected error.');
                 }
