@@ -82,6 +82,9 @@ acuity.Graph = class {
                         const sizes = layer.parameters.size.split(' ');
                         shape = [0, parseInt(sizes[0]), parseInt(sizes[1]), layer.parameters.channels];
                     }
+                    if(shape) {
+                        shape = shape.map(x => x == 0 ? 1 : x);
+                    }
                 }
                 argument.shape = shape;
                 return argument;
@@ -323,6 +326,9 @@ acuity.TensorShape = class {
     }
 
     get dimensions() {
+        if(this._is_scalar()) {
+            return ['scalar'];
+        }
         return this._dimensions;
     }
 
@@ -330,8 +336,15 @@ acuity.TensorShape = class {
         this._dimensions = dimensions;
     }
 
+    _is_scalar() {
+        return this._dimensions && this._dimensions.length == 1 && this._dimensions[0] == 0;
+    }
+
     toString() {
-        if (!this._dimensions || this._dimensions.length == 0) {
+        if(this._is_scalar()) {
+            return ' scalar';
+        }
+        else if (!this._dimensions || this._dimensions.length == 0) {
             return '';
         }
         return '[' + this._dimensions.map((dimension) => dimension.toString()).join(',') + ']';
@@ -424,13 +437,37 @@ acuity.Inference =  class {
                 this._outputs.set(output.name, layer);
             }
         }
+        this._broadcats = new Set([
+            'add', 'equal', 'fllor_mod', 'floor_div', 'greater', 'greater_equal', 'less', 'less_equal',
+            'logical_and', 'logical_or', 'minimum', 'multiply', 'not_equal', 'pow', 'real_div',
+            'squared_difference', 'subtract'
+        ]);
         this._passthroughs = new Set([
-            'a_times_b_plus_c', 'abs', 'cast', 'clipbyvalue', 'dequantize', 'dtype_converter',
-            'elu', 'exp', 'floor', 'floor_div', 'hard_swish', 'leakyrelu', 'log', 'log_softmax',
-            'neg', 'pow', 'prelu', 'quantize', 'relu', 'relu_keras', 'relun', 'rsqrt', 'sigmoid',
-            'sin', 'softmax', 'softrelu', 'sqrt', 'square', 'tanh'
+            'LocalResponseNormalization', 'a_times_b_plus_c', 'abs', 'batchnorm_single', 'batchnormalize',
+            'cast', 'cast', 'clipbyvalue', 'dequantize', 'dtype_converter', 'elu', 'exp', 'floor',
+            'groupnormalize', 'hard_sigmoid', 'hard_swish', 'instancenormalize', 'l2normalize', 'l2normalizescale',
+            'layernormalize', 'leakyrelu', 'log', 'log_softmax', 'mish', 'neg', 'norm_with_channel_mean',
+            'norm_with_min_max', 'norm_with_scale', 'pow', 'prelu', 'quantize', 'relu', 'relu_keras',
+            'relun', 'reverse', 'round', 'rsqrt', 'sigmoid', 'sin', 'softmax', 'softrelu', 'sqrt', 'square', 'tanh'
+        ]);
+        this._reduces = new Set([
+            'reduceany', 'reducemax', 'reducemean', 'reducemin', 'reduceprod', 'reducesum'
         ]);
         this._operators = new Map();
+        this._operators.set('broadcast', (inputs) => {
+            const a = inputs[0];
+            const b = inputs[1];
+            const longer = a.length >= b.length ? a.slice() : b.slice();
+            const shorter = a.length < b.length ? a.slice() : b.slice();
+            const remain = longer.length - shorter.length;
+            for(let i = 0; i < remain; i++) {
+                shorter.splice(0, 0, 1);
+            }
+            for(let i = 0; i < longer.length; i++) {
+                longer[i] = longer[i] > shorter[i] ? longer[i] : shorter[i];
+            }
+            return [longer];
+        });
         this._operators.set('concat', (inputs, parameters) => {
             const outputShape = inputs[0].slice();
             outputShape[parameters.dim] = 0;
@@ -439,10 +476,20 @@ acuity.Inference =  class {
             }
             return [outputShape];
         });
+        this._operators.set('conv1d', (inputs, parameters) => {
+            if (parameters.padding == 'VALID') {
+                const out_h = ~~((inputs[0][1] + parameters.stride - parameters.ksize) / parameters.stride);
+                return [[inputs[0][0], out_h, parameters.weights]];
+            }
+            else if (parameters.padding == 'SAME') {
+                const out_h = ~~((inputs[0][1] + parameters.stride - 1) / parameters.stride);
+                return [[inputs[0][0], out_h, parameters.weights]];
+            }
+        });
         this._operators.set('convolution', (inputs, parameters) => {
             if (parameters.padding == 'VALID') {
-                const out_h = ~~((inputs[0][1] + parameters.stride_h - parameters.ksize_h) / parameters.stride_h);
-                const out_w = ~~((inputs[0][2] + parameters.stride_w - parameters.ksize_w) / parameters.stride_w);
+                const out_h = ~~((inputs[0][1] + parameters.stride_h + parameters.pad[0] + parameters.pad[1] - parameters.ksize_h) / parameters.stride_h);
+                const out_w = ~~((inputs[0][2] + parameters.stride_w + parameters.pad[2] + parameters.pad[3]- parameters.ksize_w) / parameters.stride_w);
                 return [[inputs[0][0], out_h, out_w, parameters.weights]];
             }
             else if (parameters.padding == 'SAME') {
@@ -451,8 +498,65 @@ acuity.Inference =  class {
                 return [[inputs[0][0], out_h, out_w, parameters.weights]];
             }
         });
+        this._operators.set('deconvolution', (inputs, parameters) => {
+            const newShape = parameters.output_shape.map((item, index) => {
+                return item == 0 ? inputs[0][index] : item;
+            });
+            return [newShape];
+        });
         this._operators.set('fullconnect', (inputs, parameters) => {
             return [inputs[0].slice(0, parameters.axis).concat([parameters.weights])];
+        });
+        this._operators.set('gather', (inputs, parameters) => {
+            const prefix = inputs[1].slice();
+            const suffix = inputs[0].slice(parameters.axis + 1);
+            const newShape = prefix.concat(suffix);
+            return [newShape];
+        });
+        this._operators.set('lstm', (inputs, parameters) => {
+            let batch = inputs[0][0];
+            const output = parameters.num_proj != null ? parameters.num_proj : parameters.weights;
+            if(parameters.time_major) {
+                batch = inputs[0][1];
+            }
+            let newShape = [];
+            if(parameters.return_sequences) {
+                newShape = [inputs[0][0], inputs[0][1], output];
+            }
+            else {
+                newShape = [batch, output];
+            }
+            return [newShape, [batch, output], [batch, parameters.weights]];
+        });
+        this._operators.set('matmul', (inputs, parameters) => {
+            const a = inputs[0];
+            const b = inputs[1];
+            let newShape = a.slice(0, -2);
+            if(parameters.transpose_a) {
+                newShape = newShape.concat(a.slice(-1));
+            }
+            else {
+                newShape = newShape.concat(a.slice(-2, -1));
+            }
+            if(parameters.transpose_b) {
+                newShape = newShape.concat(b.slice(-2, -1));
+            }
+            else {
+                newShape = newShape.concat(b.slice(-1));
+            }
+            return [newShape];
+        });
+        this._operators.set('pad', (inputs, parameters) => {
+            const newShape = inputs[0].map((item, index) => {
+                return item + parameters.padding_value[index][0] + parameters.padding_value[index][1];
+            });
+            return [newShape];
+        });
+        this._operators.set('permute', (inputs, parameters) => {
+            const newShape = inputs[0].map((item, index) => {
+                return inputs[0][parameters.perm[index]];
+            });
+            return [newShape];
         });
         this._operators.set('pooling', (inputs, parameters) => {
             if (parameters.padding == 'VALID') {
@@ -465,6 +569,184 @@ acuity.Inference =  class {
                 const out_w = ~~((inputs[0][2] + parameters.stride_w - 1) / parameters.stride_w);
                 return [[inputs[0][0], out_h, out_w, inputs[0][3]]];
             }
+        });
+        this._operators.set('reduce', (inputs, parameters) => {
+            const newShape = inputs[0].slice();
+            if(parameters.keep_dims) {
+                for(const i in parameters.axis_list) {
+                    newShape[i] = 1;
+                }
+            }
+            else {
+                const axis_list = parameters.axis_list.map((item) => {
+                    return item < 0 ? newShape.length + item : item;
+                });
+                axis_list.sort((a, b) => {
+                    return b - a;
+                });
+                axis_list.map((item) => {
+                    newShape.splice(item, 1);
+                });
+                if(!newShape.length) {
+                    newShape.splice(0, 0, 0);
+                }
+            }
+            return [newShape];
+        });
+        this._operators.set('repeat', (inputs, parameters) => {
+            const newShape = inputs[0].slice();
+            newShape[parameters.axis] = parameters.maxlen;
+            return [newShape];
+        });
+        this._operators.set('reshape', (inputs, parameters) => {
+            const negativeIndexs = [];
+            let shape = parameters.shape;
+            if(typeof parameters.shape === 'string') {
+                shape = parameters.shape.split(/\s+/).map((item) => {
+                    return parseInt(item);
+                });
+            }
+            const newShape = shape.map((item, index) => {
+                if(item == 0) {
+                    return inputs[0][index];
+                }
+                else if(item == -1) {
+                    negativeIndexs.push(index);
+                    return 1;
+                }
+                else {
+                    return item;
+                }
+            });
+            if(negativeIndexs.length > 0) {
+                newShape[negativeIndexs[0]] = inputs[0].reduce((a, c) => a * c) / newShape.reduce((a, c) => a * c);
+            }
+            return [newShape];
+        });
+        this._operators.set('sequence_mask', (inputs, parameters) => {
+            return [inputs[0].slice().concat([parameters.maxlen])];
+        });
+        this._operators.set('slice', (inputs, parameters) => {
+            const newShape = parameters.size.map((item, index) => {
+                return item == -1 ? inputs[0][index] : item;
+            });
+            return [newShape];
+        });
+        this._operators.set('squeeze', (inputs, parameters) => {
+            const newShape = inputs[0].slice();
+            const axis_list = [...new Set(parameters.axis_list)].sort((a, b) => b - a);
+            axis_list.map((item) => {
+                newShape.splice(item, 1);
+            });
+            return [newShape];
+        });
+        this._operators.set('space2depth', (inputs, parameters) => {
+            const h = inputs[0][1] / parameters.block_size[0];
+            const w = inputs[0][2] / parameters.block_size[1];
+            const c = inputs[0][3] * parameters.block_size[1] * parameters.block_size[1];
+            return [[inputs[0][0], h, w, c]];
+        });
+        this._operators.set('split', (inputs, parameters) => {
+            const sizes = [];
+            const slices = parameters.slices.slice();
+            slices.splice(0, 0, 0);
+            slices.push(inputs[0][parameters.dim]);
+            slices.reduce((a, b) => {
+                sizes.push(b - a);
+                return b;
+            });
+            const newShapes = sizes.map((item) => {
+                const shape = inputs[0].slice();
+                shape[parameters.dim] = item;
+                return shape;
+            });
+
+            return newShapes;
+        });
+        this._operators.set('stack', (inputs, parameters) => {
+            const newShape = inputs[0].slice();
+            if(newShape.length == 1 && newShape[0] == 0) {
+                newShape[0] = 1;
+            }
+            else {
+                newShape.splice(parameters.axis, 0, inputs.length);
+            }
+            return [newShape];
+        });
+        this._operators.set('stridedslice', (inputs, parameters) => {
+            const input_shape = inputs[0].slice();
+            const begin = parameters.slice_begin.slice();
+            const end = parameters.slice_end.slice();
+            if(parameters.slice_begin_mask > 0) {
+                for(let i = 0; i < begin.length; i++) {
+                    if((parameters.slice_begin_mask >>> i) & 0x1) {
+                        begin[i] = -1;
+                    }
+                }
+            }
+            if(parameters.slice_end_mask > 0) {
+                for(let i = 0; i < end.length; i++) {
+                    if((parameters.slice_end_mask >>> i) & 0x1) {
+                        end[i] = -1;
+                    }
+                }
+            }
+            for(let i = 0; i < begin.length; i++) {
+                if(begin[i] == -1) {
+                    begin[i] = 0;
+                }
+            }
+            if(inputs[0].length == end.length){
+                for(let i = 0; i < end.length; i++) {
+                    if(end[i] == -1 || end[i] > input_shape[i]) {
+                        end[i] = input_shape[i];
+                    }
+                }
+            }
+            else if(inputs[0].length < end.length){
+                if(parameters.slice_new_axis_mask) {
+                    const len = (parameters.slice_new_axis_mask >>> 0).toString(2).length;
+                    for(let i = 0; i < len; i++) {
+                        if((parameters.slice_new_axis_mask >>> i) & 0x1) {
+                            input_shape.splice(i, 0, 1);
+                        }
+                    }
+                    for(let i = 0; i < end.length; i++) {
+                        if(end[i] == -1) {
+                            end[i] = input_shape[i];
+                        }
+                    }
+                }
+            }
+
+            let newShape = [];
+            for(let i = 0; i < begin.length; i++) {
+                newShape = newShape.concat([(end[i] - begin[i])/parameters.slice_strides[i]]);
+            }
+
+            if(parameters.slice_shrink_axis_mask) {
+                const len = (parameters.slice_shrink_axis_mask >>> 0).toString(2).length;
+                for(let i = 0; i < len; i++) {
+                    if((parameters.slice_shrink_axis_mask >>> i) & 0x1) {
+                        newShape.splice(i, 1);
+                    }
+                }
+            }
+
+            if(parameters.slice_new_axis_mask) {
+                const len = (parameters.slice_new_axis_mask >>> 0).toString(2).length;
+                for(let i = 0; i < len; i++) {
+                    if((parameters.slice_new_axis_mask >>> i) & 0x1) {
+                        if(inputs[0].length == begin.length) {
+                            newShape.splice(i, 0, 1);
+                        }
+                        else if(inputs[0].length < begin.length) {
+                            newShape[i] = 1;
+                        }
+                    }
+                }
+            }
+            return [newShape];
         });
         for (const layer of outputLayers) {
             for (const output of layer.outputs) {
@@ -494,6 +776,12 @@ acuity.Inference =  class {
                 }
                 else if (this._passthroughs.has(layer.op)) {
                     callback = (inputs) => [ inputs[0].slice() ];
+                }
+                else if (this._broadcats.has(layer.op)) {
+                    callback = this._operators.get('broadcast');
+                }
+                else if (this._reduces.has(layer.op)) {
+                    callback = this._operators.get('reduce');
                 }
                 else {
                     callback = () => [];
