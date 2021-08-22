@@ -4040,8 +4040,7 @@ $root.mindspore.schema.QuantParam = class QuantParam {
 $root.mindspore.schema.WeightQunatCompressType = {
     NONE: 0,
     INDEXING: 1,
-    SPARSE: 2,
-    FSE: 3
+    SPARSE: 2
 };
 
 $root.mindspore.schema.Tensor = class Tensor {
