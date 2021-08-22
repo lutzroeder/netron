@@ -363,6 +363,7 @@ dl4j.Attribute = class {
         return this._visible;
     }
 };
+
 dl4j.Tensor = class {
 
     constructor(dataType, shape) {
@@ -374,7 +375,7 @@ dl4j.Tensor = class {
     }
 
     get state() {
-        return 'Not implemented.';
+        return 'Tensor data not implemented.';
     }
 };
 
