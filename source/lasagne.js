@@ -329,7 +329,7 @@ lasagne.Tensor = class {
     }
 
     get state() {
-        return 'Not implemented.';
+        return 'Tensor data not implemented.';
     }
 
     toString() {
