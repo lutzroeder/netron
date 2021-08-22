@@ -35,7 +35,7 @@ xmodel.Model = class {
 
     constructor(graph) {
         this._name = graph.graph_name || '';
-        this._format = 'Vitis-AI xmodel';
+        this._format = 'xmodel';
         this._producer = graph && graph.graph_attr && graph.graph_attr.origin && graph.graph_attr.origin.string_value ? graph.graph_attr.origin.string_value : '';
         this._graphs = [ new xmodel.Graph(graph) ];
     }

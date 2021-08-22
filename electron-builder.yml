@@ -70,7 +70,7 @@ fileAssociations:
     ext: pdparams
   - name: "RKNN"
     ext: rknn
-  - name: "Vitis-AI xmodel"
+  - name: "xmodel"
     ext: xmodel
 afterSign: "./publish/notarize.js"
 publish:

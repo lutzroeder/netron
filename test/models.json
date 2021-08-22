@@ -6049,14 +6049,14 @@
     "type":   "xmodel",
     "target": "mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.xmodel",
     "source": "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
-    "format": "Vitis-AI xmodel",
+    "format": "xmodel",
     "link":   "https://github.com/Xilinx/Vitis-AI/blob/master/models/AI-Model-Zoo/model-list/tf2_mobilenetv1_imagenet_224_224_1.15G_1.3/model.yaml"
   },
   {
     "type":   "xmodel",
     "target": "mobilenet_1_0_224_tf2-u50-u50lv-u280-v3me-r1.3.1.xmodel",
     "source": "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-u50-u50lv-u280-v3me-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
-    "format": "Vitis-AI xmodel",
+    "format": "xmodel",
     "link":   "https://github.com/Xilinx/Vitis-AI/blob/master/models/AI-Model-Zoo/model-list/tf2_mobilenetv1_imagenet_224_224_1.15G_1.3/model.yaml"
   }
 ]
