@@ -363,7 +363,7 @@ bigdl.Tensor = class {
     }
 
     get state() {
-        return 'Not supported.';
+        return 'Tensor data not implemented.';
     }
 
     get value() {
