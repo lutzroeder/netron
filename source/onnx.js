@@ -1481,14 +1481,12 @@ onnx.Utility = class {
         }
         switch (type.value) {
             case 'tensor_type': {
-                {
-                    const tensor_type = type.tensor_type;
-                    let shape = [];
-                    if (tensor_type.shape && tensor_type.shape.dim) {
-                        shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
-                    }
-                    return new onnx.TensorType(tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
+                const tensor_type = type.tensor_type;
+                let shape = [];
+                if (tensor_type.shape && tensor_type.shape.dim) {
+                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
                 }
+                return new onnx.TensorType(tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
             }
             case 'sparse_tensor_type': {
                 const tensor_type = type.sparse_tensor_type;
