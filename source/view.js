@@ -1673,7 +1673,8 @@ view.ModelFactoryService = class {
                 const formats = [
                     { name: 'mediapipe.BoxDetectorIndex data', tags: [[1,[[1,[[1,[[1,5],[2,5],[3,5],[4,5],[6,0],[7,5],[8,5],[10,5],[11,0],[12,0]]],[2,5],[3,[]]]],[2,false],[3,false],[4,false],[5,false]]],[2,false],[3,false]] },
                     { name: 'sentencepiece.ModelProto data', tags: [[1,[[1,2],[2,5],[3,0]]],[2,[[1,2],[2,2],[3,0],[4,0],[5,2],[6,0],[7,2],[10,5],[16,0],[40,0],[41,0],[42,0],[43,0]]],[3,[]],[4,[]],[5,[]]] },
-                    { name: 'third_party.tensorflow.python.keras.protobuf.SavedMetadata data', tags: [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]] }
+                    { name: 'third_party.tensorflow.python.keras.protobuf.SavedMetadata data', tags: [[1,[[1,[[1,0],[2,0]]],[2,0],[3,2],[4,2],[5,2]]]] },
+                    { name: 'pblczero.Net data', tags: [[1,5],[2,2],[3,[[1,0],[2,0],[3,0]],[10,[[1,[]],[2,[]],[3,[]],[4,[]],[5,[]],[6,[]]]],[11,[]]]] } // https://github.com/LeelaChessZero/lczero-common/blob/master/proto/net.proto
                 ];
                 const match = (tags, schema) => {
                     for (const pair of schema) {
@@ -1704,10 +1705,10 @@ view.ModelFactoryService = class {
                     }
                 }
                 const format = (tags) => {
-                    const text = Array.from(tags).map((pair) => {
+                    const text = Object.entries(tags).map((pair) => {
                         const key = pair[0];
                         const value = pair[1];
-                        return key.toString() + ':' + (value instanceof Map ? '{' + format(value) + '}' : value.toString());
+                        return key.toString() + ':' + (Object(value) === value ? '{' + format(value) + '}' : value.toString());
                     });
                     return text.join(',');
                 };
