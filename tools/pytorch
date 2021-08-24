@@ -41,8 +41,7 @@ install() {
     if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
         [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
         export OPENBLAS=$(brew --prefix openblas)
-        ${python} -m pip install --upgrade --quiet pybind11 cython pyyaml
-        ${python} -m pip install --upgrade --quiet numpy --no-use-pep517
+        ${python} -m pip install --upgrade --quiet pybind11 cython pyyaml numpy
     else
         ${python} -m pip install --quiet --upgrade scipy
     fi
