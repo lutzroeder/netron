@@ -97,7 +97,7 @@ install() {
     esac
     venv
     ${python} -m pip install --quiet --upgrade ${protobuf}
-    ${python} -m pip install --quiet --upgrade numpy ${pep517}
+    ${python} -m pip install --quiet --upgrade numpy
     ${python} -m pip install --quiet "./third_party/source/onnx" ${pep517} --use-feature=in-tree-build
     deactivate
 }
