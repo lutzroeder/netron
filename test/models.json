@@ -3454,6 +3454,18 @@
     "link":   "https://github.com/microsoft/onnxruntime/tree/master/onnxruntime/test/testdata"
   },
   {
+    "type":   "om",
+    "target": "hiai_noaipp.om",
+    "source": "https://raw.githubusercontent.com/huaweicodelabs/HiAI-Foundation/master/app/src/main/assets/hiai_noaipp.om",
+    "link":   "https://github.com/huaweicodelabs/HiAI-Foundation/tree/master/app"
+  },
+  {
+    "type":   "om",
+    "target": "resnet50v1_framework_tensorflow_aipp_0_batch_1_input_fp16_output_FP32.om",
+    "source": "https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/turing/resourcecenter/model/Resnet50V1/zh/1.1/ATC_Resnet50_V1_from_Tensorflow_Ascend310.zip[resnet50v1_framework_tensorflow_aipp_0_batch_1_input_fp16_output_FP32.om]",
+    "link":   "https://www.hiascend.com/zh/software/modelzoo/detail/1/7548422b6b9c4a809114435f6b128bb6"
+  },
+  {
     "type":   "openvino",
     "target": "2018_R3_age-gender-recognition-retail-0013.xml,2018_R3_age-gender-recognition-retail-0013.bin",
     "source": "https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.xml,https://download.01.org/openvinotoolkit/2018_R3/open_model_zoo/age-gender-recognition-retail-0013/FP32/age-gender-recognition-retail-0013.bin",

@@ -27,6 +27,7 @@ update: install
 	@./tools/mnn sync schema
 	@./tools/mslite sync schema metadata
 	@./tools/onnx sync install schema metadata
+	@./tools/om sync schema
 	@./tools/paddle sync schema
 	@./tools/pytorch sync install schema metadata
 	@./tools/sklearn sync install metadata
