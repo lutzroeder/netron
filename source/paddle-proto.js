@@ -522,6 +522,12 @@ $root.paddle.framework.proto.OpProto.Var = class Var {
                 case 5:
                     message.dispensable = reader.bool();
                     break;
+                case 6:
+                    message.extra = reader.bool();
+                    break;
+                case 7:
+                    message.quant = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -557,6 +563,12 @@ $root.paddle.framework.proto.OpProto.Var = class Var {
                 case "dispensable":
                     message.dispensable = reader.bool();
                     break;
+                case "extra":
+                    message.extra = reader.bool();
+                    break;
+                case "quant":
+                    message.quant = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -575,6 +587,8 @@ $root.paddle.framework.proto.OpProto.Var.prototype.comment = "";
 $root.paddle.framework.proto.OpProto.Var.prototype.duplicable = false;
 $root.paddle.framework.proto.OpProto.Var.prototype.intermediate = false;
 $root.paddle.framework.proto.OpProto.Var.prototype.dispensable = false;
+$root.paddle.framework.proto.OpProto.Var.prototype.extra = false;
+$root.paddle.framework.proto.OpProto.Var.prototype.quant = false;
 
 $root.paddle.framework.proto.OpProto.Attr = class Attr {
 
@@ -598,6 +612,12 @@ $root.paddle.framework.proto.OpProto.Attr = class Attr {
                     break;
                 case 4:
                     message.generated = reader.bool();
+                    break;
+                case 5:
+                    message.extra = reader.bool();
+                    break;
+                case 6:
+                    message.quant = reader.bool();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -634,6 +654,12 @@ $root.paddle.framework.proto.OpProto.Attr = class Attr {
                 case "generated":
                     message.generated = reader.bool();
                     break;
+                case "extra":
+                    message.extra = reader.bool();
+                    break;
+                case "quant":
+                    message.quant = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -653,6 +679,8 @@ $root.paddle.framework.proto.OpProto.Attr.prototype.name = "";
 $root.paddle.framework.proto.OpProto.Attr.prototype.type = 0;
 $root.paddle.framework.proto.OpProto.Attr.prototype.comment = "";
 $root.paddle.framework.proto.OpProto.Attr.prototype.generated = false;
+$root.paddle.framework.proto.OpProto.Attr.prototype.extra = false;
+$root.paddle.framework.proto.OpProto.Attr.prototype.quant = false;
 
 $root.paddle.framework.proto.VarType = class VarType {
 
