@@ -42,7 +42,7 @@ install() {
         venv
         [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
         ${python} -m pip install --upgrade --no-cache-dir cython pybind11
-        ${python} -m pip install --upgrade --no-use-pep517 numpy
+        ${python} -m pip install --upgrade numpy
         export OPENBLAS=$(brew --prefix openblas)
         export CFLAGS="-falign-functions=8 ${CFLAGS}"
         ${python} -m pip install --upgrade --no-use-pep517 scipy
