@@ -22434,6 +22434,53 @@
     ]
   },
   {
+    "name": "LoadTPUEmbeddingAdagradMomentumParameters",
+    "summary": "Load Adagrad Momentum embedding parameters.",
+    "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
+    "attributes": [
+      {
+        "name": "table_id",
+        "type": "int64",
+        "default": -1
+      },
+      {
+        "name": "table_name",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "num_shards",
+        "type": "int64"
+      },
+      {
+        "name": "shard_id",
+        "type": "int64"
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "inputs": [
+      {
+        "name": "parameters",
+        "description": "Value of parameters used in the Adagrad Momentum optimization algorithm.",
+        "type": 1
+      },
+      {
+        "name": "accumulators",
+        "description": "Value of accumulators used in the Adagrad Momentum optimization algorithm.",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "description": "Value of momenta used in the Adagrad Momentum optimization algorithm.",
+        "type": 1
+      }
+    ]
+  },
+  {
     "name": "LoadTPUEmbeddingAdagradParameters",
     "summary": "Load Adagrad embedding parameters.",
     "description": "An op that loads optimization parameters into HBM for embedding. Must be\npreceded by a ConfigureTPUEmbeddingHost op that sets up the correct\nembedding table configuration. For example, this op is used to install\nparameters that are loaded from a checkpoint before a training loop is\nexecuted.",
@@ -40807,6 +40854,53 @@
       {
         "name": "updates",
         "description": "Parameter updates updated by the Adadelta optimization algorithm.",
+        "type": 1
+      }
+    ]
+  },
+  {
+    "name": "RetrieveTPUEmbeddingAdagradMomentumParameters",
+    "summary": "Retrieve Adagrad Momentum embedding parameters.",
+    "description": "An op that retrieves optimization parameters from embedding to host\nmemory. Must be preceded by a ConfigureTPUEmbeddingHost op that sets up\nthe correct embedding table configuration. For example, this op is\nused to retrieve updated parameters before saving a checkpoint.",
+    "attributes": [
+      {
+        "name": "table_id",
+        "type": "int64",
+        "default": -1
+      },
+      {
+        "name": "table_name",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "num_shards",
+        "type": "int64"
+      },
+      {
+        "name": "shard_id",
+        "type": "int64"
+      },
+      {
+        "name": "config",
+        "type": "string",
+        "default": ""
+      }
+    ],
+    "outputs": [
+      {
+        "name": "parameters",
+        "description": "Parameter parameters updated by the Adagrad Momentum optimization algorithm.",
+        "type": 1
+      },
+      {
+        "name": "accumulators",
+        "description": "Parameter accumulators updated by the Adagrad Momentum optimization algorithm.",
+        "type": 1
+      },
+      {
+        "name": "momenta",
+        "description": "Parameter momenta updated by the Adagrad Momentum optimization algorithm.",
         "type": 1
       }
     ]
