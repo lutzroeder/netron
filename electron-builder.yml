@@ -38,6 +38,8 @@ fileAssociations:
     ext: nn
   - name: "ONNX Model"
     ext: onnx
+  - name: "DaVinci OM Model"
+    ext: om
   - name: "Protocol Buffer"
     ext: pb
   - name: "Text Protocol Buffer"

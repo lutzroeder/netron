@@ -104,7 +104,6 @@ om.Node = class {
         this._chain = [];
         this._controlDependencies = [];
         this._device = null;
-        let inputIdx = 0;
         for (let i = 0; i < op.input.length; i++) {
             if (op.input[i] === '') {
                 continue;
@@ -116,25 +115,26 @@ om.Node = class {
                 this._controlDependencies.push(name);
                 continue;
             }
-            const inputName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
+            const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
             const inputNode = graph.op.find(node => node.name === name);
-            const format = op.input_desc[inputIdx].layout;
-            if (inputNode.type === 'Const') {
+            const desc = op.input_desc[i];
+            const format = desc.layout;
+            if (inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
                 let shape = null;
-                const value = inputNode.attr['value'].t;
+                const value = inputNode.attr.value.t;
                 if (value.desc.shape != null) {
                     shape = value.desc.shape.dim;
                 }
-                if ('origin_shape' in value.desc.attr) {
-                    shape = value.desc.attr['origin_shape'].list.i;
+                if (value.desc.attr.origin_shape) {
+                    shape = value.desc.attr.origin_shape.list.i;
                 }
                 let data = null;
                 if (value.data.length === 0) {
                     if (weights == null) {
                         data = null;
                     }
-                    else if ('merged_offset' in value.desc.attr) {
-                        const offset = value.desc.attr['merged_offset'].i;
+                    else if (value.desc.attr.merged_offset) {
+                        const offset = value.desc.attr.merged_offset.i;
                         data = weights.slice(offset, offset + value.desc.weight_size);
                     }
                     else {
@@ -149,27 +149,26 @@ om.Node = class {
                 const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
                 const tensor = new om.Tensor('Constant', tensorType, data);
                 const argument = new om.Argument(name, null, tensor);
-                this._inputs.push(new om.Parameter(inputName, true, [ argument ]));
+                this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
             }
             else {
-                const dataType = op.input_desc[i] ? om.Utility.dtype(op.input_desc[i].dtype) : 'undefined';
-                const shape = op.input_desc[inputIdx].shape ? op.input_desc[inputIdx].shape.dim : undefined;
+                const dataType = desc ? om.Utility.dtype(desc.dtype) : 'undefined';
+                const shape = desc.shape ? desc.shape.dim : undefined;
                 const tensorType = new om.TensorType(dataType, shape, format, null);
                 const identifier = src_index === '0' ? name : name + ':' + src_index;
                 const argument = new om.Argument(identifier, tensorType, null);
-                this._inputs.push(new om.Parameter(inputName, true, [ argument ]));
+                this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
             }
-            inputIdx++;
         }
 
         for (let i = 0; i < op.output_desc.length; i++) {
-            const outputDesc = op.output_desc[i];
-            let shape = outputDesc.shape ? outputDesc.shape.dim : undefined;
+            const desc = op.output_desc[i];
+            let shape = desc.shape ? desc.shape.dim : undefined;
             if (op.type === 'Data' || op.type === 'ImageData' || op.type === 'DynamicImageData') {
-                shape = outputDesc.shape ? outputDesc.shape.dim : op.input_desc[0].shape.dim;
+                shape = desc.shape ? desc.shape.dim : op.input_desc[0].shape.dim;
             }
-            const dataType = om.Utility.dtype(outputDesc.dtype);
-            const format = outputDesc.layout;
+            const dataType = om.Utility.dtype(desc.dtype);
+            const format = desc.layout;
             const tensorType = new om.TensorType(dataType, shape, format);
             const identifier = i === 0 ? this._name : this._name + ':' + i;
             const argument = new om.Argument(identifier, tensorType, null);
