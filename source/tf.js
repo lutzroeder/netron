@@ -262,6 +262,8 @@ tf.ModelFactory = class {
                 const stream = context.stream;
                 const eventFileReader = tf.EventFileReader.open(stream);
                 const saved_model = new tf.proto.tensorflow.SavedModel();
+                const run_metadata = [];
+                const summaries = [];
                 for (;;) {
                     const event = eventFileReader.read();
                     if (!event) {
@@ -288,6 +290,20 @@ tf.ModelFactory = class {
                             meta_graph.meta_info_def.any_info = event.wall_time.toString();
                             meta_graph.graph_def = graph_def;
                             saved_model.meta_graphs.push(meta_graph);
+                            break;
+                        }
+                        case 'summary': {
+                            for (const value of event.summary.value) {
+                                summaries.push(value);
+                            }
+                            break;
+                        }
+                        case 'tagged_run_metadata': {
+                            const entry = event.tagged_run_metadata;
+                            const buffer = entry.run_metadata;
+                            const reader = protobuf.BinaryReader.open(buffer);
+                            const metadata = tf.proto.tensorflow.RunMetadata.decode(reader);
+                            run_metadata.push(metadata);
                             break;
                         }
                     }
