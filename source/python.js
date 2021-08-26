@@ -1842,7 +1842,131 @@ python.Execution = class {
         });
         this.registerType('lightgbm.sklearn.LGBMRegressor', class {});
         this.registerType('lightgbm.sklearn.LGBMClassifier', class {});
-        this.registerType('lightgbm.basic.Booster', class {});
+        this.registerType('lightgbm.basic.Booster', class {
+            constructor() {
+                this.average_output = false;
+                this.models = [];
+                this.loaded_parameter = '';
+            }
+            __setstate__(state) {
+                if (typeof state.handle === 'string') {
+                    this.LoadModelFromString(state.handle);
+                    return;
+                }
+                Object.assign(this, state);
+            }
+            LoadModelFromString(model_str) {
+                const lines = model_str.split('\n');
+                const signature = lines.shift() || '?';
+                if (signature.trim() !== 'tree') {
+                    throw new python.Error("Invalid signature '" + signature.trim() + "'.");
+                }
+                // GBDT::LoadModelFromString() in https://github.com/microsoft/LightGBM/blob/master/src/boosting/gbdt_model_text.cpp
+                const key_vals = new Map();
+                while (lines.length > 0 && !lines[0].startsWith('Tree=')) {
+                    const cur_line = lines.shift().trim();
+                    if (cur_line.length > 0) {
+                        const strs = cur_line.split('=');
+                        if (strs.length === 1) {
+                            key_vals.set(strs[0], '');
+                        }
+                        else if (strs.length === 2) {
+                            key_vals.set(strs[0], strs[1]);
+                        }
+                        else if (strs.length > 2) {
+                            if (strs[0] === "feature_names") {
+                                key_vals.set(strs[0], cur_line.substring("feature_names=".length));
+                            }
+                            else if (strs[0] == 'monotone_constraints') {
+                                key_vals.set(strs[0], cur_line.substring('monotone_constraints='.length));
+                            }
+                            else {
+                                throw new python.Error('Wrong line: ' + cur_line.substring(0, Math.min(128, cur_line.length)));
+                            }
+                        }
+                    }
+                }
+                const atoi = (key, value) => {
+                    if (key_vals.has(key)) {
+                        return parseInt(key_vals.get(key), 10);
+                    }
+                    if (value !== undefined) {
+                        return value;
+                    }
+                    throw new python.Error('Model file does not specify ' + key + '.');
+                };
+                const list = (key, size) => {
+                    if (key_vals.has(key)) {
+                        const value = key_vals.get(key).split(' ');
+                        if (value.length !== size) {
+                            throw new python.Error('Wrong size of ' + key + '.');
+                        }
+                        return value;
+                    }
+                    throw new python.Error('Model file does not contain ' + key + '.');
+                };
+                this.version = key_vals.get('version') || '';
+                this.num_class = atoi('num_class');
+                this.num_tree_per_iteration = atoi('num_tree_per_iteration', this.num_class);
+                this.label_index = atoi('label_index');
+                this.max_feature_idx = atoi('max_feature_idx');
+                if (key_vals.has('average_output')) {
+                    this.average_output = true;
+                }
+                this.feature_names = list('feature_names', this.max_feature_idx + 1);
+                this.feature_infos = list('feature_infos', this.max_feature_idx + 1);
+                if (key_vals.has('monotone_constraints')) {
+                    this.monotone_constraints = list('monotone_constraints', this.max_feature_idx + 1, true);
+                }
+                if (key_vals.has('objective')) {
+                    this.objective = key_vals.get('objective');
+                }
+                let tree = null;
+                // let lineNumber = 0;
+                while (lines.length > 0) {
+                    // lineNumber++;
+                    const text = lines.shift();
+                    const line = text.trim();
+                    if (line.length === 0) {
+                        continue;
+                    }
+                    if (line.startsWith('Tree=')) {
+                        tree = { index: parseInt(line.split('=').pop(), 10) };
+                        this.models.push(tree);
+                        continue;
+                    }
+                    if (line === 'end of trees') {
+                        break;
+                    }
+                    const param = line.split('=');
+                    if (param.length !== 2) {
+                        throw new python.Error("Invalid property '" + line + "'.");
+                    }
+                    const name = param[0].trim();
+                    const value = param[1].trim();
+                    tree[name] = value;
+                }
+                const ss = [];
+                let is_inparameter = false;
+                while (lines.length > 0) {
+                    const text = lines.shift();
+                    const line = text.trim();
+                    if (line === 'parameters:') {
+                        is_inparameter = true;
+                        continue;
+                    }
+                    else if (line === 'end of parameters') {
+                        break;
+                    }
+                    else if (is_inparameter) {
+                        ss.push(line);
+                    }
+                }
+                if (ss.length > 0) {
+                    this.loaded_parameter = ss.join('\n');
+                }
+            }
+        });
         this.registerType('nolearn.lasagne.base.BatchIterator', class {});
         this.registerType('nolearn.lasagne.base.Layers', class {});
         this.registerType('nolearn.lasagne.base.NeuralNet', class {});
