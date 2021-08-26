@@ -5852,6 +5852,3212 @@ $root.tensorflow.Summary.Value.prototype.node_name = "";
 $root.tensorflow.Summary.Value.prototype.tag = "";
 $root.tensorflow.Summary.Value.prototype.metadata = null;
 
+$root.tensorflow.GPUOptions = class GPUOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GPUOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.per_process_gpu_memory_fraction = reader.double();
+                    break;
+                case 4:
+                    message.allow_growth = reader.bool();
+                    break;
+                case 2:
+                    message.allocator_type = reader.string();
+                    break;
+                case 3:
+                    message.deferred_deletion_bytes = reader.int64();
+                    break;
+                case 5:
+                    message.visible_device_list = reader.string();
+                    break;
+                case 6:
+                    message.polling_active_delay_usecs = reader.int32();
+                    break;
+                case 7:
+                    message.polling_inactive_delay_msecs = reader.int32();
+                    break;
+                case 8:
+                    message.force_gpu_compatible = reader.bool();
+                    break;
+                case 9:
+                    message.experimental = $root.tensorflow.GPUOptions.Experimental.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GPUOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "per_process_gpu_memory_fraction":
+                    message.per_process_gpu_memory_fraction = reader.double();
+                    break;
+                case "allow_growth":
+                    message.allow_growth = reader.bool();
+                    break;
+                case "allocator_type":
+                    message.allocator_type = reader.string();
+                    break;
+                case "deferred_deletion_bytes":
+                    message.deferred_deletion_bytes = reader.int64();
+                    break;
+                case "visible_device_list":
+                    message.visible_device_list = reader.string();
+                    break;
+                case "polling_active_delay_usecs":
+                    message.polling_active_delay_usecs = reader.int32();
+                    break;
+                case "polling_inactive_delay_msecs":
+                    message.polling_inactive_delay_msecs = reader.int32();
+                    break;
+                case "force_gpu_compatible":
+                    message.force_gpu_compatible = reader.bool();
+                    break;
+                case "experimental":
+                    message.experimental = $root.tensorflow.GPUOptions.Experimental.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GPUOptions.prototype.per_process_gpu_memory_fraction = 0;
+$root.tensorflow.GPUOptions.prototype.allow_growth = false;
+$root.tensorflow.GPUOptions.prototype.allocator_type = "";
+$root.tensorflow.GPUOptions.prototype.deferred_deletion_bytes = protobuf.Int64.create(0);
+$root.tensorflow.GPUOptions.prototype.visible_device_list = "";
+$root.tensorflow.GPUOptions.prototype.polling_active_delay_usecs = 0;
+$root.tensorflow.GPUOptions.prototype.polling_inactive_delay_msecs = 0;
+$root.tensorflow.GPUOptions.prototype.force_gpu_compatible = false;
+$root.tensorflow.GPUOptions.prototype.experimental = null;
+
+$root.tensorflow.GPUOptions.Experimental = class Experimental {
+
+    constructor() {
+        this.virtual_devices = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GPUOptions.Experimental();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.virtual_devices.push($root.tensorflow.GPUOptions.Experimental.VirtualDevices.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.use_unified_memory = reader.bool();
+                    break;
+                case 3:
+                    message.num_dev_to_dev_copy_streams = reader.int32();
+                    break;
+                case 4:
+                    message.collective_ring_order = reader.string();
+                    break;
+                case 5:
+                    message.timestamped_allocator = reader.bool();
+                    break;
+                case 7:
+                    message.kernel_tracker_max_interval = reader.int32();
+                    break;
+                case 8:
+                    message.kernel_tracker_max_bytes = reader.int32();
+                    break;
+                case 9:
+                    message.kernel_tracker_max_pending = reader.int32();
+                    break;
+                case 10:
+                    message.internal_fragmentation_fraction = reader.double();
+                    break;
+                case 11:
+                    message.use_cuda_malloc_async = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GPUOptions.Experimental();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "virtual_devices":
+                    message.virtual_devices.push($root.tensorflow.GPUOptions.Experimental.VirtualDevices.decodeText(reader));
+                    break;
+                case "use_unified_memory":
+                    message.use_unified_memory = reader.bool();
+                    break;
+                case "num_dev_to_dev_copy_streams":
+                    message.num_dev_to_dev_copy_streams = reader.int32();
+                    break;
+                case "collective_ring_order":
+                    message.collective_ring_order = reader.string();
+                    break;
+                case "timestamped_allocator":
+                    message.timestamped_allocator = reader.bool();
+                    break;
+                case "kernel_tracker_max_interval":
+                    message.kernel_tracker_max_interval = reader.int32();
+                    break;
+                case "kernel_tracker_max_bytes":
+                    message.kernel_tracker_max_bytes = reader.int32();
+                    break;
+                case "kernel_tracker_max_pending":
+                    message.kernel_tracker_max_pending = reader.int32();
+                    break;
+                case "internal_fragmentation_fraction":
+                    message.internal_fragmentation_fraction = reader.double();
+                    break;
+                case "use_cuda_malloc_async":
+                    message.use_cuda_malloc_async = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GPUOptions.Experimental.prototype.use_unified_memory = false;
+$root.tensorflow.GPUOptions.Experimental.prototype.num_dev_to_dev_copy_streams = 0;
+$root.tensorflow.GPUOptions.Experimental.prototype.collective_ring_order = "";
+$root.tensorflow.GPUOptions.Experimental.prototype.timestamped_allocator = false;
+$root.tensorflow.GPUOptions.Experimental.prototype.kernel_tracker_max_interval = 0;
+$root.tensorflow.GPUOptions.Experimental.prototype.kernel_tracker_max_bytes = 0;
+$root.tensorflow.GPUOptions.Experimental.prototype.kernel_tracker_max_pending = 0;
+$root.tensorflow.GPUOptions.Experimental.prototype.internal_fragmentation_fraction = 0;
+$root.tensorflow.GPUOptions.Experimental.prototype.use_cuda_malloc_async = false;
+
+$root.tensorflow.GPUOptions.Experimental.VirtualDevices = class VirtualDevices {
+
+    constructor() {
+        this.memory_limit_mb = [];
+        this.priority = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GPUOptions.Experimental.VirtualDevices();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.memory_limit_mb = reader.floats(message.memory_limit_mb, tag);
+                    break;
+                case 2:
+                    message.priority = reader.array(message.priority, () => reader.int32(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GPUOptions.Experimental.VirtualDevices();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "memory_limit_mb":
+                    reader.array(message.memory_limit_mb, () => reader.float());
+                    break;
+                case "priority":
+                    reader.array(message.priority, () => reader.int32());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.OptimizerOptions = class OptimizerOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.OptimizerOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.do_common_subexpression_elimination = reader.bool();
+                    break;
+                case 2:
+                    message.do_constant_folding = reader.bool();
+                    break;
+                case 6:
+                    message.max_folded_constant_in_bytes = reader.int64();
+                    break;
+                case 4:
+                    message.do_function_inlining = reader.bool();
+                    break;
+                case 3:
+                    message.opt_level = reader.int32();
+                    break;
+                case 5:
+                    message.global_jit_level = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.OptimizerOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "do_common_subexpression_elimination":
+                    message.do_common_subexpression_elimination = reader.bool();
+                    break;
+                case "do_constant_folding":
+                    message.do_constant_folding = reader.bool();
+                    break;
+                case "max_folded_constant_in_bytes":
+                    message.max_folded_constant_in_bytes = reader.int64();
+                    break;
+                case "do_function_inlining":
+                    message.do_function_inlining = reader.bool();
+                    break;
+                case "opt_level":
+                    message.opt_level = reader.enum($root.tensorflow.OptimizerOptions.Level);
+                    break;
+                case "global_jit_level":
+                    message.global_jit_level = reader.enum($root.tensorflow.OptimizerOptions.GlobalJitLevel);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.OptimizerOptions.prototype.do_common_subexpression_elimination = false;
+$root.tensorflow.OptimizerOptions.prototype.do_constant_folding = false;
+$root.tensorflow.OptimizerOptions.prototype.max_folded_constant_in_bytes = protobuf.Int64.create(0);
+$root.tensorflow.OptimizerOptions.prototype.do_function_inlining = false;
+$root.tensorflow.OptimizerOptions.prototype.opt_level = 0;
+$root.tensorflow.OptimizerOptions.prototype.global_jit_level = 0;
+
+$root.tensorflow.OptimizerOptions.Level = {
+    "L1": 0,
+    "L0": -1
+};
+
+$root.tensorflow.OptimizerOptions.GlobalJitLevel = {
+    "DEFAULT": 0,
+    "OFF": -1,
+    "ON_1": 1,
+    "ON_2": 2
+};
+
+$root.tensorflow.GraphOptions = class GraphOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.GraphOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 2:
+                    message.enable_recv_scheduling = reader.bool();
+                    break;
+                case 3:
+                    message.optimizer_options = $root.tensorflow.OptimizerOptions.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.build_cost_model = reader.int64();
+                    break;
+                case 9:
+                    message.build_cost_model_after = reader.int64();
+                    break;
+                case 5:
+                    message.infer_shapes = reader.bool();
+                    break;
+                case 6:
+                    message.place_pruned_graph = reader.bool();
+                    break;
+                case 7:
+                    message.enable_bfloat16_sendrecv = reader.bool();
+                    break;
+                case 8:
+                    message.timeline_step = reader.int32();
+                    break;
+                case 10:
+                    message.rewrite_options = $root.tensorflow.RewriterConfig.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.GraphOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "enable_recv_scheduling":
+                    message.enable_recv_scheduling = reader.bool();
+                    break;
+                case "optimizer_options":
+                    message.optimizer_options = $root.tensorflow.OptimizerOptions.decodeText(reader);
+                    break;
+                case "build_cost_model":
+                    message.build_cost_model = reader.int64();
+                    break;
+                case "build_cost_model_after":
+                    message.build_cost_model_after = reader.int64();
+                    break;
+                case "infer_shapes":
+                    message.infer_shapes = reader.bool();
+                    break;
+                case "place_pruned_graph":
+                    message.place_pruned_graph = reader.bool();
+                    break;
+                case "enable_bfloat16_sendrecv":
+                    message.enable_bfloat16_sendrecv = reader.bool();
+                    break;
+                case "timeline_step":
+                    message.timeline_step = reader.int32();
+                    break;
+                case "rewrite_options":
+                    message.rewrite_options = $root.tensorflow.RewriterConfig.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.GraphOptions.prototype.enable_recv_scheduling = false;
+$root.tensorflow.GraphOptions.prototype.optimizer_options = null;
+$root.tensorflow.GraphOptions.prototype.build_cost_model = protobuf.Int64.create(0);
+$root.tensorflow.GraphOptions.prototype.build_cost_model_after = protobuf.Int64.create(0);
+$root.tensorflow.GraphOptions.prototype.infer_shapes = false;
+$root.tensorflow.GraphOptions.prototype.place_pruned_graph = false;
+$root.tensorflow.GraphOptions.prototype.enable_bfloat16_sendrecv = false;
+$root.tensorflow.GraphOptions.prototype.timeline_step = 0;
+$root.tensorflow.GraphOptions.prototype.rewrite_options = null;
+
+$root.tensorflow.ThreadPoolOptionProto = class ThreadPoolOptionProto {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.ThreadPoolOptionProto();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.num_threads = reader.int32();
+                    break;
+                case 2:
+                    message.global_name = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.ThreadPoolOptionProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "num_threads":
+                    message.num_threads = reader.int32();
+                    break;
+                case "global_name":
+                    message.global_name = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.ThreadPoolOptionProto.prototype.num_threads = 0;
+$root.tensorflow.ThreadPoolOptionProto.prototype.global_name = "";
+
+$root.tensorflow.RPCOptions = class RPCOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RPCOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.use_rpc_for_inprocess_master = reader.bool();
+                    break;
+                case 2:
+                    message.compression_algorithm = reader.string();
+                    break;
+                case 3:
+                    message.compression_level = reader.int32();
+                    break;
+                case 4:
+                    message.cache_rpc_response = reader.bool();
+                    break;
+                case 5:
+                    message.disable_session_connection_sharing = reader.bool();
+                    break;
+                case 6:
+                    message.num_channels_per_target = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RPCOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "use_rpc_for_inprocess_master":
+                    message.use_rpc_for_inprocess_master = reader.bool();
+                    break;
+                case "compression_algorithm":
+                    message.compression_algorithm = reader.string();
+                    break;
+                case "compression_level":
+                    message.compression_level = reader.int32();
+                    break;
+                case "cache_rpc_response":
+                    message.cache_rpc_response = reader.bool();
+                    break;
+                case "disable_session_connection_sharing":
+                    message.disable_session_connection_sharing = reader.bool();
+                    break;
+                case "num_channels_per_target":
+                    message.num_channels_per_target = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RPCOptions.prototype.use_rpc_for_inprocess_master = false;
+$root.tensorflow.RPCOptions.prototype.compression_algorithm = "";
+$root.tensorflow.RPCOptions.prototype.compression_level = 0;
+$root.tensorflow.RPCOptions.prototype.cache_rpc_response = false;
+$root.tensorflow.RPCOptions.prototype.disable_session_connection_sharing = false;
+$root.tensorflow.RPCOptions.prototype.num_channels_per_target = 0;
+
+$root.tensorflow.SessionMetadata = class SessionMetadata {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.SessionMetadata();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.version = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.SessionMetadata();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "version":
+                    message.version = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.SessionMetadata.prototype.name = "";
+$root.tensorflow.SessionMetadata.prototype.version = protobuf.Int64.create(0);
+
+$root.tensorflow.ConfigProto = class ConfigProto {
+
+    constructor() {
+        this.device_count = {};
+        this.session_inter_op_thread_pool = [];
+        this.device_filters = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.ConfigProto();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    reader.entry(message.device_count, () => reader.string(), () => reader.int32());
+                    break;
+                case 2:
+                    message.intra_op_parallelism_threads = reader.int32();
+                    break;
+                case 5:
+                    message.inter_op_parallelism_threads = reader.int32();
+                    break;
+                case 9:
+                    message.use_per_session_threads = reader.bool();
+                    break;
+                case 12:
+                    message.session_inter_op_thread_pool.push($root.tensorflow.ThreadPoolOptionProto.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.placement_period = reader.int32();
+                    break;
+                case 4:
+                    message.device_filters.push(reader.string());
+                    break;
+                case 6:
+                    message.gpu_options = $root.tensorflow.GPUOptions.decode(reader, reader.uint32());
+                    break;
+                case 7:
+                    message.allow_soft_placement = reader.bool();
+                    break;
+                case 8:
+                    message.log_device_placement = reader.bool();
+                    break;
+                case 10:
+                    message.graph_options = $root.tensorflow.GraphOptions.decode(reader, reader.uint32());
+                    break;
+                case 11:
+                    message.operation_timeout_in_ms = reader.int64();
+                    break;
+                case 13:
+                    message.rpc_options = $root.tensorflow.RPCOptions.decode(reader, reader.uint32());
+                    break;
+                case 14:
+                    message.cluster_def = $root.tensorflow.ClusterDef.decode(reader, reader.uint32());
+                    break;
+                case 15:
+                    message.isolate_session_state = reader.bool();
+                    break;
+                case 17:
+                    message.share_cluster_devices_in_session = reader.bool();
+                    break;
+                case 16:
+                    message.experimental = $root.tensorflow.ConfigProto.Experimental.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.ConfigProto();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "device_count":
+                    reader.entry(message.device_count, () => reader.string(), () => reader.int32());
+                    break;
+                case "intra_op_parallelism_threads":
+                    message.intra_op_parallelism_threads = reader.int32();
+                    break;
+                case "inter_op_parallelism_threads":
+                    message.inter_op_parallelism_threads = reader.int32();
+                    break;
+                case "use_per_session_threads":
+                    message.use_per_session_threads = reader.bool();
+                    break;
+                case "session_inter_op_thread_pool":
+                    message.session_inter_op_thread_pool.push($root.tensorflow.ThreadPoolOptionProto.decodeText(reader));
+                    break;
+                case "placement_period":
+                    message.placement_period = reader.int32();
+                    break;
+                case "device_filters":
+                    reader.array(message.device_filters, () => reader.string());
+                    break;
+                case "gpu_options":
+                    message.gpu_options = $root.tensorflow.GPUOptions.decodeText(reader);
+                    break;
+                case "allow_soft_placement":
+                    message.allow_soft_placement = reader.bool();
+                    break;
+                case "log_device_placement":
+                    message.log_device_placement = reader.bool();
+                    break;
+                case "graph_options":
+                    message.graph_options = $root.tensorflow.GraphOptions.decodeText(reader);
+                    break;
+                case "operation_timeout_in_ms":
+                    message.operation_timeout_in_ms = reader.int64();
+                    break;
+                case "rpc_options":
+                    message.rpc_options = $root.tensorflow.RPCOptions.decodeText(reader);
+                    break;
+                case "cluster_def":
+                    message.cluster_def = $root.tensorflow.ClusterDef.decodeText(reader);
+                    break;
+                case "isolate_session_state":
+                    message.isolate_session_state = reader.bool();
+                    break;
+                case "share_cluster_devices_in_session":
+                    message.share_cluster_devices_in_session = reader.bool();
+                    break;
+                case "experimental":
+                    message.experimental = $root.tensorflow.ConfigProto.Experimental.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.ConfigProto.prototype.intra_op_parallelism_threads = 0;
+$root.tensorflow.ConfigProto.prototype.inter_op_parallelism_threads = 0;
+$root.tensorflow.ConfigProto.prototype.use_per_session_threads = false;
+$root.tensorflow.ConfigProto.prototype.placement_period = 0;
+$root.tensorflow.ConfigProto.prototype.gpu_options = null;
+$root.tensorflow.ConfigProto.prototype.allow_soft_placement = false;
+$root.tensorflow.ConfigProto.prototype.log_device_placement = false;
+$root.tensorflow.ConfigProto.prototype.graph_options = null;
+$root.tensorflow.ConfigProto.prototype.operation_timeout_in_ms = protobuf.Int64.create(0);
+$root.tensorflow.ConfigProto.prototype.rpc_options = null;
+$root.tensorflow.ConfigProto.prototype.cluster_def = null;
+$root.tensorflow.ConfigProto.prototype.isolate_session_state = false;
+$root.tensorflow.ConfigProto.prototype.share_cluster_devices_in_session = false;
+$root.tensorflow.ConfigProto.prototype.experimental = null;
+
+$root.tensorflow.ConfigProto.Experimental = class Experimental {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.ConfigProto.Experimental();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.collective_group_leader = reader.string();
+                    break;
+                case 3:
+                    message.executor_type = reader.string();
+                    break;
+                case 4:
+                    message.recv_buf_max_chunk = reader.int32();
+                    break;
+                case 5:
+                    message.use_numa_affinity = reader.bool();
+                    break;
+                case 6:
+                    message.collective_deterministic_sequential_execution = reader.bool();
+                    break;
+                case 7:
+                    message.collective_nccl = reader.bool();
+                    break;
+                case 8:
+                    message.share_session_state_in_clusterspec_propagation = reader.bool();
+                    break;
+                case 9:
+                    message.disable_thread_spinning = reader.bool();
+                    break;
+                case 10:
+                    message.share_cluster_devices_in_session = reader.bool();
+                    break;
+                case 11:
+                    message.session_metadata = $root.tensorflow.SessionMetadata.decode(reader, reader.uint32());
+                    break;
+                case 12:
+                    message.optimize_for_static_graph = reader.bool();
+                    break;
+                case 13:
+                    message.enable_mlir_bridge = reader.bool();
+                    break;
+                case 17:
+                    message.mlir_bridge_rollout = reader.int32();
+                    break;
+                case 16:
+                    message.enable_mlir_graph_optimization = reader.bool();
+                    break;
+                case 14:
+                    message.disable_output_partition_graphs = reader.bool();
+                    break;
+                case 15:
+                    message.xla_fusion_autotuner_thresh = reader.int64();
+                    break;
+                case 18:
+                    message.use_tfrt = reader.bool();
+                    break;
+                case 19:
+                    message.coordination_service = reader.string();
+                    break;
+                case 20:
+                    message.fetch_remote_devices_in_multi_client = reader.bool();
+                    break;
+                case 21:
+                    message.disable_functional_ops_lowering = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.ConfigProto.Experimental();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "collective_group_leader":
+                    message.collective_group_leader = reader.string();
+                    break;
+                case "executor_type":
+                    message.executor_type = reader.string();
+                    break;
+                case "recv_buf_max_chunk":
+                    message.recv_buf_max_chunk = reader.int32();
+                    break;
+                case "use_numa_affinity":
+                    message.use_numa_affinity = reader.bool();
+                    break;
+                case "collective_deterministic_sequential_execution":
+                    message.collective_deterministic_sequential_execution = reader.bool();
+                    break;
+                case "collective_nccl":
+                    message.collective_nccl = reader.bool();
+                    break;
+                case "share_session_state_in_clusterspec_propagation":
+                    message.share_session_state_in_clusterspec_propagation = reader.bool();
+                    break;
+                case "disable_thread_spinning":
+                    message.disable_thread_spinning = reader.bool();
+                    break;
+                case "share_cluster_devices_in_session":
+                    message.share_cluster_devices_in_session = reader.bool();
+                    break;
+                case "session_metadata":
+                    message.session_metadata = $root.tensorflow.SessionMetadata.decodeText(reader);
+                    break;
+                case "optimize_for_static_graph":
+                    message.optimize_for_static_graph = reader.bool();
+                    break;
+                case "enable_mlir_bridge":
+                    message.enable_mlir_bridge = reader.bool();
+                    break;
+                case "mlir_bridge_rollout":
+                    message.mlir_bridge_rollout = reader.enum($root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout);
+                    break;
+                case "enable_mlir_graph_optimization":
+                    message.enable_mlir_graph_optimization = reader.bool();
+                    break;
+                case "disable_output_partition_graphs":
+                    message.disable_output_partition_graphs = reader.bool();
+                    break;
+                case "xla_fusion_autotuner_thresh":
+                    message.xla_fusion_autotuner_thresh = reader.int64();
+                    break;
+                case "use_tfrt":
+                    message.use_tfrt = reader.bool();
+                    break;
+                case "coordination_service":
+                    message.coordination_service = reader.string();
+                    break;
+                case "fetch_remote_devices_in_multi_client":
+                    message.fetch_remote_devices_in_multi_client = reader.bool();
+                    break;
+                case "disable_functional_ops_lowering":
+                    message.disable_functional_ops_lowering = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.ConfigProto.Experimental.prototype.collective_group_leader = "";
+$root.tensorflow.ConfigProto.Experimental.prototype.executor_type = "";
+$root.tensorflow.ConfigProto.Experimental.prototype.recv_buf_max_chunk = 0;
+$root.tensorflow.ConfigProto.Experimental.prototype.use_numa_affinity = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.collective_deterministic_sequential_execution = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.collective_nccl = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.share_session_state_in_clusterspec_propagation = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.disable_thread_spinning = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.share_cluster_devices_in_session = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.session_metadata = null;
+$root.tensorflow.ConfigProto.Experimental.prototype.optimize_for_static_graph = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.enable_mlir_bridge = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.mlir_bridge_rollout = 0;
+$root.tensorflow.ConfigProto.Experimental.prototype.enable_mlir_graph_optimization = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_graphs = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = protobuf.Int64.create(0);
+$root.tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.coordination_service = "";
+$root.tensorflow.ConfigProto.Experimental.prototype.fetch_remote_devices_in_multi_client = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
+
+$root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
+    "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
+    "MLIR_BRIDGE_ROLLOUT_ENABLED": 1,
+    "MLIR_BRIDGE_ROLLOUT_DISABLED": 2,
+    "MLIR_BRIDGE_ROLLOUT_SAFE_MODE_ENABLED": 3,
+    "MLIR_BRIDGE_ROLLOUT_SAFE_MODE_FALLBACK_ENABLED": 4
+};
+
+$root.tensorflow.RunOptions = class RunOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RunOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.trace_level = reader.int32();
+                    break;
+                case 2:
+                    message.timeout_in_ms = reader.int64();
+                    break;
+                case 3:
+                    message.inter_op_thread_pool = reader.int32();
+                    break;
+                case 5:
+                    message.output_partition_graphs = reader.bool();
+                    break;
+                case 6:
+                    message.debug_options = $root.tensorflow.DebugOptions.decode(reader, reader.uint32());
+                    break;
+                case 7:
+                    message.report_tensor_allocations_upon_oom = reader.bool();
+                    break;
+                case 8:
+                    message.experimental = $root.tensorflow.RunOptions.Experimental.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RunOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "trace_level":
+                    message.trace_level = reader.enum($root.tensorflow.RunOptions.TraceLevel);
+                    break;
+                case "timeout_in_ms":
+                    message.timeout_in_ms = reader.int64();
+                    break;
+                case "inter_op_thread_pool":
+                    message.inter_op_thread_pool = reader.int32();
+                    break;
+                case "output_partition_graphs":
+                    message.output_partition_graphs = reader.bool();
+                    break;
+                case "debug_options":
+                    message.debug_options = $root.tensorflow.DebugOptions.decodeText(reader);
+                    break;
+                case "report_tensor_allocations_upon_oom":
+                    message.report_tensor_allocations_upon_oom = reader.bool();
+                    break;
+                case "experimental":
+                    message.experimental = $root.tensorflow.RunOptions.Experimental.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RunOptions.prototype.trace_level = 0;
+$root.tensorflow.RunOptions.prototype.timeout_in_ms = protobuf.Int64.create(0);
+$root.tensorflow.RunOptions.prototype.inter_op_thread_pool = 0;
+$root.tensorflow.RunOptions.prototype.output_partition_graphs = false;
+$root.tensorflow.RunOptions.prototype.debug_options = null;
+$root.tensorflow.RunOptions.prototype.report_tensor_allocations_upon_oom = false;
+$root.tensorflow.RunOptions.prototype.experimental = null;
+
+$root.tensorflow.RunOptions.TraceLevel = {
+    "NO_TRACE": 0,
+    "SOFTWARE_TRACE": 1,
+    "HARDWARE_TRACE": 2,
+    "FULL_TRACE": 3
+};
+
+$root.tensorflow.RunOptions.Experimental = class Experimental {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RunOptions.Experimental();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.collective_graph_key = reader.int64();
+                    break;
+                case 2:
+                    message.use_run_handler_pool = reader.bool();
+                    break;
+                case 3:
+                    message.run_handler_pool_options = $root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RunOptions.Experimental();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "collective_graph_key":
+                    message.collective_graph_key = reader.int64();
+                    break;
+                case "use_run_handler_pool":
+                    message.use_run_handler_pool = reader.bool();
+                    break;
+                case "run_handler_pool_options":
+                    message.run_handler_pool_options = $root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RunOptions.Experimental.prototype.collective_graph_key = protobuf.Int64.create(0);
+$root.tensorflow.RunOptions.Experimental.prototype.use_run_handler_pool = false;
+$root.tensorflow.RunOptions.Experimental.prototype.run_handler_pool_options = null;
+
+$root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions = class RunHandlerPoolOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.priority = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "priority":
+                    message.priority = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RunOptions.Experimental.RunHandlerPoolOptions.prototype.priority = protobuf.Int64.create(0);
+
+$root.tensorflow.RunMetadata = class RunMetadata {
+
+    constructor() {
+        this.partition_graphs = [];
+        this.function_graphs = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RunMetadata();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.step_stats = $root.tensorflow.StepStats.decode(reader, reader.uint32());
+                    break;
+                case 2:
+                    message.cost_graph = $root.tensorflow.CostGraphDef.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.partition_graphs.push($root.tensorflow.GraphDef.decode(reader, reader.uint32()));
+                    break;
+                case 4:
+                    message.function_graphs.push($root.tensorflow.RunMetadata.FunctionGraphs.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RunMetadata();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "step_stats":
+                    message.step_stats = $root.tensorflow.StepStats.decodeText(reader);
+                    break;
+                case "cost_graph":
+                    message.cost_graph = $root.tensorflow.CostGraphDef.decodeText(reader);
+                    break;
+                case "partition_graphs":
+                    message.partition_graphs.push($root.tensorflow.GraphDef.decodeText(reader));
+                    break;
+                case "function_graphs":
+                    message.function_graphs.push($root.tensorflow.RunMetadata.FunctionGraphs.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RunMetadata.prototype.step_stats = null;
+$root.tensorflow.RunMetadata.prototype.cost_graph = null;
+
+$root.tensorflow.RunMetadata.FunctionGraphs = class FunctionGraphs {
+
+    constructor() {
+        this.partition_graphs = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RunMetadata.FunctionGraphs();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.partition_graphs.push($root.tensorflow.GraphDef.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.pre_optimization_graph = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
+                    break;
+                case 3:
+                    message.post_optimization_graph = $root.tensorflow.GraphDef.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RunMetadata.FunctionGraphs();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "partition_graphs":
+                    message.partition_graphs.push($root.tensorflow.GraphDef.decodeText(reader));
+                    break;
+                case "pre_optimization_graph":
+                    message.pre_optimization_graph = $root.tensorflow.GraphDef.decodeText(reader);
+                    break;
+                case "post_optimization_graph":
+                    message.post_optimization_graph = $root.tensorflow.GraphDef.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RunMetadata.FunctionGraphs.prototype.pre_optimization_graph = null;
+$root.tensorflow.RunMetadata.FunctionGraphs.prototype.post_optimization_graph = null;
+
+$root.tensorflow.TensorConnection = class TensorConnection {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.TensorConnection();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.from_tensor = reader.string();
+                    break;
+                case 2:
+                    message.to_tensor = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.TensorConnection();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "from_tensor":
+                    message.from_tensor = reader.string();
+                    break;
+                case "to_tensor":
+                    message.to_tensor = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.TensorConnection.prototype.from_tensor = "";
+$root.tensorflow.TensorConnection.prototype.to_tensor = "";
+
+$root.tensorflow.CallableOptions = class CallableOptions {
+
+    constructor() {
+        this.feed = [];
+        this.fetch = [];
+        this.target = [];
+        this.tensor_connection = [];
+        this.feed_devices = {};
+        this.fetch_devices = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CallableOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.feed.push(reader.string());
+                    break;
+                case 2:
+                    message.fetch.push(reader.string());
+                    break;
+                case 3:
+                    message.target.push(reader.string());
+                    break;
+                case 4:
+                    message.run_options = $root.tensorflow.RunOptions.decode(reader, reader.uint32());
+                    break;
+                case 5:
+                    message.tensor_connection.push($root.tensorflow.TensorConnection.decode(reader, reader.uint32()));
+                    break;
+                case 6:
+                    reader.entry(message.feed_devices, () => reader.string(), () => reader.string());
+                    break;
+                case 7:
+                    reader.entry(message.fetch_devices, () => reader.string(), () => reader.string());
+                    break;
+                case 8:
+                    message.fetch_skip_sync = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CallableOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "feed":
+                    reader.array(message.feed, () => reader.string());
+                    break;
+                case "fetch":
+                    reader.array(message.fetch, () => reader.string());
+                    break;
+                case "target":
+                    reader.array(message.target, () => reader.string());
+                    break;
+                case "run_options":
+                    message.run_options = $root.tensorflow.RunOptions.decodeText(reader);
+                    break;
+                case "tensor_connection":
+                    message.tensor_connection.push($root.tensorflow.TensorConnection.decodeText(reader));
+                    break;
+                case "feed_devices":
+                    reader.entry(message.feed_devices, () => reader.string(), () => reader.string());
+                    break;
+                case "fetch_devices":
+                    reader.entry(message.fetch_devices, () => reader.string(), () => reader.string());
+                    break;
+                case "fetch_skip_sync":
+                    message.fetch_skip_sync = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CallableOptions.prototype.run_options = null;
+$root.tensorflow.CallableOptions.prototype.fetch_skip_sync = false;
+
+$root.tensorflow.CostGraphDef = class CostGraphDef {
+
+    constructor() {
+        this.node = [];
+        this.cost = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CostGraphDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.node.push($root.tensorflow.CostGraphDef.Node.decode(reader, reader.uint32()));
+                    break;
+                case 2:
+                    message.cost.push($root.tensorflow.CostGraphDef.AggregatedCost.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CostGraphDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "node":
+                    message.node.push($root.tensorflow.CostGraphDef.Node.decodeText(reader));
+                    break;
+                case "cost":
+                    message.cost.push($root.tensorflow.CostGraphDef.AggregatedCost.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CostGraphDef.Node = class Node {
+
+    constructor() {
+        this.input_info = [];
+        this.output_info = [];
+        this.control_input = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CostGraphDef.Node();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.device = reader.string();
+                    break;
+                case 3:
+                    message.id = reader.int32();
+                    break;
+                case 4:
+                    message.input_info.push($root.tensorflow.CostGraphDef.Node.InputInfo.decode(reader, reader.uint32()));
+                    break;
+                case 5:
+                    message.output_info.push($root.tensorflow.CostGraphDef.Node.OutputInfo.decode(reader, reader.uint32()));
+                    break;
+                case 6:
+                    message.temporary_memory_size = reader.int64();
+                    break;
+                case 12:
+                    message.persistent_memory_size = reader.int64();
+                    break;
+                case 10:
+                    message.host_temp_memory_size = reader.int64();
+                    break;
+                case 11:
+                    message.device_temp_memory_size = reader.int64();
+                    break;
+                case 16:
+                    message.device_persistent_memory_size = reader.int64();
+                    break;
+                case 9:
+                    message.compute_cost = reader.int64();
+                    break;
+                case 14:
+                    message.compute_time = reader.int64();
+                    break;
+                case 15:
+                    message.memory_time = reader.int64();
+                    break;
+                case 7:
+                    message.is_final = reader.bool();
+                    break;
+                case 8:
+                    message.control_input = reader.array(message.control_input, () => reader.int32(), tag);
+                    break;
+                case 17:
+                    message.inaccurate = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CostGraphDef.Node();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "device":
+                    message.device = reader.string();
+                    break;
+                case "id":
+                    message.id = reader.int32();
+                    break;
+                case "input_info":
+                    message.input_info.push($root.tensorflow.CostGraphDef.Node.InputInfo.decodeText(reader));
+                    break;
+                case "output_info":
+                    message.output_info.push($root.tensorflow.CostGraphDef.Node.OutputInfo.decodeText(reader));
+                    break;
+                case "temporary_memory_size":
+                    message.temporary_memory_size = reader.int64();
+                    break;
+                case "persistent_memory_size":
+                    message.persistent_memory_size = reader.int64();
+                    break;
+                case "host_temp_memory_size":
+                    message.host_temp_memory_size = reader.int64();
+                    break;
+                case "device_temp_memory_size":
+                    message.device_temp_memory_size = reader.int64();
+                    break;
+                case "device_persistent_memory_size":
+                    message.device_persistent_memory_size = reader.int64();
+                    break;
+                case "compute_cost":
+                    message.compute_cost = reader.int64();
+                    break;
+                case "compute_time":
+                    message.compute_time = reader.int64();
+                    break;
+                case "memory_time":
+                    message.memory_time = reader.int64();
+                    break;
+                case "is_final":
+                    message.is_final = reader.bool();
+                    break;
+                case "control_input":
+                    reader.array(message.control_input, () => reader.int32());
+                    break;
+                case "inaccurate":
+                    message.inaccurate = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CostGraphDef.Node.prototype.name = "";
+$root.tensorflow.CostGraphDef.Node.prototype.device = "";
+$root.tensorflow.CostGraphDef.Node.prototype.id = 0;
+$root.tensorflow.CostGraphDef.Node.prototype.temporary_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.persistent_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.host_temp_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.device_temp_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.device_persistent_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.compute_cost = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.compute_time = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.memory_time = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.prototype.is_final = false;
+$root.tensorflow.CostGraphDef.Node.prototype.inaccurate = false;
+
+$root.tensorflow.CostGraphDef.Node.InputInfo = class InputInfo {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CostGraphDef.Node.InputInfo();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.preceding_node = reader.int32();
+                    break;
+                case 2:
+                    message.preceding_port = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CostGraphDef.Node.InputInfo();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "preceding_node":
+                    message.preceding_node = reader.int32();
+                    break;
+                case "preceding_port":
+                    message.preceding_port = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CostGraphDef.Node.InputInfo.prototype.preceding_node = 0;
+$root.tensorflow.CostGraphDef.Node.InputInfo.prototype.preceding_port = 0;
+
+$root.tensorflow.CostGraphDef.Node.OutputInfo = class OutputInfo {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CostGraphDef.Node.OutputInfo();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.size = reader.int64();
+                    break;
+                case 2:
+                    message.alias_input_port = reader.int64();
+                    break;
+                case 3:
+                    message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.dtype = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CostGraphDef.Node.OutputInfo();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "size":
+                    message.size = reader.int64();
+                    break;
+                case "alias_input_port":
+                    message.alias_input_port = reader.int64();
+                    break;
+                case "shape":
+                    message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader);
+                    break;
+                case "dtype":
+                    message.dtype = reader.enum($root.tensorflow.DataType);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CostGraphDef.Node.OutputInfo.prototype.size = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.OutputInfo.prototype.alias_input_port = protobuf.Int64.create(0);
+$root.tensorflow.CostGraphDef.Node.OutputInfo.prototype.shape = null;
+$root.tensorflow.CostGraphDef.Node.OutputInfo.prototype.dtype = 0;
+
+$root.tensorflow.CostGraphDef.AggregatedCost = class AggregatedCost {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CostGraphDef.AggregatedCost();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.cost = reader.float();
+                    break;
+                case 2:
+                    message.dimension = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CostGraphDef.AggregatedCost();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "cost":
+                    message.cost = reader.float();
+                    break;
+                case "dimension":
+                    message.dimension = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CostGraphDef.AggregatedCost.prototype.cost = 0;
+$root.tensorflow.CostGraphDef.AggregatedCost.prototype.dimension = "";
+
+$root.tensorflow.AllocationRecord = class AllocationRecord {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.AllocationRecord();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.alloc_micros = reader.int64();
+                    break;
+                case 2:
+                    message.alloc_bytes = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.AllocationRecord();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "alloc_micros":
+                    message.alloc_micros = reader.int64();
+                    break;
+                case "alloc_bytes":
+                    message.alloc_bytes = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AllocationRecord.prototype.alloc_micros = protobuf.Int64.create(0);
+$root.tensorflow.AllocationRecord.prototype.alloc_bytes = protobuf.Int64.create(0);
+
+$root.tensorflow.AllocatorMemoryUsed = class AllocatorMemoryUsed {
+
+    constructor() {
+        this.allocation_records = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.AllocatorMemoryUsed();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.allocator_name = reader.string();
+                    break;
+                case 2:
+                    message.total_bytes = reader.int64();
+                    break;
+                case 3:
+                    message.peak_bytes = reader.int64();
+                    break;
+                case 4:
+                    message.live_bytes = reader.int64();
+                    break;
+                case 6:
+                    message.allocation_records.push($root.tensorflow.AllocationRecord.decode(reader, reader.uint32()));
+                    break;
+                case 5:
+                    message.allocator_bytes_in_use = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.AllocatorMemoryUsed();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "allocator_name":
+                    message.allocator_name = reader.string();
+                    break;
+                case "total_bytes":
+                    message.total_bytes = reader.int64();
+                    break;
+                case "peak_bytes":
+                    message.peak_bytes = reader.int64();
+                    break;
+                case "live_bytes":
+                    message.live_bytes = reader.int64();
+                    break;
+                case "allocation_records":
+                    message.allocation_records.push($root.tensorflow.AllocationRecord.decodeText(reader));
+                    break;
+                case "allocator_bytes_in_use":
+                    message.allocator_bytes_in_use = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AllocatorMemoryUsed.prototype.allocator_name = "";
+$root.tensorflow.AllocatorMemoryUsed.prototype.total_bytes = protobuf.Int64.create(0);
+$root.tensorflow.AllocatorMemoryUsed.prototype.peak_bytes = protobuf.Int64.create(0);
+$root.tensorflow.AllocatorMemoryUsed.prototype.live_bytes = protobuf.Int64.create(0);
+$root.tensorflow.AllocatorMemoryUsed.prototype.allocator_bytes_in_use = protobuf.Int64.create(0);
+
+$root.tensorflow.NodeOutput = class NodeOutput {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.NodeOutput();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.slot = reader.int32();
+                    break;
+                case 3:
+                    message.tensor_description = $root.tensorflow.TensorDescription.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.NodeOutput();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "slot":
+                    message.slot = reader.int32();
+                    break;
+                case "tensor_description":
+                    message.tensor_description = $root.tensorflow.TensorDescription.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.NodeOutput.prototype.slot = 0;
+$root.tensorflow.NodeOutput.prototype.tensor_description = null;
+
+$root.tensorflow.MemoryStats = class MemoryStats {
+
+    constructor() {
+        this.persistent_tensor_alloc_ids = [];
+        this.device_persistent_tensor_alloc_ids = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.MemoryStats();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.temp_memory_size = reader.int64();
+                    break;
+                case 3:
+                    message.persistent_memory_size = reader.int64();
+                    break;
+                case 5:
+                    message.persistent_tensor_alloc_ids = reader.array(message.persistent_tensor_alloc_ids, () => reader.int64(), tag);
+                    break;
+                case 2:
+                    message.device_temp_memory_size = reader.int64();
+                    break;
+                case 4:
+                    message.device_persistent_memory_size = reader.int64();
+                    break;
+                case 6:
+                    message.device_persistent_tensor_alloc_ids = reader.array(message.device_persistent_tensor_alloc_ids, () => reader.int64(), tag);
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.MemoryStats();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "temp_memory_size":
+                    message.temp_memory_size = reader.int64();
+                    break;
+                case "persistent_memory_size":
+                    message.persistent_memory_size = reader.int64();
+                    break;
+                case "persistent_tensor_alloc_ids":
+                    reader.array(message.persistent_tensor_alloc_ids, () => reader.int64());
+                    break;
+                case "device_temp_memory_size":
+                    message.device_temp_memory_size = reader.int64();
+                    break;
+                case "device_persistent_memory_size":
+                    message.device_persistent_memory_size = reader.int64();
+                    break;
+                case "device_persistent_tensor_alloc_ids":
+                    reader.array(message.device_persistent_tensor_alloc_ids, () => reader.int64());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.MemoryStats.prototype.temp_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.MemoryStats.prototype.persistent_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.MemoryStats.prototype.device_temp_memory_size = protobuf.Int64.create(0);
+$root.tensorflow.MemoryStats.prototype.device_persistent_memory_size = protobuf.Int64.create(0);
+
+$root.tensorflow.NodeExecStats = class NodeExecStats {
+
+    constructor() {
+        this.memory = [];
+        this.output = [];
+        this.referenced_tensor = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.NodeExecStats();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.node_name = reader.string();
+                    break;
+                case 2:
+                    message.all_start_micros = reader.int64();
+                    break;
+                case 3:
+                    message.op_start_rel_micros = reader.int64();
+                    break;
+                case 4:
+                    message.op_end_rel_micros = reader.int64();
+                    break;
+                case 5:
+                    message.all_end_rel_micros = reader.int64();
+                    break;
+                case 6:
+                    message.memory.push($root.tensorflow.AllocatorMemoryUsed.decode(reader, reader.uint32()));
+                    break;
+                case 7:
+                    message.output.push($root.tensorflow.NodeOutput.decode(reader, reader.uint32()));
+                    break;
+                case 8:
+                    message.timeline_label = reader.string();
+                    break;
+                case 9:
+                    message.scheduled_micros = reader.int64();
+                    break;
+                case 10:
+                    message.thread_id = reader.uint32();
+                    break;
+                case 11:
+                    message.referenced_tensor.push($root.tensorflow.AllocationDescription.decode(reader, reader.uint32()));
+                    break;
+                case 12:
+                    message.memory_stats = $root.tensorflow.MemoryStats.decode(reader, reader.uint32());
+                    break;
+                case 13:
+                    message.all_start_nanos = reader.int64();
+                    break;
+                case 14:
+                    message.op_start_rel_nanos = reader.int64();
+                    break;
+                case 15:
+                    message.op_end_rel_nanos = reader.int64();
+                    break;
+                case 16:
+                    message.all_end_rel_nanos = reader.int64();
+                    break;
+                case 17:
+                    message.scheduled_nanos = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.NodeExecStats();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "node_name":
+                    message.node_name = reader.string();
+                    break;
+                case "all_start_micros":
+                    message.all_start_micros = reader.int64();
+                    break;
+                case "op_start_rel_micros":
+                    message.op_start_rel_micros = reader.int64();
+                    break;
+                case "op_end_rel_micros":
+                    message.op_end_rel_micros = reader.int64();
+                    break;
+                case "all_end_rel_micros":
+                    message.all_end_rel_micros = reader.int64();
+                    break;
+                case "memory":
+                    message.memory.push($root.tensorflow.AllocatorMemoryUsed.decodeText(reader));
+                    break;
+                case "output":
+                    message.output.push($root.tensorflow.NodeOutput.decodeText(reader));
+                    break;
+                case "timeline_label":
+                    message.timeline_label = reader.string();
+                    break;
+                case "scheduled_micros":
+                    message.scheduled_micros = reader.int64();
+                    break;
+                case "thread_id":
+                    message.thread_id = reader.uint32();
+                    break;
+                case "referenced_tensor":
+                    message.referenced_tensor.push($root.tensorflow.AllocationDescription.decodeText(reader));
+                    break;
+                case "memory_stats":
+                    message.memory_stats = $root.tensorflow.MemoryStats.decodeText(reader);
+                    break;
+                case "all_start_nanos":
+                    message.all_start_nanos = reader.int64();
+                    break;
+                case "op_start_rel_nanos":
+                    message.op_start_rel_nanos = reader.int64();
+                    break;
+                case "op_end_rel_nanos":
+                    message.op_end_rel_nanos = reader.int64();
+                    break;
+                case "all_end_rel_nanos":
+                    message.all_end_rel_nanos = reader.int64();
+                    break;
+                case "scheduled_nanos":
+                    message.scheduled_nanos = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.NodeExecStats.prototype.node_name = "";
+$root.tensorflow.NodeExecStats.prototype.all_start_micros = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.op_start_rel_micros = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.op_end_rel_micros = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.all_end_rel_micros = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.timeline_label = "";
+$root.tensorflow.NodeExecStats.prototype.scheduled_micros = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.thread_id = 0;
+$root.tensorflow.NodeExecStats.prototype.memory_stats = null;
+$root.tensorflow.NodeExecStats.prototype.all_start_nanos = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.op_start_rel_nanos = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.op_end_rel_nanos = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.all_end_rel_nanos = protobuf.Int64.create(0);
+$root.tensorflow.NodeExecStats.prototype.scheduled_nanos = protobuf.Int64.create(0);
+
+$root.tensorflow.DeviceStepStats = class DeviceStepStats {
+
+    constructor() {
+        this.node_stats = [];
+        this.thread_names = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.DeviceStepStats();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.device = reader.string();
+                    break;
+                case 2:
+                    message.node_stats.push($root.tensorflow.NodeExecStats.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    reader.entry(message.thread_names, () => reader.uint32(), () => reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.DeviceStepStats();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "device":
+                    message.device = reader.string();
+                    break;
+                case "node_stats":
+                    message.node_stats.push($root.tensorflow.NodeExecStats.decodeText(reader));
+                    break;
+                case "thread_names":
+                    reader.entry(message.thread_names, () => reader.uint32(), () => reader.string());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.DeviceStepStats.prototype.device = "";
+
+$root.tensorflow.StepStats = class StepStats {
+
+    constructor() {
+        this.dev_stats = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.StepStats();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.dev_stats.push($root.tensorflow.DeviceStepStats.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.StepStats();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "dev_stats":
+                    message.dev_stats.push($root.tensorflow.DeviceStepStats.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AllocationDescription = class AllocationDescription {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.AllocationDescription();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.requested_bytes = reader.int64();
+                    break;
+                case 2:
+                    message.allocated_bytes = reader.int64();
+                    break;
+                case 3:
+                    message.allocator_name = reader.string();
+                    break;
+                case 4:
+                    message.allocation_id = reader.int64();
+                    break;
+                case 5:
+                    message.has_single_reference = reader.bool();
+                    break;
+                case 6:
+                    message.ptr = reader.uint64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.AllocationDescription();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "requested_bytes":
+                    message.requested_bytes = reader.int64();
+                    break;
+                case "allocated_bytes":
+                    message.allocated_bytes = reader.int64();
+                    break;
+                case "allocator_name":
+                    message.allocator_name = reader.string();
+                    break;
+                case "allocation_id":
+                    message.allocation_id = reader.int64();
+                    break;
+                case "has_single_reference":
+                    message.has_single_reference = reader.bool();
+                    break;
+                case "ptr":
+                    message.ptr = reader.uint64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AllocationDescription.prototype.requested_bytes = protobuf.Int64.create(0);
+$root.tensorflow.AllocationDescription.prototype.allocated_bytes = protobuf.Int64.create(0);
+$root.tensorflow.AllocationDescription.prototype.allocator_name = "";
+$root.tensorflow.AllocationDescription.prototype.allocation_id = protobuf.Int64.create(0);
+$root.tensorflow.AllocationDescription.prototype.has_single_reference = false;
+$root.tensorflow.AllocationDescription.prototype.ptr = protobuf.Uint64.create(0);
+
+$root.tensorflow.TensorDescription = class TensorDescription {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.TensorDescription();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.dtype = reader.int32();
+                    break;
+                case 2:
+                    message.shape = $root.tensorflow.TensorShapeProto.decode(reader, reader.uint32());
+                    break;
+                case 4:
+                    message.allocation_description = $root.tensorflow.AllocationDescription.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.TensorDescription();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "dtype":
+                    message.dtype = reader.enum($root.tensorflow.DataType);
+                    break;
+                case "shape":
+                    message.shape = $root.tensorflow.TensorShapeProto.decodeText(reader);
+                    break;
+                case "allocation_description":
+                    message.allocation_description = $root.tensorflow.AllocationDescription.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.TensorDescription.prototype.dtype = 0;
+$root.tensorflow.TensorDescription.prototype.shape = null;
+$root.tensorflow.TensorDescription.prototype.allocation_description = null;
+
+$root.tensorflow.JobDef = class JobDef {
+
+    constructor() {
+        this.tasks = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.JobDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    reader.entry(message.tasks, () => reader.int32(), () => reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.JobDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "tasks":
+                    reader.entry(message.tasks, () => reader.int32(), () => reader.string());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.JobDef.prototype.name = "";
+
+$root.tensorflow.ClusterDef = class ClusterDef {
+
+    constructor() {
+        this.job = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.ClusterDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.job.push($root.tensorflow.JobDef.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.ClusterDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "job":
+                    message.job.push($root.tensorflow.JobDef.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.DebugTensorWatch = class DebugTensorWatch {
+
+    constructor() {
+        this.debug_ops = [];
+        this.debug_urls = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.DebugTensorWatch();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.node_name = reader.string();
+                    break;
+                case 2:
+                    message.output_slot = reader.int32();
+                    break;
+                case 3:
+                    message.debug_ops.push(reader.string());
+                    break;
+                case 4:
+                    message.debug_urls.push(reader.string());
+                    break;
+                case 5:
+                    message.tolerate_debug_op_creation_failures = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.DebugTensorWatch();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "node_name":
+                    message.node_name = reader.string();
+                    break;
+                case "output_slot":
+                    message.output_slot = reader.int32();
+                    break;
+                case "debug_ops":
+                    reader.array(message.debug_ops, () => reader.string());
+                    break;
+                case "debug_urls":
+                    reader.array(message.debug_urls, () => reader.string());
+                    break;
+                case "tolerate_debug_op_creation_failures":
+                    message.tolerate_debug_op_creation_failures = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.DebugTensorWatch.prototype.node_name = "";
+$root.tensorflow.DebugTensorWatch.prototype.output_slot = 0;
+$root.tensorflow.DebugTensorWatch.prototype.tolerate_debug_op_creation_failures = false;
+
+$root.tensorflow.DebugOptions = class DebugOptions {
+
+    constructor() {
+        this.debug_tensor_watch_opts = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.DebugOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 4:
+                    message.debug_tensor_watch_opts.push($root.tensorflow.DebugTensorWatch.decode(reader, reader.uint32()));
+                    break;
+                case 10:
+                    message.global_step = reader.int64();
+                    break;
+                case 11:
+                    message.reset_disk_byte_usage = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.DebugOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "debug_tensor_watch_opts":
+                    message.debug_tensor_watch_opts.push($root.tensorflow.DebugTensorWatch.decodeText(reader));
+                    break;
+                case "global_step":
+                    message.global_step = reader.int64();
+                    break;
+                case "reset_disk_byte_usage":
+                    message.reset_disk_byte_usage = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.DebugOptions.prototype.global_step = protobuf.Int64.create(0);
+$root.tensorflow.DebugOptions.prototype.reset_disk_byte_usage = false;
+
+$root.tensorflow.DebuggedSourceFile = class DebuggedSourceFile {
+
+    constructor() {
+        this.lines = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.DebuggedSourceFile();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.host = reader.string();
+                    break;
+                case 2:
+                    message.file_path = reader.string();
+                    break;
+                case 3:
+                    message.last_modified = reader.int64();
+                    break;
+                case 4:
+                    message.bytes = reader.int64();
+                    break;
+                case 5:
+                    message.lines.push(reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.DebuggedSourceFile();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "host":
+                    message.host = reader.string();
+                    break;
+                case "file_path":
+                    message.file_path = reader.string();
+                    break;
+                case "last_modified":
+                    message.last_modified = reader.int64();
+                    break;
+                case "bytes":
+                    message.bytes = reader.int64();
+                    break;
+                case "lines":
+                    reader.array(message.lines, () => reader.string());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.DebuggedSourceFile.prototype.host = "";
+$root.tensorflow.DebuggedSourceFile.prototype.file_path = "";
+$root.tensorflow.DebuggedSourceFile.prototype.last_modified = protobuf.Int64.create(0);
+$root.tensorflow.DebuggedSourceFile.prototype.bytes = protobuf.Int64.create(0);
+
+$root.tensorflow.DebuggedSourceFiles = class DebuggedSourceFiles {
+
+    constructor() {
+        this.source_files = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.DebuggedSourceFiles();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.source_files.push($root.tensorflow.DebuggedSourceFile.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.DebuggedSourceFiles();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "source_files":
+                    message.source_files.push($root.tensorflow.DebuggedSourceFile.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AutoParallelOptions = class AutoParallelOptions {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.AutoParallelOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.enable = reader.bool();
+                    break;
+                case 2:
+                    message.num_replicas = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.AutoParallelOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "enable":
+                    message.enable = reader.bool();
+                    break;
+                case "num_replicas":
+                    message.num_replicas = reader.int32();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.AutoParallelOptions.prototype.enable = false;
+$root.tensorflow.AutoParallelOptions.prototype.num_replicas = 0;
+
+$root.tensorflow.ScopedAllocatorOptions = class ScopedAllocatorOptions {
+
+    constructor() {
+        this.enable_op = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.ScopedAllocatorOptions();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.enable_op.push(reader.string());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.ScopedAllocatorOptions();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "enable_op":
+                    reader.array(message.enable_op, () => reader.string());
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RewriterConfig = class RewriterConfig {
+
+    constructor() {
+        this.optimizers = [];
+        this.custom_optimizers = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RewriterConfig();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 50:
+                    message.cpu_layout_conversion = reader.int32();
+                    break;
+                case 1:
+                    message.layout_optimizer = reader.int32();
+                    break;
+                case 3:
+                    message.constant_folding = reader.int32();
+                    break;
+                case 13:
+                    message.shape_optimization = reader.int32();
+                    break;
+                case 14:
+                    message.remapping = reader.int32();
+                    break;
+                case 24:
+                    message.common_subgraph_elimination = reader.int32();
+                    break;
+                case 7:
+                    message.arithmetic_optimization = reader.int32();
+                    break;
+                case 8:
+                    message.dependency_optimization = reader.int32();
+                    break;
+                case 9:
+                    message.loop_optimization = reader.int32();
+                    break;
+                case 10:
+                    message.function_optimization = reader.int32();
+                    break;
+                case 11:
+                    message.debug_stripper = reader.int32();
+                    break;
+                case 2:
+                    message.disable_model_pruning = reader.bool();
+                    break;
+                case 15:
+                    message.scoped_allocator_optimization = reader.int32();
+                    break;
+                case 18:
+                    message.pin_to_host_optimization = reader.int32();
+                    break;
+                case 22:
+                    message.implementation_selector = reader.int32();
+                    break;
+                case 23:
+                    message.auto_mixed_precision = reader.int32();
+                    break;
+                case 25:
+                    message.auto_mixed_precision_mkl = reader.int32();
+                    break;
+                case 19:
+                    message.disable_meta_optimizer = reader.bool();
+                    break;
+                case 28:
+                    message.use_plugin_optimizers = reader.int32();
+                    break;
+                case 12:
+                    message.meta_optimizer_iterations = reader.int32();
+                    break;
+                case 17:
+                    message.min_graph_nodes = reader.int32();
+                    break;
+                case 26:
+                    message.experimental_disable_compressed_tensor_optimization = reader.bool();
+                    break;
+                case 27:
+                    message.experimental_disable_folding_quantization_emulation = reader.bool();
+                    break;
+                case 4:
+                    message.memory_optimization = reader.int32();
+                    break;
+                case 6:
+                    message.memory_optimizer_target_node_name_scope = reader.string();
+                    break;
+                case 20:
+                    message.meta_optimizer_timeout_ms = reader.int64();
+                    break;
+                case 5:
+                    message.auto_parallel = $root.tensorflow.AutoParallelOptions.decode(reader, reader.uint32());
+                    break;
+                case 21:
+                    message.fail_on_optimizer_errors = reader.bool();
+                    break;
+                case 16:
+                    message.scoped_allocator_opts = $root.tensorflow.ScopedAllocatorOptions.decode(reader, reader.uint32());
+                    break;
+                case 100:
+                    message.optimizers.push(reader.string());
+                    break;
+                case 200:
+                    message.custom_optimizers.push($root.tensorflow.RewriterConfig.CustomGraphOptimizer.decode(reader, reader.uint32()));
+                    break;
+                case 300:
+                    message.inter_optimizer_verifier_config = $root.tensorflow.VerifierConfig.decode(reader, reader.uint32());
+                    break;
+                case 301:
+                    message.post_optimization_verifier_config = $root.tensorflow.VerifierConfig.decode(reader, reader.uint32());
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RewriterConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "cpu_layout_conversion":
+                    message.cpu_layout_conversion = reader.enum($root.tensorflow.RewriterConfig.CpuLayout);
+                    break;
+                case "layout_optimizer":
+                    message.layout_optimizer = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "constant_folding":
+                    message.constant_folding = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "shape_optimization":
+                    message.shape_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "remapping":
+                    message.remapping = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "common_subgraph_elimination":
+                    message.common_subgraph_elimination = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "arithmetic_optimization":
+                    message.arithmetic_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "dependency_optimization":
+                    message.dependency_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "loop_optimization":
+                    message.loop_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "function_optimization":
+                    message.function_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "debug_stripper":
+                    message.debug_stripper = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "disable_model_pruning":
+                    message.disable_model_pruning = reader.bool();
+                    break;
+                case "scoped_allocator_optimization":
+                    message.scoped_allocator_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "pin_to_host_optimization":
+                    message.pin_to_host_optimization = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "implementation_selector":
+                    message.implementation_selector = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "auto_mixed_precision":
+                    message.auto_mixed_precision = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "auto_mixed_precision_mkl":
+                    message.auto_mixed_precision_mkl = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "disable_meta_optimizer":
+                    message.disable_meta_optimizer = reader.bool();
+                    break;
+                case "use_plugin_optimizers":
+                    message.use_plugin_optimizers = reader.enum($root.tensorflow.RewriterConfig.Toggle);
+                    break;
+                case "meta_optimizer_iterations":
+                    message.meta_optimizer_iterations = reader.enum($root.tensorflow.RewriterConfig.NumIterationsType);
+                    break;
+                case "min_graph_nodes":
+                    message.min_graph_nodes = reader.int32();
+                    break;
+                case "experimental_disable_compressed_tensor_optimization":
+                    message.experimental_disable_compressed_tensor_optimization = reader.bool();
+                    break;
+                case "experimental_disable_folding_quantization_emulation":
+                    message.experimental_disable_folding_quantization_emulation = reader.bool();
+                    break;
+                case "memory_optimization":
+                    message.memory_optimization = reader.enum($root.tensorflow.RewriterConfig.MemOptType);
+                    break;
+                case "memory_optimizer_target_node_name_scope":
+                    message.memory_optimizer_target_node_name_scope = reader.string();
+                    break;
+                case "meta_optimizer_timeout_ms":
+                    message.meta_optimizer_timeout_ms = reader.int64();
+                    break;
+                case "auto_parallel":
+                    message.auto_parallel = $root.tensorflow.AutoParallelOptions.decodeText(reader);
+                    break;
+                case "fail_on_optimizer_errors":
+                    message.fail_on_optimizer_errors = reader.bool();
+                    break;
+                case "scoped_allocator_opts":
+                    message.scoped_allocator_opts = $root.tensorflow.ScopedAllocatorOptions.decodeText(reader);
+                    break;
+                case "optimizers":
+                    reader.array(message.optimizers, () => reader.string());
+                    break;
+                case "custom_optimizers":
+                    message.custom_optimizers.push($root.tensorflow.RewriterConfig.CustomGraphOptimizer.decodeText(reader));
+                    break;
+                case "inter_optimizer_verifier_config":
+                    message.inter_optimizer_verifier_config = $root.tensorflow.VerifierConfig.decodeText(reader);
+                    break;
+                case "post_optimization_verifier_config":
+                    message.post_optimization_verifier_config = $root.tensorflow.VerifierConfig.decodeText(reader);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RewriterConfig.prototype.cpu_layout_conversion = 0;
+$root.tensorflow.RewriterConfig.prototype.layout_optimizer = 0;
+$root.tensorflow.RewriterConfig.prototype.constant_folding = 0;
+$root.tensorflow.RewriterConfig.prototype.shape_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.remapping = 0;
+$root.tensorflow.RewriterConfig.prototype.common_subgraph_elimination = 0;
+$root.tensorflow.RewriterConfig.prototype.arithmetic_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.dependency_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.loop_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.function_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.debug_stripper = 0;
+$root.tensorflow.RewriterConfig.prototype.disable_model_pruning = false;
+$root.tensorflow.RewriterConfig.prototype.scoped_allocator_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.pin_to_host_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.implementation_selector = 0;
+$root.tensorflow.RewriterConfig.prototype.auto_mixed_precision = 0;
+$root.tensorflow.RewriterConfig.prototype.auto_mixed_precision_mkl = 0;
+$root.tensorflow.RewriterConfig.prototype.disable_meta_optimizer = false;
+$root.tensorflow.RewriterConfig.prototype.use_plugin_optimizers = 0;
+$root.tensorflow.RewriterConfig.prototype.meta_optimizer_iterations = 0;
+$root.tensorflow.RewriterConfig.prototype.min_graph_nodes = 0;
+$root.tensorflow.RewriterConfig.prototype.experimental_disable_compressed_tensor_optimization = false;
+$root.tensorflow.RewriterConfig.prototype.experimental_disable_folding_quantization_emulation = false;
+$root.tensorflow.RewriterConfig.prototype.memory_optimization = 0;
+$root.tensorflow.RewriterConfig.prototype.memory_optimizer_target_node_name_scope = "";
+$root.tensorflow.RewriterConfig.prototype.meta_optimizer_timeout_ms = protobuf.Int64.create(0);
+$root.tensorflow.RewriterConfig.prototype.auto_parallel = null;
+$root.tensorflow.RewriterConfig.prototype.fail_on_optimizer_errors = false;
+$root.tensorflow.RewriterConfig.prototype.scoped_allocator_opts = null;
+$root.tensorflow.RewriterConfig.prototype.inter_optimizer_verifier_config = null;
+$root.tensorflow.RewriterConfig.prototype.post_optimization_verifier_config = null;
+
+$root.tensorflow.RewriterConfig.Toggle = {
+    "DEFAULT": 0,
+    "ON": 1,
+    "OFF": 2,
+    "AGGRESSIVE": 3
+};
+
+$root.tensorflow.RewriterConfig.CpuLayout = {
+    "NO_CONVERSION_ON_CPU": 0,
+    "NCHW_TO_NHWC": 1,
+    "NHWC_TO_NCHW": 2
+};
+
+$root.tensorflow.RewriterConfig.NumIterationsType = {
+    "DEFAULT_NUM_ITERS": 0,
+    "ONE": 1,
+    "TWO": 2
+};
+
+$root.tensorflow.RewriterConfig.MemOptType = {
+    "DEFAULT_MEM_OPT": 0,
+    "NO_MEM_OPT": 1,
+    "MANUAL": 2,
+    "SWAPPING_HEURISTICS": 4,
+    "RECOMPUTATION_HEURISTICS": 5,
+    "SCHEDULING_HEURISTICS": 6,
+    "HEURISTICS": 3
+};
+
+$root.tensorflow.RewriterConfig.CustomGraphOptimizer = class CustomGraphOptimizer {
+
+    constructor() {
+        this.parameter_map = {};
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RewriterConfig.CustomGraphOptimizer();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    reader.entry(message.parameter_map, () => reader.string(), () => $root.tensorflow.AttrValue.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RewriterConfig.CustomGraphOptimizer();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "parameter_map":
+                    reader.entry(message.parameter_map, () => reader.string(), () => $root.tensorflow.AttrValue.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RewriterConfig.CustomGraphOptimizer.prototype.name = "";
+
+$root.tensorflow.VerifierConfig = class VerifierConfig {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.VerifierConfig();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.verification_timeout_in_ms = reader.int64();
+                    break;
+                case 2:
+                    message.structure_verifier = reader.int32();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.VerifierConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "verification_timeout_in_ms":
+                    message.verification_timeout_in_ms = reader.int64();
+                    break;
+                case "structure_verifier":
+                    message.structure_verifier = reader.enum($root.tensorflow.VerifierConfig.Toggle);
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.VerifierConfig.prototype.verification_timeout_in_ms = protobuf.Int64.create(0);
+$root.tensorflow.VerifierConfig.prototype.structure_verifier = 0;
+
+$root.tensorflow.VerifierConfig.Toggle = {
+    "DEFAULT": 0,
+    "ON": 1,
+    "OFF": 2
+};
+
 $root.google = {};
 
 $root.google.protobuf = {};
