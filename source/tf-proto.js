@@ -6684,9 +6684,6 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 19:
                     message.coordination_service = reader.string();
                     break;
-                case 20:
-                    message.fetch_remote_devices_in_multi_client = reader.bool();
-                    break;
                 case 21:
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -6758,9 +6755,6 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "coordination_service":
                     message.coordination_service = reader.string();
                     break;
-                case "fetch_remote_devices_in_multi_client":
-                    message.fetch_remote_devices_in_multi_client = reader.bool();
-                    break;
                 case "disable_functional_ops_lowering":
                     message.disable_functional_ops_lowering = reader.bool();
                     break;
@@ -6791,7 +6785,6 @@ $root.tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_gra
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = protobuf.Int64.create(0);
 $root.tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.coordination_service = "";
-$root.tensorflow.ConfigProto.Experimental.prototype.fetch_remote_devices_in_multi_client = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
 
 $root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
