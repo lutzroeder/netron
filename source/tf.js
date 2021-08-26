@@ -901,7 +901,7 @@ tf.Node = class {
                     new tf.Argument(output.name ? output.name : '-', null, null)
                 ]);
             }));
-            this._controlDependencies = node.controlDependencies.map((input) => input.name);
+            this._controlDependencies = node.controlDependencies.map((input) => new tf.Argument(input.name));
         }
         else if (tensors) {
             for (const tensor of tensors) {

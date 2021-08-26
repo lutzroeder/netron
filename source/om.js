@@ -112,7 +112,7 @@ om.Node = class {
             const name = pos === 0 ? 'internal_unnamed' : op.input[i].slice(0, pos);
             const src_index = op.input[i].slice(pos + 1);
             if (src_index === '-1') {
-                this._controlDependencies.push(name);
+                this._controlDependencies.push(new om.Argument(name));
                 continue;
             }
             const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
@@ -328,6 +328,9 @@ om.Parameter = class {
 om.Argument = class {
 
     constructor(name, type, initializer) {
+        if (typeof name !== 'string') {
+            throw new om.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+        }
         this._name = name;
         this._type = type || null;
         this._initializer = initializer || null;

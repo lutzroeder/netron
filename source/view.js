@@ -628,8 +628,8 @@ view.View = class {
                     }
 
                     if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (const name of node.controlDependencies) {
-                            viewGraph.createArgument({ name: name, controlDependency: true }).to(viewNode);
+                        for (const argument of node.controlDependencies) {
+                            viewGraph.createArgument(argument).to(viewNode, true);
                         }
                     }
 
@@ -1209,15 +1209,20 @@ view.Argument = class {
         this._from = node;
     }
 
-    to(node) {
+    to(node, controlDependency) {
         this._to = this._to || [];
+        if (controlDependency) {
+            this._controlDependencies = this._controlDependencies || new Set();
+            this._controlDependencies.add(this._to.length);
+        }
         this._to.push(node);
     }
 
     build() {
         this._edges = this._edges || [];
         if (this._from && this._to) {
-            for (const to of this._to) {
+            for (let i = 0; i < this._to.length; i++) {
+                const to = this._to[i];
                 let text = '';
                 const type = this._argument.type;
                 if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
@@ -1231,7 +1236,7 @@ view.Argument = class {
                 edge.w = to.name;
                 edge.label = text;
                 edge.id = 'edge-' + this._argument.name;
-                if (this._argument.controlDependency) {
+                if (this._controlDependencies && this._controlDependencies.has(i)) {
                     edge.class = 'edge-path-control-dependency';
                 }
                 this.context.setEdge(edge);
