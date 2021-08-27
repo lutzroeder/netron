@@ -369,6 +369,7 @@ xmodel.Utility = class {
         let dataType = '?';
         const data_type = attr.data_type.string_value;
         switch (data_type) {
+            case 'XINT4': dataType = 'int4'; break;
             case 'XINT8': dataType = 'int8'; break;
             default: throw new xmodel.Error("Unknown data_type '" + data_type + "'.");
         }
