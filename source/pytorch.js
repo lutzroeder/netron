@@ -953,9 +953,10 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.instancenorm.InstanceNorm3d', class {});
         this.registerType('torch.nn.modules.linear._LinearWithBias', class {});
         this.registerType('torch.nn.modules.linear.Bilinear', class {});
+        this.registerType('torch.nn.modules.linear.Identity', class {});
         this.registerType('torch.nn.modules.linear.LazyLinear', class {});
         this.registerType('torch.nn.modules.linear.Linear', class {});
-        this.registerType('torch.nn.modules.linear.Identity', class {});
+        this.registerType('torch.nn.modules.linear.NonDynamicallyQuantizableLinear', class {});
         this.registerType('torch.nn.modules.loss.BCELoss', class {});
         this.registerType('torch.nn.modules.loss.BCEWithLogitsLoss', class {});
         this.registerType('torch.nn.modules.loss.CrossEntropyLoss', class {});
@@ -1020,6 +1021,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.parallel.distributed.DistributedDataParallel', class {});
         this.registerType('torch.nn.qat.modules.conv.Conv2d', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
+        this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
         this.registerType('torch.nn.quantized.modules.batchnorm.BatchNorm2d', class {});
         this.registerType('torch.nn.quantized.modules.conv.Conv2d', class {});
