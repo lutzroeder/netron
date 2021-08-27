@@ -884,8 +884,12 @@ keras.Attribute = class {
         if (value.class_name) {
             obj.__type__ = value.class_name;
         }
-        for (const key of Object.keys(value.config)) {
-            obj[key] = keras.Attribute._convert(value.config[key]);
+        if (value.config) {
+            for (const entry of Object.entries(value.config)) {
+                const key = entry[0];
+                const value = entry[1];
+                obj[key] = keras.Attribute._convert(value);
+            }
         }
         return obj;
     }
