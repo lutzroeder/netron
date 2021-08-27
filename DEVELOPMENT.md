@@ -2,7 +2,7 @@
 
 Netron can run as both an [Electron](https://electronjs.org) app or a Python web server.
 
-## Develop the Electron app
+## Electron app
 
 To start the Electron app, install [Node.js](https://nodejs.org) and run: 
 
@@ -15,7 +15,7 @@ npx electron .
 
 To debug the Electron app use [Visual Studio Code](https://code.visualstudio.com) and install the [Debugger for Chrome](https://marketplace.visualstudio.com/items?itemName=msjsdiag.debugger-for-chrome) extension. Open the `./netron` root folder and press <kbd>F5</kbd>. To attach the debugger to a render process select the `Debug` tab and `Debug Renderer Process` before launching.
 
-## Develop the Python server
+## Python server
 
 To build and launch the Python server run:
 
