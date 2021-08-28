@@ -715,8 +715,15 @@ onnx.Attribute = class {
         }
 
         const metadata = context.metadata.attribute(op_type, domain, attribute.name);
-        if (metadata && Object.prototype.hasOwnProperty.call(metadata, 'default') && this._value == metadata.default) {
-            this._visible = false;
+        if (metadata) {
+            if (Object.prototype.hasOwnProperty.call(metadata, 'default') && this._value == metadata.default) {
+                this._visible = false;
+            }
+            if (metadata.type === 'DataType') {
+                this._type = metadata.type;
+                const value = this._value ? parseInt(this._value.toString(), 10) : this._value;
+                this._value = Number.isInteger(value) ? onnx.Utility.formatDataType(value) : value;
+            }
         }
     }
 
@@ -1068,7 +1075,7 @@ onnx.Tensor = class {
 onnx.TensorType = class {
 
     constructor(dataType, shape, denotation) {
-        this._dataType = onnx.Utility.formatElementType(dataType);
+        this._dataType = onnx.Utility.formatDataType(dataType);
         this._shape = shape;
         this._denotation = denotation || null;
     }
@@ -1131,7 +1138,7 @@ onnx.SequenceType = class {
 onnx.MapType = class {
 
     constructor(keyType, valueType, denotation) {
-        this._keyType = onnx.Utility.formatElementType(keyType);
+        this._keyType = onnx.Utility.formatDataType(keyType);
         this._valueType = valueType;
         this._denotation = denotation;
     }
@@ -1241,7 +1248,7 @@ onnx.GraphMetadata = class {
         this._metadata = metadata;
         this._imports = imports;
         this._cache = new Map();
-        this._attributeCache = new Map();
+        this._attributes = new Map();
         this._functions = new Map();
     }
 
@@ -1276,18 +1283,18 @@ onnx.GraphMetadata = class {
 
     attribute(type, domain, name) {
         const key = domain + ':' + type + ':' + name;
-        if (!this._attributeCache.has(key)) {
+        if (!this._attributes.has(key)) {
             const schema = this.type(type, domain);
             if (schema && schema.attributes && schema.attributes.length > 0) {
                 for (const attribute of schema.attributes) {
-                    this._attributeCache.set(type + ':' + attribute.name, attribute);
+                    this._attributes.set(key, attribute);
                 }
             }
-            if (!this._attributeCache.has(key)) {
-                this._attributeCache.set(key, null);
+            if (!this._attributes.has(key)) {
+                this._attributes.set(key, null);
             }
         }
-        return this._attributeCache.get(key);
+        return this._attributes.get(key);
     }
 };
 
@@ -1431,33 +1438,32 @@ onnx.Utility = class {
         return onnx.Utility._utf8Decoder.decode(value);
     }
 
-    static formatElementType(elementType) {
-        if (!onnx.Utility._elementTypeMap) {
-            const map = {};
-            map[onnx.DataType.UNDEFINED] = 'UNDEFINED';
-            map[onnx.DataType.FLOAT] = 'float32';
-            map[onnx.DataType.UINT8] = 'uint8';
-            map[onnx.DataType.INT8] = 'int8';
-            map[onnx.DataType.UINT16] = 'uint16';
-            map[onnx.DataType.INT16] = 'int16';
-            map[onnx.DataType.INT32] = 'int32';
-            map[onnx.DataType.INT64] = 'int64';
-            map[onnx.DataType.STRING] = 'string';
-            map[onnx.DataType.BOOL] = 'boolean';
-            map[onnx.DataType.FLOAT16] = 'float16';
-            map[onnx.DataType.DOUBLE] = 'float64';
-            map[onnx.DataType.UINT32] = 'uint32';
-            map[onnx.DataType.UINT64] = 'uint64';
-            map[onnx.DataType.COMPLEX64] = 'complex64';
-            map[onnx.DataType.COMPLEX128] = 'complex128';
-            map[onnx.DataType.BFLOAT16] = 'bfloat16';
-            onnx.Utility._elementTypeMap = map;
+    static formatDataType(value) {
+        if (!onnx.Utility._dataTypes) {
+            onnx.Utility._dataTypes = new Map([
+                [ onnx.DataType.UNDEFINED, 'UNDEFINED' ],
+                [ onnx.DataType.FLOAT, 'float32' ],
+                [ onnx.DataType.UINT8, 'uint8' ],
+                [ onnx.DataType.INT8, 'int8' ],
+                [ onnx.DataType.UINT16, 'uint16' ],
+                [ onnx.DataType.INT16, 'int16' ],
+                [ onnx.DataType.INT32, 'int32' ],
+                [ onnx.DataType.INT64, 'int64' ],
+                [ onnx.DataType.STRING, 'string' ],
+                [ onnx.DataType.BOOL, 'boolean' ],
+                [ onnx.DataType.FLOAT16, 'float16' ],
+                [ onnx.DataType.DOUBLE, 'float64' ],
+                [ onnx.DataType.UINT32, 'uint32' ],
+                [ onnx.DataType.UINT64, 'uint64' ],
+                [ onnx.DataType.COMPLEX64, 'complex64' ],
+                [ onnx.DataType.COMPLEX128, 'complex128' ],
+                [ onnx.DataType.BFLOAT16, 'bfloat16' ]
+            ]);
         }
-        const name = onnx.Utility._elementTypeMap[elementType];
-        if (name) {
-            return name;
+        if (onnx.Utility._dataTypes.has(value)) {
+            return onnx.Utility._dataTypes.get(value);
         }
-        return onnx.Utility._elementTypeMap[onnx.DataType.UNDEFINED];
+        return onnx.Utility._dataTypes.get(onnx.DataType.UNDEFINED);
     }
 
     static formatType(type, imageFormat) {

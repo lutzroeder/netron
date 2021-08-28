@@ -3308,7 +3308,7 @@
     "attributes": [
       {
         "name": "to",
-        "type": "string",
+        "type": "DataType",
         "required": true,
         "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto"
       }
@@ -3385,7 +3385,7 @@
     "attributes": [
       {
         "name": "to",
-        "type": "int64",
+        "type": "DataType",
         "required": true,
         "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto"
       }
@@ -3462,7 +3462,7 @@
     "attributes": [
       {
         "name": "to",
-        "type": "int64",
+        "type": "DataType",
         "required": true,
         "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto"
       }
@@ -3541,7 +3541,7 @@
     "attributes": [
       {
         "name": "to",
-        "type": "int64",
+        "type": "DataType",
         "required": true,
         "description": "The data type to which the elements of the input tensor are cast. Strictly must be one of the types from DataType enum in TensorProto"
       }
@@ -8504,7 +8504,7 @@
     "attributes": [
       {
         "name": "dtype",
-        "type": "int64",
+        "type": "DataType",
         "required": false,
         "description": "(Optional) The data type for the elements of the output tensor. If not specified,the data type of the input tensor T1 is used. If input tensor T1 is also notspecified, then type defaults to 'float'."
       },
@@ -21072,7 +21072,7 @@
     "attributes": [
       {
         "name": "dtype",
-        "type": "int64",
+        "type": "DataType",
         "required": false,
         "default": 1,
         "description": "The data type for the elements of the output tensor. Default is TensorProto::FLOAT."

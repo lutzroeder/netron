@@ -86,9 +86,12 @@ attribute_type_table = {
     'floats': 'float32[]', 'ints': 'int64[]', 'strings': 'string[]', 'tensors': 'tensor[]', 'graphs': 'graph[]',
 }
 
-def generate_json_attr_type(type):
-    assert isinstance(type, onnx.defs.OpSchema.AttrType)
-    s = str(type)
+def generate_json_attr_type(attribute_type, attribute_name, op_type, op_domain):
+    assert isinstance(attribute_type, onnx.defs.OpSchema.AttrType)
+    key = op_domain + ':' + op_type + ':' + attribute_name
+    if key == ':Cast:to' or key == ':EyeLike:dtype' or key == ':RandomNormal:dtype':
+        return 'DataType'
+    s = str(attribute_type)
     s = s[s.rfind('.')+1:].lower()
     if s in attribute_type_table:
         return attribute_type_table[s]
@@ -150,7 +153,7 @@ def generate_json(schemas, json_file):
             for _, attribute in sorted(schema.attributes.items()):
                 json_attribute = {}
                 json_attribute['name'] = attribute.name
-                attribute_type = generate_json_attr_type(attribute.type)
+                attribute_type = generate_json_attr_type(attribute.type, attribute.name, schema.name, schema.domain)
                 if attribute_type:
                     json_attribute['type'] = attribute_type
                 elif 'type' in json_attribute:
