@@ -44,7 +44,7 @@ tf.ModelFactory = class {
             }
             const tags = context.tags('pb');
             if (tags.size > 0) {
-                if (!Array.from(tags).some((pair) => pair[0] >= 5 || pair[1] === 5)) {
+                if (Array.from(tags).every((pair) => pair[0] < 8 && pair[1] !== 5)) {
                     const match = (tags, schema) => {
                         for (const pair of schema) {
                             const key = pair[0];
