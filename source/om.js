@@ -437,52 +437,12 @@ om.TensorShape = class {
     }
 };
 
-om.BinaryReader = class {
-
-    constructor(buffer) {
-        this._buffer = buffer;
-        this._length = buffer.length;
-        this._position = 0;
-        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
-    }
-
-    seek(position) {
-        this._position = position >= 0 ? position : this._length + position;
-    }
-
-    skip(offset) {
-        this._position += offset;
-    }
-
-    read(length) {
-        if (this._position === 0 && length === undefined) {
-            this._position = this._length;
-            return this._buffer;
-        }
-        const position = this._position;
-        this.skip(length !== undefined ? length : this._length - this._position);
-        return this._buffer.subarray(position, this._position);
-    }
-
-    byte() {
-        const position = this._position;
-        this.skip(1);
-        return this._buffer[position];
-    }
-
-    uint32() {
-        const position = this._position;
-        this.skip(4);
-        return this._view.getUint32(position, true);
-    }
-};
-
 om.File = class {
 
     static open(context) {
         const stream = context.stream;
         const buffer = stream.peek();
-        const reader = new om.BinaryReader(buffer);
+        const reader = new om.File.BinaryReader(buffer);
         return new om.File(reader);
     }
 
@@ -549,6 +509,46 @@ om.File = class {
                 }
             }
         }
+    }
+};
+
+om.File.BinaryReader = class {
+
+    constructor(buffer) {
+        this._buffer = buffer;
+        this._length = buffer.length;
+        this._position = 0;
+        this._view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+    }
+
+    seek(position) {
+        this._position = position >= 0 ? position : this._length + position;
+    }
+
+    skip(offset) {
+        this._position += offset;
+    }
+
+    read(length) {
+        if (this._position === 0 && length === undefined) {
+            this._position = this._length;
+            return this._buffer;
+        }
+        const position = this._position;
+        this.skip(length !== undefined ? length : this._length - this._position);
+        return this._buffer.subarray(position, this._position);
+    }
+
+    byte() {
+        const position = this._position;
+        this.skip(1);
+        return this._buffer[position];
+    }
+
+    uint32() {
+        const position = this._position;
+        this.skip(4);
+        return this._view.getUint32(position, true);
     }
 };
 
