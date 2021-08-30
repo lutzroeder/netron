@@ -267,7 +267,7 @@ xmodel.Argument = class {
 xmodel.Node = class {
 
     constructor(metadata, op_node, tensors) {
-        this._type = metadata.type(op_node.op_type) || { name: op_node.op_type };
+        this._type = Object.assign({}, metadata.type(op_node.op_type)) || { name: op_node.op_type };
         this._name = op_node.op_name || '';
         this._inputs = [];
         this._outputs = [];
