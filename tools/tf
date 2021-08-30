@@ -27,12 +27,8 @@ clean() {
 
 sync() {
     echo "tf sync"
-    [ -d "./third_party/source/tensorflow" ] || git clone --quiet --recursive https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
-    pushd "./third_party/source/tensorflow" > /dev/null
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
-    popd > /dev/null
+    [ -d "./third_party/source/tensorflow" ] || git clone --quiet https://github.com/tensorflow/tensorflow.git "./third_party/source/tensorflow"
+    git -C "./third_party/source/tensorflow" pull --quiet --prune
     mkdir -p "./third_party/source/tflite-support/tensorflow_lite_support/metadata"
     curl --silent --location --output "./third_party/source/tflite-support/tensorflow_lite_support/metadata/metadata_schema.fbs" "https://github.com/tensorflow/tflite-support/blob/master/tensorflow_lite_support/metadata/metadata_schema.fbs?raw=true"
 }
