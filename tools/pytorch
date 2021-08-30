@@ -26,12 +26,8 @@ clean() {
 
 sync() {
     echo "pytorch sync"
-    [ -d "./third_party/source/pytorch" ] || git clone --quiet --recursive https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
-    pushd "./third_party/source/pytorch" > /dev/null
-    git pull --quiet --prune
-    git submodule sync --quiet
-    git submodule update --quiet --init --recursive
-    popd > /dev/null
+    [ -d "./third_party/source/pytorch" ] || git clone --quiet https://github.com/pytorch/pytorch.git "./third_party/source/pytorch"
+    git -C "./third_party/source/pytorch" pull --quiet --prune
 }
 
 install() {
