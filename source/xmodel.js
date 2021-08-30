@@ -267,9 +267,8 @@ xmodel.Argument = class {
 xmodel.Node = class {
 
     constructor(metadata, op_node, tensors) {
-        this._type = op_node.op_type;
+        this._type = metadata.type(op_node.op_type) || { name: op_node.op_type };
         this._name = op_node.op_name || '';
-        this._metadata = Object.assign({}, metadata.type(this._type));
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -303,7 +302,7 @@ xmodel.Node = class {
     }
 
     set_category(category) {
-        this._metadata.category = category;
+        this._type.category = category;
     }
 
     get type() {
