@@ -597,6 +597,15 @@ view.View = class {
                     }
                 }
 
+                if (groups && graph.xmodel) {
+                    for (const key of clusterParentMap.keys()) {
+                        let subgraph = graph.subgraphs.get(key);
+                        subgraph.ShowClusterAttr = () => {
+                            this.showSubgraphProperties(subgraph);
+                        };
+                    }
+                }
+
                 for (const node of nodes) {
 
                     const viewNode = viewGraph.createNode(node);
@@ -633,13 +642,24 @@ view.View = class {
                         }
                     }
 
-                    const createCluster = function(name) {
+                    const createCluster = (name) => {
                         if (!clusters.has(name)) {
-                            viewGraph.setNode({ name: name, rx: 5, ry: 5});
                             clusters.add(name);
                             const parent = clusterParentMap.get(name);
                             if (parent) {
                                 createCluster(parent);
+                            }
+                            if (graph.xmodel) {
+                                let subgraph = graph.subgraphs.get(name);
+                                viewGraph.setNode({
+                                    name: name, rx: 5, ry: 5, level: subgraph.level, ShowClusterAttr: () => {
+                                        subgraph.ShowClusterAttr();
+                                    }
+                                });
+                            } else {
+                                viewGraph.setNode({ name: name, rx: 5, ry: 5});
+                            }
+                            if (parent){
                                 viewGraph.setParent(name, parent);
                             }
                         }
@@ -914,6 +934,13 @@ view.View = class {
                 this._updateActiveGraph(name);
             });
             this._sidebar.open(modelSidebar.render(), 'Model Properties');
+        }
+    }
+
+    showSubgraphProperties(subgraph) {
+        if (subgraph) {
+            const subgraphSidebar = new sidebar.SubgraphSidebar(this._host, subgraph);
+            this._sidebar.open(subgraphSidebar.render(), 'Subgraph Properties');
         }
     }
 
