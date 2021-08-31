@@ -1,0 +1,37 @@
+#!/bin/bash
+
+set -e
+pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
+
+clean() {
+    echo "nb clean"
+    rm -rf "./third_party/source/Paddle-Lite"
+}
+
+
+
+sync() {
+    echo "nb sync"
+    mkdir -p "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers"
+    curl --silent --location --output "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/framework.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/framework.fbs?raw=true"
+    curl --silent --location --output "./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/param.fbs" "https://github.com/PaddlePaddle/Paddle-Lite/blob/develop/lite/model_parser/flatbuffers/param.fbs?raw=true"
+}
+
+schema() {
+    echo "nb schema"
+    [[ $(grep -U $'\x0D' ./source/nb-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --text --root nb --out ./source/nb-schema.js ./third_party/source/Paddle-Lite/lite/model_parser/flatbuffers/param.fbs
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/nb-schema.js ./source/nb-schema.js
+    fi
+}
+
+while [ "$#" != 0 ]; do
+    command="$1" && shift
+    case "${command}" in
+        "clean") clean;;
+        "sync") sync;;
+        "schema") schema;;
+        "metadata") metadata;;
+    esac
+done
