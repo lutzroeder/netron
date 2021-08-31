@@ -6059,6 +6059,20 @@
   },
   {
     "type":   "xmodel",
+    "target": "PointsQuality_int.xmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7083633/pt_face-quality_80_60_61.68M_1.4.zip[pt_face-quality_80_60_61.68M_1.4/quantized/PointsQuality_int.xmodel]",
+    "format": "xmodel",
+    "link":   "https://github.com/lutzroeder/netron/issues/718"
+  },
+  {
+    "type":   "xmodel",
+    "target": "face-quality_pt.xmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7083632/face-quality_pt-vck190-r1.4.0.tar.gz[face-quality_pt/face-quality_pt.xmodel]",
+    "format": "xmodel",
+    "link":   "https://github.com/lutzroeder/netron/issues/718"
+  },
+  {
+    "type":   "xmodel",
     "target": "mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.xmodel",
     "source": "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-zcu102_zcu104-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
     "format": "xmodel",

@@ -508,7 +508,7 @@ const download = (folder, targets, sources) => {
                 if (name !== '.') {
                     const stream = archive.entries.get(name);
                     if (!stream) {
-                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(archive.entries.map((entry) => entry.name)) + " .");
+                        throw new Error("Entry not found '" + name + '. Archive contains entries: ' + JSON.stringify(Array.from(archive.entries.keys())) + " .");
                     }
                     const target = targets.shift();
                     const buffer = stream.peek();
