@@ -1517,6 +1517,7 @@ view.ModelFactoryService = class {
         this.register('./acuity', [ '.json' ]);
         this.register('./imgdnn', [ '.dnn', 'params', '.json' ]);
         this.register('./om', [ '.om' ]);
+        this.register('./nb', [ '.nb' ]);
     }
 
     register(id, extensions) {
@@ -1875,6 +1876,12 @@ view.ModelFactoryService = class {
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdmodel')) &&
                             matches.some((e) => e.name.toLowerCase().endsWith('.pdiparams'))) {
                             matches = matches.filter((e) => e.name.toLowerCase().endsWith('.pdmodel'));
+                        }
+                        // Paddle Lite
+                        if (matches.length > 0 &&
+                            matches.some((e) => e.name.toLowerCase().split('/').pop() === '__model__.nb') &&
+                            matches.some((e) => e.name.toLowerCase().split('/').pop() === 'param.nb')) {
+                            matches = matches.filter((e) => e.name.toLowerCase().split('/').pop() == '__model__.nb');
                         }
                         // TensorFlow Bundle
                         if (matches.length > 1 &&

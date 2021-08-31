@@ -2800,6 +2800,22 @@
     "link":   "https://github.com/lutzroeder/netron/issues/286"
   },
   {
+    "type":   "nb",
+    "target": "lite_naive_model_opt.nb.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
+    "error":  "Invalid file content. File contains paddle.lite.fbs.proto data.",
+    "format": "Paddle Lite",
+    "link":   "https://github.com/lutzroeder/netron/issues/797"
+  },
+  {
+    "type":   "nb",
+    "target": "mobilenet_v1_opt.nb.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/7084157/mobilenet_v1_opt.nb.tar.gz",
+    "error":  "Invalid file content. File contains paddle.lite.fbs.proto data.",
+    "format": "Paddle Lite",
+    "link":   "https://github.com/lutzroeder/netron/issues/797"
+  },
+  {
     "type":   "nnabla",
     "target": "tecogan_model.h5",
     "source": "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
