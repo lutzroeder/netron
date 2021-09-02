@@ -1368,7 +1368,8 @@
     ]
   },
   {
-    "name": "Identity"
+    "name": "Identity",
+    "category": "Control"
   },
   {
     "name": "If"
