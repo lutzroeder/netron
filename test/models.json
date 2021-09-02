@@ -2803,7 +2803,7 @@
     "type":   "nb",
     "target": "lite_naive_model_opt.nb.tar.gz",
     "source": "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
-    "error":  "Invalid file content. File contains paddle.lite.fbs.proto data.",
+    "error":  "Invalid file content. File contains Paddle Lite naive buffer data.",
     "format": "Paddle Lite",
     "link":   "https://github.com/lutzroeder/netron/issues/797"
   },
@@ -2811,7 +2811,7 @@
     "type":   "nb",
     "target": "mobilenet_v1_opt.nb.tar.gz",
     "source": "https://github.com/lutzroeder/netron/files/7084157/mobilenet_v1_opt.nb.tar.gz",
-    "error":  "Invalid file content. File contains paddle.lite.fbs.proto data.",
+    "error":  "Invalid file content. File contains Paddle Lite naive buffer data.",
     "format": "Paddle Lite",
     "link":   "https://github.com/lutzroeder/netron/issues/797"
   },

@@ -11,16 +11,16 @@ nb.ModelFactory = class {
         if (context.stream) {
             switch (context.identifier.toLowerCase()) {
                 case '__model__.nb':
-                    return 'paddlelite.model.flatbuffers';
+                    return 'paddlelite.model.naivebuffer';
                 case 'param.nb':
-                    return 'paddlelite.data.flatbuffers';
+                    return 'paddlelite.data.naivebuffer';
             }
         }
         return '';
     }
 
     open(/* context, match */) {
-        throw new nb.Error('Invalid file content. File contains paddle.lite.fbs.proto data.');
+        throw new nb.Error('Invalid file content. File contains Paddle Lite naive buffer data.');
     }
 };
 
