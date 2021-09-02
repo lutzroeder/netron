@@ -2906,6 +2906,7 @@
   },
   {
     "name": "Upsample",
+    "category": "Data",
     "inputs": [
       { "name": "x" }
     ],
