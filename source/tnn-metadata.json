@@ -771,7 +771,7 @@
   {
     "name": "Upsample",
     "operator": 78,
-    "category": "Layer",
+    "category": "Data",
     "attributes": [
       { "name": "type", "default": 0 },
       { "name": "scale_h", "type": "float32", "default": 0 },
