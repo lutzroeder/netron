@@ -21,20 +21,6 @@ nb.ModelFactory = class {
 
     open(/* context, match */) {
         throw new nb.Error('Invalid file content. File contains paddle.lite.fbs.proto data.');
-        /*
-        return context.require('./nb-schema').then(() => {
-            nb.schema = flatbuffers.get('nb').paddle.lite.fbs.proto;
-            switch (match) {
-                case 'paddlelite.model.flatbuffers': {
-                    const stream = context.stream;
-                    const reader = flatbuffers.BinaryReader.open(stream);
-                    const model = nb.schema.ProgramDesc.create(reader);
-                    break;
-                }
-            }
-            throw new nb.Error('Invalid file content. File contains paddle.lite.fbs.proto data.');
-        });
-        */
     }
 };
 
