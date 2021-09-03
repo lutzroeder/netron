@@ -34,6 +34,10 @@
     ]
   },
   {
+    "name": "ReLU",
+    "category": "Activation"
+  },
+  {
     "name": "Add",
     "inputs": [
       { "name": "x1" },

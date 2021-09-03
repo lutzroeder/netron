@@ -3471,14 +3471,23 @@
   },
   {
     "type":   "om",
-    "target": "hiai_noaipp.om",
-    "source": "https://raw.githubusercontent.com/huaweicodelabs/HiAI-Foundation/master/app/src/main/assets/hiai_noaipp.om",
-    "link":   "https://github.com/huaweicodelabs/HiAI-Foundation/tree/master/app"
+    "target": "netron_issue_788.om",
+    "source": "https://github.com/lutzroeder/netron/files/7104677/netron_issue_788.om.zip[netron_issue_788.om]",
+    "format": "DaVinci OM",
+    "link":   "https://github.com/lutzroeder/netron/issues/799"
+  },
+  {
+    "type":   "om",
+    "target": "netron_issue_798.om",
+    "source": "https://github.com/lutzroeder/netron/files/7104598/netron_issue_798.om.zip[netron_issue_798.om]",
+    "format": "DaVinci OM",
+    "link":   "https://github.com/lutzroeder/netron/issues/799"
   },
   {
     "type":   "om",
     "target": "resnet50v1_framework_tensorflow_aipp_0_batch_1_input_fp16_output_FP32.om",
     "source": "https://obs-9be7.obs.cn-east-2.myhuaweicloud.com/turing/resourcecenter/model/Resnet50V1/zh/1.1/ATC_Resnet50_V1_from_Tensorflow_Ascend310.zip[resnet50v1_framework_tensorflow_aipp_0_batch_1_input_fp16_output_FP32.om]",
+    "format": "DaVinci OM",
     "link":   "https://www.hiascend.com/zh/software/modelzoo/detail/1/7548422b6b9c4a809114435f6b128bb6"
   },
   {
@@ -6075,13 +6084,6 @@
   },
   {
     "type":   "xmodel",
-    "target": "PointsQuality_int.xmodel",
-    "source": "https://github.com/lutzroeder/netron/files/7083633/pt_face-quality_80_60_61.68M_1.4.zip[pt_face-quality_80_60_61.68M_1.4/quantized/PointsQuality_int.xmodel]",
-    "format": "xmodel",
-    "link":   "https://github.com/lutzroeder/netron/issues/718"
-  },
-  {
-    "type":   "xmodel",
     "target": "face-quality_pt.xmodel",
     "source": "https://github.com/lutzroeder/netron/files/7083632/face-quality_pt-vck190-r1.4.0.tar.gz[face-quality_pt/face-quality_pt.xmodel]",
     "format": "xmodel",
@@ -6100,5 +6102,12 @@
     "source": "https://www.xilinx.com/bin/public/openDownload?filename=mobilenet_1_0_224_tf2-u50-u50lv-u280-v3me-r1.3.1.tar.gz[mobilenet_1_0_224_tf2/mobilenet_1_0_224_tf2.xmodel]",
     "format": "xmodel",
     "link":   "https://github.com/Xilinx/Vitis-AI/blob/master/models/AI-Model-Zoo/model-list/tf2_mobilenetv1_imagenet_224_224_1.15G_1.3/model.yaml"
+  },
+  {
+    "type":   "xmodel",
+    "target": "PointsQuality_int.xmodel",
+    "source": "https://github.com/lutzroeder/netron/files/7083633/pt_face-quality_80_60_61.68M_1.4.zip[pt_face-quality_80_60_61.68M_1.4/quantized/PointsQuality_int.xmodel]",
+    "format": "xmodel",
+    "link":   "https://github.com/lutzroeder/netron/issues/718"
   }
 ]

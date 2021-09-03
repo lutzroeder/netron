@@ -104,86 +104,97 @@ om.Node = class {
         this._chain = [];
         this._controlDependencies = [];
         this._device = null;
-        for (let i = 0; i < op.input.length; i++) {
-            if (op.input[i] === '') {
-                continue;
-            }
-            const pos = op.input[i].lastIndexOf(':');
-            const name = pos === 0 ? 'internal_unnamed' : op.input[i].slice(0, pos);
-            const src_index = op.input[i].slice(pos + 1);
-            if (src_index === '-1') {
-                this._controlDependencies.push(new om.Argument(name));
-                continue;
-            }
-            const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
-            const inputNode = graph.op.find(node => node.name === name);
-            const desc = op.input_desc[i];
-            const format = desc.layout;
-            if (inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
-                let shape = null;
-                const value = inputNode.attr.value.t;
-                if (value.desc.shape != null) {
-                    shape = value.desc.shape.dim;
+        if (op.input) {
+            for (let i = 0; i < op.input.length; i++) {
+                if (op.input[i] === '') {
+                    continue;
                 }
-                if (value.desc.attr.origin_shape) {
-                    shape = value.desc.attr.origin_shape.list.i;
+                const pos = op.input[i].lastIndexOf(':');
+                const name = pos === 0 ? 'internal_unnamed' : op.input[i].slice(0, pos);
+                const src_index = op.input[i].slice(pos + 1);
+                if (src_index === '-1') {
+                    this._controlDependencies.push(new om.Argument(name));
+                    continue;
                 }
-                let data = null;
-                if (value.data.length === 0) {
-                    if (weights == null) {
-                        data = null;
+                const parameterName = this._type.inputs && i < this._type.inputs.length ? this._type.inputs[i].name : 'input' + (i === 0 ? '' : i.toString());
+                const inputNode = graph.op.find(node => node.name === name);
+                const desc = op.input_desc[i];
+                const format = desc.layout;
+                if (inputNode.type === 'Const' && inputNode.attr && inputNode.attr.value && inputNode.attr) {
+                    let shape = null;
+                    const value = inputNode.attr.value.t;
+                    if (value.desc.shape != null) {
+                        shape = value.desc.shape.dim;
                     }
-                    else if (value.desc.attr.merged_offset) {
-                        const offset = value.desc.attr.merged_offset.i;
-                        data = weights.slice(offset, offset + value.desc.weight_size);
+                    if (value.desc.attr.origin_shape) {
+                        shape = value.desc.attr.origin_shape.list.i;
+                    }
+                    let data = null;
+                    if (value.data.length === 0) {
+                        if (weights == null) {
+                            data = null;
+                        }
+                        else if (value.desc.attr.merged_offset) {
+                            const offset = value.desc.attr.merged_offset.i;
+                            data = weights.slice(offset, offset + value.desc.weight_size);
+                        }
+                        else {
+                            const offset = value.desc.data_offset;
+                            data = weights.slice(offset, offset + value.desc.weight_size);
+                        }
                     }
                     else {
-                        const offset = value.desc.data_offset;
-                        data = weights.slice(offset, offset + value.desc.weight_size);
+                        data = value.data;
                     }
+                    const dataType = om.Utility.dtype(value.desc.dtype);
+                    const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
+                    const tensor = new om.Tensor('Constant', tensorType, data);
+                    const argument = new om.Argument(name, null, tensor);
+                    this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
                 }
                 else {
-                    data = value.data;
+                    const dataType = desc ? om.Utility.dtype(desc.dtype) : 'undefined';
+                    const shape = desc.shape ? desc.shape.dim : undefined;
+                    const tensorType = new om.TensorType(dataType, shape, format, null);
+                    const identifier = src_index === '0' ? name : name + ':' + src_index;
+                    const argument = new om.Argument(identifier, tensorType, null);
+                    this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
                 }
-                const dataType = om.Utility.dtype(value.desc.dtype);
-                const tensorType = new om.TensorType(dataType, shape, format, value.desc.layout);
-                const tensor = new om.Tensor('Constant', tensorType, data);
-                const argument = new om.Argument(name, null, tensor);
-                this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
             }
-            else {
-                const dataType = desc ? om.Utility.dtype(desc.dtype) : 'undefined';
-                const shape = desc.shape ? desc.shape.dim : undefined;
-                const tensorType = new om.TensorType(dataType, shape, format, null);
-                const identifier = src_index === '0' ? name : name + ':' + src_index;
+        }
+        if (op.output_desc) {
+            for (let i = 0; i < op.output_desc.length; i++) {
+                const desc = op.output_desc[i];
+                let shape = desc.shape ? desc.shape.dim : undefined;
+                if (op.type === 'Data' || op.type === 'ImageData' || op.type === 'DynamicImageData') {
+                    shape = desc.shape ? desc.shape.dim : op.input_desc[0].shape.dim;
+                }
+                const dataType = om.Utility.dtype(desc.dtype);
+                const format = desc.layout;
+                const tensorType = new om.TensorType(dataType, shape, format);
+                const identifier = i === 0 ? this._name : this._name + ':' + i;
                 const argument = new om.Argument(identifier, tensorType, null);
-                this._inputs.push(new om.Parameter(parameterName, true, [ argument ]));
+                const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
+                this._outputs.push(new om.Parameter(outputName, true, [ argument ]));
             }
         }
-
-        for (let i = 0; i < op.output_desc.length; i++) {
-            const desc = op.output_desc[i];
-            let shape = desc.shape ? desc.shape.dim : undefined;
-            if (op.type === 'Data' || op.type === 'ImageData' || op.type === 'DynamicImageData') {
-                shape = desc.shape ? desc.shape.dim : op.input_desc[0].shape.dim;
+        if (op.attr) {
+            for (const attr of Object.entries(op.attr)) {
+                const name = attr[0];
+                const value = attr[1];
+                if (name === 'device') {
+                    this._device = value;
+                    continue;
+                }
+                if (name === 'original_op_names') {
+                    continue;
+                }
+                if (name === 'relu_flag' && value.b) {
+                    this._chain.push(new om.Node(metadata, { type: 'ReLU' }, graph, weights));
+                    continue;
+                }
+                this._attributes.push(new om.Attribute(metadata.attribute(this._type, name), name, value, true));
             }
-            const dataType = om.Utility.dtype(desc.dtype);
-            const format = desc.layout;
-            const tensorType = new om.TensorType(dataType, shape, format);
-            const identifier = i === 0 ? this._name : this._name + ':' + i;
-            const argument = new om.Argument(identifier, tensorType, null);
-            const outputName = this._type.outputs && i < this._type.outputs.length ? this._type.outputs[i].name : 'output' + (i === 0 ? '' : i.toString());
-            this._outputs.push(new om.Parameter(outputName, true, [ argument ]));
-        }
-
-        for (const attr of Object.entries(op.attr)) {
-            const name = attr[0];
-            const value = attr[1];
-            if (name === 'device') {
-                this._device = value;
-                continue;
-            }
-            this._attributes.push(new om.Attribute(metadata.attribute(this._type, name), name, value, true));
         }
     }
 
@@ -495,9 +506,12 @@ om.File = class {
                 case 5: { // DEVICE_CONFIG
                     this.devices = new Map();
                     const decoder = new TextDecoder('ascii');
-                    for (let position = 0; position < partition.size; ) {
+                    const reader = new om.File.BinaryReader(buffer);
+                    reader.uint32();
+                    for (let position = 4; position < partition.size; ) {
                         const length = reader.uint32();
-                        const name = decoder.decode(reader.read(length));
+                        const buffer = reader.read(length);
+                        const name = decoder.decode(buffer);
                         const device = reader.uint32();
                         this.devices.set(name, device);
                         position += 4 + length + 4;
