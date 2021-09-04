@@ -338,7 +338,7 @@ tflite.Node = class {
                 let decoded = false;
                 if (node.custom_options_format === tflite.schema.CustomOptionsFormat.FLEXBUFFERS) {
                     try {
-                        const reader = flexbuffers.Reader.create(node.custom_options);
+                        const reader = flexbuffers.Reader.open(node.custom_options);
                         const custom_options = reader.read();
                         if (custom_options) {
                             for (const pair of Object.entries(custom_options)) {
@@ -878,22 +878,22 @@ tflite.Error = class extends Error {
 
 flexbuffers.Reader = class {
 
-    constructor(buffer) {
-        this._reader = new flexbuffers.BinaryReader(buffer);
+    static open(buffer) {
+        return new flexbuffers.Reader(buffer);
     }
 
-    static create(buffer) {
-        return new flexbuffers.Reader(buffer);
+    constructor(buffer) {
+        this._reader = new flexbuffers.BinaryReader(buffer);
     }
 
     read() {
         const end = this._reader.length;
         if (end < 3) {
-            throw 'Invalid buffer size.';
+            throw new flexbuffers.Error('Invalid buffer size.');
         }
         const byteWidth = this._reader.uint(end - 1, 1);
         if (byteWidth > 8) {
-            throw 'Invalid byte size.';
+            throw new flexbuffers.Error('Invalid byte size.');
         }
         const packedType = this._reader.uint(end - 2, 1);
         const reference = new flexbuffers.Reference(this._reader, end - 2 - byteWidth, byteWidth, 1 << (packedType & 3), packedType >> 2);
