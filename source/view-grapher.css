@@ -27,7 +27,7 @@
 .node-item-type-layer path { fill: rgb(51, 85, 136); }
 .node-item-type-wrapper path { fill: rgb(238, 238, 238); }
 .node-item-type-wrapper text { fill: rgb(0, 0, 0) }
-.node-item-type-activation path { fill: rgb(75, 27, 22); }
+.node-item-type-activation path { fill: rgb(112, 41, 33); }
 .node-item-type-pool path { fill: rgb(51, 85, 51); }
 .node-item-type-normalization path { fill: rgb(51, 85, 68); }
 .node-item-type-dropout path { fill: rgb(69, 71, 112); }
