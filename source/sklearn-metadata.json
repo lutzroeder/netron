@@ -701,7 +701,7 @@
   },
   {
     "name": "sklearn.feature_extraction.text.CountVectorizer",
-    "description": "Convert a collection of text documents to a matrix of token counts\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
+    "description": "Convert a collection of text documents to a matrix of token counts.\n\nThis implementation produces a sparse representation of the counts using\nscipy.sparse.csr_matrix.\n\nIf you do not provide an a-priori dictionary and you do not use an analyzer\nthat does some kind of feature selection then the number of features will\nbe equal to the vocabulary size found by analyzing the data.\n\nRead more in the :ref:`User Guide <text_feature_extraction>`.\n",
     "attributes": [
       {
         "default": "content",
@@ -898,7 +898,7 @@
       },
       {
         "default": "l2",
-        "description": "Each output row will have unit norm, either:\n* 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n* 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
+        "description": "Each output row will have unit norm, either:\n\n- 'l2': Sum of squares of vector elements is 1. The cosine\nsimilarity between two vectors is their dot product when l2 norm has\nbeen applied.\n- 'l1': Sum of absolute values of vector elements is 1.\nSee :func:`preprocessing.normalize`.\n",
         "name": "norm"
       },
       {
@@ -1071,7 +1071,7 @@
   },
   {
     "name": "sklearn.linear_model.LassoLars",
-    "description": "Lasso model fit with Least Angle Regression a.k.a. Lars\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
+    "description": "Lasso model fit with Least Angle Regression a.k.a. Lars.\n\nIt is a Linear Model trained with an L1 prior as regularizer.\n\nThe optimization objective for Lasso is::\n\n(1 / (2 * n_samples)) * ||y - Xw||^2_2 + alpha * ||w||_1\n\nRead more in the :ref:`User Guide <least_angle_regression>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1081,7 +1081,7 @@
       },
       {
         "default": true,
-        "description": "whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
+        "description": "Whether to calculate the intercept for this model. If set\nto false, no intercept will be used in calculations\n(i.e. data is expected to be centered).\n",
         "name": "fit_intercept",
         "type": "boolean"
       },
@@ -1322,7 +1322,8 @@
       },
       {
         "description": "Controls the number of jobs that get dispatched during parallel\nexecution. Reducing this number can be useful to avoid an\nexplosion of memory consumption when more jobs get dispatched\nthan CPUs can process. This parameter can be:\n\n- None, in which case all the jobs are immediately\ncreated and spawned. Use this for lightweight and\nfast-running jobs, to avoid delays due to on-demand\nspawning of the jobs\n\n- An int, giving the exact number of total jobs that are\nspawned\n\n- A str, giving an expression as a function of n_jobs,\nas in '2*n_jobs'\n",
-        "name": "pre_dispatch"
+        "name": "pre_dispatch",
+        "default": "2*n_jobs"
       },
       {
         "default": false,
@@ -1426,7 +1427,7 @@
   },
   {
     "name": "sklearn.naive_bayes.MultinomialNB",
-    "description": "\nNaive Bayes classifier for multinomial models\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
+    "description": "\nNaive Bayes classifier for multinomial models.\n\nThe multinomial Naive Bayes classifier is suitable for classification with\ndiscrete features (e.g., word counts for text classification). The\nmultinomial distribution normally requires integer feature counts. However,\nin practice, fractional counts such as tf-idf may also work.\n\nRead more in the :ref:`User Guide <multinomial_naive_bayes>`.\n",
     "attributes": [
       {
         "default": 1.0,
@@ -1519,7 +1520,7 @@
         "type": "int32"
       },
       {
-        "description": "weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nUniform weights are used by default.\n",
+        "description": "Weight function used in prediction.  Possible values:\n\n- 'uniform' : uniform weights.  All points in each neighborhood\nare weighted equally.\n- 'distance' : weight points by the inverse of their distance.\nin this case, closer neighbors of a query point will have a\ngreater influence than neighbors which are further away.\n- [callable] : a user-defined function which accepts an\narray of distances, and returns an array of the same shape\ncontaining the weights.\n\nUniform weights are used by default.\n",
         "name": "weights"
       },
       {
@@ -1544,7 +1545,7 @@
       },
       {
         "default": "minkowski",
-        "description": "the distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
@@ -1983,7 +1984,7 @@
       },
       {
         "default": null,
-        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
         "option": "optional"
       },
@@ -2090,7 +2091,7 @@
       },
       {
         "default": null,
-        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``\n",
+        "description": "Set the parameter C of class i to class_weight[i]*C for\nSVC. If not given, all classes are supposed to have\nweight one.\nThe \"balanced\" mode uses the values of y to automatically adjust\nweights inversely proportional to class frequencies in the input data\nas ``n_samples / (n_classes * np.bincount(y))``.\n",
         "name": "class_weight",
         "option": "optional"
       },
