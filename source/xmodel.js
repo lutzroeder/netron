@@ -63,11 +63,11 @@ xmodel.Graph = class {
         const metadata = new xmodel.Metadata(graph.op_defs);
         this._inputs = [];
         this._outputs = [];
-        const count = new Map();
+        const counts = new Map();
         for (const op_node of graph.op_node) {
             for (const arg of op_node.args) {
                 for (const arg_op of arg.arg_ops) {
-                    count.set(arg_op, count.has(arg_op) ? count.get(arg_op) + 1 : 1);
+                    counts.set(arg_op, counts.has(arg_op) ? counts.get(arg_op) + 1 : 1);
                 }
             }
         }
@@ -87,7 +87,7 @@ xmodel.Graph = class {
                     continue;
                 }
             }
-            if (node.args.length === 0 && count.get(node.op_name) === 1) {
+            if (node.args.length === 0 && counts.get(node.op_name) === 1) {
                 if (node.op_type === 'const' || node.op_type === 'const-fix') {
                     arg(node.op_name, node, true);
                     continue;
@@ -172,7 +172,7 @@ xmodel.Node = class {
 
     constructor(metadata, op_node, arg) {
         this._name = op_node.op_name || '';
-        this._type = metadata.type(op_node.op_type) || { name: op_node.op_type };
+        this._type = metadata.type(op_node.op_type);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -421,8 +421,8 @@ xmodel.Utility = class {
 xmodel.Metadata = class {
 
     constructor(op_defs) {
-        this._map = new Map();
-        this._attributeCache = new Map();
+        this._types = new Map();
+        this._attributes = new Map();
         const categories = new Map([
             [ 'avgpool2d', 'Pool' ],
             [ 'batchnorm', 'Normalization' ],
@@ -470,12 +470,12 @@ xmodel.Metadata = class {
         ]);
         for (const op_def of op_defs) {
             const name = op_def.name;
-            const schema = {};
-            schema.name = name;
+            const metadata = {};
+            metadata.name = name;
             if (op_def.annotation) {
-                schema.description = op_def.annotation;
+                metadata.description = op_def.annotation;
             }
-            schema.inputs = op_def.input_args.map((input_arg) => {
+            metadata.inputs = op_def.input_args.map((input_arg) => {
                 const input = {};
                 input.name = input_arg.name;
                 if (input_arg.annotation) {
@@ -483,7 +483,7 @@ xmodel.Metadata = class {
                 }
                 return input;
             });
-            schema.attributes = op_def.attrs.map((attr) => {
+            metadata.attributes = op_def.attrs.map((attr) => {
                 const attribute = {};
                 attribute.name = attr.name;
                 const value = xmodel.Utility.attribute(attr.default_value);
@@ -491,23 +491,26 @@ xmodel.Metadata = class {
                 if (attr.annotation) {
                     attribute.description = attr.annotation;
                 }
-                this._attributeCache.set(name + ':' + attr.name, attribute);
+                this._attributes.set(name + ':' + attr.name, attribute);
                 return attribute;
             });
             if (categories.has(name)) {
-                schema.category = categories.get(name);
+                metadata.category = categories.get(name);
             }
-            this._map.set(name, schema);
+            this._types.set(name, metadata);
         }
     }
 
     type(name) {
-        return this._map.get(name);
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name });
+        }
+        return this._types.get(name);
     }
 
     attribute(type, name) {
         const key = type + ':' + name;
-        return this._attributeCache.get(key);
+        return this._attributes.get(key);
     }
 };
 
