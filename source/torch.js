@@ -618,36 +618,35 @@ torch.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
-        this._attributeCache = {};
+        this._types = new Map();
+        this._attributes = new Map();
         if (data) {
             const items = JSON.parse(data);
             for (const item of items) {
-                this._map.set(item.name, item);
+                this._types.set(item.name, item);
             }
         }
     }
 
     type(name) {
-        if (!this._map.has(name)) {
-            this._map.set(name, { name: name });
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name });
         }
-        return this._map.get(name);
+        return this._types.get(name);
     }
 
     attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+        const key = type + ':' + name;
+        if (!this._attributes.has(key)) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes)) {
+                for (const attribute of metadata.attributes) {
+                    this._attributes.set(type + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[type] = map;
         }
-        return map[name] || null;
+        return this._attributes.get(key);
     }
 };
 
