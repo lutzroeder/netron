@@ -2031,6 +2031,7 @@ python.Execution = class {
         this.registerType('sklearn.discriminant_analysis.LinearDiscriminantAnalysis', class {});
         this.registerType('sklearn.discriminant_analysis.QuadraticDiscriminantAnalysis', class {});
         this.registerType('sklearn.dummy.DummyClassifier', class {});
+        this.registerType('sklearn.dummy.DummyRegressor', class {});
         this.registerType('sklearn.externals.joblib.numpy_pickle.NumpyArrayWrapper', class {
             constructor(/* subtype, shape, dtype */) {
             }
