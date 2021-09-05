@@ -701,7 +701,7 @@
       },
       {
         "default": "valid",
-        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input. When `padding=\"same\"` and\n    `strides=1`, the output has the same size as the input.",
         "name": "padding"
       },
       {
@@ -1204,7 +1204,7 @@
       },
       {
         "default": "valid",
-        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input such that output has the same\n    height/width dimension as the input.",
+        "description": "one of `\"valid\"` or `\"same\"` (case-insensitive).\n    `\"valid\"` means no padding. `\"same\"` results in padding with zeros evenly\n    to the left/right or up/down of the input. When `padding=\"same\"` and\n    `strides=1`, the output has the same size as the input.",
         "name": "padding"
       },
       {
@@ -3458,7 +3458,7 @@
         "name": "data_format"
       },
       {
-        "description": "A single integer, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any stride value != 1.",
+        "description": "A single integer, specifying\n    the dilation rate to use for dilated convolution.",
         "name": "dilation_rate"
       },
       {
@@ -3571,7 +3571,7 @@
           1,
           1
         ],
-        "description": "An integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.\n    Currently, specifying any `dilation_rate` value != 1 is\n    incompatible with specifying any `strides` value != 1.",
+        "description": "An integer or tuple/list of 2 integers, specifying\n    the dilation rate to use for dilated convolution.",
         "name": "dilation_rate"
       },
       {
