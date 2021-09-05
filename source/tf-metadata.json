@@ -8712,6 +8712,11 @@
         "name": "compilation_failure_closes_chips",
         "type": "boolean",
         "default": true
+      },
+      {
+        "name": "tpu_cancellation_closes_chips",
+        "type": "int64",
+        "default": 0
       }
     ],
     "outputs": [
@@ -56531,6 +56536,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "is_files",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
