@@ -173,6 +173,8 @@ def update_attributes(schema, lines):
             line = ''
         elif line.startswith('int, RandomState instance or None,'):
             line = line[len('int, RandomState instance or None,'):]
+        elif line.startswith('int, or str, '):
+            line = line[len('int, or str, '):]
         elif line.find('|') != -1:
             line = ''
         else:
