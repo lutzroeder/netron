@@ -3478,6 +3478,13 @@
   },
   {
     "type":   "om",
+    "target": "subgraph.om",
+    "source": "https://github.com/lutzroeder/netron/files/7114003/hwhiaimodel-subgraph.zip[subgraph.om]",
+    "format": "DaVinci OM",
+    "link":   "https://github.com/lutzroeder/netron/pull/802"
+  },
+  {
+    "type":   "om",
     "target": "netron_issue_798.om",
     "source": "https://github.com/lutzroeder/netron/files/7104598/netron_issue_798.om.zip[netron_issue_798.om]",
     "format": "DaVinci OM",
