@@ -418,9 +418,10 @@ caffe2.Node = class {
         this._metadata = metadata;
         this._chain = [];
         this._attributes = [];
-        this._type = metadata.type(op.type) || { name: op.type };
+        this._type = metadata.type(op.type);
         for (const arg of op.arg) {
-            this._attributes.push(new caffe2.Attribute(metadata, metadata.attribute(this._type, arg.name), arg));
+            const attribute = new caffe2.Attribute(metadata, metadata.attribute(this._type.name, arg.name), arg);
+            this._attributes.push(attribute);
         }
         const inputs = op.input;
         const outputs = op.output;
@@ -786,31 +787,33 @@ caffe2.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
-        this._attributeCache = {};
+        this._types = new Map();
+        this._attributes = new Map();
         if (data) {
             const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
+            this._types = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.get(name);
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name });
+        }
+        return this._types.get(name);
     }
 
     attribute(type, name) {
-        let map = this._attributeCache[type];
-        if (!map) {
-            map = {};
-            const schema = this.type(type);
-            if (schema && schema.attributes && schema.attributes.length > 0) {
-                for (const attribute of schema.attributes) {
-                    map[attribute.name] = attribute;
+        const key = type + ':' + name;
+        if (!this._attributes.has(key)) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes)) {
+                for (const attribute of metadata.attributes) {
+                    this._attributes.set(type + ':' + attribute.name, attribute);
                 }
             }
-            this._attributeCache[type] = map;
         }
-        return map[name] || null;
+        return this._attributes.get(key);
     }
 };
 
