@@ -291,9 +291,9 @@ sidebar.NodeSidebar = class {
                 }
                 return value ? value.map((item) => item.toString()).join(', ') : '(null)';
             case 'graph':
-                return value ? value.toString() : '(null)';
+                return value ? value.name : '(null)';
             case 'graph[]':
-                return value ? value.map((item) => item.toString()).join(', ') : '(null)';
+                return value ? value.map((graph) => graph.name).join(', ') : '(null)';
             case 'tensor':
                 if (value && value.type && value.type.shape && value.type.shape.dimensions && value.type.shape.dimensions.length == 0) {
                     return value.toString();

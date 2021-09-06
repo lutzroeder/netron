@@ -957,11 +957,7 @@ tf.Attribute = class {
         this._type = null;
         const schema = value && value.metadata ? value.metadata : metadata.attribute(op, name);
         const visible = metadata.visible(op, name);
-        if (Object.prototype.hasOwnProperty.call(value, 'tensor')) {
-            this._type = 'tensor';
-            this._value = new tf.Tensor(value.tensor);
-        }
-        else if (schema && schema.type) {
+        if (schema && schema.type) {
             this._type = schema.type;
         }
         switch (value.value) {
@@ -985,6 +981,11 @@ tf.Attribute = class {
             case 's':
                 this._value = tf.Utility.decodeText(value.s);
                 break;
+            case 'tensor': {
+                this._type = 'tensor';
+                this._value = new tf.Tensor(value.tensor);
+                break;
+            }
             case 'func': {
                 const name = value.func.name;
                 this._type = 'function';
@@ -1023,7 +1024,6 @@ tf.Attribute = class {
                 break;
             }
         }
-
         if (schema) {
             if (Object.prototype.hasOwnProperty.call(schema, 'visible') && !schema.visible) {
                 this._visible = false;
@@ -2385,7 +2385,7 @@ tf.JsonReader = class {
         const value = json[key];
         switch (key) {
             case 'type':
-                message.type = tf.proto.tensorflow.DataType[value];
+                message.type = typeof value === 'number' ? value : tf.proto.tensorflow.DataType[value];
                 break;
             case 'shape':
                 message.shape = tf.JsonReader.decodeTensorShapeProto(value);
