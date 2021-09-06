@@ -43,8 +43,23 @@ om.Model = class {
     constructor(metadata, file) {
         this._graphs = [];
         for (const graph of file.model.graph) {
-            this._graphs.push(new om.Graph(metadata, graph, file.weights));
+            this._extractGraph(metadata, graph, file.weights);
         }
+    }
+
+    _extractGraph(metadata, graph, weights) {
+        for (const op of graph.op) {
+            for (const item in op.attr) {
+                if (Object.prototype.hasOwnProperty.call(op.attr, item)) {
+                    if (Object.prototype.hasOwnProperty.call(op.attr[item], 'g')) {
+                        const subgraph = op.attr[item].g;
+                        this._extractGraph(metadata, subgraph, weights);
+                        delete op.attr[item];
+                    }
+                }
+            }
+        }
+        this._graphs.unshift(new om.Graph(metadata, graph, weights));
     }
 
     get format() {
