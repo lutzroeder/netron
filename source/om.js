@@ -42,8 +42,9 @@ om.Model = class {
 
     constructor(metadata, file) {
         this._graphs = [];
+        const context = { metadata: metadata, weights: file.weights };
         for (const graph of file.model.graph) {
-            this._graphs.push(new om.Graph(metadata, graph, file.weights));
+            this._graphs.push(new om.Graph(context, graph));
         }
     }
 
@@ -58,7 +59,7 @@ om.Model = class {
 
 om.Graph = class {
 
-    constructor(metadata, graph, weights, model) {
+    constructor(context, graph) {
         this._name = graph.name;
         this._nodes = [];
         this._inputs = [];
@@ -67,7 +68,7 @@ om.Graph = class {
             if (op.type === 'Const') {
                 continue;
             }
-            const node = new om.Node(metadata, op, graph, weights, model);
+            const node = new om.Node(context, op, graph);
             this._nodes.push(node);
         }
     }
@@ -96,9 +97,9 @@ om.Graph = class {
 
 om.Node = class {
 
-    constructor(metadata, op, graph, weights) {
+    constructor(context, op, graph) {
         this._name = op.name;
-        this._type = metadata.type(op.type) || { name: op.type };
+        this._type = context.metadata.type(op.type) || { name: op.type };
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -132,16 +133,16 @@ om.Node = class {
                     }
                     let data = null;
                     if (value.data.length === 0) {
-                        if (weights == null) {
+                        if (context.weights == null) {
                             data = null;
                         }
                         else if (value.desc.attr.merged_offset) {
                             const offset = value.desc.attr.merged_offset.i;
-                            data = weights.slice(offset, offset + value.desc.weight_size);
+                            data = context.weights.slice(offset, offset + value.desc.weight_size);
                         }
                         else {
                             const offset = value.desc.data_offset;
-                            data = weights.slice(offset, offset + value.desc.weight_size);
+                            data = context.weights.slice(offset, offset + value.desc.weight_size);
                         }
                     }
                     else {
@@ -191,10 +192,10 @@ om.Node = class {
                     continue;
                 }
                 if (name === 'relu_flag' && value.b) {
-                    this._chain.push(new om.Node(metadata, { type: 'ReLU' }, graph, weights));
+                    this._chain.push(new om.Node(context, { type: 'ReLU' }, graph));
                     continue;
                 }
-                const attribute = new om.Attribute(metadata.attribute(this._type, name), name, value, true);
+                const attribute = new om.Attribute(context, name, value);
                 this._attributes.push(attribute);
             }
         }
@@ -235,10 +236,9 @@ om.Node = class {
 
 om.Attribute = class {
 
-    constructor(metadata, name, value, visible) {
+    constructor(context, name, value) {
         this._name = name;
         this._value = value;
-        this._visible = visible;
         switch (value.value) {
             case 'i': {
                 this._value = value.i;
@@ -279,6 +279,11 @@ om.Attribute = class {
                     this._value = value.s;
                 }
                 this._type = 'string';
+                break;
+            }
+            case 'g': {
+                this._type = 'graph';
+                this._value = new om.Graph(context, value.g);
                 break;
             }
             case 'func': {
@@ -333,7 +338,7 @@ om.Attribute = class {
     }
 
     get visible() {
-        return this._visible;
+        return true;
     }
 };
 

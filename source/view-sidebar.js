@@ -512,6 +512,7 @@ class NodeAttributeView {
         }
         const value = this._attribute.value;
         switch (type) {
+            case 'graph':
             case 'function': {
                 const line = this._host.document.createElement('div');
                 line.className = 'sidebar-view-item-value-line-link';
