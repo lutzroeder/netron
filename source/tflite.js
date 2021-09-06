@@ -340,7 +340,12 @@ tflite.Node = class {
                     try {
                         const reader = flexbuffers.Reader.open(node.custom_options);
                         const custom_options = reader.read();
-                        if (custom_options) {
+                        if (Array.isArray(custom_options)) {
+                            const attribute = new tflite.Attribute(null, 'custom_options', custom_options);
+                            this._attributes.push(attribute);
+                            decoded = true;
+                        }
+                        else if (custom_options) {
                             for (const pair of Object.entries(custom_options)) {
                                 const key = pair[0];
                                 const value = pair[1];
