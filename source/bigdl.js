@@ -433,16 +433,15 @@ bigdl.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
-        this._attributeCache = {};
+        this._types = new Map();
         if (data) {
             const metadata = JSON.parse(data);
-            this._map = new Map(metadata.map((item) => [ item.name, item ]));
+            this._types = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.get(name);
+        return this._types.get(name);
     }
 };
 
