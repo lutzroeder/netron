@@ -282,7 +282,7 @@ tflite.Node = class {
 
     constructor(metadata, node, type, location, args) {
         this._location = location;
-        this._type = type.custom ? { name: type.name, category: 'custom' } : metadata.type(type.name) || { name: type.name };
+        this._type = type.custom ? { name: type.name, category: 'custom' } : metadata.type(type.name);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
@@ -804,40 +804,33 @@ tflite.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
+        this._types = new Map();
+        this._attributes = new Map();
         if (data) {
-            const items = JSON.parse(data);
-            if (items) {
-                for (const item of items) {
-                    this._map.set(item.name, item);
-                }
-            }
+            const metadata = JSON.parse(data);
+            this._types = new Map(metadata.map((item) => [ item.name, item ]));
         }
     }
 
     type(name) {
-        return this._map.has(name) ? this._map.get(name) : null;
+        if (!this._types.has(name)) {
+            this._types.set(name, { name: name });
+        }
+        return this._types.get(name);
     }
 
     attribute(type, name) {
-        const schema = this.type(type);
-        if (schema) {
-            let attributeMap = schema.attributeMap;
-            if (!attributeMap) {
-                attributeMap = {};
-                if (schema.attributes) {
-                    for (const attribute of schema.attributes) {
-                        attributeMap[attribute.name] = attribute;
-                    }
+        const key = type + ':' + name;
+        if (!this._attributes.has(key)) {
+            this._attributes.set(key, null);
+            const metadata = this.type(type);
+            if (metadata && Array.isArray(metadata.attributes)) {
+                for (const attribute of metadata.attributes) {
+                    this._attributes.set(type + ':' + attribute.name, attribute);
                 }
-                schema.attributeMap = attributeMap;
-            }
-            const attributeSchema = attributeMap[name];
-            if (attributeSchema) {
-                return attributeSchema;
             }
         }
-        return null;
+        return this._attributes.get(key);
     }
 };
 
@@ -854,12 +847,12 @@ tflite.Utility = class {
     static enum(name, value) {
         const type = name && tflite.schema ? tflite.schema[name] : undefined;
         if (type) {
-            tflite.Utility._enumKeyMap = tflite.Utility._enumKeyMap || new Map();
-            if (!tflite.Utility._enumKeyMap.has(name)) {
+            tflite.Utility._enums = tflite.Utility._enums || new Map();
+            if (!tflite.Utility._enums.has(name)) {
                 const map = new Map(Object.keys(type).map((key) => [ type[key], key ]));
-                tflite.Utility._enumKeyMap.set(name, map);
+                tflite.Utility._enums.set(name, map);
             }
-            const map = tflite.Utility._enumKeyMap.get(name);
+            const map = tflite.Utility._enums.get(name);
             if (map.has(value)) {
                 return map.get(value);
             }
