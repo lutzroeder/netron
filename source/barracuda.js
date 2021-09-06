@@ -171,7 +171,7 @@ barracuda.Node = class {
                 new barracuda.Argument(this._name)
             ]));
         }
-        if (layer.activation && layer.activation !== 0) {
+        if (layer.activation !== undefined && (layer.type === 50 || layer.activation !== 0)) {
             const type = barracuda.Activation[layer.activation];
             if (!type) {
                 throw new barracuda.Error("Unknown activation '" + layer.activation + "'.");
