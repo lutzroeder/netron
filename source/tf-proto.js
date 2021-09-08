@@ -1876,6 +1876,9 @@ $root.tensorflow.NodeDef = class NodeDef {
                 case 6:
                     message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decode(reader, reader.uint32());
                     break;
+                case 7:
+                    message.experimental_type = $root.tensorflow.FullTypeDef.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -1908,6 +1911,9 @@ $root.tensorflow.NodeDef = class NodeDef {
                 case "experimental_debug_info":
                     message.experimental_debug_info = $root.tensorflow.NodeDef.ExperimentalDebugInfo.decodeText(reader);
                     break;
+                case "experimental_type":
+                    message.experimental_type = $root.tensorflow.FullTypeDef.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -1921,6 +1927,7 @@ $root.tensorflow.NodeDef.prototype.name = "";
 $root.tensorflow.NodeDef.prototype.op = "";
 $root.tensorflow.NodeDef.prototype.device = "";
 $root.tensorflow.NodeDef.prototype.experimental_debug_info = null;
+$root.tensorflow.NodeDef.prototype.experimental_type = null;
 
 $root.tensorflow.NodeDef.ExperimentalDebugInfo = class ExperimentalDebugInfo {
 
@@ -1969,6 +1976,102 @@ $root.tensorflow.NodeDef.ExperimentalDebugInfo = class ExperimentalDebugInfo {
         return message;
     }
 };
+
+$root.tensorflow.FullTypeId = {
+    "TFT_UNSET": 0,
+    "TFT_VAR": 1,
+    "TFT_ANY": 2,
+    "TFT_PRODUCT": 3,
+    "TFT_NAMED": 4,
+    "TFT_CALLABLE": 100,
+    "TFT_TENSOR": 1000,
+    "TFT_ARRAY": 1001,
+    "TFT_OPTIONAL": 1002,
+    "TFT_LITERAL": 1003,
+    "TFT_DATASET": 10102,
+    "TFT_BOOL": 200,
+    "TFT_UINT8": 201,
+    "TFT_UINT16": 202,
+    "TFT_UINT32": 203,
+    "TFT_UINT64": 204,
+    "TFT_INT8": 205,
+    "TFT_INT16": 206,
+    "TFT_INT32": 207,
+    "TFT_INT64": 208,
+    "TFT_HALF": 209,
+    "TFT_FLOAT": 210,
+    "TFT_DOUBLE": 211,
+    "TFT_BFLOAT16": 215,
+    "TFT_COMPLEX64": 212,
+    "TFT_COMPLEX128": 213,
+    "TFT_STRING": 214
+};
+
+$root.tensorflow.FullTypeDef = class FullTypeDef {
+
+    constructor() {
+        this.args = [];
+    }
+
+    get attr() {
+        $root.tensorflow.FullTypeDef.attrSet = $root.tensorflow.FullTypeDef.attrSet || new Set([ "s", "i"]);
+        return Object.keys(this).find((key) => $root.tensorflow.FullTypeDef.attrSet.has(key) && this[key] != null);
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.FullTypeDef();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.type_id = reader.int32();
+                    break;
+                case 2:
+                    message.args.push($root.tensorflow.FullTypeDef.decode(reader, reader.uint32()));
+                    break;
+                case 3:
+                    message.s = reader.string();
+                    break;
+                case 4:
+                    message.i = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.FullTypeDef();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "type_id":
+                    message.type_id = reader.enum($root.tensorflow.FullTypeId);
+                    break;
+                case "args":
+                    message.args.push($root.tensorflow.FullTypeDef.decodeText(reader));
+                    break;
+                case "s":
+                    message.s = reader.string();
+                    break;
+                case "i":
+                    message.i = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.FullTypeDef.prototype.type_id = 0;
 
 $root.tensorflow.OpDef = class OpDef {
 
@@ -2367,102 +2470,6 @@ $root.tensorflow.OpList = class OpList {
         return message;
     }
 };
-
-$root.tensorflow.FullTypeId = {
-    "TFT_UNSET": 0,
-    "TFT_VAR": 1,
-    "TFT_ANY": 2,
-    "TFT_PRODUCT": 3,
-    "TFT_NAMED": 4,
-    "TFT_CALLABLE": 100,
-    "TFT_TENSOR": 1000,
-    "TFT_ARRAY": 1001,
-    "TFT_OPTIONAL": 1002,
-    "TFT_LITERAL": 1003,
-    "TFT_DATASET": 10102,
-    "TFT_BOOL": 200,
-    "TFT_UINT8": 201,
-    "TFT_UINT16": 202,
-    "TFT_UINT32": 203,
-    "TFT_UINT64": 204,
-    "TFT_INT8": 205,
-    "TFT_INT16": 206,
-    "TFT_INT32": 207,
-    "TFT_INT64": 208,
-    "TFT_HALF": 209,
-    "TFT_FLOAT": 210,
-    "TFT_DOUBLE": 211,
-    "TFT_BFLOAT16": 215,
-    "TFT_COMPLEX64": 212,
-    "TFT_COMPLEX128": 213,
-    "TFT_STRING": 214
-};
-
-$root.tensorflow.FullTypeDef = class FullTypeDef {
-
-    constructor() {
-        this.args = [];
-    }
-
-    get attr() {
-        $root.tensorflow.FullTypeDef.attrSet = $root.tensorflow.FullTypeDef.attrSet || new Set([ "s", "i"]);
-        return Object.keys(this).find((key) => $root.tensorflow.FullTypeDef.attrSet.has(key) && this[key] != null);
-    }
-
-    static decode(reader, length) {
-        const message = new $root.tensorflow.FullTypeDef();
-        const end = length !== undefined ? reader.position + length : reader.length;
-        while (reader.position < end) {
-            const tag = reader.uint32();
-            switch (tag >>> 3) {
-                case 1:
-                    message.type_id = reader.int32();
-                    break;
-                case 2:
-                    message.args.push($root.tensorflow.FullTypeDef.decode(reader, reader.uint32()));
-                    break;
-                case 3:
-                    message.s = reader.string();
-                    break;
-                case 4:
-                    message.i = reader.int64();
-                    break;
-                default:
-                    reader.skipType(tag & 7);
-                    break;
-            }
-        }
-        return message;
-    }
-
-    static decodeText(reader) {
-        const message = new $root.tensorflow.FullTypeDef();
-        reader.start();
-        while (!reader.end()) {
-            const tag = reader.tag();
-            switch (tag) {
-                case "type_id":
-                    message.type_id = reader.enum($root.tensorflow.FullTypeId);
-                    break;
-                case "args":
-                    message.args.push($root.tensorflow.FullTypeDef.decodeText(reader));
-                    break;
-                case "s":
-                    message.s = reader.string();
-                    break;
-                case "i":
-                    message.i = reader.int64();
-                    break;
-                default:
-                    reader.field(tag, message);
-                    break;
-            }
-        }
-        return message;
-    }
-};
-
-$root.tensorflow.FullTypeDef.prototype.type_id = 0;
 
 $root.tensorflow.VersionDef = class VersionDef {
 
