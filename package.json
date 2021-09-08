@@ -14,10 +14,9 @@
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "[ -d node_modules ] || npm install && python setup.py --quiet build && python -c 'import sys, os; sys.path.insert(0, os.path.join(\"dist\", \"lib\")); import netron; netron.main()' $@"
+        "server": "python setup.py --quiet build && python -c 'import sys, os; sys.path.insert(0, os.path.join(\"dist\", \"lib\")); import netron; netron.main()' $@"
     },
     "dependencies": {
-        "dagre": "0.8.5",
         "electron-updater": "4.3.9"
     },
     "devDependencies": {

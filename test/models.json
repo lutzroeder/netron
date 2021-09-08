@@ -3120,7 +3120,6 @@
     "target": "EfficientDet-d0.onnx.zip",
     "source": "https://github.com/lutzroeder/netron/files/5296050/EfficientDet-d0.onnx.zip",
     "format": "ONNX v6",
-    "error":  "Maximum call stack size exceeded",
     "link":   "https://github.com/lutzroeder/netron/issues/589"
   },
   {

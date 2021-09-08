@@ -8,12 +8,7 @@ import setuptools
 import setuptools.command.build_py
 import distutils.command.build
 
-node_dependencies = [
-    ( 'netron', [
-        'node_modules/dagre/dist/dagre.js'
-      ]
-    )
-]
+node_dependencies = [ ( 'netron', [] ) ]
 
 class build(distutils.command.build.build):
     user_options = distutils.command.build.build.user_options + [ ('version', None, 'version' ) ]
