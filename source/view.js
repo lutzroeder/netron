@@ -1658,7 +1658,8 @@ view.ModelFactoryService = class {
                 { name: 'vitis.ai.proto.DpuModelParamList data', tags: [ 'model', 'model.name', 'model.kernel' ] },
                 { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.ssd' ] },
                 { name: 'object_detection.protos.DetectionModel data', tags: [ 'model', 'model.faster_rcnn' ] },
-                { name: 'tensorflow.CheckpointState data', tags: [ 'model_checkpoint_path', 'all_model_checkpoint_paths' ] }
+                { name: 'tensorflow.CheckpointState data', tags: [ 'model_checkpoint_path', 'all_model_checkpoint_paths' ] },
+                { name: 'apollo.perception.camera.traffic_light.detection.DetectionParam data', tags: [ 'min_crop_size', 'crop_method' ] },
             ];
             const tags = context.tags('pbtxt');
             if (tags.size > 0) {
