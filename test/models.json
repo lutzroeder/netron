@@ -3062,6 +3062,14 @@
   },
   {
     "type":   "onnx",
+    "target": "cnn.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/7148909/cnn.onnx.zip[cnn.onnx]",
+    "format": "ONNX v6",
+    "action": "skip-render",
+    "link":   "https://github.com/lutzroeder/netron/issues/589"
+  },
+  {
+    "type":   "onnx",
     "target": "conv_autopad.onnx",
     "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/conv_autopad.onnx",
     "format": "ONNX v3",
@@ -3240,10 +3248,17 @@
   },
   {
     "type":   "onnx",
+    "target": "last_hidden_state_crf_jud.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/7148912/last_hidden_state_crf_jud.onnx.zip[last_hidden_state_crf_jud.onnx]",
+    "format": "ONNX v6",
+    "action": "skip-render",
+    "link":   "https://github.com/lutzroeder/netron/issues/589"
+  },
+  {
+    "type":   "onnx",
     "target": "maskrcnn.onnx.zip",
     "source": "https://github.com/lutzroeder/netron/files/5322320/maskrcnn.onnx.zip",
     "format": "ONNX v6",
-    "action": "skip-render",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
   {
@@ -4701,7 +4716,7 @@
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.pt",
     "source": "https://github.com/lutzroeder/netron/files/6096671/shufflenet_v2_x1_0.pt.zip[shufflenet_v2_x1_0.pt]",
-    "action": "skip-render",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -5862,6 +5877,14 @@
     "source": "https://github.com/lutzroeder/netron/files/4606719/speech_tts_model_2017_11_14.zip[speech_tts_model_2017_11_14.json]",
     "format": "TensorFlow Lite v3",
     "link":   "https://github.com/lutzroeder/netron/issues/487"
+  },
+  {
+    "type":   "tflite",
+    "target": "subword-conformer.latest.tflite",
+    "source": "https://github.com/lutzroeder/netron/files/6032934/subword-conformer.zip[subword-conformer.latest.tflite]",
+    "format": "TensorFlow Lite v3",
+    "action": "skip-render",
+    "link":   "https://github.com/lutzroeder/netron/issues/589"
   },
   {
     "type":   "tflite",
