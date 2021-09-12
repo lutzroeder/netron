@@ -102,7 +102,9 @@ keras.ModelFactory = class {
                         if (group.attributes.has('model_config')) {
                             const buffer = group.attributes.get('model_config');
                             const reader = json.TextReader.open(buffer);
-                            return reader.read();
+                            if (reader) {
+                                return reader.read();
+                            }
                         }
                         return null;
                     };
