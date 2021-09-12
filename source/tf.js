@@ -2355,6 +2355,10 @@ tf.JsonReader = class {
     static decodeGraphDef(json) {
         const message = new tf.proto.tensorflow.GraphDef();
         message.node = json.node.map((node) => tf.JsonReader.decodeNodeDef(node));
+        message.library = tf.JsonReader.decodeFunctionDefLibrary(json.library);
+        if (message.versions) {
+            message.versions = tf.JsonReader.decodeVersionDef(json.versions);
+        }
         return message;
     }
 
@@ -2368,8 +2372,8 @@ tf.JsonReader = class {
         }
         message.attr = {};
         if (json.attr) {
-            for (const key of Object.keys(json.attr)) {
-                message.attr[key] = tf.JsonReader.decodeAttrValue(json.attr[key]);
+            for (const entry of Object.entries(json.attr)) {
+                message.attr[entry[0]] = tf.JsonReader.decodeAttrValue(entry[1]);
             }
         }
         return message;
@@ -2408,6 +2412,9 @@ tf.JsonReader = class {
             case 'list':
                 message.list = tf.JsonReader.decodeAttrValueListValue(json.list);
                 break;
+            case 'func':
+                message[key]= value;
+                break;
             default:
                 throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue." + key + "'.");
         }
@@ -2434,6 +2441,9 @@ tf.JsonReader = class {
                 case 'type':
                     message[key] = list.map((value) => tf.proto.tensorflow.DataType[value]);
                     break;
+                case 'shape':
+                    message[key] = list.map((shape) => tf.JsonReader.decodeTensorShapeProto(shape));
+                    break;
                 default:
                     throw new tf.Error("Unsupported JSON 'tensorflow.AttrValue.ListValue." + key + "'.");
             }
@@ -2456,6 +2466,50 @@ tf.JsonReader = class {
             message.name = json.name;
             return message;
         });
+        return message;
+    }
+
+    static decodeVersionDef(json) {
+        const message = new tf.proto.tensorflow.VersionDef();
+        message.producer = json.producer;
+        message.min_consumer = json.min_consumer;
+        message.bad_consumers = json.bad_consumers ? json.bad_consumers : [];
+        return message;
+    }
+
+    static decodeFunctionDefLibrary(json) {
+        const message = new tf.proto.tensorflow.FunctionDefLibrary();
+        message.function = (json.function || []).map((json) => tf.JsonReader.decodeFunctionDef(json));
+        return message;
+    }
+
+    static decodeFunctionDef(json) {
+        const message = new tf.proto.tensorflow.FunctionDef();
+        message.signature = tf.JsonReader.decodeOpDef(json.signature);
+        message.attr = {};
+        if (json.attr) {
+            for (const entry of Object.entries(json.attr)) {
+                message.attr[entry[0]] = tf.JsonReader.decodeAttrValue(entry[1]);
+            }
+        }
+        message.nodeDef = (json.nodeDef || []).map((json) => tf.JsonReader.decodeNodeDef(json));
+        message.ret = json.ret;
+        message.control_ret = json.control_ret;
+        return message;
+    }
+
+    static decodeOpDef(json) {
+        const message = new tf.proto.tensorflow.OpDef();
+        message.name = json.name;
+        message.input_arg = json.inputArg.map((json) => tf.JsonReader.decodeArgDef(json));
+        message.output_arg = json.outputArg.map((json) => tf.JsonReader.decodeArgDef(json));
+        return message;
+    }
+
+    static decodeArgDef(json) {
+        const message = new tf.proto.tensorflow.OpDef.ArgDef();
+        message.name = json.name;
+        message.description = json.decscription;
         return message;
     }
 };

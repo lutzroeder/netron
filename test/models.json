@@ -5638,6 +5638,13 @@
     "link":   "https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1"
   },
   {
+    "type":   "tfjs",
+    "target": "yolo3_tiny_darknet.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7150178/yolo3_tiny_darknet.zip",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/lutzroeder/netron/issues/764"
+  },
+  {
     "type":   "tflite",
     "target": "deeplab_mobilenetv2_513.tflite",
     "source": "https://raw.githubusercontent.com/pinzhenx/webml-demo/master/examples/deeplab/model/deeplab_mobilenetv2_513.tflite",
