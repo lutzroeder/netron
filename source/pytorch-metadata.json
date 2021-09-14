@@ -1721,24 +1721,50 @@
     ]
   },
   {
-    "name": "torch.pow",
-    "attributes": [
-      { "name": "exponent", "type": "Scalar" }
-    ],
+    "name": "torch.pow:Tensor_Tensor",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "exponent", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
   },
   {
-    "name": "torch.pow_",
-    "attributes": [
+    "name": "torch.pow:Scalar",
+    "inputs": [
+      { "name": "self", "type": "Scalar" },
       { "name": "exponent", "type": "Tensor" }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pow:Tensor_Scalar",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "exponent", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pow_:Tensor",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "exponent", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.pow_:Scalar",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "exponent", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
