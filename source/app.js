@@ -321,6 +321,7 @@ class Application {
             webPreferences: {
                 nodeIntegration: true,
                 contextIsolation: true,
+                nativeWindowOpen: true
             }
         };
         if (process.platform === 'darwin') {
@@ -693,7 +694,8 @@ class View {
             webPreferences: {
                 preload: path.join(__dirname, 'electron.js'),
                 nodeIntegration: true,
-                contextIsolation: true
+                contextIsolation: true,
+                nativeWindowOpen: true
             }
         };
         if (this._owner.count > 0 && View._position && View._position.length == 2) {
