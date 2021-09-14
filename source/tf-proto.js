@@ -4005,6 +4005,9 @@ $root.tensorflow.TypeSpecProto = class TypeSpecProto {
                 case 3:
                     message.type_spec_class_name = reader.string();
                     break;
+                case 4:
+                    message.num_flat_components = reader.int32();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -4028,6 +4031,9 @@ $root.tensorflow.TypeSpecProto = class TypeSpecProto {
                 case "type_spec_class_name":
                     message.type_spec_class_name = reader.string();
                     break;
+                case "num_flat_components":
+                    message.num_flat_components = reader.int32();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -4040,6 +4046,7 @@ $root.tensorflow.TypeSpecProto = class TypeSpecProto {
 $root.tensorflow.TypeSpecProto.prototype.type_spec_class = 0;
 $root.tensorflow.TypeSpecProto.prototype.type_state = null;
 $root.tensorflow.TypeSpecProto.prototype.type_spec_class_name = "";
+$root.tensorflow.TypeSpecProto.prototype.num_flat_components = 0;
 
 $root.tensorflow.TypeSpecProto.TypeSpecClass = {
     "UNKNOWN": 0,
