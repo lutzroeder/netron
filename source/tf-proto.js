@@ -6146,6 +6146,9 @@ $root.tensorflow.OptimizerOptions = class OptimizerOptions {
                 case 5:
                     message.global_jit_level = reader.int32();
                     break;
+                case 7:
+                    message.cpu_global_jit = reader.bool();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -6178,6 +6181,9 @@ $root.tensorflow.OptimizerOptions = class OptimizerOptions {
                 case "global_jit_level":
                     message.global_jit_level = reader.enum($root.tensorflow.OptimizerOptions.GlobalJitLevel);
                     break;
+                case "cpu_global_jit":
+                    message.cpu_global_jit = reader.bool();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -6193,6 +6199,7 @@ $root.tensorflow.OptimizerOptions.prototype.max_folded_constant_in_bytes = proto
 $root.tensorflow.OptimizerOptions.prototype.do_function_inlining = false;
 $root.tensorflow.OptimizerOptions.prototype.opt_level = 0;
 $root.tensorflow.OptimizerOptions.prototype.global_jit_level = 0;
+$root.tensorflow.OptimizerOptions.prototype.cpu_global_jit = false;
 
 $root.tensorflow.OptimizerOptions.Level = {
     "L1": 0,
