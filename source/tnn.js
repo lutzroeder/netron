@@ -775,7 +775,7 @@ tnn.LayerResourceReader = class {
                             resource.bias = raw(reader);
                         }
                         if (resource.filter.dataType === 'int8') {
-                            resource.quantized = raw();
+                            resource.quantized = raw(reader);
                         }
                         break;
                     }
@@ -793,7 +793,7 @@ tnn.LayerResourceReader = class {
                         resource.weight = raw(reader);
                         resource.bias = raw(reader);
                         if (resource.weight.dataType === 'int8') {
-                            resource.scale = raw();
+                            resource.scale = raw(reader);
                         }
                         break;
                     }
