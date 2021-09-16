@@ -729,6 +729,30 @@
     ]
   },
   {
+    "name": "AnonymousHashTable",
+    "summary": "Creates a uninitialized anonymous hash table.",
+    "description": "This op creates a new anonymous hash table (as a resource) everytime\nit is executed, with the specified dtype of its keys and values,\nreturning the resource handle.  Before using the table you will have\nto initialize it.  After initialization the table will be\nimmutable. The table is anonymous in the sense that it can only be\naccessed by the returned resource handle (e.g. it cannot be looked up\nby a name in a resource manager). The table will be automatically\ndeleted when all resource handles pointing to it are gone.",
+    "attributes": [
+      {
+        "name": "key_dtype",
+        "type": "type",
+        "description": "Type of the table keys."
+      },
+      {
+        "name": "value_dtype",
+        "type": "type",
+        "description": "Type of the table values."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "table_handle",
+        "description": "The resource handle to the newly created hash-table resource.",
+        "type": 20
+      }
+    ]
+  },
+  {
     "name": "AnonymousIterator",
     "summary": "A container for an iterator resource.",
     "attributes": [
@@ -3352,6 +3376,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -3390,6 +3419,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -7310,6 +7344,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -7342,6 +7381,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -8619,6 +8663,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -11313,6 +11362,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -17006,6 +17060,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -17094,6 +17153,13 @@
   {
     "name": "FixedLengthRecordDataset",
     "summary": "Creates a dataset that emits the records from one or more binary files.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "inputs": [
       {
         "name": "filenames",
@@ -17130,6 +17196,13 @@
   },
   {
     "name": "FixedLengthRecordDatasetV2",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "inputs": [
       {
         "name": "filenames",
@@ -17394,6 +17467,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -18899,6 +18977,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -19232,6 +19315,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -20744,6 +20832,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -20982,6 +21075,16 @@
     "outputs": [
       {
         "name": "y",
+        "type": 10
+      }
+    ]
+  },
+  {
+    "name": "IsTPUEmbeddingInitialized",
+    "summary": "Whether TPU Embedding is initialized in a distributed TPU system.",
+    "outputs": [
+      {
+        "name": "is_tpu_embedding_initialized",
         "type": 10
       }
     ]
@@ -22036,6 +22139,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -23654,6 +23762,11 @@
         "name": "preserve_cardinality",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -23754,6 +23867,11 @@
         "name": "preserve_cardinality",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -27780,6 +27898,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28402,6 +28525,11 @@
         "name": "N",
         "type": "int64",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28456,6 +28584,11 @@
         "name": "N",
         "type": "int64",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28605,6 +28738,11 @@
         "name": "deterministic",
         "type": "string",
         "default": "default"
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28727,6 +28865,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28803,6 +28946,11 @@
         "name": "sloppy",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28870,6 +29018,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -28937,6 +29090,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -29021,6 +29179,11 @@
         "name": "preserve_cardinality",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -29083,6 +29246,11 @@
         "name": "preserve_cardinality",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -30413,6 +30581,11 @@
         "name": "buffer_size_min",
         "type": "int64",
         "default": 0
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -35669,6 +35842,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -36222,6 +36400,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -37002,6 +37185,11 @@
         "name": "use_inter_op_parallelism",
         "type": "boolean",
         "default": true
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -37559,6 +37747,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -43725,6 +43918,11 @@
         "name": "use_default_device",
         "type": "boolean",
         "default": true
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45472,6 +45670,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45561,6 +45764,11 @@
         "name": "reshuffle_each_iteration",
         "type": "boolean",
         "default": true
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45613,6 +45821,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45667,6 +45880,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45709,6 +45927,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45749,6 +45972,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -45955,6 +46183,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -46386,6 +46619,11 @@
         "name": "Tshard_func_args",
         "type": "type[]",
         "minimum": 0
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -53654,6 +53892,13 @@
   {
     "name": "TFRecordDataset",
     "summary": "Creates a dataset that emits the records from one or more TFRecord files.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "inputs": [
       {
         "name": "filenames",
@@ -54244,6 +54489,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -54336,6 +54586,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -55573,6 +55828,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -56541,6 +56801,11 @@
         "name": "is_files",
         "type": "boolean",
         "default": false
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -56703,6 +56968,13 @@
   {
     "name": "TextLineDataset",
     "summary": "Creates a dataset that emits the lines of one or more text files.",
+    "attributes": [
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "inputs": [
       {
         "name": "filenames",
@@ -57442,6 +57714,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -57889,6 +58166,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -58763,6 +59045,11 @@
         "name": "output_shapes",
         "type": "shape[]",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
@@ -59452,6 +59739,11 @@
         "type": "int64",
         "description": "The length of `input_datasets`",
         "minimum": 1
+      },
+      {
+        "name": "metadata",
+        "type": "string",
+        "default": ""
       }
     ],
     "inputs": [
