@@ -64,12 +64,7 @@ install() {
                 PYTHON_ARCHITECTURE=$(${python} -c "import platform; print(platform.uname().machine);")
                 export CMAKE_ARGS="-DCMAKE_OSX_ARCHITECTURES=${PYTHON_ARCHITECTURE}"
                 if [ ${PYTHON_ARCHITECTURE} = "arm64" ]; then
-                    [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
-                    export OPENBLAS=$(brew --prefix openblas)
                     pep517=--no-use-pep517
-                    venv
-                    ${python} -m pip install --quiet --upgrade cython
-                    deactivate
                 fi
             fi
             ;;
