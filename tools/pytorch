@@ -34,13 +34,7 @@ install() {
     echo "pytorch install"
     venv
     ${python} -m pip install --quiet --upgrade future protobuf
-    if [[ "${OSTYPE}" == darwin* ]] && [[ "$(uname -sm)" = "Darwin arm64" ]] && [[ $(${python} -c "import platform; print(platform.uname().machine);") = "arm64" ]]; then
-        [ -x "$(brew --prefix openblas)" ] || brew install openblas > /dev/null
-        export OPENBLAS=$(brew --prefix openblas)
-        ${python} -m pip install --upgrade --quiet pybind11 cython pyyaml numpy six
-    else
-        ${python} -m pip install --quiet --upgrade scipy
-    fi
+    ${python} -m pip install --quiet --upgrade six pybind11 cython pyyaml numpy
     ${python} -m pip install --quiet --upgrade --pre torch -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
     deactivate
 }
