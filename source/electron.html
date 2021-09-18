@@ -14,7 +14,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
-.graph { touch-action: pan-x pan-y; overflow: auto; height: 100%; }
+.graph { touch-action: pan-x pan-y; overflow: auto; height: 100%; outline: none; }
 .canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
@@ -114,7 +114,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 </style>
 </head>
 <body class="welcome spinner">
-<div id="graph" class="graph">
+<div id="graph" class="graph" tabindex="0">
     <svg id="canvas" class="canvas" preserveaspectratio="xMidYMid meet" width="100%" height="100%"></svg>
 </div>
 <div id="sidebar" class="sidebar"></div>
@@ -303,7 +303,7 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
     </a>
     <span class="center consent-message">This app uses cookies to report errors and anonymous usage information.</span>
     <button id="consent-accept-button" class="center consent-accept-button">Accept</button>
-    <button id="open-file-button" class="center open-file-button">Open Model&hellip;</button>
+    <button id="open-file-button" class="center open-file-button" tabindex="0">Open Model&hellip;</button>
     <button id="github-button" class="center github-button">GitHub</button>
     <input type="file" id="open-file-dialog" class="open-file-dialog" multiple="false" accept="">
     <!-- Preload fonts to workaround Chrome SVG layout issue -->

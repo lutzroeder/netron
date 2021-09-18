@@ -62,6 +62,7 @@ sidebar.Sidebar = class {
         const graphElement = this._getElementById('graph');
         if (graphElement) {
             graphElement.style.marginRight = '0';
+            graphElement.focus();
         }
     }
 

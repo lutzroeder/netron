@@ -48,8 +48,8 @@ class Application {
             event.returnValue = {
                 version: electron.app.getVersion(),
                 package: electron.app.isPackaged,
-                zoom: 'drag'
-                // zoom: 'scroll'
+                zoom: 'scroll'
+                // zoom: 'drag'
             };
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {

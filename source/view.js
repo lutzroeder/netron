@@ -51,20 +51,49 @@ view.View = class {
             switch (this._host.environment('zoom')) {
                 case 'scroll': {
                     const userAgent = navigator.userAgent.toLowerCase();
-                    const safari = userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1;
-                    const elements = [ 'graph', 'toolbar' ];
-                    for (const id of elements) {
-                        const element = this._getElementById(id);
-                        element.addEventListener('mousewheel', (e) => {
-                            this._mouseWheelHandler(e);
-                        });
-                        element.addEventListener('scroll', (e) => {
-                            this._scrollHandler(e);
-                        });
-                        element.addEventListener('wheel', (e) => {
-                            this._mouseWheelHandler(e);
-                        });
-                        if (safari) {
+                    const browser = userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1 ? 'safari' : '';
+                    const element = this._getElementById('graph');
+                    element.addEventListener('scroll', (e) => {
+                        this._scrollHandler(e);
+                    });
+                    element.addEventListener('wheel', (e) => {
+                        this._mouseWheelHandler(e);
+                    });
+                    element.addEventListener('mousewheel', (e) => {
+                        this._mouseWheelHandler(e);
+                    });
+                    element.addEventListener('mousedown', (e) => {
+                        const root = this._host.document.documentElement;
+                        root.style.cursor = 'grabbing';
+                        const element = this._getElementById('graph');
+                        this._mousePosition = {
+                            left: element.scrollLeft,
+                            top: element.scrollTop,
+                            x: e.clientX,
+                            y: e.clientY
+                        };
+                        e.stopImmediatePropagation();
+                        const mouseMoveHandler = (e) => {
+                            e.preventDefault();
+                            e.stopImmediatePropagation();
+                            const dx = e.clientX - this._mousePosition.x;
+                            const dy = e.clientY - this._mousePosition.y;
+                            const element = this._getElementById('graph');
+                            element.scrollTop = this._mousePosition.top - dy;
+                            element.scrollLeft = this._mousePosition.left - dx;
+                        };
+                        const mouseUpHandler = () => {
+                            root.style.cursor = null;
+                            element.removeEventListener('mousemove', mouseMoveHandler);
+                            element.removeEventListener('mouseup', mouseUpHandler);
+                            element.removeEventListener('mouseleave', mouseUpHandler);
+                        };
+                        element.addEventListener('mousemove', mouseMoveHandler);
+                        element.addEventListener('mouseup', mouseUpHandler);
+                        element.addEventListener('mouseleave', mouseUpHandler);
+                    });
+                    switch (browser) {
+                        case 'safari':
                             element.addEventListener('gesturestart', (e) => {
                                 e.preventDefault();
                                 this._gestureZoom = this._zoom;
@@ -77,8 +106,8 @@ view.View = class {
                                 e.preventDefault();
                                 this._updateZoom(this._gestureZoom * e.scale, e);
                             }, false);
-                        }
-                        else {
+                            break;
+                        default:
                             element.addEventListener('touchstart', (e) => {
                                 if (e.touches.length === 2) {
                                     this._touchPoints = Array.from(e.touches);
@@ -113,7 +142,7 @@ view.View = class {
                                 delete this._touchPoints;
                                 delete this._touchZoom;
                             }, { passive: true });
-                        }
+                            break;
                     }
                     break;
                 }
@@ -138,6 +167,23 @@ view.View = class {
             this._sidebar.close();
         }
         this._host.document.body.setAttribute('class', page);
+
+        switch (page) {
+            case 'default': {
+                const element = this._getElementById('graph');
+                if (element) {
+                    element.focus();
+                }
+                break;
+            }
+            case 'welcome': {
+                const element = this._getElementById('open-file-button');
+                if (element) {
+                    element.focus();
+                }
+                break;
+            }
+        }
     }
 
     cut() {
@@ -282,29 +328,30 @@ view.View = class {
 
     _updateZoom(zoom, e) {
 
-        const graphElement = this._getElementById('graph');
+        const graph = this._getElementById('graph');
 
-        const min = Math.min(Math.max(graphElement.clientHeight / this._height, 0.2), 1);
+        const limit = this._showHorizontal ?
+            graph.clientWidth / this._width :
+            graph.clientHeight / this._height;
+        const min = Math.min(Math.max(limit, 0.2), 1);
+        zoom = Math.max(min, Math.min(zoom, 1.4));
 
-        zoom = Math.min(zoom, 1.4);
-        zoom = Math.max(min, zoom);
+        const scrollLeft = this._scrollLeft || graph.scrollLeft;
+        const scrollTop = this._scrollTop || graph.scrollTop;
 
-        const scrollLeft = this._scrollLeft || graphElement.scrollLeft;
-        const scrollTop = this._scrollTop || graphElement.scrollTop;
+        const x = (e ? e.pageX : (graph.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (graph.clientHeight / 2)) + scrollTop;
 
-        const x = (e ? e.pageX : (graphElement.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (graphElement.clientHeight / 2)) + scrollTop;
-
-        const canvasElement = this._getElementById('canvas');
-        canvasElement.style.width = zoom * this._width;
-        canvasElement.style.height = zoom * this._height;
+        const canvas = this._getElementById('canvas');
+        canvas.style.width = zoom * this._width;
+        canvas.style.height = zoom * this._height;
 
         this._scrollLeft = ((x * zoom) / this._zoom) - (x - scrollLeft);
         this._scrollTop = ((y * zoom) / this._zoom) - (y - scrollTop);
         this._scrollLeft = Math.max(0, this._scrollLeft);
         this._scrollTop = Math.max(0, this._scrollTop);
-        graphElement.scrollLeft = this._scrollLeft;
-        graphElement.scrollTop = this._scrollTop;
+        graph.scrollLeft = this._scrollLeft;
+        graph.scrollTop = this._scrollTop;
 
         this._zoom = zoom;
     }
@@ -317,7 +364,6 @@ view.View = class {
     }
 
     _scrollHandler(e) {
-
         if (this._scrollLeft && e.target.scrollLeft !== Math.floor(this._scrollLeft)) {
             delete this._scrollLeft;
         }
