@@ -103,8 +103,6 @@ host.ElectronHost = class {
     }
 
     start() {
-        this._view.show('welcome');
-
         if (this._queue) {
             const queue = this._queue;
             delete this._queue;
@@ -194,6 +192,8 @@ host.ElectronHost = class {
             }
             return false;
         });
+
+        this._view.show('welcome');
     }
 
     environment(name) {

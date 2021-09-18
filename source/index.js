@@ -26,8 +26,8 @@ host.BrowserHost = class {
         this._version = this._meta.version ? this._meta.version[0] : null;
         this._telemetry = this._version && this._version !== '0.0.0';
         this._environment = new Map();
-        this._environment.set('zoom', 'drag');
-        // this._environment.set('zoom', 'scroll');
+        this._environment.set('zoom', 'scroll');
+        // this._environment.set('zoom', 'drag');
     }
 
     get window() {
@@ -215,7 +215,6 @@ host.BrowserHost = class {
             return;
         }
 
-        this._view.show('welcome');
         const openFileButton = this.document.getElementById('open-file-button');
         const openFileDialog = this.document.getElementById('open-file-dialog');
         if (openFileButton && openFileDialog) {
@@ -257,6 +256,8 @@ host.BrowserHost = class {
                 }
             }
         });
+
+        this._view.show('welcome');
     }
 
     environment(name) {
