@@ -341,8 +341,8 @@ view.View = class {
 
     _wheelHandler(e) {
         if (e.shiftKey || e.ctrlKey) {
-            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002);
-            this._updateZoom(this._zoom + delta, e);
+            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey ? 10 : 1);
+            this._updateZoom(this._zoom * Math.pow(2, delta), e);
             e.preventDefault();
         }
     }
