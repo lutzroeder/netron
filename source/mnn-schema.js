@@ -144,6 +144,7 @@ $root.MNN.Convolution3DCommon = class Convolution3DCommon {
         $.outputCount = reader.int32_(position, 16, 0);
         $.relu = reader.bool_(position, 18, false);
         $.relu6 = reader.bool_(position, 20, false);
+        $.group = reader.int32_(position, 22, 1);
         return $;
     }
 };
@@ -804,7 +805,8 @@ $root.MNN.UnaryOpOperation = {
     SIGMOID: 29,
     TANH: 30,
     HARDSWISH: 31,
-    GELU: 32
+    GELU: 32,
+    GELU_STANDARD: 33
 };
 
 $root.MNN.UnaryOp = class UnaryOp {
@@ -1072,6 +1074,7 @@ $root.MNN.LayerNorm = class LayerNorm {
         $.epsilon = reader.float32_(position, 6, 0);
         $.gamma = reader.typedArray(position, 8, Float32Array);
         $.beta = reader.typedArray(position, 10, Float32Array);
+        $.group = reader.int32_(position, 12, 1);
         return $;
     }
 };
