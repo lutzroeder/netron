@@ -55,6 +55,23 @@ dagre.layout = (graph, options) => {
             return prefix + id;
         };
 
+        const flat = (list) => {
+            if (Array.isArray(list) && list.every((item) => !Array.isArray(item))) {
+                return list;
+            }
+            const target = [];
+            for (const item of list) {
+                if (!Array.isArray(item)) {
+                    target.push(item);
+                    continue;
+                }
+                for (const entry of item) {
+                    target.push(entry);
+                }
+            }
+            return target;
+        };
+
         // Adds a dummy node to the graph and return v.
         const util_addDummyNode = (g, type, attrs, name) => {
             let v;
@@ -298,7 +315,7 @@ dagre.layout = (graph, options) => {
                 const state = buildState(g, weightFn || DEFAULT_WEIGHT_FN);
                 const results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
                 // Expand multi-edges
-                return results.map((e) => g.outEdges(e.v, e.w)).flat();
+                return flat(results.map((e) => g.outEdges(e.v, e.w)));
             }
             const fas = (g.graph().acyclicer === 'greedy' ? greedyFAS(g, weightFn(g)) : dfsFAS(g));
             for (const e of fas) {
@@ -1240,10 +1257,7 @@ dagre.layout = (graph, options) => {
                 const entries = resolveConflicts(barycenters, cg);
                 // expand subgraphs
                 for (const entry of entries) {
-                    entry.vs = entry.vs.map((v) => subgraphs[v] ? subgraphs[v].vs : v);
-                    if (Array.isArray(entry.vs) && entry.vs.length !== 1 || Array.isArray(entry.vs[0])) {
-                        entry.vs = entry.vs.flat();
-                    }
+                    entry.vs = flat(entry.vs.map((v) => subgraphs[v] ? subgraphs[v].vs : v));
                 }
                 const sort = (entries, biasRight) => {
                     const consumeUnsortable = (vs, unsortable, index) => {
@@ -1291,7 +1305,7 @@ dagre.layout = (graph, options) => {
                         weight += entry.weight;
                         vsIndex = consumeUnsortable(vs, unsortable, vsIndex);
                     }
-                    const result = { vs: vs.flat() };
+                    const result = { vs: flat(vs) };
                     if (weight) {
                         result.barycenter = sum / weight;
                         result.weight = weight;
@@ -1300,7 +1314,7 @@ dagre.layout = (graph, options) => {
                 };
                 const result = sort(entries, biasRight);
                 if (bl) {
-                    result.vs = [bl, result.vs, br].flat();
+                    result.vs = flat([bl, result.vs, br]);
                     if (g.predecessors(bl).length) {
                         const blPred = g.node(g.predecessors(bl)[0]);
                         const brPred = g.node(g.predecessors(br)[0]);
@@ -1360,7 +1374,7 @@ dagre.layout = (graph, options) => {
                 for (let i = 0; i < southLayer.length; i++) {
                     southPos[southLayer[i]] = i;
                 }
-                const southEntries = northLayer.map((v) => g.outEdges(v).map((e) => { return { pos: southPos[e.w], weight: g.edge(e).weight }; }).sort((a, b) => a.pos - b.pos)).flat();
+                const southEntries = flat(northLayer.map((v) => g.outEdges(v).map((e) => { return { pos: southPos[e.w], weight: g.edge(e).weight }; }).sort((a, b) => a.pos - b.pos)));
                 // Build the accumulator tree
                 let firstIndex = 1;
                 while (firstIndex < southLayer.length) {
