@@ -69,7 +69,6 @@ install() {
             fi
             ;;
         msys*)
-            [ ! -z "$(choco list --local-only --exacty --limit-output visualstudio2017-workload-vctools)" ] || $(choco install -yes visualstudio2017-workload-vctools) > /dev/null
             protoc_version=3.16.0
             protoc_dir="$(pwd)/third_party/bin/protobuf/v${protoc_version}"
             programfiles_x86_dir=$(env | grep "^ProgramFiles(x86)=" | cut -d '=' -f 2)
