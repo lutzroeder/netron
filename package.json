@@ -14,7 +14,7 @@
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
         "start": "[ -d node_modules ] || npm install && npx electron .",
-        "server": "python setup.py --quiet build && python -c 'import sys, os; sys.path.insert(0, os.path.join(\"dist\", \"lib\")); import netron; netron.main()' $@"
+        "server": "node ./publish/server.js"
     },
     "dependencies": {
         "electron-updater": "4.3.9"
