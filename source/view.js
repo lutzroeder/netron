@@ -54,8 +54,8 @@ view.View = class {
                     const browser = userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1 ? 'safari' : '';
                     const element = this._getElementById('graph');
                     element.addEventListener('scroll', (e) => this._scrollHandler(e));
-                    element.addEventListener('wheel', (e) => this._mouseWheelHandler(e));
-                    element.addEventListener('mousewheel', (e) => this._mouseWheelHandler(e));
+                    element.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
+                    // element.addEventListener('mousewheel', (e) => this._wheelHandler(e), { passive: false });
                     element.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
                     switch (browser) {
                         case 'safari':
@@ -285,47 +285,49 @@ view.View = class {
     }
 
     _mouseDownHandler(e) {
-        const document = this._host.document.documentElement;
-        document.style.cursor = 'grabbing';
-        const element = this._getElementById('graph');
-        this._mousePosition = {
-            left: element.scrollLeft,
-            top: element.scrollTop,
-            x: e.clientX,
-            y: e.clientY
-        };
-        e.stopImmediatePropagation();
-        const mouseMoveHandler = (e) => {
-            e.preventDefault();
+        if (e.buttons === 1) {
+            const document = this._host.document.documentElement;
+            document.style.cursor = 'grabbing';
+            const element = this._getElementById('graph');
+            this._mousePosition = {
+                left: element.scrollLeft,
+                top: element.scrollTop,
+                x: e.clientX,
+                y: e.clientY
+            };
             e.stopImmediatePropagation();
-            const dx = e.clientX - this._mousePosition.x;
-            const dy = e.clientY - this._mousePosition.y;
-            this._mousePosition.moved = dx * dx + dy * dy > 0;
-            if (this._mousePosition.moved) {
-                const element = this._getElementById('graph');
-                element.scrollTop = this._mousePosition.top - dy;
-                element.scrollLeft = this._mousePosition.left - dx;
-            }
-        };
-        const mouseUpHandler = () => {
-            document.style.cursor = null;
-            element.removeEventListener('mousemove', mouseMoveHandler);
-            element.removeEventListener('mouseup', mouseUpHandler);
-            element.removeEventListener('mouseleave', mouseUpHandler);
-            if (this._mousePosition.moved) {
+            const mouseMoveHandler = (e) => {
                 e.preventDefault();
                 e.stopImmediatePropagation();
-                delete this._mousePosition;
-                document.addEventListener('click', clickHandler, true);
-            }
-        };
-        const clickHandler = (e) => {
-            e.stopPropagation();
-            document.removeEventListener('click', clickHandler, true);
-        };
-        element.addEventListener('mousemove', mouseMoveHandler);
-        element.addEventListener('mouseup', mouseUpHandler);
-        element.addEventListener('mouseleave', mouseUpHandler);
+                const dx = e.clientX - this._mousePosition.x;
+                const dy = e.clientY - this._mousePosition.y;
+                this._mousePosition.moved = dx * dx + dy * dy > 0;
+                if (this._mousePosition.moved) {
+                    const element = this._getElementById('graph');
+                    element.scrollTop = this._mousePosition.top - dy;
+                    element.scrollLeft = this._mousePosition.left - dx;
+                }
+            };
+            const mouseUpHandler = () => {
+                document.style.cursor = null;
+                element.removeEventListener('mousemove', mouseMoveHandler);
+                element.removeEventListener('mouseup', mouseUpHandler);
+                element.removeEventListener('mouseleave', mouseUpHandler);
+                if (this._mousePosition.moved) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                    delete this._mousePosition;
+                    document.addEventListener('click', clickHandler, true);
+                }
+            };
+            const clickHandler = (e) => {
+                e.stopPropagation();
+                document.removeEventListener('click', clickHandler, true);
+            };
+            element.addEventListener('mousemove', mouseMoveHandler);
+            element.addEventListener('mouseup', mouseUpHandler);
+            element.addEventListener('mouseleave', mouseUpHandler);
+        }
     }
 
     _scrollHandler(e) {
@@ -337,9 +339,9 @@ view.View = class {
         }
     }
 
-    _mouseWheelHandler(e) {
+    _wheelHandler(e) {
         if (e.shiftKey || e.ctrlKey) {
-            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey ? 10 : 1);
+            const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002);
             this._updateZoom(this._zoom + delta, e);
             e.preventDefault();
         }
@@ -593,10 +595,10 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
-            const graphElement = this._getElementById('graph');
-            const canvasElement = this._getElementById('canvas');
-            while (canvasElement.lastChild) {
-                canvasElement.removeChild(canvasElement.lastChild);
+            const container = this._getElementById('graph');
+            const canvas = this._getElementById('canvas');
+            while (canvas.lastChild) {
+                canvas.removeChild(canvas.lastChild);
             }
             if (!graph) {
                 return Promise.resolve();
@@ -605,13 +607,13 @@ view.View = class {
                 switch (this._host.environment('zoom')) {
                     case 'scroll':
                         this._zoom = 1;
-                        canvasElement.style.position = 'static';
-                        canvasElement.style.margin = 'auto';
+                        canvas.style.position = 'static';
+                        canvas.style.margin = 'auto';
                         break;
                     case 'drag':
                         this._zoom = null;
-                        canvasElement.style.position = 'absolute';
-                        canvasElement.style.margin = '0';
+                        canvas.style.position = 'absolute';
+                        canvas.style.margin = '0px';
                         break;
                 }
 
@@ -736,27 +738,27 @@ view.View = class {
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
-                const backgroundElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                backgroundElement.setAttribute('id', 'background');
+                const background = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                background.setAttribute('id', 'background');
                 if (this._host.environment('zoom') === 'drag') {
-                    backgroundElement.setAttribute('width', '100%');
-                    backgroundElement.setAttribute('height', '100%');
+                    background.setAttribute('width', '100%');
+                    background.setAttribute('height', '100%');
                 }
-                backgroundElement.setAttribute('fill', 'none');
-                backgroundElement.setAttribute('pointer-events', 'all');
-                canvasElement.appendChild(backgroundElement);
+                background.setAttribute('fill', 'none');
+                background.setAttribute('pointer-events', 'all');
+                canvas.appendChild(background);
 
-                const originElement = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                originElement.setAttribute('id', 'origin');
-                canvasElement.appendChild(originElement);
+                const origin = this._host.document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                origin.setAttribute('id', 'origin');
+                canvas.appendChild(origin);
 
-                viewGraph.build(this._host.document, originElement);
+                viewGraph.build(this._host.document, origin);
 
                 switch (this._host.environment('zoom')) {
                     case 'drag': {
-                        this._zoom = new view.Zoom(canvasElement, 0.1, 1.4);
+                        this._zoom = new view.Zoom(canvas, 0.1, 1.4);
                         this._zoom.on('zoom', (sender, data) => {
-                            originElement.setAttribute('transform', data.transform.toString());
+                            origin.setAttribute('transform', data.transform.toString());
                         });
                         this._zoom.transform(view.Zoom.identity());
                         break;
@@ -771,9 +773,9 @@ view.View = class {
 
                     viewGraph.layout();
 
-                    const elements = Array.from(canvasElement.getElementsByClassName('graph-input') || []);
+                    const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
                     if (elements.length === 0) {
-                        const nodeElements = Array.from(canvasElement.getElementsByClassName('graph-node') || []);
+                        const nodeElements = Array.from(canvas.getElementsByClassName('graph-node') || []);
                         if (nodeElements.length > 0) {
                             elements.push(nodeElements[0]);
                         }
@@ -781,7 +783,7 @@ view.View = class {
 
                     switch (this._host.environment('zoom')) {
                         case 'drag': {
-                            const svgSize = canvasElement.getBoundingClientRect();
+                            const svgSize = canvas.getBoundingClientRect();
                             if (elements && elements.length > 0) {
                                 // Center view based on input elements
                                 const xs = [];
@@ -808,22 +810,22 @@ view.View = class {
                             break;
                         }
                         case 'scroll': {
-                            const size = canvasElement.getBBox();
+                            const size = canvas.getBBox();
                             const margin = 100;
                             const width = Math.ceil(margin + size.width + margin);
                             const height = Math.ceil(margin + size.height + margin);
-                            originElement.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
-                            backgroundElement.setAttribute('width', width);
-                            backgroundElement.setAttribute('height', height);
+                            origin.setAttribute('transform', 'translate(' + margin.toString() + ', ' + margin.toString() + ') scale(1)');
+                            background.setAttribute('width', width);
+                            background.setAttribute('height', height);
                             this._width = width;
                             this._height = height;
-                            this._zoom = 1;
                             delete this._scrollLeft;
                             delete this._scrollRight;
-                            canvasElement.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
-                            canvasElement.setAttribute('width', width);
-                            canvasElement.setAttribute('height', height);
+                            canvas.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+                            canvas.setAttribute('width', width);
+                            canvas.setAttribute('height', height);
 
+                            this._zoom = 1;
                             this._updateZoom(this._zoom);
 
                             if (elements && elements.length > 0) {
@@ -842,19 +844,19 @@ view.View = class {
                                     x = xs.reduce((a, b) => a + b, 0) / xs.length;
                                 }
                                 // const canvasRect = graphElement.getBoundingClientRect();
-                                const graphRect = graphElement.getBoundingClientRect();
+                                const graphRect = container.getBoundingClientRect();
                                 // const sx = (canvasRect.width / (this._showHorizontal ? 4 : 2)) - x;
                                 // const sy = (canvasRect.height / (this._showHorizontal ? 2 : 4)) - y;
-                                const left = (graphElement.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
-                                const top = (graphElement.scrollTop + y - graphRect.top) - (graphRect.height / 2);
-                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
+                                const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
+                                const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
+                                container.scrollTo({ left: left, top: top, behavior: 'auto' });
                             }
                             else {
-                                const canvasRect = graphElement.getBoundingClientRect();
-                                const graphRect = graphElement.getBoundingClientRect();
-                                const left = (graphElement.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
-                                const top = (graphElement.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
-                                graphElement.scrollTo({ left: left, top: top, behavior: 'auto' });
+                                const canvasRect = canvas.getBoundingClientRect();
+                                const graphRect = container.getBoundingClientRect();
+                                const left = (container.scrollLeft + (canvasRect.width / 2) - graphRect.left) - (graphRect.width / 2);
+                                const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
+                                container.scrollTo({ left: left, top: top, behavior: 'auto' });
                             }
                             break;
                         }
