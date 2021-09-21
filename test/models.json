@@ -1439,6 +1439,13 @@
   },
   {
     "type":   "coreml",
+    "target": "mobilenet_v2_not_working_netron.mlpackage.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7197761/mobilenet_v2_not_working_netron.mlpackage.zip",
+    "format": "Core ML Package v6",
+    "link":   "https://github.com/lutzroeder/netron/issues/812"
+  },
+  {
+    "type":   "coreml",
     "target": "MovieRecommender.mlmodel",
     "source": "https://raw.githubusercontent.com/anupamchugh/iowncode/master/CoreMLRecommender/CoreMLRecommender/MovieRecommender.mlmodel",
     "format": "Core ML v4",

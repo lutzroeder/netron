@@ -68,13 +68,13 @@ coreml.ModelFactory = class {
                     }
                     const weightPaths = new Set();
                     const walkProgram = (program) => {
-                        for (const pair of Object.entries(program.functions)) {
-                            const func = pair[1];
-                            for (const pair of Object.entries(func.block_specializations)) {
-                                const block = pair[1];
+                        for (const entry of Object.entries(program.functions)) {
+                            const func = entry[1];
+                            for (const entry of Object.entries(func.block_specializations)) {
+                                const block = entry[1];
                                 for (const operation of block.operations) {
-                                    for (const pair of Object.entries(operation.attributes)) {
-                                        const value = pair[1];
+                                    for (const entry of Object.entries(operation.attributes)) {
+                                        const value = entry[1];
                                         if (value.blobFileValue && value.blobFileValue.fileName) {
                                             weightPaths.add(value.blobFileValue.fileName);
                                         }
@@ -616,13 +616,16 @@ coreml.Graph = class {
                         case 'floats':
                             values = tensor.floats.values;
                             break;
+                        case 'bytes':
+                            values = tensor.bytes.values;
+                            break;
                         default:
                             throw new coreml.Error("Unsupported tensor value '" + tensor.value + "'.");
                     }
                     return values;
                 }
                 case 'blobFileValue': {
-                    const type = coreml.Utility.type(value.type);
+                    const type = coreml.Utility.valueType(value.type);
                     const blob = value.blobFileValue;
                     const offset = blob.offset.toNumber();
                     const file = blob.fileName;
@@ -642,6 +645,10 @@ coreml.Graph = class {
                                 case 'float32': {
                                     const buffer = stream.read(size);
                                     data = new Float32Array(buffer.buffer, buffer.byteOffset, length).slice();
+                                    break;
+                                }
+                                case 'float16': {
+                                    data = stream.read(size);
                                     break;
                                 }
                                 default:
@@ -668,11 +675,14 @@ coreml.Graph = class {
                 type: op.type,
                 attributes: {}
             };
-            for (const key of Object.keys(op.attributes)) {
-                operation.attributes[key] = convertValue(op.attributes[key]);
+            for (const entry of Object.entries(op.attributes)) {
+                const key = entry[0];
+                const value = entry[1];
+                operation.attributes[key] = convertValue(value);
             }
-            operation.inputs = Object.keys(op.inputs).map((key) => {
-                const input = op.inputs[key];
+            operation.inputs = Object.entries(op.inputs).map((entry) => {
+                const key = entry[0];
+                const input = entry[1];
                 const args = input.arguments.map((argument) => {
                     if (argument.name) {
                         const value = arg(argument.name);
@@ -688,7 +698,7 @@ coreml.Graph = class {
             });
             operation.outputs = op.outputs.map((output) => {
                 const value = arg(output.name);
-                value.type = coreml.Utility.type(output.type);
+                value.type = coreml.Utility.valueType(output.type);
                 value.from.push(operation);
                 return {
                     name: 'output',
@@ -703,7 +713,16 @@ coreml.Graph = class {
                 op.outputs.length === 1 && op.outputs[0].arguments.length === 1) {
                 const argument = op.outputs[0].arguments[0];
                 if (op.attributes && op.attributes.val) {
-                    argument.value = op.attributes.val;
+                    const type = argument.type;
+                    const data = op.attributes.val;
+                    if (data instanceof Uint8Array && data.length === 2 &&
+                        type.dataType === 'float16' && type.shape.dimensions.length === 0) {
+                        const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+                        argument.value = view.getFloat16(0, true);
+                    }
+                    else {
+                        argument.value = data;
+                    }
                     op.delete = true;
                 }
             }
@@ -1301,6 +1320,17 @@ coreml.TensorShape = class {
     }
 };
 
+coreml.ListType = class {
+
+    constructor(elementType) {
+        this._elementType = elementType;
+    }
+
+    toString() {
+        return 'list<' + this._elementType.toString() + '>';
+    }
+};
+
 coreml.MapType = class {
 
     constructor(keyType, valueType) {
@@ -1458,17 +1488,7 @@ coreml.Utility = class {
         return result;
     }
 
-    static type(type) {
-        switch (type.type) {
-            case 'tensorType':
-                type = type.tensorType;
-                break;
-            case 'listType':
-                type = type.listType;
-                break;
-            default:
-                throw new coreml.Error("Unsupported value type '" + type.type + "'.");
-        }
+    static tensorType(type) {
         if (!coreml.Utility._dataTypes) {
             coreml.Utility._dataTypes = new Map();
             const DataType = coreml.proto.MILSpec.DataType;
@@ -1486,6 +1506,17 @@ coreml.Utility = class {
             throw new coreml.Error("Unsupported data type '" + type.dataType + "'.");
         }
         return new coreml.TensorType(dataType, new coreml.TensorShape(shape));
+    }
+
+    static valueType(type) {
+        switch (type.type) {
+            case 'tensorType':
+                return coreml.Utility.tensorType(type.tensorType);
+            case 'listType':
+                return new coreml.ListType(coreml.Utility.tensorType(type.listType.tensorType));
+            default:
+                throw new coreml.Error("Unsupported value type '" + type.type + "'.");
+        }
     }
 };
 
