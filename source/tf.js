@@ -1225,6 +1225,10 @@ tf.Tensor = class {
                 case DataType.DT_UINT32:
                 case DataType.DT_INT64:
                 case DataType.DT_UINT64:
+                    if (!this._buffer || this._buffer.length === 0) {
+                        context.state = 'Tensor has content.';
+                        return context;
+                    }
                     context.rawData = new DataView(this._buffer.buffer, this._buffer.byteOffset, this._buffer.byteLength);
                     break;
             }
