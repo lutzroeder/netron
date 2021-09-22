@@ -5646,6 +5646,13 @@
   },
   {
     "type":   "tfjs",
+    "target": "test_concat_const_string_tfjs.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7207228/test_concat_const_string_tfjs.zip",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/lutzroeder/netron/issues/294"
+  },
+  {
+    "type":   "tfjs",
     "target": "yamnet.tar",
     "source": "https://tfhub.dev/google/tfjs-model/yamnet/tfjs/1?tfjs-format=compressed",
     "format": "TensorFlow.js graph-model",
