@@ -92,11 +92,11 @@ hdf5.Group = class {
         if (this._groups.has(path)) {
             return this._groups.get(path);
         }
-        const split = path.split('/', 2);
-        if (split.length > 1) {
-            const group = this.group(split[0]);
+        const index = path.indexOf('/');
+        if (index !== -1) {
+            const group = this.group(path.substring(0, index));
             if (group) {
-                return group.group(split[1]);
+                return group.group(path.substring(index + 1));
             }
         }
         return null;
@@ -1237,8 +1237,8 @@ hdf5.ObjectHeaderContinuation = class {
 hdf5.SymbolTable = class {
 
     constructor(reader) {
-        this._treeAddress = reader.offset();
-        this._heapAddress = reader.offset();
+        this.treeAddress = reader.offset(); // hdf5.Tree pointer
+        this.heapAddress = reader.offset(); // hdf5.Heap pointer
     }
 };
 
