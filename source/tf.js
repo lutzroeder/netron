@@ -4,6 +4,7 @@
 
 var tf = tf || {};
 var base = base || require('./base');
+var gzip = gzip || require('./gzip');
 var json = json || require('./json');
 var protobuf = protobuf || require('./protobuf');
 
@@ -173,9 +174,11 @@ tf.ModelFactory = class {
             }
         }
         if (extension === 'json') {
-            const obj = context.open('json');
-            if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
-                return 'tf.json';
+            for (const type of [ 'json', 'json.gz' ]) {
+                const obj = context.open(type);
+                if (obj && obj.modelTopology && (obj.format === 'graph-model' || Array.isArray(obj.modelTopology.node))) {
+                    return 'tf.' + type;
+                }
             }
         }
         if (extension === 'index' || extension === 'ckpt') {
@@ -338,9 +341,9 @@ tf.ModelFactory = class {
                 }
                 return openSavedModel(saved_model, format, producer);
             };
-            const openJson = (context) => {
+            const openJson = (context, type) => {
                 try {
-                    const obj = context.open('json');
+                    const obj = context.open(type);
                     const format = 'TensorFlow.js ' + (obj.format || 'graph-model');
                     const producer = obj.convertedBy || obj.generatedBy || '';
                     const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
@@ -399,7 +402,28 @@ tf.ModelFactory = class {
                     };
                     return Promise.all(shards.values()).then((streams) => {
                         for (const key of shards.keys()) {
-                            shards.set(key, streams.shift().peek());
+                            const stream = streams.shift();
+                            const buffer = stream.peek();
+                            shards.set(key, buffer);
+                        }
+                        if (type === 'json.gz') {
+                            try {
+                                for (const key of shards.keys()) {
+                                    const stream = shards.get(key);
+                                    const archive = gzip.Archive.open(stream);
+                                    if (archive) {
+                                        const entries = archive.entries;
+                                        if (entries.size === 1) {
+                                            const stream = entries.values().next().value;
+                                            const buffer = stream.peek();
+                                            shards.set(key, buffer);
+                                        }
+                                    }
+                                }
+                            }
+                            catch (error) {
+                                // continue regardless of error
+                            }
                         }
                         return openShards(shards);
                     }).catch(() => {
@@ -528,7 +552,9 @@ tf.ModelFactory = class {
                 case 'tf.events':
                     return openEventFile(context);
                 case 'tf.json':
-                    return openJson(context);
+                    return openJson(context, 'json');
+                case 'tf.json.gz':
+                    return openJson(context, 'json.gz');
                 case 'tf.pbtxt.GraphDef':
                     return openTextGraphDef(context);
                 case 'tf.pbtxt.MetaGraphDef':

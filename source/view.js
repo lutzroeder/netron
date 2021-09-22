@@ -1363,6 +1363,26 @@ view.ModelContext = class {
                         }
                         break;
                     }
+                    case 'json.gz': {
+                        try {
+                            const archive = gzip.Archive.open(stream);
+                            if (archive) {
+                                const entries = archive.entries;
+                                if (entries.size === 1) {
+                                    const stream = entries.values().next().value;
+                                    const reader = json.TextReader.open(stream);
+                                    if (reader) {
+                                        const obj = reader.read();
+                                        this._content.set(type, obj);
+                                    }
+                                }
+                            }
+                        }
+                        catch (err) {
+                            // continue regardless of error
+                        }
+                        break;
+                    }
                     case 'pkl': {
                         let unpickler = null;
                         try {
@@ -1595,8 +1615,8 @@ view.ModelFactoryService = class {
                     if (archive) {
                         const entries = archive.entries;
                         containers.set('gzip', entries);
-                        if (archive.entries.size === 1) {
-                            stream = archive.entries.values().next().value;
+                        if (entries.size === 1) {
+                            stream = entries.values().next().value;
                         }
                     }
                 }

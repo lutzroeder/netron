@@ -5618,6 +5618,13 @@
   },
   {
     "type":   "tfjs",
+    "target": "posenet_mobilenet_float_075_1_default_1.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7204409/posenet_mobilenet_float_075_1_default_1.zip",
+    "format": "TensorFlow.js graph-model",
+    "link":   "https://github.com/lutzroeder/netron/issues/294"
+  },
+  {
+    "type":   "tfjs",
     "target": "sentiment_cnn_v1/model.json",
     "source": "https://github.com/lutzroeder/netron/files/3361046/sentiment_cnn_v1.zip[model.json]",
     "format": "TensorFlow.js Keras v2.1.4",
