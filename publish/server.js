@@ -4,7 +4,9 @@ const path = require('path');
 
 const options = { stdio: 'inherit' };
 
-child_process.spawnSync('python', [ 'setup.py', '--quiet', 'build' ], options);
+const setupPath = path.join('publish', 'setup.py');
+
+child_process.spawnSync('python', [ setupPath, '--quiet', 'build' ], options);
 
 options.env = Object.assign({}, process.env);
 options.env.PYTHONPATH = path.join('dist', 'lib');

@@ -37,7 +37,7 @@ update: install
 
 build_python: install
 	python -m pip install --user wheel
-	python ./setup.py build --version bdist_wheel
+	python ./publish/setup.py build --version bdist_wheel
 
 install_python: build_python
 	pip install --force-reinstall --quiet dist/dist/*.whl

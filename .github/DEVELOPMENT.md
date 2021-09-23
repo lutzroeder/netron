@@ -22,8 +22,7 @@ To build and launch the Python server run:
 ```bash
 git clone https://github.com/lutzroeder/netron.git
 cd netron
-python setup.py build
+python publish/setup.py build
 export PYTHONPATH=dist/lib:${PYTHONPATH}
 python -c "import netron; netron.start()"
 ```
-
