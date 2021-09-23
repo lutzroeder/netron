@@ -3383,14 +3383,18 @@ pytorch.Utility = class {
             if (obj && Object(obj) === obj) {
                 const integer = new Set([ 'epoch', 'i_batch', 'num_vid', 'seen' ]);
                 const target = {};
-                for (const key of Object.keys(obj)) {
-                    const value = obj[key];
+                for (const entry of Object.entries(obj)) {
+                    const key = entry[0];
+                    const value = entry[1];
                     if (key.indexOf('optim') !== -1 || key.indexOf('opt') !== -1) {
                         if (value === null || (value.state && value.param_groups)) {
                             continue;
                         }
                     }
                     if (key.indexOf('loss') !== -1 && Array.isArray(value)) {
+                        continue;
+                    }
+                    if (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) {
                         continue;
                     }
                     if (integer.has(key) && Number.isInteger(value)) {
@@ -3470,9 +3474,9 @@ pytorch.Utility = class {
         else if (obj instanceof Map && validate(obj)) {
             map.set('', flatten(obj));
         }
-        else if (Object(obj) === obj && Object.keys(obj).every((key) => validate(obj[key]))) {
-            for (const key of Object.keys(obj)) {
-                map.set(key, obj[key]);
+        else if (Object(obj) === obj && Object.entries(obj).every((entry) => validate(entry[1]))) {
+            for (const entry of Object.entries(obj)) {
+                map.set(entry[0], entry[1]);
             }
         }
         else if (Object(obj) === obj && Object.keys(obj).every((key) => pytorch.Utility.isTensor(obj[key]))) {
