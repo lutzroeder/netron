@@ -1989,6 +1989,7 @@ $root.tensorflow.FullTypeId = {
     "TFT_OPTIONAL": 1002,
     "TFT_LITERAL": 1003,
     "TFT_DATASET": 10102,
+    "TFT_MUTEX_LOCK": 10202,
     "TFT_BOOL": 200,
     "TFT_UINT8": 201,
     "TFT_UINT16": 202,
