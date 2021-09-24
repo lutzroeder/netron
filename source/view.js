@@ -310,10 +310,10 @@ view.View = class {
             };
             const mouseUpHandler = () => {
                 document.style.cursor = null;
-                element.removeEventListener('mousemove', mouseMoveHandler);
                 element.removeEventListener('mouseup', mouseUpHandler);
                 element.removeEventListener('mouseleave', mouseUpHandler);
-                if (this._mousePosition.moved) {
+                element.removeEventListener('mousemove', mouseMoveHandler);
+                if (this._mousePosition && this._mousePosition.moved) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
                     delete this._mousePosition;
