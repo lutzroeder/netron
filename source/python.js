@@ -2566,7 +2566,6 @@ python.Execution = class {
                 }
                 const obj = {};
                 obj.__proto__ = target;
-                obj.__class__ = target;
                 if (obj.__init__ && typeof obj.__init__ === 'function') {
                     obj.__init__.apply(obj, args);
                 }

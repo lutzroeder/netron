@@ -2478,7 +2478,28 @@ pytorch.Container.Zip = class {
                 }
             }
             if (this.format.startsWith('TorchScript ')) {
-                this._type = 'script';
+                if (this._torchscriptArena || this._data.forward) {
+                    this._type = 'script';
+                }
+                else {
+                    if (!Object.entries(this._data).every((entry) => entry[0].indexOf('|') !== -1 && pytorch.Utility.isTensor(entry[1]))) {
+                        throw new pytorch.Error('File does not contain forward function or state dictionary.');
+                    }
+                    const layers = new Map();
+                    for (const entry of Object.entries(this._data)) {
+                        const key = entry[0].split('|');
+                        const value = entry[1];
+                        const parameterName = key.pop();
+                        const name = key.join('|');
+                        if (!layers.has(name)) {
+                            layers.set(name, { name: name, states: [] });
+                        }
+                        const layer = layers.get(name);
+                        layer.states.push({ name: parameterName, arguments: [ { id: '', value: value } ] });
+                    }
+                    this._type = 'weights';
+                    this._data = [ { layers: layers.values() } ];
+                }
             }
             else {
                 const obj = this._data;
