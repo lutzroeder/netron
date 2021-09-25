@@ -1027,7 +1027,7 @@ sidebar.DocumentationSidebar = class {
                 this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
             }
 
-            if (!this._host.browser) {
+            if (!this._host.type !== 'Electron') {
                 element.addEventListener('click', (e) => {
                     if (e.target && e.target.href) {
                         const link = e.target.href;

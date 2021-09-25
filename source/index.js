@@ -9,6 +9,7 @@ host.BrowserHost = class {
     constructor() {
         this._document = window.document;
         this._window = window;
+        this._navigator = navigator;
         if (this._window.location.hostname.endsWith('.github.io')) {
             this._window.location.replace('https://netron.app');
         }
@@ -46,8 +47,12 @@ host.BrowserHost = class {
         return this._type;
     }
 
-    get browser() {
-        return true;
+    get agent() {
+        const userAgent = this._navigator.userAgent.toLowerCase();
+        if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1) {
+            return 'safari';
+        }
+        return 'any';
     }
 
     initialize(view) {

@@ -302,10 +302,6 @@ class HTMLElement {
         return this._attributes.get(name);
     }
 
-    getBBox() {
-        return { x: 0, y: 0, width: 10, height: 10 };
-    }
-
     getElementsByClassName(name) {
         const elements = [];
         for (const node of this._childNodes) {
@@ -328,6 +324,20 @@ class HTMLElement {
 
     get classList() {
         return new DOMTokenList(this);
+    }
+
+    getBBox() {
+        return { x: 0, y: 0, width: 10, height: 10 };
+    }
+
+    getBoundingClientRect() {
+        return { left: 0, top: 0, wigth: 0, height: 0 };
+    }
+
+    scrollTo() {
+    }
+
+    focus() {
     }
 }
 

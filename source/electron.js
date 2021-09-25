@@ -49,8 +49,8 @@ host.ElectronHost = class {
         return 'Electron';
     }
 
-    get browser() {
-        return false;
+    get agent() {
+        return 'any';
     }
 
     initialize(view) {
