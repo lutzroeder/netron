@@ -7769,6 +7769,42 @@
     ]
   },
   {
+    "name": "CollectiveAllToAllV3",
+    "summary": "Mutually exchanges multiple tensors of identical type and shape.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
+      },
+      {
+        "name": "timeout_seconds",
+        "type": "float32",
+        "default": 0.0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "communicator",
+        "type": 20
+      },
+      {
+        "name": "group_assignment",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
     "name": "CollectiveBcastRecv",
     "summary": "Receives a tensor value broadcast from another device.",
     "attributes": [
@@ -8065,6 +8101,42 @@
     ]
   },
   {
+    "name": "CollectiveInitializeCommunicator",
+    "summary": "Initializes a group for collective operations.",
+    "attributes": [
+      {
+        "name": "communication_hint",
+        "type": "string",
+        "default": "auto"
+      },
+      {
+        "name": "timeout_seconds",
+        "type": "float32",
+        "default": 0.0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "group_key",
+        "type": 3
+      },
+      {
+        "name": "rank",
+        "type": 3
+      },
+      {
+        "name": "group_size",
+        "type": 3
+      }
+    ],
+    "outputs": [
+      {
+        "name": "communicator",
+        "type": 20
+      }
+    ]
+  },
+  {
     "name": "CollectivePermute",
     "summary": "An Op to permute tensors across replicated TPU instances.",
     "description": "Each instance supplies its own input.\n\nFor example, suppose there are 4 TPU instances: `[A, B, C, D]`. Passing\nsource_target_pairs=`[[0,1],[1,2],[2,3],[3,0]]` gets the outputs:\n`[D, A, B, C]`.",
@@ -8221,6 +8293,47 @@
         "name": "ordering_token",
         "numberAttr": "Nordering_token",
         "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "data",
+        "typeAttr": "T"
+      }
+    ]
+  },
+  {
+    "name": "CollectiveReduceV3",
+    "summary": "Mutually reduces multiple tensors of identical type and shape.",
+    "attributes": [
+      {
+        "name": "T",
+        "type": "type",
+        "description": "Must be one of the following: `bfloat16`, `float32`, `float16`, `float64`, `int32`, `int64`."
+      },
+      {
+        "name": "reduction",
+        "type": "string",
+        "description": "Must be one of the following: `Min`, `Max`, `Mul`, `Add`."
+      },
+      {
+        "name": "timeout_seconds",
+        "type": "float32",
+        "default": 0.0
+      }
+    ],
+    "inputs": [
+      {
+        "name": "input",
+        "typeAttr": "T"
+      },
+      {
+        "name": "communicator",
+        "type": 20
+      },
+      {
+        "name": "group_assignment",
+        "type": 3
       }
     ],
     "outputs": [
