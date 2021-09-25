@@ -6,7 +6,7 @@
         "email": "lutzroeder@users.noreply.github.com",
         "url": "https://www.lutzroeder.com"
     },
-    "version": "5.2.4",
+    "version": "5.2.5",
     "description": "Visualizer for neural network, deep learning, and machine learning models",
     "license": "MIT",
     "repository": "lutzroeder/netron",
@@ -38,12 +38,32 @@
             "sourceType": "module"
         },
         "rules": {
-            "brace-style": [ "error", "stroustrup", { "allowSingleLine": true } ],
-            "indent": [ "error", 4, { "SwitchCase": 1 } ],
+            "brace-style": [
+                "error",
+                "stroustrup",
+                {
+                    "allowSingleLine": true
+                }
+            ],
+            "indent": [
+                "error",
+                4,
+                {
+                    "SwitchCase": 1
+                }
+            ],
             "linebreak-style": "off",
             "no-trailing-spaces": "error",
-            "prefer-const": ["error", { "destructuring": "all" } ],
-            "semi": [ "error", "always" ]
+            "prefer-const": [
+                "error",
+                {
+                    "destructuring": "all"
+                }
+            ],
+            "semi": [
+                "error",
+                "always"
+            ]
         },
         "globals": {
             "flatbuffers": "readonly",
