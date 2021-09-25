@@ -219,7 +219,7 @@
       },
       {
         "default": true,
-        "description": "Determines how the calibrator is fitted when `cv` is not `'prefit'`.\nIgnored if `cv='prefit'`.\n\nIf `True`, the `base_estimator` is fitted using training data and\ncalibrated using testing data, for each `cv` fold. The final estimator\nis an ensemble of `n_cv` fitted classifer and calibrator pairs, where\n`n_cv` is the number of cross-validation folds. The output is the\naverage predicted probabilities of all pairs.\n\nIf `False`, `cv` is used to compute unbiased predictions, via\n:func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. At prediction time, the classifier used is the\n`base_estimator` trained on all the data.\nNote that this method is also internally implemented  in\n:mod:`sklearn.svm` estimators with the `probabilities=True` parameter.\n\n.. versionadded:: 0.24\n",
+        "description": "Determines how the calibrator is fitted when `cv` is not `'prefit'`.\nIgnored if `cv='prefit'`.\n\nIf `True`, the `base_estimator` is fitted using training data and\ncalibrated using testing data, for each `cv` fold. The final estimator\nis an ensemble of `n_cv` fitted classifier and calibrator pairs, where\n`n_cv` is the number of cross-validation folds. The output is the\naverage predicted probabilities of all pairs.\n\nIf `False`, `cv` is used to compute unbiased predictions, via\n:func:`~sklearn.model_selection.cross_val_predict`, which are then\nused for calibration. At prediction time, the classifier used is the\n`base_estimator` trained on all the data.\nNote that this method is also internally implemented  in\n:mod:`sklearn.svm` estimators with the `probabilities=True` parameter.\n\n.. versionadded:: 0.24\n",
         "name": "ensemble",
         "type": "boolean"
       }
@@ -262,6 +262,12 @@
       },
       {
         "name": "prefix_feature_names_out",
+        "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.0\n",
+        "type": "boolean",
+        "default": true
+      },
+      {
+        "name": "verbose_feature_names_out",
         "description": "If True, :meth:`get_feature_names_out` will prefix all feature names\nwith the name of the transformer that generated that feature.\nIf False, :meth:`get_feature_names_out` will not prefix any feature\nnames and will error if feature names are not unique.\n\n.. versionadded:: 1.0\n",
         "type": "boolean",
         "default": true
@@ -430,7 +436,7 @@
       },
       {
         "default": false,
-        "description": "If True, explicitely compute the weighted within-class covariance\nmatrix when solver is 'svd'. The matrix is always computed\nand stored for the other solvers.\n\n.. versionadded:: 0.17\n",
+        "description": "If True, explicitly compute the weighted within-class covariance\nmatrix when solver is 'svd'. The matrix is always computed\nand stored for the other solvers.\n\n.. versionadded:: 0.17\n",
         "name": "store_covariance",
         "type": "boolean"
       },
@@ -971,7 +977,7 @@
       },
       {
         "default": true,
-        "description": "If True, a copy of X will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If X is not an array of floating values;\n- If X is encoded as a CSR matrix;\n- If add_indicator=True.\n",
+        "description": "If True, a copy of `X` will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If `X` is not an array of floating values;\n- If `X` is encoded as a CSR matrix;\n- If `add_indicator=True`.\n",
         "name": "copy",
         "type": "boolean"
       },
