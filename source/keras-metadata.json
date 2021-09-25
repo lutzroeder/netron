@@ -3520,7 +3520,7 @@
     ],
     "inputs": [
       {
-        "description": "3D tensor with shape:\n`(batch_size, channels, steps)` if data_format='channels_first'\nor 5D tensor with shape:\n`(batch_size, steps, channels)` if data_format='channels_last'.",
+        "description": "3D tensor with shape:\n`(batch_size, channels, steps)` if data_format='channels_first'\nor 3D tensor with shape:\n`(batch_size, steps, channels)` if data_format='channels_last'.",
         "name": "input"
       }
     ],
