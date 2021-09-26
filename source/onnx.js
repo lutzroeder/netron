@@ -24,19 +24,22 @@ onnx.ModelFactory = class {
                     for (const pair of schema) {
                         const key = pair[0];
                         const inner = pair[1];
-                        if (tags[key] === undefined) {
+                        const value = tags[key];
+                        if (value === undefined) {
                             continue;
                         }
-                        else if (inner === false) {
+                        if (inner === false) {
                             return false;
                         }
                         if (Array.isArray(inner)) {
-                            const value = tags[key];
                             if (typeof value !== 'object' || !match(value, inner)) {
                                 return false;
                             }
                         }
-                        else if (inner !== tags[key]) {
+                        else if (inner !== value) {
+                            if (inner === 2 && !Array.isArray(value) && Object(value) === (value) && Object.keys(value).length === 0) {
+                                return true;
+                            }
                             return false;
                         }
                     }

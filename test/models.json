@@ -126,6 +126,13 @@
   },
   {
     "type":   "_",
+    "target": "universal_encoder_8k_spm.model.model",
+    "source": "https://github.com/lutzroeder/netron/files/7232403/universal_encoder_8k_spm.model.zip[universal_encoder_8k_spm.model]",
+    "error":  "Invalid file content. File contains sentencepiece.ModelProto data.",
+    "link":   "https://github.com/lutzroeder/netron/issues/748"
+  },
+  {
+    "type":   "_",
     "target": "zip_invalid_archive.zip",
     "source": "https://github.com/lutzroeder/netron/files/5468425/zip_invalid_archive.zip",
     "error":  "Unsupported file content (ff000000000000000000000000000000) for extension '.zip' in 'zip_invalid_archive.zip'.",

@@ -68,6 +68,9 @@ protobuf.BinaryReader = class {
                 if (length === undefined) {
                     return undefined;
                 }
+                if (length === 0) {
+                    // return 2;
+                }
                 const end = this.position + length;
                 if (end > max) {
                     return undefined;
