@@ -4663,12 +4663,14 @@
     "type":   "pytorch",
     "target": "resnet101.pt",
     "source": "https://github.com/lutzroeder/netron/files/6096666/resnet101_traced.pt.zip[resnet101_traced.pt]",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
     "type":   "pytorch",
     "target": "resnet101_traced.pt",
     "source": "https://github.com/lutzroeder/netron/files/6096671/shufflenet_v2_x1_0.pt.zip[shufflenet_v2_x1_0.pt]",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4708,6 +4710,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "rvm_mobilenetv3_fp16.torchscript",
+    "source": "https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm_mobilenetv3_fp16.torchscript",
+    "error":  "ValueError: not enough values to unpack (expected 2, actual 1) in 'rvm_mobilenetv3_fp16.torchscript'.",
+    "link":   "https://github.com/PeterL1n/RobustVideoMatting"
+  },
+  {
+    "type":   "pytorch",
     "target": "semantic_lstm_vehicle_model.pt",
     "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/semantic_lstm_vehicle_model.pt",
     "format": "TorchScript v1.1",
@@ -4724,6 +4733,7 @@
     "type":   "pytorch",
     "target": "shufflenet_v2_x1_0.zip.pth",
     "source": "https://github.com/lutzroeder/netron/files/6096673/shufflenet_v2_x1_0.zip.pth.zip[shufflenet_v2_x1_0.zip.pth]",
+    "format": "PyTorch v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/133"
   },
   {
@@ -4743,12 +4753,14 @@
     "type":   "pytorch",
     "target": "squeezenet1_1_traced.pt",
     "source": "https://github.com/lutzroeder/netron/files/6096661/squeezenet1_1_traced.pt.zip[squeezenet1_1_traced.pt]",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
     "type":   "pytorch",
     "target": "squeezenet1_1.pt",
     "source": "https://github.com/lutzroeder/netron/files/6096662/squeezenet1_1.pt.zip[squeezenet1_1.pt]",
+    "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/281"
   },
   {
@@ -4897,9 +4909,6 @@
     "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/728"
   },
-
-
-
   {
     "type":   "rknn",
     "target": "autopilot.rknn",

@@ -2042,11 +2042,9 @@
   {
     "name": "torch.reshape",
     "category": "Shape",
-    "attributes": [
-      { "name": "shape", "type": "int64[]" }
-    ],
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "shape", "type": "int64[]" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3658,6 +3656,19 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "optional": "true" },
+      { "name": "align_corners", "type": "boolean" },
+      { "name": "scales_factors", "type": "float32[]", "optional": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.upsample_bilinear2d:vec",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "output_size", "type": "int64[]", "optional": true },
       { "name": "align_corners", "type": "boolean" },
       { "name": "scale_factors", "type": "float32[]", "optional": true }
@@ -4084,12 +4095,10 @@
   {
     "name": "torch.split:Tensor",
     "category": "Tensor",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "split_size", "type": "int64" },
       { "name": "dim", "type": "int64" }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "outputs", "type": "Tensor[]" }
@@ -4098,12 +4107,10 @@
   {
     "name": "torch.split_with_sizes",
     "category": "Tensor",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "split_sizes", "type": "int64[]" },
       { "name": "dim", "type": "int64" }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "outputs", "type": "Tensor[]" }

@@ -1184,6 +1184,9 @@ pytorch.Execution = class extends python.Execution {
             }
             return value;
         });
+        this.registerFunction('bool', function(value) {
+            throw new pytorch.Error("Unknown bool expression '" + JSON.stringify(value) + "'.");
+        });
         this.registerFunction('int', function(value) {
             if (pytorch.Utility.isTensor(value)) {
                 const storage = value.storage();
@@ -2949,6 +2952,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.view':
                                             parameter.resize_(this.expression(args[1], context));
                                             break;
+                                        case 'torch.reshape':
+                                            parameter.resize_(this.expression(args[1], context));
+                                            break;
                                     }
                                 }
                                 parameter.__variable__ = this.variable();
@@ -3120,6 +3126,16 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 if (pytorch.Utility.isTensor(tensor) && Number.isInteger(size) && size < 10) {
                     tensor.resize_(Array.isArray(tensor.shape) && tensor.shape.length > size ? tensor.shape.slice(-size) : Array(size).fill(NaN));
                 }
+            }
+            // if bool(...):
+            //   ops.prim.RaiseException(torch.format(_1, dtype))
+            // else:
+            //   pass
+            if (statement.type === 'if' &&
+                pytorch.Utility.isCall(statement.condition, 'bool', 1) &&
+                statement.then.statements.length > 0 &&
+                pytorch.Utility.isCall(statement.then.statements.slice(-1).pop(), 'ops.prim.RaiseException', 1)) {
+                statement.condition = { type: 'id', value: 'False' };
             }
             // dim = torch.sub(torch.dim(input), 2)
             if (statement.type === '=' &&
