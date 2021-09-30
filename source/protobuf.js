@@ -609,11 +609,14 @@ protobuf.TextReader = class {
         let first = true;
         for (let i = 0; i < 0x100; i++) {
             const c = decoder.decode();
-            if (c === undefined || c === '\0') {
+            if (c === undefined) {
                 if (i === 0) {
                     return null;
                 }
                 break;
+            }
+            if (c === '\0') {
+                return null;
             }
             const whitespace = c === ' ' || c === '\n' || c === '\r' || c === '\t';
             if (c < ' ' && !whitespace) {
