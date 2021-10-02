@@ -850,6 +850,118 @@
     ]
   },
   {
+    "name": "AnonymousMutableDenseHashTable",
+    "summary": "Creates an empty anonymous mutable hash table that uses tensors as the backing store.",
+    "description": "This op creates a new anonymous mutable hash table (as a resource) everytime\nit is executed, with the specified dtype of its keys and values,\nreturning the resource handle. Each value must be a scalar.\nData can be inserted into the table using\nthe insert operations. It does not support the initialization operation.\n\nIt uses \"open addressing\" with quadratic reprobing to resolve\ncollisions.\n\nThe table is anonymous in the sense that it can only be\naccessed by the returned resource handle (e.g. it cannot be looked up\nby a name in a resource manager). The table will be automatically\ndeleted when all resource handles pointing to it are gone.",
+    "attributes": [
+      {
+        "name": "key_dtype",
+        "type": "type",
+        "description": "Type of the table keys."
+      },
+      {
+        "name": "value_dtype",
+        "type": "type",
+        "description": "Type of the table values."
+      },
+      {
+        "name": "value_shape",
+        "type": "shape",
+        "description": "The shape of each value.",
+        "default": {
+          "type": "shape",
+          "value": "?"
+        }
+      },
+      {
+        "name": "initial_num_buckets",
+        "type": "int64",
+        "description": "The initial number of hash table buckets. Must be a power\nto 2.",
+        "default": 131072
+      },
+      {
+        "name": "max_load_factor",
+        "type": "float32",
+        "description": "The maximum ratio between number of entries and number of\nbuckets before growing the table. Must be between 0 and 1.",
+        "default": 0.800000011920929
+      }
+    ],
+    "inputs": [
+      {
+        "name": "empty_key",
+        "description": "The key used to represent empty key buckets internally. Must not\nbe used in insert or lookup operations.",
+        "typeAttr": "key_dtype"
+      },
+      {
+        "name": "deleted_key",
+        "typeAttr": "key_dtype"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "table_handle",
+        "description": "The resource handle to the newly created hash-table resource.",
+        "type": 20
+      }
+    ]
+  },
+  {
+    "name": "AnonymousMutableHashTable",
+    "summary": "Creates an empty anonymous mutable hash table.",
+    "description": "This op creates a new anonymous mutable hash table (as a resource) everytime\nit is executed, with the specified dtype of its keys and values,\nreturning the resource handle. Each value must be a scalar.\nData can be inserted into the table using\nthe insert operations. It does not support the initialization operation.\nThe table is anonymous in the sense that it can only be\naccessed by the returned resource handle (e.g. it cannot be looked up\nby a name in a resource manager). The table will be automatically\ndeleted when all resource handles pointing to it are gone.",
+    "attributes": [
+      {
+        "name": "key_dtype",
+        "type": "type",
+        "description": "Type of the table keys."
+      },
+      {
+        "name": "value_dtype",
+        "type": "type",
+        "description": "Type of the table values."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "table_handle",
+        "description": "The resource handle to the newly created hash-table resource.",
+        "type": 20
+      }
+    ]
+  },
+  {
+    "name": "AnonymousMutableHashTableOfTensors",
+    "summary": "Creates an empty anonymous mutable hash table of vector values.",
+    "description": "This op creates a new anonymous mutable hash table (as a resource) everytime\nit is executed, with the specified dtype of its keys and values,\nreturning the resource handle. Each value must be a vector.\nData can be inserted into the table using\nthe insert operations. It does not support the initialization operation.\nThe table is anonymous in the sense that it can only be\naccessed by the returned resource handle (e.g. it cannot be looked up\nby a name in a resource manager). The table will be automatically\ndeleted when all resource handles pointing to it are gone.",
+    "attributes": [
+      {
+        "name": "key_dtype",
+        "type": "type",
+        "description": "Type of the table keys."
+      },
+      {
+        "name": "value_dtype",
+        "type": "type",
+        "description": "Type of the table values."
+      },
+      {
+        "name": "value_shape",
+        "type": "shape",
+        "default": {
+          "type": "shape",
+          "value": "?"
+        }
+      }
+    ],
+    "outputs": [
+      {
+        "name": "table_handle",
+        "description": "The resource handle to the newly created hash-table resource.",
+        "type": 20
+      }
+    ]
+  },
+  {
     "name": "AnonymousRandomSeedGenerator",
     "inputs": [
       {
@@ -45188,7 +45300,7 @@
   {
     "name": "SegmentSum",
     "summary": "Computes the sum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.segment_sum(c, tf.constant([0, 0, 1]))\n# ==> [[5, 5, 5, 5],\n#      [5, 6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nComputes a tensor such that\n\\\\(output_i = \\sum_j data_j\\\\) where sum is over `j` such\nthat `segment_ids[j] == i`.\n\nIf the sum is empty for a given segment ID `i`, `output[i] = 0`.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/SegmentSum.png\" alt>\n</div>\n\nFor example:\n\n```\nc = tf.constant([[1,2,3,4], [4, 3, 2, 1], [5,6,7,8]])\ntf.math.segment_sum(c, tf.constant([0, 0, 1]))\n# ==> [[5, 5, 5, 5],\n#      [5, 6, 7, 8]]\n```\n",
     "attributes": [
       {
         "name": "T",
@@ -58579,7 +58691,7 @@
   {
     "name": "UnsortedSegmentMax",
     "summary": "Computes the maximum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_max(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  3, 3, 4],\n#       [5,  6, 7, 8]]\n```\n",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to `tf.math.unsorted_segment_sum`,\nInstead of computing the sum over segments, it computes the maximum such that:\n\n\\\\(output_i = \\max_{j...} data[j...]\\\\) where max is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the maximum is empty for a given segment ID `i`, it outputs the smallest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::lowest()`.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.\n\n<div style=\"width:70%; margin:auto; margin-bottom:10px; margin-top:20px;\">\n<img style=\"width:100%\" src=\"https://www.tensorflow.org/images/UnsortedSegmentMax.png\" alt>\n</div>\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_max(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  3, 3, 4],\n#       [5,  6, 7, 8]]\n```\n",
     "attributes": [
       {
         "name": "T",
@@ -58627,7 +58739,7 @@
   {
     "name": "UnsortedSegmentMin",
     "summary": "Computes the minimum along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_min(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 1,  2, 2, 1],\n#       [5,  6, 7, 8]]\n```\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to `tf.math.unsorted_segment_sum`,\nInstead of computing the sum over segments, it computes the minimum such that:\n\n\\\\(output_i = \\min_{j...} data_[j...]\\\\) where min is over tuples `j...` such\nthat `segment_ids[j...] == i`.\n\nIf the minimum is empty for a given segment ID `i`, it outputs the largest\npossible value for the specific numeric type,\n`output[i] = numeric_limits<T>::max()`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_min(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 1,  2, 2, 1],\n#       [5,  6, 7, 8]]\n```\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
     "attributes": [
       {
         "name": "T",
@@ -58675,7 +58787,7 @@
   {
     "name": "UnsortedSegmentProd",
     "summary": "Computes the product along segments of a tensor.",
-    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to the unsorted segment sum operator found\n[(here)](../../../api_docs/python/math_ops.md#UnsortedSegmentSum).\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_prod(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  6, 6, 4],\n#       [5,  6, 7, 8]]\n```\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
+    "description": "Read\n[the section on segmentation](https://tensorflow.org/api_docs/python/tf/math#Segmentation)\nfor an explanation of segments.\n\nThis operator is similar to `tf.math.unsorted_segment_sum`,\nInstead of computing the sum over segments, it computes the product of all\nentries belonging to a segment such that:\n\n\\\\(output_i = \\prod_{j...} data[j...]\\\\) where the product is over tuples\n`j...` such that `segment_ids[j...] == i`.\n\nFor example:\n\n``` python\nc = tf.constant([[1,2,3,4], [5,6,7,8], [4,3,2,1]])\ntf.unsorted_segment_prod(c, tf.constant([0, 1, 0]), num_segments=2)\n# ==> [[ 4,  6, 6, 4],\n#       [5,  6, 7, 8]]\n```\n\nIf there is no entry for a given segment ID `i`, it outputs 1.\n\nIf the given segment ID `i` is negative, then the corresponding value is\ndropped, and will not be included in the result.",
     "attributes": [
       {
         "name": "T",
