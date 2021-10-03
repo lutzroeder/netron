@@ -62,16 +62,18 @@ fileAssociations:
     ext: tfl
   - name: "Tengine"
     ext: tmfile
-  - name: "UFF Model"
-    ext: uff
   - name: "PaddlePaddle"
     ext: paddle
   - name: "PaddlePaddle"
     ext: pdmodel
   - name: "PaddlePaddle"
     ext: pdparams
+  - name: "Paddle Lite"
+    ext: nb
   - name: "RKNN"
     ext: rknn
+  - name: "UFF Model"
+    ext: uff
   - name: "xmodel"
     ext: xmodel
 afterSign: "./publish/notarize.js"

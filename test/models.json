@@ -2814,22 +2814,6 @@
     "link":   "https://github.com/lutzroeder/netron/issues/286"
   },
   {
-    "type":   "nb",
-    "target": "lite_naive_model_opt.nb.tar.gz",
-    "source": "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
-    "error":  "Invalid file content. File contains Paddle Lite naive buffer data.",
-    "format": "Paddle Lite",
-    "link":   "https://github.com/lutzroeder/netron/issues/797"
-  },
-  {
-    "type":   "nb",
-    "target": "mobilenet_v1_opt.nb.tar.gz",
-    "source": "https://github.com/lutzroeder/netron/files/7084157/mobilenet_v1_opt.nb.tar.gz",
-    "error":  "Invalid file content. File contains Paddle Lite naive buffer data.",
-    "format": "Paddle Lite",
-    "link":   "https://github.com/lutzroeder/netron/issues/797"
-  },
-  {
     "type":   "nnabla",
     "target": "tecogan_model.h5",
     "source": "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
@@ -4045,6 +4029,14 @@
   },
   {
     "type":   "paddle",
+    "target": "lite_naive_model_opt.nb.tar.gz",
+    "source": "https://github.com/lutzroeder/netron/files/7084134/lite_naive_model_opt.nb.tar.gz",
+    "error":  "Paddle Lite naive buffer format is deprecated in '__model__.nb'.",
+    "format": "Paddle Lite",
+    "link":   "https://github.com/lutzroeder/netron/issues/797"
+  },
+  {
+    "type":   "paddle",
     "target": "PyramidBox_WiderFace.tar.gz",
     "source": "http://paddlemodels.bj.bcebos.com/PyramidBox_WiderFace.tar.gz",
     "format": "PaddlePaddle",
@@ -4084,6 +4076,13 @@
     "source": "http://paddle-inference-dist.bj.bcebos.com/int8/resnet50_int8_model.tar.gz",
     "format": "PaddlePaddle",
     "link":   "https://github.com/lutzroeder/netron/issues/198"
+  },
+  {
+    "type":   "paddle",
+    "target": "squeezenet1.1.nb",
+    "source": "https://github.com/lutzroeder/netron/files/7272515/squeezenet1.1.nb.zip[squeezenet1.1.nb]",
+    "format": "Paddle Lite v2.9.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/797"
   },
   {
     "type":   "paddle",
