@@ -103,10 +103,10 @@ schema() {
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/onnx-proto.js ./source/onnx-proto.js
     fi
-    [[ $(grep -U $'\x0D' ./source/ort-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --root ort --out ./source/ort-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
+    [[ $(grep -U $'\x0D' ./source/onnx-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --root ort --out ./source/onnx-schema.js ./third_party/source/onnxruntime/core/flatbuffers/schema/ort.fbs
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./source/ort-schema.js ./source/ort-schema.js
+        unix2dos --quiet --newfile ./source/onnx-schema.js ./source/onnx-schema.js
     fi
 }
 

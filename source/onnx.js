@@ -222,7 +222,7 @@ onnx.ModelFactory = class {
                     }
                 });
             case 'onnx.flatbuffers': {
-                return context.require('./ort-schema').then((/* schema */) => {
+                return context.require('./onnx-schema').then((/* schema */) => {
                     try {
                         onnx.schema = flatbuffers.get('ort').onnxruntime.experimental.fbs;
                         const stream = context.stream;
