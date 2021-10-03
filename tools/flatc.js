@@ -42,6 +42,7 @@ flatc.Namespace = class extends flatc.Object {
     constructor(parent, name) {
         super(parent, name);
         this.children = new Map();
+        this.root_type = new Set();
     }
 
     resolve() {
@@ -49,13 +50,15 @@ flatc.Namespace = class extends flatc.Object {
             for (const child of this.children.values()) {
                 child.resolve();
             }
-            if (this.root_type) {
-                const type = this.find(this.root_type, flatc.Type);
-                if (!type) {
-                    throw new flatc.Error("Failed to resolve root type '" + this.root_type + "'.");
+            if (this.root_type.size > 0) {
+                for (const root_type of this.root_type) {
+                    const type = this.find(root_type, flatc.Type);
+                    if (!type) {
+                        throw new flatc.Error("Failed to resolve root type '" + root_type + "'.");
+                    }
+                    this.root.root_type.add(type);
                 }
-                this.root.root_type = type;
-                delete this.root_type;
+                this.root_type.clear();
             }
             super.resolve();
         }
@@ -401,7 +404,7 @@ flatc.Parser = class {
                 throw new flatc.Error("Unsupported keyword 'rpc_service'." + this._tokenizer.location());
             }
             if (this._tokenizer.eat('id', 'root_type')) {
-                this._context.root_type = this._tokenizer.identifier();
+                this._context.root_type.add(this._tokenizer.identifier());
                 this._tokenizer.eat(';');
                 continue;
             }
@@ -755,6 +758,7 @@ flatc.Root = class extends flatc.Object {
         super(null, root);
         this._namespaces = new Map();
         this._files = new Set();
+        this.root_type = new Set();
         for (const file of files) {
             this._parseFile(paths, file);
         }
@@ -887,7 +891,7 @@ flatc.Generator = class {
         this._builder.add(typeReference + ' = class ' + type.name + ' {');
         this._builder.indent();
 
-            if (type === this._root.root_type) {
+            if (this._root.root_type.has(type)) {
 
                 const file_identifier = this._root.file_identifier;
                 if (file_identifier) {
