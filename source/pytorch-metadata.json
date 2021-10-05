@@ -1134,11 +1134,9 @@
   {
     "name": "torch.adaptive_avg_pool1d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1147,11 +1145,9 @@
   {
     "name": "torch.adaptive_avg_pool2d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1160,11 +1156,9 @@
   {
     "name": "torch.adaptive_avg_pool3d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1173,11 +1167,9 @@
   {
     "name": "torch.adaptive_max_pool1d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
@@ -1187,11 +1179,9 @@
   {
     "name": "torch.adaptive_max_pool2d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
@@ -1201,11 +1191,9 @@
   {
     "name": "torch.adaptive_max_pool3d",
     "category": "Pool",
-    "attributes": [
-      { "name": "output_size", "type": "int64[]", "visible": false }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "output_size", "type": "int64[]", "visible": false }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" },
@@ -1213,18 +1201,52 @@
     ]
   },
   {
+    "name": "torch.atan",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.atan_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.arctan",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.arctan_",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.avg_pool1d",
     "category": "Pool",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "kernel_size", "type": "int64[]" },
       { "name": "stride", "type": "int64[]" },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "ceil_mode", "type": "boolean", "default": false },
       { "name": "count_include_pad", "type": "boolean", "default": true },
       { "name": "divisor_override" }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
