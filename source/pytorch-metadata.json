@@ -1309,6 +1309,30 @@
     ]
   },
   {
+    "name": "torch.gather:",
+    "inputs": [
+      { "name": "selm", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "sparse_grad", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.gather:dimname",
+    "inputs": [
+      { "name": "selm", "type": "Tensor" },
+      { "name": "dim", "type": "Dimname" },
+      { "name": "index", "type": "Tensor" },
+      { "name": "sparse_grad", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.group_norm",
     "category": "Normalization",
     "inputs": [
@@ -1318,6 +1342,16 @@
       { "name": "bias", "type": "Tensor", "optional": true },
       { "name": "eps", "type": "float32", "default": 0.00001 },
       { "name": "cudnn_enabled", "type": "boolean", "visible": true }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.relu",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1334,7 +1368,17 @@
     ]
   },
   {
-    "name": "torch.relu",
+    "name": "torch.relu6",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.relu6_",
     "category": "Activation",
     "inputs": [
       { "name": "self", "type": "Tensor" }
@@ -1445,13 +1489,11 @@
   {
     "name": "torch.threshold",
     "category": "Activation",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "threshold", "type": "float64", "default": 0 },
       { "name": "value", "type": "float64", "default": 0 },
       { "name": "inplace", "type": "boolean", "default": false }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -1460,13 +1502,21 @@
   {
     "name": "torch.threshold_",
     "category": "Activation",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "threshold", "type": "float64" },
       { "name": "value", "type": "float64" },
       { "name": "inplace", "type": "boolean" }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.tile",
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "dims", "type": "int64[]" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -2048,6 +2098,50 @@
       { "name": "non_blocking", "type": "boolean", "default": false },
       { "name": "copy", "type": "boolean", "default": false },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.clip:",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.clip:Tensor",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.clip_:",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "min", "type": "Scalar", "optional": true, "default": null },
+      { "name": "max", "type": "Scalar", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.clip_:Tensor",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "min", "type": "Tensor", "optional": true, "default": null },
+      { "name": "max", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
