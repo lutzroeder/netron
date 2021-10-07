@@ -3421,7 +3421,7 @@ python.Unpickler = class {
                 case OpCode.STOP:
                     return stack.pop();
                 default:
-                    throw new python.Error("Unknown opcode '" + opcode + "'.");
+                    throw new python.Error('Unknown opcode ' + opcode + ' at position ' + (reader.position - 1).toString() + '.');
             }
         }
         throw new python.Error('Unexpected end of file.');
