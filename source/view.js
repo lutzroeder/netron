@@ -1693,7 +1693,8 @@ view.ModelFactoryService = class {
                 const file_identifier = tags.get('file_identifier');
                 const formats = [
                     { name: 'onnxruntime.experimental.fbs.InferenceSession data', identifier: 'ORTM' },
-                    { name: 'tflite.Model data', identifier: 'TFL3' }
+                    { name: 'tflite.Model data', identifier: 'TFL3' },
+                    { name: 'FlatBuffers ENNC data', identifier: 'ENNC' },
                 ];
                 for (const format of formats) {
                     if (file_identifier === format.identifier) {
