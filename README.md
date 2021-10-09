@@ -15,7 +15,7 @@ Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, 
 
 **Linux**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.AppImage` file or run `snap install netron`
 
-**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install netron`
+**Windows**: [**Download**](https://github.com/lutzroeder/netron/releases/latest) the `.exe` installer or run `winget install -s winget netron`
 
 **Browser**: [**Start**](https://netron.app) the browser version.
 
