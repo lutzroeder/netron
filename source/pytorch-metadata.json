@@ -6120,5 +6120,15 @@
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
+  },
+  {
+    "name": "torch._dim_arange:",
+    "inputs": [
+      { "name": "like", "type": "Tensor" },
+      { "name": "dim", "type": "int64" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
   }
 ]
