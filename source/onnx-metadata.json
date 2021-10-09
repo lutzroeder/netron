@@ -5447,7 +5447,7 @@
       {
         "name": "W",
         "type": "T",
-        "description": "The weight tensor that will be used in the convolutions; has size (M x C/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C/group x k1 x k2 x ... x kn), where (k1 x k2 x ... kn) is the dimension of the kernel. Optionally, if dimension denotation is in effect, the operation expects the weight tensor to arrive with the dimension denotation of [FILTER_OUT_CHANNEL, FILTER_IN_CHANNEL, FILTER_SPATIAL, FILTER_SPATIAL ...]. X.shape[1] == (W.shape[1] * group) == C (assuming zero based indices for the shape array). Or in other words FILTER_IN_CHANNEL should be equal to DATA_CHANNEL. "
+        "description": "The weight tensor that will be used in the convolutions; has size (M x C/group x kH x kW), where C is the number of channels, and kH and kW are the height and width of the kernel, and M is the number of feature maps. For more than 2 dimensions, the kernel shape will be (M x C/group x k1 x k2 x ... x kn), where (k1 x k2 x ... kn) is the dimension of the kernel. Optionally, if dimension denotation is in effect, the operation expects the weight tensor to arrive with the dimension denotation of [FILTER_OUT_CHANNEL, FILTER_IN_CHANNEL, FILTER_SPATIAL, FILTER_SPATIAL ...]. Assuming zero based indices for the shape array, X.shape[1] == (W.shape[1] * group) == C and W.shape[0] mod G == 0. Or in other words FILTER_IN_CHANNEL multiplied by the number of groups should be equal to DATA_CHANNEL and the number of feature maps M should be a multiple of the number of groups G."
       },
       {
         "name": "B",
@@ -6372,7 +6372,7 @@
     "module": "ai.onnx",
     "version": 10,
     "support_level": "common",
-    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' must have same shape.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
+    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' are both scalars.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
     "inputs": [
       {
         "name": "x",
@@ -6430,14 +6430,14 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' must have same shape, and can be either a scalar\nfor per-tensor / per layer quantization, or a 1-D tensor for per-axis quantizations.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
+    "description": "The linear dequantization operator. It consumes a quantized tensor, a scale, and a zero point to compute the full precision tensor.\nThe dequantization formula is y = (x - x_zero_point) * x_scale. 'x_scale' and 'x_zero_point' must have same shape, and can be either a scalar\nfor per-tensor / per layer quantization, or a 1-D tensor for per-axis quantization.\n'x_zero_point' and 'x' must have same type. 'x' and 'y' must have same shape. In the case of dequantizing int32,\nthere's no zero point (zero point is supposed to be 0).\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input). If both x_scale and x_zero_point are scalars, axis is ignored."
+        "description": "(Optional) The axis of the dequantizing dimension of the input tensor. Ignored for per-tensor quantization. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)."
       }
     ],
     "inputs": [
@@ -6455,7 +6455,7 @@
         "name": "x_zero_point",
         "type": "T",
         "option": "optional",
-        "description": "Zero point for input 'x'. It can be a scalar, which means a per-tensor/layer dequantization, or a 1-D tensor for per-axis dequantization. It's optional. 0 is the default value when it's not specified."
+        "description": "Zero point for input 'x'. Shape must match x_scale. It's optional. Zero point is 0 when it's not specified."
       }
     ],
     "min_input": 2,
@@ -9714,7 +9714,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\n# print(y)\n# [0. 1. 0.]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -9802,7 +9802,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\n# print(y)\n# [0. 1. 0.]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -9891,7 +9891,7 @@
       },
       {
         "summary": "gather_negative_indices",
-        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
+        "code": "node = onnx.helper.make_node(\n    'Gather',\n    inputs=['data', 'indices'],\n    outputs=['y'],\n    axis=0,\n)\ndata = np.arange(10).astype(np.float32)\nindices = np.array([0, -9, -10])\ny = np.take(data, indices, axis=0)\n\n# print(y)\n# [0. 1. 0.]\n\nexpect(node, inputs=[data, indices.astype(np.int64)], outputs=[y],\n       name='test_gather_negative_indices')"
       }
     ],
     "category": "Transform"
@@ -13620,7 +13620,7 @@
         "name": "layout",
         "type": "int64",
         "required": false,
-        "description": "The shape format of inputs X, initial_h, initial_c and outputs Y, Y_h, Y_c. If 0, the following shapes are expected: X.shape = [seq_length, batch_size, input_size], Y.shape = [seq_length, num_directions, batch_size, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [num_directions, batch_size, hidden_size]. If 1, the following shapes are expected: X.shape = [batch_size, seq_length, input_size], Y.shape = [batch_size, seq_length, num_directions, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [num_directions, batch_size, hidden_size]."
+        "description": "The shape format of inputs X, initial_h, initial_c and outputs Y, Y_h, Y_c. If 0, the following shapes are expected: X.shape = [seq_length, batch_size, input_size], Y.shape = [seq_length, num_directions, batch_size, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [num_directions, batch_size, hidden_size]. If 1, the following shapes are expected: X.shape = [batch_size, seq_length, input_size], Y.shape = [batch_size, seq_length, num_directions, hidden_size], initial_h.shape = Y_h.shape = initial_c.shape = Y_c.shape = [batch_size, num_directions, hidden_size]."
       }
     ],
     "inputs": [
@@ -19208,7 +19208,7 @@
       },
       {
         "summary": "with_negative_indices",
-        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
+        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\n# print(y)\n# [[3. 1. 1. 1. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 1. 3. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 3. 1. 1. 1. 1. 1. 1. 1.]]\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
       },
       {
         "summary": "without_axis",
@@ -19327,7 +19327,7 @@
       },
       {
         "summary": "with_negative_indices",
-        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
+        "code": "axisValue = 1\non_value = 3\noff_value = 1\noutput_type = np.float32\nnode = onnx.helper.make_node(\n    'OneHot',\n    inputs=['indices', 'depth', 'values'],\n    outputs=['y'],\n    axis=axisValue\n)\nindices = np.array([0, -7, -8], dtype=np.int64)\n\n# print(y)\n# [[3. 1. 1. 1. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 1. 3. 1. 1. 1. 1. 1. 1.]\n#  [1. 1. 3. 1. 1. 1. 1. 1. 1. 1.]]\n\ndepth = np.array([10], dtype=np.float32)\nvalues = np.array([off_value, on_value], dtype=output_type)\ny = one_hot(indices, depth, axis=axisValue, dtype=output_type)\ny = y * (on_value - off_value) + off_value\nexpect(node, inputs=[indices, depth, values], outputs=[y], name='test_onehot_negative_indices')"
       },
       {
         "summary": "without_axis",
@@ -20987,14 +20987,14 @@
     "module": "ai.onnx",
     "version": 13,
     "support_level": "common",
-    "description": "The linear quantization operator. It consumes a high precision tensor, a scale, and a zero point to compute the low precision / quantized tensor. The scale factor can be a scalar\n(per-tensor/layer quantization), or a 1-D tensor for per-axis quantization. The quantization formula is y = saturate ((x / y_scale) + y_zero_point).\nFor saturation, it saturates to [0, 255] if it's uint8, or [-128, 127] if it's int8.\nFor (x / y_scale), it's rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. 'y_zero_point' and 'y' must have same type.\n",
+    "description": "The linear quantization operator. It consumes a high precision tensor, a scale, and a zero point to compute the low precision / quantized tensor.\nThe scale factor and zero point must have same shape, and can be either a scalar for per-tensor / per layer quantization, or a 1-D tensor for per-axis quantization.\nThe quantization formula is y = saturate ((x / y_scale) + y_zero_point).\nFor saturation, it saturates to [0, 255] if it's uint8, or [-128, 127] if it's int8.\nFor (x / y_scale), it's rounding to nearest ties to even. Refer to https://en.wikipedia.org/wiki/Rounding for details. 'y_zero_point' and 'y' must have same type.\n",
     "attributes": [
       {
         "name": "axis",
         "type": "int64",
         "required": false,
         "default": 1,
-        "description": "(Optional) The axis of the quantization dimension of the input tensor. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input). If both y_scale and y_zero_point are scalars, axis is ignored."
+        "description": "(Optional) The axis of the quantization dimension of the input tensor. Ignored for per-tensor quantization. Negative value means counting dimensions from the back. Accepted range is [-r, r-1] where r = rank(input)."
       }
     ],
     "inputs": [
@@ -21012,7 +21012,7 @@
         "name": "y_zero_point",
         "type": "T2",
         "option": "optional",
-        "description": "Zero point for doing quantization to get 'y'. It can be a scalar, which means a per-tensor/layer quantization, or a 1-D tensor for per-axis quantization. Default value is uint8 typed 0 if it's not specified."
+        "description": "Zero point for doing quantization to get 'y'. Shape must match y_scale. Default is uint8 with zero point of 0 if it's not specified."
       }
     ],
     "min_input": 2,
