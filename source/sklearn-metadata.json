@@ -915,7 +915,7 @@
       },
       {
         "default": true,
-        "description": "Enable inverse-document-frequency reweighting.\n",
+        "description": "Enable inverse-document-frequency reweighting. If False, idf(t) = 1.\n",
         "name": "use_idf",
         "type": "boolean"
       },
