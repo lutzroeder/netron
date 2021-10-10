@@ -498,8 +498,8 @@ grapher.Node.List = class {
         }
         this._height += 3;
 
-        if (this._width < 100) {
-            this._width = 100;
+        if (this._width < 75) {
+            this._width = 75;
         }
     }
 
