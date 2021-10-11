@@ -4867,6 +4867,15 @@
     ]
   },
   {
+    "name": "torch.inverse:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.col2im",
     "attributes": [
       { "name": "output_size", "type": "int64[]" },
