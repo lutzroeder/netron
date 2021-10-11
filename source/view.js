@@ -213,7 +213,7 @@ view.View = class {
         const limit = this._showHorizontal ?
             graph.clientWidth / this._width :
             graph.clientHeight / this._height;
-        const min = Math.min(Math.max(limit, 0.2), 1);
+        const min = Math.min(Math.max(limit, 0.15), 1);
         zoom = Math.max(min, Math.min(zoom, 1.4));
         const scrollLeft = this._scrollLeft || graph.scrollLeft;
         const scrollTop = this._scrollTop || graph.scrollTop;
@@ -493,7 +493,7 @@ view.View = class {
         return this._timeout(100).then(() => {
             if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
-                if (nodes.length > 1400) {
+                if (nodes.length > 2048) {
                     if (!this._host.confirm('Large model detected.', 'This graph contains a large number of nodes and might take a long time to render. Do you want to continue?')) {
                         this._host.event('Graph', 'Render', 'Skip', nodes.length);
                         this.show(null);
@@ -558,7 +558,7 @@ view.View = class {
                 this._host.event('Graph', 'Render', 'Size', nodes.length);
 
                 const options = {};
-                options.nodesep = 25;
+                options.nodesep = 20;
                 options.ranksep = 20;
                 const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
                 const showHorizontal = rotate ? !this._showHorizontal : this._showHorizontal;
@@ -990,6 +990,14 @@ view.Node = class extends grapher.Node {
         return 'graph-node';
     }
 
+    get inputs() {
+        return this.value.inputs;
+    }
+
+    get outputs() {
+        return this.value.outputs;
+    }
+
     _add(node) {
 
         const header =  this.header();
@@ -1121,6 +1129,14 @@ view.Input = class extends grapher.Node {
     get class() {
         return 'graph-input';
     }
+
+    get inputs() {
+        return [];
+    }
+
+    get outputs() {
+        return [ this.value ];
+    }
 };
 
 view.Output = class extends grapher.Node {
@@ -1136,6 +1152,14 @@ view.Output = class extends grapher.Node {
         }
         const header = this.header();
         header.add(null, [ 'graph-item-output' ], name, types, () => this.context.view.showModelProperties());
+    }
+
+    get inputs() {
+        return [ this.value ];
+    }
+
+    get outputs() {
+        return [];
     }
 };
 
@@ -1166,7 +1190,11 @@ view.Argument = class {
                 const to = this._to[i];
                 let text = '';
                 const type = this._argument.type;
-                if (type && type.shape && type.shape.dimensions && type.shape.dimensions.length > 0) {
+                if (type &&
+                    type.shape &&
+                    type.shape.dimensions &&
+                    type.shape.dimensions.length > 0 &&
+                    type.shape.dimensions.every((dim) => Number.isInteger(dim) || dim === '?')) {
                     text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
                 }
                 if (this.context.view.showNames) {
@@ -1175,7 +1203,9 @@ view.Argument = class {
                 const edge = this.context.createEdge(this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;
-                edge.label = text;
+                if (text) {
+                    edge.label = text;
+                }
                 edge.id = 'edge-' + this._argument.name;
                 if (this._controlDependencies && this._controlDependencies.has(i)) {
                     edge.class = 'edge-path-control-dependency';
@@ -1191,6 +1221,13 @@ view.Edge = class extends grapher.Edge {
 
     constructor(from, to) {
         super(from, to);
+    }
+
+    get minlen() {
+        if (this.from.inputs.every((parameter) => parameter.arguments.every((argument) => argument.initializer))) {
+            return 2;
+        }
+        return 1;
     }
 };
 
