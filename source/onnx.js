@@ -1114,7 +1114,7 @@ onnx.TensorShape = class {
         if (!this._dimensions || this._dimensions.length == 0) {
             return '';
         }
-        return '[' + this._dimensions.join(',') + ']';
+        return '[' + this._dimensions.map((dim) => dim ? dim.toString() : '?').join(',') + ']';
     }
 };
 
@@ -1493,7 +1493,7 @@ onnx.Utility = class {
                 const tensor_type = type.tensor_type;
                 let shape = [];
                 if (tensor_type.shape && tensor_type.shape.dim) {
-                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value);
+                    shape = tensor_type.shape.dim.map((dim) => dim.dim_param ? dim.dim_param : dim.dim_value ? dim.dim_value : null);
                 }
                 return new onnx.TensorType(tensor_type.elem_type, new onnx.TensorShape(shape), denotation);
             }
