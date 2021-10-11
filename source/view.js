@@ -565,7 +565,7 @@ view.View = class {
                 if (showHorizontal) {
                     options.rankdir = "LR";
                 }
-                if (nodes.length > 1500) {
+                if (nodes.length > 3000) {
                     options.ranker = 'longest-path';
                 }
 
