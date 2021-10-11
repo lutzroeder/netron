@@ -3249,6 +3249,12 @@ python.Unpickler = class {
                     }
                     break;
                 }
+                case OpCode.FROZENSET: {
+                    const items = stack;
+                    stack = marker.pop();
+                    stack.push(items);
+                    break;
+                }
                 case OpCode.DICT: {
                     const items = stack;
                     stack = marker.pop();
