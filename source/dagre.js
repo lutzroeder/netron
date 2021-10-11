@@ -36,7 +36,7 @@ dagre.layout = (graph, options) => {
         for (const e of graph.edges()) {
             const edge = graph.edge(e);
             g.setEdge(e, {
-                minlen: edge.minlin || 1,
+                minlen: edge.minlen || 1,
                 weight: edge.weight || 1,
                 width: edge.width || 0,
                 height: edge.height || 0,
@@ -124,14 +124,9 @@ dagre.layout = (graph, options) => {
             return layering;
         };
 
-        /*
-        * This idea comes from the Gansner paper: to account for edge labels in our
-        * layout we split each rank in half by doubling minlen and halving ranksep.
-        * Then we can place labels at these mid-points between nodes.
-        *
-        * We also add some minimal padding to the width to push the label for the edge
-        * away from the edge itself a bit.
-        */
+        // This idea comes from the Gansner paper: to account for edge labels in our layout we split each rank in half by doubling minlen and halving ranksep.
+        // Then we can place labels at these mid-points between nodes.
+        // We also add some minimal padding to the width to push the label for the edge away from the edge itself a bit.
         const makeSpaceForEdgeLabels = (g) => {
             const graph = g.graph();
             graph.ranksep /= 2;
@@ -235,13 +230,13 @@ dagre.layout = (graph, options) => {
             function greedyFAS(g, weightFn) {
                 const assignBucket = (buckets, zeroIdx, entry) => {
                     if (!entry.out) {
-                        buckets[0].enqueue(entry);
+                        buckets[0].push(entry);
                     }
                     else if (!entry['in']) {
-                        buckets[buckets.length - 1].enqueue(entry);
+                        buckets[buckets.length - 1].push(entry);
                     }
                     else {
-                        buckets[entry.out - entry['in'] + zeroIdx].enqueue(entry);
+                        buckets[entry.out - entry['in'] + zeroIdx].push(entry);
                     }
                 };
                 const buildState = (g, weightFn) => {
@@ -270,7 +265,7 @@ dagre.layout = (graph, options) => {
                 const doGreedyFAS = (g, buckets, zeroIdx) => {
                     const removeNode = (g, buckets, zeroIdx, entry, collectPredecessors) => {
                         const results = collectPredecessors ? [] : undefined;
-                        for (const edge of g.inEdges(entry.v)) {
+                        for (const edge of g.inEdges(entry.v) || []) {
                             const weight = g.edge(edge);
                             const uEntry = g.node(edge.v);
                             if (collectPredecessors) {
@@ -279,7 +274,7 @@ dagre.layout = (graph, options) => {
                             uEntry.out -= weight;
                             assignBucket(buckets, zeroIdx, uEntry);
                         }
-                        for (const edge of g.outEdges(entry.v)) {
+                        for (const edge of g.outEdges(entry.v) || []) {
                             const weight = g.edge(edge);
                             const w = edge.w;
                             const wEntry = g.node(w);
@@ -294,11 +289,15 @@ dagre.layout = (graph, options) => {
                     let results = [];
                     let entry;
                     while (g.nodeCount()) {
-                        while ((entry = sinks.dequeue()))   { removeNode(g, buckets, zeroIdx, entry); }
-                        while ((entry = sources.dequeue())) { removeNode(g, buckets, zeroIdx, entry); }
+                        while ((entry = sinks.shift())) {
+                            removeNode(g, buckets, zeroIdx, entry);
+                        }
+                        while ((entry = sources.shift())) {
+                            removeNode(g, buckets, zeroIdx, entry);
+                        }
                         if (g.nodeCount()) {
                             for (let i = buckets.length - 2; i > 0; --i) {
-                                entry = buckets[i].dequeue();
+                                entry = buckets[i].shift();
                                 if (entry) {
                                     results = results.concat(removeNode(g, buckets, zeroIdx, entry, true));
                                     break;
@@ -706,12 +705,8 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        /*
-        * Creates temporary dummy nodes that capture the rank in which each edge's
-        * label is going to, if it has one of non-zero width and height. We do this
-        * so that we can safely remove empty ranks while preserving balance for the
-        * label's position.
-        */
+        // Creates temporary dummy nodes that capture the rank in which each edge's label is going to, if it has one of non-zero width and height.
+        // We do this so that we can safely remove empty ranks while preserving balance for the label's position.
         const injectEdgeLabelProxies = (g) => {
             for (const e of g.edges()) {
                 const edge = g.edge(e);
@@ -726,28 +721,45 @@ dagre.layout = (graph, options) => {
 
         const removeEmptyRanks = (g) => {
             // Ranks may not start at 0, so we need to offset them
-            const layers = [];
             if (g.nodes().length > 0) {
-                const ranks = g.nodes().map((v) => g.node(v).rank).filter((rank) => rank != undefined);
-                const offset = Math.min(...ranks);
+                let minRank = Number.POSITIVE_INFINITY;
+                let maxRank = Number.NEGATIVE_INFINITY;
                 for (const v of g.nodes()) {
-                    const rank = g.node(v).rank - offset;
-                    if (!layers[rank]) {
-                        layers[rank] = [];
+                    const node = g.node(v);
+                    if (node.rank !== undefined) {
+                        if (node.rank < minRank) {
+                            minRank = node.rank;
+                        }
+                        if (node.rank > maxRank) {
+                            maxRank = node.rank;
+                        }
                     }
-                    layers[rank].push(v);
                 }
-            }
-            let delta = 0;
-            const nodeRankFactor = g.graph().nodeRankFactor;
-            for (let i = 0; i < layers.length; i++) {
-                const vs = layers[i];
-                if (vs === undefined && i % nodeRankFactor !== 0) {
-                    --delta;
-                }
-                else if (delta && vs) {
-                    for (const v of vs) {
-                        g.node(v).rank += delta;
+                const size = maxRank - minRank;
+                if (size > 0) {
+                    const layers = new Array(size);
+                    for (const v of g.nodes()) {
+                        const node = g.node(v);
+                        if (node.rank !== undefined) {
+                            const rank = node.rank - minRank;
+                            if (!layers[rank]) {
+                                layers[rank] = [];
+                            }
+                            layers[rank].push(v);
+                        }
+                    }
+                    let delta = 0;
+                    const nodeRankFactor = g.graph().nodeRankFactor;
+                    for (let i = 0; i < layers.length; i++) {
+                        const vs = layers[i];
+                        if (vs === undefined && i % nodeRankFactor !== 0) {
+                            --delta;
+                        }
+                        else if (delta && vs) {
+                            for (const v of vs) {
+                                g.node(v).rank += delta;
+                            }
+                        }
                     }
                 }
             }
@@ -1374,14 +1386,29 @@ dagre.layout = (graph, options) => {
                 for (let i = 0; i < southLayer.length; i++) {
                     southPos[southLayer[i]] = i;
                 }
-                const southEntries = flat(northLayer.map((v) => g.outEdges(v).map((e) => { return { pos: southPos[e.w], weight: g.edge(e).weight }; }).sort((a, b) => a.pos - b.pos)));
+                const southEntries = [];
+                for (const v of northLayer) {
+                    const edges = g.outEdges(v);
+                    const entries = [];
+                    for (const e of edges) {
+                        entries.push({
+                            pos: southPos[e.w],
+                            weight: g.edge(e).weight
+                        });
+                    }
+                    entries.sort((a, b) => a.pos - b.pos);
+                    for (const entry of entries) {
+                        southEntries.push(entry);
+                    }
+                }
                 // Build the accumulator tree
                 let firstIndex = 1;
                 while (firstIndex < southLayer.length) {
                     firstIndex <<= 1;
                 }
-                const tree = Array.from(new Array(2 * firstIndex - 1), () => 0);
+                const treeSize = 2 * firstIndex - 1;
                 firstIndex -= 1;
+                const tree = Array.from(new Array(treeSize), () => 0);
                 // Calculate the weighted crossings
                 let cc = 0;
                 for (const entry of southEntries) {
@@ -1527,6 +1554,8 @@ dagre.layout = (graph, options) => {
             const upLayerGraphs = new Array(rank !== undefined ? rank : 0);
             for (let i = 0; i < rank; i++) {
                 downLayerGraphs[i] = buildLayerGraph(g, i + 1, 'inEdges');
+            }
+            for (let i = 0; i < rank; i++) {
                 upLayerGraphs[i] = buildLayerGraph(g, rank - i - 1, 'outEdges');
             }
             let layering = initOrder(g);
@@ -1548,8 +1577,8 @@ dagre.layout = (graph, options) => {
                     lastBest = 0;
                     const length = layering.length;
                     best = new Array(length);
-                    for (let i = 0; i < length; i++) {
-                        best[i] = layering[i].slice();
+                    for (let j = 0; j < length; j++) {
+                        best[j] = layering[j].slice();
                     }
                     bestCC = cc;
                 }
@@ -1683,15 +1712,16 @@ dagre.layout = (graph, options) => {
                     const root = {};
                     const align = {};
                     const pos = {};
-                    // We cache the position here based on the layering because the graph and
-                    // layering may be out of sync. The layering matrix is manipulated to
-                    // generate different extreme alignments.
+                    // We cache the position here based on the layering because the graph and layering may be out of sync.
+                    // The layering matrix is manipulated to generate different extreme alignments.
                     for (const layer of layering) {
-                        layer.forEach(function(v, order) {
+                        let order = 0;
+                        for (const v of layer) {
                             root[v] = v;
                             align[v] = v;
                             pos[v] = order;
-                        });
+                            order++;
+                        }
                     }
                     for (const layer of layering) {
                         let prevIdx = -1;
@@ -1715,10 +1745,9 @@ dagre.layout = (graph, options) => {
                 };
                 const horizontalCompaction = (g, layering, root, align, reverseSep) => {
                     // This portion of the algorithm differs from BK due to a number of problems.
-                    // Instead of their algorithm we construct a new block graph and do two
-                    // sweeps. The first sweep places blocks with the smallest possible
-                    // coordinates. The second sweep removes unused space by moving blocks to the
-                    // greatest coordinates without violating separation.
+                    // Instead of their algorithm we construct a new block graph and do two sweeps.
+                    // The first sweep places blocks with the smallest possible coordinates.
+                    // The second sweep removes unused space by moving blocks to the greatest coordinates without violating separation.
                     const xs = {};
                     const blockG = buildBlockGraph(g, layering, root, reverseSep);
                     const borderType = reverseSep ? 'borderLeft' : 'borderRight';
@@ -1795,7 +1824,7 @@ dagre.layout = (graph, options) => {
                     const blockGraph = new dagre.Graph();
                     const graphLabel = g.graph();
                     const sepFn = sep(graphLabel.nodesep, graphLabel.edgesep, reverseSep);
-                    layering.forEach(function(layer) {
+                    for (const layer of layering) {
                         let u;
                         for (const v of layer) {
                             const vRoot = root[v];
@@ -1807,7 +1836,7 @@ dagre.layout = (graph, options) => {
                             }
                             u = v;
                         }
-                    });
+                    }
                     return blockGraph;
                 };
 
@@ -1851,10 +1880,9 @@ dagre.layout = (graph, options) => {
                 };
 
                 /*
-                * Marks all edges in the graph with a type-1 conflict with the 'type1Conflict'
-                * property. A type-1 conflict is one where a non-inner segment crosses an
-                * inner segment. An inner segment is an edge with both incident nodes marked
-                * with the 'dummy' property.
+                * Marks all edges in the graph with a type-1 conflict with the 'type1Conflict' property.
+                A type-1 conflict is one where a non-inner segment crosses an inner segment.
+                * An inner segment is an edge with both incident nodes marked with the 'dummy' property.
                 *
                 * This algorithm scans layer by layer, starting with the second, for type-1
                 * conflicts between the current layer and the previous layer. For each layer
@@ -1870,11 +1898,9 @@ dagre.layout = (graph, options) => {
                 const findType1Conflicts = (g, layering) => {
                     const conflicts = {};
                     const visitLayer = (prevLayer, layer) => {
-                        // last visited node in the previous layer that is incident on an inner
-                        // segment.
+                        // last visited node in the previous layer that is incident on an inner segment.
                         let k0 = 0;
-                        // Tracks the last node in this layer scanned for crossings with a type-1
-                        // segment.
+                        // Tracks the last node in this layer scanned for crossings with a type-1 segment.
                         let scanPos = 0;
                         const prevLayerLength = prevLayer.length;
                         const lastNode = layer[layer.length - 1];
@@ -1886,8 +1912,7 @@ dagre.layout = (graph, options) => {
                                     for (const u of g.predecessors(scanNode)) {
                                         const uLabel = g.node(u);
                                         const uPos = uLabel.order;
-                                        if ((uPos < k0 || k1 < uPos) &&
-                                                !(uLabel.dummy && g.node(scanNode).dummy)) {
+                                        if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).dummy)) {
                                             addConflict(conflicts, u, scanNode);
                                         }
                                     }
@@ -1966,13 +1991,11 @@ dagre.layout = (graph, options) => {
                 }
 
                 const smallestWidth = findSmallestWidthAlignment(g, xss);
-                /*
-                * Align the coordinates of each of the layout alignments such that
-                * left-biased alignments have their minimum coordinate at the same point as
-                * the minimum coordinate of the smallest width alignment and right-biased
-                * alignments have their maximum coordinate at the same point as the maximum
-                * coordinate of the smallest width alignment.
-                */
+                // Align the coordinates of each of the layout alignments such that
+                // left-biased alignments have their minimum coordinate at the same point as
+                // the minimum coordinate of the smallest width alignment and right-biased
+                // alignments have their maximum coordinate at the same point as the maximum
+                // coordinate of the smallest width alignment.
                 const alignCoordinates = (xss, alignTo) => {
                     const range = (values) => {
                         let min = Number.POSITIVE_INFINITY;
@@ -2202,33 +2225,33 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        time('    makeSpaceForEdgeLabels',  function() { makeSpaceForEdgeLabels(g); });
-        time('    removeSelfEdges',         function() { removeSelfEdges(g); });
-        time('    acyclic_run',             function() { acyclic_run(g); });
-        time('    nestingGraph_run',        function() { nestingGraph_run(g); });
-        time('    rank',                    function() { rank(util_asNonCompoundGraph(g)); });
-        time('    injectEdgeLabelProxies',  function() { injectEdgeLabelProxies(g); });
-        time('    removeEmptyRanks',        function() { removeEmptyRanks(g); });
-        time('    nestingGraph_cleanup',    function() { nestingGraph_cleanup(g); });
-        time('    normalizeRanks',          function() { normalizeRanks(g); });
-        time('    assignRankMinMax',        function() { assignRankMinMax(g); });
-        time('    removeEdgeLabelProxies',  function() { removeEdgeLabelProxies(g); });
-        time('    normalize',               function() { normalize(g); });
-        time('    parentDummyChains',       function() { parentDummyChains(g); });
-        time('    addBorderSegments',       function() { addBorderSegments(g); });
-        time('    order',                   function() { order(g); });
-        time('    insertSelfEdges',         function() { insertSelfEdges(g); });
-        time('    coordinateSystem_adjust', function() { coordinateSystem_adjust(g); });
-        time('    position',                function() { position(g); });
-        time('    positionSelfEdges',       function() { positionSelfEdges(g); });
-        time('    removeBorderNodes',       function() { removeBorderNodes(g); });
-        time('    denormalize',             function() { denormalize(g); });
-        time('    fixupEdgeLabelCoords',    function() { fixupEdgeLabelCoords(g); });
-        time('    CoordinateSystem_undo',   function() { coordinateSystem_undo(g); });
-        time('    translateGraph',          function() { translateGraph(g); });
-        time('    assignNodeIntersects',    function() { assignNodeIntersects(g); });
-        time('    reversePoints',           function() { reversePointsForReversedEdges(g); });
-        time('    acyclic_undo',            function() { acyclic_undo(g); });
+        time('    makeSpaceForEdgeLabels',        function() { makeSpaceForEdgeLabels(g); });
+        time('    removeSelfEdges',               function() { removeSelfEdges(g); });
+        time('    acyclic_run',                   function() { acyclic_run(g); });
+        time('    nestingGraph_run',              function() { nestingGraph_run(g); });
+        time('    rank',                          function() { rank(util_asNonCompoundGraph(g)); });
+        time('    injectEdgeLabelProxies',        function() { injectEdgeLabelProxies(g); });
+        time('    removeEmptyRanks',              function() { removeEmptyRanks(g); });
+        time('    nestingGraph_cleanup',          function() { nestingGraph_cleanup(g); });
+        time('    normalizeRanks',                function() { normalizeRanks(g); });
+        time('    assignRankMinMax',              function() { assignRankMinMax(g); });
+        time('    removeEdgeLabelProxies',        function() { removeEdgeLabelProxies(g); });
+        time('    normalize',                     function() { normalize(g); });
+        time('    parentDummyChains',             function() { parentDummyChains(g); });
+        time('    addBorderSegments',             function() { addBorderSegments(g); });
+        time('    order',                         function() { order(g); });
+        time('    insertSelfEdges',               function() { insertSelfEdges(g); });
+        time('    coordinateSystem_adjust',       function() { coordinateSystem_adjust(g); });
+        time('    position',                      function() { position(g); });
+        time('    positionSelfEdges',             function() { positionSelfEdges(g); });
+        time('    removeBorderNodes',             function() { removeBorderNodes(g); });
+        time('    denormalize',                   function() { denormalize(g); });
+        time('    fixupEdgeLabelCoords',          function() { fixupEdgeLabelCoords(g); });
+        time('    coordinateSystem_undo',         function() { coordinateSystem_undo(g); });
+        time('    translateGraph',                function() { translateGraph(g); });
+        time('    assignNodeIntersects',          function() { assignNodeIntersects(g); });
+        time('    reversePointsForReversedEdges', function() { reversePointsForReversedEdges(g); });
+        time('    acyclic_undo',                  function() { acyclic_undo(g); });
     };
 
     /*
