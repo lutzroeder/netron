@@ -1190,12 +1190,13 @@ view.Argument = class {
                 const to = this._to[i];
                 let text = '';
                 const type = this._argument.type;
+
                 if (type &&
                     type.shape &&
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
-                    type.shape.dimensions.every((dim) => Number.isInteger(dim) || dim === '?')) {
-                    text = type.shape.dimensions.map((dimension) => dimension || '?').join('\u00D7');
+                    type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string' && (dim.length < 2 || dim === 'None')))) {
+                    text = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
                 }
                 if (this.context.view.showNames) {
                     text = this._argument.name.split('\n').shift(); // custom argument id
