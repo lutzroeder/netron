@@ -206,128 +206,32 @@ dagre.layout = (graph, options) => {
                 const fas = [];
                 const stack = new Set();
                 const visited = new Set();
-                function dfs(v) {
-                    if (visited.has(v)) {
-                        return;
-                    }
-                    visited.add(v);
-                    stack.add(v);
-                    for (const e of g.outEdges(v)) {
-                        if (stack.has(e.w)) {
-                            fas.push(e);
+                const dfs = (v) => {
+                    if (!visited.has(v)) {
+                        visited.add(v);
+                        stack.add(v);
+                        for (const e of g.outEdges(v)) {
+                            if (stack.has(e.w)) {
+                                fas.push(e);
+                            }
+                            else {
+                                dfs(e.w);
+                            }
                         }
-                        else {
-                            dfs(e.w);
-                        }
+                        stack.delete(v);
                     }
-                    stack.delete(v);
-                }
+                };
                 for (const v of g.nodes()) {
                     dfs(v);
                 }
                 return fas;
             };
-            function greedyFAS(g, weightFn) {
-                const assignBucket = (buckets, zeroIdx, entry) => {
-                    if (!entry.out) {
-                        buckets[0].push(entry);
-                    }
-                    else if (!entry['in']) {
-                        buckets[buckets.length - 1].push(entry);
-                    }
-                    else {
-                        buckets[entry.out - entry['in'] + zeroIdx].push(entry);
-                    }
-                };
-                const buildState = (g, weightFn) => {
-                    const fasGraph = new dagre.Graph();
-                    let maxIn = 0;
-                    let maxOut = 0;
-                    for (const v of g.nodes()) {
-                        fasGraph.setNode(v, { v: v, 'in': 0, out: 0 });
-                    }
-                    // Aggregate weights on nodes, but also sum the weights across multi-edges into a single edge for the fasGraph.
-                    for (const e of g.edges()) {
-                        const prevWeight = fasGraph.edge(e.v, e.w) || 0;
-                        const weight = weightFn(e);
-                        const edgeWeight = prevWeight + weight;
-                        fasGraph.setEdge(e.v, e.w, edgeWeight);
-                        maxOut = Math.max(maxOut, fasGraph.node(e.v).out += weight);
-                        maxIn  = Math.max(maxIn,  fasGraph.node(e.w)['in']  += weight);
-                    }
-                    const buckets = Array.from(new Array(maxOut + maxIn + 3), () => []);
-                    const zeroIdx = maxIn + 1;
-                    for (const v of fasGraph.nodes()) {
-                        assignBucket(buckets, zeroIdx, fasGraph.node(v));
-                    }
-                    return { graph: fasGraph, buckets: buckets, zeroIdx: zeroIdx };
-                };
-                const doGreedyFAS = (g, buckets, zeroIdx) => {
-                    const removeNode = (g, buckets, zeroIdx, entry, collectPredecessors) => {
-                        const results = collectPredecessors ? [] : undefined;
-                        for (const edge of g.inEdges(entry.v) || []) {
-                            const weight = g.edge(edge);
-                            const uEntry = g.node(edge.v);
-                            if (collectPredecessors) {
-                                results.push({ v: edge.v, w: edge.w });
-                            }
-                            uEntry.out -= weight;
-                            assignBucket(buckets, zeroIdx, uEntry);
-                        }
-                        for (const edge of g.outEdges(entry.v) || []) {
-                            const weight = g.edge(edge);
-                            const w = edge.w;
-                            const wEntry = g.node(w);
-                            wEntry['in'] -= weight;
-                            assignBucket(buckets, zeroIdx, wEntry);
-                        }
-                        g.removeNode(entry.v);
-                        return results;
-                    };
-                    const sources = buckets[buckets.length - 1];
-                    const sinks = buckets[0];
-                    let results = [];
-                    let entry;
-                    while (g.nodeCount()) {
-                        while ((entry = sinks.shift())) {
-                            removeNode(g, buckets, zeroIdx, entry);
-                        }
-                        while ((entry = sources.shift())) {
-                            removeNode(g, buckets, zeroIdx, entry);
-                        }
-                        if (g.nodeCount()) {
-                            for (let i = buckets.length - 2; i > 0; --i) {
-                                entry = buckets[i].shift();
-                                if (entry) {
-                                    results = results.concat(removeNode(g, buckets, zeroIdx, entry, true));
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    return results;
-                };
-                if (g.nodeCount() <= 1) {
-                    return [];
-                }
-                const DEFAULT_WEIGHT_FN = () => 1;
-                const state = buildState(g, weightFn || DEFAULT_WEIGHT_FN);
-                const results = doGreedyFAS(state.graph, state.buckets, state.zeroIdx);
-                // Expand multi-edges
-                return flat(results.map((e) => g.outEdges(e.v, e.w)));
-            }
-            const fas = (g.graph().acyclicer === 'greedy' ? greedyFAS(g, weightFn(g)) : dfsFAS(g));
-            for (const e of fas) {
+            for (const e of dfsFAS(g)) {
                 const label = g.edge(e);
                 g.removeEdge(e);
                 label.forwardName = e.name;
                 label.reversed = true;
                 g.setEdge(e.w, e.v, label, uniqueId('rev'));
-            }
-            function weightFn(g) {
-                return function(e) {
-                    return g.edge(e).weight;
-                };
             }
         };
         const acyclic_undo = (g) => {
@@ -2223,33 +2127,33 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        time('    makeSpaceForEdgeLabels',        function() { makeSpaceForEdgeLabels(g); });
-        time('    removeSelfEdges',               function() { removeSelfEdges(g); });
-        time('    acyclic_run',                   function() { acyclic_run(g); });
-        time('    nestingGraph_run',              function() { nestingGraph_run(g); });
-        time('    rank',                          function() { rank(util_asNonCompoundGraph(g)); });
-        time('    injectEdgeLabelProxies',        function() { injectEdgeLabelProxies(g); });
-        time('    removeEmptyRanks',              function() { removeEmptyRanks(g); });
-        time('    nestingGraph_cleanup',          function() { nestingGraph_cleanup(g); });
-        time('    normalizeRanks',                function() { normalizeRanks(g); });
-        time('    assignRankMinMax',              function() { assignRankMinMax(g); });
-        time('    removeEdgeLabelProxies',        function() { removeEdgeLabelProxies(g); });
-        time('    normalize',                     function() { normalize(g); });
-        time('    parentDummyChains',             function() { parentDummyChains(g); });
-        time('    addBorderSegments',             function() { addBorderSegments(g); });
-        time('    order',                         function() { order(g); });
-        time('    insertSelfEdges',               function() { insertSelfEdges(g); });
-        time('    coordinateSystem_adjust',       function() { coordinateSystem_adjust(g); });
-        time('    position',                      function() { position(g); });
-        time('    positionSelfEdges',             function() { positionSelfEdges(g); });
-        time('    removeBorderNodes',             function() { removeBorderNodes(g); });
-        time('    denormalize',                   function() { denormalize(g); });
-        time('    fixupEdgeLabelCoords',          function() { fixupEdgeLabelCoords(g); });
-        time('    coordinateSystem_undo',         function() { coordinateSystem_undo(g); });
-        time('    translateGraph',                function() { translateGraph(g); });
-        time('    assignNodeIntersects',          function() { assignNodeIntersects(g); });
-        time('    reversePointsForReversedEdges', function() { reversePointsForReversedEdges(g); });
-        time('    acyclic_undo',                  function() { acyclic_undo(g); });
+        time('    makeSpaceForEdgeLabels',        () => { makeSpaceForEdgeLabels(g); });
+        time('    removeSelfEdges',               () => { removeSelfEdges(g); });
+        time('    acyclic_run',                   () => { acyclic_run(g); });
+        time('    nestingGraph_run',              () => { nestingGraph_run(g); });
+        time('    rank',                          () => { rank(util_asNonCompoundGraph(g)); });
+        time('    injectEdgeLabelProxies',        () => { injectEdgeLabelProxies(g); });
+        time('    removeEmptyRanks',              () => { removeEmptyRanks(g); });
+        time('    nestingGraph_cleanup',          () => { nestingGraph_cleanup(g); });
+        time('    normalizeRanks',                () => { normalizeRanks(g); });
+        time('    assignRankMinMax',              () => { assignRankMinMax(g); });
+        time('    removeEdgeLabelProxies',        () => { removeEdgeLabelProxies(g); });
+        time('    normalize',                     () => { normalize(g); });
+        time('    parentDummyChains',             () => { parentDummyChains(g); });
+        time('    addBorderSegments',             () => { addBorderSegments(g); });
+        time('    order',                         () => { order(g); });
+        time('    insertSelfEdges',               () => { insertSelfEdges(g); });
+        time('    coordinateSystem_adjust',       () => { coordinateSystem_adjust(g); });
+        time('    position',                      () => { position(g); });
+        time('    positionSelfEdges',             () => { positionSelfEdges(g); });
+        time('    removeBorderNodes',             () => { removeBorderNodes(g); });
+        time('    denormalize',                   () => { denormalize(g); });
+        time('    fixupEdgeLabelCoords',          () => { fixupEdgeLabelCoords(g); });
+        time('    coordinateSystem_undo',         () => { coordinateSystem_undo(g); });
+        time('    translateGraph',                () => { translateGraph(g); });
+        time('    assignNodeIntersects',          () => { assignNodeIntersects(g); });
+        time('    reversePointsForReversedEdges', () => { reversePointsForReversedEdges(g); });
+        time('    acyclic_undo',                  () => { acyclic_undo(g); });
     };
 
     /*
@@ -2284,11 +2188,11 @@ dagre.layout = (graph, options) => {
         inputGraph.graph().height = layoutGraph.graph().height;
     };
 
-    time('layout', function() {
+    time('layout', () => {
         const layoutGraph =
-        time('  buildLayoutGraph', function() { return buildLayoutGraph(graph); });
-        time('  runLayout',        function() { runLayout(layoutGraph, time); });
-        time('  updateInputGraph', function() { updateInputGraph(graph, layoutGraph); });
+        time('  buildLayoutGraph', () => { return buildLayoutGraph(graph); });
+        time('  runLayout',        () => { runLayout(layoutGraph, time); });
+        time('  updateInputGraph', () => { updateInputGraph(graph, layoutGraph); });
     });
 };
 
