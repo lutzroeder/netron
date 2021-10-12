@@ -1554,8 +1554,6 @@ dagre.layout = (graph, options) => {
             const upLayerGraphs = new Array(rank !== undefined ? rank : 0);
             for (let i = 0; i < rank; i++) {
                 downLayerGraphs[i] = buildLayerGraph(g, i + 1, 'inEdges');
-            }
-            for (let i = 0; i < rank; i++) {
                 upLayerGraphs[i] = buildLayerGraph(g, rank - i - 1, 'outEdges');
             }
             let layering = initOrder(g);
