@@ -121,3 +121,4 @@ snap:
   - provider: snapStore
     channels:
     - stable
+    repo: electron-builder#6327
