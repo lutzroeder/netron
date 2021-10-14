@@ -53,6 +53,8 @@ fileAssociations:
   - name: "PyTorch Model"
     ext: pth
   - name: "PyTorch Model"
+    ext: ptl
+  - name: "PyTorch Model"
     ext: pt
   - name: "Torch Model"
     ext: t7

@@ -169,7 +169,7 @@ class Application {
                     'tflite', 'lite', 'tfl',
                     'armnn', 'mnn', 'nn', 'uff', 'uff.txt', 'rknn', 'xmodel',
                     'ncnn', 'param', 'tnnproto', 'tmfile', 'ms', 'om',
-                    'pt', 'pth', 't7',
+                    'pt', 'pth', 'ptl', 't7',
                     'pkl', 'joblib',
                     'pbtxt', 'prototxt',
                     'cfg', 'xml',
