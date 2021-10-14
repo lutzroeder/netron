@@ -768,23 +768,23 @@ protobuf.TextReader = class {
     }
 
     int64() {
-        return new base.Int64(this.integer(), 0);
+        return base.Int64.create(this.integer());
     }
 
     uint64() {
-        return new base.Uint64(this.integer(), 0);
+        return base.Uint64.create(this.integer());
     }
 
     sint64() {
-        return new base.Int64(this.integer(), 0);
+        return base.Int64.create(this.integer());
     }
 
     fixed64() {
-        return new base.Uint64(this.integer(), 0);
+        return base.Uint64.create(this.integer());
     }
 
     sfixed64() {
-        return new base.Int64(this.integer(), 0);
+        return base.Int64.create(this.integer());
     }
 
     fixed32() {
