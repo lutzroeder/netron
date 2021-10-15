@@ -6710,11 +6710,14 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case 18:
                     message.use_tfrt = reader.bool();
                     break;
-                case 19:
-                    message.coordination_service = reader.string();
-                    break;
                 case 21:
                     message.disable_functional_ops_lowering = reader.bool();
+                    break;
+                case 22:
+                    message.xla_prefer_single_graph_cluster = reader.bool();
+                    break;
+                case 23:
+                    message.coordination_config = $root.tensorflow.CoordinationServiceConfig.decode(reader, reader.uint32());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -6781,11 +6784,14 @@ $root.tensorflow.ConfigProto.Experimental = class Experimental {
                 case "use_tfrt":
                     message.use_tfrt = reader.bool();
                     break;
-                case "coordination_service":
-                    message.coordination_service = reader.string();
-                    break;
                 case "disable_functional_ops_lowering":
                     message.disable_functional_ops_lowering = reader.bool();
+                    break;
+                case "xla_prefer_single_graph_cluster":
+                    message.xla_prefer_single_graph_cluster = reader.bool();
+                    break;
+                case "coordination_config":
+                    message.coordination_config = $root.tensorflow.CoordinationServiceConfig.decodeText(reader);
                     break;
                 default:
                     reader.field(tag, message);
@@ -6813,8 +6819,9 @@ $root.tensorflow.ConfigProto.Experimental.prototype.enable_mlir_graph_optimizati
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_output_partition_graphs = false;
 $root.tensorflow.ConfigProto.Experimental.prototype.xla_fusion_autotuner_thresh = protobuf.Int64.create(0);
 $root.tensorflow.ConfigProto.Experimental.prototype.use_tfrt = false;
-$root.tensorflow.ConfigProto.Experimental.prototype.coordination_service = "";
 $root.tensorflow.ConfigProto.Experimental.prototype.disable_functional_ops_lowering = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.xla_prefer_single_graph_cluster = false;
+$root.tensorflow.ConfigProto.Experimental.prototype.coordination_config = null;
 
 $root.tensorflow.ConfigProto.Experimental.MlirBridgeRollout = {
     "MLIR_BRIDGE_ROLLOUT_UNSPECIFIED": 0,
@@ -8353,6 +8360,76 @@ $root.tensorflow.ClusterDef = class ClusterDef {
         return message;
     }
 };
+
+$root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.CoordinationServiceConfig();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.service_type = reader.string();
+                    break;
+                case 2:
+                    message.service_leader = reader.string();
+                    break;
+                case 3:
+                    message.enable_health_check = reader.bool();
+                    break;
+                case 4:
+                    message.cluster_register_timeout_in_ms = reader.int64();
+                    break;
+                case 5:
+                    message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.CoordinationServiceConfig();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "service_type":
+                    message.service_type = reader.string();
+                    break;
+                case "service_leader":
+                    message.service_leader = reader.string();
+                    break;
+                case "enable_health_check":
+                    message.enable_health_check = reader.bool();
+                    break;
+                case "cluster_register_timeout_in_ms":
+                    message.cluster_register_timeout_in_ms = reader.int64();
+                    break;
+                case "heartbeat_timeout_in_ms":
+                    message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.CoordinationServiceConfig.prototype.service_type = "";
+$root.tensorflow.CoordinationServiceConfig.prototype.service_leader = "";
+$root.tensorflow.CoordinationServiceConfig.prototype.enable_health_check = false;
+$root.tensorflow.CoordinationServiceConfig.prototype.cluster_register_timeout_in_ms = protobuf.Int64.create(0);
+$root.tensorflow.CoordinationServiceConfig.prototype.heartbeat_timeout_in_ms = protobuf.Int64.create(0);
 
 $root.tensorflow.DebugTensorWatch = class DebugTensorWatch {
 
