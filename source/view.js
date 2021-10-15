@@ -325,8 +325,10 @@ view.View = class {
             element.removeEventListener('gesturechange', gestureChangeHandler, false);
             element.removeEventListener('gestureend', gestureEndHandler, false);
             e.preventDefault();
-            this._updateZoom(this._gestureZoom * e.scale, e);
-            delete this._gestureZoom;
+            if (this._gestureZoom) {
+                this._updateZoom(this._gestureZoom * e.scale, e);
+                delete this._gestureZoom;
+            }
         };
         element.addEventListener('gesturechange', gestureChangeHandler, false);
         element.addEventListener('gestureend', gestureEndHandler, false);
