@@ -4336,6 +4336,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "labels.pth",
+    "source": "https://github.com/lutzroeder/netron/files/7350657/labels.pth.zip[labels.pth]",
+    "format": "PyTorch v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/720"
+  },
+  {
+    "type":   "pytorch",
     "target": "lane_scanning_vehicle_model.pt",
     "source": "https://raw.githubusercontent.com/ApolloAuto/apollo/master/modules/prediction/data/lane_scanning_vehicle_model.pt",
     "format": "TorchScript v1.0",
