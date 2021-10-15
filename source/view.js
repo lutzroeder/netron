@@ -111,11 +111,10 @@ view.View = class {
     }
 
     find() {
-        const graph = this.activeGraph;
-        if (graph) {
+        if (this._viewGraph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, graph);
+            const view = new sidebar.FindSidebar(this._host, graphElement, this._viewGraph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -501,6 +500,7 @@ view.View = class {
                     }
                 }
             }
+            this._viewGraph = null;
             return this.renderGraph(model, graph).then(() => {
                 this._model = model;
                 this._graphs = graphs;
@@ -510,6 +510,7 @@ view.View = class {
                 update();
                 return this._model;
             }).catch((error) => {
+                this._viewGraph = null;
                 return this.renderGraph(this._model, this.activeGraph).then(() => {
                     if (!graphs || graphs.length <= 1) {
                         this.show('default');
@@ -748,6 +749,9 @@ view.View = class {
                         const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
                         container.scrollTo({ left: left, top: top, behavior: 'auto' });
                     }
+
+                    this._viewGraph = viewGraph;
+
                     return;
                 });
             }
