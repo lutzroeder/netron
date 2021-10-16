@@ -2565,6 +2565,26 @@
     ]
   },
   {
+    "name": "torch.mish_:",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.mish:",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.cat:",
     "category": "Tensor",
     "inputs": [
