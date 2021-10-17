@@ -8364,6 +8364,7 @@ $root.tensorflow.ClusterDef = class ClusterDef {
 $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
 
     constructor() {
+        this.coordinated_jobs = [];
     }
 
     static decode(reader, length) {
@@ -8386,6 +8387,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                     break;
                 case 5:
                     message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                case 6:
+                    message.coordinated_jobs.push(reader.string());
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -8415,6 +8419,9 @@ $root.tensorflow.CoordinationServiceConfig = class CoordinationServiceConfig {
                     break;
                 case "heartbeat_timeout_in_ms":
                     message.heartbeat_timeout_in_ms = reader.int64();
+                    break;
+                case "coordinated_jobs":
+                    reader.array(message.coordinated_jobs, () => reader.string());
                     break;
                 default:
                     reader.field(tag, message);
