@@ -1276,14 +1276,19 @@ view.ModelContext = class {
             this._content.set(type, undefined);
             const stream = this.stream;
             const position = stream.position;
+            const signatures = [
+                [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
+                [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ] // PyTorch
+            ];
             const skip =
+                signatures.some((signature) => signature.length <= stream.length && stream.peek(signature.length).every((value, index) => signature[index] === undefined || signature[index] === value)) ||
                 Array.from(this._tags).some((pair) => pair[0] !== 'flatbuffers' && pair[1].size > 0) ||
                 Array.from(this._content.values()).some((obj) => obj !== undefined);
             if (!skip) {
                 switch (type) {
                     case 'json': {
                         try {
-                            const reader = json.TextReader.open(stream);
+                            const reader = json.TextReader.open(this.stream);
                             if (reader) {
                                 const obj = reader.read();
                                 this._content.set(type, obj);
@@ -1296,7 +1301,7 @@ view.ModelContext = class {
                     }
                     case 'json.gz': {
                         try {
-                            const archive = gzip.Archive.open(stream);
+                            const archive = gzip.Archive.open(this.stream);
                             if (archive) {
                                 const entries = archive.entries;
                                 if (entries.size === 1) {
@@ -1364,6 +1369,7 @@ view.ModelContext = class {
             const position = stream.position;
             if (stream) {
                 const signatures = [
+                    [ 0x89, 0x48, 0x44, 0x46, 0x0D, 0x0A, 0x1A, 0x0A ], // HDF5
                     [ 0x80, undefined, 0x8a, 0x0a, 0x6c, 0xfc, 0x9c, 0x46, 0xf9, 0x20, 0x6a, 0xa8, 0x50, 0x19 ], // PyTorch
                     [ 0x50, 0x4b ], // Zip
                     [ 0x1f, 0x8b ] // Gzip
@@ -1496,6 +1502,7 @@ view.ModelFactoryService = class {
         this.register('./npz', [ '.npz', '.npy', '.pkl' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
+        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./sklearn', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./pickle', [ '.pkl', '.pickle', '.joblib', '.model', '.meta', '.pb', '.pt', '.h5', '.pkl.z', '.joblib.z' ]);
         this.register('./cntk', [ '.model', '.cntk', '.cmf', '.dnn' ]);
@@ -1505,7 +1512,6 @@ view.ModelFactoryService = class {
         this.register('./weka', [ '.model' ]);
         this.register('./rknn', [ '.rknn', '.onnx' ]);
         this.register('./dlc', [ '.dlc' ]);
-        this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
         this.register('./armnn', [ '.armnn', '.json' ]);
         this.register('./mnn', ['.mnn']);
         this.register('./ncnn', [ '.param', '.bin', '.cfg.ncnn', '.weights.ncnn' ]);
