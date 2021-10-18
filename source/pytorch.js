@@ -3451,6 +3451,12 @@ pytorch.Utility = class {
                     if (key.indexOf('loss') !== -1 && Array.isArray(value)) {
                         continue;
                     }
+                    if (key.startsWith('dico_') && Object(value) === value) {
+                        continue;
+                    }
+                    if (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) {
+                        continue;
+                    }
                     if (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) {
                         continue;
                     }
