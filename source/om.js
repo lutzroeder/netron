@@ -476,12 +476,10 @@ om.File = class {
 
     static open(context) {
         const stream = context.stream;
-        if (stream.length >= 256) {
-            const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
-            if (stream.peek(4).every((value, index) => value === signature[index])) {
-                const reader = new om.File.BinaryReader(stream.peek());
-                return new om.File(reader);
-            }
+        const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
+        if (stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
+            const reader = new om.File.BinaryReader(stream.peek());
+            return new om.File(reader);
         }
         return null;
     }
