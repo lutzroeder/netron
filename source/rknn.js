@@ -6,8 +6,7 @@ var json = json || require('./json');
 rknn.ModelFactory = class {
 
     match(context) {
-        const stream = context.stream;
-        return rknn.Container.open(stream);
+        return rknn.Container.open(context);
     }
 
     open(context, match) {
@@ -444,7 +443,8 @@ rknn.TensorShape = class {
 
 rknn.Container = class {
 
-    static open(stream) {
+    static open(context) {
+        const stream = context.stream;
         const signature = [ 0x52, 0x4B, 0x4E, 0x4E, 0x00, 0x00, 0x00, 0x00 ];
         if (signature.length <= stream.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return new rknn.Container(stream);
