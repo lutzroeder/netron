@@ -119,7 +119,6 @@ view.View = class {
                 this._searchText = text;
             });
             view.on('select', (sender, selection) => {
-                this._sidebar.close();
                 this.select(selection);
             });
             this._sidebar.open(view.content, 'Find');
