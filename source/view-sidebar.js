@@ -1415,7 +1415,7 @@ sidebar.FindSidebar = class {
             for (const argument of initializers) {
                 if (argument.name) {
                     const initializeItem = this._host.document.createElement('li');
-                    initializeItem.innerText = '\u25A0 ' + argument.name;
+                    initializeItem.innerText = '\u25A0 ' + argument.name.split('\n').shift(); // custom argument id
                     initializeItem.id = 'initializer-' + argument.name;
                     this._resultElement.appendChild(initializeItem);
                 }
