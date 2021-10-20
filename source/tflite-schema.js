@@ -365,7 +365,8 @@ $root.tflite.BuiltinOperator = {
     READ_VARIABLE: 143,
     ASSIGN_VARIABLE: 144,
     BROADCAST_ARGS: 145,
-    RANDOM_STANDARD_NORMAL: 146
+    RANDOM_STANDARD_NORMAL: 146,
+    BUCKETIZE: 147
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -486,6 +487,7 @@ $root.tflite.BuiltinOptions = class {
             case 112: return $root.tflite.ReadVariableOptions.decode(reader, position);
             case 113: return $root.tflite.AssignVariableOptions.decode(reader, position);
             case 114: return $root.tflite.RandomOptions.decode(reader, position);
+            case 115: return $root.tflite.BucketizeOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -606,6 +608,7 @@ $root.tflite.BuiltinOptions = class {
             case 'ReadVariableOptions': return $root.tflite.ReadVariableOptions.decodeText(reader, json);
             case 'AssignVariableOptions': return $root.tflite.AssignVariableOptions.decodeText(reader, json);
             case 'RandomOptions': return $root.tflite.RandomOptions.decodeText(reader, json);
+            case 'BucketizeOptions': return $root.tflite.BucketizeOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2414,6 +2417,21 @@ $root.tflite.RandomOptions = class RandomOptions {
         const $ = new $root.tflite.RandomOptions();
         $.seed = reader.value(json.seed, 0);
         $.seed2 = reader.value(json.seed2, 0);
+        return $;
+    }
+};
+
+$root.tflite.BucketizeOptions = class BucketizeOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.BucketizeOptions();
+        $.boundaries = reader.typedArray(position, 4, Float32Array);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.BucketizeOptions();
+        $.boundaries = reader.typedArray(json.boundaries, Float32Array);
         return $;
     }
 };
