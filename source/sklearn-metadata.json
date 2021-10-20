@@ -1189,7 +1189,7 @@
       },
       {
         "default": null,
-        "description": "The number of jobs to use for the computation. This will only provide\nspeedup for n_targets > 1 and sufficient large problems.\n``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.\n``-1`` means using all processors. See :term:`Glossary <n_jobs>`\nfor more details.\n",
+        "description": "The number of jobs to use for the computation. This will only provide\nspeedup in case of sufficiently large problems, that is if firstly\n`n_targets > 1` and secondly `X` is sparse or if `positive` is set\nto `True`. ``None`` means 1 unless in a\n:obj:`joblib.parallel_backend` context. ``-1`` means using all\nprocessors. See :term:`Glossary <n_jobs>` for more details.\n",
         "name": "n_jobs",
         "option": "optional",
         "type": "int32"
@@ -1502,7 +1502,7 @@
       },
       {
         "default": "minkowski",
-        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. See the documentation of :class:`DistanceMetric` for a\nlist of available metrics.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
+        "description": "The distance metric to use for the tree.  The default metric is\nminkowski, and with p=2 is equivalent to the standard Euclidean\nmetric. For a list of available metrics, see the documentation of\n:class:`~sklearn.metrics.DistanceMetric`.\nIf metric is \"precomputed\", X is assumed to be a distance matrix and\nmust be square during fit. X may be a :term:`sparse graph`,\nin which case only \"nonzero\" elements may be considered neighbors.\n",
         "name": "metric"
       },
       {
