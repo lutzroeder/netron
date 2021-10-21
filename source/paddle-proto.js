@@ -711,6 +711,15 @@ $root.paddle.framework.proto.VarType = class VarType {
                 case 7:
                     message.tuple = $root.paddle.framework.proto.VarType.Tuple.decode(reader, reader.uint32());
                     break;
+                case 8:
+                    message.string = $root.paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
+                    break;
+                case 9:
+                    message.strings = $root.paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
+                    break;
+                case 10:
+                    message.vocab = $root.paddle.framework.proto.VarType.TensorDesc.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -746,6 +755,15 @@ $root.paddle.framework.proto.VarType = class VarType {
                 case "tuple":
                     message.tuple = $root.paddle.framework.proto.VarType.Tuple.decodeText(reader);
                     break;
+                case "string":
+                    message.string = $root.paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
+                    break;
+                case "strings":
+                    message.strings = $root.paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
+                    break;
+                case "vocab":
+                    message.vocab = $root.paddle.framework.proto.VarType.TensorDesc.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -763,6 +781,9 @@ $root.paddle.framework.proto.VarType.prototype.lod_tensor = null;
 $root.paddle.framework.proto.VarType.prototype.tensor_array = null;
 $root.paddle.framework.proto.VarType.prototype.reader = null;
 $root.paddle.framework.proto.VarType.prototype.tuple = null;
+$root.paddle.framework.proto.VarType.prototype.string = null;
+$root.paddle.framework.proto.VarType.prototype.strings = null;
+$root.paddle.framework.proto.VarType.prototype.vocab = null;
 
 $root.paddle.framework.proto.VarType.Type = {
     "BOOL": 0,
@@ -788,7 +809,11 @@ $root.paddle.framework.proto.VarType.Type = {
     "PLACE_LIST": 14,
     "READER": 15,
     "RAW": 17,
-    "TUPLE": 18
+    "TUPLE": 18,
+    "STRING": 25,
+    "STRINGS": 26,
+    "VOCAB": 27,
+    "FEED_LIST": 28
 };
 
 $root.paddle.framework.proto.VarType.TensorDesc = class TensorDesc {
