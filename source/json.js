@@ -7,6 +7,7 @@ json.TextReader = class {
 
     static open(data) {
         const decoder = base.TextDecoder.open(data);
+        let state = 'start';
         for (let i = 0; i < 0x100; i++) {
             const c = decoder.decode();
             if (c === undefined || c === '\0') {
@@ -15,17 +16,43 @@ json.TextReader = class {
                 }
                 break;
             }
-            if (c < ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
-                return null;
+            if (c <= ' ') {
+                if (c !== ' ' && c !== '\n' && c !== '\r' && c !== '\t') {
+                    return null;
+                }
+                continue;
             }
-            if (i === 0) {
-                if (c === '#' || c === '[' || c === '{') {
+            switch (state) {
+                case 'start':
+                    if (c === '#') {
+                        state = 'comment';
+                        break;
+                    }
+                    if (c === '[') {
+                        state = 'list';
+                        break;
+                    }
+                    if (c === '{') {
+                        state = 'object';
+                        break;
+                    }
+                    if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
+                        state = '';
+                        break;
+                    }
+                    return null;
+                case 'list':
+                    if (c === '"' || c === '-' || c === '+' || c === '{' || c === '[' || (c >= '0' && c <= '9')) {
+                        state = '';
+                        break;
+                    }
+                    return null;
+                case 'object':
+                    if (c != '"') {
+                        return null;
+                    }
+                    state = '';
                     continue;
-                }
-                if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
-                    continue;
-                }
-                return null;
             }
         }
         return new json.TextReader(data);
