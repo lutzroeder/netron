@@ -364,7 +364,7 @@ host.ElectronHost = class {
         if (stat.isFile()) {
             const dirname = path.dirname(location);
             return this.request(basename, null, dirname).then((stream) => {
-                return new host.ElectronHost.ElectonContext(this, dirname, basename, stream);
+                return new host.ElectronHost.ElectronContext(this, dirname, basename, stream);
             });
         }
         else if (stat.isDirectory()) {
@@ -384,7 +384,7 @@ host.ElectronHost = class {
                 }
             };
             walk(location);
-            return Promise.resolve(new host.ElectronHost.ElectonContext(this, location, basename, null, entries));
+            return Promise.resolve(new host.ElectronHost.ElectronContext(this, location, basename, null, entries));
         }
         throw new Error("Unsupported path stat '" + JSON.stringify(stat) + "'.");
     }
@@ -702,7 +702,7 @@ host.ElectronHost.FileStream = class {
     }
 };
 
-host.ElectronHost.ElectonContext = class {
+host.ElectronHost.ElectronContext = class {
 
     constructor(host, folder, identifier, stream, entries) {
         this._host = host;
