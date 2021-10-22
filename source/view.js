@@ -111,10 +111,10 @@ view.View = class {
     }
 
     find() {
-        if (this._viewGraph) {
+        if (this._graph) {
             this.clearSelection();
             const graphElement = this._getElementById('canvas');
-            const view = new sidebar.FindSidebar(this._host, graphElement, this._viewGraph);
+            const view = new sidebar.FindSidebar(this._host, graphElement, this._graph);
             view.on('search-text-changed', (sender, text) => {
                 this._searchText = text;
             });
@@ -489,7 +489,11 @@ view.View = class {
                 nameButton.style.opacity = 0;
             }
         };
-        const graph = Array.isArray(graphs) && graphs.length > 0 ? graphs[0] : null;
+        const previousModel = model;
+        const previousGraphs = graphs;
+        this._model = model;
+        this._graphs = graphs;
+        const graph = this.activeGraph;
         return this._timeout(100).then(() => {
             if (graph && graph != this._graphs[0]) {
                 const nodes = graph.nodes;
@@ -501,24 +505,20 @@ view.View = class {
                     }
                 }
             }
-            this._viewGraph = null;
-            return this.renderGraph(model, graph).then(() => {
-                this._model = model;
-                this._graphs = graphs;
+            return this.renderGraph(this._model, this.activeGraph).then(() => {
                 if (!graphs || graphs.length <= 1) {
                     this.show('default');
                 }
                 update();
                 return this._model;
             }).catch((error) => {
-                this._viewGraph = null;
+                this._model = previousModel;
+                this._graphs = previousGraphs;
                 return this.renderGraph(this._model, this.activeGraph).then(() => {
                     if (!graphs || graphs.length <= 1) {
                         this.show('default');
                     }
                     update();
-                    throw error;
-                }).catch(() => {
                     throw error;
                 });
             });
@@ -528,9 +528,8 @@ view.View = class {
     pushGraph(graph) {
         if (graph !== this.activeGraph) {
             this._sidebar.close();
-            return this._updateGraph(this._model, [ graph ].concat(this._graphs));
+            this._updateGraph(this._model, [ graph ].concat(this._graphs));
         }
-        return Promise.resolve();
     }
 
     popGraph() {
@@ -542,6 +541,8 @@ view.View = class {
 
     renderGraph(model, graph) {
         try {
+            this._graph = null;
+
             const container = this._getElementById('graph');
             const canvas = this._getElementById('canvas');
             while (canvas.lastChild) {
@@ -611,7 +612,7 @@ view.View = class {
                     for (const output of outputs) {
                         for (const argument of output.arguments) {
                             if (!argument) {
-                                throw new view.Error("Invalid null argument in '" + model.format + "'.");
+                                throw new view.Error("Invalid null argument in '" + model.identifier + "'.");
                             }
                             if (argument.name != '') {
                                 viewGraph.createArgument(argument).from(viewNode);
@@ -751,7 +752,7 @@ view.View = class {
                         container.scrollTo({ left: left, top: top, behavior: 'auto' });
                     }
 
-                    this._viewGraph = viewGraph;
+                    this._graph = viewGraph;
 
                     return;
                 });
@@ -855,59 +856,78 @@ view.View = class {
 
     showModelProperties() {
         if (this._model) {
-            const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
-            modelSidebar.on('update-active-graph', (sender, name) => {
-                this._updateActiveGraph(name);
-            });
-            this._sidebar.open(modelSidebar.render(), 'Model Properties');
+            try {
+                const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
+                modelSidebar.on('update-active-graph', (sender, name) => {
+                    this._updateActiveGraph(name);
+                });
+                const content = modelSidebar.render();
+                this._sidebar.open(content, 'Model Properties');
+            }
+            catch (error) {
+                const text = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + text;
+                }
+                this.error(error, 'Error showing model properties.', null);
+            }
         }
     }
 
     showNodeProperties(node, input) {
         if (node) {
-            const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
-            nodeSidebar.on('show-documentation', (/* sender, e */) => {
-                this.showDocumentation(node.type);
-            });
-            nodeSidebar.on('show-graph', (sender, graph) => {
-                this.pushGraph(graph);
-            });
-            nodeSidebar.on('export-tensor', (sender, tensor) => {
-                this._host.require('./numpy').then((numpy) => {
-                    const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
-                    this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
-                        try {
-                            const dataTypeMap = new Map([
-                                [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
-                                [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
-                                [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
-                                [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
-                                [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
-                            ]);
-                            const array = new numpy.Array();
-                            array.shape = tensor.type.shape.dimensions;
-                            array.data = tensor.value;
-                            array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
-                            const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
-                            this._host.export(file, blob);
-                        }
-                        catch (error) {
-                            this.error(error, 'Error saving NumPy tensor.', null);
-                        }
-                    });
-                }).catch(() => {
+            try {
+                const nodeSidebar = new sidebar.NodeSidebar(this._host, node);
+                nodeSidebar.on('show-documentation', (/* sender, e */) => {
+                    this.showDocumentation(node.type);
                 });
-            });
-            nodeSidebar.on('error', (sender, error) => {
-                if (this._model) {
-                    error.message = error.message.replace(/\.$/, '') + " in format '" + this._model.format + "'.";
+                nodeSidebar.on('show-graph', (sender, graph) => {
+                    this.pushGraph(graph);
+                });
+                nodeSidebar.on('export-tensor', (sender, tensor) => {
+                    this._host.require('./numpy').then((numpy) => {
+                        const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
+                        this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
+                            try {
+                                const dataTypeMap = new Map([
+                                    [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
+                                    [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
+                                    [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
+                                    [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
+                                    [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
+                                ]);
+                                const array = new numpy.Array();
+                                array.shape = tensor.type.shape.dimensions;
+                                array.data = tensor.value;
+                                array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
+                                const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
+                                this._host.export(file, blob);
+                            }
+                            catch (error) {
+                                this.error(error, 'Error saving NumPy tensor.', null);
+                            }
+                        });
+                    }).catch(() => {
+                    });
+                });
+                nodeSidebar.on('error', (sender, error) => {
+                    if (this._model) {
+                        error.message = error.message.replace(/\.$/, '') + " in '" + this._model.identifier + "'.";
+                    }
+                    this.error(error, null, null);
+                });
+                if (input) {
+                    nodeSidebar.toggleInput(input.name);
                 }
-                this.error(error, null, null);
-            });
-            if (input) {
-                nodeSidebar.toggleInput(input.name);
+                this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             }
-            this._sidebar.open(nodeSidebar.render(), 'Node Properties');
+            catch (error) {
+                const text = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + text;
+                }
+                this.error(error, 'Error showing node properties.', null);
+            }
         }
     }
 
@@ -1013,8 +1033,8 @@ view.Node = class extends grapher.Node {
             styles.push('node-item-type-' + category.toLowerCase());
         }
         if (typeof type.name !== 'string' || !type.name.split) { // #416
-            const format = this.context.model && this.context.model.format ? this.context.model.format : '?';
-            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in format '" + format + "'.");
+            const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
+            throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
         }
         const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.showNames && (node.name || node.location) ? type.name : (node.name || node.location);
@@ -1082,8 +1102,8 @@ view.Node = class extends grapher.Node {
                             catch (error) {
                                 // continue regardless of error
                             }
-                            const format = this.context.view.model && this.context.view.model.format ? this.context.view.model.format : '?';
-                            throw new view.Error("Failed to render tensor of type '" + type + "' in format '" + format + "' (" + err.message + ").");
+                            const identifier = this.context.view.model && this.context.view.model.identifier ? this.context.view.model.identifier : '?';
+                            throw new view.Error("Failed to render tensor of type '" + type + "' in '" + identifier + "' (" + err.message + ").");
                         }
                     }
                 }
@@ -1797,6 +1817,9 @@ view.ModelFactoryService = class {
                     }
                     success = true;
                     return modelFactory.open(context, match).then((model) => {
+                        if (!model.identifier) {
+                            model.identifier = context.identifier;
+                        }
                         return model;
                     }).catch((error) => {
                         updateErrorContext(error, context);
