@@ -78,7 +78,7 @@ pytorch.Graph = class {
                 if (container.constants) {
                     for (const constant of container.constants) {
                         if (pytorch.Utility.isTensor(constant)) {
-                            constant.initializer = new pytorch.Tensor(constant.__variable__, constant, this._littleEndian);
+                            constant.initializer = pytorch.Utility.createTensor(constant.__variable__, constant, this._littleEndian);
                             initializers.set(constant.__variable__, constant);
                         }
                         else if (constant && constant.__class__ && constant.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
@@ -88,7 +88,7 @@ pytorch.Graph = class {
                                     for (const key of Object.keys(constant)) {
                                         const value = constant[key];
                                         if (pytorch.Utility.isTensor(value)) {
-                                            value.initializer = new pytorch.Tensor(value.__variable__, value, this._littleEndian);
+                                            value.initializer = pytorch.Utility.createTensor(value.__variable__, value, this._littleEndian);
                                             initializers.set(value.__variable__, value);
                                         }
                                     }
@@ -117,7 +117,7 @@ pytorch.Graph = class {
                                         const parameter = obj;
                                         parameter.__parent__ = module;
                                         if (!parameter.initializer && parameter.storage()) {
-                                            parameter.initializer = new pytorch.Tensor(parameter.name, parameter, this._littleEndian);
+                                            parameter.initializer = pytorch.Utility.createTensor(parameter.name, parameter, this._littleEndian);
                                         }
                                         if (parameter.__variable__ && parameter.__count__ === 1) {
                                             initializers.set(parameter.__variable__, parameter);
@@ -178,7 +178,7 @@ pytorch.Graph = class {
                     const inputs = state_group.states.map((parameter) => {
                         return new pytorch.Parameter(parameter.name, true,
                             parameter.arguments.map((state) => {
-                                const tensor = new pytorch.Tensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
+                                const tensor = pytorch.Utility.createTensor(state.id, pytorch.Utility.toTensor(state.value), this._littleEndian);
                                 return new pytorch.Argument(state.id, null, tensor);
                             }));
                     });
@@ -259,7 +259,7 @@ pytorch.Graph = class {
                 visible = input.visible === false ? false : true;
             }
             if (value) {
-                const initializer = new pytorch.Tensor('', value, this._littleEndian);
+                const initializer = pytorch.Utility.createTensor('', value, this._littleEndian);
                 inputs.push(new pytorch.Parameter(inputName || key, visible, [ new pytorch.Argument('', null, initializer) ]));
             }
         }
@@ -410,6 +410,10 @@ pytorch.Node = class {
         this._group = group || '';
         this._name = item.name || '';
         const type = (metadata, name) => {
+            if (name instanceof pytorch.nnapi.Graph) {
+                this._type = name;
+                return;
+            }
             this._type = Object.assign({}, metadata.type(name) || { name: name });
             const identifier = this._type.name;
             this._type.identifier = identifier;
@@ -614,12 +618,10 @@ pytorch.Attribute = class {
 
 pytorch.Tensor = class {
 
-    constructor(name, tensor, littleEndian) {
-        const storage = tensor.storage();
-        const size = tensor.size();
+    constructor(name, type, data, littleEndian) {
         this._name = name || '';
-        this._type = new pytorch.TensorType(storage.dtype, new pytorch.TensorShape(size));
-        this._data = storage.data;
+        this._type = type;
+        this._data = data;
         this._littleEndian = littleEndian;
     }
 
@@ -814,8 +816,8 @@ pytorch.Tensor = class {
 
 pytorch.TensorType = class {
 
-    constructor(dtype, shape) {
-        this._dataType = dtype.__reduce__();
+    constructor(dataType, shape) {
+        this._dataType = dataType;
         this._shape = shape;
     }
 
@@ -871,19 +873,20 @@ pytorch.Execution = class extends python.Execution {
             init(serialized_model_tensor, parameter_buffers) {
                 this.serialized_model_tensor = serialized_model_tensor;
                 this.parameter_buffers = parameter_buffers;
-                const storage = serialized_model_tensor.storage();
-                new pytorch.nnapi.SerializedModel(storage.data, parameter_buffers);
+                const buffers = parameter_buffers.map((buffer) => buffer.__source__.storage().data);
+                const serialized_model = serialized_model_tensor.storage().data;
+                this.serialized_model = new pytorch.nnapi.SerializedModel(serialized_model, buffers);
             }
             run(inputs, outputs) {
                 this.serialized_model_tensor.__variable__ = this.serialized_model_tensor.__variable__ || self.variable();
                 this.serialized_model_tensor.__count__ = (this.serialized_model_tensor.__count__ || 0) + 1;
                 self.push({
-                    type: 'torch.classes._nnapi.Compilation',
+                    type: new pytorch.nnapi.Graph(this.serialized_model),
                     attributes: [],
                     inputs: [
-                        [ { id: this.serialized_model_tensor.__variable__ } ],
                         inputs.map((input) => { return { id: input.__variable__ }; }),
-                        this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
+                        // [ { id: this.serialized_model_tensor.__variable__ } ] //,
+                        // this.parameter_buffers.map((buffer) => { return { id: buffer.__variable__ }; })
                     ],
                     outputs: [
                         outputs.map((output) => { return { id: output.__variable__ }; })
@@ -2955,6 +2958,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.reshape':
                                             parameter.resize_(this.expression(args[1], context));
                                             break;
+                                        case 'torch.contiguous':
+                                            parameter.__source__ = this.expression(args[0], context);
+                                            break;
                                     }
                                 }
                                 parameter.__variable__ = this.variable();
@@ -3276,6 +3282,13 @@ pytorch.Utility = class {
             }
         }
         return null;
+    }
+
+    static createTensor(name, tensor, littleEndian) {
+        const storage = tensor.storage();
+        const size = tensor.size();
+        const type = new pytorch.TensorType(storage.dtype.__reduce__(), new pytorch.TensorShape(size));
+        return new pytorch.Tensor(name || '', type, storage.data, littleEndian);
     }
 
     static isType(obj, type) {
@@ -3610,7 +3623,7 @@ pytorch.nnapi = {};
 
 pytorch.nnapi.SerializedModel = class {
 
-    constructor(serialized_model /*, buffer_ptrs */) {
+    constructor(serialized_model, buffers) {
         const reader = new pytorch.nnapi.SerializedModel.BinaryReader(serialized_model);
         this.version = reader.int32();
         if (this.version !== 1) {
@@ -3625,127 +3638,130 @@ pytorch.nnapi.SerializedModel = class {
             [ 0, 'float32' ],
             [ 1, 'int32' ],
             [ 2, 'uint32' ],
-            [ 3, 'float32' ],
-            [ 4, 'int32*' ],
-            [ 5, 'quant8_asymm*' ],
+            [ 3, 'float32[]' ],
+            [ 4, 'int32[]' ],
+            [ 5, 'quant8_asymm[]' ],
             [ 6, 'boolean' ],
-            [ 7, 'quant16_symm*' ],
-            [ 8, 'float16*' ],
-            [ 9, 'boolean*' ],
+            [ 7, 'quant16_symm[]' ],
+            [ 8, 'float16[]' ],
+            [ 9, 'boolean[]' ],
             [ 10, 'float16' ],
-            [ 11, 'quant8_symm_per_channel*' ],
-            [ 12, 'quant16_asymm*' ],
-            [ 13, 'quant8_symm*' ],
-            [ 14, 'quant8_asymm_signed*' ],
+            [ 11, 'quant8_symm_per_channel[]' ],
+            [ 12, 'quant16_asymm[]' ],
+            [ 13, 'quant8_symm[]' ],
+            [ 14, 'quant8_asymm_signed[]' ],
             [ 16, 'model' ]
         ]);
-        const operations = new Map([
-            [ 0, 'ADD' ],
-            [ 1, 'AVERAGE_POOL_2D' ],
-            [ 2, 'CONCATENATION' ],
-            [ 3, 'CONV_2D' ],
-            [ 4, 'DEPTHWISE_CONV_2D' ],
-            [ 5, 'DEPTH_TO_SPACE' ],
-            [ 6, 'DEQUANTIZE' ],
-            [ 7, 'EMBEDDING_LOOKUP' ],
-            [ 8, 'FLOOR' ],
-            [ 9, 'FULLY_CONNECTED' ],
-            [ 10, 'HASHTABLE_LOOKUP' ],
-            [ 11, 'L2_NORMALIZATION' ],
-            [ 12, 'L2_POOL_2D' ],
-            [ 13, 'LOCAL_RESPONSE_NORMALIZATION' ],
-            [ 14, 'LOGISTIC' ],
-            [ 15, 'LSH_PROJECTION' ],
-            [ 16, 'LSTM' ],
-            [ 17, 'MAX_POOL_2D' ],
-            [ 18, 'MUL' ],
-            [ 19, 'RELU' ],
-            [ 20, 'RELU1' ],
-            [ 21, 'RELU6' ],
-            [ 22, 'RESHAPE' ],
-            [ 23, 'RESIZE_BILINEAR' ],
-            [ 24, 'RNN' ],
-            [ 25, 'SOFTMAX' ],
-            [ 26, 'SPACE_TO_DEPTH' ],
-            [ 27, 'SVDF' ],
-            [ 28, 'TANH' ],
-            [ 29, 'BATCH_TO_SPACE_ND' ],
-            [ 30, 'DIV' ],
-            [ 31, 'MEAN' ],
-            [ 32, 'PAD' ],
-            [ 33, 'SPACE_TO_BATCH_ND' ],
-            [ 34, 'SQUEEZE' ],
-            [ 35, 'STRIDED_SLICE' ],
-            [ 36, 'SUB' ],
-            [ 37, 'TRANSPOSE' ],
-            [ 38, 'ABS' ],
-            [ 39, 'ARGMAX' ],
-            [ 40, 'ARGMIN' ],
-            [ 41, 'AXIS_ALIGNED_BBOX_TRANSFORM' ],
-            [ 42, 'BIDIRECTIONAL_SEQUENCE_LSTM' ],
-            [ 43, 'BIDIRECTIONAL_SEQUENCE_RNN' ],
-            [ 44, 'BOX_WITH_NMS_LIMIT' ],
-            [ 45, 'CAST' ],
-            [ 46, 'CHANNEL_SHUFFLE' ],
-            [ 47, 'DETECTION_POSTPROCESSING' ],
-            [ 48, 'EQUAL' ],
-            [ 49, 'EXP' ],
-            [ 50, 'EXPAND_DIMS' ],
-            [ 51, 'GATHER' ],
-            [ 52, 'GENERATE_PROPOSALS' ],
-            [ 53, 'GREATER' ],
-            [ 54, 'GREATER_EQUAL' ],
-            [ 55, 'GROUPED_CONV_2D' ],
-            [ 56, 'HEATMAP_MAX_KEYPOINT' ],
-            [ 57, 'INSTANCE_NORMALIZATION' ],
-            [ 58, 'LESS' ],
-            [ 59, 'LESS_EQUAL' ],
-            [ 60, 'LOG' ],
-            [ 61, 'LOGICAL_AND' ],
-            [ 62, 'LOGICAL_NOT' ],
-            [ 63, 'LOGICAL_OR' ],
-            [ 64, 'LOG_SOFTMAX' ],
-            [ 65, 'MAXIMUM' ],
-            [ 66, 'MINIMUM' ],
-            [ 67, 'NEG' ],
-            [ 68, 'NOT_EQUAL' ],
-            [ 69, 'PAD_V2' ],
-            [ 70, 'POW' ],
-            [ 71, 'PRELU' ],
-            [ 72, 'QUANTIZE' ],
-            [ 73, 'QUANTIZED_16BIT_LSTM' ],
-            [ 74, 'RANDOM_MULTINOMIAL' ],
-            [ 75, 'REDUCE_ALL' ],
-            [ 76, 'REDUCE_ANY' ],
-            [ 77, 'REDUCE_MAX' ],
-            [ 78, 'REDUCE_MIN' ],
-            [ 79, 'REDUCE_PROD' ],
-            [ 80, 'REDUCE_SUM' ],
-            [ 81, 'ROI_ALIGN' ],
-            [ 82, 'ROI_POOLING' ],
-            [ 83, 'RSQRT' ],
-            [ 84, 'SELECT' ],
-            [ 85, 'SIN' ],
-            [ 86, 'SLICE' ],
-            [ 87, 'SPLIT' ],
-            [ 88, 'SQRT' ],
-            [ 89, 'TILE' ],
-            [ 90, 'TOPK_V2' ],
-            [ 91, 'TRANSPOSE_CONV_2D' ],
-            [ 92, 'UNIDIRECTIONAL_SEQUENCE_LSTM' ],
-            [ 93, 'UNIDIRECTIONAL_SEQUENCE_RNN' ],
-            [ 94, 'RESIZE_NEAREST_NEIGHBOR' ],
-            [ 95, 'QUANTIZED_LSTM' ],
-            [ 96, 'IF' ],
-            [ 97, 'WHILE' ],
-            [ 98, 'ELU' ],
-            [ 99, 'HARD_SWISH' ],
-            [ 100, 'FILL' ],
-            [ 101, 'RANK' ],
-        ]);
+        const operations = new Map();
+        const register = (index, name, category, inputs, outputs) => {
+            operations.set(index, { name: name, category: category, inputs: inputs || [], outputs: outputs || [] });
+        };
+        register( 0, 'ADD', '', [ 'A', 'B', 'activation' ], [ 'C' ]);
+        register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ 'output' ]);
+        register( 2, 'CONCATENATION');
+        register( 3, 'CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
+        register( 4, 'DEPTHWISE_CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
+        register( 5, 'DEPTH_TO_SPACE');
+        register( 6, 'DEQUANTIZE');
+        register( 7, 'EMBEDDING_LOOKUP');
+        register( 8, 'FLOOR');
+        register( 9, 'FULLY_CONNECTED', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
+        register(10, 'HASHTABLE_LOOKUP');
+        register(11, 'L2_NORMALIZATION');
+        register(12, 'L2_POOL_2D', 'Pool');
+        register(13, 'LOCAL_RESPONSE_NORMALIZATION');
+        register(14, 'LOGISTIC');
+        register(15, 'LSH_PROJECTION');
+        register(16, 'LSTM', 'Layer');
+        register(17, 'MAX_POOL_2D', 'Pool');
+        register(18, 'MUL');
+        register(19, 'RELU', 'Activation', [ 'input' ], [ 'output' ]);
+        register(20, 'RELU1', 'Activation');
+        register(21, 'RELU6', 'Activation');
+        register(22, 'RESHAPE', 'Shape', [ 'input', 'shape' ], [ 'output' ]);
+        register(23, 'RESIZE_BILINEAR');
+        register(24, 'RNN', 'Layer');
+        register(25, 'SOFTMAX', 'Activation');
+        register(26, 'SPACE_TO_DEPTH');
+        register(27, 'SVDF');
+        register(28, 'TANH');
+        register(29, 'BATCH_TO_SPACE_ND');
+        register(30, 'DIV');
+        register(31, 'MEAN');
+        register(32, 'PAD');
+        register(33, 'SPACE_TO_BATCH_ND');
+        register(34, 'SQUEEZE');
+        register(35, 'STRIDED_SLICE');
+        register(36, 'SUB');
+        register(37, 'TRANSPOSE');
+        register(38, 'ABS');
+        register(39, 'ARGMAX');
+        register(40, 'ARGMIN');
+        register(41, 'AXIS_ALIGNED_BBOX_TRANSFORM');
+        register(42, 'BIDIRECTIONAL_SEQUENCE_LSTM');
+        register(43, 'BIDIRECTIONAL_SEQUENCE_RNN');
+        register(44, 'BOX_WITH_NMS_LIMIT');
+        register(45, 'CAST');
+        register(46, 'CHANNEL_SHUFFLE');
+        register(47, 'DETECTION_POSTPROCESSING');
+        register(48, 'EQUAL');
+        register(49, 'EXP');
+        register(50, 'EXPAND_DIMS');
+        register(51, 'GATHER');
+        register(52, 'GENERATE_PROPOSALS');
+        register(53, 'GREATER');
+        register(54, 'GREATER_EQUAL');
+        register(55, 'GROUPED_CONV_2D');
+        register(56, 'HEATMAP_MAX_KEYPOINT');
+        register(57, 'INSTANCE_NORMALIZATION');
+        register(58, 'LESS');
+        register(59, 'LESS_EQUAL');
+        register(60, 'LOG');
+        register(61, 'LOGICAL_AND');
+        register(62, 'LOGICAL_NOT');
+        register(63, 'LOGICAL_OR');
+        register(64, 'LOG_SOFTMAX');
+        register(65, 'MAXIMUM');
+        register(66, 'MINIMUM');
+        register(67, 'NEG');
+        register(68, 'NOT_EQUAL');
+        register(69, 'PAD_V2');
+        register(70, 'POW');
+        register(71, 'PRELU');
+        register(72, 'QUANTIZE');
+        register(73, 'QUANTIZED_16BIT_LSTM');
+        register(74, 'RANDOM_MULTINOMIAL');
+        register(75, 'REDUCE_ALL');
+        register(76, 'REDUCE_ANY');
+        register(77, 'REDUCE_MAX');
+        register(78, 'REDUCE_MIN');
+        register(79, 'REDUCE_PROD');
+        register(80, 'REDUCE_SUM');
+        register(81, 'ROI_ALIGN');
+        register(82, 'ROI_POOLING');
+        register(83, 'RSQRT');
+        register(84, 'SELECT');
+        register(85, 'SIN');
+        register(86, 'SLICE');
+        register(87, 'SPLIT');
+        register(88, 'SQRT');
+        register(89, 'TILE');
+        register(90, 'TOPK_V2');
+        register(91, 'TRANSPOSE_CONV_2D', 'Layer');
+        register(92, 'UNIDIRECTIONAL_SEQUENCE_LSTM', 'Layer');
+        register(93, 'UNIDIRECTIONAL_SEQUENCE_RNN', 'Layer');
+        register(94, 'RESIZE_NEAREST_NEIGHBOR');
+        register(95, 'QUANTIZED_LSTM', 'Layer');
+        register(96, 'IF');
+        register(97, 'WHILE');
+        register(98, 'ELU', 'Activation');
+        register(99, 'HARD_SWISH', 'Activation');
+        register(100, 'FILL');
+        register(101, 'RANK');
         for (let i = 0; i < operands.length; i++) {
             const type = reader.int32();
             operands[i] = {
+                index: i,
                 type: types.has(type) ? types.get(type) : type,
                 dimensions: new Array(reader.uint32()),
                 scale: reader.float32(),
@@ -3761,11 +3777,27 @@ pytorch.nnapi.SerializedModel = class {
         }
         for (let i = 0; i < this.operations.length; i++) {
             const operation_type = reader.int32();
-            this.operations[i] = {
-                operation_type: operations.has(operation_type) ? operations.get(operation_type) : operation_type,
+            const metadata = operations.has(operation_type) ? operations.get(operation_type) : { name: operation_type.toString() };
+            const type = { name: metadata.name };
+            if (metadata.category) {
+                type.category = metadata.category;
+            }
+            const operation = {
+                type: type,
                 inputs: new Array(reader.uint32()),
                 outputs: new Array(reader.uint32())
             };
+            for (let i = 0; i < operation.inputs.length; i++) {
+                operation.inputs[i] = {
+                    name: i < metadata.inputs.length ? metadata.inputs[i] : i.toString()
+                };
+            }
+            for (let i = 0; i < operation.outputs.length; i++) {
+                operation.outputs[i] = {
+                    name: i < metadata.outputs.length ? metadata.outputs[i] : i.toString()
+                };
+            }
+            this.operations[i] = operation;
         }
         for (const operand of operands) {
             for (let i = 0; i< operand.dimensions.length; i++) {
@@ -3773,7 +3805,8 @@ pytorch.nnapi.SerializedModel = class {
             }
         }
         for (const value of values) {
-            const operand = operands[value.index];
+            const index = value.index;
+            const operand = operands[index];
             switch (value.source_type) {
                 case 0: { // immediate
                     switch (operand.type) {
@@ -3787,8 +3820,11 @@ pytorch.nnapi.SerializedModel = class {
                         case 'float32':
                             operand.value = reader.float32();
                             break;
-                        case 'int32*':
-                            operand.value = reader.read(value.source_length);
+                        case 'int32[]':
+                            operand.data = reader.read(value.source_length);
+                            break;
+                        case 'float32[]':
+                            operand.data = reader.read(value.source_length);
                             break;
                         default:
                             throw new pytorch.Error("Unsupported NNAPI operand type '" + operand.type.toString() + "'.");
@@ -3802,7 +3838,8 @@ pytorch.nnapi.SerializedModel = class {
                     const number = reader.uint32();
                     const offset = reader.uint32();
                     const operand_length = reader.uint32();
-                    operand.value = [ number, offset, operand_length ];
+                    const buffer = buffers[number];
+                    operand.data = buffer.slice(offset, operand_length);
                     break;
                 }
                 case 3: { // numbered memory
@@ -3815,17 +3852,25 @@ pytorch.nnapi.SerializedModel = class {
         }
         for (const operation of this.operations) {
             for (let i = 0; i< operation.inputs.length; i++) {
-                operation.inputs[i] = operands[reader.uint32()];
+                operation.inputs[i].value = operands[reader.uint32()];
             }
             for (let i = 0; i< operation.outputs.length; i++) {
-                operation.outputs[i] = operands[reader.uint32()];
+                operation.outputs[i].value = operands[reader.uint32()];
             }
         }
         for (let i = 0; i< this.inputs.length; i++) {
-            this.inputs[i] = operands[reader.uint32()];
+            const index = reader.uint32();
+            this.inputs[i] = {
+                name: i.toString(),
+                value: operands[index]
+            };
         }
         for (let i = 0; i< this.outputs.length; i++) {
-            this.outputs[i] = operands[reader.uint32()];
+            const index = reader.uint32();
+            this.outputs[i] = {
+                name: i.toString(),
+                value: operands[index]
+            };
         }
         if (!reader.end()) {
             throw new pytorch.Error('Invalid NNAPI serialized model length.');
@@ -3888,6 +3933,152 @@ pytorch.nnapi.SerializedModel.BinaryReader = class {
         const position = this._position;
         this.skip(4);
         return this._dataView.getFloat32(position, true);
+    }
+};
+
+pytorch.nnapi.Graph = class {
+
+    constructor(model) {
+        this._nodes = [];
+        this._inputs = [];
+        this._outputs = [];
+
+        const args = new Map();
+        const arg = (operand) => {
+            if (!args.has(operand.index)) {
+                const name = operand.index.toString();
+                const shape = new pytorch.TensorShape(operand.dimensions);
+                const type = new pytorch.TensorType(operand.type.replace('[]', ''), shape);
+                const tensor = operand.data ? new pytorch.Tensor(name, type, operand.data, true) : null;
+                const argument = new pytorch.Argument(name, type, tensor);
+                args.set(operand.index, argument);
+            }
+            return args.get(operand.index);
+        };
+        for (const operation of model.operations) {
+            this._nodes.push(new pytorch.nnapi.Node(operation, arg));
+        }
+
+        for (let i = 0; i < model.inputs.length; i++) {
+            const input = model.inputs[i];
+            const operand = input.value;
+            const argument = arg(operand);
+            const parameter = new pytorch.Parameter(input.name, true, [ argument ]);
+            this._inputs.push(parameter);
+        }
+
+        for (let i = 0; i < model.outputs.length; i++) {
+            const output = model.outputs[i];
+            const operand = output.value;
+            const argument = arg(operand);
+            const parameter = new pytorch.Parameter(output.name, true, [ argument ]);
+            this._outputs.push(parameter);
+        }
+    }
+
+    get name() {
+        return 'torch.classes._nnapi.Compilation';
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get nodes() {
+        return this._nodes;
+    }
+};
+
+pytorch.nnapi.Node = class {
+
+    constructor(operation, arg) {
+        this._type = operation.type;
+        this._inputs = [];
+        this._outputs = [];
+        this._attributes = [];
+
+        for (let i = 0; i < operation.inputs.length; i++) {
+            const input = operation.inputs[i];
+            const operand = input.value;
+            if (operand.dimensions.length > 0) {
+                const argument = arg(operand);
+                const parameter = new pytorch.Parameter(input.name, true, [ argument ]);
+                this._inputs.push(parameter);
+            }
+            else {
+                const attribute = new pytorch.nnapi.Attribute(input.name, operand);
+                this._attributes.push(attribute);
+            }
+        }
+
+        for (let i = 0; i < operation.outputs.length; i++) {
+            const output = operation.outputs[i];
+            const operand = output.value;
+            const argument = arg(operand);
+            const parameter = new pytorch.Parameter(output.name, true, [ argument ]);
+            this._outputs.push(parameter);
+        }
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get inputs() {
+        return this._inputs;
+    }
+
+    get outputs() {
+        return this._outputs;
+    }
+
+    get attributes() {
+        return this._attributes;
+    }
+};
+
+pytorch.nnapi.Attribute = class {
+
+    constructor(name, operand) {
+        this._name = name;
+        this._type = operand.type;
+        this._value = operand.value;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get value() {
+        return this._value;
+    }
+
+    get visible() {
+        return false;
+    }
+};
+
+pytorch.nnapi.Tensor = class {
+
+    constructor(type, data) {
+        this._type = type;
+        this._data = data;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get state() {
+        return 'Not implemented.';
     }
 };
 
