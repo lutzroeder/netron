@@ -3,9 +3,9 @@
 
 Netron is a viewer for neural network, deep learning and machine learning models. 
 
-Netron supports ONNX, TensorFlow Lite, Keras, Caffe, Darknet, ncnn, MNN, PaddlePaddle, Core ML, MXNet, RKNN, MindSpore Lite, TNN, Barracuda, Tengine, TensorFlow.js, Caffe2 and UFF.
+Netron supports ONNX, TensorFlow Lite, Caffe, Keras, Darknet, PaddlePaddle, ncnn, MNN, Core ML, RKNN, MXNet, MindSpore Lite, TNN, Barracuda, Tengine, CNTK, TensorFlow.js, Caffe2 and UFF.
 
-Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, Arm NN, BigDL, Chainer, CNTK, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.
+Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, Arm NN, BigDL, Chainer, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.
 
 <p align='center'><a href='https://www.lutzroeder.com/ai'><img src='.github/screenshot.png' width='800'></a></p>
 
