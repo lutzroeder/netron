@@ -91,8 +91,10 @@ openvino.ModelFactory = class {
                     const xml = decoder.decode(context.stream.peek());
                     return open(xml, buffer);
                 }).catch(() => {
+                    const stream = context.stream;
+                    const buffer = stream.peek();
                     const decoder = new TextDecoder('utf-8');
-                    const xml = decoder.decode(context.stream.peek());
+                    const xml = decoder.decode(buffer);
                     return open(xml, null);
                 });
             case 'openvino.bin':
