@@ -17,7 +17,7 @@ uff.ModelFactory = class {
                 tags.has(2) && tags.get(2) === 0 &&
                 tags.has(3) && tags.get(3) === 2 &&
                 tags.has(4) && tags.get(4) === 2 &&
-                tags.has(5) && tags.get(5) === 2) {
+                (!tags.has(5) || tags.get(5) === 2)) {
                 return 'uff.pb';
             }
         }
