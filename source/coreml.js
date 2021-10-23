@@ -7,13 +7,30 @@ var protobuf = protobuf || require('./protobuf');
 coreml.ModelFactory = class {
 
     match(context) {
-        const tags = context.tags('pb');
-        if (tags.get(1) === 0 && tags.get(2) === 2) {
-            return 'coreml.pb';
-        }
         const stream = context.stream;
         const identifier = context.identifier.toLowerCase();
         const extension = identifier.split('.').pop().toLowerCase();
+        const tags = context.tags('pb');
+        if (tags.get(1) === 0 && tags.get(2) === 2) {
+            if (extension === 'pb') {
+                const tags = context.tags('pb+');
+                const keys = Object.keys(tags).map((key) => parseInt(key, 10));
+                const match = (key) =>
+                    (key >= 200 && key < 220) ||
+                    (key >= 300 && key < 320) ||
+                    (key >= 400 && key < 420) ||
+                    (key >= 500 && key < 520) ||
+                    (key >= 550 && key < 560) ||
+                    (key >= 600 && key < 620) ||
+                    (key === 900) ||
+                    (key >= 2000 && key < 2010) ||
+                    (key === 3000);
+                if (!keys.some((key) => match(key))) {
+                    return null;
+                }
+            }
+            return 'coreml.pb';
+        }
         switch (identifier) {
             case 'manifest.json': {
                 const obj = context.open('json');

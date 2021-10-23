@@ -1509,7 +1509,7 @@ view.ModelFactoryService = class {
         this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.ot' ]);
         this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx' ]);
         this.register('./mxnet', [ '.json', '.params' ]);
-        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json' ]);
+        this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
         this.register('./caffe2', [ '.pb', '.pbtxt', '.prototxt' ]);
         this.register('./torch', [ '.t7', '.net' ]);
