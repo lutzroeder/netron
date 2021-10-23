@@ -1426,6 +1426,20 @@ view.ModelContext = class {
                                 }
                                 break;
                             }
+                            case 'xml': {
+                                const buffer = stream.peek();
+                                const decoder = new TextDecoder('utf-8');
+                                const xml = decoder.decode(buffer);
+                                let errors = false;
+                                const parser = new DOMParser({ errorHandler: () => { errors = true; } });
+                                if (!errors) {
+                                    const document = parser.parseFromString(xml, 'text/xml');
+                                    const documentElement = document.documentElement;
+                                    const name = documentElement.namespaceURI ? documentElement.namespaceURI + ':' + documentElement.localName : documentElement.localName;
+                                    tags.set(name, documentElement);
+                                }
+                                break;
+                            }
                         }
                     }
                     catch (error) {
@@ -1772,6 +1786,20 @@ view.ModelFactoryService = class {
                 }
             }
         };
+        const xml = () => {
+            const tags = context.tags('xml');
+            if (tags.size > 0) {
+                const formats = [
+                    { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] }
+                ];
+                for (const format of formats) {
+                    if (format.tags.some((tag) => tags.has(tag))) {
+                        throw new view.Error('Invalid file content. File contains ' + format.name + '.', true);
+                    }
+                }
+                throw new view.Error("Unsupported XML content '" + tags.keys().next().value + "' in '" + identifier + "'.", !skip());
+            }
+        };
         const unknown = () => {
             stream.seek(0);
             const buffer = stream.peek(Math.min(16, stream.length));
@@ -1783,6 +1811,7 @@ view.ModelFactoryService = class {
         pbtxt();
         pb();
         flatbuffers();
+        xml();
         unknown();
     }
 
