@@ -75,7 +75,6 @@ view.View = class {
             this._sidebar.close();
         }
         this._host.document.body.setAttribute('class', page);
-
         switch (page) {
             case 'default': {
                 const element = this._getElementById('graph');
@@ -92,6 +91,7 @@ view.View = class {
                 break;
             }
         }
+        this._page = page;
     }
 
     cut() {
@@ -506,7 +506,7 @@ view.View = class {
                 }
             }
             return this.renderGraph(this._model, this.activeGraph).then(() => {
-                if (!graphs || graphs.length <= 1) {
+                if (this._page !== 'default') {
                     this.show('default');
                 }
                 update();
@@ -515,7 +515,7 @@ view.View = class {
                 this._model = previousModel;
                 this._graphs = previousGraphs;
                 return this.renderGraph(this._model, this.activeGraph).then(() => {
-                    if (!graphs || graphs.length <= 1) {
+                    if (this._page !== 'default') {
                         this.show('default');
                     }
                     update();
