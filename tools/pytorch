@@ -61,7 +61,7 @@ metadata() {
     echo "caffe2 metadata"
     venv
     if [[ $(grep -U $'\x0D' ./source/caffe2-metadata.json) ]]; then crlf=1; else crlf=; fi
-    ${python} ./tools/caffe2-script.py metadata
+    # ${python} ./tools/caffe2-script.py metadata
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/caffe2-metadata.json ./source/caffe2-metadata.json
     fi
