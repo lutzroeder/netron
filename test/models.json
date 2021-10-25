@@ -1422,6 +1422,13 @@
   },
   {
     "type":   "coreml",
+    "target": "lstm_model.mlpackage.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7406821/lstm_model.mlpackage.zip",
+    "format": "Core ML Package v6",
+    "link":   "https://github.com/lutzroeder/netron/issues/832"
+  },
+  {
+    "type":   "coreml",
     "target": "MessageClassifier.mlmodel",
     "source": "https://raw.githubusercontent.com/llSourcell/A_guide_to_coreML/master/MessageClassifier.mlmodel",
     "link":   "https://github.com/llSourcell/A_guide_to_coreML"
