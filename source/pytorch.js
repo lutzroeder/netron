@@ -860,6 +860,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerModule('ops.torchvision');
         this.registerModule('torch');
         this.registerModule('torchvision');
+        this.registerModule('__torch__');
         this.context.scope.ops._caffe2 = { __name__: 'torch', __class__: this.context.scope.builtins.module };
         const self = this;
         const torch = this.context.scope.torch;
@@ -892,6 +893,22 @@ pytorch.Execution = class extends python.Execution {
                         outputs.map((output) => { return { id: output.__variable__ }; })
                     ],
                 });
+            }
+        });
+        this.registerType('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', class {
+            __setstate__(/* state */) {
+            }
+        });
+        this.registerType('__torch__.torch.classes.quantized.LinearPackedParamsBase', class {
+            __setstate__(/* state */) {
+            }
+        });
+        this.registerType('__torch__.torch.classes.xnnpack.Conv2dOpContext', class {
+            __setstate__(/* state */) {
+            }
+        });
+        this.registerType('__torch__.torch.classes.xnnpack.LinearOpContext', class {
+            __setstate__(/* state */) {
             }
         });
         this.registerType('torch.autograd.variable.Variable', class {});
@@ -1825,6 +1842,11 @@ pytorch.Execution = class extends python.Execution {
                 super(size, torch.quint8);
             }
         });
+        this.registerType('torch.QInt32Storage', class extends torch.storage._StorageBase {
+            constructor(size) {
+                super(size, torch.qint32);
+            }
+        });
         this.registerType('torch.Tensor', class {
             constructor() {
             }
@@ -1902,6 +1924,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.DoubleTensor', class extends torch.Tensor {});
         this.registerType('torch.QInt8Tensor', class extends torch.Tensor {});
         this.registerType('torch.QUInt8Tensor', class extends torch.Tensor {});
+        this.registerType('torch.QInt32Tensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.FloatTensor', class extends torch.Tensor {});
         this.registerType('torch.cuda.DoubleTensor', class extends torch.Tensor {});
         torch.uint8 = new torch.dtype(pytorch.ScalarType.uint8);
@@ -2535,7 +2558,8 @@ pytorch.Container.Zip = class {
             if (typename !== 'storage') {
                 throw new pytorch.Error("Unknown persistent load type '" + typename + "'.");
             }
-            const data_type = this.execution.type(saved_id.shift());
+            const name = saved_id.shift();
+            const data_type = this.execution.type(name);
             const root_key = saved_id.shift();
             /* const location = */ saved_id.shift();
             const size = saved_id.shift();
@@ -3634,7 +3658,7 @@ pytorch.nnapi.SerializedModel = class {
         this.operations = new Array(reader.int32());
         this.inputs = new Array(reader.int32());
         this.outputs = new Array(reader.int32());
-        const types = new Map([
+        const data_types = new Map([
             [ 0, 'float32' ],
             [ 1, 'int32' ],
             [ 2, 'uint32' ],
@@ -3652,117 +3676,11 @@ pytorch.nnapi.SerializedModel = class {
             [ 14, 'quant8_asymm_signed[]' ],
             [ 16, 'model' ]
         ]);
-        const operations = new Map();
-        const register = (index, name, category, inputs, outputs) => {
-            operations.set(index, { name: name, category: category, inputs: inputs || [], outputs: outputs || [] });
-        };
-        register( 0, 'ADD', '', [ 'A', 'B', 'activation' ], [ 'C' ]);
-        register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ 'output' ]);
-        register( 2, 'CONCATENATION');
-        register( 3, 'CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
-        register( 4, 'DEPTHWISE_CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
-        register( 5, 'DEPTH_TO_SPACE');
-        register( 6, 'DEQUANTIZE');
-        register( 7, 'EMBEDDING_LOOKUP');
-        register( 8, 'FLOOR');
-        register( 9, 'FULLY_CONNECTED', 'Layer', [ 'input', 'weights', 'bias' ], [ 'output' ]);
-        register(10, 'HASHTABLE_LOOKUP');
-        register(11, 'L2_NORMALIZATION');
-        register(12, 'L2_POOL_2D', 'Pool');
-        register(13, 'LOCAL_RESPONSE_NORMALIZATION');
-        register(14, 'LOGISTIC');
-        register(15, 'LSH_PROJECTION');
-        register(16, 'LSTM', 'Layer');
-        register(17, 'MAX_POOL_2D', 'Pool');
-        register(18, 'MUL');
-        register(19, 'RELU', 'Activation', [ 'input' ], [ 'output' ]);
-        register(20, 'RELU1', 'Activation');
-        register(21, 'RELU6', 'Activation');
-        register(22, 'RESHAPE', 'Shape', [ 'input', 'shape' ], [ 'output' ]);
-        register(23, 'RESIZE_BILINEAR');
-        register(24, 'RNN', 'Layer');
-        register(25, 'SOFTMAX', 'Activation');
-        register(26, 'SPACE_TO_DEPTH');
-        register(27, 'SVDF');
-        register(28, 'TANH');
-        register(29, 'BATCH_TO_SPACE_ND');
-        register(30, 'DIV');
-        register(31, 'MEAN');
-        register(32, 'PAD');
-        register(33, 'SPACE_TO_BATCH_ND');
-        register(34, 'SQUEEZE');
-        register(35, 'STRIDED_SLICE');
-        register(36, 'SUB');
-        register(37, 'TRANSPOSE');
-        register(38, 'ABS');
-        register(39, 'ARGMAX');
-        register(40, 'ARGMIN');
-        register(41, 'AXIS_ALIGNED_BBOX_TRANSFORM');
-        register(42, 'BIDIRECTIONAL_SEQUENCE_LSTM');
-        register(43, 'BIDIRECTIONAL_SEQUENCE_RNN');
-        register(44, 'BOX_WITH_NMS_LIMIT');
-        register(45, 'CAST');
-        register(46, 'CHANNEL_SHUFFLE');
-        register(47, 'DETECTION_POSTPROCESSING');
-        register(48, 'EQUAL');
-        register(49, 'EXP');
-        register(50, 'EXPAND_DIMS');
-        register(51, 'GATHER');
-        register(52, 'GENERATE_PROPOSALS');
-        register(53, 'GREATER');
-        register(54, 'GREATER_EQUAL');
-        register(55, 'GROUPED_CONV_2D');
-        register(56, 'HEATMAP_MAX_KEYPOINT');
-        register(57, 'INSTANCE_NORMALIZATION');
-        register(58, 'LESS');
-        register(59, 'LESS_EQUAL');
-        register(60, 'LOG');
-        register(61, 'LOGICAL_AND');
-        register(62, 'LOGICAL_NOT');
-        register(63, 'LOGICAL_OR');
-        register(64, 'LOG_SOFTMAX');
-        register(65, 'MAXIMUM');
-        register(66, 'MINIMUM');
-        register(67, 'NEG');
-        register(68, 'NOT_EQUAL');
-        register(69, 'PAD_V2');
-        register(70, 'POW');
-        register(71, 'PRELU');
-        register(72, 'QUANTIZE');
-        register(73, 'QUANTIZED_16BIT_LSTM');
-        register(74, 'RANDOM_MULTINOMIAL');
-        register(75, 'REDUCE_ALL');
-        register(76, 'REDUCE_ANY');
-        register(77, 'REDUCE_MAX');
-        register(78, 'REDUCE_MIN');
-        register(79, 'REDUCE_PROD');
-        register(80, 'REDUCE_SUM');
-        register(81, 'ROI_ALIGN');
-        register(82, 'ROI_POOLING');
-        register(83, 'RSQRT');
-        register(84, 'SELECT');
-        register(85, 'SIN');
-        register(86, 'SLICE');
-        register(87, 'SPLIT');
-        register(88, 'SQRT');
-        register(89, 'TILE');
-        register(90, 'TOPK_V2');
-        register(91, 'TRANSPOSE_CONV_2D', 'Layer');
-        register(92, 'UNIDIRECTIONAL_SEQUENCE_LSTM', 'Layer');
-        register(93, 'UNIDIRECTIONAL_SEQUENCE_RNN', 'Layer');
-        register(94, 'RESIZE_NEAREST_NEIGHBOR');
-        register(95, 'QUANTIZED_LSTM', 'Layer');
-        register(96, 'IF');
-        register(97, 'WHILE');
-        register(98, 'ELU', 'Activation');
-        register(99, 'HARD_SWISH', 'Activation');
-        register(100, 'FILL');
-        register(101, 'RANK');
         for (let i = 0; i < operands.length; i++) {
-            const type = reader.int32();
+            const data_type = reader.int32();
             operands[i] = {
                 index: i,
-                type: types.has(type) ? types.get(type) : type,
+                data_type: data_types.has(data_type) ? data_types.get(data_type) : data_type,
                 dimensions: new Array(reader.uint32()),
                 scale: reader.float32(),
                 zero_point: reader.int32()
@@ -3776,28 +3694,12 @@ pytorch.nnapi.SerializedModel = class {
             };
         }
         for (let i = 0; i < this.operations.length; i++) {
-            const operation_type = reader.int32();
-            const metadata = operations.has(operation_type) ? operations.get(operation_type) : { name: operation_type.toString() };
-            const type = { name: metadata.name };
-            if (metadata.category) {
-                type.category = metadata.category;
-            }
-            const operation = {
-                type: type,
+            this.operations[i] = {
+                index: reader.int32(),
+                location: i,
                 inputs: new Array(reader.uint32()),
                 outputs: new Array(reader.uint32())
             };
-            for (let i = 0; i < operation.inputs.length; i++) {
-                operation.inputs[i] = {
-                    name: i < metadata.inputs.length ? metadata.inputs[i] : i.toString()
-                };
-            }
-            for (let i = 0; i < operation.outputs.length; i++) {
-                operation.outputs[i] = {
-                    name: i < metadata.outputs.length ? metadata.outputs[i] : i.toString()
-                };
-            }
-            this.operations[i] = operation;
         }
         for (const operand of operands) {
             for (let i = 0; i< operand.dimensions.length; i++) {
@@ -3809,7 +3711,7 @@ pytorch.nnapi.SerializedModel = class {
             const operand = operands[index];
             switch (value.source_type) {
                 case 0: { // immediate
-                    switch (operand.type) {
+                    switch (operand.data_type) {
                         case 'boolean':
                             operand.value = reader.byte() ? true : false;
                             reader.skip(3);
@@ -3827,7 +3729,7 @@ pytorch.nnapi.SerializedModel = class {
                             operand.data = reader.read(value.source_length);
                             break;
                         default:
-                            throw new pytorch.Error("Unsupported NNAPI operand type '" + operand.type.toString() + "'.");
+                            throw new pytorch.Error("Unsupported NNAPI operand type '" + operand.data_type.toString() + "'.");
                     }
                     break;
                 }
@@ -3852,26 +3754,23 @@ pytorch.nnapi.SerializedModel = class {
         }
         for (const operation of this.operations) {
             for (let i = 0; i< operation.inputs.length; i++) {
-                operation.inputs[i].value = operands[reader.uint32()];
+                const index = reader.uint32();
+                operation.inputs[i] = operands[index];
             }
             for (let i = 0; i< operation.outputs.length; i++) {
-                operation.outputs[i].value = operands[reader.uint32()];
+                const index = reader.uint32();
+                operation.outputs[i] = operands[index];
             }
         }
         for (let i = 0; i< this.inputs.length; i++) {
             const index = reader.uint32();
-            this.inputs[i] = {
-                name: i.toString(),
-                value: operands[index]
-            };
+            this.inputs[i] = operands[index];
         }
         for (let i = 0; i< this.outputs.length; i++) {
             const index = reader.uint32();
-            this.outputs[i] = {
-                name: i.toString(),
-                value: operands[index]
-            };
+            this.outputs[i] = operands[index];
         }
+
         if (!reader.end()) {
             throw new pytorch.Error('Invalid NNAPI serialized model length.');
         }
@@ -3936,6 +3835,163 @@ pytorch.nnapi.SerializedModel.BinaryReader = class {
     }
 };
 
+pytorch.nnapi.Metadata = class {
+
+    constructor() {
+        this._types = new Map();
+        // https://developer.android.com/ndk/reference/group/neural-networks
+        // https://github.com/pytorch/pytorch/commits/master/torch/backends/_nnapi/serializer.py
+        this.register( 0, 'ADD', '', [ 'A', 'B' ], [ [ 'activation', 'int32'] ], [ 'C' ]);
+        this.register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ [ 'padding_left', 'int32' ], [ 'padding_right', 'int32' ], [ 'padding_top', 'int32' ], [ 'padding_bottom', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'filter_x', 'int32' ], [ 'filter_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ] ], [ 'output' ]);
+        this.register( 1, 'AVERAGE_POOL_2D', 'Pool', [ 'input' ], [ [ 'padding_scheme', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'filter_x', 'int32' ], [ 'filter_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ] ], [ 'output' ]);
+        this.register( 2, 'CONCATENATION');
+        this.register( 3, 'CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ [ 'padding_left', 'int32' ], [ 'padding_right', 'int32' ], [ 'padding_top', 'int32' ], [ 'padding_bottom', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ], [ 'dilation_width', 'int32' ], [ 'dilation_height', 'int32' ] ], [ 'output' ]);
+        this.register( 3, 'CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ [ 'padding_scheme', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ], [ 'dilation_width', 'int32' ], [ 'dilation_height', 'int32' ] ], [ 'output' ]);
+        this.register( 4, 'DEPTHWISE_CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ [ 'padding_left', 'int32' ], [ 'padding_right', 'int32' ], [ 'padding_top', 'int32' ], [ 'padding_bottom', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ], [ 'dilation_width', 'int32' ], [ 'dilation_height', 'int32' ] ], [ 'output' ]);
+        this.register( 4, 'DEPTHWISE_CONV_2D', 'Layer', [ 'input', 'weights', 'bias' ], [ [ 'padding_scheme', 'int32' ], [ 'stride_x', 'int32' ], [ 'stride_y', 'int32' ], [ 'activation', 'int32' ], [ 'nchw', 'boolean' ], [ 'dilation_width', 'int32' ], [ 'dilation_height', 'int32' ] ], [ 'output' ]);
+        this.register( 5, 'DEPTH_TO_SPACE');
+        this.register( 6, 'DEQUANTIZE');
+        this.register( 7, 'EMBEDDING_LOOKUP');
+        this.register( 8, 'FLOOR');
+        this.register( 9, 'FULLY_CONNECTED', 'Layer', [ 'input', 'weights', 'bias' ], [ [ 'activation', 'int32' ] ], [ 'output' ]);
+        this.register(10, 'HASHTABLE_LOOKUP');
+        this.register(11, 'L2_NORMALIZATION');
+        this.register(12, 'L2_POOL_2D', 'Pool');
+        this.register(13, 'LOCAL_RESPONSE_NORMALIZATION');
+        this.register(14, 'LOGISTIC');
+        this.register(15, 'LSH_PROJECTION');
+        this.register(16, 'LSTM', 'Layer');
+        this.register(17, 'MAX_POOL_2D', 'Pool');
+        this.register(18, 'MUL');
+        this.register(19, 'RELU', 'Activation', [ 'input' ], [], [ 'output' ]);
+        this.register(20, 'RELU1', 'Activation');
+        this.register(21, 'RELU6', 'Activation');
+        this.register(22, 'RESHAPE', 'Shape', [ 'input', 'shape' ], [], [ 'output' ]);
+        this.register(23, 'RESIZE_BILINEAR');
+        this.register(24, 'RNN', 'Layer');
+        this.register(25, 'SOFTMAX', 'Activation');
+        this.register(26, 'SPACE_TO_DEPTH');
+        this.register(27, 'SVDF');
+        this.register(28, 'TANH');
+        this.register(29, 'BATCH_TO_SPACE_ND');
+        this.register(30, 'DIV');
+        this.register(31, 'MEAN');
+        this.register(32, 'PAD');
+        this.register(33, 'SPACE_TO_BATCH_ND');
+        this.register(34, 'SQUEEZE');
+        this.register(35, 'STRIDED_SLICE');
+        this.register(36, 'SUB');
+        this.register(37, 'TRANSPOSE');
+        this.register(38, 'ABS');
+        this.register(39, 'ARGMAX');
+        this.register(40, 'ARGMIN');
+        this.register(41, 'AXIS_ALIGNED_BBOX_TRANSFORM');
+        this.register(42, 'BIDIRECTIONAL_SEQUENCE_LSTM');
+        this.register(43, 'BIDIRECTIONAL_SEQUENCE_RNN');
+        this.register(44, 'BOX_WITH_NMS_LIMIT');
+        this.register(45, 'CAST');
+        this.register(46, 'CHANNEL_SHUFFLE');
+        this.register(47, 'DETECTION_POSTPROCESSING');
+        this.register(48, 'EQUAL');
+        this.register(49, 'EXP');
+        this.register(50, 'EXPAND_DIMS');
+        this.register(51, 'GATHER');
+        this.register(52, 'GENERATE_PROPOSALS');
+        this.register(53, 'GREATER');
+        this.register(54, 'GREATER_EQUAL');
+        this.register(55, 'GROUPED_CONV_2D');
+        this.register(56, 'HEATMAP_MAX_KEYPOINT');
+        this.register(57, 'INSTANCE_NORMALIZATION');
+        this.register(58, 'LESS');
+        this.register(59, 'LESS_EQUAL');
+        this.register(60, 'LOG');
+        this.register(61, 'LOGICAL_AND');
+        this.register(62, 'LOGICAL_NOT');
+        this.register(63, 'LOGICAL_OR');
+        this.register(64, 'LOG_SOFTMAX');
+        this.register(65, 'MAXIMUM');
+        this.register(66, 'MINIMUM');
+        this.register(67, 'NEG');
+        this.register(68, 'NOT_EQUAL');
+        this.register(69, 'PAD_V2');
+        this.register(70, 'POW');
+        this.register(71, 'PRELU');
+        this.register(72, 'QUANTIZE');
+        this.register(73, 'QUANTIZED_16BIT_LSTM');
+        this.register(74, 'RANDOM_MULTINOMIAL');
+        this.register(75, 'REDUCE_ALL');
+        this.register(76, 'REDUCE_ANY');
+        this.register(77, 'REDUCE_MAX');
+        this.register(78, 'REDUCE_MIN');
+        this.register(79, 'REDUCE_PROD');
+        this.register(80, 'REDUCE_SUM');
+        this.register(81, 'ROI_ALIGN');
+        this.register(82, 'ROI_POOLING');
+        this.register(83, 'RSQRT');
+        this.register(84, 'SELECT');
+        this.register(85, 'SIN');
+        this.register(86, 'SLICE');
+        this.register(87, 'SPLIT');
+        this.register(88, 'SQRT');
+        this.register(89, 'TILE');
+        this.register(90, 'TOPK_V2');
+        this.register(91, 'TRANSPOSE_CONV_2D', 'Layer');
+        this.register(92, 'UNIDIRECTIONAL_SEQUENCE_LSTM', 'Layer');
+        this.register(93, 'UNIDIRECTIONAL_SEQUENCE_RNN', 'Layer');
+        this.register(94, 'RESIZE_NEAREST_NEIGHBOR');
+        this.register(95, 'QUANTIZED_LSTM', 'Layer');
+        this.register(96, 'IF');
+        this.register(97, 'WHILE');
+        this.register(98, 'ELU', 'Activation');
+        this.register(99, 'HARD_SWISH', 'Activation');
+        this.register(100, 'FILL');
+        this.register(101, 'RANK');
+    }
+
+    register(index, name, category, inputs, attributes, outputs) {
+        inputs = inputs || [];
+        outputs = outputs || [];
+        attributes = attributes || [];
+        const type = {
+            name: name,
+            inputs: inputs.map((name) => { return { name: name, type: 'Tensor' }; }),
+            outputs: outputs.map((name) => { return { name: name, type: 'Tensor' }; }),
+            attributes: attributes.map((pair) => { return { name: pair[0], type: pair[1] }; })
+        };
+        if (category) {
+            type.category = category;
+        }
+        if (!this._types.has(index)) {
+            this._types.set(index, []);
+        }
+        this._types.get(index).push(type);
+    }
+
+    type(index, signature) {
+        if (!this._types.has(index)) {
+            this._types.set(index, { name: index.toString(), inputs: [], outputs: [], attributes: [] });
+        }
+        const types = this._types.get(index);
+        for (const type of types) {
+            const inputs = type.inputs.concat(type.attributes);
+            if (signature.length < inputs.length) {
+                let match = true;
+                for (let i = 0; i < inputs.length; i++) {
+                    const input = inputs[i];
+                    if (input.type === undefined || input.type === 'Tensor' || input.type === signature[i]) {
+                        continue;
+                    }
+                    match = false;
+                }
+                if (match) {
+                    return type;
+                }
+            }
+        }
+        return types[0];
+    }
+};
+
 pytorch.nnapi.Graph = class {
 
     constructor(model) {
@@ -3946,32 +4002,29 @@ pytorch.nnapi.Graph = class {
         const args = new Map();
         const arg = (operand) => {
             if (!args.has(operand.index)) {
-                const name = operand.index.toString();
-                const shape = new pytorch.TensorShape(operand.dimensions);
-                const type = new pytorch.TensorType(operand.type.replace('[]', ''), shape);
-                const tensor = operand.data ? new pytorch.Tensor(name, type, operand.data, true) : null;
-                const argument = new pytorch.Argument(name, type, tensor);
+                const argument = new pytorch.nnapi.Argument(operand);
                 args.set(operand.index, argument);
             }
             return args.get(operand.index);
         };
+
+        const metadata = new pytorch.nnapi.Metadata();
         for (const operation of model.operations) {
-            this._nodes.push(new pytorch.nnapi.Node(operation, arg));
+            const node = new pytorch.nnapi.Node(metadata, operation, arg);
+            this._nodes.push(node);
         }
 
         for (let i = 0; i < model.inputs.length; i++) {
-            const input = model.inputs[i];
-            const operand = input.value;
+            const operand = model.inputs[i];
             const argument = arg(operand);
-            const parameter = new pytorch.Parameter(input.name, true, [ argument ]);
+            const parameter = new pytorch.Parameter(i.toString(), true, [ argument ]);
             this._inputs.push(parameter);
         }
 
         for (let i = 0; i < model.outputs.length; i++) {
-            const output = model.outputs[i];
-            const operand = output.value;
+            const operand = model.outputs[i];
             const argument = arg(operand);
-            const parameter = new pytorch.Parameter(output.name, true, [ argument ]);
+            const parameter = new pytorch.Parameter(i.toString(), true, [ argument ]);
             this._outputs.push(parameter);
         }
     }
@@ -3993,39 +4046,92 @@ pytorch.nnapi.Graph = class {
     }
 };
 
+pytorch.nnapi.Argument = class {
+
+    constructor(operand) {
+        this._name = operand.index.toString();
+        const shape = new pytorch.TensorShape(operand.dimensions);
+        this._type = new pytorch.TensorType(operand.data_type.replace('[]', ''), shape);
+        this._initializer = operand.data ? new pytorch.Tensor(this._name, this._type, operand.data, true) : null;
+        this._scale = operand.scale;
+        this._zeroPoint = operand.zero_point;
+    }
+
+    get name() {
+        return this._name;
+    }
+
+    get type() {
+        return this._type;
+    }
+
+    get quantization() {
+        if (this._scale != 0 || this._zeroPoint != 0) {
+            return this._scale.toString() + ' * ' + (this._zeroPoint == 0 ? 'q' : ('(q - ' + this._zeroPoint.toString() + ')'));
+        }
+        return null;
+    }
+
+    get initializer() {
+        return this._initializer;
+    }
+};
+
 pytorch.nnapi.Node = class {
 
-    constructor(operation, arg) {
-        this._type = operation.type;
+    constructor(metadata, operation, arg) {
+        const signature = (operation.inputs || []).map((input) => input.data_type);
+        this._type = metadata.type(operation.index, signature);
         this._inputs = [];
         this._outputs = [];
         this._attributes = [];
+        this._chain = [];
 
-        for (let i = 0; i < operation.inputs.length; i++) {
-            const input = operation.inputs[i];
-            const operand = input.value;
-            if (operand.dimensions.length > 0) {
-                const argument = arg(operand);
-                const parameter = new pytorch.Parameter(input.name, true, [ argument ]);
-                this._inputs.push(parameter);
-            }
-            else {
-                const attribute = new pytorch.nnapi.Attribute(input.name, operand);
-                this._attributes.push(attribute);
+        if (operation.location !== undefined) {
+            this._location = operation.location.toString();
+        }
+
+        const inputs = this._type.inputs.concat(this._type.attributes);
+
+        if (operation.inputs) {
+            for (let i = 0; i < operation.inputs.length; i++) {
+                const name = i < inputs.length ? inputs[i].name : i.toString();
+                const operand = operation.inputs[i];
+                if (operand.dimensions.length > 0) {
+                    const argument = arg(operand);
+                    const parameter = new pytorch.Parameter(name, true, [ argument ]);
+                    this._inputs.push(parameter);
+                }
+                else if (name === 'activation') {
+                    const activation = new Map([ [ 1, 19 ], [ 2, 20 ], [ 3, 21 ] ]).get(operand.value) || 0;
+                    if (activation !== 0) {
+                        this._chain.push(new pytorch.nnapi.Node(metadata, { index: activation }));
+                    }
+                }
+                else {
+                    const attribute = new pytorch.nnapi.Attribute(name, operand);
+                    this._attributes.push(attribute);
+                }
             }
         }
 
-        for (let i = 0; i < operation.outputs.length; i++) {
-            const output = operation.outputs[i];
-            const operand = output.value;
-            const argument = arg(operand);
-            const parameter = new pytorch.Parameter(output.name, true, [ argument ]);
-            this._outputs.push(parameter);
+        if (operation.outputs) {
+            for (let i = 0; i < operation.outputs.length; i++) {
+                const name = i < inputs.length ? inputs[i].name : i.toString();
+                const operand = operation.outputs[i];
+                const argument = arg(operand);
+                const parameter = new pytorch.Parameter(name, true, [ argument ]);
+                this._outputs.push(parameter);
+            }
         }
     }
 
     get type() {
         return this._type;
+    }
+
+    get location() {
+        return this._location;
     }
 
     get inputs() {
@@ -4039,13 +4145,17 @@ pytorch.nnapi.Node = class {
     get attributes() {
         return this._attributes;
     }
+
+    get chain() {
+        return this._chain;
+    }
 };
 
 pytorch.nnapi.Attribute = class {
 
     constructor(name, operand) {
         this._name = name;
-        this._type = operand.type;
+        this._type = operand.data_type;
         this._value = operand.value;
     }
 
@@ -4100,51 +4210,51 @@ pytorch.Metadata = class {
     }
 
     constructor(data) {
-        this._map = new Map();
-        this._attributeCache = new Map();
+        this._types = new Map();
+        this._attributes = new Map();
         if (data) {
             const items = JSON.parse(data);
             for (const item of items) {
-                this._map.set(item.name, item);
+                this._types.set(item.name, item);
                 const index = item.name.indexOf(':');
                 if (index !== -1) {
                     const name = item.name.substring(0, index);
-                    if (!this._map.has(name)) {
-                        this._map.set(name, []);
+                    if (!this._types.has(name)) {
+                        this._types.set(name, []);
                     }
-                    this._map.get(name).push(item.name);
+                    this._types.get(name).push(item.name);
                 }
             }
         }
     }
 
     type(name) {
-        const schema = this._map.get(name);
+        const schema = this._types.get(name);
         if (schema) {
-            return Array.isArray(schema) ? schema.map((name) => this._map.get(name)) : schema;
+            return Array.isArray(schema) ? schema.map((name) => this._types.get(name)) : schema;
         }
         return null;
     }
 
     attribute(type, name) {
         const attributeName = type + ':' + name;
-        if (!this._attributeCache.has(attributeName)) {
-            this._attributeCache.set(attributeName, null);
+        if (!this._attributes.has(attributeName)) {
+            this._attributes.set(attributeName, null);
             const schema = this.type(type);
             if (schema) {
                 if (schema.inputs) {
                     for (const input of schema.inputs) {
-                        this._attributeCache.set(type + ':' + input.name, input);
+                        this._attributes.set(type + ':' + input.name, input);
                     }
                 }
                 if (schema.attributes) {
                     for (const attribute of schema.attributes) {
-                        this._attributeCache.set(type + ':' + attribute.name, attribute);
+                        this._attributes.set(type + ':' + attribute.name, attribute);
                     }
                 }
             }
         }
-        return this._attributeCache.get(attributeName);
+        return this._attributes.get(attributeName);
     }
 };
 
