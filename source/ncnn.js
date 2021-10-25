@@ -5,6 +5,7 @@ var base = base || require('./base');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
+// https://github.com/Tencent/ncnn/wiki/operators
 
 ncnn.ModelFactory = class {
 
@@ -343,7 +344,7 @@ ncnn.Node = class {
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
                 const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
-                this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_w, kernel_h ]);
+                this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_h, kernel_w ]);
                 if (parseInt(attributes.get('5') || 0, 10) === 1) {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
