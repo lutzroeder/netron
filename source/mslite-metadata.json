@@ -2779,6 +2779,9 @@
     "name": "Switch"
   },
   {
+    "name": "SwitchLayer"
+  },
+  {
     "name": "Tan",
     "inputs": [
       { "name": "x" }

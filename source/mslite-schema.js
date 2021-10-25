@@ -267,7 +267,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 91: return $root.mindspore.schema.MaximumGrad.decode(reader, position);
             case 92: return $root.mindspore.schema.MaxPoolFusion.decode(reader, position);
             case 93: return $root.mindspore.schema.MaxPoolGrad.decode(reader, position);
-            case 94: return $root.mindspore.schema.Merge.decode(reader, position);
+            case 94: return $root.mindspore.schema.SwitchLayer.decode(reader, position);
             case 95: return $root.mindspore.schema.Mfcc.decode(reader, position);
             case 96: return $root.mindspore.schema.Minimum.decode(reader, position);
             case 97: return $root.mindspore.schema.MinimumGrad.decode(reader, position);
@@ -473,7 +473,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'MaximumGrad': return $root.mindspore.schema.MaximumGrad.decodeText(reader, json);
             case 'MaxPoolFusion': return $root.mindspore.schema.MaxPoolFusion.decodeText(reader, json);
             case 'MaxPoolGrad': return $root.mindspore.schema.MaxPoolGrad.decodeText(reader, json);
-            case 'Merge': return $root.mindspore.schema.Merge.decodeText(reader, json);
+            case 'SwitchLayer': return $root.mindspore.schema.SwitchLayer.decodeText(reader, json);
             case 'Mfcc': return $root.mindspore.schema.Mfcc.decodeText(reader, json);
             case 'Minimum': return $root.mindspore.schema.Minimum.decodeText(reader, json);
             case 'MinimumGrad': return $root.mindspore.schema.MinimumGrad.decodeText(reader, json);
@@ -2227,15 +2227,15 @@ $root.mindspore.schema.MaxPoolGrad = class MaxPoolGrad {
     }
 };
 
-$root.mindspore.schema.Merge = class Merge {
+$root.mindspore.schema.SwitchLayer = class SwitchLayer {
 
     static decode(/* reader, position */) {
-        const $ = new $root.mindspore.schema.Merge();
+        const $ = new $root.mindspore.schema.SwitchLayer();
         return $;
     }
 
     static decodeText(/* reader, json */) {
-        const $ = new $root.mindspore.schema.Merge();
+        const $ = new $root.mindspore.schema.SwitchLayer();
         return $;
     }
 };
