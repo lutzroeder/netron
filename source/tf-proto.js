@@ -2638,6 +2638,9 @@ $root.tensorflow.SavedObject = class SavedObject {
                 case 14:
                     message.serialized_user_proto = $root.google.protobuf.Any.decode(reader, reader.uint32());
                     break;
+                case 16:
+                    message.registered_saver = reader.string();
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -2694,6 +2697,9 @@ $root.tensorflow.SavedObject = class SavedObject {
                 case "serialized_user_proto":
                     message.serialized_user_proto = $root.google.protobuf.Any.decodeText(reader);
                     break;
+                case "registered_saver":
+                    message.registered_saver = reader.string();
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -2705,6 +2711,7 @@ $root.tensorflow.SavedObject = class SavedObject {
 
 $root.tensorflow.SavedObject.prototype.registered_name = "";
 $root.tensorflow.SavedObject.prototype.serialized_user_proto = null;
+$root.tensorflow.SavedObject.prototype.registered_saver = "";
 
 $root.tensorflow.SavedUserObject = class SavedUserObject {
 
@@ -4136,6 +4143,9 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
                 case 3:
                     message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decode(reader, reader.uint32()));
                     break;
+                case 4:
+                    message.registered_saver = $root.tensorflow.RegisteredSaver.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -4159,6 +4169,9 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
                 case "slot_variables":
                     message.slot_variables.push($root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.decodeText(reader));
                     break;
+                case "registered_saver":
+                    message.registered_saver = $root.tensorflow.RegisteredSaver.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -4167,6 +4180,8 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
         return message;
     }
 };
+
+$root.tensorflow.TrackableObjectGraph.TrackableObject.prototype.registered_saver = null;
 
 $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class ObjectReference {
 
@@ -4335,6 +4350,55 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference = cl
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.prototype.original_variable_node_id = 0;
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.prototype.slot_name = "";
 $root.tensorflow.TrackableObjectGraph.TrackableObject.SlotVariableReference.prototype.slot_variable_node_id = 0;
+
+$root.tensorflow.RegisteredSaver = class RegisteredSaver {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.RegisteredSaver();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.name = reader.string();
+                    break;
+                case 2:
+                    message.object_name = reader.string();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.RegisteredSaver();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "object_name":
+                    message.object_name = reader.string();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.RegisteredSaver.prototype.name = "";
+$root.tensorflow.RegisteredSaver.prototype.object_name = "";
 
 $root.tensorflow.SaverDef = class SaverDef {
 
