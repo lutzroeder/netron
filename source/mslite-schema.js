@@ -3993,6 +3993,27 @@ $root.mindspore.schema.WeightQunatCompressType = {
     FSE: 3
 };
 
+$root.mindspore.schema.ExternalData = class ExternalData {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.ExternalData();
+        $.location = reader.string_(position, 4, null);
+        $.offset = reader.int64_(position, 6, 0);
+        $.length = reader.int64_(position, 8, -1);
+        $.checkSum = reader.string_(position, 10, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.ExternalData();
+        $.location = reader.value(json.location, null);
+        $.offset = reader.value(json.offset, 0);
+        $.length = reader.value(json.length, -1);
+        $.checkSum = reader.value(json.checkSum, null);
+        return $;
+    }
+};
+
 $root.mindspore.schema.Tensor = class Tensor {
 
     static decode(reader, position) {
@@ -4009,6 +4030,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.name = reader.string_(position, 22, null);
         $.enableHuffmanCode = reader.bool_(position, 24, false);
         $.weightQunatCompressType = reader.int32_(position, 26, 0);
+        $.externalData = reader.tableArray(position, 28, $root.mindspore.schema.ExternalData.decode);
         return $;
     }
 
@@ -4026,6 +4048,7 @@ $root.mindspore.schema.Tensor = class Tensor {
         $.name = reader.value(json.name, null);
         $.enableHuffmanCode = reader.value(json.enableHuffmanCode, false);
         $.weightQunatCompressType = $root.mindspore.schema.WeightQunatCompressType[json.weightQunatCompressType];
+        $.externalData = reader.objectArray(json.externalData, $root.mindspore.schema.ExternalData.decodeText);
         return $;
     }
 };
