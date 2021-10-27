@@ -29381,6 +29381,16 @@
           "tensor(complex128)"
         ]
       }
+    ],
+    "examples": [
+      {
+        "summary": "example",
+        "code": "node = onnx.helper.make_node(\n    'SpaceToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n)\n\n# (1, 1, 4, 6) input tensor\nx = np.array([[[[0, 6, 1, 7, 2, 8],\n                [12, 18, 13, 19, 14, 20],\n                [3, 9, 4, 10, 5, 11],\n                [15, 21, 16, 22, 17, 23]]]]).astype(np.float32)\n\n# (1, 4, 2, 3) output tensor\ny = np.array([[[[0, 1, 2],\n                [3, 4, 5]],\n               [[6, 7, 8],\n                [9, 10, 11]],\n               [[12, 13, 14],\n                [15, 16, 17]],\n               [[18, 19, 20],\n                [21, 22, 23]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_spacetodepth_example')"
+      },
+      {
+        "summary": "spacetodepth",
+        "code": "b, c, h, w = shape = (2, 2, 6, 6)\nblocksize = 2\nnode = onnx.helper.make_node(\n    'SpaceToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=blocksize,\n)\nx = np.random.random_sample(shape).astype(np.float32)\ntmp = np.reshape(x, [b, c,\n                     h // blocksize, blocksize,\n                     w // blocksize, blocksize])\ntmp = np.transpose(tmp, [0, 3, 5, 1, 2, 4])\ny = np.reshape(tmp, [b, c * (blocksize**2),\n                     h // blocksize,\n                     w // blocksize])\nexpect(node, inputs=[x], outputs=[y],\n       name='test_spacetodepth')"
+      }
     ]
   },
   {
@@ -29437,6 +29447,16 @@
           "tensor(complex64)",
           "tensor(complex128)"
         ]
+      }
+    ],
+    "examples": [
+      {
+        "summary": "example",
+        "code": "node = onnx.helper.make_node(\n    'SpaceToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=2,\n)\n\n# (1, 1, 4, 6) input tensor\nx = np.array([[[[0, 6, 1, 7, 2, 8],\n                [12, 18, 13, 19, 14, 20],\n                [3, 9, 4, 10, 5, 11],\n                [15, 21, 16, 22, 17, 23]]]]).astype(np.float32)\n\n# (1, 4, 2, 3) output tensor\ny = np.array([[[[0, 1, 2],\n                [3, 4, 5]],\n               [[6, 7, 8],\n                [9, 10, 11]],\n               [[12, 13, 14],\n                [15, 16, 17]],\n               [[18, 19, 20],\n                [21, 22, 23]]]]).astype(np.float32)\nexpect(node, inputs=[x], outputs=[y],\n       name='test_spacetodepth_example')"
+      },
+      {
+        "summary": "spacetodepth",
+        "code": "b, c, h, w = shape = (2, 2, 6, 6)\nblocksize = 2\nnode = onnx.helper.make_node(\n    'SpaceToDepth',\n    inputs=['x'],\n    outputs=['y'],\n    blocksize=blocksize,\n)\nx = np.random.random_sample(shape).astype(np.float32)\ntmp = np.reshape(x, [b, c,\n                     h // blocksize, blocksize,\n                     w // blocksize, blocksize])\ntmp = np.transpose(tmp, [0, 3, 5, 1, 2, 4])\ny = np.reshape(tmp, [b, c * (blocksize**2),\n                     h // blocksize,\n                     w // blocksize])\nexpect(node, inputs=[x], outputs=[y],\n       name='test_spacetodepth')"
       }
     ]
   },
