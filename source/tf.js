@@ -1041,7 +1041,9 @@ tf.Attribute = class {
                 this._type = 'function';
                 this._value = metadata.type(name);
                 if (!this._value) {
-                    throw new tf.Error("Unknown function '" + name + "'.");
+                    // Function was not found in the pbtxt, but we can still visualize the graph
+                    this._type = 'string';
+                    this._value = name + " (not found)";
                 }
                 break;
             }
