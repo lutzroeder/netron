@@ -21,6 +21,7 @@ update: install
 	@./tools/armnn sync schema
 	@./tools/bigdl sync schema
 	@./tools/caffe sync schema
+	@./tools/circle sync schema
 	@./tools/cntk sync schema
 	@./tools/coreml sync schema
 	@./tools/dnn schema
