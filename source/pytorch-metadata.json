@@ -3311,12 +3311,10 @@
   {
     "name": "torch.constant_pad_nd",
     "category": "Tensor",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "pad", "type": "int64[]" },
       { "name": "value", "type": "Scalar", "default": 0 }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3324,7 +3322,7 @@
   },
   {
     "name": "torch.ones",
-    "attributes": [
+    "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -3337,7 +3335,7 @@
   },
   {
     "name": "torch.empty:names",
-    "attributes": [
+    "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "names", "type": "Dimname[]", "optional": true, "default": null },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3352,7 +3350,7 @@
   },
   {
     "name": "torch.empty:memory_format",
-    "attributes": [
+    "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -3366,7 +3364,7 @@
   },
   {
     "name": "torch.zeros",
-    "attributes": [
+    "inputs": [
       { "name": "size", "type": "int64[]" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -3379,15 +3377,13 @@
   },
   {
     "name": "torch.zeros_like",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "self", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3395,15 +3391,13 @@
   },
   {
     "name": "torch.ones_like",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
       { "name": "device", "type": "Device", "optional": true, "default": null },
       { "name": "pin_memory", "type": "boolean", "optional": true, "default": null },
       { "name": "memory_format", "type": "MemoryFormat", "optional": true, "default": null }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3411,7 +3405,7 @@
   },
   {
     "name": "torch.arange:",
-    "attributes": [
+    "inputs": [
       { "name": "end", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
       { "name": "layout", "type": "Layout", "optional": true, "default": null },
@@ -3424,7 +3418,7 @@
   },
   {
     "name": "torch.arange:start",
-    "attributes": [
+    "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
       { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
@@ -3438,7 +3432,7 @@
   },
   {
     "name": "torch.arange:start_step",
-    "attributes": [
+    "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
       { "name": "step", "type": "Scalar" },
@@ -3453,7 +3447,7 @@
   },
   {
     "name": "torch.arange:start_out",
-    "attributes": [
+    "inputs": [
       { "name": "start", "type": "Scalar" },
       { "name": "end", "type": "Scalar" },
       { "name": "step", "type": "Scalar", "default": 1 }
