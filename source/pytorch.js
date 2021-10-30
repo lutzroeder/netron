@@ -81,10 +81,13 @@ pytorch.Graph = class {
                             constant.initializer = pytorch.Utility.createTensor(constant.__variable__, constant, this._littleEndian);
                             initializers.set(constant.__variable__, constant);
                         }
-                        else if (constant && constant.__class__ && constant.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
-                            switch (constant.__class__.__name__) {
-                                case 'LinearOpContext':
-                                case 'Conv2dOpContext':
+                        else if (constant && constant.__class__ && constant.__class__.__module__ && constant.__class__.__name__) {
+                            const type = constant.__class__.__module__ + '.' + constant.__class__.__name__;
+                            switch (type) {
+                                case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                                case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                                case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
+                                case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
                                     for (const key of Object.keys(constant)) {
                                         const value = constant[key];
                                         if (pytorch.Utility.isTensor(value)) {
@@ -94,7 +97,7 @@ pytorch.Graph = class {
                                     }
                                     break;
                                 default:
-                                    throw new pytorch.Error("Unsupported constant context '" + constant.__class__.__name__ + "'.");
+                                    throw new pytorch.Error("Unsupported constant context '" + type + "'.");
                             }
                         }
                         else {
@@ -896,19 +899,65 @@ pytorch.Execution = class extends python.Execution {
             }
         });
         this.registerType('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', class {
-            __setstate__(/* state */) {
+            __setstate__(state) {
+                const pack_version = state[0];
+                if (pack_version !== '2') {
+                    throw new pytorch.Error("Unknown pack version '" + pack_version.toString() + "'.");
+                }
+                const tensors = state[1];
+                const opt_tensors = state[2];
+                const packed_config = pytorch.Utility.createTensor('', tensors[0], true).value;
+                this.weight = tensors[1];
+                this.bias = opt_tensors[0];
+                this.stride = [ packed_config[1], packed_config[2] ];
+                this.padding = [ packed_config[3], packed_config[4] ];
+                this.dilation = [ packed_config[5], packed_config[6] ];
+                this.output_padding = [ packed_config[7], packed_config[8] ];
+                this.groups = packed_config[9];
+            }
+        });
+        this.registerType('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', class {
+            __setstate__(state) {
+                const pack_version = state[0];
+                if (pack_version !== '2') {
+                    throw new pytorch.Error("Unknown pack version '" + pack_version.toString() + "'.");
+                }
+                const tensors = state[1];
+                const opt_tensors = state[2];
+                const packed_config = pytorch.Utility.createTensor('', tensors[0], true).value;
+                this.weight = tensors[1];
+                this.bias = opt_tensors[0];
+                this.stride = [ packed_config[1], packed_config[2] ];
+                this.padding = [ packed_config[3], packed_config[4] ];
+                this.dilation = [ packed_config[5], packed_config[6] ];
+                this.output_padding = [ packed_config[7], packed_config[8] ];
+                this.groups = packed_config[9];
             }
         });
         this.registerType('__torch__.torch.classes.quantized.LinearPackedParamsBase', class {
-            __setstate__(/* state */) {
+            __setstate__(state) {
+                this.weight = state[0];
+                this.bias = state[1];
             }
         });
         this.registerType('__torch__.torch.classes.xnnpack.Conv2dOpContext', class {
-            __setstate__(/* state */) {
+            __setstate__(state) {
+                this.weight = state[0];
+                this.bias = state[1];
+                this.stride = state[2];
+                this.padding = state[3];
+                this.dilation = state[4];
+                this.groups = state[5];
+                this.output_min = state[6];
+                this.output_max = state[7];
             }
         });
         this.registerType('__torch__.torch.classes.xnnpack.LinearOpContext', class {
-            __setstate__(/* state */) {
+            __setstate__(state) {
+                this.weight = state[0];
+                this.bias = state[1];
+                this.output_min = state[2];
+                this.output_max = state[3];
             }
         });
         this.registerType('torch.autograd.variable.Variable', class {});
@@ -1272,84 +1321,61 @@ pytorch.Execution = class extends python.Execution {
             return tensor && tensor.size ? tensor.size() : undefined;
         });
         this.registerFunction('ops.quantized.conv_prepack', function(weight, bias, stride, padding, dilation, groups) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'Conv2dPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias,
-                stride: stride,
-                padding: padding,
-                dilation: dilation,
-                groups: groups
-            };
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
         });
         this.registerFunction('ops.quantized.conv1d_prepack', function(weight, bias, stride, padding, dilation, groups) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'Conv2dPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias,
-                stride: stride,
-                padding: padding,
-                dilation: dilation,
-                groups: groups
-            };
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
         });
         this.registerFunction('ops.quantized.conv2d_prepack', function(weight, bias, stride, padding, dilation, groups) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'Conv2dPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias,
-                stride: stride,
-                padding: padding,
-                dilation: dilation,
-                groups: groups
-            };
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
         });
         this.registerFunction('ops.quantized.conv3d_prepack', function(weight, bias, stride, padding, dilation, groups) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'Conv3dPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias,
-                stride: stride,
-                padding: padding,
-                dilation: dilation,
-                groups: groups
-            };
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv3dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
         });
-        this.registerFunction('ops.quantized.conv_transpose2d_prepack', function(weight, bias, stride, padding, dilation, groups) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'Conv2dPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias,
-                stride: stride,
-                padding: padding,
-                dilation: dilation,
-                groups: groups
-            };
+        this.registerFunction('ops.quantized.conv_transpose2d_prepack', function(weight, bias, stride, padding, output_padding, dilation, groups) {
+            const params = self.invoke('__torch__.torch.classes.quantized.Conv2dPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            params.stride = stride;
+            params.padding =padding;
+            params.output_padding = output_padding;
+            params.dilation = dilation;
+            params.groups = groups;
+            return params;
         });
         this.registerFunction('ops.quantized.linear_prepack', function(weight, bias) {
-            return {
-                __class__: {
-                    __module__: '__torch__.torch.classes.quantized',
-                    __name__: 'LinearPackedParamsBase'
-                },
-                weight: weight,
-                bias: bias
-            };
+            const params = self.invoke('__torch__.torch.classes.quantized.LinearPackedParamsBase', []);
+            params.weight = weight;
+            params.bias = bias;
+            return params;
         });
         this.registerFunction('ops.prim.RaiseException', function(message) {
             throw new pytorch.Error(message);
@@ -1693,6 +1719,7 @@ pytorch.Execution = class extends python.Execution {
             return NaN;
         });
         this.registerFunction('torch.slice', function(l, start, end, step) {
+            step = step || 1;
             if (step !== 1) {
                 throw new pytorch.Error('Slicing only supports step=1');
             }
@@ -2344,19 +2371,22 @@ pytorch.Container.Zip = class {
                     if (pytorch.Utility.isTensor(constant)) {
                         constant.__variable__ = variable;
                     }
-                    else if (constant && constant.__class__ && constant.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
-                        switch (constant.__class__.__name__) {
-                            case 'LinearOpContext':
-                            case 'Conv2dOpContext':
-                                if (pytorch.Utility.isTensor(constant[0])) {
-                                    constant[0].__variable__ = variable + '.weight';
+                    else if (constant && constant.__class__ && constant.__class__.__module__ && constant.__class__.__name__) {
+                        const type = constant.__class__.__module__ + '.' + constant.__class__.__name__;
+                        switch (type) {
+                            case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                            case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                            case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
+                            case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
+                                if (pytorch.Utility.isTensor(constant.weight)) {
+                                    constant.weight.__variable__ = variable + '.weight';
                                 }
-                                if (pytorch.Utility.isTensor(constant[1])) {
-                                    constant[1].__variable__ = variable + '.bias';
+                                if (pytorch.Utility.isTensor(constant.bias)) {
+                                    constant.bias.__variable__ = variable + '.bias';
                                 }
                                 break;
                             default:
-                                throw new pytorch.Error("Unsupported constant context '" + constant.__class__.__name__ + "'.");
+                                throw new pytorch.Error("Unsupported constant context '" + type + "'.");
                         }
                     }
                     else {
@@ -2761,62 +2791,42 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     const referencedParameters = [];
                     let next = false;
                     const parameters = Array.prototype.slice.call(schema.inputs || []).concat(Array.prototype.slice.call(schema.attributes || []));
-                    while (copyEvalArgs.length > 0) {
+                    let op_context = null;
+                    while (copyEvalArgs.length > 0 || (op_context && parameters.length > 0)) {
 
                         if (parameters.length <= 0) {
                             next = true;
                             break;
                         }
 
-                        const paramsBase = copyEvalArgs[0];
-                        if (paramsBase && paramsBase.__class__ && paramsBase.__class__.__module__ === '__torch__.torch.classes.quantized') {
-                            switch (paramsBase.__class__.__name__) {
-                                case 'Conv2dPackedParamsBase':
-                                case 'Conv3dPackedParamsBase': {
+                        const arg = copyEvalArgs[0];
+                        if (arg && arg.__class__ && arg.__class__.__module__ && arg.__class__.__name__) {
+                            const type = arg.__class__.__module__ + '.' + arg.__class__.__name__;
+                            switch (type) {
+                                case '__torch__.torch.classes.quantized.Conv2dPackedParamsBase':
+                                case '__torch__.torch.classes.quantized.Conv3dPackedParamsBase':
+                                case '__torch__.torch.classes.quantized.LinearPackedParamsBase':
+                                case '__torch__.torch.classes.xnnpack.Conv2dOpContext':
+                                case '__torch__.torch.classes.xnnpack.LinearOpContext':
+                                    op_context = arg;
                                     copyArgs.shift();
                                     copyEvalArgs.shift();
-                                    copyArgs.unshift({ type: null });
-                                    copyEvalArgs.unshift(paramsBase.bias);
-                                    copyArgs.unshift({ type: null });
-                                    copyEvalArgs.unshift(paramsBase.weight);
-                                    break;
-                                }
-                                case 'LinearPackedParamsBase': {
-                                    copyArgs.shift();
-                                    copyEvalArgs.shift();
-                                    copyArgs.unshift({ type: null });
-                                    copyEvalArgs.unshift(paramsBase.bias);
-                                    copyArgs.unshift({ type: null });
-                                    copyEvalArgs.unshift(paramsBase.weight);
-                                    break;
-                                }
-                                default:
-                                    throw new pytorch.Error("Unsupported type '" + paramsBase.__name__ + "'.");
+                                    continue;
                             }
                         }
-                        const op_context = copyEvalArgs[0];
-                        if (op_context && op_context.__class__ && op_context.__class__.__module__ === '__torch__.torch.classes.xnnpack') {
-                            switch (op_context.__class__.__name__) {
-                                case 'LinearOpContext':
-                                case 'Conv2dOpContext':
-                                    copyArgs.shift();
-                                    copyEvalArgs.shift();
-                                    for (const key of Object.keys(op_context).filter((key) => Number.isInteger(parseInt(key, 10)))) {
-                                        copyArgs.push({ type: null });
-                                        copyEvalArgs.push(op_context[key]);
-                                    }
-                                    break;
-                                default:
-                                    throw new pytorch.Error("Unsupported type '" + paramsBase.__name__ + "'.");
+
+                        if (op_context && parameters[0]) {
+                            const parameter = parameters[0];
+                            const name = parameter.name;
+                            if (name in op_context && parameter.context) {
+                                copyArgs.unshift({ type: null });
+                                copyEvalArgs.unshift(op_context[name]);
                             }
                         }
 
                         if (copyArgs.every((arg) => arg.type === '=' && arg.target && arg.target.type === 'id') &&
                             parameters.every((parameter) => parameter.type !== 'Tensor' && parameter.type !== 'Tensor[]')) {
-                            const map = new Map();
-                            for (const parameter of parameters) {
-                                map.set(parameter.name, parameter);
-                            }
+                            const map = new Map(parameters.map((parameter) => [ parameter.name, parameter ]));
                             while (copyArgs.length > 0) {
                                 const argument = copyArgs.shift();
                                 const value = copyEvalArgs.shift();
@@ -2925,6 +2935,11 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 parameter.__origin__ = type;
                                 if (i === 0) {
                                     switch (type) {
+                                        case 'torch.conv1d':
+                                        case 'torch.embedding': {
+                                            parameter.resize_([ NaN, NaN, NaN ]);
+                                            break;
+                                        }
                                         case 'torch.cat':
                                         case 'torch.conv2d':
                                         case 'torch.dropout':
@@ -2944,18 +2959,27 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             parameter.resize_([ NaN, NaN, NaN, NaN, NaN ]);
                                             break;
                                         }
-                                        case 'torch.embedding': {
-                                            parameter.resize_([ NaN, NaN, NaN ]);
-                                            break;
-                                        }
                                         case 'torch.mean':
                                         case 'torch.mul':
                                         case 'torch.add':
                                         case 'torch.batch_norm':
+                                        case 'torch.gelu':
                                         case 'torch.relu': {
                                             const input = this.expression(args[0], context);
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 parameter.resize_(input.size());
+                                            }
+                                            break;
+                                        }
+                                        case 'torch.layer_norm': {
+                                            const input = this.expression(args[0], context);
+                                            const normalized_shape = this.expression(args[1], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                const shape = input.size();
+                                                if (Array.isArray(normalized_shape) && normalized_shape.length === 1) {
+                                                    shape[shape.length - 1] = normalized_shape[0];
+                                                }
+                                                parameter.resize_(shape);
                                             }
                                             break;
                                         }
@@ -2965,8 +2989,25 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             parameter.resize_(this.expression(args[0], context));
                                             break;
                                         }
+                                        case 'torch.view':
+                                        case 'torch.reshape':
                                         case 'torch.new_full': {
                                             parameter.resize_(this.expression(args[1], context));
+                                            break;
+                                        }
+                                        case 'torch.transpose': {
+                                            const input = this.expression(args[0], context);
+                                            let dim0 = this.expression(args[1], context);
+                                            let dim1 = this.expression(args[2], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                const size = input.size().slice();
+                                                dim0 = dim0 > 0 ? dim0 : size.length + dim0;
+                                                dim1 = dim1 > 0 ? dim1 : size.length + dim1;
+                                                const value = size[dim0];
+                                                size[dim0] = size[1];
+                                                size[dim1] = value;
+                                                parameter.resize_(size);
+                                            }
                                             break;
                                         }
                                         case 'ops.quantized.cat':
@@ -2976,12 +3017,6 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'ops.quantized.conv2d_relu':
                                         case 'ops.quantized.add_relu':
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
-                                            break;
-                                        case 'torch.view':
-                                            parameter.resize_(this.expression(args[1], context));
-                                            break;
-                                        case 'torch.reshape':
-                                            parameter.resize_(this.expression(args[1], context));
                                             break;
                                         case 'torch.contiguous':
                                             parameter.__source__ = this.expression(args[0], context);

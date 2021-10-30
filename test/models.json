@@ -4467,8 +4467,15 @@
   },
   {
     "type":   "pytorch",
-    "target": "mobilenetv2-quant_none-nnapi.pt",
-    "source": "https://github.com/lutzroeder/netron/files/5647823/mobilenetv2-quant_none-nnapi.pt.zip[mobilenetv2-quant_none-nnapi.pt]",
+    "target": "mobilenetv2-quant_full-nnapi.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7406443/mobilenetv2-quant_full.zip[mobilenetv2-quant_full/mobilenetv2-quant_full-nnapi.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/644"
+  },
+  {
+    "type":   "pytorch",
+    "target": "mobilenetv2-quant_full-cpu.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7406443/mobilenetv2-quant_full.zip[mobilenetv2-quant_full/mobilenetv2-quant_full-cpu.pt]",
     "format": "TorchScript v1.6",
     "link":   "https://github.com/lutzroeder/netron/issues/644"
   },

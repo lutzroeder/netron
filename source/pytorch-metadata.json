@@ -560,14 +560,14 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "orig_weight_", "type": "Tensor" },
-      { "name": "orig_bias_", "type": "Tensor", "optional": true },
-      { "name": "stride_", "type": "int64[]" },
-      { "name": "padding_", "type": "int64[]" },
-      { "name": "dilation_", "type": "int64[]" },
-      { "name": "groups_", "type": "int64" },
-      { "name": "output_min_", "type": "Scalar", "optional": true },
-      { "name": "output_max_", "type": "Scalar", "optional": true }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "context": true },
+      { "name": "padding", "type": "int64[]", "context": true },
+      { "name": "dilation", "type": "int64[]", "context": true },
+      { "name": "groups", "type": "int64", "context": true },
+      { "name": "output_min", "type": "Scalar", "context": true },
+      { "name": "output_max", "type": "Scalar", "context": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -576,14 +576,12 @@
   {
     "name": "ops.prepacked.linear_clamp_run",
     "category": "Layer",
-    "attributes": [
-      { "name": "output_min_", "type": "Scalar", "optional": true },
-      { "name": "output_max_", "type": "Scalar", "optional": true }
-    ],
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "orig_weight_", "type": "Tensor" },
-      { "name": "orig_bias_", "type": "Tensor", "optional": true }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "output_min", "type": "Scalar", "context": true },
+      { "name": "output_max", "type": "Scalar", "context": true }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -606,14 +604,12 @@
   {
     "name": "ops.quantized.linear",
     "category": "Layer",
-    "attributes": [
-      { "name": "Y_scale_i", "type": "float32" },
-      { "name": "Y_zero_point_i", "type": "int64" }
-    ],
     "inputs": [
       { "name": "X", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "Y_scale_i", "type": "float32" },
+      { "name": "Y_zero_point_i", "type": "int64" }
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
@@ -622,14 +618,12 @@
   {
     "name": "ops.quantized.linear_relu",
     "category": "Layer",
-    "attributes": [
-      { "name": "Y_scale_i", "type": "float32" },
-      { "name": "Y_zero_point_i", "type": "int64" }
-    ],
     "inputs": [
       { "name": "X", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "Y_scale_i", "type": "float32" },
+      { "name": "Y_zero_point_i", "type": "int64" }
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
@@ -638,13 +632,11 @@
   {
     "name": "ops.quantized.linear_dynamic",
     "category": "Layer",
-    "attributes": [
-      { "name": "reduce_range", "type": "boolean", "default": false }
-    ],
     "inputs": [
       { "name": "X", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "reduce_range", "type": "boolean", "default": false }
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
@@ -653,14 +645,12 @@
   {
     "name": "ops.quantized.linear_relu_dynamic",
     "category": "Layer",
-    "attributes": [
-      { "name": "Y_scale_i", "type": "float32" },
-      { "name": "Y_zero_point_i", "type": "int64" }
-    ],
     "inputs": [
       { "name": "X", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" }
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "Y_scale_i", "type": "float32" },
+      { "name": "Y_zero_point_i", "type": "int64" }
     ],
     "outputs": [
       { "name": "Y", "type": "Tensor" }
@@ -676,12 +666,16 @@
     ]
   },
   {
-    "name": "ops.quantized.conv1d",
+    "name": "ops.quantized.conv1d:",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -694,8 +688,8 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
@@ -712,8 +706,12 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -724,18 +722,16 @@
   {
     "name": "ops.quantized.conv3d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -746,8 +742,12 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float32" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -756,12 +756,16 @@
     ]
   },
   {
-    "name": "ops.quantized.conv1d_relu",
+    "name": "ops.quantized.conv1d_relu:",
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float64" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -774,8 +778,8 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
@@ -792,8 +796,12 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float64" },
       { "name": "output_zero_point", "type": "int64" }
     ],
@@ -806,8 +814,8 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
@@ -824,8 +832,12 @@
     "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor", "context": true },
+      { "name": "bias", "type": "Tensor", "context": true },
+      { "name": "stride", "type": "int64[]", "default": 1, "context": true },
+      { "name": "padding", "type": "int64[]", "default": 0, "context": true },
+      { "name": "dilation", "type": "int64[]", "default": 1, "context": true },
+      { "name": "groups", "type": "int64", "default": 1, "context": true },
       { "name": "output_scale", "type": "float64" },
       { "name": "output_zero_point", "type": "int64" }
     ],
