@@ -3997,19 +3997,19 @@ $root.mindspore.schema.ExternalData = class ExternalData {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.ExternalData();
-        $.location = reader.string_(position, 4, null);
-        $.offset = reader.int64_(position, 6, 0);
-        $.length = reader.int64_(position, 8, -1);
-        $.checkSum = reader.string_(position, 10, null);
+        $.checkSum = reader.string_(position, 4, null);
+        $.location = reader.string_(position, 6, null);
+        $.offset = reader.int64_(position, 8, 0);
+        $.length = reader.int64_(position, 10, -1);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.ExternalData();
+        $.checkSum = reader.value(json.checkSum, null);
         $.location = reader.value(json.location, null);
         $.offset = reader.value(json.offset, 0);
         $.length = reader.value(json.length, -1);
-        $.checkSum = reader.value(json.checkSum, null);
         return $;
     }
 };
