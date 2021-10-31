@@ -1430,13 +1430,26 @@ view.ModelContext = class {
                                 const buffer = stream.peek();
                                 const decoder = new TextDecoder('utf-8');
                                 const xml = decoder.decode(buffer);
-                                let errors = false;
-                                const parser = new DOMParser({ errorHandler: () => { errors = true; } });
-                                if (!errors) {
-                                    const document = parser.parseFromString(xml, 'text/xml');
-                                    const documentElement = document.documentElement;
-                                    const name = documentElement.namespaceURI ? documentElement.namespaceURI + ':' + documentElement.localName : documentElement.localName;
-                                    tags.set(name, documentElement);
+                                let success = true;
+                                const parser = new DOMParser({ errorHandler: () => { success = false; } });
+                                const document = parser.parseFromString(xml, 'text/xml');
+                                const errors = (document) => {
+                                    const errors = document.getElementsByTagName("parsererror");
+                                    if (errors.length > 0) {
+                                        const namespace = errors[0].namespaceURI;
+                                        if (namespace === 'http://www.w3.org/1999/xhtml') {
+                                            return document.getElementsByTagName("parsererror");
+                                        }
+                                        return document.getElementsByTagNameNS(namespace, 'parsererror');
+                                    }
+                                    return [];
+                                };
+                                if (success && errors(document).length === 0) {
+                                    const element = document.documentElement;
+                                    const namespace = element.namespaceURI;
+                                    const localName = element.localName;
+                                    const name = namespace ? namespace + ':' + localName : localName;
+                                    tags.set(name, element);
                                 }
                                 break;
                             }
@@ -1790,7 +1803,8 @@ view.ModelFactoryService = class {
             const tags = context.tags('xml');
             if (tags.size > 0) {
                 const formats = [
-                    { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] }
+                    { name: 'OpenCV storage data', tags: [ 'opencv_storage' ] },
+                    { name: 'XHTML markup', tags: [ 'http://www.w3.org/1999/xhtml:html' ]}
                 ];
                 for (const format of formats) {
                     if (format.tags.some((tag) => tags.has(tag))) {

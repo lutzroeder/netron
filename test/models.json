@@ -112,6 +112,13 @@
   },
   {
     "type":   "_",
+    "target": "random.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/7449479/random.onnx.zip[random.onnx]",
+    "error":  "Unsupported file content (746d6c20786d6c6e733d22687474703a) for extension '.onnx' in 'random.onnx'.",
+    "link":   "https://github.com/lutzroeder/netron/issues/458"
+  },
+  {
+    "type":   "_",
     "target": "spm_char.model",
     "source": "https://github.com/lutzroeder/netron/files/6611189/covost2_en_asr_vocab_char.zip[spm_char.model]",
     "error":  "Invalid file content. File contains sentencepiece.ModelProto data.",
