@@ -70,7 +70,7 @@ openvino.ModelFactory = class {
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
-                    throw new openvino.Error('File format is not OpenVINO XAML (' + message.replace(/\.$/, '') + ').');
+                    throw new openvino.Error('File format is not OpenVINO XML (' + message.replace(/\.$/, '') + ').');
                 }
                 if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
                     throw new openvino.Error('File format is not OpenVINO.');
