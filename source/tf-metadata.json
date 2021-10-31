@@ -2621,6 +2621,11 @@
         "name": "dtype",
         "type": "type",
         "description": "the dtype of the value."
+      },
+      {
+        "name": "validate_shape",
+        "type": "boolean",
+        "default": false
       }
     ],
     "inputs": [
@@ -12370,7 +12375,7 @@
   {
     "name": "DecodeProtoV2",
     "summary": "The op extracts fields from a serialized protocol buffers message into tensors.",
-    "description": "The `decode_proto` op extracts fields from a serialized protocol buffers\nmessage into tensors.  The fields in `field_names` are decoded and converted\nto the corresponding `output_types` if possible.\n\nA `message_type` name must be provided to give context for the field names.\nThe actual message descriptor can be looked up either in the linked-in\ndescriptor pool or a filename provided by the caller using the\n`descriptor_source` attribute.\n\nEach output tensor is a dense tensor. This means that it is padded to hold\nthe largest number of repeated elements seen in the input minibatch. (The\nshape is also padded by one to prevent zero-sized dimensions). The actual\nrepeat counts for each example in the minibatch can be found in the `sizes`\noutput. In many cases the output of `decode_proto` is fed immediately into\ntf.squeeze if missing values are not a concern. When using tf.squeeze, always\npass the squeeze dimension explicitly to avoid surprises.\n\nFor the most part, the mapping between Proto field types and TensorFlow dtypes\nis straightforward. However, there are a few special cases:\n\n- A proto field that contains a submessage or group can only be converted\nto `DT_STRING` (the serialized submessage). This is to reduce the complexity\nof the API. The resulting string can be used as input to another instance of\nthe decode_proto op.\n\n- TensorFlow lacks support for unsigned integers. The ops represent uint64\ntypes as a `DT_INT64` with the same twos-complement bit pattern (the obvious\nway). Unsigned int32 values can be represented exactly by specifying type\n`DT_INT64`, or using twos-complement if the caller specifies `DT_INT32` in\nthe `output_types` attribute.\n\nBoth binary and text proto serializations are supported, and can be\nchosen using the `format` attribute.\n\nThe `descriptor_source` attribute selects the source of protocol\ndescriptors to consult when looking up `message_type`. This may be:\n\n- An empty string  or \"local://\", in which case protocol descriptors are\ncreated for C++ (not Python) proto definitions linked to the binary.\n\n- A file, in which case protocol descriptors are created from the file,\nwhich is expected to contain a `FileDescriptorSet` serialized as a string.\nNOTE: You can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\n- A \"bytes://<bytes>\", in which protocol descriptors are created from `<bytes>`,\nwhich is expected to be a `FileDescriptorSet` serialized as a string.",
+    "description": "Note: This API is designed for orthogonality rather than human-friendliness. It\ncan be used to parse input protos by hand, but it is intended for use in\ngenerated code.\n\nThe `decode_proto` op extracts fields from a serialized protocol buffers\nmessage into tensors.  The fields in `field_names` are decoded and converted\nto the corresponding `output_types` if possible.\n\nA `message_type` name must be provided to give context for the field names.\nThe actual message descriptor can be looked up either in the linked-in\ndescriptor pool or a filename provided by the caller using the\n`descriptor_source` attribute.\n\nEach output tensor is a dense tensor. This means that it is padded to hold\nthe largest number of repeated elements seen in the input minibatch. (The\nshape is also padded by one to prevent zero-sized dimensions). The actual\nrepeat counts for each example in the minibatch can be found in the `sizes`\noutput. In many cases the output of `decode_proto` is fed immediately into\ntf.squeeze if missing values are not a concern. When using tf.squeeze, always\npass the squeeze dimension explicitly to avoid surprises.\n\nFor the most part, the mapping between Proto field types and TensorFlow dtypes\nis straightforward. However, there are a few special cases:\n\n- A proto field that contains a submessage or group can only be converted\nto `DT_STRING` (the serialized submessage). This is to reduce the complexity\nof the API. The resulting string can be used as input to another instance of\nthe decode_proto op.\n\n- TensorFlow lacks support for unsigned integers. The ops represent uint64\ntypes as a `DT_INT64` with the same twos-complement bit pattern (the obvious\nway). Unsigned int32 values can be represented exactly by specifying type\n`DT_INT64`, or using twos-complement if the caller specifies `DT_INT32` in\nthe `output_types` attribute.\n\n- `map` fields are not directly decoded. They are treated as `repeated` fields,\nof the appropriate entry type. The proto-compiler defines entry types for each\nmap field. The type-name is the field name, converted to \"CamelCase\" with\n\"Entry\" appended. The `tf.train.Features.FeatureEntry` message is an example of\none of these implicit `Entry` types.\n\n- `enum` fields should be read as int32.\n\nBoth binary and text proto serializations are supported, and can be\nchosen using the `format` attribute.\n\nThe `descriptor_source` attribute selects the source of protocol\ndescriptors to consult when looking up `message_type`. This may be:\n\n- An empty string  or \"local://\", in which case protocol descriptors are\ncreated for C++ (not Python) proto definitions linked to the binary.\n\n- A file, in which case protocol descriptors are created from the file,\nwhich is expected to contain a `FileDescriptorSet` serialized as a string.\nNOTE: You can build a `descriptor_source` file using the `--descriptor_set_out`\nand `--include_imports` options to the protocol compiler `protoc`.\n\n- A \"bytes://<bytes>\", in which protocol descriptors are created from `<bytes>`,\nwhich is expected to be a `FileDescriptorSet` serialized as a string.",
     "attributes": [
       {
         "name": "message_type",
@@ -17192,6 +17197,27 @@
         "name": "handle",
         "type": 7,
         "isRef": true
+      }
+    ]
+  },
+  {
+    "name": "FileSystemSetConfiguration",
+    "summary": "Set configuration of the file system.",
+    "inputs": [
+      {
+        "name": "scheme",
+        "description": "File system scheme.",
+        "type": 7
+      },
+      {
+        "name": "key",
+        "description": "The name of the configuration option.",
+        "type": 7
+      },
+      {
+        "name": "value",
+        "description": "The value of the configuration option.",
+        "type": 7
       }
     ]
   },
@@ -46579,6 +46605,11 @@
     "summary": "Creates a dataset that passes a sliding window over `input_dataset`.",
     "attributes": [
       {
+        "name": "drop_remainder",
+        "type": "boolean",
+        "default": true
+      },
+      {
         "name": "output_types",
         "type": "type[]",
         "minimum": 1
@@ -59413,8 +59444,8 @@
   },
   {
     "name": "WriteFile",
-    "summary": "Writes contents to the file at input filename. Creates file and recursively",
-    "description": "creates directory if not existing.",
+    "summary": "Writes `contents` to the file at input `filename`.",
+    "description": "Creates the file and recursively creates directory if it does not exist.",
     "inputs": [
       {
         "name": "filename",
