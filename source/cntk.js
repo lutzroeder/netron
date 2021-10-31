@@ -1312,13 +1312,13 @@ cntk_v1.Reader = class {
     }
 
     string() {
-        let text = '';
+        let content = '';
         let c = this.uint16();
         while (c != 0) {
-            text += String.fromCharCode(c);
+            content += String.fromCharCode(c);
             c = this.uint16();
         }
-        return text;
+        return content;
     }
 
     strings(count) {

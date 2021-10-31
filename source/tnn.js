@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var tnn = tnn || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 tnn.ModelFactory = class {
 
@@ -9,10 +9,10 @@ tnn.ModelFactory = class {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.tnnproto')) {
             try {
-                const reader = base.TextReader.open(context.stream.peek(), 2048);
-                const text = reader.read();
-                if (text !== undefined) {
-                    const line = text.trim();
+                const reader = text.Reader.open(context.stream.peek(), 2048);
+                const content = reader.read();
+                if (content !== undefined) {
+                    const line = content.trim();
                     if (line.startsWith('"') && line.endsWith('"')) {
                         const header = line.replace(/(^")|("$)/g, '').split(',').shift().trim().split(' ');
                         if (header.length === 3 || (header.length >= 4 && (header[3] === '4206624770' || header[3] == '4206624772'))) {
@@ -628,7 +628,7 @@ tnn.Metadata = class {
 tnn.TextProtoReader = class {
 
     constructor(buffer) {
-        const reader = base.TextReader.open(buffer);
+        const reader = text.Reader.open(buffer);
         let lines = [];
         for (;;) {
             const line = reader.read();
@@ -905,9 +905,9 @@ tnn.BinaryReader = class {
     }
 
     expect(name) {
-        const text = this.string();
-        if (name !== text) {
-            throw new tnn.Error("Invalid string '" + text + "' instead of '" + name + "'.");
+        const content = this.string();
+        if (name !== content) {
+            throw new tnn.Error("Invalid string '" + content + "' instead of '" + name + "'.");
         }
     }
 };

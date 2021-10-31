@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var darknet = darknet || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 darknet.ModelFactory = class {
 
@@ -16,17 +16,17 @@ darknet.ModelFactory = class {
                 break;
             default:
                 try {
-                    const reader = base.TextReader.open(context.stream.peek(), 65536);
+                    const reader = text.Reader.open(context.stream.peek(), 65536);
                     for (;;) {
                         const line = reader.read();
                         if (line === undefined) {
                             break;
                         }
-                        const text = line.trim();
-                        if (text.length === 0 || text.startsWith('#')) {
+                        const content = line.trim();
+                        if (content.length === 0 || content.startsWith('#')) {
                             continue;
                         }
-                        if (text.startsWith('[') && text.endsWith(']')) {
+                        if (content.startsWith('[') && content.endsWith(']')) {
                             return 'darknet.model';
                         }
                         return undefined;
@@ -94,15 +94,15 @@ darknet.Graph = class {
         // read_cfg
         const sections = [];
         let section = null;
-        const reader = base.TextReader.open(cfg);
+        const reader = text.Reader.open(cfg);
         let lineNumber = 0;
         for (;;) {
             lineNumber++;
-            const text = reader.read();
-            if (text === undefined) {
+            const content = reader.read();
+            if (content === undefined) {
                 break;
             }
-            const line = text.replace(/\s/g, '');
+            const line = content.replace(/\s/g, '');
             if (line.length > 0) {
                 switch (line[0]) {
                     case '#':
@@ -120,11 +120,11 @@ darknet.Graph = class {
                     }
                     default: {
                         if (!section || line[0] < 0x20 || line[0] > 0x7E) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
                         const index = line.indexOf('=');
                         if (index < 0) {
-                            throw new darknet.Error("Invalid cfg '" + text.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
+                            throw new darknet.Error("Invalid cfg '" + content.replace(/[^\x20-\x7E]+/g, '?').trim() + "' at line " + lineNumber.toString() + ".");
                         }
                         const key = line.substring(0, index);
                         const value = line.substring(index + 1);

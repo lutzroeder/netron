@@ -865,9 +865,9 @@ view.View = class {
                 this._sidebar.open(content, 'Model Properties');
             }
             catch (error) {
-                const text = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + text;
+                const content = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + content;
                 }
                 this.error(error, 'Error showing model properties.', null);
             }
@@ -922,9 +922,9 @@ view.View = class {
                 this._sidebar.open(nodeSidebar.render(), 'Node Properties');
             }
             catch (error) {
-                const text = " in '" + this._model.identifier + "'.";
-                if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
-                    error.message = error.message.replace(/\.$/, '') + text;
+                const content = " in '" + this._model.identifier + "'.";
+                if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                    error.message = error.message.replace(/\.$/, '') + content;
                 }
                 this.error(error, 'Error showing node properties.', null);
             }
@@ -1213,7 +1213,7 @@ view.Argument = class {
         if (this._from && this._to) {
             for (let i = 0; i < this._to.length; i++) {
                 const to = this._to[i];
-                let text = '';
+                let content = '';
                 const type = this._argument.type;
 
                 if (type &&
@@ -1221,16 +1221,16 @@ view.Argument = class {
                     type.shape.dimensions &&
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string' && (dim.length < 2 || dim === 'None')))) {
-                    text = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
+                    content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
                 }
                 if (this.context.view.showNames) {
-                    text = this._argument.name.split('\n').shift(); // custom argument id
+                    content = this._argument.name.split('\n').shift(); // custom argument id
                 }
                 const edge = this.context.createEdge(this._from, to);
                 edge.v = this._from.name;
                 edge.w = to.name;
-                if (text) {
-                    edge.label = text;
+                if (content) {
+                    edge.label = content;
                 }
                 edge.id = 'edge-' + this._argument.name;
                 if (this._controlDependencies && this._controlDependencies.has(i)) {
@@ -1772,12 +1772,12 @@ view.ModelFactoryService = class {
                     }
                 }
                 const format = (tags) => {
-                    const text = Object.entries(tags).map((pair) => {
+                    const content = Object.entries(tags).map((pair) => {
                         const key = pair[0];
                         const value = pair[1];
                         return key.toString() + ':' + (Object(value) === value ? '{' + format(value) + '}' : value.toString());
                     });
-                    return text.join(',');
+                    return content.join(',');
                 };
                 const content = format(tags);
                 throw new view.Error("Unsupported Protocol Buffers content '" + (content.length > 64 ? content.substring(0, 100) + '...' : content) + "' for extension '." + extension + "' in '" + identifier + "'.", !skip());
@@ -1838,9 +1838,9 @@ view.ModelFactoryService = class {
                 const id = modules.shift();
                 return this._host.require(id).then((module) => {
                     const updateErrorContext = (error, context) => {
-                        const text = " in '" + context.identifier + "'.";
-                        if (error && !error.message.endsWith(text) && (error.context === undefined || error.context === true)) {
-                            error.message = error.message.replace(/\.$/, '') + text;
+                        const content = " in '" + context.identifier + "'.";
+                        if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                            error.message = error.message.replace(/\.$/, '') + content;
                         }
                     };
                     if (!module.ModelFactory) {
@@ -2086,9 +2086,9 @@ view.ModelFactoryService = class {
             ];
             /* eslint-enable no-control-regex */
             const buffer = stream.peek(Math.min(4096, stream.length));
-            const text = String.fromCharCode.apply(null, buffer);
+            const content = String.fromCharCode.apply(null, buffer);
             for (const entry of entries) {
-                if (text.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
+                if (content.match(entry.value) && (!entry.identifier || entry.identifier === context.identifier)) {
                     return Promise.reject(new view.Error('Invalid file content. File contains ' + entry.name + '.', true));
                 }
             }

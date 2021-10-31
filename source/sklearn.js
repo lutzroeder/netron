@@ -501,8 +501,8 @@ sklearn.Tensor = class {
                     case 'string': {
                         const buffer = context.data.subarray(context.index, context.index + context.itemsize);
                         const index = buffer.indexOf(0);
-                        const text = context.decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
-                        results.push(text);
+                        const content = context.decoder.decode(index >= 0 ? buffer.subarray(0, index) : buffer);
+                        results.push(content);
                         context.index += context.itemsize;
                         context.count++;
                         break;

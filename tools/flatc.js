@@ -610,44 +610,44 @@ flatc.Parser.Tokenizer = class {
         if (this._position >= this._text.length) {
             return { type: 'eof', value: '' };
         }
-        const text = this._text.slice(this._position);
+        const content = this._text.slice(this._position);
 
-        const boolean_constant = text.match(/^(true|false)/);
+        const boolean_constant = content.match(/^(true|false)/);
         if (boolean_constant) {
-            const text = boolean_constant[0];
-            return { type: 'boolean', token: text, value: text === 'true' };
+            const content = boolean_constant[0];
+            return { type: 'boolean', token: content, value: content === 'true' };
         }
 
-        const identifier = text.match(/^[a-zA-Z_][a-zA-Z0-9_.]*/);
+        const identifier = content.match(/^[a-zA-Z_][a-zA-Z0-9_.]*/);
         if (identifier) {
             return { type: 'id', token: identifier[0] };
         }
 
-        const string_constant = text.match(/^".*?"/) || text.match(/^'.*?'/);
+        const string_constant = content.match(/^".*?"/) || content.match(/^'.*?'/);
         if (string_constant) {
-            const text = string_constant[0];
-            return { type: 'string', token: text, value: text.substring(1, text.length - 1) };
+            const content = string_constant[0];
+            return { type: 'string', token: content, value: content.substring(1, content.length - 1) };
         }
 
-        const dec_float_constant = text.match(/^[-+]?(([.][0-9]+)|([0-9]+[.][0-9]*)|([0-9]+))([eE][-+]?[0-9]+)?/);
+        const dec_float_constant = content.match(/^[-+]?(([.][0-9]+)|([0-9]+[.][0-9]*)|([0-9]+))([eE][-+]?[0-9]+)?/);
         if (dec_float_constant) {
-            const text = dec_float_constant[0];
-            if (text.indexOf('.') !== -1 || text.indexOf('e') !== -1) {
-                return { type: 'float', token: text, value: parseFloat(text) };
+            const content = dec_float_constant[0];
+            if (content.indexOf('.') !== -1 || content.indexOf('e') !== -1) {
+                return { type: 'float', token: content, value: parseFloat(content) };
             }
         }
 
-        const hex_float_constant = text.match(/^[-+]?0[xX](([.][0-9a-fA-F]+)|([0-9a-fA-F]+[.][0-9a-fA-F]*)|([0-9a-fA-F]+))([pP][-+]?[0-9]+)/);
+        const hex_float_constant = content.match(/^[-+]?0[xX](([.][0-9a-fA-F]+)|([0-9a-fA-F]+[.][0-9a-fA-F]*)|([0-9a-fA-F]+))([pP][-+]?[0-9]+)/);
         if (hex_float_constant) {
             throw new flatc.Error('Unsupported hexadecimal constant.');
         }
 
-        const dec_integer_constant = text.match(/^[-+]?[0-9]+/);
+        const dec_integer_constant = content.match(/^[-+]?[0-9]+/);
         if (dec_integer_constant) {
-            const text = dec_integer_constant[0];
-            return { type: 'integer', token: text, value: parseInt(text, 10) };
+            const content = dec_integer_constant[0];
+            return { type: 'integer', token: content, value: parseInt(content, 10) };
         }
-        const hex_integer_constant = text.match(/^[-+]?0[xX][0-9a-fA-F]+/);
+        const hex_integer_constant = content.match(/^[-+]?0[xX][0-9a-fA-F]+/);
         if (hex_integer_constant) {
             throw new flatc.Error('Unsupported hexadecimal constant.');
         }
@@ -809,8 +809,8 @@ flatc.Root = class extends flatc.Object {
     _parseFile(paths, file) {
         if (!this._files.has(file)) {
             this._files.add(file);
-            const text = fs.readFileSync(file, 'utf-8');
-            const parser = new flatc.Parser(text, file, this);
+            const content = fs.readFileSync(file, 'utf-8');
+            const parser = new flatc.Parser(content, file, this);
             const includes = parser.include();
             for (const include of includes) {
                 const includeFile = this._resolve(paths, file, include);

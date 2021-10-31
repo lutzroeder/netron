@@ -64,8 +64,8 @@ mxnet.ModelFactory = class {
                         const decoder = new TextDecoder('utf-8');
                         if (stream) {
                             const buffer = stream.peek();
-                            const text = decoder.decode(buffer);
-                            const json = JSON.parse(text);
+                            const content = decoder.decode(buffer);
+                            const json = JSON.parse(content);
                             if (json.Model) {
                                 const modelFormat = json.Model['Model-Format'];
                                 if (modelFormat && modelFormat != 'MXNet-Symbolic') {
@@ -139,8 +139,8 @@ mxnet.ModelFactory = class {
                             if (json.Model && json.Model.Signature) {
                                 return context.request(json.Model.Signature).then((stream) => {
                                     const buffer = stream.peek();
-                                    const text = decoder.decode(buffer);
-                                    manifest.signature = JSON.parse(text);
+                                    const content = decoder.decode(buffer);
+                                    manifest.signature = JSON.parse(content);
                                     return manifest;
                                 }).catch (() => {
                                     return manifest;

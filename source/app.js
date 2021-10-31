@@ -150,8 +150,8 @@ class Application {
         require("crypto").randomFillSync(buffer);
         buffer[6] = buffer[6] & 0x0f | 0x40;
         buffer[8] = buffer[8] & 0x3f | 0x80;
-        const text = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
-        return text.slice(0, 8) + '-' + text.slice(8, 12) + '-' + text.slice(12, 16) + '-' + text.slice(16, 20) + '-' + text.slice(20, 32);
+        const code = Array.from(buffer).map((value) => value < 0x10 ? '0' + value.toString(16) : value.toString(16)).join('');
+        return code.slice(0, 8) + '-' + code.slice(8, 12) + '-' + code.slice(12, 16) + '-' + code.slice(16, 20) + '-' + code.slice(20, 32);
     }
 
     _openFileDialog() {

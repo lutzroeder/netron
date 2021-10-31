@@ -2271,8 +2271,8 @@ pytorch.Container.Zip = class {
                 const stream = entries.get(name);
                 const buffer = stream.peek();
                 const decoder = new TextDecoder('utf-8');
-                const text = decoder.decode(buffer);
-                model = JSON.parse(text);
+                const content = decoder.decode(buffer);
+                model = JSON.parse(content);
                 if (!model.mainModule) {
                     return null;
                 }

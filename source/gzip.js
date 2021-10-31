@@ -35,15 +35,15 @@ gzip.Entry = class {
             throw new gzip.Error('Invalid gzip signature.');
         }
         const string = () => {
-            let text = '';
+            let content = '';
             while (stream.position < stream.length) {
                 const value = stream.byte();
                 if (value === 0x00) {
                     break;
                 }
-                text += String.fromCharCode(value);
+                content += String.fromCharCode(value);
             }
-            return text;
+            return content;
         };
         const reader = new gzip.BinaryReader(stream.read(8));
         const compressionMethod = reader.byte();

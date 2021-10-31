@@ -1216,8 +1216,8 @@ torch.TextReader = class {
     int64s(size) {
         const array = [];
         if (size > 0) {
-            const text = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
-            for (const token of text.split(' ')) {
+            const content = this._textDecoder.decode(this.line(Number.MAX_SAFE_INTEGER));
+            for (const token of content.split(' ')) {
                 const number = Number.parseInt(token, 10);
                 if (Number.isNaN(token - number)) {
                     throw new torch.Error("Couldn't parse int64 '" + token + "'.");
@@ -1259,11 +1259,11 @@ torch.TextReader = class {
             return '';
         }
         const data = this.line(size);
-        const text = this._textDecoder.decode(data);
-        if (size != text.length) {
-            throw torch.Error('Invalid text length.');
+        const content = this._textDecoder.decode(data);
+        if (size != content.length) {
+            throw torch.Error('Invalid string length.');
         }
-        return text;
+        return content;
     }
 
     storage(size, itemSize, dataType) {

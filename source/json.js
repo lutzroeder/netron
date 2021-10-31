@@ -1,12 +1,12 @@
 /* jshint esversion: 6 */
 
 var json = json || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 json.TextReader = class {
 
     static open(data) {
-        const decoder = base.TextDecoder.open(data);
+        const decoder = text.Decoder.open(data);
         let state = 'start';
         for (let i = 0; i < 0x100; i++) {
             const c = decoder.decode();
@@ -64,7 +64,7 @@ json.TextReader = class {
     }
 
     read() {
-        const decoder = base.TextDecoder.open(this._data);
+        const decoder = text.Decoder.open(this._data);
         const stack = [];
         this._decoder = decoder;
         this._position = 0;

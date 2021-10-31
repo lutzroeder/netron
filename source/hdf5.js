@@ -377,20 +377,20 @@ hdf5.Reader = class {
     }
 
     static decode(data, encoding) {
-        let text = '';
+        let content = '';
         if (encoding == 'utf-8') {
             if (!hdf5.Reader._utf8Decoder) {
                 hdf5.Reader._utf8Decoder = new TextDecoder('utf-8');
             }
-            text = hdf5.Reader._utf8Decoder.decode(data);
+            content = hdf5.Reader._utf8Decoder.decode(data);
         }
         else {
             if (!hdf5.Reader._asciiDecoder) {
                 hdf5.Reader._asciiDecoder = new TextDecoder('ascii');
             }
-            text = hdf5.Reader._asciiDecoder.decode(data);
+            content = hdf5.Reader._asciiDecoder.decode(data);
         }
-        return text.replace(/\0/g, '');
+        return content.replace(/\0/g, '');
     }
 
     offset() {

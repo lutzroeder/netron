@@ -147,15 +147,15 @@ tar.BinaryReader = class {
     string(length) {
         const buffer = this.read(length);
         let position = 0;
-        let text = '';
+        let content = '';
         for (let i = 0; i < length; i++) {
             const c = buffer[position++];
             if (c === 0) {
                 break;
             }
-            text += String.fromCharCode(c);
+            content += String.fromCharCode(c);
         }
-        return text;
+        return content;
     }
 };
 

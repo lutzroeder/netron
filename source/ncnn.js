@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var ncnn = ncnn || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 // https://github.com/Tencent/ncnn/wiki/param-and-model-file-structure
 // https://github.com/Tencent/ncnn/wiki/operation-param-weight-table
@@ -12,7 +12,7 @@ ncnn.ModelFactory = class {
     match(context) {
         const identifier = context.identifier.toLowerCase();
         if (identifier.endsWith('.param') || identifier.endsWith('.cfg.ncnn')) {
-            const reader = base.TextReader.open(context.stream.peek(), 2048);
+            const reader = text.Reader.open(context.stream, 2048);
             const signature = reader.read();
             if (signature !== undefined) {
                 if (signature.trim() === '7767517') {
@@ -88,18 +88,18 @@ ncnn.ModelFactory = class {
                     });
                 }
                 case 'ncnn.weights': {
-                    let text = null;
+                    let content = null;
                     if (identifier.endsWith('bin')) {
-                        text = context.identifier.substring(0, context.identifier.length - 4) + '.param';
+                        content = context.identifier.substring(0, context.identifier.length - 4) + '.param';
                     }
                     else if (identifier.endsWith('.weights.ncnn')) {
-                        text = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
+                        content = context.identifier.substring(0, context.identifier.length - 13) + '.cfg.ncnn';
                     }
-                    return context.request(text, null).then((stream) => {
+                    return context.request(content, null).then((stream) => {
                         const buffer = stream.peek();
                         return openText(buffer, context.stream.peek());
                     }).catch(() => {
-                        return context.request(text + '.bin', null).then((stream) => {
+                        return context.request(content + '.bin', null).then((stream) => {
                             const buffer = stream.peek();
                             return openBinary(buffer, context.stream.peek());
                         });
@@ -797,7 +797,7 @@ ncnn.Utility = class {
 ncnn.TextParamReader = class {
 
     constructor(buffer) {
-        const reader = base.TextReader.open(buffer);
+        const reader = text.Reader.open(buffer);
         const lines = [];
         for (;;) {
             const line = reader.read();

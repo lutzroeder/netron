@@ -543,14 +543,14 @@ barracuda.BinaryReader = class {
     }
 
     string() {
-        let text = '';
+        let content = '';
         const size = this.int32();
         let position = this._position;
         this.skip(size);
         for (let i = 0; i < size; i++) {
-            text += String.fromCharCode(this._buffer[position++]);
+            content += String.fromCharCode(this._buffer[position++]);
         }
-        return text;
+        return content;
     }
 
     strings() {

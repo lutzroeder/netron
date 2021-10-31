@@ -1,7 +1,7 @@
 /* jshint esversion: 6 */
 
 var openvino = openvino || {};
-var base = base || require('./base');
+var text = text || require('./text');
 
 openvino.ModelFactory = class {
 
@@ -10,7 +10,7 @@ openvino.ModelFactory = class {
         const extension = identifier.split('.').pop().toLowerCase();
         if (extension === 'xml') {
             try {
-                const reader = base.TextReader.open(context.stream.peek(), 2048);
+                const reader = text.Reader.open(context.stream.peek(), 2048);
                 for (;;) {
                     const line = reader.read();
                     if (line === undefined) {

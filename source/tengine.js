@@ -945,18 +945,18 @@ tengine.BinaryReader = class {
 
     string() {
         const position = this.uint32();
-        let text = '';
+        let content = '';
         if (position) {
             const next = this._position;
             this.seek(position);
             const size = this.uint32();
             this.seek(this.uint32());
             for(let i = 0; i < size - 1; i++) {
-                text += String.fromCharCode(this._buffer[this._position++]);
+                content += String.fromCharCode(this._buffer[this._position++]);
             }
             this.seek(next);
         }
-        return text;
+        return content;
     }
 };
 

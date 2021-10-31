@@ -109,8 +109,8 @@ class TestHost {
             return Promise.reject(new Error("The file '" + file + "' does not exist."));
         }
         if (encoding) {
-            const text = fs.readFileSync(pathname, encoding);
-            return Promise.resolve(text);
+            const content = fs.readFileSync(pathname, encoding);
+            return Promise.resolve(content);
         }
         const buffer = fs.readFileSync(pathname, null);
         const stream = new TestBinaryStream(buffer);

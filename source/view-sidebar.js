@@ -525,16 +525,16 @@ class NodeAttributeView {
                 break;
             }
             default: {
-                let text = sidebar.NodeSidebar.formatAttributeValue(value, type);
-                if (text && text.length > 1000) {
-                    text = text.substring(0, 1000) + '\u2026';
+                let content = sidebar.NodeSidebar.formatAttributeValue(value, type);
+                if (content && content.length > 1000) {
+                    content = content.substring(0, 1000) + '\u2026';
                 }
-                if (text && typeof text === 'string') {
-                    text = text.split('<').join('&lt;').split('>').join('&gt;');
+                if (content && typeof text === 'string') {
+                    content = content.split('<').join('&lt;').split('>').join('&gt;');
                 }
                 const line = this._host.document.createElement('div');
                 line.className = 'sidebar-view-item-value-line';
-                line.innerHTML = (text ? text : '&nbsp;');
+                line.innerHTML = content ? content : '&nbsp;';
                 this._element.appendChild(line);
             }
         }
@@ -1539,16 +1539,16 @@ markdown.Generator = class {
             if (match) {
                 source = source.substring(match[0].length);
                 const language = match[2] ? match[2].trim() : match[2];
-                let text = match[3] || '';
+                let content = match[3] || '';
                 const matchIndent = match[0].match(/^(\s+)(?:```)/);
                 if (matchIndent !== null) {
                     const indent = matchIndent[1];
-                    text = text.split('\n').map(node => {
+                    content = content.split('\n').map(node => {
                         const match = node.match(/^\s+/);
                         return (match !== null && match[0].length >= indent.length) ? node.slice(indent.length) : node;
                     }).join('\n');
                 }
-                tokens.push({ type: 'code', language: language, text: text });
+                tokens.push({ type: 'code', language: language, text: content });
                 continue;
             }
             match = this._headingRegExp.exec(source);
@@ -1873,11 +1873,11 @@ markdown.Generator = class {
             match = this._codespanRegExp.exec(source);
             if (match) {
                 source = source.substring(match[0].length);
-                let text = match[2].replace(/\n/g, ' ');
-                if (/[^ ]/.test(text) && text.startsWith(' ') && text.endsWith(' ')) {
-                    text = text.substring(1, text.length - 1);
+                let content = match[2].replace(/\n/g, ' ');
+                if (/[^ ]/.test(content) && content.startsWith(' ') && content.endsWith(' ')) {
+                    content = content.substring(1, content.length - 1);
                 }
-                tokens.push({ type: 'codespan', text: this._encode(text) });
+                tokens.push({ type: 'codespan', text: this._encode(content) });
                 continue;
             }
             match = this._brRegExp.exec(source);
@@ -2177,18 +2177,18 @@ markdown.Generator = class {
         return slug;
     }
 
-    _encode(text) {
-        if (this._escapeTestRegExp.test(text)) {
-            return text.replace(this._escapeReplaceRegExp, (ch) => this._escapeReplacementsMap[ch]);
+    _encode(content) {
+        if (this._escapeTestRegExp.test(content)) {
+            return content.replace(this._escapeReplaceRegExp, (ch) => this._escapeReplacementsMap[ch]);
         }
-        return text;
+        return content;
     }
 
-    _escape(text) {
-        if (this._escapeTestNoEncodeRegExp.test(text)) {
-            return text.replace(this._escapeReplaceNoEncodeRegExp, (ch) => this._escapeReplacementsMap[ch]);
+    _escape(content) {
+        if (this._escapeTestNoEncodeRegExp.test(content)) {
+            return content.replace(this._escapeReplaceNoEncodeRegExp, (ch) => this._escapeReplacementsMap[ch]);
         }
-        return text;
+        return content;
     }
 };
 

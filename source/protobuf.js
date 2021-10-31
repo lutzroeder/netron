@@ -3,6 +3,7 @@
 
 var protobuf = protobuf || {};
 var base = base || require('./base');
+var text = text || require('./text');
 
 protobuf.get = (name) => {
     protobuf._map = protobuf._map || new Map();
@@ -605,7 +606,7 @@ protobuf.TextReader = class {
 
     static open(data) {
         const buffer = data instanceof Uint8Array ? data : data.peek();
-        const decoder = base.TextDecoder.open(buffer);
+        const decoder = text.Decoder.open(buffer);
         let first = true;
         for (let i = 0; i < 0x100; i++) {
             const c = decoder.decode();
@@ -637,7 +638,7 @@ protobuf.TextReader = class {
     }
 
     constructor(buffer) {
-        this._decoder = base.TextDecoder.open(buffer);
+        this._decoder = text.Decoder.open(buffer);
         this.reset();
     }
 
@@ -988,12 +989,12 @@ protobuf.TextReader = class {
         const end = this._position;
         const position = this._decoder.position;
         this._decoder.position = start;
-        let text = '';
+        let content = '';
         while (this._decoder.position < end) {
-            text += this._decoder.decode();
+            content += this._decoder.decode();
         }
         this._decoder.position = position;
-        return text;
+        return content;
     }
 
     skip() {
@@ -1137,7 +1138,7 @@ protobuf.TextReader = class {
             case '"':
             case "'": {
                 const quote = c;
-                let text = c;
+                let content = c;
                 for (;;) {
                     c = this._decoder.decode();
                     if (c === undefined || c === '\n') {
@@ -1207,17 +1208,17 @@ protobuf.TextReader = class {
                                 break;
                             }
                         }
-                        text += c;
+                        content += c;
                         continue;
                     }
                     else {
-                        text += c;
+                        content += c;
                         if (c === quote) {
                             break;
                         }
                     }
                 }
-                this._token = text;
+                this._token = content;
                 return;
             }
             case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
