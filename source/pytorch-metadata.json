@@ -1610,13 +1610,13 @@
     ]
   },
   {
-    "name": "torch.slice",
+    "name": "torch.slice:Tensor",
     "category": "Tensor",
     "inputs": [
-      { "name": "input", "type": "Tensor" },
+      { "name": "self", "type": "Tensor" },
       { "name": "dim", "type": "int64", "default": 0 },
-      { "name": "start", "type": "int64", "default": 0 },
-      { "name": "end", "type": "int64", "default": 9223372036854776000 },
+      { "name": "start", "type": "int64", "optional": true, "default": 0 },
+      { "name": "end", "type": "int64", "optional": true, "default": 9223372036854776000 },
       { "name": "step", "type": "int64", "default": 1 }
     ],
     "outputs": [

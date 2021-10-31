@@ -1495,6 +1495,9 @@ pytorch.Execution = class extends python.Execution {
                 }
             }
         });
+        this.registerFunction('torch.replace', function(value) {
+            return value;
+        });
         this.registerFunction('torch.dict', function(args) {
             const obj = {};
             if (args) {
@@ -1609,7 +1612,7 @@ pytorch.Execution = class extends python.Execution {
             if (Array.isArray(value)) {
                 return value.length;
             }
-            if (value && value.__len__) {
+            if (value && value.shape && value.__len__) {
                 return value.__len__();
             }
             return NaN;
@@ -2950,9 +2953,24 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.quantize_per_tensor':
                                         case 'torch.relu_':
                                         case 'torch.hardtanh_':
-                                        case 'torch.unsqueeze':
-                                        case 'torch.slice': {
+                                        case 'torch.unsqueeze': {
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            break;
+                                        }
+                                        case 'torch.slice': {
+                                            const input = this.expression(args[0], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                const size = input.size();
+                                                parameter.resize_(size);
+                                            }
+                                            break;
+                                        }
+                                        case 'torch.to': {
+                                            const input = this.expression(args[0], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                const size = input.size();
+                                                parameter.resize_(size);
+                                            }
                                             break;
                                         }
                                         case 'torch.conv3d': {
@@ -2961,13 +2979,25 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         }
                                         case 'torch.mean':
                                         case 'torch.mul':
-                                        case 'torch.add':
                                         case 'torch.batch_norm':
                                         case 'torch.gelu':
                                         case 'torch.relu': {
                                             const input = this.expression(args[0], context);
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 parameter.resize_(input.size());
+                                            }
+                                            break;
+                                        }
+                                        case 'torch.add': {
+                                            const input = this.expression(args[0], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                parameter.resize_(input.size());
+                                            }
+                                            else {
+                                                const other = this.expression(args[1], context);
+                                                if (pytorch.Utility.isTensor(other) && Array.isArray(other.size())) {
+                                                    parameter.resize_(other.size());
+                                                }
                                             }
                                             break;
                                         }
