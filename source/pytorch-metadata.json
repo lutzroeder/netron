@@ -445,54 +445,112 @@
     ]
   },
   {
-    "name": "torch.conv1d",
+    "name": "torch._convolution_mode:",
     "category": "Layer",
-    "attributes": [
-      { "name": "stride", "type": "int64[]", "default": 1 },
-      { "name": "padding", "type": "int64[]", "default": 0 },
-      { "name": "dilation", "type": "int64[]", "default": 1 },
-      { "name": "groups", "type": "int64", "default": 1 }
-    ],
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true, "default": null }
+      { "name": "bias", "type": "Tensor", "optional": true },
+      { "name": "stride", "type": "int64[]" },
+      { "name": "padding", "type": "string" },
+      { "name": "dilation", "type": "int64[]" },
+      { "name": "groups", "type": "int64" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
   },
   {
-    "name": "torch.conv2d",
+    "name": "torch.conv1d:",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 }
-    ],
-    "inputs": [
-      { "name": "input", "type": "Tensor" },
-      { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
     ]
   },
   {
-    "name": "torch.conv3d",
+    "name": "torch.conv1d:padding",
     "category": "Layer",
-    "attributes": [
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "stride", "type": "int64[]", "default": 1 },
+      { "name": "padding", "type": "string", "default": "valid" },
+      { "name": "dilation", "type": "int64[]", "default": 1 },
+      { "name": "groups", "type": "int64", "default": 1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.conv2d:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
       { "name": "stride", "type": "int64[]", "default": 1 },
       { "name": "padding", "type": "int64[]", "default": 0 },
       { "name": "dilation", "type": "int64[]", "default": 1 },
       { "name": "groups", "type": "int64", "default": 1 }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.conv2d:padding",
+    "category": "Layer",
     "inputs": [
       { "name": "input", "type": "Tensor" },
       { "name": "weight", "type": "Tensor" },
-      { "name": "bias", "type": "Tensor", "optional": true, "default": null }
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "stride", "type": "int64[]", "default": 1 },
+      { "name": "padding", "type": "string", "default": "valid" },
+      { "name": "dilation", "type": "int64[]", "default": 1 },
+      { "name": "groups", "type": "int64", "default": 1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.conv3d:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "stride", "type": "int64[]", "default": 1 },
+      { "name": "padding", "type": "int64[]", "default": 0 },
+      { "name": "dilation", "type": "int64[]", "default": 1 },
+      { "name": "groups", "type": "int64", "default": 1 }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.conv3d:padding",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input", "type": "Tensor" },
+      { "name": "weight", "type": "Tensor" },
+      { "name": "bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "stride", "type": "int64[]", "default": 1 },
+      { "name": "padding", "type": "string", "default": "valid" },
+      { "name": "dilation", "type": "int64[]", "default": 1 },
+      { "name": "groups", "type": "int64", "default": 1 }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
