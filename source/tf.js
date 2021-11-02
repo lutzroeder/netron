@@ -205,6 +205,19 @@ tf.ModelFactory = class {
                 return 'tf.events';
             }
         }
+        if (extension === 'pbmm') {
+            const stream = context.stream;
+            if (stream.length > 8) {
+                stream.seek(-8);
+                const buffer = stream.read(8);
+                stream.seek(0);
+                const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                const offset = view.getUint64(0, true).toNumber();
+                if (offset < stream.length) {
+                    return 'tf.pb.mmap';
+                }
+            }
+        }
         return undefined;
     }
 
@@ -568,6 +581,48 @@ tf.ModelFactory = class {
                     return openBinarySavedModel({ stream: stream });
                 });
             };
+            const openMemmappedFileSystemDirectory = (context) => {
+                const stream = context.stream;
+                const readDirectoryBuffer = (stream) => {
+                    stream.seek(-8);
+                    const end = stream.position;
+                    const buffer = stream.read(8);
+                    const view = new DataView(buffer.buffer, buffer.byteOffset, buffer.byteLength);
+                    const offset = view.getUint64(0, true).toNumber();
+                    stream.seek(offset);
+                    return stream.read(end - offset);
+                };
+                const readDirectory = (stream) => {
+                    const buffer = readDirectoryBuffer(stream);
+                    const reader = protobuf.BinaryReader.open(buffer);
+                    return tf.proto.tensorflow.MemmappedFileSystemDirectory.decode(reader);
+                };
+                const directory = readDirectory(stream);
+                const elements = new Map();
+                for (const element of directory.element) {
+                    const offset = element.offset ? element.offset.toNumber() : 0;
+                    const length = element.length.toNumber();
+                    stream.seek(offset);
+                    const buffer = stream.read(length);
+                    const name = element.name;
+                    if (elements.has(name)) {
+                        throw new tf.Error("Memory mapped file directory contains duplicate '" + name + "'.");
+                    }
+                    elements.set(name, buffer);
+                }
+                if (!elements.has('memmapped_package://.')) {
+                    throw new tf.Error('Memory mapped file directory does not contain tensorflow.GraphDef root.');
+                }
+                const buffer = elements.get('memmapped_package://.');
+                const reader = protobuf.BinaryReader.open(buffer);
+                const graph_def = tf.proto.tensorflow.GraphDef.decode(reader);
+                const format = 'TensorFlow GraphDef Memmapped';
+                const meta_graph = new tf.proto.tensorflow.MetaGraphDef();
+                meta_graph.graph_def = graph_def;
+                const saved_model = new tf.proto.tensorflow.SavedModel();
+                saved_model.meta_graphs.push(meta_graph);
+                return openSavedModel(saved_model, format, null);
+            };
             switch (match) {
                 case 'tf.bundle':
                     return openBundle(context);
@@ -593,6 +648,8 @@ tf.ModelFactory = class {
                     return openBinarySavedModel(context);
                 case 'tf.pb.keras.SavedMetadata':
                     return openSavedMetadata(context);
+                case 'tf.pb.mmap':
+                    return openMemmappedFileSystemDirectory(context);
                 default:
                     throw new tf.Error("Unknown TensorFlow format '" + match + "'.");
             }

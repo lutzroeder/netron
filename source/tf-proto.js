@@ -9235,6 +9235,103 @@ $root.tensorflow.VerifierConfig.Toggle = {
     "OFF": 2
 };
 
+$root.tensorflow.MemmappedFileSystemDirectoryElement = class MemmappedFileSystemDirectoryElement {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.MemmappedFileSystemDirectoryElement();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.offset = reader.uint64();
+                    break;
+                case 2:
+                    message.name = reader.string();
+                    break;
+                case 3:
+                    message.length = reader.uint64();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.MemmappedFileSystemDirectoryElement();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "offset":
+                    message.offset = reader.uint64();
+                    break;
+                case "name":
+                    message.name = reader.string();
+                    break;
+                case "length":
+                    message.length = reader.uint64();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.tensorflow.MemmappedFileSystemDirectoryElement.prototype.offset = protobuf.Uint64.create(0);
+$root.tensorflow.MemmappedFileSystemDirectoryElement.prototype.name = "";
+$root.tensorflow.MemmappedFileSystemDirectoryElement.prototype.length = protobuf.Uint64.create(0);
+
+$root.tensorflow.MemmappedFileSystemDirectory = class MemmappedFileSystemDirectory {
+
+    constructor() {
+        this.element = [];
+    }
+
+    static decode(reader, length) {
+        const message = new $root.tensorflow.MemmappedFileSystemDirectory();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.element.push($root.tensorflow.MemmappedFileSystemDirectoryElement.decode(reader, reader.uint32()));
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.tensorflow.MemmappedFileSystemDirectory();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "element":
+                    message.element.push($root.tensorflow.MemmappedFileSystemDirectoryElement.decodeText(reader));
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
 $root.google = {};
 
 $root.google.protobuf = {};
