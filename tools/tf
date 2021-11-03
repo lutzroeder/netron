@@ -69,7 +69,7 @@ schema() {
 metadata() {
     echo "tflite metadata"
     if [[ $(grep -U $'\x0D' ./source/tflite-metadata.json) ]]; then crlf=1; else crlf=; fi
-    node ./tools/tf-script.js
+    node ./tools/tflite-script.js
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/tflite-metadata.json ./source/tflite-metadata.json
     fi

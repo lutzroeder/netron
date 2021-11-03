@@ -24,7 +24,7 @@ for (const operator of json) {
     }
 }
 
-const root = new flatc.Root('mslite', [], [ schema ]);
+const root = new flatc.Root('tflite', [], [ schema ]);
 const namespace = root.find('tflite', flatc.Namespace);
 
 const builtOperator = namespace.find('tflite.BuiltinOperator', flatc.Type);
