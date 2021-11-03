@@ -2409,8 +2409,8 @@ $root.tflite.RandomOptions = class RandomOptions {
 
     static decode(reader, position) {
         const $ = new $root.tflite.RandomOptions();
-        $.seed = reader.int32_(position, 4, 0);
-        $.seed2 = reader.int32_(position, 6, 0);
+        $.seed = reader.int64_(position, 4, 0);
+        $.seed2 = reader.int64_(position, 6, 0);
         return $;
     }
 
