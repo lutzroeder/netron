@@ -839,18 +839,20 @@ tf.Argument = class {
 };
 
 tf.Function = class {
-    constructor(metadata, func) {
 
-        this._name = func.signature.name;
+    constructor(metadata, name, func) {
+        this._name = name;
         this._version = null;
         this._tags = null;
         this._inputs = [];
         this._outputs = [];
         this._nodes = [];
+        this._description = !func ? 'Function definition not found.' : null;
 
-        const input_arg = func.signature.input_arg;
-        const output_arg = func.signature.output_arg;
-        const ret = func.ret;
+        const input_arg = func && func.signature ? func.signature.input_arg : [];
+        const output_arg = func && func.signature ? func.signature.output_arg : [];
+        const ret = func && func.ret ? func.ret : {};
+        const nodes = func && func.node_def ? func.node_def : [];
 
         if (input_arg) {
             for (const input of input_arg) {
@@ -874,7 +876,6 @@ tf.Function = class {
                 output_arg_map.set(name, output.name);
             }
         }
-        const nodes = func.node_def || [];
         const context = tf.Utility.createGraph(metadata, nodes, output_arg_map);
         this._nodes = context.nodes;
         this._inputs = this._inputs.concat(context.inputs);
@@ -887,6 +888,10 @@ tf.Function = class {
 
     get name() {
         return this._name;
+    }
+
+    get description() {
+        return this._description || '';
     }
 
     get version() {
@@ -1097,9 +1102,6 @@ tf.Attribute = class {
                 const name = value.func.name;
                 this._type = 'function';
                 this._value = metadata.type(name);
-                if (!this._value) {
-                    throw new tf.Error("Unknown function '" + name + "'.");
-                }
                 break;
             }
             case 'list': {
@@ -1965,7 +1967,6 @@ tf.GraphMetadata = class {
                 this._functions.set(name, func);
             }
         }
-
     }
 
     type(name) {
@@ -1974,10 +1975,14 @@ tf.GraphMetadata = class {
             if (func instanceof tf.Function) {
                 return func;
             }
-            this._functions.set(name, new tf.Function(this, func));
+            this._functions.set(name, new tf.Function(this, func.signature.name, func));
             return this._functions.get(name);
         }
-        return this._metadata.type(name);
+        const type = this._metadata.type(name);
+        if (!type) {
+            this._functions.set(name, new tf.Function(this, name, null));
+            return this._functions.get(name);
+        }
     }
 
     attribute(type, name) {

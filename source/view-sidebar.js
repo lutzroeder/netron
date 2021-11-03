@@ -886,13 +886,13 @@ sidebar.ModelSidebar = class {
             if (graph.description) {
                 this._addProperty('description', new sidebar.ValueTextView(this._host, graph.description));
             }
-            if (graph.inputs.length > 0) {
+            if (Array.isArray(graph.inputs) && graph.inputs.length > 0) {
                 this._addHeader('Inputs');
                 for (const input of graph.inputs) {
                     this.addArgument(input.name, input);
                 }
             }
-            if (graph.outputs.length > 0) {
+            if (Array.isArray(graph.outputs) && graph.outputs.length > 0) {
                 this._addHeader('Outputs');
                 for (const output of graph.outputs) {
                     this.addArgument(output.name, output);
@@ -954,77 +954,77 @@ sidebar.DocumentationSidebar = class {
         if (!this._elements) {
             this._elements = [];
 
-            const documentation = sidebar.DocumentationSidebar.formatDocumentation(this._metadata);
+            const type = sidebar.DocumentationSidebar.formatDocumentation(this._metadata);
 
             const element = this._host.document.createElement('div');
             element.setAttribute('class', 'sidebar-view-documentation');
 
-            this._append(element, 'h1', documentation.name);
+            this._append(element, 'h1', type.name);
 
-            if (documentation.summary) {
-                this._append(element, 'p', documentation.summary);
+            if (type.summary) {
+                this._append(element, 'p', type.summary);
             }
 
-            if (documentation.description) {
-                this._append(element, 'p', documentation.description);
+            if (type.description) {
+                this._append(element, 'p', type.description);
             }
 
-            if (documentation.attributes) {
+            if (Array.isArray(type.attributes) && type.attributes.length > 0) {
                 this._append(element, 'h2', 'Attributes');
                 const attributes = this._append(element, 'dl');
-                for (const attribute of documentation.attributes) {
+                for (const attribute of type.attributes) {
                     this._append(attributes, 'dt', attribute.name + (attribute.type ? ': <tt>' + attribute.type + '</tt>' : ''));
                     this._append(attributes, 'dd', attribute.description);
                 }
                 element.appendChild(attributes);
             }
 
-            if (documentation.inputs) {
-                this._append(element, 'h2', 'Inputs' + (documentation.inputs_range ? ' (' + documentation.inputs_range + ')' : ''));
+            if (Array.isArray(type.inputs) && type.inputs.length > 0) {
+                this._append(element, 'h2', 'Inputs' + (type.inputs_range ? ' (' + type.inputs_range + ')' : ''));
                 const inputs = this._append(element, 'dl');
-                for (const input of documentation.inputs) {
+                for (const input of type.inputs) {
                     this._append(inputs, 'dt', input.name + (input.type ? ': <tt>' + input.type + '</tt>' : '') + (input.option ? ' (' + input.option + ')' : ''));
                     this._append(inputs, 'dd', input.description);
                 }
             }
 
-            if (documentation.outputs) {
-                this._append(element, 'h2', 'Outputs' + (documentation.outputs_range ? ' (' + documentation.outputs_range + ')' : ''));
+            if (Array.isArray(type.outputs) && type.outputs.length > 0) {
+                this._append(element, 'h2', 'Outputs' + (type.outputs_range ? ' (' + type.outputs_range + ')' : ''));
                 const outputs = this._append(element, 'dl');
-                for (const output of documentation.outputs) {
+                for (const output of type.outputs) {
                     this._append(outputs, 'dt', output.name + (output.type ? ': <tt>' + output.type + '</tt>' : '') + (output.option ? ' (' + output.option + ')' : ''));
                     this._append(outputs, 'dd', output.description);
                 }
             }
 
-            if (documentation.type_constraints) {
+            if (Array.isArray(type.type_constraints) && type.type_constraints.length > 0) {
                 this._append(element, 'h2', 'Type Constraints');
                 const type_constraints = this._append(element, 'dl');
-                for (const type_constraint of documentation.type_constraints) {
+                for (const type_constraint of type.type_constraints) {
                     this._append(type_constraints, 'dt', type_constraint.type_param_str + ': ' + type_constraint.allowed_type_strs.map((item) => '<tt>' + item + '</tt>').join(', '));
                     this._append(type_constraints, 'dd', type_constraint.description);
                 }
             }
 
-            if (documentation.examples) {
+            if (Array.isArray(type.examples) && type.examples.length > 0) {
                 this._append(element, 'h2', 'Examples');
-                for (const example of documentation.examples) {
+                for (const example of type.examples) {
                     this._append(element, 'h3', example.summary);
                     this._append(element, 'pre', example.code);
                 }
             }
 
-            if (documentation.references) {
+            if (Array.isArray(type.references) && type.references.length > 0) {
                 this._append(element, 'h2', 'References');
                 const references = this._append(element, 'ul');
-                for (const reference of documentation.references) {
+                for (const reference of type.references) {
                     this._append(references, 'li', reference.description);
                 }
             }
 
-            if (documentation.domain && documentation.version && documentation.support_level) {
+            if (type.domain && type.version && type.support_level) {
                 this._append(element, 'h2', 'Support');
-                this._append(element, 'dl', 'In domain <tt>' + documentation.domain + '</tt> since version <tt>' + documentation.version + '</tt> at support level <tt>' + documentation.support_level + '</tt>.');
+                this._append(element, 'dl', 'In domain <tt>' + type.domain + '</tt> since version <tt>' + type.version + '</tt> at support level <tt>' + type.support_level + '</tt>.');
             }
 
             if (!this._host.type !== 'Electron') {

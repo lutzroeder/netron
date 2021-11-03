@@ -5342,6 +5342,13 @@
   },
   {
     "type":   "tf",
+    "target": "graph_missing_function.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/7464813/graph_missing_function.pbtxt.zip[graph_missing_function.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/838"
+  },
+  {
+    "type":   "tf",
     "target": "graphdef_saved_model.pb",
     "source": "https://github.com/lutzroeder/netron/files/2528688/saved_model.zip[saved_model.pb]",
     "format": "TensorFlow Graph",
