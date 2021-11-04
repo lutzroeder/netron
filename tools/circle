@@ -17,9 +17,18 @@ sync() {
 schema() {
     echo "circle schema"
     [[ $(grep -U $'\x0D' ./source/cicrle-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --text --root mslite --out ./source/cicrle-schema.js ./third_party/source/cicrle/nnpackage/schema/circle_schema.fbs
+    node ./tools/flatc.js --text --root circle --out ./source/cicrle-schema.js ./third_party/source/cicrle/nnpackage/schema/circle_schema.fbs
     if [[ -n ${crlf} ]]; then
         unix2dos --quiet --newfile ./source/cicrle-schema.js ./source/cicrle-schema.js
+    fi
+}
+
+metadata() {
+    echo "circle metadata"
+    if [[ $(grep -U $'\x0D' ./source/circle-metadata.json) ]]; then crlf=1; else crlf=; fi
+    node ./tools/circle-script.js
+    if [[ -n ${crlf} ]]; then
+        unix2dos --quiet --newfile ./source/circle-metadata.json ./source/circle-metadata.json
     fi
 }
 
@@ -29,5 +38,6 @@ while [ "$#" != 0 ]; do
         "clean") clean;;
         "sync") sync;;
         "schema") schema;;
+        "metadata") metadata;;
     esac
 done

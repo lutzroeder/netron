@@ -1,4 +1,4 @@
-var $root = flatbuffers.get('mslite');
+var $root = flatbuffers.get('circle');
 
 $root.circle = $root.circle || {};
 
