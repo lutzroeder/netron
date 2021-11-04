@@ -452,6 +452,7 @@ mlnet.ModelReader = class {
         catalog.register('MultiClassNaiveBayesPred', mlnet.NaiveBayesMulticlassModelParameters);
         catalog.register('MultiClassNetPredictor', mlnet.MultiClassNetPredictor);
         catalog.register('MulticlassPredXfer', mlnet.MulticlassPredictionTransformer);
+        catalog.register('NAReplaceTransform', mlnet.MissingValueReplacingTransformer);
         catalog.register('NgramTransform', mlnet.NgramExtractingTransformer);
         catalog.register('NgramHashTransform', mlnet.NgramHashingTransformer);
         catalog.register('NltTokenizeTransform', mlnet.NltTokenizeTransform);
@@ -1135,6 +1136,19 @@ mlnet.MulticlassPredictionTransformer = class extends mlnet.SingleFeaturePredict
         super(context);
         this.TrainLabelColumn = context.string(null);
         this.inputs.push({ name: this.TrainLabelColumn });
+    }
+};
+
+mlnet.MissingValueReplacingTransformer = class extends mlnet.OneToOneTransformerBase {
+
+    constructor(context) {
+        super(context);
+        const reader = context.reader;
+        for (let i = 0; i < this.inputs.length; i++) {
+            const codec = new mlnet.Codec(reader);
+            const count = reader.int32();
+            this.values = codec.read(reader, count);
+        }
     }
 };
 
@@ -2257,7 +2271,6 @@ mlnet.Codec = class {
         const size = reader.leb128();
         const data = reader.bytes(size);
         reader = new mlnet.Reader(data);
-
         switch (this.name) {
             case 'Boolean': break;
             case 'Single': break;
