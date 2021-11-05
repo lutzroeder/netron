@@ -253,6 +253,61 @@ $root.onnxruntime.experimental.fbs.Attribute = class Attribute {
     }
 };
 
+$root.onnxruntime.experimental.fbs.NodesToOptimizeIndices = class NodesToOptimizeIndices {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.experimental.fbs.NodesToOptimizeIndices();
+        $.node_indices = reader.typedArray(position, 4, Uint32Array);
+        $.num_inputs = reader.uint32_(position, 6, 0);
+        $.num_outputs = reader.uint32_(position, 8, 0);
+        $.has_variadic_input = reader.bool_(position, 10, false);
+        $.has_variadic_output = reader.bool_(position, 12, false);
+        $.num_variadic_inputs = reader.uint32_(position, 14, 0);
+        $.num_variadic_outputs = reader.uint32_(position, 16, 0);
+        return $;
+    }
+};
+
+$root.onnxruntime.experimental.fbs.NodeIndexAndKernelDefHash = class NodeIndexAndKernelDefHash {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.experimental.fbs.NodeIndexAndKernelDefHash();
+        $.node_index = reader.uint32_(position, 4, 0);
+        $.kernel_def_hash = reader.uint64_(position, 6, 0);
+        return $;
+    }
+};
+
+$root.onnxruntime.experimental.fbs.RuntimeOptimizationRecord = class RuntimeOptimizationRecord {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.experimental.fbs.RuntimeOptimizationRecord();
+        $.action_id = reader.string_(position, 4, null);
+        $.nodes_to_optimize_indices = reader.table(position, 6, $root.onnxruntime.experimental.fbs.NodesToOptimizeIndices.decode);
+        $.produced_nodes = reader.tableArray(position, 8, $root.onnxruntime.experimental.fbs.NodeIndexAndKernelDefHash.decode);
+        return $;
+    }
+};
+
+$root.onnxruntime.experimental.fbs.RuntimeOptimizationRecordContainerEntry = class RuntimeOptimizationRecordContainerEntry {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.experimental.fbs.RuntimeOptimizationRecordContainerEntry();
+        $.optimizer_name = reader.string_(position, 4, null);
+        $.runtime_optimization_records = reader.tableArray(position, 6, $root.onnxruntime.experimental.fbs.RuntimeOptimizationRecord.decode);
+        return $;
+    }
+};
+
+$root.onnxruntime.experimental.fbs.RuntimeOptimizations = class RuntimeOptimizations {
+
+    static decode(reader, position) {
+        const $ = new $root.onnxruntime.experimental.fbs.RuntimeOptimizations();
+        $.records = reader.tableArray(position, 4, $root.onnxruntime.experimental.fbs.RuntimeOptimizationRecordContainerEntry.decode);
+        return $;
+    }
+};
+
 $root.onnxruntime.experimental.fbs.Graph = class Graph {
 
     static decode(reader, position) {
@@ -265,6 +320,7 @@ $root.onnxruntime.experimental.fbs.Graph = class Graph {
         $.inputs = reader.strings_(position, 14);
         $.outputs = reader.strings_(position, 16);
         $.sparse_initializers = reader.tableArray(position, 18, $root.onnxruntime.experimental.fbs.SparseTensor.decode);
+        $.runtime_optimizations = reader.table(position, 20, $root.onnxruntime.experimental.fbs.RuntimeOptimizations.decode);
         return $;
     }
 };
