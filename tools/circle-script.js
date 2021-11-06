@@ -3,7 +3,7 @@ const path = require('path');
 const flatc = require('./flatc');
 const fs = require('fs');
 
-const schema = path.join(__dirname, '..', 'third_party', 'source', 'cicrle', 'nnpackage', 'schema', 'circle_schema.fbs');
+const schema = path.join(__dirname, '..', 'third_party', 'source', 'circle', 'nnpackage', 'schema', 'circle_schema.fbs');
 const file = path.join(__dirname, '..', 'source', 'circle-metadata.json');
 
 const input = fs.readFileSync(file, 'utf-8');

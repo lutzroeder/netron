@@ -9,6 +9,13 @@
     "name": "ArgMax",
     "attributes": [
       { "name": "output_type", "type": "TensorType", "default": "FLOAT32" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "dimension", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
     ]
   },
   {
@@ -70,6 +77,12 @@
     "attributes": [
       { "name": "axis", "type": "int32", "default": 0 },
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
+    ],
+    "inputs": [
+      { "name": "inputs", "list": true }
+    ],
+    "outputs": [
+      { "name": "output" }
     ]
   },
   {
@@ -81,6 +94,14 @@
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" },
       { "name": "dilation_w_factor", "type": "int32", "default": 1 },
       { "name": "dilation_h_factor", "type": "int32", "default": 1 }
+    ],
+    "inputs": [
+      { "name": "input", "description": "4D tensor" },
+      { "name": "filter" },
+      { "name": "bias", "description": "(optional)" }
+    ],
+    "outputs": [
+      { "name": "output", "description": "result of 2D convolution of the input tensor" }
     ]
   },
   {
@@ -129,6 +150,14 @@
       { "name": "weights_format", "type": "FullyConnectedOptionsWeightsFormat", "default": "DEFAULT" },
       { "name": "keep_num_dims", "type": "boolean", "default": false },
       { "name": "asymmetric_quantize_inputs", "type": "boolean", "default": false }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "weights", "type": "T" },
+      { "name": "bias", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
     ]
   },
   {

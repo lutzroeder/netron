@@ -908,6 +908,20 @@
     "link":   "https://github.com/caffe2/models"
   },
   {
+    "type":   "circle",
+    "target": "ArgMax_001.circle",
+    "source": "https://github.com/lutzroeder/netron/files/7489768/circle_model_samples.zip[ArgMax_001.circle]",
+    "format": "Circle v0",
+    "link":   "https://github.com/lutzroeder/netron/issues/790"
+  },
+  {
+    "type":   "circle",
+    "target": "FullyConnected_002.circle",
+    "source": "https://github.com/lutzroeder/netron/files/7489768/circle_model_samples.zip[FullyConnected_002.circle]",
+    "format": "Circle v0",
+    "link":   "https://github.com/lutzroeder/netron/issues/790"
+  },
+  {
     "type":   "cntk",
     "target": "01_OneHidden.dnn",
     "source": "https://raw.githubusercontent.com/Microsoft/CNTK/master/Tests/UnitTests/NetworkTests/Models/01_OneHidden.dnn",

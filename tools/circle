@@ -5,21 +5,21 @@ pushd $(cd $(dirname ${0})/..; pwd) > /dev/null
 
 clean() {
     echo "circle clean"
-    rm -rf "./third_party/source/cicrle"
+    rm -rf "./third_party/source/circle"
 }
 
 sync() {
     echo "circle sync"
-    mkdir -p "./third_party/source/cicrle/nnpackage/schema"
-    curl --silent --location --output "./third_party/source/cicrle/nnpackage/schema/circle_schema.fbs" "https://github.com/Samsung/ONE/blob/master/nnpackage/schema/circle_schema.fbs?raw=true"
+    mkdir -p "./third_party/source/circle/nnpackage/schema"
+    curl --silent --location --output "./third_party/source/circle/nnpackage/schema/circle_schema.fbs" "https://github.com/Samsung/ONE/blob/master/nnpackage/schema/circle_schema.fbs?raw=true"
 }
 
 schema() {
     echo "circle schema"
-    [[ $(grep -U $'\x0D' ./source/cicrle-schema.js) ]] && crlf=1
-    node ./tools/flatc.js --text --root circle --out ./source/cicrle-schema.js ./third_party/source/cicrle/nnpackage/schema/circle_schema.fbs
+    [[ $(grep -U $'\x0D' ./source/circle-schema.js) ]] && crlf=1
+    node ./tools/flatc.js --text --root circle --out ./source/circle-schema.js ./third_party/source/circle/nnpackage/schema/circle_schema.fbs
     if [[ -n ${crlf} ]]; then
-        unix2dos --quiet --newfile ./source/cicrle-schema.js ./source/cicrle-schema.js
+        unix2dos --quiet --newfile ./source/circle-schema.js ./source/circle-schema.js
     fi
 }
 
