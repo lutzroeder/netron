@@ -955,7 +955,7 @@
     "description": "Imputation transformer for completing missing values.\n\nRead more in the :ref:`User Guide <impute>`.\n\n.. versionadded:: 0.20\n`SimpleImputer` replaces the previous `sklearn.preprocessing.Imputer`\nestimator which is now removed.\n",
     "attributes": [
       {
-        "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\nshould be set to `np.nan`, since `pd.NA` will be converted to `np.nan`.\n",
+        "description": "The placeholder for the missing values. All occurrences of\n`missing_values` will be imputed. For pandas' dataframes with\nnullable integer dtypes with missing values, `missing_values`\ncan be set to either `np.nan` or `pd.NA`.\n",
         "name": "missing_values"
       },
       {
@@ -971,13 +971,13 @@
       },
       {
         "default": 0,
-        "description": "Controls the verbosity of the imputer.\n",
+        "description": "Controls the verbosity of the imputer.\n\n.. deprecated:: 1.1\nThe 'verbose' parameter was deprecated in version 1.1 and will be\nremoved in 1.3. A warning will always be raised upon the removal of\nempty columns in the future version.\n",
         "name": "verbose",
         "type": "int32"
       },
       {
         "default": true,
-        "description": "If True, a copy of `X` will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If `X` is not an array of floating values;\n- If `X` is encoded as a CSR matrix;\n- If `add_indicator=True`.\n",
+        "description": "If True, a copy of X will be created. If False, imputation will\nbe done in-place whenever possible. Note that, in the following cases,\na new copy will always be made, even if `copy=False`:\n\n- If `X` is not an array of floating values;\n- If `X` is encoded as a CSR matrix;\n- If `add_indicator=True`.\n",
         "name": "copy",
         "type": "boolean"
       },
