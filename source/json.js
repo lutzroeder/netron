@@ -8,7 +8,7 @@ json.TextReader = class {
     static open(data) {
         const decoder = text.Decoder.open(data);
         let state = 'start';
-        for (let i = 0; i < 0x100; i++) {
+        for (let i = 0; i < 0x1000; i++) {
             const c = decoder.decode();
             if (c === undefined || c === '\0') {
                 if (i === 0) {
