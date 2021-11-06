@@ -23,7 +23,7 @@
         "electron": "15.3.0",
         "electron-builder": "22.13.1",
         "electron-notarize": "1.1.1",
-        "eslint": "8.1.0",
+        "eslint": "8.2.0",
         "@xmldom/xmldom": "0.7.5"
     },
     "eslintConfig": {
