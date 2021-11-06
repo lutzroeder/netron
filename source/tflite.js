@@ -303,7 +303,7 @@ tflite.Node = class {
                 if (this._type && this._type.inputs && inputIndex < this._type.inputs.length) {
                     const input = this._type.inputs[inputIndex];
                     inputName = input.name;
-                    if (input.option == 'variadic') {
+                    if (input.list) {
                         count = inputs.length - inputIndex;
                     }
                     if (Object.prototype.hasOwnProperty.call(input, 'visible') && !input.visible) {
@@ -331,7 +331,7 @@ tflite.Node = class {
                 let outputName = k.toString();
                 if (this._type && this._type.outputs && k < this._type.outputs.length) {
                     const output = this._type.outputs[k];
-                    if (output && (!output.option || output.opcodeIndex != 'variadic') && output.name) {
+                    if (output && output.name) {
                         outputName = output.name;
                     }
                 }

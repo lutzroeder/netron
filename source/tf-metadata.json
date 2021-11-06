@@ -14392,6 +14392,82 @@
     ]
   },
   {
+    "name": "EnqueueTPUEmbeddingArbitraryTensorBatch",
+    "summary": "Eases the porting of code that uses tf.nn.embedding_lookup_sparse().",
+    "description": "embedding_indices[i] and aggregation_weights[i] correspond\nto the ith feature.\n\nThe tensors at corresponding positions in the three input lists (sample_indices,\nembedding_indices and aggregation_weights) must have the same shape, i.e. rank 1\nwith dim_size() equal to the total number of lookups into the table described by\nthe corresponding feature.",
+    "attributes": [
+      {
+        "name": "T1",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "T2",
+        "type": "type",
+        "description": "Must be one of the following: `int32`, `int64`.",
+        "default": {
+          "type": "type",
+          "value": 3
+        }
+      },
+      {
+        "name": "T3",
+        "type": "type",
+        "description": "Must be one of the following: `float32`, `float64`.",
+        "default": {
+          "type": "type",
+          "value": 1
+        }
+      },
+      {
+        "name": "N",
+        "type": "int64",
+        "minimum": 1
+      },
+      {
+        "name": "device_ordinal",
+        "type": "int64",
+        "description": "The TPU device to use. Should be >= 0 and less than the number\nof TPU cores in the task on which the node is placed.",
+        "default": -1
+      },
+      {
+        "name": "combiners",
+        "type": "string[]",
+        "description": "A list of string scalars, one for each embedding table that specify\nhow to normalize the embedding activations after weighted summation.\nSupported combiners are 'mean', 'sum', or 'sqrtn'. It is invalid to have\nthe sum of the weights be 0 for 'mean' or the sum of the squared weights be\n0 for 'sqrtn'. If combiners isn't passed, the default is to use 'sum' for\nall tables.",
+        "default": []
+      }
+    ],
+    "inputs": [
+      {
+        "name": "sample_indices_or_row_lengths",
+        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row lengths for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_lengths in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, the row lengths will be a (N-1)-D Densed\ntensor and it needs to be flattened into 1D before passed to this op. Both\nint32 and int64 are allowed and will be converted to int32 internally.",
+        "numberAttr": "N",
+        "typeAttr": "T1"
+      },
+      {
+        "name": "embedding_indices",
+        "description": "A list of rank 1 Tensors, indices into the embedding\ntables. Both int32 and int64 are allowed and will be converted to\nint32 internally.",
+        "numberAttr": "N",
+        "typeAttr": "T2"
+      },
+      {
+        "name": "aggregation_weights",
+        "description": "A list of rank 1 Tensors containing per training\nexample aggregation weights. Both float32 and float64 are allowed and will\nbe converted to float32 internally.",
+        "numberAttr": "N",
+        "typeAttr": "T3"
+      },
+      {
+        "name": "mode_override",
+        "description": "A string input that overrides the mode specified in the\nTPUEmbeddingConfiguration. Supported values are {'unspecified', 'inference',\n'training', 'backward_pass_only'}. When set to 'unspecified', the mode set\nin TPUEmbeddingConfiguration is used, otherwise mode_override is used.",
+        "type": 7
+      }
+    ]
+  },
+  {
     "name": "EnqueueTPUEmbeddingIntegerBatch",
     "summary": "An op that enqueues a list of input batch tensors to TPUEmbedding.",
     "attributes": [
@@ -37809,6 +37885,11 @@
       },
       {
         "name": "element_spec",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "metadata",
         "type": "string",
         "default": ""
       }

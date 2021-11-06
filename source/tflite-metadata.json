@@ -17,6 +17,13 @@
     "name": "ArgMax",
     "attributes": [
       { "name": "output_type", "type": "TensorType", "default": "FLOAT32" }
+    ],
+    "inputs": [
+      { "name": "input", "type": "T" },
+      { "name": "dimension", "type": "T" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "T" }
     ]
   },
   {
@@ -119,7 +126,7 @@
       { "name": "fused_activation_function", "type": "ActivationFunctionType", "default": "NONE" }
     ],
     "inputs": [
-      { "name": "inputs", "option": "variadic" }
+      { "name": "inputs", "list": true }
     ],
     "outputs": [
       { "name": "output" }
