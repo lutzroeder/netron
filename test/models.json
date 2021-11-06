@@ -5841,6 +5841,20 @@
   },
   {
     "type":   "tflite",
+    "target": "inception_v4_299_quant.tflite",
+    "source": "http://download.tensorflow.org/models/inception_v4_299_quant_20181026.tgz[inception_v4_299_quant.tflite]",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://www.tensorflow.org/lite/models"
+  },
+  {
+    "type":   "tflite",
+    "target": "keyword_scrambled_8bit.tflite",
+    "source": "https://raw.githubusercontent.com/tensorflow/tflite-micro/master/tensorflow/lite/micro/models/keyword_scrambled_8bit.tflite",
+    "format": "TensorFlow Lite v3",
+    "link":   "https://github.com/tensorflow/tflite-micro"
+  },
+  {
+    "type":   "tflite",
     "target": "mobilenet_v1_0.75_160_quantized.tflite",
     "source": "https://github.com/lutzroeder/netron/files/4569400/mobilenet_v1_0.75_160_quantized.zip[mobilenet_v1_0.75_160_quantized.tflite]",
     "format": "TensorFlow Lite v3",

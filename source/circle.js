@@ -489,10 +489,7 @@ circle.Parameter = class {
 circle.Argument = class {
 
     constructor(index, tensor, initializer) {
-        const name = tensor.name;
-        if (typeof name !== 'string') {
-            throw new circle.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
-        }
+        const name = tensor.name || '';
         this._name = name + '\n' + index.toString();
         this._location = index.toString();
         this._type = tensor.type !== undefined && tensor.shape !== undefined ? new circle.TensorType(tensor) : null;

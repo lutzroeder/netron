@@ -502,10 +502,7 @@ tflite.Parameter = class {
 tflite.Argument = class {
 
     constructor(index, tensor, initializer) {
-        const name = tensor.name;
-        if (typeof name !== 'string') {
-            throw new tflite.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
-        }
+        const name = tensor.name || '';
         this._name = name + '\n' + index.toString();
         this._location = index.toString();
         this._type = tensor.type !== undefined && tensor.shape !== undefined ? new tflite.TensorType(tensor) : null;
