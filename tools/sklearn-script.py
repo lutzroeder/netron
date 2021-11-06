@@ -148,7 +148,8 @@ def update_attributes(schema, lines):
             "'auto' or float, default=None",
             "float, default=np.finfo(float).eps",
             "int, float, str, np.nan or None, default=np.nan",
-            "list of (str, transformer) tuples"
+            "list of (str, transformer) tuples",
+            "int, float, str, np.nan, None or pandas.NA, default=np.nan"
         }
         if line == 'str':
             line = 'string'
