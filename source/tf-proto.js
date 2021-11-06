@@ -4146,6 +4146,9 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
                 case 4:
                     message.registered_saver = $root.tensorflow.RegisteredSaver.decode(reader, reader.uint32());
                     break;
+                case 5:
+                    message.has_checkpoint_values = $root.google.protobuf.BoolValue.decode(reader, reader.uint32());
+                    break;
                 default:
                     reader.skipType(tag & 7);
                     break;
@@ -4172,6 +4175,9 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
                 case "registered_saver":
                     message.registered_saver = $root.tensorflow.RegisteredSaver.decodeText(reader);
                     break;
+                case "has_checkpoint_values":
+                    message.has_checkpoint_values = $root.google.protobuf.BoolValue.decodeText(reader);
+                    break;
                 default:
                     reader.field(tag, message);
                     break;
@@ -4182,6 +4188,7 @@ $root.tensorflow.TrackableObjectGraph.TrackableObject = class TrackableObject {
 };
 
 $root.tensorflow.TrackableObjectGraph.TrackableObject.prototype.registered_saver = null;
+$root.tensorflow.TrackableObjectGraph.TrackableObject.prototype.has_checkpoint_values = null;
 
 $root.tensorflow.TrackableObjectGraph.TrackableObject.ObjectReference = class ObjectReference {
 
@@ -9368,6 +9375,48 @@ $root.google.protobuf.Any = class Any {
 
 $root.google.protobuf.Any.prototype.type_url = "";
 $root.google.protobuf.Any.prototype.value = new Uint8Array([]);
+
+$root.google.protobuf.BoolValue = class BoolValue {
+
+    constructor() {
+    }
+
+    static decode(reader, length) {
+        const message = new $root.google.protobuf.BoolValue();
+        const end = length !== undefined ? reader.position + length : reader.length;
+        while (reader.position < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1:
+                    message.value = reader.bool();
+                    break;
+                default:
+                    reader.skipType(tag & 7);
+                    break;
+            }
+        }
+        return message;
+    }
+
+    static decodeText(reader) {
+        const message = new $root.google.protobuf.BoolValue();
+        reader.start();
+        while (!reader.end()) {
+            const tag = reader.tag();
+            switch (tag) {
+                case "value":
+                    message.value = reader.bool();
+                    break;
+                default:
+                    reader.field(tag, message);
+                    break;
+            }
+        }
+        return message;
+    }
+};
+
+$root.google.protobuf.BoolValue.prototype.value = false;
 
 $root.third_party = {};
 
