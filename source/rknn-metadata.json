@@ -14,6 +14,15 @@
     ]
   },
   {
+    "name": "VSI_NN_OP_CONV_RELU",
+    "category": "Layer",
+    "inputs": [
+      { "name": "input" },
+      { "name": "weights" },
+      { "name": "bias" }
+    ]
+  },
+  {
     "name": "VSI_NN_OP_CONV2D",
     "category": "Layer",
     "inputs": [
