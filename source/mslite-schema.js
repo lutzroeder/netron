@@ -374,6 +374,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 198: return $root.mindspore.schema.TensorArrayRead.decode(reader, position);
             case 199: return $root.mindspore.schema.TensorArrayWrite.decode(reader, position);
             case 200: return $root.mindspore.schema.Affine.decode(reader, position);
+            case 201: return $root.mindspore.schema.AllGather.decode(reader, position);
+            case 202: return $root.mindspore.schema.ReduceScatter.decode(reader, position);
         }
         return undefined;
     }
@@ -580,6 +582,8 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'TensorArrayRead': return $root.mindspore.schema.TensorArrayRead.decodeText(reader, json);
             case 'TensorArrayWrite': return $root.mindspore.schema.TensorArrayWrite.decodeText(reader, json);
             case 'Affine': return $root.mindspore.schema.Affine.decodeText(reader, json);
+            case 'AllGather': return $root.mindspore.schema.AllGather.decodeText(reader, json);
+            case 'ReduceScatter': return $root.mindspore.schema.ReduceScatter.decodeText(reader, json);
         }
         return undefined;
     }
@@ -3693,13 +3697,15 @@ $root.mindspore.schema.LogSoftmax = class LogSoftmax {
 
 $root.mindspore.schema.Call = class Call {
 
-    static decode(/* reader, position */) {
+    static decode(reader, position) {
         const $ = new $root.mindspore.schema.Call();
+        $.is_tail_call = reader.bool_(position, 4, true);
         return $;
     }
 
-    static decodeText(/* reader, json */) {
+    static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.Call();
+        $.is_tail_call = reader.value(json.is_tail_call, true);
         return $;
     }
 };
@@ -3945,6 +3951,38 @@ $root.mindspore.schema.ScatterNdUpdate = class ScatterNdUpdate {
 
     static decodeText(/* reader, json */) {
         const $ = new $root.mindspore.schema.ScatterNdUpdate();
+        return $;
+    }
+};
+
+$root.mindspore.schema.AllGather = class AllGather {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.AllGather();
+        $.group = reader.string_(position, 4, null);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.AllGather();
+        $.group = reader.value(json.group, null);
+        return $;
+    }
+};
+
+$root.mindspore.schema.ReduceScatter = class ReduceScatter {
+
+    static decode(reader, position) {
+        const $ = new $root.mindspore.schema.ReduceScatter();
+        $.group = reader.string_(position, 4, null);
+        $.mode = reader.int8_(position, 6, 0);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.mindspore.schema.ReduceScatter();
+        $.group = reader.value(json.group, null);
+        $.mode = $root.mindspore.schema.ReduceMode[json.mode];
         return $;
     }
 };

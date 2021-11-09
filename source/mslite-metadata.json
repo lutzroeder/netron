@@ -149,6 +149,12 @@
     ]
   },
   {
+    "name": "AllGather",
+    "attributes": [
+      { "name": "group", "type": "string", "default": null }
+    ]
+  },
+  {
     "name": "ApplyMomentum",
     "attributes": [
       { "name": "gradientScale", "type": "float32", "default": 0 },
@@ -447,7 +453,10 @@
     ]
   },
   {
-    "name": "Call"
+    "name": "Call",
+    "attributes": [
+      { "name": "is_tail_call", "type": "boolean", "default": true }
+    ]
   },
   {
     "name": "Cast",
@@ -2222,6 +2231,13 @@
       { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" },
       { "name": "reduce_to_end", "type": "boolean", "default": false },
       { "name": "coeff", "type": "float32", "default": 0 }
+    ]
+  },
+  {
+    "name": "ReduceScatter",
+    "attributes": [
+      { "name": "group", "type": "string", "default": null },
+      { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" }
     ]
   },
   {
