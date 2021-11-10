@@ -1983,6 +1983,7 @@ tf.GraphMetadata = class {
             this._functions.set(name, new tf.Function(this, name, null));
             return this._functions.get(name);
         }
+        return type;
     }
 
     attribute(type, name) {
