@@ -2056,7 +2056,7 @@
   {
     "type":   "keras",
     "target": "cifar10_m4_iter_70000.caffemodel.h5",
-    "source": "https://raw.githubusercontent.com/ARM-software/ML-examples/master/cmsisnn-cifar10/models/cifar10_m4_iter_70000.caffemodel.h5",
+    "source": "https://raw.githubusercontent.com/ARM-software/ML-examples/d229d37863d69963f36e9da92dfd25f592925b9d/cmsisnn-cifar10/models/cifar10_m4_iter_70000.caffemodel.h5",
     "format": "HDF5 Weights",
     "link":   "https://github.com/ARM-software/ML-examples"
   },
