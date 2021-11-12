@@ -32812,7 +32812,7 @@
     "module": "ai.onnx",
     "version": 9,
     "support_level": "common",
-    "description": "Return elements, either from X or Y, depending on condition\n    (with Numpy-style broadcasting support).\n    Where behaves like numpy.where with three parameters:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html\n",
+    "description": "Return elements, either from X or Y, depending on condition.\nWhere behaves like\n[numpy.where](https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html)\nwith three parameters.\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).",
     "inputs": [
       {
         "name": "condition",
@@ -32887,7 +32887,7 @@
     "module": "ai.onnx",
     "version": 16,
     "support_level": "common",
-    "description": "Return elements, either from X or Y, depending on condition\n    (with Numpy-style broadcasting support).\n    Where behaves like numpy.where with three parameters:\n    https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html\n\n**History**\n- Version 16 adds bfloat16 to the types allowed (for the second and third parameter).\n",
+    "description": "Return elements, either from X or Y, depending on condition.\nWhere behaves like\n[numpy.where](https://docs.scipy.org/doc/numpy/reference/generated/numpy.where.html)\nwith three parameters.\n\nThis operator supports **multidirectional (i.e., Numpy-style) broadcasting**; for more details please check [the doc](https://github.com/onnx/onnx/blob/master/docs/Broadcasting.md).\n\n**History**\n- Version 16 adds bfloat16 to the types allowed (for the second and third parameter).\n",
     "inputs": [
       {
         "name": "condition",
