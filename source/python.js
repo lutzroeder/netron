@@ -1811,6 +1811,7 @@ python.Execution = class {
         this.registerType('gensim.models.fasttext.FastTextKeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.Doc2VecKeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.FastTextKeyedVectors', class {});
+        this.registerType('gensim.models.keyedvectors.KeyedVectors', class {});
         this.registerType('gensim.models.keyedvectors.Vocab', class {});
         this.registerType('gensim.models.keyedvectors.Word2VecKeyedVectors', class {});
         this.registerType('gensim.models.phrases.Phrases', class {});
