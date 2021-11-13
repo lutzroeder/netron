@@ -14444,7 +14444,7 @@
     "inputs": [
       {
         "name": "sample_indices_or_row_lengths",
-        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row lengths for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_lengths in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, the row lengths will be a (N-1)-D Densed\ntensor and it needs to be flattened into 1D before passed to this op. Both\nint32 and int64 are allowed and will be converted to int32 internally.",
+        "description": "A list of rank 2 Tensors specifying the training example to which the\ncorresponding embedding_indices and aggregation_weights values belong.\nIf the size of its first dimension is 0, we assume each embedding_indices\nbelongs to a different sample. Both int32 and int64 are allowed and will\nbe converted to int32 internally.\n\nOr a list of rank 1 Tensors specifying the row lengths for splitting\nembedding_indices and aggregation_weights into rows. It corresponds to\nids.row_lengths in embedding_lookup(), when ids is a RaggedTensor. When\nenqueuing N-D ragged tensor, only the last dimension is allowed to be ragged.\nthe row lengths is 1-D dense tensor. When empty, we assume a dense tensor is\npassed to the op Both int32 and int64 are allowed and will be converted to\nint32 internally.",
         "numberAttr": "N",
         "typeAttr": "T1"
       },
@@ -54975,7 +54975,7 @@
   {
     "name": "Tanh",
     "summary": "Computes hyperbolic tangent of `x` element-wise.",
-    "description": "  Given an input tensor, this function computes hyperbolic tangent of every\n  element in the tensor. Input range is `[-inf, inf]` and\n  output range is `[-1,1]`.\n\n  >>> x = tf.constant([-float(\"inf\"), -5, -0.5, 1, 1.2, 2, 3, float(\"inf\")])\n  >>> tf.math.tanh(x)\n  <tf.Tensor: shape=(8,), dtype=float32, numpy=\n  array([-1.        , -0.99990916, -0.46211717,  0.7615942 ,  0.8336547 ,\n          0.9640276 ,  0.9950547 ,  1.        ], dtype=float32)>\n",
+    "description": "  Given an input tensor, this function computes hyperbolic tangent of every\n  element in the tensor. Input range is `[-inf, inf]` and\n  output range is `[-1,1]`.\n\n  >>> x = tf.constant([-float(\"inf\"), -5, -0.5, 1, 1.2, 2, 3, float(\"inf\")])\n  >>> tf.math.tanh(x)\n  <tf.Tensor: shape=(8,), dtype=float32, numpy=\n  array([-1.0, -0.99990916, -0.46211717,  0.7615942 ,  0.8336547 ,\n          0.9640276 ,  0.9950547 ,  1.0], dtype=float32)>\n",
     "attributes": [
       {
         "name": "T",
