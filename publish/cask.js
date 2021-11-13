@@ -86,7 +86,7 @@ get(location).then((data) => {
         '  livecheck do',
         '    url :url',
         '    strategy :git',
-        '    regex(/^v(\\d+(?:\\.\\d+)*)$/)',
+        '    regex(/^v(\\d+(?:\\.\\d+)+)$/)',
         '  end',
         '',
         '  auto_updates true',
