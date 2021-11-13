@@ -63,7 +63,7 @@ setuptools.setup(
     version=package_version(),
     description="Viewer for neural network, deep learning, and machine learning models",
     long_description='Netron is a viewer for neural network, deep learning, and machine learning models.\n\n' +
-                     'Netron supports ONNX, TensorFlow Lite, Keras, Caffe, Darknet, ncnn, MNN, PaddlePaddle, Core ML, MXNet, RKNN, MindSpore Lite, TNN, Barracuda, Tengine, TensorFlow.js, Caffe2 and UFF. Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, Arm NN, BigDL, Chainer, CNTK, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.',
+                     'Netron supports ONNX, TensorFlow Lite, Keras, Caffe, Darknet, ncnn, MNN, PaddlePaddle, Core ML, MXNet, RKNN, MindSpore Lite, TNN, Barracuda, Tengine, TensorFlow.js, Caffe2, UFF and Circle. Netron has experimental support for PyTorch, TensorFlow, TorchScript, OpenVINO, Torch, Vitis AI, Arm NN, BigDL, Chainer, CNTK, Deeplearning4j, MediaPipe, ML.NET and scikit-learn.',
     keywords=[
         'onnx', 'keras', 'tensorflow', 'tflite', 'coreml', 'mxnet', 'caffe', 'caffe2', 'torchscript', 'pytorch', 'ncnn', 'mnn', 'openvino', 'darknet', 'paddlepaddle', 'chainer',
         'artificial intelligence', 'machine learning', 'deep learning', 'neural network',

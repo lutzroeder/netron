@@ -162,7 +162,7 @@ class Application {
                     'onnx', 'pb',
                     'h5', 'hd5', 'hdf5', 'json', 'keras',
                     'mlmodel', 'mlpackage',
-                    'caffemodel',
+                    'caffemodel', `circle`,
                     'model', 'dnn', 'cmf', 'mar', 'params',
                     'pdmodel', 'pdparams', 'nb',
                     'meta',
