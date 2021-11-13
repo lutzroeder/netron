@@ -224,7 +224,7 @@ onnx.ModelFactory = class {
             case 'onnx.flatbuffers': {
                 return context.require('./onnx-schema').then((/* schema */) => {
                     try {
-                        onnx.schema = flatbuffers.get('ort').onnxruntime.experimental.fbs;
+                        onnx.schema = flatbuffers.get('ort').onnxruntime.fbs;
                         const stream = context.stream;
                         const reader = flatbuffers.BinaryReader.open(stream);
                         const session = onnx.schema.InferenceSession.create(reader);
