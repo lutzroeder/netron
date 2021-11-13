@@ -1688,7 +1688,9 @@ view.ModelFactoryService = class {
                     { name: 'NuGet assets', tags: [ 'version', 'targets', 'packageFolders' ] },
                     { name: 'NuGet data', tags: [ 'format', 'restore', 'projects' ] },
                     { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] },
-                    { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] }
+                    { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] },
+                    { name: 'Waifu2x data', tags: [ 'name', 'arch_name', 'channels' ] },
+                    { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
