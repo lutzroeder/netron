@@ -501,13 +501,16 @@ $root.MNN.DetectionOutput = class DetectionOutput {
     }
 };
 
-$root.MNN.RoiPooling = class RoiPooling {
+$root.MNN.RoiParameters = class RoiParameters {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.RoiPooling();
+        const $ = new $root.MNN.RoiParameters();
         $.pooledWidth = reader.int32_(position, 4, 0);
         $.pooledHeight = reader.int32_(position, 6, 0);
         $.spatialScale = reader.float32_(position, 8, 0);
+        $.samplingRatio = reader.int32_(position, 10, -1);
+        $.aligned = reader.bool_(position, 12, false);
+        $.poolType = reader.int8_(position, 14, 1);
         return $;
     }
 };
@@ -1527,6 +1530,7 @@ $root.MNN.OpType = {
     TensorArrayConcat: 140,
     LSTMBlockCell: 141,
     Reverse: 142,
+    ROIAlign: 143,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1699,7 +1703,7 @@ $root.MNN.OpParameter = class {
             case 54: return $root.MNN.Requantize.decode(reader, position);
             case 55: return $root.MNN.Reshape.decode(reader, position);
             case 56: return $root.MNN.Resize.decode(reader, position);
-            case 57: return $root.MNN.RoiPooling.decode(reader, position);
+            case 57: return $root.MNN.RoiParameters.decode(reader, position);
             case 58: return $root.MNN.Scale.decode(reader, position);
             case 59: return $root.MNN.Selu.decode(reader, position);
             case 60: return $root.MNN.Size.decode(reader, position);
@@ -1797,7 +1801,7 @@ $root.MNN.OpParameter = class {
             case 'Requantize': return $root.MNN.Requantize.decodeText(reader, json);
             case 'Reshape': return $root.MNN.Reshape.decodeText(reader, json);
             case 'Resize': return $root.MNN.Resize.decodeText(reader, json);
-            case 'RoiPooling': return $root.MNN.RoiPooling.decodeText(reader, json);
+            case 'RoiParameters': return $root.MNN.RoiParameters.decodeText(reader, json);
             case 'Scale': return $root.MNN.Scale.decodeText(reader, json);
             case 'Selu': return $root.MNN.Selu.decodeText(reader, json);
             case 'Size': return $root.MNN.Size.decodeText(reader, json);
