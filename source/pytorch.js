@@ -861,6 +861,7 @@ pytorch.Execution = class extends python.Execution {
         super(sources, exceptionCallback);
         this.registerModule('ops');
         this.registerModule('ops.torchvision');
+        this.registerModule('ops.torchaudio');
         this.registerModule('torch');
         this.registerModule('torchvision');
         this.registerModule('__torch__');
@@ -1040,6 +1041,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.loss.SmoothL1Loss', class {});
         this.registerType('torch.nn.modules.module._IncompatibleKeys', class {});
         this.registerType('torch.nn.modules.module.Module', class {});
+        this.registerType('torch.nn.modules.module.PatchForward', class {});
         this.registerType('torch.nn.modules.normalization.CrossMapLRN2d', class {});
         this.registerType('torch.nn.modules.normalization.GroupNorm', class {});
         this.registerType('torch.nn.modules.normalization.LayerNorm', class {});
@@ -3145,6 +3147,22 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         }
                     }
                 }
+                // _x = torch.ne(torch.dim(input), 5)
+                // if _x:
+                //   ops.prim.RaiseException(...)
+                if (assign.type === '=' &&
+                    condition.type === 'if' &&
+                    pytorch.Utility.isEqual(assign.target, condition.condition) &&
+                    pytorch.Utility.isCall(assign.expression, 'torch.ne', 2) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.dim', 1) &&
+                    condition.then.statements.length > 0 &&
+                    pytorch.Utility.isCall(condition.then.statements[condition.then.statements.length - 1], 'ops.prim.RaiseException', 1)) {
+                    const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+                    if (pytorch.Utility.isTensor(tensor)) {
+                        const size = this.expression(assign.expression.arguments[1], context);
+                        tensor.resize_(Array(size).fill(NaN));
+                    }
+                }
                 // _0 = torch.eq(torch.len(torch.size(x)), 2)
                 // if _0:
                 //   pass
@@ -3400,6 +3418,8 @@ pytorch.Utility = class {
             case 'float32':
             case 'float64':
                 return obj !== null && obj !== Object(obj);
+            case 'string[][]':
+                return Array.isArray(obj) && obj.every((item) => Array.isArray(item) && item.every((item) => typeof item === 'string'));
             case 'Layout':
             case 'ScalarType':
             case 'MemoryFormat':
