@@ -387,7 +387,7 @@ json.TextReader = class {
         this._decoder.position = 0;
         let c;
         do {
-            if (this._decoder.position === this.position) {
+            if (this._decoder.position === this._position) {
                 return ' at ' + line.toString() + ':' + column.toString() + '.';
             }
             c = this._decoder.decode();
