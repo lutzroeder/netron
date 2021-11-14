@@ -622,7 +622,8 @@
       { "name": "channels_first", "type": "boolean", "default": true }
     ],
     "outputs": [
-      { "name": "output", "type": "Tensor" }
+      { "name": "output", "type": "Tensor" },
+      { "name": "?", "type": "Tensor" }
     ]
   },
   {

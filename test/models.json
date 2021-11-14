@@ -4966,6 +4966,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "wav2mel.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7534717/wav2mel.pt.zip[wav2mel.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":   "pytorch",
     "target": "wav2vec2.ptl",
     "source": "https://github.com/lutzroeder/netron/files/7447547/wav2vec2.ptl.zip[wav2vec2.ptl]",
     "format": "TorchScript v1.6",

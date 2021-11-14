@@ -1721,7 +1721,10 @@ pytorch.Execution = class extends python.Execution {
                     throw new pytorch.Error('Dimension out of range (expected to be in range of ' + JSON.stringify(size) + ', but got ' + JSON.stringify(dim) + ').');
                 }
             }
-            return NaN;
+            if (Number.isInteger(dim)) {
+                return NaN;
+            }
+            return [];
         });
         this.registerFunction('torch.slice', function(l, start, end, step) {
             step = step || 1;
@@ -2955,7 +2958,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.quantize_per_tensor':
                                         case 'torch.relu_':
                                         case 'torch.hardtanh_':
-                                        case 'torch.unsqueeze': {
+                                        case 'torch.unsqueeze':
+                                        case 'ops.prepacked.conv2d_clamp_run': {
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
                                             break;
                                         }
@@ -2983,7 +2987,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.mul':
                                         case 'torch.batch_norm':
                                         case 'torch.gelu':
-                                        case 'torch.relu': {
+                                        case 'torch.relu':
+                                        case 'torch.hardswish_': {
                                             const input = this.expression(args[0], context);
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 parameter.resize_(input.size());
@@ -3139,9 +3144,9 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     if (pytorch.Utility.isTensor(tensor) && tensor.size) {
                         const number = this.expression(assign.expression.arguments[1], context);
                         const size = tensor.size();
-                        if (size && size.length && size.length !== number &&
-                            size.every((item) => isNaN(item)) && number >= 3 && number <= 5) {
-                            if (tensor.__origin__ === 'torch.quantize_per_tensor') {
+                        if (number >= 3 && number <= 5) {
+                            if (!Array.isArray(size) || size.length !== number) {
+                                console.log(JSON.stringify(size) + ' ' + number);
                                 tensor.resize_(Array(number).fill(NaN));
                             }
                         }
