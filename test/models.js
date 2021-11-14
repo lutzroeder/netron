@@ -9,9 +9,8 @@ const process = require('process');
 const http = require('http');
 const https = require('https');
 const util = require('util');
-const xmldom = require('@xmldom/xmldom');
 
-const json = require('../source/json');
+// const json = require('../source/json');
 const protobuf = require('../source/protobuf');
 const flatbuffers = require('../source/flatbuffers');
 const sidebar = require('../source/view-sidebar.js');
@@ -24,11 +23,9 @@ const base = require('../source/base');
 global.Int64 = base.Int64;
 global.Uint64 = base.Uint64;
 
-global.json = json;
+// global.json = json;
 global.protobuf = protobuf;
 global.flatbuffers = flatbuffers;
-
-global.DOMParser = xmldom.DOMParser;
 
 global.TextDecoder = class {
 

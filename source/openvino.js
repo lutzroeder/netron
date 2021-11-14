@@ -1,30 +1,17 @@
 /* jshint esversion: 6 */
 
 var openvino = openvino || {};
-var text = text || require('./text');
+var xml = xml || require('./xml');
 
 openvino.ModelFactory = class {
 
     match(context) {
+        const tags = context.tags('xml');
+        if (tags.has('net')) {
+            return 'openvino.xml';
+        }
         const identifier = context.identifier;
         const extension = identifier.split('.').pop().toLowerCase();
-        if (extension === 'xml') {
-            try {
-                const reader = text.Reader.open(context.stream.peek(), 2048);
-                for (;;) {
-                    const line = reader.read();
-                    if (line === undefined) {
-                        break;
-                    }
-                    if (line.trim().startsWith('<net ')) {
-                        return 'openvino.xml';
-                    }
-                }
-            }
-            catch (err) {
-                // continue regardless of error
-            }
-        }
         if (extension === 'bin') {
             switch (identifier) {
                 case 'natives_blob.bin':
@@ -60,25 +47,21 @@ openvino.ModelFactory = class {
     }
 
     open(context, match) {
-        const open = (xml, bin) => {
+        const open = (stream, bin) => {
             return openvino.Metadata.open(context).then((metadata) => {
-                let errors = false;
-                let xmlDoc = null;
+                let document = null;
                 try {
-                    const parser = new DOMParser({ errorHandler: () => { errors = true; } });
-                    xmlDoc = parser.parseFromString(xml, 'text/xml');
+                    const reader = xml.TextReader.open(stream);
+                    document = reader.read();
                 }
                 catch (error) {
                     const message = error && error.message ? error.message : error.toString();
                     throw new openvino.Error('File format is not OpenVINO XML (' + message.replace(/\.$/, '') + ').');
                 }
-                if (errors || xmlDoc.documentElement == null || xmlDoc.getElementsByTagName('parsererror').length > 0) {
-                    throw new openvino.Error('File format is not OpenVINO.');
-                }
-                if (!xmlDoc.documentElement || xmlDoc.documentElement.nodeName != 'net') {
+                if (!document.documentElement || document.documentElement.localName != 'net') {
                     throw new openvino.Error('File format is not OpenVINO IR.');
                 }
-                const net = openvino.XmlReader.read(xmlDoc.documentElement);
+                const net = openvino.XmlReader.read(document.documentElement);
                 return new openvino.Model(metadata, net, bin);
             });
         };
@@ -87,19 +70,13 @@ openvino.ModelFactory = class {
             case 'openvino.xml':
                 return context.request(identifier.substring(0, identifier.length - 4) + '.bin', null).then((stream) => {
                     const buffer = stream.read();
-                    const decoder = new TextDecoder('utf-8');
-                    const xml = decoder.decode(context.stream.peek());
-                    return open(xml, buffer);
+                    return open(context.stream, buffer);
                 }).catch(() => {
-                    const stream = context.stream;
-                    const buffer = stream.peek();
-                    const decoder = new TextDecoder('utf-8');
-                    const xml = decoder.decode(buffer);
-                    return open(xml, null);
+                    return open(context.stream, null);
                 });
             case 'openvino.bin':
-                return context.request(identifier.substring(0, identifier.length - 4) + '.xml', 'utf-8').then((xml) => {
-                    return open(xml, context.stream.peek());
+                return context.request(identifier.substring(0, identifier.length - 4) + '.xml', null).then((stream) => {
+                    return open(stream, context.stream.peek());
                 });
         }
     }
@@ -1086,7 +1063,7 @@ openvino.XmlReader = class {
             const children = [];
             let child = parent.firstChild;
             while (child != null) {
-                if (child.nodeType == 1 && child.nodeName == name) {
+                if (child.nodeType == 1 && child.prefix === null && child.localName == name) {
                     children.push(child);
                 }
                 child = child.nextSibling;
@@ -1096,7 +1073,7 @@ openvino.XmlReader = class {
         const child = (parent, name) => {
             const elements = children(parent, name);
             if (elements.length > 1) {
-                throw new openvino.Error("Element '" + parent.nodeName + "' has multiple '" + name + "' elements.");
+                throw new openvino.Error("Element '" + parent.localName + "' has multiple '" + name + "' elements.");
             }
             return elements.length > 0 ? elements[0] : null;
         };
@@ -1107,7 +1084,7 @@ openvino.XmlReader = class {
                     return {
                         id: element.getAttribute('id'),
                         precision: element.getAttribute('precision'),
-                        dims: Array.prototype.slice.call(element.getElementsByTagName('dim')).map((dim) => parseInt(dim.textContent.trim(), 10))
+                        dims: element.getElementsByTagName('dim').map((dim) => parseInt(dim.textContent.trim(), 10))
                     };
                 });
             }
@@ -1125,11 +1102,11 @@ openvino.XmlReader = class {
                         type: element.getAttribute('type'),
                         precision: element.getAttribute('precision'),
                         data: !data ? [] : Array.from(data.attributes).map((attribute) => {
-                            return { name: attribute.name, value: attribute.value};
+                            return { name: attribute.localName, value: attribute.value};
                         }),
                         blobs: !blobs ? [] : Array.from(blobs.childNodes).filter((node) => node.nodeType === 1).map((blob) => {
                             return {
-                                name: blob.nodeName,
+                                name: blob.localName,
                                 precision: blob.getAttribute('precision'),
                                 offset: parseInt(blob.getAttribute('offset'), 10),
                                 size: parseInt(blob.getAttribute('size'), 10)
@@ -1157,7 +1134,7 @@ openvino.XmlReader = class {
                                     internal_layer_id: port.getAttribute("internal_layer_id"),
                                     internal_port_id: port.getAttribute("internal_port_id")
                                 };
-                                switch (port.nodeName) {
+                                switch (port.localName) {
                                     case 'input': layer.port_map.input.push(item); break;
                                     case 'output': layer.port_map.output.push(item); break;
                                 }

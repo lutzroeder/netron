@@ -7,6 +7,7 @@ var zip = zip || require('./zip');
 var gzip = gzip || require('./gzip');
 var tar = tar || require('./tar');
 var json = json || require('./json');
+var xml = xml || require('./xml');
 var protobuf = protobuf || require('./protobuf');
 var flatbuffers = flatbuffers || require('./flatbuffers');
 var python = python || require('./python');
@@ -1428,30 +1429,13 @@ view.ModelContext = class {
                                 break;
                             }
                             case 'xml': {
-                                const buffer = stream.peek();
-                                const decoder = new TextDecoder('utf-8');
-                                const xml = decoder.decode(buffer);
-                                let success = true;
-                                const parser = new DOMParser({ errorHandler: () => { success = false; } });
-                                const document = parser.parseFromString(xml, 'text/xml');
-                                const errors = (document) => {
-                                    const errors = document.getElementsByTagName("parsererror");
-                                    if (errors.length > 0) {
-                                        const namespace = errors[0].namespaceURI;
-                                        if (namespace === 'http://www.w3.org/1999/xhtml') {
-                                            return document.getElementsByTagName("parsererror");
-                                        }
-                                        return document.getElementsByTagNameNS(namespace, 'parsererror');
-                                    }
-                                    return [];
-                                };
-                                if (success && errors(document).length === 0) {
-                                    const element = document.documentElement;
-                                    const namespace = element.namespaceURI;
-                                    const localName = element.localName;
-                                    const name = namespace ? namespace + ':' + localName : localName;
-                                    tags.set(name, element);
-                                }
+                                const reader = xml.TextReader.open(stream);
+                                const document = reader.peek();
+                                const element = document.documentElement;
+                                const namespaceURI = element.namespaceURI;
+                                const localName = element.localName;
+                                const name = namespaceURI ? namespaceURI + ':' + localName : localName;
+                                tags.set(name, element);
                                 break;
                             }
                         }
