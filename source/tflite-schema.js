@@ -367,7 +367,8 @@ $root.tflite.BuiltinOperator = {
     BROADCAST_ARGS: 145,
     RANDOM_STANDARD_NORMAL: 146,
     BUCKETIZE: 147,
-    RANDOM_UNIFORM: 148
+    RANDOM_UNIFORM: 148,
+    MULTINOMIAL: 149
 };
 
 $root.tflite.BuiltinOptions = class {
