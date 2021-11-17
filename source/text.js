@@ -4,35 +4,43 @@ var text = text || {};
 
 text.Decoder = class {
 
-    static open(data) {
+    static open(data, encoding) {
         if (typeof data === 'string') {
             return new text.Decoder.String(data);
         }
+        const assert = (encoding, condition) => {
+            if (encoding && encoding !== condition) {
+                throw new text.Error("Invalid encoding '" + encoding + "'.");
+            }
+        };
         const buffer = data instanceof Uint8Array ? data : data.peek();
         const length = buffer.length;
         if (length >= 3 && buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf) {
-            return new text.Decoder.Utf8(buffer, 3);
+            assert(encoding, 'utf-8');
+            return new text.Decoder.Utf8(buffer, 3, true);
         }
         if (length >= 2 && buffer[0] === 0xff && buffer[1] === 0xfe) {
+            assert(encoding, 'utf-16');
             return new text.Decoder.Utf16LE(buffer, 2);
         }
         if (length >= 2 && buffer[0] === 0xfe && buffer[1] === 0xff) {
+            assert(encoding, 'utf-16');
             return new text.Decoder.Utf16BE(buffer, 2);
         }
         if (length >= 4 && buffer[0] === 0x00 && buffer[1] === 0x00 && buffer[2] === 0xfe && buffer[3] === 0xff) {
-            throw new Error("Unsupported UTF-32 big-endian encoding.");
+            throw new text.Error("Unsupported UTF-32 big-endian encoding.");
         }
         if (length >= 4 && buffer[0] === 0xff && buffer[1] === 0xfe && buffer[2] === 0x00 && buffer[3] === 0x00) {
-            throw new Error("Unsupported UTF-32 little-endian encoding.");
+            throw new text.Error("Unsupported UTF-32 little-endian encoding.");
         }
         if (length >= 5 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && buffer[3] === 0x38 && buffer[4] === 0x2D) {
-            throw new Error("Unsupported UTF-7 encoding.");
+            throw new text.Error("Unsupported UTF-7 encoding.");
         }
         if (length >= 4 && buffer[0] === 0x2B && buffer[1] === 0x2F && buffer[2] === 0x76 && (buffer[3] === 0x38 || buffer[3] === 0x39 || buffer[3] === 0x2B || buffer[3] === 0x2F)) {
-            throw new Error("Unsupported UTF-7 encoding.");
+            throw new text.Error("Unsupported UTF-7 encoding.");
         }
         if (length >= 4 && buffer[0] === 0x84 && buffer[1] === 0x31 && buffer[2] === 0x95 && buffer[3] === 0x33) {
-            throw new Error("Unsupported GB-18030 encoding.");
+            throw new text.Error("Unsupported GB-18030 encoding.");
         }
         if (length > 4 && (length % 2) == 0 && (buffer[0] === 0x00 || buffer[1] === 0x00 || buffer[2] === 0x00 || buffer[3] === 0x00)) {
             const lo = new Uint32Array(256);
@@ -42,13 +50,19 @@ text.Decoder = class {
                 hi[buffer[i + 1]]++;
             }
             if (lo[0x00] === 0 && (hi[0x00] / (length >> 1)) > 0.5) {
+                assert(encoding, 'utf-16');
                 return new text.Decoder.Utf16LE(buffer, 0);
             }
             if (hi[0x00] === 0 && (lo[0x00] / (length >> 1)) > 0.5) {
+                assert(encoding, 'utf-16');
                 return new text.Decoder.Utf16BE(buffer, 0);
             }
         }
-        return new text.Decoder.Utf8(buffer, 0);
+        if (encoding && (encoding.startsWith('iso-8859-') || encoding.startsWith('latin-'))) {
+            return new text.Decoder.Latin1(buffer, 0);
+        }
+        assert(encoding, 'utf-8');
+        return new text.Decoder.Utf8(buffer, 0, encoding === 'utf-8');
     }
 };
 
@@ -58,6 +72,10 @@ text.Decoder.String = class {
         this.buffer = buffer;
         this.position = 0;
         this.length = buffer.length;
+    }
+
+    get encoding() {
+        return null;
     }
 
     decode() {
@@ -70,9 +88,14 @@ text.Decoder.String = class {
 
 text.Decoder.Utf8 = class {
 
-    constructor(buffer, position) {
+    constructor(buffer, position, fatal) {
         this.position = position || 0;
         this.buffer = buffer;
+        this.fatal = fatal;
+    }
+
+    get encoding() {
+        return 'utf-8';
     }
 
     decode() {
@@ -106,17 +129,43 @@ text.Decoder.Utf8 = class {
         if (c >= 0xF0 && c <= 0xF4) {
             if (this.buffer[this.position + 2] !== undefined) {
                 const c2 = this.buffer[this.position];
-                if ((c !== 0xF0 || c2 >= 0x90) && (c !== 0xF4 || c2 <= 0x8f)) {
+                if (c2 >= 0x80 && c2 <= 0xBF) {
                     const c3 = this.buffer[this.position + 1];
-                    if (c3 >= 0x80 && c3 < 0xFB) {
+                    if (c3 >= 0x80 && c3 <= 0xBF) {
                         const c4 = this.buffer[this.position + 2];
-                        this.position += 3;
-                        return String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
+                        if (c4 >= 0x80 && c4 <= 0xBF) {
+                            this.position += 3;
+                            return String.fromCodePoint(((c & 0x07) << 18) | ((c2 & 0x3F) << 12) | ((c3 & 0x3F) << 6) | (c4 & 0x3F));
+                        }
                     }
                 }
             }
         }
+        if (this.fatal) {
+            throw new text.Error('Invalid utf-8 character.');
+        }
         return String.fromCharCode(0xfffd);
+    }
+};
+
+text.Decoder.Latin1 = class {
+
+    constructor(buffer, position) {
+        this.position = position || 0;
+        this.buffer = buffer;
+    }
+
+    get encoding() {
+        return 'latin-1';
+    }
+
+    decode() {
+        const c = this.buffer[this.position];
+        if (c === undefined) {
+            return c;
+        }
+        this.position++;
+        return String.fromCodePoint(c);
     }
 };
 
@@ -126,6 +175,10 @@ text.Decoder.Utf16LE = class {
         this.buffer = buffer;
         this.position = position || 0;
         this.length = buffer.length;
+    }
+
+    get encoding() {
+        return 'utf-16';
     }
 
     decode() {
@@ -154,6 +207,10 @@ text.Decoder.Utf16BE = class {
         this.buffer = buffer;
         this.position = position || 0;
         this.length = buffer.length;
+    }
+
+    get encoding() {
+        return 'utf-16';
     }
 
     decode() {
@@ -219,6 +276,14 @@ text.Reader = class {
             return buffer.join('');
         }
         return line;
+    }
+};
+
+text.Error = class extends Error {
+
+    constructor(message) {
+        super(message);
+        this.name = 'Text Error';
     }
 };
 
