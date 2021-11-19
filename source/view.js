@@ -1430,12 +1430,14 @@ view.ModelContext = class {
                             }
                             case 'xml': {
                                 const reader = xml.TextReader.open(stream);
-                                const document = reader.peek();
-                                const element = document.documentElement;
-                                const namespaceURI = element.namespaceURI;
-                                const localName = element.localName;
-                                const name = namespaceURI ? namespaceURI + ':' + localName : localName;
-                                tags.set(name, element);
+                                if (reader) {
+                                    const document = reader.peek();
+                                    const element = document.documentElement;
+                                    const namespaceURI = element.namespaceURI;
+                                    const localName = element.localName;
+                                    const name = namespaceURI ? namespaceURI + ':' + localName : localName;
+                                    tags.set(name, element);
+                                }
                                 break;
                             }
                         }
