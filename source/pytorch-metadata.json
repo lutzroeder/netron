@@ -1668,6 +1668,17 @@
     ]
   },
   {
+    "name": "torch.take",
+    "category": "Activation",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "index", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.leaky_relu",
     "category": "Activation",
     "attributes": [
