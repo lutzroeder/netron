@@ -1236,10 +1236,14 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.ops.poolers.MultiScaleRoIAlign', class {});
         this.registerType('torchvision.transforms.functional.InterpolationMode', class {});
         this.registerType('torchvision.transforms.transforms.Compose', class {});
+        this.registerType('torchvision.transforms.transforms.CenterCrop', class {});
         this.registerType('torchvision.transforms.transforms.Grayscale', class {});
         this.registerType('torchvision.transforms.transforms.Normalize', class {});
         this.registerType('torchvision.transforms.transforms.RandomAffine', class {});
+        this.registerType('torchvision.transforms.transforms.RandomCrop', class {});
+        this.registerType('torchvision.transforms.transforms.RandomHorizontalFlip', class {});
         this.registerType('torchvision.transforms.transforms.Resize', class {});
+        this.registerType('torchvision.transforms.transforms.Scale', class {});
         this.registerType('torchvision.transforms.transforms.ToPILImage', class {});
         this.registerType('torchvision.transforms.transforms.ToTensor', class {});
         this.registerFunction('annotate', function(type, value) {
