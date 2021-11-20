@@ -69,9 +69,9 @@ text.Decoder = class {
 text.Decoder.String = class {
 
     constructor(buffer) {
-        this.buffer = buffer;
+        this.buffer = buffer.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g);
         this.position = 0;
-        this.length = buffer.length;
+        this.length = this.buffer.length;
     }
 
     get encoding() {
