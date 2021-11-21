@@ -11474,6 +11474,90 @@
     ]
   },
   {
+    "name": "DataServiceDatasetV3",
+    "summary": "Creates a dataset that reads data from the tf.data service.",
+    "attributes": [
+      {
+        "name": "task_refresh_interval_hint_ms",
+        "type": "int64",
+        "default": -1
+      },
+      {
+        "name": "output_types",
+        "type": "type[]",
+        "minimum": 1
+      },
+      {
+        "name": "output_shapes",
+        "type": "shape[]",
+        "minimum": 1
+      },
+      {
+        "name": "data_transfer_protocol",
+        "type": "string",
+        "default": ""
+      },
+      {
+        "name": "target_workers",
+        "type": "string",
+        "default": "AUTO"
+      },
+      {
+        "name": "uncompress",
+        "type": "boolean",
+        "default": false
+      },
+      {
+        "name": "uncompress_fn",
+        "type": "function"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "dataset_id",
+        "type": 9
+      },
+      {
+        "name": "processing_mode",
+        "type": 7
+      },
+      {
+        "name": "address",
+        "type": 7
+      },
+      {
+        "name": "protocol",
+        "type": 7
+      },
+      {
+        "name": "job_name",
+        "type": 7
+      },
+      {
+        "name": "consumer_index",
+        "type": 9
+      },
+      {
+        "name": "num_consumers",
+        "type": 9
+      },
+      {
+        "name": "max_outstanding_requests",
+        "type": 9
+      },
+      {
+        "name": "iteration_counter",
+        "type": 20
+      }
+    ],
+    "outputs": [
+      {
+        "name": "handle",
+        "type": 21
+      }
+    ]
+  },
+  {
     "name": "DatasetCardinality",
     "summary": "Returns the cardinality of `input_dataset`.",
     "description": "Returns the cardinality of `input_dataset`.",
@@ -21409,6 +21493,13 @@
   {
     "name": "IsTPUEmbeddingInitialized",
     "summary": "Whether TPU Embedding is initialized in a distributed TPU system.",
+    "attributes": [
+      {
+        "name": "config",
+        "type": "string",
+        "default": ""
+      }
+    ],
     "outputs": [
       {
         "name": "is_tpu_embedding_initialized",
@@ -28022,7 +28113,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `uint8`, `int16`, `uint16`, `int32`, `int64`, `complex64`, `complex128`, `bool`."
+        "description": "Must be one of the following: `bfloat16`, `float16`, `float32`, `float64`, `int8`, `uint8`, `int16`, `uint16`, `int32`, `uint32`, `int64`, `uint64`, `complex64`, `complex128`, `bool`."
       }
     ],
     "inputs": [
