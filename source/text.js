@@ -69,7 +69,7 @@ text.Decoder = class {
 text.Decoder.String = class {
 
     constructor(buffer) {
-        this.buffer = buffer.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g);
+        this.buffer = buffer ? buffer.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) : '';
         this.position = 0;
         this.length = this.buffer.length;
     }
