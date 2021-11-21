@@ -3150,7 +3150,6 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         const size = tensor.size();
                         if (number >= 3 && number <= 5) {
                             if (!Array.isArray(size) || size.length !== number) {
-                                console.log(JSON.stringify(size) + ' ' + number);
                                 tensor.resize_(Array(number).fill(NaN));
                             }
                         }
