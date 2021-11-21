@@ -1066,7 +1066,7 @@ protobuf.TextReader = class {
                     do {
                         c = this._decoder.decode();
                         if (c === undefined) {
-                            this._token === undefined;
+                            this._token = undefined;
                             return;
                         }
                     }
