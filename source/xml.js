@@ -26,77 +26,52 @@ xml.TextReader = class {
         this._callback = callback;
         this._nameStartCharRegExp = /[:A-Z_a-z\xC0-\xD6\xD8-\xF6\xF8-\u02FF\u0370-\u037D\u037F-\u1FFF\u200C-\u200D\u2070-\u218F\u2C00-\u2FEF\u3001-\uD7FF\uF900-\uFDCF\uFDF0-\uFFFD]/;
         this._nameCharRegExp = new RegExp("[-.0-9\\xB7" + this._nameStartCharRegExp.source.slice(1, -1) + "]");
-        this._entities = new Set([ 'quot', 'amp', 'apos', 'lt', 'gt' ]);
+        this._entities = new Map([ [ 'quot', '"' ], [ 'amp', '&' ], [ 'apos', "'" ], [ 'lt', '<' ],  [ 'gt', '>' ] ]);
+    }
+
+    peek() {
+        this._peek = true;
+        const value = this.read();
+        delete this._peek;
+        return value;
     }
 
     read() {
-        const decoder = text.Decoder.open(this._data);
-        this._decoder = decoder.encoding === 'utf-8' ? text.Decoder.open(this._data, 'utf-8') : decoder;
-        const document = new xml.Document();
-        this._stack = [];
-        this._document = document;
-        this._push(document);
-        this._position = 0;
         this._version = 0;
-        this._char = this._decoder.decode();
+        this._context = [];
+        this._pushBuffer(this._data, '', '', false);
+        this._stack = [];
+        this._parameterEntities = false;
+        this._characterData = true;
+        this._push(new xml.Document());
+        const document = this._document();
         for (;;) {
-            const start = this._position;
+            this._start = this._position;
             switch (this._char) {
                 case '<': {
                     this._next();
                     switch (this._char) {
                         case '?': {
-                            this._next();
-                            const name = this._entityName();
-                            let whitespace = this._char === '?' ? false : this._whitespace(1);
-                            const position = this._position;
-                            const data = this._terminal('?>');
-                            if (name.toLowerCase() === 'xml') {
-                                this._seek(position);
-                                this._assert(name === 'xml', "'" + name + "' must be lower case");
-                                this._assert(start === 0, "Prolog must start with XML declaration", start);
-                                const obj = { version: '1.0', encoding: '', standalone: 'no' };
-                                for (const name of Object.keys(obj)) {
-                                    if (whitespace && (name == 'version' ? this._expect(name) : this._match(name))) {
-                                        this._whitespace(0);
-                                        this._expect('=');
-                                        this._whitespace(0);
-                                        obj[name] = this._attValue();
-                                        whitespace = this._whitespace(0);
-                                    }
-                                }
-                                this._expect('?>');
-                                obj.encoding = obj.encoding.toLowerCase();
-                                if (this._decoder.encoding && obj.encoding !== this._decoder.encoding) {
-                                    const position = this._position;
-                                    this._decoder = text.Decoder.open(this._data, obj.encoding);
-                                    this._seek(position);
-                                }
-                                const version = /(\d)\.(\d)/.exec(obj.version);
-                                this._assert(version && version[1] === '1', "Invalid XML version '" + obj.version + "'.");
-                                this._version = Number.parseInt(version[2], 10);
-                                this._assert(obj.standalone === 'no' || obj.standalone === 'yes');
-                            }
-                            const node = document.createProcessingInstruction(name, data);
-                            this._appendChild(node);
+                            this._processingInstruction();
                             break;
                         }
                         case '!': {
                             this._next();
                             if (this._match('--')) {
-                                const data = this._terminal('--');
-                                const node = document.createComment(data);
-                                this._appendChild(node);
-                                this._expect('>');
+                                this._comment();
                             }
-                            else if (this._match('[CDATA[')) {
+                            else if (this._match('[CDATA')) {
                                 this._assert(this._stack.length > 1);
+                                const characterData = this._characterData;
+                                this._characterData = true;
+                                this._expect('[');
                                 const data = this._terminal(']]>');
+                                this._characterData = characterData;
                                 const node = document.createCDATASection(data);
                                 this._appendChild(node);
                             }
                             else if (this._match('DOCTYPE')) {
-                                this._assert(this._stack.length > 1 || !document.documentElement);
+                                this._assert(this._stack.length > 1 || !document.documentElement || !document.documentType);
                                 this._whitespace(1);
                                 const name = this._name();
                                 this._assert(name !== null);
@@ -118,97 +93,34 @@ xml.TextReader = class {
                                     whitespace = true;
                                 }
                                 const node = document.createDocumentType(name, publicId, systemId);
+                                this._appendChild(node);
+                                this._push(node);
+                                node.parameterEntities = new xml.NamedNodeMap();
+                                node.elements = new xml.NamedNodeMap();
+                                this._parameterEntities = true;
+                                this._characterData = false;
+                                const internalSubset = whitespace && this._match('[');
+                                if (internalSubset) {
+                                    this._internalSubset(']');
+                                }
                                 if (systemId) {
-                                    // this._assert(!systemId || this._callback);
-                                    // const data = this._callback(systemId);
-                                    // const reader = xml.TextReader.open(data);
+                                    this._pushResource(systemId, '', true);
+                                    this._internalSubset(undefined);
+                                    this._popContext();
                                 }
-                                this._appendChild(node);
-                                if (whitespace && this._match('[')) {
-                                    this._push(node);
+                                this._characterData = true;
+                                this._parameterEntities = false;
+                                const values = node.entities.filter((entity) => entity.value).map((entity) => entity.value);
+                                for (const entity of node.entities.filter((entity) => entity.notationName)) {
+                                    const reference = '&' + entity.localName + ';';
+                                    this._assert(!values.some((value) => value.indexOf(reference) >= 0), 'Entity references unparsed entity.');
                                 }
-                                else {
-                                    this._expect('>');
-                                }
-                            }
-                            else if (this._match('ENTITY')) {
-                                const documentType = this._top();
-                                this._assert(documentType.nodeType === xml.NodeType.DocumentType);
-                                this._whitespace(1);
-                                const parsed = this._char === '%';
-                                if (parsed) {
-                                    this._next();
-                                    this._whitespace(1);
-                                }
-                                const name = this._entityName();
-                                const node = documentType.createEntity(name);
-                                let whitespace = this._whitespace(0);
-                                if (whitespace && (this._char === '"' || this._char === "'")) {
-                                    this._entityValue();
-                                    whitespace = this._whitespace(0);
-                                }
-                                else {
-                                    if (whitespace && this._match('SYSTEM')) {
-                                        this._whitespace(1);
-                                        node.systemId = this._systemLiteral();
-                                        whitespace = this._whitespace(0);
-                                    }
-                                    else if (whitespace && this._match('PUBLIC')) {
-                                        this._whitespace(1);
-                                        node.publicId = this._pubidLiteral();
-                                        this._whitespace(1);
-                                        node.systemId = this._systemLiteral();
-                                        whitespace = this._whitespace(0);
-                                    }
-                                    else {
-                                        this._unexpected();
-                                    }
-                                    if (whitespace && !parsed) {
-                                        if (this._match('NDATA')) {
-                                            this._whitespace(1);
-                                            const name = this._name();
-                                            this._assert(name !== null);
-                                            node.notationName = name;
-                                            this._whitespace(0);
-                                        }
-                                    }
+                                if (internalSubset) {
+                                    this._expect(']');
+                                    this._whitespace(0);
                                 }
                                 this._expect('>');
-                                this._appendChild(node);
-                            }
-                            else if (this._match('ELEMENT')) {
-                                this._assert(this._nodeType() === xml.NodeType.DocumentType);
-                                this._whitespace(1);
-                                const name = this._name();
-                                this._assert(name !== null);
-                                this._terminal('>');
-                            }
-                            else if (this._match('ATTLIST')) {
-                                this._assert(this._nodeType() === xml.NodeType.DocumentType);
-                                this._whitespace(1);
-                                const name = this._name();
-                                this._assert(name !== null);
-                                this._terminal('>');
-                            }
-                            else if (this._match('NOTATION')) {
-                                this._assert(this._nodeType() === xml.NodeType.DocumentType);
-                                this._whitespace(1);
-                                /* const name = */ this._entityName();
-                                let whitespace = this._whitespace(0);
-                                if (whitespace && this._match('SYSTEM')) {
-                                    this._whitespace(1);
-                                    /* node.systemId = */ this._systemLiteral();
-                                    whitespace = this._whitespace(0);
-                                }
-                                if (whitespace && this._match('PUBLIC')) {
-                                    this._whitespace(1);
-                                    /* node.publicId = */ this._pubidLiteral();
-                                    if (this._whitespace(0)) {
-                                        /* node.systemId = */ this._systemLiteral();
-                                        whitespace = this._whitespace(0);
-                                    }
-                                }
-                                this._expect('>');
+                                this._assert(this._pop().nodeType === xml.NodeType.DocumentType);
                             }
                             else {
                                 this._unexpected();
@@ -217,27 +129,23 @@ xml.TextReader = class {
                         }
                         case '/': {
                             this._next();
-                            const position = this._position;
                             const name = this._name();
                             this._assert(name !== null);
                             this._whitespace(0);
-                            if (!this._match('>')) {
-                                this._unexpected();
-                            }
+                            this._expect('>');
                             const node = this._pop();
                             const nodeName = node.prefix ? node.prefix + ':' + node.localName : node.localName;
                             if (name !== nodeName) {
-                                this._seek(position);
-                                throw new xml.Error("Opening tag <" + nodeName + "> and ending tag </" + name + "> mismatch" + this._location());
+                                this._assert(false, "Opening tag <" + nodeName + "> and ending tag </" + name + "> mismatch", this._start);
                             }
                             break;
                         }
                         default: {
-                            this._assert(this._stack.length > 1 || !document.documentElement);
+                            this._assert(this._stack.length > 1 || !this._document.documentElement);
                             const position = this._position;
                             const name = this._name();
                             this._assert(name !== null);
-                            const attributes = new Map();
+                            const attributes = [];
                             let whitespace = this._whitespace(0);
                             if (whitespace) {
                                 while (this._char !== '/' && this._char !== '>') {
@@ -247,17 +155,16 @@ xml.TextReader = class {
                                     const position = this._position;
                                     const name = this._name();
                                     if (name) {
-                                        if (attributes.has(name)) {
-                                            this._assert(false, "'" + name + "' is a duplicate attribute name", position);
-                                        }
                                         this._whitespace(0);
                                         this._expect('=');
                                         this._whitespace(0);
-                                        const value = this._attValue();
-                                        attributes.set(name, {
-                                            position: position,
+                                        const valuePosition = this._valuePosition;
+                                        const value = this._attributeValue();
+                                        attributes.push({
                                             qualifiedName: name,
-                                            value: value
+                                            value: value,
+                                            position: position,
+                                            valuePosition: valuePosition
                                         });
                                         whitespace = this._whitespace(0);
                                         continue;
@@ -268,19 +175,27 @@ xml.TextReader = class {
                                 }
                             }
                             const namespaces = new Map();
-                            for (const attr of Array.from(attributes.values()).reverse()) {
+                            for (const attr of attributes.reverse()) {
                                 const name = attr.qualifiedName;
                                 const value = attr.value;
                                 if (name === 'xml:space') {
-                                    this._assert(value === 'preserve' || value === 'default', "Unexpected xml:space attribute value '" + value + "'.", position);
+                                    this._assert(value === 'preserve' || value === 'default', "Unexpected xml:space attribute value '" + value + "'", position);
                                 }
                                 const index = name.indexOf(':');
                                 if (index > 0) {
                                     attr.prefix = name.substring(0, index);
                                     attr.localName = name.substring(index + 1);
+                                    this._assert(attr.localName !== '');
                                     if (attr.prefix === 'xmlns' && attr.localName) {
-                                        this._assert(attr.localName !== 'xmlns', "Invalid namespace prefix '" + attr.localName + "'", attr.position);
-                                        this._assert(this._version > 0 || value, "Invalid namespace declaration'", attr.position);
+                                        if (!this._validateNamespace(value) || value === 'http://www.w3.org/2000/xmlns/') {
+                                            this._assert(false, "Invalid namespace '" + value + "'", attr.valuePosition);
+                                        }
+                                        if (attr.localName === 'xmlns' || (attr.localName === 'xml' && value !== 'http://www.w3.org/XML/1998/namespace') || (attr.localName !== 'xml' && value === 'http://www.w3.org/XML/1998/namespace')) {
+                                            this._assert(false, "Invalid namespace prefix '" + attr.localName + "'", attr.position);
+                                        }
+                                        if (this._version === 0 && value.length === 0) {
+                                            this._assert(false, "Invalid namespace declaration'", attr.position);
+                                        }
                                         namespaces.set(attr.localName, value);
                                     }
                                 }
@@ -288,20 +203,35 @@ xml.TextReader = class {
                                     attr.prefix = null;
                                     attr.localName = name;
                                     if (attr.localName === 'xmlns') {
+                                        if (!this._validateNamespace(value) || value === 'http://www.w3.org/2000/xmlns/' || value === 'http://www.w3.org/XML/1998/namespace') {
+                                            this._assert(false, "Invalid namespace '" + value + "'", attr.valuePosition);
+                                        }
                                         namespaces.set('', value);
                                     }
                                 }
                             }
                             const index = name.indexOf(':');
-                            const prefix = (index < 0 || index === name.length - 1 ? null : name.substring(0, index)) || '';
-                            const namespaceURI = namespaces.get(prefix) || this._lookupNamespaceURI(prefix);
+                            const prefix = (index < 0 || index === name.length - 1 ? null : name.substring(0, index));
+                            this._assert(prefix !== 'xmlns');
+                            const namespaceURI = namespaces.has(prefix || '') ? namespaces.get(prefix) : this._lookupNamespaceURI(prefix || '');
+                            this._assert(namespaceURI !== '' || prefix === null);
                             const element = document.createElementNS(namespaceURI, name);
+                            const parent = this._node();
+                            if (parent.nodeType === xml.NodeType.Document && parent.documentElement !== null) {
+                                this._assert(false, 'Duplicate document element', this._start);
+                            }
                             this._appendChild(element);
-                            for (const entry of attributes.values()) {
+                            const keys = new Set();
+                            for (const entry of attributes) {
                                 const prefix = entry.prefix;
-                                const namespaceURI = namespaces.get(prefix) || element.parentNode.lookupNamespaceURI(prefix);
+                                const namespaceURI = namespaces.get(prefix || '') || element.parentNode.lookupNamespaceURI(prefix || '');
+                                this._assert(namespaceURI !== '');
+                                this._assert(namespaceURI !== null || prefix === null);
                                 const qualifiedName = entry.qualifiedName;
                                 const attribute = document.createAttributeNS(namespaceURI, qualifiedName);
+                                const key = (attribute.namespaceURI || '') + '|' + attribute.localName;
+                                this._assert(!keys.has(key));
+                                keys.add(key);
                                 attribute.value = entry.value;
                                 attribute.ownerElement = element;
                                 element.setAttributeNode(attribute);
@@ -322,85 +252,278 @@ xml.TextReader = class {
                 default: {
                     if (this._char === undefined) {
                         if (this._stack.length === 1 && this._nodeType() === xml.NodeType.Document) {
+                            const documentType = document.documentType;
+                            if (documentType) {
+                                delete documentType.parameterEntities;
+                                delete documentType.elements;
+                            }
+                            delete this._decoder;
+                            delete this._char;
+                            delete this._position;
+                            delete this._prolog;
+                            delete this._start;
+                            delete this._base;
+                            delete this._entity;
+                            delete this._characterData;
+                            delete this._implicitSpace;
+                            delete this._characterData;
+                            delete this._parameterEntities;
+                            delete this._stop;
+                            delete this._version;
+                            delete this._context;
                             return this._pop();
                         }
                         this._unexpected();
                     }
-                    switch (this._nodeType()) {
+                    const node = this._node();
+                    switch (node.nodeType) {
                         case xml.NodeType.Element: {
-                            const append = (data) => {
+                            const documentType = document.documentType;
+                            const name = node.prefix ? node.prefix + ':' + node.localName : node.localName;
+                            const elementType = documentType ? documentType.elements.getNamedItem(name) : null;
+                            this._characterData = elementType ? elementType.characterData : false;
+                            this._seek(this._position);
+                            const data = [];
+                            while (this._char !== '<') {
+                                if (this._char === '&') {
+                                    const c = this._entityReference();
+                                    if (c) {
+                                        data.push(c);
+                                        this._next();
+                                    }
+                                    continue;
+                                }
+                                if (this._char === undefined) {
+                                    this._unexpected();
+                                }
+                                if (this._match(']]>')) {
+                                    this._unexpected();
+                                }
+                                const c = this._char.codePointAt(0);
+                                if (c < 0x20 && (c !== 0x09 && c !== 0x0A && c !== 0x0D && (c !== 0x0c || this._version === 0))) {
+                                    this._unexpected();
+                                }
+                                data.push(this._char);
+                                if (data.length > 65536) {
+                                    this._assert(false, 'Invalid character data buffer size.');
+                                }
+                                this._next();
+                            }
+                            if (data.length > 0) {
                                 const content = data.splice(0, data.length).join('');
                                 if (content.trim().length > 0) {
                                     const node = document.createTextNode(content);
                                     this._appendChild(node);
                                 }
-                            };
-                            const data = [];
-                            while (this._char !== '<') {
-                                if (this._char === undefined) {
-                                    this._unexpected();
-                                }
-                                if (this._char === '&') {
-                                    if (data.length > 0) {
-                                        append(data);
-                                    }
-                                    const name = this._reference();
-                                    if (!name) {
-                                        this._unexpected();
-                                    }
-                                    this._validateEntityReference(name);
-                                    const node = document.createEntityReference(name);
-                                    this._appendChild(node);
-                                }
-                                else if (this._char === ']' && this._match(']]>')) {
-                                    this._unexpected();
-                                }
-                                else if (this._char === '\x07' || this._char === '\x0c' || this._char === '\x1b') {
-                                    this._unexpected();
-                                }
-                                else {
-                                    data.push(this._char);
-                                    this._next();
-                                }
-                            }
-                            if (data.length > 0) {
-                                append(data);
                             }
                             continue;
                         }
-                        case xml.NodeType.DocumentType: {
-                            if (this._char === '%') {
-                                this._next();
-                                const name = this._name();
-                                if (name && this._match(';')) {
-                                    const node = document.createEntityReference(name);
-                                    this._appendChild(node);
-                                    continue;
-                                }
-                            }
-                            else if (this._char === ']') {
-                                this._next();
-                                this._whitespace(0);
-                                this._expect('>');
-                                this._pop();
-                                continue;
-                            }
-                        }
                     }
-                    if (this._whitespace(0)) {
-                        continue;
+                    if (!this._whitespace(0)) {
+                        this._unexpected();
                     }
-                    this._unexpected();
+                    break;
                 }
             }
         }
     }
 
-    peek() {
-        this._peek = true;
-        const value = this.read();
-        delete this._peek;
-        return value;
+    _internalSubset(terminal) {
+        for (;;) {
+            this._start = this._position;
+            switch (this._char) {
+                case '<': {
+                    this._next();
+                    switch (this._char) {
+                        case '?': {
+                            this._processingInstruction();
+                            break;
+                        }
+                        case '!': {
+                            this._next();
+                            if (this._match('--')) {
+                                const parameterEntities = this._parameterEntities;
+                                const characterData = this._characterData;
+                                this._parameterEntities = false;
+                                this._characterData = true;
+                                this._comment();
+                                this._parameterEntities = parameterEntities;
+                                this._characterData = characterData;
+                            }
+                            else if (this._match('ENTITY')) {
+                                const documentType = this._node();
+                                this._assert(documentType.nodeType === xml.NodeType.DocumentType);
+                                this._parameterEntities = false;
+                                this._whitespace(1);
+                                const parameter = this._char === '%';
+                                if (parameter) {
+                                    this._next();
+                                    this._whitespace(1);
+                                }
+                                this._parameterEntities = true;
+                                const name = this._entityName();
+                                const node = documentType.createEntity(name);
+                                let whitespace = this._whitespace(0);
+                                if (whitespace && (this._char === '"' || this._char === "'")) {
+                                    node.value = this._entityValue();
+                                    whitespace = this._whitespace(0);
+                                }
+                                else {
+                                    if (whitespace && this._match('SYSTEM')) {
+                                        this._whitespace(1);
+                                        node.systemId = this._systemLiteral();
+                                        whitespace = this._whitespace(0);
+                                    }
+                                    else if (whitespace && this._match('PUBLIC')) {
+                                        this._whitespace(1);
+                                        node.publicId = this._pubidLiteral();
+                                        this._whitespace(1);
+                                        node.systemId = this._systemLiteral();
+                                        whitespace = this._whitespace(0);
+                                    }
+                                    else {
+                                        this._unexpected();
+                                    }
+                                    if (whitespace && !parameter) {
+                                        if (this._match('NDATA')) {
+                                            this._whitespace(1);
+                                            const name = this._name();
+                                            this._assert(name !== null);
+                                            node.notationName = name;
+                                            this._whitespace(0);
+                                        }
+                                    }
+                                }
+                                this._expect('>');
+                                if (parameter) {
+                                    documentType.parameterEntities.setNamedItem(node);
+                                }
+                                else {
+                                    this._appendChild(node);
+                                }
+                            }
+                            else if (this._match('ELEMENT')) {
+                                const documentType = this._node();
+                                this._assert(documentType.nodeType === xml.NodeType.DocumentType);
+                                this._whitespace(1);
+                                const name = this._name();
+                                this._assert(name !== null);
+                                this._whitespace(1);
+                                const elementType = { localName: name, characterData: false };
+                                documentType.elements.setNamedItem(elementType);
+                                if (this._match('EMPTY')) {
+                                    this._whitespace(0);
+                                }
+                                else if (this._match('ANY')) {
+                                    this._whitespace(0);
+                                }
+                                else {
+                                    this._expect('(');
+                                    this._whitespace(0);
+                                    if (this._match('#PCDATA')) {
+                                        elementType.characterData = true;
+                                        this._whitespace(0);
+                                        if (this._match(')')) {
+                                            this._match('*');
+                                        }
+                                        else {
+                                            this._whitespace(0);
+                                            while (this._match('|')) {
+                                                this._whitespace(0);
+                                                const name = this._name();
+                                                this._assert(name);
+                                                this._whitespace(0);
+                                            }
+                                            this._expect(')*');
+                                        }
+                                    }
+                                    else {
+                                        this._elementChildren();
+                                    }
+                                }
+                                this._whitespace(0);
+                                this._expect('>');
+                            }
+                            else if (this._match('ATTLIST')) {
+                                this._assert(this._nodeType() === xml.NodeType.DocumentType);
+                                this._whitespace(1);
+                                const name = this._name();
+                                this._assert(name !== null);
+                                while (this._whitespace(0)) {
+                                    if (!this._attributeDefinition()) {
+                                        break;
+                                    }
+                                }
+                                this._whitespace(0);
+                                this._expect('>');
+                            }
+                            else if (this._match('NOTATION')) {
+                                this._assert(this._nodeType() === xml.NodeType.DocumentType);
+                                this._whitespace(1);
+                                /* const name = */ this._entityName();
+                                let whitespace = this._whitespace(0);
+                                if (whitespace && this._match('SYSTEM')) {
+                                    this._whitespace(1);
+                                    /* node.systemId = */ this._systemLiteral();
+                                    whitespace = this._whitespace(0);
+                                }
+                                if (whitespace && this._match('PUBLIC')) {
+                                    this._whitespace(1);
+                                    /* node.publicId = */ this._pubidLiteral();
+                                    if (this._whitespace(0) && (this._char === '"') || this._char === "'") {
+                                        /* node.systemId = */ this._systemLiteral();
+                                        whitespace = this._whitespace(0);
+                                    }
+                                }
+                                this._expect('>');
+                            }
+                            else if (this._match('[')) {
+                                this._whitespace(0);
+                                if (this._match('INCLUDE')) {
+                                    this._whitespace(0);
+                                    this._expect('[');
+                                    this._internalSubset(']');
+                                    this._expect(']]>');
+                                }
+                                else if (this._match('IGNORE')) {
+                                    this._whitespace(0);
+                                    this._expect('[');
+                                    this._ignoreSectContents();
+                                }
+                            }
+                            else {
+                                this._unexpected();
+                            }
+                        }
+                    }
+                    break;
+                }
+                case '%': {
+                    this._parameterEntityReference();
+                    break;
+                }
+                default: {
+                    if (this._char === terminal) {
+                        return;
+                    }
+                    if (!this._whitespace(0)) {
+                        this._unexpected();
+                    }
+                    break;
+                }
+            }
+        }
+    }
+
+    _ignoreSectContents() {
+        while (!this._match(']]>')) {
+            if (this._match('<![')) {
+                this._ignoreSectContents();
+            }
+            else {
+                this._next();
+            }
+        }
     }
 
     _push(value) {
@@ -411,89 +534,24 @@ xml.TextReader = class {
         return this._stack.pop();
     }
 
-    _top() {
+    _node() {
         return this._stack[this._stack.length - 1];
     }
 
+    _document() {
+        return this._stack[0];
+    }
+
     _nodeType() {
-        return this._top().nodeType;
+        return this._node().nodeType;
     }
 
     _appendChild(newChild) {
-        return this._top().appendChild(newChild);
+        return this._node().appendChild(newChild);
     }
 
     _lookupNamespaceURI(prefix) {
-        return this._top().lookupNamespaceURI(prefix);
-    }
-
-    _next() {
-        if (this._char === undefined) {
-            this._unexpected();
-        }
-        this._position = this._decoder.position;
-        this._char = this._decoder.decode();
-        if (this._char === '\uffff' || this._char === '\ufffe') {
-            this._unexpected();
-        }
-    }
-
-    _seek(position) {
-        this._decoder.position = position;
-        this._char = '';
-        this._next();
-    }
-
-    _whitespace(count) {
-        const position = this._position;
-        let index = 0;
-        while (this._char === ' ' || this._char === '\n' || this._char === '\r' || this._char === '\t' || (this._version === 1 && this._char === '\x85')) {
-            index++;
-            this._next();
-        }
-        if (index < count) {
-            this._seek(position);
-            this._unexpected();
-        }
-        return index > 0;
-    }
-
-    _assert(value, message, position) {
-        if (value == false || value === undefined || value === null) {
-            if (message) {
-                if (position) {
-                    this._seek(position);
-                }
-                throw new xml.Error(message + this._location());
-            }
-            this._unexpected();
-        }
-    }
-
-    _match(text) {
-        const position = this._position;
-        let i = 0;
-        while (i < text.length) {
-            if (this._char === text[i]) {
-                this._next();
-                i++;
-                continue;
-            }
-            i = -1;
-            break;
-        }
-        if (i > 0) {
-            return true;
-        }
-        this._seek(position);
-        return false;
-    }
-
-    _expect(value) {
-        if (!this._match(value)) {
-            this._unexpected();
-        }
-        return true;
+        return this._node().lookupNamespaceURI(prefix);
     }
 
     _name() {
@@ -508,11 +566,29 @@ xml.TextReader = class {
                 while (this._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
                     name.push(this._char);
                     this._next();
-                    if (this._char === undefined) {
+                    if (this._char === undefined || this._implicitSpace) {
                         break;
                     }
-                    c = this._char.charCodeAt(0);
+                    c = this._char.codePointAt(0);
                 }
+            }
+        }
+        if (name.length > 0) {
+            return name.join('');
+        }
+        this._seek(position);
+        return null;
+    }
+
+    _nmtoken() {
+        const position = this._position;
+        const name = [];
+        const c = this._char.codePointAt(0);
+        while (this._nameCharRegExp.test(this._char) || (c >= 0x300 && c <= 0x36f) || (c >= 0x203F && c <= 0x2040)) {
+            name.push(this._char);
+            this._next();
+            if (this._char === undefined) {
+                break;
             }
         }
         if (name.length > 0) {
@@ -535,61 +611,178 @@ xml.TextReader = class {
         if (quote !== '"' && quote !== "'") {
             this._unexpected();
         }
+        const characterData = this._characterData;
+        const parameterEntities = this._parameterEntities;
+        this._parameterEntities = false;
+        this._characterData = true;
         this._next();
         const data = [];
         while (this._char !== quote) {
-            if (this._char === '%') {
-                this._unexpected();
-            }
-            if (this._char === '&') {
-                const char = this._char;
-                const reference = this._reference();
-                if (!reference) {
-                    this._unexpected();
-                }
-                data.push(char + reference + ';');
-            }
-            else {
-                data.push(this._char);
-                this._next();
-            }
             if (this._char === undefined) {
                 this._unexpected();
             }
+            if (this._char === '%') {
+                this._next();
+                const name = this._name();
+                this._assert(name !== null);
+                this._expect(';');
+                data.push('%' + name + ';');
+                continue;
+            }
+            if (this._char === '&') {
+                this._next();
+                data.push('&');
+                const name = this._name();
+                if (name) {
+                    this._expect(';');
+                    data.push(name + ';');
+                    continue;
+                }
+                this._expect('#');
+                data.push('#');
+                continue;
+            }
+
+            data.push(this._char);
+            this._next();
+        }
+        this._next();
+        this._parameterEntities = parameterEntities;
+        this._characterData = characterData;
+        return data.join('');
+    }
+
+    _elementChildren() {
+        let separator = undefined;
+        const choice = new Set();
+        for (;;) {
+            const name = this._name();
+            if (name) {
+                this._assert(separator !== '|' || !choice.has(name));
+                choice.add(name);
+                this._match('?') || this._match('*') || this._match('+');
+                continue;
+            }
+            else if (this._match('(')) {
+                this._elementChildren();
+            }
+            this._whitespace(0);
+            if (this._match(')')) {
+                break;
+            }
+            if (separator && separator !== this._char) {
+                this._unexpected();
+            }
+            if (this._char !== '|' && this._char !== ',') {
+                this._unexpected();
+            }
+            separator = this._char;
+            this._next();
+            this._whitespace(0);
+        }
+        this._match('?') || this._match('*') || this._match('+');
+    }
+
+    _attributeDefinition() {
+        this._whitespace(0);
+        const name = this._name();
+        if (name) {
+            this._whitespace(1);
+            if (this._match('CDATA') || this._match('IDREFS') || this._match('IDREF') || this._match('ID') || this._match('ENTITIES') || this._match('ENTITY') || this._match('NMTOKENS') || this._match('NMTOKEN') ||
+                this._enumeratedType()) {
+                this._whitespace(1);
+                if (this._match('#REQUIRED') || this._match('#IMPLIED')) {
+                    return true;
+                }
+                if (this._match('#FIXED')) {
+                    this._whitespace(1);
+                }
+                const parameterEntities = this._parameterEntities;
+                this._parameterEntities = false;
+                this._attributeValue();
+                this._parameterEntities = parameterEntities;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    _enumeratedType() {
+        if (this._match('NOTATION')) {
+            this._whitespace(1);
+            this._expect('(');
+            do {
+                this._whitespace(0);
+                const name = this._name();
+                this._assert(name);
+                this._whitespace(0);
+            }
+            while (this._match('|'));
+            this._expect(')');
+            return true;
+        }
+        if (this._match('(')) {
+            do {
+                this._whitespace(0);
+                const name = this._nmtoken();
+                this._assert(name);
+                this._whitespace(0);
+            }
+            while (this._match('|'));
+            this._expect(')');
+            return true;
+        }
+        return false;
+    }
+
+    _attributeValue() {
+        const quote = this._char;
+        if (quote !== '"' && quote !== "'") {
+            this._unexpected();
+        }
+        const decoder = this._decoder;
+        const position = this._position;
+        this._next();
+        while (this._char !== quote) {
+            if (this._char === undefined || this._char === '<') {
+                this._unexpected();
+            }
+            this._next();
+        }
+        const end = this._position;
+        this._seek(position);
+        this._next();
+        const data = [];
+        while (this._position !== end || this._decoder !== decoder) {
+            if (this._char === undefined) {
+                this._unexpected();
+            }
+            if (this._char === '&') {
+                const c = this._entityReference();
+                if (c) {
+                    data.push(c);
+                    this._next();
+                }
+                continue;
+            }
+            if (this._char === '<') {
+                this._unexpected();
+            }
+            data.push(this._char);
+            this._next();
         }
         this._next();
         return data.join('');
     }
 
-    _attValue() {
-        const quote = this._char;
-        if (quote !== '"' && quote !== "'") {
-            this._unexpected();
+    _validateNamespace(value) {
+        if (value && (value.startsWith('#') || value.indexOf(':') === -1)) {
+            return false;
         }
-        this._next();
-        const data = [];
-        while (this._char !== quote) {
-            if (this._char === '<') {
-                this._unexpected();
-            }
-            else if (this._char === '&') {
-                const reference = this._reference();
-                if (!reference) {
-                    this._unexpected();
-                }
-                this._validateEntityReference(reference);
-                data.push('&' + reference + ';');
-            }
-            else {
-                data.push(this._char);
-                this._next();
-            }
-            if (this._char === undefined) {
-                this._unexpected();
-            }
+        if (this._version > 0) {
+            return true;
         }
-        this._next();
-        return data.join('');
+        return /^[A-Za-z0-9-._~:/?#[\]@!$&'()*+,;%=]*$/.exec(value) !== null;
     }
 
     _pubidLiteral() {
@@ -615,14 +808,6 @@ xml.TextReader = class {
     }
 
     _systemLiteral() {
-        const value = this._quote();
-        if (value.indexOf('#') >= 0) {
-            this._unexpected();
-        }
-        return value;
-    }
-
-    _quote() {
         const quote = this._char;
         if (quote !== '"' && quote !== "'") {
             this._unexpected();
@@ -637,7 +822,12 @@ xml.TextReader = class {
             }
         }
         this._next();
-        return data.join('');
+        const value = data.join('');
+        if (value.indexOf('#') >= 0) {
+            this._unexpected();
+        }
+        const match = /(.*\/)[^/]*/.exec(this._base);
+        return (match ? match[1] : '') + value;
     }
 
     _terminal(terminal) {
@@ -646,7 +836,7 @@ xml.TextReader = class {
             if (this._char === undefined) {
                 this._unexpected();
             }
-            const c = this._char.charCodeAt(0);
+            const c = this._char.codePointAt(0);
             if (c !== 0x09 && c !== 0x0A && c !== 0x0D && (c < 0x20 || c > 0xD7FF) && (c < 0xE000 || c > 0xFFFD) && (c < 0x10000 || c > 0x10FFFF)) {
                 this._unexpected();
             }
@@ -656,15 +846,37 @@ xml.TextReader = class {
         return data.join('');
     }
 
-    _validateEntityReference(name) {
-        if (!name.startsWith('#') && !this._entities.has(name) && !this._document.documentType) {
-            this._assert(false, "Undefined ENTITY '" + name + "'.");
+    _parameterEntityReference() {
+        if (this._char === '%') {
+            const position = this._position;
+            this._next();
+            const name = this._name();
+            this._assert(name !== null);
+            if (this._char === ';') {
+                const documentType = this._document().documentType;
+                const entity = documentType ? documentType.parameterEntities.getNamedItem(name) : null;
+                if (entity) {
+                    const implicitSpace = !this._entity && !this._context.some((context) => context.entity);
+                    if (entity.systemId) {
+                        this._pushResource(entity.systemId, name, false);
+                    }
+                    else {
+                        this._pushString(entity.value, name, false);
+                    }
+                    if (implicitSpace) {
+                        this._implicitSpace = true;
+                    }
+                    return;
+                }
+                this._assert(false, "Undefined ENTITY '" + name + "'", position);
+            }
+            this._unexpected();
         }
     }
 
-    _reference() {
-        const position = this._position;
+    _entityReference() {
         if (this._char === '&') {
+            const position = this._position;
             this._next();
             if (this._match('#x')) {
                 const data = [];
@@ -675,10 +887,14 @@ xml.TextReader = class {
                         this._unexpected();
                     }
                 }
-                if (data.length > 0 && this._match(';')) {
-                    const value = data.join('');
-                    this._assert(parseInt(value, 16) <= 0x10FFFF, "Invalid value '&#x" + value + ";'", position);
-                    return '#x' + value;
+                if (data.length > 0 && this._char === ';') {
+                    const text = data.join('');
+                    const value = parseInt(text, 16);
+                    this._assert(value <= 0x10FFFF, "Invalid value '&#x" + text + ";'", position);
+                    return String.fromCodePoint(value);
+                }
+                else {
+                    this._assert(false, 'Invalid entity', position);
                 }
             }
             else if (this._match('#')) {
@@ -690,32 +906,271 @@ xml.TextReader = class {
                         this._unexpected();
                     }
                 }
-                if (data.length > 0 && this._match(';')) {
-                    const value = data.join('');
-                    this._assert(parseInt(value, 10) <= 0x10FFFF, "Invalid value '&#" + value + ";'", position);
-                    return '#' + value;
+                if (data.length > 0 && this._char === ';') {
+                    const text = data.join('');
+                    const value = parseInt(text, 10);
+                    this._assert(value <= 0x10FFFF, "Invalid value '&#" + text + ";'", position);
+                    return String.fromCodePoint(value);
+                }
+                else {
+                    this._assert(false, 'Invalid entity', position);
                 }
             }
             else {
                 const name = this._name();
                 this._assert(name !== null);
-                if (this._match(';')) {
-                    return name;
+                this._assert(this._char === ';');
+                if (this._entities.has(name)) {
+                    return this._entities.get(name);
+                }
+                else {
+                    const documentType = this._document().documentType;
+                    const entity = documentType ? documentType.entities.getNamedItem(name) : null;
+                    if (entity) {
+                        if (entity.systemId) {
+                            this._pushResource(entity.systemId, name, false);
+                        }
+                        else {
+                            this._pushString(entity.value, name);
+                        }
+                    }
+                    else {
+                        this._assert(this._context.length === 0 && documentType && documentType.parameterEntities.length > 0, "Undefined ENTITY '" + name + "'", position);
+                    }
+                    return undefined;
                 }
             }
         }
-        this._seek(position);
-        return null;
+        this._unexpected();
+    }
+
+    _comment() {
+        const data = this._terminal('--');
+        const node = this._document().createComment(data);
+        this._appendChild(node);
+        this._expect('>');
+    }
+
+    _processingInstruction() {
+        this._next();
+        const name = this._entityName();
+        let whitespace = this._char === '?' ? false : this._whitespace(1);
+        const position = this._position;
+        const data = this._terminal('?>');
+        if (name.toLowerCase() === 'xml') {
+            this._seek(position);
+            this._assert(name === 'xml', "'" + name + "' must be lower case");
+            this._assert(this._start === this._prolog, "Prolog must start with XML declaration", this._start);
+            const obj = { version: '', encoding: '', standalone: 'no' };
+            for (const name of Object.keys(obj)) {
+                if (whitespace && (name == 'version' && this._context.length === 0 ? this._expect(name) : this._match(name))) {
+                    this._whitespace(0);
+                    this._expect('=');
+                    this._whitespace(0);
+                    obj[name] = this._attributeValue();
+                    whitespace = this._whitespace(0);
+                }
+            }
+            this._expect('?>');
+            obj.encoding = obj.encoding.toLowerCase();
+            if (this._decoder.encoding && obj.encoding !== this._decoder.encoding) {
+                const position = this._position;
+                this._decoder = text.Decoder.open(this._data, obj.encoding);
+                this._seek(position);
+            }
+            if (obj.version.length > 0) {
+                const version = /^(\d)\.(\d)$/.exec(obj.version);
+                this._assert(version && version[1] === '1', "Invalid XML version '" + obj.version + "'");
+                this._version = Number.parseInt(version[2], 10);
+                this._assert(this._context.length === 0 || this._context.some((context) => context.version >= this._version));
+            }
+            this._assert(obj.standalone === 'no' || obj.standalone === 'yes');
+        }
+        const node = this._document().createProcessingInstruction(name, data);
+        this._appendChild(node);
+    }
+
+    _whitespace(count) {
+        const position = this._position;
+        let index = 0;
+        if (this._implicitSpace) {
+            index++;
+            this._implicitSpace = false;
+        }
+        while (this._char === ' ' || this._char === '\n' || this._char === '\r' || this._char === '\t' || (this._version > 0 && this._char === '\x85')) {
+            index++;
+            this._next();
+        }
+        if (index < count) {
+            this._seek(position);
+            this._unexpected();
+        }
+        return index > 0;
+    }
+
+    _pushResource(identifier, entity, stop) {
+        const content = this._callback(identifier);
+        this._pushBuffer(content, identifier, entity, stop);
+    }
+
+    _pushBuffer(data, base, entity, stop) {
+        const signature = text.Decoder.open(data);
+        const decoder = signature.encoding === 'utf-8' ? text.Decoder.open(data, 'utf-8') : signature;
+        this._pushContext(decoder, data, base, entity, stop, false);
+        this._data = data;
+    }
+
+    _pushString(value, entity) {
+        const decoder = text.Decoder.open(value);
+        this._pushContext(decoder, value, this._base, entity, false);
+    }
+
+    _pushContext(decoder, data, base, entity, stop) {
+        if (this._context.some((context) => context && context.base === base && context.entity === entity)) {
+            this._assert(!entity, "Recursive entity '" + entity + "'");
+            this._assert(!base, "Recursive base '" + base + "'");
+        }
+        if (base.length !== 0 || entity.length !== 0) {
+            this._context.push(this._state);
+        }
+        this._stop = stop;
+        this._entity = entity;
+        this._base = base;
+        this._data = data;
+        this._decoder = decoder;
+        this._prolog = this._decoder.position;
+        this._char = '';
+        this._next();
+    }
+
+    _popContext() {
+        const entity = this._entity;
+        this._state = this._context.pop();
+        if (entity) {
+            this._expect(';');
+            this._implicitSpace = !this._context.some((context) => context.entity);
+        }
+    }
+
+    get _state() {
+        return {
+            base: this._base,
+            data: this._data,
+            decoder: this._decoder,
+            position: this._position,
+            version: this._version,
+            entity: this._entity,
+            prolog: this._prolog,
+            stop: this._stop,
+        };
+    }
+
+    set _state(value) {
+        this._stop = value.stop;
+        this._base = value.base;
+        this._data = value.data;
+        this._decoder = value.decoder;
+        this._seek(value.position);
+        this._version = value.version;
+        this._entity = value.entity;
+        this._prolog = value.prolog;
+    }
+
+    _next() {
+        if (this._char === undefined) {
+            this._unexpected();
+        }
+        this._position = this._decoder.position;
+        this._char = this._decoder.decode();
+        this._implicitSpace = false;
+        if (this._parameterEntities && this._char === '%' && (this._entity || this._base)) {
+            this._parameterEntityReference();
+        }
+        if (!this._characterData && this._char === '&' && (this._entity || this._base)) {
+            const c = this._entityReference();
+            if (c) {
+                this._char = c;
+            }
+        }
+        if (this._char === '\uffff' || this._char === '\ufffe' || (this._version > 0 && this._char >= '\x7f' && this._char <= '\x9f' && this._char != '\x85')) {
+            this._unexpected();
+        }
+        if (this._char === undefined) {
+            if (!this._stop && this._context.length > 0) {
+                this._popContext();
+            }
+        }
+    }
+
+    _seek(position) {
+        this._decoder.position = position;
+        this._char = '';
+        this._next();
+    }
+
+    _assert(value, message, position) {
+        if (value === false || value === undefined || value === null) {
+            if (message) {
+                if (position) {
+                    this._parameterEntities = false;
+                    this._characterData = true;
+                    this._seek(position);
+                }
+                throw new xml.Error(message + this._location());
+            }
+            this._unexpected();
+        }
+    }
+
+    _match(value) {
+        if (this._char !== value[0]) {
+            return false;
+        }
+        if (value.length === 1) {
+            this._next();
+            return true;
+        }
+        if (this._context.length === 0) {
+            const position = this._position;
+            for (let i = 0; i < value.length; i++) {
+                if (this._char !== value[i]) {
+                    this._seek(position);
+                    return false;
+                }
+                this._next();
+            }
+            return true;
+        }
+        const context = Array.from(this._context);
+        const state = this._state;
+        for (let i = 0; i < value.length; i++) {
+            if (this._char !== value[i]) {
+                this._context = context;
+                this._state = state;
+                return false;
+            }
+            this._next();
+        }
+        return true;
+    }
+
+    _expect(value) {
+        if (!this._match(value)) {
+            this._unexpected();
+        }
+        return true;
     }
 
     _location() {
+        this._parameterEntities = false;
+        this._characterData = true;
         let line = 1;
         let column = 1;
         this._decoder.position = 0;
         let c;
         do {
             if (this._decoder.position === this._position) {
-                return ' at ' + line.toString() + ':' + column.toString() + '.';
+                break;
             }
             c = this._decoder.decode();
             if (c === '\n') {
@@ -727,7 +1182,7 @@ xml.TextReader = class {
             }
         }
         while (c !== undefined);
-        return ' at ' + line.toString() + ':' + column.toString() + '.';
+        return ' at ' + (this._base ? this._base + ':' : '') +  line.toString() + ':' + column.toString() + '.';
     }
 
     _unexpected() {
@@ -743,9 +1198,16 @@ xml.TextReader = class {
         }
         else {
             if (c < ' ' || c > '\x7F') {
-                c = c < '\u0100' ?
-                    '\\x' + ('0' + c.charCodeAt(0).toString(16)).slice(-2) :
-                    '\\u' + ('000' + c.charCodeAt(0).toString(16)).slice(-4);
+                c = c.codePointAt(0);
+                if (c < 0x0100) {
+                    c = '\\x' + ('0' + c.toString(16)).slice(-2);
+                }
+                else if (c < 0x010000) {
+                    c = '\\u' + ('000' + c.toString(16)).slice(-4);
+                }
+                else {
+                    c = '\\u' + ('00000' + c.toString(16)).slice(-6);
+                }
             }
             c = "token '" + c + "'";
         }
@@ -888,7 +1350,7 @@ xml.Element = class extends xml.Node {
         const list = new xml.NodeList();
         let node = this.firstChild;
         while (node) {
-            if (tagName === '*' || tagName === (node.prefix ? node.prefix + ':' + node.localName : node.localName)) {
+            if (node.nodeType === xml.NodeType.Element && (tagName === '*' || tagName === (node.prefix ? node.prefix + ':' + node.localName : node.localName))) {
                 list.push(node);
             }
             node = node.nextSibling;
@@ -916,7 +1378,7 @@ xml.Element = class extends xml.Node {
 
     lookupNamespaceURI(prefix) {
         if (this._namespaces.has(prefix)) {
-            return this._namespaces.has(prefix);
+            return this._namespaces.get(prefix);
         }
         if (this.parentNode) {
             return this.parentNode.lookupNamespaceURI(prefix);
@@ -1006,6 +1468,7 @@ xml.Entity = class extends xml.Node {
         this._publicId = '';
         this._systemId = '';
         this._notationName = '';
+        this._value = '';
     }
 
     get localName() {
@@ -1035,21 +1498,13 @@ xml.Entity = class extends xml.Node {
     set notationName(value) {
         this._notationName = value;
     }
-};
 
-xml.EntityReference = class extends xml.Node {
-
-    constructor(document, name) {
-        super(document, xml.NodeType.EntityReference);
-        this._name = name;
+    set value(value) {
+        this._value = value;
     }
 
-    get localName() {
-        return this._name;
-    }
-
-    get textContent() {
-        return '&' + this._name + ';';
+    get value() {
+        return this._value;
     }
 };
 
@@ -1104,15 +1559,9 @@ xml.Document = class extends xml.Node {
     appendChild(newChild) {
         super.appendChild(newChild);
         if (newChild.nodeType === xml.NodeType.Element) {
-            if (this._documentElement !== null) {
-                throw new xml.Error('');
-            }
             this._documentElement = newChild;
         }
         if (newChild.nodeType === xml.NodeType.DocumentType) {
-            if (this._documentType !== null) {
-                throw new xml.Error('');
-            }
             this._documentType = newChild;
         }
     }
@@ -1131,10 +1580,6 @@ xml.Document = class extends xml.Node {
 
     createCDATASection(data) {
         return new xml.CDataSection(this, data);
-    }
-
-    createEntityReference(name) {
-        return new xml.EntityReference(this, name);
     }
 
     createProcessingInstruction(target, data) {
