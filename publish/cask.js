@@ -1,5 +1,4 @@
 
-
 const fs = require('fs');
 const path = require('path');
 const http = require('http');
@@ -96,5 +95,7 @@ get(location).then((data) => {
         ''
     ].join('\n'));
 }).catch((err) => {
+    /* eslint-disable */
     console.log(err.message);
+    /* eslint-enable */
 });

@@ -53,6 +53,7 @@
             ],
             "linebreak-style": "off",
             "no-trailing-spaces": "error",
+            "no-console": "error",
             "prefer-const": [
                 "error",
                 {

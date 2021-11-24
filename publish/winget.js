@@ -142,5 +142,7 @@ get(url).then((data) => {
         ''
     ].join('\n'));
 }).catch((err) => {
+    /* eslint-disable */
     console.log(err.message);
+    /* eslint-enable */
 });
