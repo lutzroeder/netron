@@ -1983,13 +1983,12 @@ $root.tensorflow.FullTypeId = {
     "TFT_ANY": 2,
     "TFT_PRODUCT": 3,
     "TFT_NAMED": 4,
+    "TFT_FOR_EACH": 20,
     "TFT_CALLABLE": 100,
     "TFT_TENSOR": 1000,
     "TFT_ARRAY": 1001,
     "TFT_OPTIONAL": 1002,
     "TFT_LITERAL": 1003,
-    "TFT_DATASET": 10102,
-    "TFT_MUTEX_LOCK": 10202,
     "TFT_BOOL": 200,
     "TFT_UINT8": 201,
     "TFT_UINT16": 202,
@@ -2005,7 +2004,11 @@ $root.tensorflow.FullTypeId = {
     "TFT_BFLOAT16": 215,
     "TFT_COMPLEX64": 212,
     "TFT_COMPLEX128": 213,
-    "TFT_STRING": 214
+    "TFT_STRING": 214,
+    "TFT_DATASET": 10102,
+    "TFT_RAGGED": 10103,
+    "TFT_MUTEX_LOCK": 10202,
+    "TFT_LEGACY_VARIANT": 10203
 };
 
 $root.tensorflow.FullTypeDef = class FullTypeDef {
