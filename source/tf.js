@@ -2602,7 +2602,7 @@ tf.JsonReader = class {
 
     static decodeFunctionDefLibrary(json) {
         const message = new tf.proto.tensorflow.FunctionDefLibrary();
-        message.function = (json.function || []).map((json) => tf.JsonReader.decodeFunctionDef(json));
+        message.function = json ? (json.function || []).map((json) => tf.JsonReader.decodeFunctionDef(json)) : [];
         return message;
     }
 
