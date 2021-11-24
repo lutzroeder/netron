@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var tflite = tflite || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');

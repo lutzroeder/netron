@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 // Experimental Python parser
 

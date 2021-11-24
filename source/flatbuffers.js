@@ -1,5 +1,4 @@
 
-/* jshint esversion: 6 */
 
 var flatbuffers = {};
 var json = json || require('./json');

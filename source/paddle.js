@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var paddle = paddle || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');

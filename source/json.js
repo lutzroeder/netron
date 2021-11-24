@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var json = json || {};
 var text = text || require('./text');

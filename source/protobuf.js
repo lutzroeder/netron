@@ -1,6 +1,4 @@
 
-/* jshint esversion: 6 */
-
 var protobuf = protobuf || {};
 var base = base || require('./base');
 var text = text || require('./text');

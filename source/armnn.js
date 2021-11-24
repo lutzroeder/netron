@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var armnn = armnn || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');

@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var mediapipe = mediapipe || {};
 var protobuf = protobuf || require('./protobuf');

@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var circle = circle || {};
 var flatbuffers = flatbuffers || require('./flatbuffers');

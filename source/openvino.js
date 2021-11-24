@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var openvino = openvino || {};
 var xml = xml || require('./xml');

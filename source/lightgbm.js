@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var lightgbm = lightgbm || {};
 var python = python || require('./python');

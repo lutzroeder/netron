@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var tnn = tnn || {};
 var text = text || require('./text');

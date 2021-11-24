@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var xmodel = xmodel || {};
 var protobuf = protobuf || require('./protobuf');

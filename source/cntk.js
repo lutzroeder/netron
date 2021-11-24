@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var cntk = cntk || {};
 var protobuf = protobuf || require('./protobuf');

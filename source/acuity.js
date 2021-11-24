@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var acuity = acuity || {};
 var json = json || require('./json');

@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var coreml = coreml || {};
 var json = json || require('./json');

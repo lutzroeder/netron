@@ -1,13 +1,10 @@
 #!/usr/bin/env node
 
-/* jshint esversion: 6 */
 /* eslint "no-console": off */
 
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
-const http = require('http');
-const https = require('https');
 const util = require('util');
 
 // const json = require('../source/json');
@@ -361,12 +358,6 @@ class DOMTokenList {
     }
 }
 
-const makeDir = (dir) => {
-    if (!fs.existsSync(dir)){
-        fs.mkdirSync(dir, { recursive: true });
-    }
-};
-
 const clearLine = () => {
     if (process.stdout.clearLine) {
         process.stdout.clearLine();
@@ -395,12 +386,9 @@ const decompress = (buffer) => {
 const request = (location, cookie) => {
     const options = { rejectUnauthorized: false };
     const url = new URL(location);
-    const protocol = url.protocol === 'https:' ? https : http;
+    const protocol = url.protocol === 'https:' ? require('https') : require('http');
     const request = protocol.request(location, options);
     return new Promise((resolve, reject) => {
-        if (!request) {
-            reject(new Error("Unknown HTTP request."));
-        }
         if (cookie && cookie.length > 0) {
             request.setHeader('Cookie', cookie);
         }
@@ -494,7 +482,8 @@ const download = (folder, targets, sources) => {
         }
     }
     for (const target of targets) {
-        makeDir(path.dirname(folder + '/' + target));
+        const dir = path.dirname(folder + '/' + target);
+        fs.existsSync(dir) || fs.mkdirSync(dir, { recursive: true });
     }
     return downloadFile(source).then((data) => {
         if (sourceFiles.length > 0) {

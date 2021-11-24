@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var onnx = onnx || {};
 var protobuf = protobuf || require('./protobuf');

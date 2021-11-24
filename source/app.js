@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 const electron = require('electron');
 const updater = require('electron-updater');

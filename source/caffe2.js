@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var caffe2 = caffe2 || {};
 var protobuf = protobuf || require('./protobuf');

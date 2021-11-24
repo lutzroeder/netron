@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var mxnet = mxnet || {};
 var json = json || require('./json');

@@ -1,4 +1,4 @@
-/* jshint esversion: 6 */
+
 /* eslint "no-global-assign": ["error", {"exceptions": [ "TextDecoder", "TextEncoder", "URLSearchParams" ] } ] */
 /* global view */
 

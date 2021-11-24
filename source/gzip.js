@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var gzip = gzip || {};
 var zip = zip || require('./zip');

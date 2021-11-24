@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var sidebar = sidebar || {};
 var base = base || require('./base');

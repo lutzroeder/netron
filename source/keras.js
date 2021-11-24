@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var keras = keras || {};
 var json = json || require('./json');

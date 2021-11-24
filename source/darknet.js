@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var darknet = darknet || {};
 var text = text || require('./text');

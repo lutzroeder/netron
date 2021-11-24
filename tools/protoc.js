@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 const protoc = {};
 const fs = require('fs');

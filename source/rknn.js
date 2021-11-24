@@ -1,4 +1,3 @@
-/* jshint esversion: 6 */
 
 var rknn = rknn || {};
 var json = json || require('./json');
