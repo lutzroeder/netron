@@ -1223,7 +1223,6 @@ view.Argument = class {
                     type.shape.dimensions.length > 0 &&
                     type.shape.dimensions.every((dim) => !dim || Number.isInteger(dim) || dim instanceof base.Int64 || (typeof dim === 'string'))) {
                     content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
-                    content = content.length > 16 ? '' : content;
                 }
                 if (this.context.view.showNames) {
                     content = this._argument.name.split('\n').shift(); // custom argument id
