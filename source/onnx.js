@@ -757,6 +757,7 @@ onnx.Tensor = class {
         this._kind = kind || null;
         const data = (tensor) => {
             let data = undefined;
+            let int32_data = undefined
             if (tensor.data_location === onnx.DataLocation.DEFAULT) {
                 switch (tensor.data_type) {
                     case onnx.DataType.FLOAT16:
@@ -780,9 +781,10 @@ onnx.Tensor = class {
                         data = new Float64Array(tensor.double_data);
                         break;
                     case onnx.DataType.BOOL:
-                        data = new Array(tensor.int32_data.size);
+                        int32_data = new Int32Array(tensor.int32_data);
+                        data = new Array(tensor.int32_data.length)
                         for (let i = 0; i < data.length; i++) {
-                            data[i] = data[i] === 0 ? false : true;
+                            data[i] = int32_data[i] === 0 ? false : true;
                         }
                         break;
                     case onnx.DataType.INT8:
