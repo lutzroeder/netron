@@ -3960,12 +3960,14 @@ $root.mindspore.schema.AllGather = class AllGather {
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.AllGather();
         $.group = reader.string_(position, 4, null);
+        $.rank_size = reader.int32_(position, 6, 0);
         return $;
     }
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.AllGather();
         $.group = reader.value(json.group, null);
+        $.rank_size = reader.value(json.rank_size, 0);
         return $;
     }
 };
@@ -3976,6 +3978,7 @@ $root.mindspore.schema.ReduceScatter = class ReduceScatter {
         const $ = new $root.mindspore.schema.ReduceScatter();
         $.group = reader.string_(position, 4, null);
         $.mode = reader.int8_(position, 6, 0);
+        $.rank_size = reader.int32_(position, 8, 0);
         return $;
     }
 
@@ -3983,6 +3986,7 @@ $root.mindspore.schema.ReduceScatter = class ReduceScatter {
         const $ = new $root.mindspore.schema.ReduceScatter();
         $.group = reader.value(json.group, null);
         $.mode = $root.mindspore.schema.ReduceMode[json.mode];
+        $.rank_size = reader.value(json.rank_size, 0);
         return $;
     }
 };

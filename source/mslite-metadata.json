@@ -151,7 +151,8 @@
   {
     "name": "AllGather",
     "attributes": [
-      { "name": "group", "type": "string", "default": null }
+      { "name": "group", "type": "string", "default": null },
+      { "name": "rank_size", "type": "int32", "default": 0 }
     ]
   },
   {
@@ -2237,7 +2238,8 @@
     "name": "ReduceScatter",
     "attributes": [
       { "name": "group", "type": "string", "default": null },
-      { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" }
+      { "name": "mode", "type": "ReduceMode", "default": "ReduceMean" },
+      { "name": "rank_size", "type": "int32", "default": 0 }
     ]
   },
   {
