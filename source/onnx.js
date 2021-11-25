@@ -779,9 +779,12 @@ onnx.Tensor = class {
                         data = new Float64Array(tensor.double_data);
                         break;
                     case onnx.DataType.BOOL:
-                        data = new Array(tensor.int32_data.size);
-                        for (let i = 0; i < data.length; i++) {
-                            data[i] = data[i] === 0 ? false : true;
+                        if (tensor.int32_data && tensor.int32_data.length > 0) {
+                            const array = tensor.int32_data;
+                            data = new Array(array.length);
+                            for (let i = 0; i < data.length; i++) {
+                                data[i] = array[i] === 0 ? false : true;
+                            }
                         }
                         break;
                     case onnx.DataType.INT8:

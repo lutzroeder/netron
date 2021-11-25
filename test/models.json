@@ -3345,6 +3345,13 @@
   },
   {
     "type":   "onnx",
+    "target": "netron_issue_845.onnx",
+    "source": "https://github.com/lutzroeder/netron/files/7604948/netron_issue_845.onnx.zip[netron_issue_845.onnx]",
+    "format": "ONNX v4",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "optional_1.onnx",
     "source": "https://raw.githubusercontent.com/microsoft/onnxruntime/master/onnxruntime/test/testdata/optional_1.onnx",
     "format": "ONNX v3",
