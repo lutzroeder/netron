@@ -319,6 +319,12 @@
         "description": "Used when the 'arpack' or 'randomized' solvers are used. Pass an int\nfor reproducible results across multiple function calls.\nSee :term:`Glossary <random_state>`.\n\n.. versionadded:: 0.18.0\n",
         "name": "random_state",
         "type": "int32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
       }
     ]
   },
@@ -407,6 +413,12 @@
         "name": "random_state",
         "option": "optional",
         "type": "int32"
+      },
+      {
+        "name": "n_oversamples",
+        "description": "This parameter is only relevant when `svd_solver=\"randomized\"`.\nIt corresponds to the additional number of random vectors to sample the\nrange of `X` so as to ensure proper conditioning. See\n:func:`~sklearn.utils.extmath.randomized_svd` for more details.\n\n.. versionadded:: 1.1\n",
+        "type": "int32",
+        "default": 10
       }
     ]
   },
