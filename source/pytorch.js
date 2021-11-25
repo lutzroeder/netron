@@ -1127,7 +1127,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.quantization.fake_quantize.FakeQuantize', class {});
         this.registerType('torch.quantization.observer._PartialWrapper', class {});
         this.registerType('torch.quantization.observer.MinMaxObserver', class {});
-        this.registerType('torch.quantization.QConfig.QConfig', class {});
+        this.registerType('torch.quantization.observer.MovingAverageMinMaxObserver', class {});
+        this.registerType('torch.quantization.observer.MovingAveragePerChannelMinMaxObserver', class {});
+        this.registerType('torch.quantization.qconfig.QConfig', class {});
         this.registerType('torch.quantization.stubs.DeQuantStub', class {});
         this.registerType('torch.quantization.stubs.QuantStub', class {});
         this.registerType('torch.utils.data.dataloader._MultiProcessingDataLoaderIter', class {});

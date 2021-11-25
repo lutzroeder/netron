@@ -1520,7 +1520,7 @@ view.ModelFactoryService = class {
         this._host = host;
         this._extensions = [];
         this.register('./pytorch', [ '.pt', '.pth', '.ptl', '.pt1', '.pyt', '.pyth', '.pkl', '.pickle', '.h5', '.t7', '.model', '.dms', '.tar', '.ckpt', '.chkpt', '.tckpt', '.bin', '.pb', '.zip', '.nn', '.torchmodel', '.torchscript', '.ot', '.params' ]);
-        this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx' ]);
+        this.register('./onnx', [ '.onnx', '.onn', '.pb', '.pbtxt', '.prototxt', '.txt', '.model', '.pt', '.pth', '.pkl', '.ort', '.ort.onnx' ]);
         this.register('./mxnet', [ '.json', '.params' ]);
         this.register('./coreml', [ '.mlmodel', '.bin', 'manifest.json', 'metadata.json', 'featuredescriptions.json', '.pb' ]);
         this.register('./caffe', [ '.caffemodel', '.pbtxt', '.prototxt', '.pt', '.txt' ]);
@@ -1532,7 +1532,7 @@ view.ModelFactoryService = class {
         this.register('./mediapipe', [ '.pbtxt' ]);
         this.register('./uff', [ '.uff', '.pb', '.pbtxt', '.uff.txt', '.trt', '.engine' ]);
         this.register('./tensorrt', [ '.trt', '.engine', '.model', '.txt', '.uff', '.pb', '.tmfile', '.onnx', '.pth', '.dnn' ]);
-        this.register('./npz', [ '.npz', '.npy', '.pkl' ]);
+        this.register('./npz', [ '.npz', '.npy', '.pkl', '.pickle' ]);
         this.register('./lasagne', [ '.pkl', '.pickle', '.joblib', '.model', '.pkl.z', '.joblib.z' ]);
         this.register('./lightgbm', [ '.txt', '.pkl', '.model' ]);
         this.register('./keras', [ '.h5', '.hd5', '.hdf5', '.keras', '.json', '.cfg', '.model', '.pb', '.pth', '.weights', '.pkl', '.lite', '.tflite', '.ckpt' ]);
