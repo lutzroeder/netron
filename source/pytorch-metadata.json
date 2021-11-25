@@ -4705,6 +4705,16 @@
     ]
   },
   {
+    "name": "torch.masked_select:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "mask", "type": "Tensor" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.argmax",
     "attributes": [
       { "name": "dim", "type": "int64", "optional": true, "default": null },
