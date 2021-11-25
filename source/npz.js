@@ -496,7 +496,9 @@ npz.TensorShape = class {
 npz.Utility = class {
 
     static isTensor(obj) {
-        return obj && obj.__class__ && obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray';
+        return obj && obj.__class__ &&
+            ((obj.__class__.__module__ === 'numpy' && obj.__class__.__name__ === 'ndarray') ||
+             (obj.__class__.__module__ === 'numpy.core.memmap' && obj.__class__.__name__ === 'memmap'));
     }
 
     static weights(obj) {
@@ -506,10 +508,19 @@ npz.Utility = class {
                 const weights = new Map();
                 if (dict instanceof Map) {
                     for (const pair of dict) {
-                        if (!npz.Utility.isTensor(pair[1])) {
-                            return null;
+                        const key = pair[0];
+                        const obj = pair[1];
+                        if (npz.Utility.isTensor(obj)) {
+                            weights.set(key, obj);
+                            continue;
                         }
-                        weights.set(pair[0], pair[1]);
+                        else if (obj instanceof Map && Array.from(obj).every((pair) => npz.Utility.isTensor(pair[1]))) {
+                            for (const pair of obj) {
+                                weights.set(key + '.' + pair[0], pair[1]);
+                            }
+                            continue;
+                        }
+                        return null;
                     }
                     return weights;
                 }
@@ -546,11 +557,18 @@ npz.Utility = class {
             if (list && Array.isArray(list)) {
                 const weights = new Map();
                 for (let i = 0; i < list.length; i++) {
-                    const value = list[i];
-                    if (!npz.Utility.isTensor(value)) {
-                        return null;
+                    const obj = list[i];
+                    if (npz.Utility.isTensor(obj)) {
+                        weights.set(i.toString(), obj);
+                        continue;
                     }
-                    weights.set(i.toString(), value);
+                    else if (obj instanceof Map && Array.from(obj).every((pair) => npz.Utility.isTensor(pair[1]))) {
+                        for (const pair of obj) {
+                            weights.set(i.toString() + '.' + pair[0], pair[1]);
+                        }
+                        continue;
+                    }
+                    return null;
                 }
                 return weights;
             }
