@@ -1121,9 +1121,6 @@ darknet.Weights = class {
                 stream.skip(12 + (((major * 10 + minor) >= 2) ? 8 : 4));
                 return new darknet.Weights(stream);
             }
-            // else {
-            //     throw new darknet.Error("Unsupported transpose weights file version '" + [ major, minor, revision ].join('.') + "'.");
-            // }
         }
         return null;
     }
