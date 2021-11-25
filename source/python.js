@@ -2011,6 +2011,11 @@ python.Execution = class {
                 super(data.shape, data.dtype, data.data);
             }
         });
+        this.registerType('numpy.core.memmap.memmap', class extends numpy.ndarray {
+            constructor(shape, dtype) {
+                super(shape, dtype);
+            }
+        });
         this.registerType('pathlib.PosixPath', class {
             constructor() {
                 this.path = Array.from(arguments).join('/');
