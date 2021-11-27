@@ -27,8 +27,7 @@ om.ModelFactory = class {
                 throw new om.Error('File format is not ge.proto.ModelDef (' + message.replace(/\.$/, '') + ').');
             }
             return om.Metadata.open(context).then((metadata) => {
-                const weights = file.weights;
-                return new om.Model(metadata, model, weights);
+                return new om.Model(metadata, model, file.weights);
             });
         });
     }
@@ -477,7 +476,7 @@ om.File = class {
         const stream = context.stream;
         const signature = [ 0x49, 0x4D, 0x4F, 0x44 ]; // IMOD
         if (stream.length >= 256 && stream.peek(4).every((value, index) => value === signature[index])) {
-            const reader = new om.File.BinaryReader(stream.peek());
+            const reader = new om.BinaryReader(stream.peek());
             return new om.File(reader);
         }
         return null;
@@ -549,7 +548,7 @@ om.File = class {
                     case 5: { // DEVICE_CONFIG
                         this.devices = new Map();
                         const decoder = new TextDecoder('ascii');
-                        const reader = new om.File.BinaryReader(buffer);
+                        const reader = new om.BinaryReader(buffer);
                         reader.uint32();
                         for (let position = 4; position < partition.size; ) {
                             const length = reader.uint32();
@@ -570,7 +569,7 @@ om.File = class {
     }
 };
 
-om.File.BinaryReader = class {
+om.BinaryReader = class {
 
     constructor(buffer) {
         this._buffer = buffer;
