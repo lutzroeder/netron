@@ -60,86 +60,83 @@ mxnet.ModelFactory = class {
                 const parse = (stream) => {
                     try {
                         const manifest = {};
-                        const decoder = new TextDecoder('utf-8');
                         if (stream) {
-                            const buffer = stream.peek();
-                            const content = decoder.decode(buffer);
-                            const json = JSON.parse(content);
-                            if (json.Model) {
-                                const modelFormat = json.Model['Model-Format'];
-                                if (modelFormat && modelFormat != 'MXNet-Symbolic') {
+                            const reader = json.TextReader.open(stream);
+                            const obj = reader.read();
+                            if (obj.Model) {
+                                const modelFormat = obj.Model['Model-Format'];
+                                if (modelFormat && modelFormat !== 'MXNet-Symbolic') {
                                     throw new mxnet.Error('Model format \'' + modelFormat + '\' not supported.');
                                 }
                                 manifest.format = 'MXNet Model Server';
-                                if (json['Model-Archive-Version']) {
-                                    manifest.format += ' v' + json['Model-Archive-Version'].toString();
+                                if (obj['Model-Archive-Version']) {
+                                    manifest.format += ' v' + obj['Model-Archive-Version'].toString();
                                 }
-                                if (!json.Model.Symbol) {
+                                if (!obj.Model.Symbol) {
                                     throw new mxnet.Error('Manifest does not contain symbol entry.');
                                 }
-                                manifest.symbol = json.Model.Symbol;
-                                if (json.Model.Signature) {
-                                    manifest.signature = json.Model.Signature;
+                                manifest.symbol = obj.Model.Symbol;
+                                if (obj.Model.Signature) {
+                                    manifest.signature = obj.Model.Signature;
                                 }
-                                if (json.Model.Parameters) {
-                                    manifest.params = json.Model.Parameters;
+                                if (obj.Model.Parameters) {
+                                    manifest.params = obj.Model.Parameters;
                                 }
-                                if (json.Model['Model-Name']) {
-                                    manifest.name = json.Model['Model-Name'];
+                                if (obj.Model['Model-Name']) {
+                                    manifest.name = obj.Model['Model-Name'];
                                 }
-                                if (json.Model.Description && manifest.name !== json.Model.Description) {
-                                    manifest.description = json.Model.Description;
+                                if (obj.Model.Description && manifest.name !== obj.Model.Description) {
+                                    manifest.description = obj.Model.Description;
                                 }
                             }
-                            else if (json.model) {
+                            else if (obj.model) {
                                 manifest.format = 'MXNet Model Archive';
-                                if (json.specificationVersion) {
-                                    manifest.format += ' v' + json.specificationVersion.toString();
+                                if (obj.specificationVersion) {
+                                    manifest.format += ' v' + obj.specificationVersion.toString();
                                 }
-                                if (json.model.modelName) {
-                                    manifest.symbol = json.model.modelName + '-symbol.json';
+                                if (obj.model.modelName) {
+                                    manifest.symbol = obj.model.modelName + '-symbol.json';
                                 }
-                                if (json.model.modelName) {
-                                    manifest.name = json.model.modelName;
+                                if (obj.model.modelName) {
+                                    manifest.name = obj.model.modelName;
                                 }
-                                if (manifest.model && json.model.modelVersion) {
-                                    manifest.version = json.model.modelVersion;
+                                if (manifest.model && obj.model.modelVersion) {
+                                    manifest.version = obj.model.modelVersion;
                                 }
-                                if (manifest.model && manifest.model.modelName && manifest.name != json.model.description) {
-                                    manifest.description = json.model.description;
+                                if (manifest.model && manifest.model.modelName && manifest.name != obj.model.description) {
+                                    manifest.description = obj.model.description;
                                 }
                             }
                             else {
                                 throw new mxnet.Error('Manifest does not contain model.');
                             }
-                            if (json.Engine && json.Engine.MXNet) {
-                                const version = convertVersion(json.Engine.MXNet);
-                                manifest.runtime = 'MXNet v' + (version ? version : json.Engine.MXNet.toString());
+                            if (obj.Engine && obj.Engine.MXNet) {
+                                const version = convertVersion(obj.Engine.MXNet);
+                                manifest.runtime = 'MXNet v' + (version ? version : obj.Engine.MXNet.toString());
                             }
-                            if (json.License) {
-                                manifest.license = json.License;
+                            if (obj.License) {
+                                manifest.license = obj.License;
                             }
-                            if (json.runtime) {
-                                manifest.runtime = json.runtime;
+                            if (obj.runtime) {
+                                manifest.runtime = obj.runtime;
                             }
-                            if (json.engine && json.engine.engineName) {
-                                const engine = json.engine.engineVersion ? json.engine.engineName + ' ' + json.engine.engineVersion : json.engine.engineName;
+                            if (obj.engine && obj.engine.engineName) {
+                                const engine = obj.engine.engineVersion ? obj.engine.engineName + ' ' + obj.engine.engineVersion : obj.engine.engineName;
                                 manifest.runtime = manifest.runtime ? (manifest.runtime + ' (' + engine + ')') : engine;
                             }
-                            if (json.publisher && json.publisher.author) {
-                                manifest.author = json.publisher.author;
-                                if (json.publisher.email) {
-                                    manifest.author = manifest.author + ' <' + json.publisher.email + '>';
+                            if (obj.publisher && obj.publisher.author) {
+                                manifest.author = obj.publisher.author;
+                                if (obj.publisher.email) {
+                                    manifest.author = manifest.author + ' <' + obj.publisher.email + '>';
                                 }
                             }
-                            if (json.license) {
-                                manifest.license = json.license;
+                            if (obj.license) {
+                                manifest.license = obj.license;
                             }
-                            if (json.Model && json.Model.Signature) {
-                                return context.request(json.Model.Signature).then((stream) => {
-                                    const buffer = stream.peek();
-                                    const content = decoder.decode(buffer);
-                                    manifest.signature = JSON.parse(content);
+                            if (obj.Model && obj.Model.Signature) {
+                                return context.request(obj.Model.Signature).then((stream) => {
+                                    const reader = json.TextReader.open(stream);
+                                    manifest.signature = reader.read();
                                     return manifest;
                                 }).catch (() => {
                                     return manifest;
