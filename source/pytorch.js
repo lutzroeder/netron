@@ -2869,19 +2869,18 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                         const parameter = parameters.shift();
                         const argument = copyEvalArgs[0];
 
-                        switch (parameter.type) {
-                            case 'Tensor': {
-                                if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
-                                    if (parameter.optional) {
-                                        if (argument === undefined) {
-                                            copyArgs.shift();
-                                            copyEvalArgs.shift();
-                                        }
-                                        continue;
+                        if (parameter.type === 'Tensor' || (parameter.type === 'Scalar' && pytorch.Utility.isTensor(argument))) {
+                            if (Array.isArray(argument) || (!pytorch.Utility.isTensor(argument) && argument !== null && argument !== undefined)) {
+                                if (parameter.optional) {
+                                    if (argument === undefined) {
+                                        copyArgs.shift();
+                                        copyEvalArgs.shift();
                                     }
-                                    next = true;
-                                    break;
+                                    continue;
                                 }
+                                next = true;
+                            }
+                            else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
                                 const item = (argument === null || argument === undefined) ? {} : argument;
@@ -2890,17 +2889,17 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                 inputs.push({ id: item.__variable__ });
                                 referencedParameters.push(item);
                                 node.inputs.push(inputs);
-                                break;
                             }
-                            case 'Tensor[]': {
-                                const argument = copyEvalArgs[0];
-                                if (!Array.isArray(argument) || !argument.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
-                                    if (parameter.optional) {
-                                        continue;
-                                    }
-                                    next = true;
-                                    break;
+                        }
+                        else if (parameter.type === 'Tensor[]') {
+                            const argument = copyEvalArgs[0];
+                            if (!Array.isArray(argument) || !argument.every((item) => pytorch.Utility.isTensor(item) || item === null)) {
+                                if (parameter.optional) {
+                                    continue;
                                 }
+                                next = true;
+                            }
+                            else {
                                 copyArgs.shift();
                                 copyEvalArgs.shift();
                                 const inputs = [];
@@ -2913,26 +2912,23 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                     referencedParameters.push(item);
                                 }
                                 node.inputs.push(inputs);
-                                break;
                             }
-                            default: {
-                                const arg = copyArgs[0];
-                                if (!pytorch.Utility.isType(argument, parameter.type) && argument !== null) {
-                                    if (parameter.optional) {
-                                        continue;
-                                    }
-                                    next = true;
-                                    break;
+                        }
+                        else {
+                            const arg = copyArgs[0];
+                            if (!pytorch.Utility.isType(argument, parameter.type) && argument !== null) {
+                                if (parameter.optional) {
+                                    continue;
                                 }
-                                if (arg.type !== '=') {
-                                    copyArgs.shift();
-                                    copyEvalArgs.shift();
-                                    node.attributes.push({ name: parameter.name, value: argument });
-                                }
-                                else {
-                                    throw new pytorch.Error('Expected named argument.');
-                                }
-                                break;
+                                next = true;
+                            }
+                            else if (arg.type !== '=') {
+                                copyArgs.shift();
+                                copyEvalArgs.shift();
+                                node.attributes.push({ name: parameter.name, value: argument });
+                            }
+                            else {
+                                throw new pytorch.Error('Expected named argument.');
                             }
                         }
                         if (next) {
