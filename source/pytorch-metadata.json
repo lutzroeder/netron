@@ -4318,6 +4318,22 @@
     ]
   },
   {
+    "name": "torch._sparse_coo_tensor_unsafe:",
+    "category": "Tensor",
+    "inputs": [
+      { "name": "indices", "type": "Tensor" },
+      { "name": "values", "type": "Tensor" },
+      { "name": "size", "type": "int64[]" },
+      { "name": "dtype", "type": "ScalarType", "optional": true, "default": null },
+      { "name": "layout", "type": "Layout", "optional": true, "default": null },
+      { "name": "device", "type": "Device", "optional": true, "default": null },
+      { "name": "pin_memory", "type": "boolean", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "outputs", "type": "Tensor[]" }
+    ]
+  },
+  {
     "name": "torch.split:Tensor",
     "category": "Tensor",
     "inputs": [
