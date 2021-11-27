@@ -1310,6 +1310,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerFunction('ops.prim.dtype', function(tensor) {
             return tensor.dtype.scalar_type();
         });
+        this.registerFunction('ops.prim.is_quantized', function(tensor) {
+            return tensor && tensor.__quantized__ === true;
+        });
         this.registerFunction('ops.prim.unchecked_unwrap_optional', function(value) {
             return value;
         });
@@ -3057,8 +3060,10 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'ops.quantized.linear':
                                         case 'ops.quantized.conv2d':
                                         case 'ops.quantized.conv2d_relu':
+                                        case 'ops.quantized.add':
                                         case 'ops.quantized.add_relu':
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
+                                            parameter.__quantized__ = true;
                                             break;
                                         case 'torch.contiguous':
                                             parameter.__source__ = this.expression(args[0], context);
