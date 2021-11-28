@@ -791,6 +791,7 @@ view.View = class {
             const exportElement = graphElement.cloneNode(true);
             this.applyStyleSheet(exportElement, 'view-grapher.css');
             exportElement.setAttribute('id', 'export');
+            exportElement.removeAttribute('viewBox');
             exportElement.removeAttribute('width');
             exportElement.removeAttribute('height');
             exportElement.style.removeProperty('opacity');
