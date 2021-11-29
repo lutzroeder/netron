@@ -968,6 +968,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.distributions.transforms.LowerCholeskyTransform', class {});
         this.registerType('torch.nn.backends.thnn._get_thnn_function_backend', class {});
         this.registerType('torch.nn.intrinsic.modules.fused.ConvReLU2d', class {});
+        this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvBnReLU2d', class {});
         this.registerType('torch.nn.intrinsic.qat.modules.conv_fused.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.conv_relu.ConvReLU2d', class {});
         this.registerType('torch.nn.intrinsic.quantized.modules.linear_relu.LinearReLU', class {});
@@ -1091,6 +1092,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.parallel.distributed._DDPUnevenInputsConfig', class {});
         this.registerType('torch.nn.parallel.distributed.DistributedDataParallel', class {});
         this.registerType('torch.nn.qat.modules.conv.Conv2d', class {});
+        this.registerType('torch.nn.qat.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU', class {});
         this.registerType('torch.nn.quantized.dynamic.modules.linear.Linear', class {});
         this.registerType('torch.nn.quantized.modules.activation.ReLU6', class {});
@@ -3571,7 +3573,6 @@ pytorch.Utility = class {
                 return obj;
             }
             if (obj && Object(obj) === obj) {
-                const integer = new Set([ 'epoch', 'i_batch', 'num_vid', 'seen' ]);
                 const target = {};
                 for (const entry of Object.entries(obj)) {
                     const key = entry[0];
@@ -3581,19 +3582,18 @@ pytorch.Utility = class {
                             continue;
                         }
                     }
-                    if (key.indexOf('loss') !== -1 && Array.isArray(value)) {
+                    if (typeof value === 'number') {
                         continue;
                     }
-                    if (key.startsWith('dico_') && Object(value) === value) {
+                    if (Array.isArray(value) && (key.indexOf('loss') !== -1 || value.length === 0)) {
                         continue;
                     }
-                    if (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) {
+                    if (value && value.__class__ && value.__class__.__module__ === 'datetime' && value.__class__.__name__ === 'datetime') {
                         continue;
                     }
-                    if (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0) {
-                        continue;
-                    }
-                    if (integer.has(key) && Number.isInteger(value)) {
+                    if ((key.startsWith('dico_') && Object(value) === value) ||
+                        (key.startsWith('params') && Object(value) === value && (value.id2lang || value.lang2id)) ||
+                        (key.startsWith('spk_dict_') && Object(value) === value && Object.keys(value).length === 0)) {
                         continue;
                     }
                     target[key] = value;
