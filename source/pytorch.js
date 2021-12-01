@@ -1329,6 +1329,12 @@ pytorch.Execution = class extends python.Execution {
             }
             return Math.min.apply(null, arguments);
         });
+        this.registerFunction('ops.prim.max', function(value) {
+            if (Array.isArray(value)) {
+                return Math.max.apply(null, value);
+            }
+            return Math.max.apply(null, arguments);
+        });
         this.registerFunction('ops.prim.shape', function(tensor) {
             return tensor && tensor.size ? tensor.size() : undefined;
         });
