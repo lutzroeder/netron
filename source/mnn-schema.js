@@ -203,6 +203,7 @@ $root.MNN.QuantizedFloatParam = class QuantizedFloatParam {
         $.outputZeroPoint = reader.int8_(position, 18, 0);
         $.clampMin = reader.int8_(position, 20, -128);
         $.clampMax = reader.int8_(position, 22, 127);
+        $.winogradAttr = reader.typedArray(position, 24, Int32Array);
         return $;
     }
 };
@@ -1350,10 +1351,10 @@ $root.MNN.TfQuantizedConv2D = class TfQuantizedConv2D {
     }
 };
 
-$root.MNN.GpuLibrary = class GpuLibrary {
+$root.MNN.ExtraInfo = class ExtraInfo {
 
     static decode(reader, position) {
-        const $ = new $root.MNN.GpuLibrary();
+        const $ = new $root.MNN.ExtraInfo();
         $.buffer = reader.typedArray(position, 4, Int8Array);
         $.name = reader.string_(position, 6, null);
         return $;
@@ -1392,6 +1393,53 @@ $root.MNN.GridSample = class GridSample {
     }
 };
 
+$root.MNN.ImageFormatType = {
+    RGBA: 0,
+    RGB: 1,
+    BGR: 2,
+    GRAY: 3,
+    BGRA: 4,
+    YCrCb: 5,
+    YUV: 6,
+    HSV: 7,
+    XYZ: 8,
+    BGR555: 9,
+    BGR565: 10,
+    YUV_NV21: 11,
+    YUV_NV12: 12,
+    YUV_I420: 13
+};
+
+$root.MNN.FilterType = {
+    NEAREST: 0,
+    BILINEAR: 1,
+    BICUBIC: 2
+};
+
+$root.MNN.WrapType = {
+    CLAMP_TO_EDGE: 0,
+    ZERO: 1,
+    REPEAT: 2
+};
+
+$root.MNN.ImageProcessParam = class ImageProcessParam {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.ImageProcessParam();
+        $.filterType = reader.int8_(position, 4, 0);
+        $.sourceFormat = reader.int32_(position, 6, 0);
+        $.destFormat = reader.int32_(position, 8, 0);
+        $.wrap = reader.int8_(position, 10, 0);
+        $.mean = reader.typedArray(position, 12, Float32Array);
+        $.normal = reader.typedArray(position, 14, Float32Array);
+        $.transform = reader.typedArray(position, 16, Float32Array);
+        $.paddingValue = reader.int8_(position, 18, 0);
+        $.shape = reader.typedArray(position, 20, Int32Array);
+        $.outputType = reader.int32_(position, 22, 0);
+        return $;
+    }
+};
+
 $root.MNN.OpType = {
     AbsVal: 0,
     QuantizedAdd: 1,
@@ -1409,7 +1457,7 @@ $root.MNN.OpType = {
     ConvolutionDepthwise: 13,
     Crop: 14,
     CropAndResize: 15,
-    Cubic: 16,
+    ImageProcess: 16,
     Deconvolution: 17,
     DeconvolutionDepthwise: 18,
     Dequantize: 19,
@@ -1422,7 +1470,7 @@ $root.MNN.OpType = {
     ExpandDims: 26,
     Fill: 27,
     Flatten: 28,
-    FloorMod: 29,
+    Im2Col: 29,
     Gather: 30,
     GatherV2: 31,
     Im2Seq: 32,
@@ -1739,6 +1787,7 @@ $root.MNN.OpParameter = class {
             case 90: return $root.MNN.LSTMBlockCell.decode(reader, position);
             case 91: return $root.MNN.GridSample.decode(reader, position);
             case 92: return $root.MNN.LoopParam.decode(reader, position);
+            case 93: return $root.MNN.ImageProcessParam.decode(reader, position);
         }
         return undefined;
     }
@@ -1837,6 +1886,7 @@ $root.MNN.OpParameter = class {
             case 'LSTMBlockCell': return $root.MNN.LSTMBlockCell.decodeText(reader, json);
             case 'GridSample': return $root.MNN.GridSample.decodeText(reader, json);
             case 'LoopParam': return $root.MNN.LoopParam.decodeText(reader, json);
+            case 'ImageProcessParam': return $root.MNN.ImageProcessParam.decodeText(reader, json);
         }
         return undefined;
     }
@@ -1942,7 +1992,7 @@ $root.MNN.Net = class Net {
         const $ = new $root.MNN.Net();
         $.bizCode = reader.string_(position, 4, null);
         $.extraTensorDescribe = reader.tableArray(position, 6, $root.MNN.TensorDescribe.decode);
-        $.gpulibrary = reader.table(position, 8, $root.MNN.GpuLibrary.decode);
+        $.extraInfo = reader.table(position, 8, $root.MNN.ExtraInfo.decode);
         $.oplists = reader.tableArray(position, 10, $root.MNN.Op.decode);
         $.outputName = reader.strings_(position, 12);
         $.preferForwardType = reader.int8_(position, 14, 0);
