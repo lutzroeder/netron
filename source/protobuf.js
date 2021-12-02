@@ -728,22 +728,21 @@ protobuf.TextReader = class {
     }
 
     double() {
+        let value = NaN;
         let token = this._token;
-        if (token.startsWith('nan')) {
-            return NaN;
-        }
-        if (token.startsWith('inf')) {
-            return Infinity;
-        }
-        if (token.startsWith('-inf')) {
-            return -Infinity;
-        }
-        if (token.endsWith('f')) {
-            token = token.substring(0, token.length - 1);
-        }
-        const value = Number.parseFloat(token);
-        if (Number.isNaN(token - value)) {
-            throw new protobuf.Error("Couldn't parse float '" + token + "'" + this.location());
+        switch (token) {
+            case 'nan': value = NaN; break;
+            case 'inf': value = Infinity; break;
+            case '-inf': value = -Infinity; break;
+            default:
+                if (token.endsWith('f')) {
+                    token = token.substring(0, token.length - 1);
+                }
+                value = Number.parseFloat(token);
+                if (Number.isNaN(token - value)) {
+                    throw new protobuf.Error("Couldn't parse float '" + token + "'" + this.location());
+                }
+                break;
         }
         this.next();
         this.semicolon();
@@ -1235,9 +1234,15 @@ protobuf.TextReader = class {
                     }
                     break;
                 }
-                this._decoder.position = position;
-                this._token = token;
-                return;
+                if (token === '-' && c === 'i' && this._decoder.decode() === 'n' && this._decoder.decode() === 'f') {
+                    token += 'inf';
+                    position = this._decoder.position;
+                }
+                if (token !== '-' && token !== '+' && token !== '.') {
+                    this._decoder.position = position;
+                    this._token = token;
+                    return;
+                }
             }
         }
         throw new protobuf.Error("Unexpected token '" + c + "'" + this.location());

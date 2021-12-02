@@ -5590,6 +5590,13 @@
   },
   {
     "type":   "tf",
+    "target": "netron_issue_847.pbtxt",
+    "source": "https://github.com/lutzroeder/netron/files/7642864/netron_issue_847.pbtxt.zip[netron_issue_847.pbtxt]",
+    "format": "TensorFlow Graph",
+    "link":   "https://github.com/lutzroeder/netron/issues/847"
+  },
+  {
+    "type":   "tf",
     "target": "pose_estimation_for_mobile.pb",
     "source": "https://raw.githubusercontent.com/edvardHua/PoseEstimationForMobile/master/release/cpm_model/model.pb",
     "format": "TensorFlow Graph",
