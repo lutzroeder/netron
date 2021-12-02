@@ -757,7 +757,7 @@
       },
       {
         "default": null,
-        "description": "Override the preprocessing (strip_accents and lowercase) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "Override the preprocessing (strip_accents and lowercase) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "preprocessor"
       },
       {
@@ -779,7 +779,7 @@
       },
       {
         "default": "(1, 1)",
-        "description": "The lower and upper boundary of the range of n-values for different\nword n-grams or char n-grams to be extracted. All values of n such\nsuch that min_n <= n <= max_n will be used. For example an\n``ngram_range`` of ``(1, 1)`` means only unigrams, ``(1, 2)`` means\nunigrams and bigrams, and ``(2, 2)`` means only bigrams.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "The lower and upper boundary of the range of n-values for different\nword n-grams or char n-grams to be extracted. All values of n such\nsuch that min_n <= n <= max_n will be used. For example an\n``ngram_range`` of ``(1, 1)`` means only unigrams, ``(1, 2)`` means\nunigrams and bigrams, and ``(2, 2)`` means only bigrams.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "ngram_range"
       },
       {
@@ -858,7 +858,7 @@
       },
       {
         "default": null,
-        "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "Override the preprocessing (string transformation) stage while\npreserving the tokenizing and n-grams generation steps.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "preprocessor"
       },
       {
@@ -883,7 +883,7 @@
       },
       {
         "default": "(1, 1)",
-        "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer is not callable``.\n",
+        "description": "The lower and upper boundary of the range of n-values for different\nn-grams to be extracted. All values of n such that min_n <= n <= max_n\nwill be used. For example an ``ngram_range`` of ``(1, 1)`` means only\nunigrams, ``(1, 2)`` means unigrams and bigrams, and ``(2, 2)`` means\nonly bigrams.\nOnly applies if ``analyzer`` is not callable.\n",
         "name": "ngram_range"
       },
       {
