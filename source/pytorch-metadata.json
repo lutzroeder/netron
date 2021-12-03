@@ -5879,6 +5879,35 @@
     ]
   },
   {
+    "name": "torch._thnn_fused_gru_cell",
+    "inputs": [
+      { "name": "input_gates", "type": "Tensor" },
+      { "name": "hidden_gates", "type": "Tensor" },
+      { "name": "hx", "type": "Tensor" },
+      { "name": "input_bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "hidden_bias", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "output2", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch._thnn_fused_lstm_cell",
+    "inputs": [
+      { "name": "input_gates", "type": "Tensor" },
+      { "name": "hidden_gates", "type": "Tensor" },
+      { "name": "cx", "type": "Tensor" },
+      { "name": "input_bias", "type": "Tensor", "optional": true, "default": null },
+      { "name": "hidden_bias", "type": "Tensor", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "output2", "type": "Tensor" },
+      { "name": "output3", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch._weight_norm",
     "inputs": [
       { "name": "v", "type": "Tensor" },
