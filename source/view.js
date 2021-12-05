@@ -1561,7 +1561,7 @@ view.ModelFactoryService = class {
         this.register('./mlnet', [ '.zip' ]);
         this.register('./acuity', [ '.json' ]);
         this.register('./imgdnn', [ '.dnn', 'params', '.json' ]);
-        this.register('./om', [ '.om', '.onnx', '.pb' ]);
+        this.register('./om', [ '.om', '.onnx', '.pb', '.engine' ]);
     }
 
     register(id, extensions) {
