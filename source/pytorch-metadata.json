@@ -4758,12 +4758,154 @@
   },
   {
     "name": "torch.fft",
-    "attributes": [
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
       { "name": "signal_ndim", "type": "int64" },
       { "name": "normalized", "type": "boolean", "default": false }
     ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_fft2",
     "inputs": [
-      { "name": "self", "type": "Tensor" }
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_ifft2",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_rfft2",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_irfft2",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_hfft2",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_ihfft2",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_fftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_ifftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_rfftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_irfftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_hfftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.fft_ihfftn",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "s", "s": "int64[]", "optional": true, "default": null },
+      { "name": "dim", "dim": "int64[]", "optional": true, "default": [ -2, -1] },
+      { "name": "norm", "type": "string", "optional": true, "default": null }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
