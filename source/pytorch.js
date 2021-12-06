@@ -2562,48 +2562,23 @@ pytorch.Container.Zip = class {
                     delete this._model;
                 }
             }
-            if (this.format.startsWith('TorchScript ')) {
-                if (this._torchscriptArena || this._data.forward) {
-                    this._type = 'script';
-                }
-                else {
-                    if (!Object.entries(this._data).every((entry) => entry[0].indexOf('|') !== -1 && pytorch.Utility.isTensor(entry[1]))) {
-                        throw new pytorch.Error('File does not contain forward function or state dictionary.');
-                    }
-                    const layers = new Map();
-                    for (const entry of Object.entries(this._data)) {
-                        const key = entry[0].split('|');
-                        const value = entry[1];
-                        const parameterName = key.pop();
-                        const name = key.join('|');
-                        if (!layers.has(name)) {
-                            layers.set(name, { name: name, states: [] });
-                        }
-                        const layer = layers.get(name);
-                        layer.states.push({ name: parameterName, arguments: [ { id: '', value: value } ] });
-                    }
-                    this._type = 'weights';
-                    this._data = [ { layers: layers.values() } ];
-                }
+            if (this.format.startsWith('TorchScript ') && (this._torchscriptArena || this._data.forward)) {
+                this._type = 'script';
+                return;
             }
-            else {
-                const obj = this._data;
-                const root = pytorch.Utility.findModule(obj);
-                if (root) {
-                    this._type = 'module';
-                    this._data = root;
-                }
-                else {
-                    const weights = pytorch.Utility.findWeights(obj);
-                    if (weights) {
-                        this._type = 'weights';
-                        this._data = weights;
-                    }
-                    else {
-                        throw new pytorch.Error('File does not contain root module or state dictionary.');
-                    }
-                }
+            const root = pytorch.Utility.findModule(this._data);
+            if (root) {
+                this._type = 'module';
+                this._data = root;
+                return;
             }
+            const weights = pytorch.Utility.findWeights(this._data);
+            if (weights) {
+                this._type = 'weights';
+                this._data = weights;
+                return;
+            }
+            throw new pytorch.Error('File does not contain root module or state dictionary.');
         }
     }
 
@@ -3589,7 +3564,10 @@ pytorch.Utility = class {
                             continue;
                         }
                     }
-                    if (typeof value === 'number') {
+                    if (typeof value === 'number' || typeof value === 'string' || typeof value === 'boolean') {
+                        continue;
+                    }
+                    if (key === '__class__' && value.__module__ && value.__name__) {
                         continue;
                     }
                     if (Array.isArray(value) && (key.indexOf('loss') !== -1 || value.length === 0)) {
@@ -3682,7 +3660,7 @@ pytorch.Utility = class {
                 map.set(entry[0], entry[1]);
             }
         }
-        else if (Object(obj) === obj && Object.keys(obj).every((key) => pytorch.Utility.isTensor(obj[key]))) {
+        else if (Object(obj) === obj && Object.entries(obj).every((entry) => pytorch.Utility.isTensor(entry[1]))) {
             map.set('', new Map(Object.keys(obj).map((key) => [ key, obj[key] ])));
         }
         else {
@@ -3702,12 +3680,13 @@ pytorch.Utility = class {
                     const value = item[1];
                     let layerName = '';
                     let parameter = '';
-                    const keys = key.split('.');
+                    const separator = key.indexOf('.') === -1 && key.indexOf('|') !== -1 ? '|' : '.';
+                    const keys = key.split(separator);
                     if (keys[keys.length - 1] === '_metadata') {
                         continue;
                     }
                     if (keys.length >= 2 && keys[keys.length - 2] === '_packed_params') {
-                        parameter = keys.slice(-2).join('.');
+                        parameter = keys.slice(-2).join(separator);
                         keys.pop();
                         keys.pop();
                     }
@@ -3717,7 +3696,7 @@ pytorch.Utility = class {
                             keys.push('');
                         }
                     }
-                    layerName = keys.join('.');
+                    layerName = keys.join(separator);
                     if (!layers.has(layerName)) {
                         layers.set(layerName, { name: layerName, states: [], attributes: [] });
                     }

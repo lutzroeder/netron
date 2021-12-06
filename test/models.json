@@ -4744,6 +4744,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "resnet18.ot",
+    "source": "https://github.com/lutzroeder/netron/files/7664092/resnet18.ot.zip[resnet18.ot]",
+    "format": "TorchScript v1.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/686"
+  },
+  {
+    "type":   "pytorch",
     "target": "resnet18.pt",
     "source": "https://github.com/lutzroeder/netron/files/5212015/resnet18.zip[resnet18.pt]",
     "format": "TorchScript v1.6",
@@ -4783,6 +4790,13 @@
     "source": "https://github.com/PeterL1n/RobustVideoMatting/releases/download/v1.0.0/rvm_mobilenetv3_fp16.torchscript",
     "error":  "ValueError: not enough values to unpack (expected 2, actual 1) in 'rvm_mobilenetv3_fp16.torchscript'.",
     "link":   "https://github.com/PeterL1n/RobustVideoMatting"
+  },
+  {
+    "type":   "pytorch",
+    "target": "segmentor.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7663953/segmentor.pt.zip[segmentor.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/686"
   },
   {
     "type":   "pytorch",
