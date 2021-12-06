@@ -2335,7 +2335,8 @@ pytorch.Container.Zip = class {
                     [ '3', 'v1.6'  ], // 2ec6a30722b0ef85632a2f3e7ce6f80da403008a (#36085)
                     [ '4', 'v1.6'  ], // 95489b590f00801bdee7f41783f30874883cf6bb (#38620)
                     [ '5', 'v1.7'  ], // cb26661fe4faf26386703180a9045e6ac6d157df (#40364)
-                    [ '6', 'v1.9+' ]  // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
+                    [ '6', 'v1.9'  ], // 3ee7637ffa50df0d9b231c7b40778ac1c390bf4a (#59714)
+                    [ '7', 'v1.10' ]  // 880098a7e34a20628f960daa8eab0eb1ad566c39 (#63651)
                 ]);
                 const value = this.version;
                 if (!versions.has(value)) {
