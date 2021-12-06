@@ -25424,7 +25424,7 @@
       {
         "name": "T",
         "type": "type",
-        "description": "Must be one of the following: `float64`, `float32`, `float16`, `complex64`, `complex128`."
+        "description": "Must be one of the following: `bfloat16`, `float64`, `float32`, `float16`, `complex64`, `complex128`."
       }
     ],
     "inputs": [
