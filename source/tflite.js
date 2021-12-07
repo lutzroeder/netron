@@ -422,29 +422,16 @@ tflite.Node = class {
 tflite.Attribute = class {
 
     constructor(metadata, name, value) {
-        this._type = null;
         this._name = name;
-        this._value = value;
+        this._value = ArrayBuffer.isView(value) ? Array.from(value) : value;
+        this._type = metadata && metadata.type ? metadata.type : null;
         if (this._name == 'fused_activation_function') {
             this._visible = false;
         }
+        if (this._type) {
+            this._value = tflite.Utility.enum(this._type, this._value);
+        }
         if (metadata) {
-            if (metadata.type) {
-                this._type = metadata.type;
-            }
-            if (this._type) {
-                switch (this._type) {
-                    case 'shape':
-                        this._value = new tflite.TensorShape(value);
-                        break;
-                    case 'TensorType':
-                        this._value = tflite.Utility.dataType(this._value);
-                        break;
-                    default:
-                        this._value = tflite.Utility.enum(this._type, this._value);
-                        break;
-                }
-            }
             if (Object.prototype.hasOwnProperty.call(metadata, 'visible') && !metadata.visible) {
                 this._visible = false;
             }
