@@ -1624,6 +1624,7 @@ python.Execution = class {
         this.registerModule('copy_reg');
         this.registerModule('cuml');
         this.registerModule('gensim');
+        this.registerModule('io');
         this.registerModule('joblib');
         this.registerModule('lightgbm');
         this.registerModule('numpy');
@@ -1697,6 +1698,25 @@ python.Execution = class {
                 }
             }
         });
+        this.registerType('io.BytesIO', class {
+            constructor(buf, mode) {
+                this.mode = mode || 'r';
+                this._buf = this.mode === 'w' ? null : buf;
+                this._point = 0;
+            }
+            seek(offset) {
+                this._point = offset;
+            }
+            read(size) {
+                const start = this._point;
+                this._point = size !== undefined ? start + size : this._buf.length;
+                return this._buf.subarray(start, this._point);
+            }
+            write(data) {
+                this._buf = this._buf ? this._buf.concat(data) : data;
+                this._point = this._buf.length;
+            }
+        });
         this.registerType('numpy.core._multiarray_umath.scalar', class {
             constructor(dtype, rawData) {
                 let data = rawData;
@@ -1728,48 +1748,58 @@ python.Execution = class {
         });
         this.registerType('numpy.dtype', class {
             constructor(obj, align, copy) {
-                this.align = align;
-                this.copy = copy;
                 switch (obj) {
-                    case 'i1': this.name = 'int8'; this.itemsize = 1; break;
-                    case 'i2': this.name = 'int16'; this.itemsize = 2; break;
-                    case 'i4': this.name = 'int32'; this.itemsize = 4; break;
-                    case 'i8': this.name = 'int64'; this.itemsize = 8; break;
-                    case 'b1': this.name = 'int8'; this.itemsize = 1; break;
-                    case 'u1': this.name = 'uint8'; this.itemsize = 1; break;
-                    case 'u2': this.name = 'uint16'; this.itemsize = 2; break;
-                    case 'u4': this.name = 'uint32'; this.itemsize = 4; break;
-                    case 'u8': this.name = 'uint64'; this.itemsize = 8; break;
-                    case 'f2': this.name = 'float16'; this.itemsize = 2; break;
-                    case 'f4': this.name = 'float32'; this.itemsize = 4; break;
-                    case 'f8': this.name = 'float64'; this.itemsize = 8; break;
-                    case 'c8':  this.name = 'complex64'; this.itemsize = 8; break;
-                    case 'c16': this.name = 'complex128'; this.itemsize = 16; break;
+                    case 'b1': case 'bool': this.name = 'bool'; this.itemsize = 1; this.kind = 'b'; break;
+                    case 'i1': case 'int8': this.name = 'int8'; this.itemsize = 1; this.kind = 'i'; break;
+                    case 'i2': case 'int16': this.name = 'int16'; this.itemsize = 2; this.kind = 'i'; break;
+                    case 'i4': case 'int32': this.name = 'int32'; this.itemsize = 4; this.kind = 'i'; break;
+                    case 'i8': case 'int64': case 'int': this.name = 'int64'; this.itemsize = 8; this.kind = 'i'; break;
+                    case 'u1': case 'uint8': this.name = 'uint8'; this.itemsize = 1; this.kind = 'u'; break;
+                    case 'u2': case 'uint16': this.name = 'uint16'; this.itemsize = 2; this.kind = 'u'; break;
+                    case 'u4': case 'uint32': this.name = 'uint32'; this.itemsize = 4; this.kind = 'u'; break;
+                    case 'u8': case 'uint64': case 'uint': this.name = 'uint64'; this.itemsize = 8; this.kind = 'u'; break;
+                    case 'f2': case 'float16': this.name = 'float16'; this.itemsize = 2; this.kind = 'f'; break;
+                    case 'f4': case 'float32': this.name = 'float32'; this.itemsize = 4; this.kind = 'f'; break;
+                    case 'f8': case 'float64': case 'float': this.name = 'float64'; this.itemsize = 8; this.kind = 'f'; break;
+                    case 'c8': case 'complex64': this.name = 'complex64'; this.itemsize = 8; this.kind = 'c'; break;
+                    case 'c16': case 'complex128': case 'complex': this.name = 'complex128'; this.itemsize = 16; this.kind = 'c'; break;
                     default:
                         if (obj.startsWith('V')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'V';
                             this.name = 'void' + (this.itemsize * 8).toString();
                         }
                         else if (obj.startsWith('O')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'O';
                             this.name = 'object';
                         }
                         else if (obj.startsWith('S')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'S';
                             this.name = 'string';
                         }
                         else if (obj.startsWith('U')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'U';
                             this.name = 'string';
                         }
                         else if (obj.startsWith('M')) {
                             this.itemsize = Number(obj.substring(1));
+                            this.kind = 'M';
                             this.name = 'datetime';
                         }
                         else {
                             throw new python.Error("Unknown dtype '" + obj.toString() + "'.");
                         }
                         break;
+                }
+                this.byteorder = '=';
+                if (align) {
+                    this.align = align;
+                }
+                if (copy) {
+                    this.copy = copy;
                 }
             }
             __setstate__(state) {
@@ -1981,12 +2011,13 @@ python.Execution = class {
                 this.offset = offset !== undefined ? offset : 0;
                 this.strides = strides !== undefined ? strides : null;
                 this.order = offset !== undefined ? order : null;
+                this.flags = {};
             }
             __setstate__(state) {
                 this.version = state[0];
                 this.shape = state[1];
                 this.dtype = state[2];
-                this.isFortran = state[3];
+                this.flags.fnc = state[3];
                 this.data = state[4];
             }
             __read__(unpickler) {
@@ -2004,6 +2035,9 @@ python.Execution = class {
                     }
                 }
                 return this;
+            }
+            tobytes() {
+                return this.data;
             }
         });
         this.registerType('numpy.ma.core.MaskedArray', class extends numpy.ndarray {
@@ -2471,6 +2505,8 @@ python.Execution = class {
                     return dataView.getInt32(0, true);
                 case 'int64':
                     return dataView.getInt64(0, true);
+                case 'bool':
+                    return dataView.getInt8(0, true) ? true : false;
             }
             throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
