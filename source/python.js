@@ -2510,6 +2510,60 @@ python.Execution = class {
             }
             throw new python.Error("Unknown scalar type '" + dtype.name + "'.");
         });
+        this.registerFunction('numpy.load', function(file) {
+            // https://github.com/numpy/numpy/blob/main/numpy/lib/format.py
+            const signature = [ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59 ];
+            if (!file.read(6).every((v, i) => v == signature[i])) {
+                throw new numpy.Error('Invalid signature.');
+            }
+            const major = file.read(1)[0];
+            const minor = file.read(1)[0];
+            if (major > 3) {
+                throw new python.Error("Invalid version '" + [ major, minor ].join('.') + "'.");
+            }
+            const buffer = new Uint8Array([ 0, 0, 0, 0 ]);
+            buffer.set(file.read(major >= 2 ? 4 : 2), 0);
+            const header_length = buffer[3] << 24 | buffer[2] << 16 | buffer[1] << 8 | buffer[0];
+            let header = file.read(header_length);
+            const decoder = new TextDecoder(major >= 3 ? 'utf-8' : 'ascii');
+            header = decoder.decode(header);
+            header = JSON.parse(header.replace(/\(/,'[').replace(/\)/,']').replace('[,','[1,]').replace(',]',',1]').replace(/'/g, '"').replace(/:\s*False\s*,/,':false,').replace(/:\s*True\s*,/,':true,').replace(/,\s*\}/, ' }'));
+            if (!header.descr || header.descr.length < 2) {
+                throw new numpy.Error("Missing property 'descr'.");
+            }
+            if (!header.shape) {
+                throw new numpy.Error("Missing property 'shape'.");
+            }
+            const shape = header.shape;
+            const dtype = self.invoke('numpy.dtype', [ header.descr.substring(1) ]);
+            dtype.byteorder = header.descr[0];
+            let data = null;
+            switch (dtype.byteorder) {
+                case '|': {
+                    data = file.read();
+                    break;
+                }
+                case '>':
+                case '<': {
+                    if (header.descr.length !== 3) {
+                        throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                    }
+                    const count = shape.length === 0 ? 1 : shape.reduce((a, b) => a * b, 1);
+                    data = file.read(dtype.itemsize * count);
+                    break;
+                }
+                default: {
+                    throw new numpy.Error("Unsupported data type '" + header.descr + "'.");
+                }
+            }
+            if (header.fortran_order) {
+                data = null;
+            }
+            return self.invoke('numpy.ndarray', [ shape, dtype, data ]);
+        });
+        this.registerFunction('numpy.save', function(/* file, arr */) {
+            // TODO
+        });
         this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
             const data = self.invoke(baseclass, [ baseshape, basetype ]);
             // = ndarray.__new__(ndarray, baseshape, make_mask_descr(basetype))
