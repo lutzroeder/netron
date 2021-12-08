@@ -2800,7 +2800,7 @@ python.Execution = class {
                 break;
             }
             case 'var': {
-                context.set(statement.name, undefined);
+                context.set(statement.name, statement.initializer ? this.expression(statement.initializer, context) : undefined);
                 break;
             }
             case '=': {

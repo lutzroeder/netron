@@ -4326,8 +4326,8 @@
   {
     "type":   "pytorch",
     "target": "fasterrcnn_resnet50_fpn.pt",
-    "source": "https://github.com/lutzroeder/netron/files/6040364/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
-    "error":  "Unsupported function 'torch.full' in 'fasterrcnn_resnet50_fpn.pt'.",
+    "source": "https://github.com/lutzroeder/netron/files/7677467/fasterrcnn_resnet50_fpn.pt.zip[fasterrcnn_resnet50_fpn.pt]",
+    "error":  "Unknown torch.add expression type in 'fasterrcnn_resnet50_fpn.pt'.",
     "link":   "https://github.com/lutzroeder/netron/issues/689"
   },
   {
@@ -4858,6 +4858,13 @@
     "target": "squeezenet1_1-f364aa15.pth",
     "source": "https://download.pytorch.org/models/squeezenet1_1-f364aa15.pth",
     "format": "PyTorch v0.1.1"
+  },
+  {
+    "type":   "pytorch",
+    "target": "ssdlite320_mobilenet_v3_large.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7677468/ssdlite320_mobilenet_v3_large.pt.zip[ssdlite320_mobilenet_v3_large.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/842"
   },
   {
     "type":   "pytorch",

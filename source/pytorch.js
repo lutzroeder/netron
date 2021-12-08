@@ -1399,8 +1399,13 @@ pytorch.Execution = class extends python.Execution {
             throw new pytorch.Error(message);
         });
         this.registerFunction('range', function(start, stop, step) {
-            if (start !== undefined && Number.isInteger(start) && stop === undefined && step === undefined) {
-                return Array(start).keys();
+            if (stop === undefined && step === undefined) {
+                if (Number.isInteger(start)) {
+                    return Array(start).keys();
+                }
+                if (isNaN(start)) {
+                    return [];
+                }
             }
             throw new pytorch.Error('Unsupported function range(' + JSON.stringify(start) + ', ' + JSON.stringify(stop) + ', ' + JSON.stringify(step) + ')');
         });
@@ -1604,6 +1609,10 @@ pytorch.Execution = class extends python.Execution {
             }
             throw new pytorch.Error("Unknown 'torch.ge' expression type.");
         });
+        this.registerFunction('torch.is_floating_point', function(tensor) {
+            const type = tensor.dtype.scalar_type();
+            return (type === 5 || type === 6 || type === 7);
+        });
         this.registerFunction('torch.jit._pickle.build_boollist', function(data) {
             return data;
         });
@@ -1743,12 +1752,15 @@ pytorch.Execution = class extends python.Execution {
             return [];
         });
         this.registerFunction('torch.slice', function(l, start, end, step) {
+            if (!Array.isArray(l)) {
+                throw new pytorch.Error('Slicing expected array');
+            }
             step = step || 1;
             if (step !== 1) {
                 throw new pytorch.Error('Slicing only supports step=1');
             }
             start = Math.max(0, start >= 0 ? start : l.length + start);
-            end = Math.min(l.length, end);
+            end = Math.min(l.length, end || Number.MAX_SAFE_INTEGER);
             return l.slice(start, end);
         });
         this.registerFunction('torch.sub', function(left, right) {
@@ -1801,6 +1813,10 @@ pytorch.Execution = class extends python.Execution {
             constructor(size, dtype) {
                 this._size = size;
                 this._dtype = dtype;
+                this._device = null;
+            }
+            get device() {
+                return null;
             }
             get dtype() {
                 return this._dtype;
@@ -1902,6 +1918,9 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.Tensor', class {
             constructor() {
             }
+            get device() {
+                return this.storage().device;
+            }
             get dtype() {
                 return this.storage().dtype;
             }
@@ -1935,9 +1954,6 @@ pytorch.Execution = class extends python.Execution {
                 this._storage_offset = state[1];
                 this._shape = state[2];
                 this._stride = state[3];
-            }
-            tolist() {
-
             }
         });
         this.registerType('torch.nn.parameter.Parameter', class extends torch.Tensor {
@@ -2946,6 +2962,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.quantize_per_tensor':
                                         case 'torch.relu_':
                                         case 'torch.hardtanh_':
+                                        case 'torch.upsample_bilinear2d':
                                         case 'torch.unsqueeze':
                                         case 'ops.prepacked.conv2d_clamp_run': {
                                             parameter.resize_([ NaN, NaN, NaN, NaN ]);
@@ -2973,6 +2990,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         }
                                         case 'torch.mean':
                                         case 'torch.mul':
+                                        case 'torch.div':
                                         case 'torch.batch_norm':
                                         case 'torch.gelu':
                                         case 'torch.relu':
@@ -2983,7 +3001,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                             }
                                             break;
                                         }
-                                        case 'torch.add': {
+                                        case 'torch.add':
+                                        case 'torch.sub': {
                                             const input = this.expression(args[0], context);
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
                                                 parameter.resize_(input.size());
@@ -2993,6 +3012,13 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                                 if (pytorch.Utility.isTensor(other) && Array.isArray(other.size())) {
                                                     parameter.resize_(other.size());
                                                 }
+                                            }
+                                            break;
+                                        }
+                                        case 'torch.select': {
+                                            const input = this.expression(args[0], context);
+                                            if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
+                                                parameter.resize_(Array(input.size().length - 1).fill(NaN));
                                             }
                                             break;
                                         }
@@ -3174,6 +3200,29 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                     if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
                         const number = this.expression(assign.expression.arguments[1], context);
                         tensor.resize_(Array(number).fill(NaN));
+                    }
+                }
+                // val = torch.slice(torch.size(img), -2)
+                // if torch.eq(torch.len(val), 2):
+                //   pass
+                // else:
+                //   ops.prim.RaiseException("AssertionError: ")
+                if (assign.type === '=' &&
+                    condition.type === 'if' &&
+                    pytorch.Utility.isCall(assign.expression, 'torch.slice', 2) &&
+                    pytorch.Utility.isCall(assign.expression.arguments[0], 'torch.size', 1) &&
+                    pytorch.Utility.isCall(condition.condition, 'torch.eq', 2) &&
+                    pytorch.Utility.isCall(condition.condition.arguments[0], 'torch.len', 1) &&
+                    pytorch.Utility.isEqual(condition.condition.arguments[0].arguments[0], assign.target) &&
+                    condition.else.statements.length == 1 &&
+                    pytorch.Utility.isCall(condition.else.statements[0], 'ops.prim.RaiseException', 1)) {
+                    const tensor = this.expression(assign.expression.arguments[0].arguments[0], context);
+                    if (pytorch.Utility.isTensor(tensor) && tensor.shape === undefined) {
+                        const start = this.expression(assign.expression.arguments[1], context);
+                        const value = this.expression(condition.condition.arguments[1], context);
+                        if (Number.isInteger(start) && start < 0 && Number.isInteger(value) && value > 0) {
+                            tensor.resize_(Array(value - start).fill(NaN));
+                        }
                     }
                 }
             }

@@ -2720,13 +2720,11 @@
     ]
   },
   {
-    "name": "torch.stack",
+    "name": "torch.stack:",
     "category": "Tensor",
-    "attributes": [
-      { "name": "dim", "type": "int64", "default": 0 }
-    ],
     "inputs": [
-      { "name": "inputs", "type": "Tensor[]" }
+      { "name": "inputs", "type": "Tensor[]" },
+      { "name": "dim", "type": "int64", "default": 0 }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
@@ -3301,14 +3299,22 @@
   },
   {
     "name": "torch.mul:Scalar",
-    "attributes": [
-      { "name": "other", "type": "Scalar" }
-    ],
     "inputs": [
-      { "name": "input", "type": "Tensor" }
+      { "name": "input", "type": "Tensor" },
+      { "name": "other", "type": "Scalar" }
     ],
     "outputs": [
       { "name": "output", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.mul:ScalarT",
+    "inputs": [
+      { "name": "input", "type": "Tensor[]" },
+      { "name": "other", "type": "Scalar" }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor[]" }
     ]
   },
   {
@@ -6059,6 +6065,20 @@
       { "name": "output", "type": "Tensor" },
       { "name": "output2", "type": "Tensor" },
       { "name": "output3", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch._unique2:",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "sorted", "type": "boolean", "default": false },
+      { "name": "return_inverse", "type": "boolean", "default": false },
+      { "name": "return_counts", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output", "type": "Tensor" },
+      { "name": "output", "type": "Tensor" },
+      { "name": "output", "type": "Tensor" }
     ]
   },
   {
