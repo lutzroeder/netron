@@ -703,12 +703,8 @@ const renderModel = (model, item) => {
     try {
         const host = new TestHost();
         const currentView = new view.View(host);
-        if (!currentView.showAttributes) {
-            currentView.toggleAttributes();
-        }
-        if (!currentView.showInitializers) {
-            currentView.toggleInitializers();
-        }
+        currentView.options.attributes = true;
+        currentView.options.initializers = true;
         return currentView.renderGraph(model, model.graphs[0]);
     }
     catch (error) {

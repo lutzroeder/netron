@@ -46,9 +46,7 @@ class Application {
         electron.ipcMain.on('get-environment', (event) => {
             event.returnValue = {
                 version: electron.app.getVersion(),
-                package: electron.app.isPackaged,
-                zoom: 'scroll'
-                // zoom: 'drag'
+                package: electron.app.isPackaged
             };
         });
         electron.ipcMain.on('get-configuration', (event, obj) => {
@@ -508,24 +506,29 @@ class Application {
             label: '&View',
             submenu: [
                 {
-                    id: 'view.show-attributes',
+                    id: 'view.toggle-attributes',
                     accelerator: 'CmdOrCtrl+D',
-                    click: () => this.execute('toggle-attributes', null),
+                    click: () => this.execute('toggle', 'attributes'),
                 },
                 {
-                    id: 'view.show-initializers',
+                    id: 'view.toggle-initializers',
                     accelerator: 'CmdOrCtrl+I',
-                    click: () => this.execute('toggle-initializers', null),
+                    click: () => this.execute('toggle', 'initializers'),
                 },
                 {
-                    id: 'view.show-names',
+                    id: 'view.toggle-names',
                     accelerator: 'CmdOrCtrl+U',
-                    click: () => this.execute('toggle-names', null),
+                    click: () => this.execute('toggle', 'names'),
                 },
                 {
-                    id: 'view.show-horizontal',
+                    id: 'view.toggle-direction',
                     accelerator: 'CmdOrCtrl+K',
-                    click: () => this.execute('toggle-direction', null),
+                    click: () => { this.execute('toggle', 'direction'); }
+                },
+                {
+                    id: 'view.toggle-mousewheel',
+                    accelerator: 'CmdOrCtrl+M',
+                    click: () => this.execute('toggle', 'mousewheel'),
                 },
                 { type: 'separator' },
                 {
@@ -623,21 +626,25 @@ class Application {
         commandTable.set('edit.find', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
         });
-        commandTable.set('view.show-attributes', {
+        commandTable.set('view.toggle-attributes', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-attributes') ? 'Show &Attributes' : 'Hide &Attributes'; }
+            label: (context) => { return !context.view || !context.view.get('attributes') ? 'Hide &Attributes' : 'Show &Attributes'; }
         });
-        commandTable.set('view.show-initializers', {
+        commandTable.set('view.toggle-initializers', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-initializers') ? 'Show &Initializers' : 'Hide &Initializers'; }
+            label: (context) => { return !context.view || context.view.get('initializers') ? 'Hide &Initializers' : 'Show &Initializers'; }
         });
-        commandTable.set('view.show-names', {
+        commandTable.set('view.toggle-names', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-names') ? 'Show &Names' : 'Hide &Names'; }
+            label: (context) => { return !context.view || context.view.get('names') ? 'Hide &Names' : 'Show &Names'; }
         });
-        commandTable.set('view.show-horizontal', {
+        commandTable.set('view.toggle-direction', {
             enabled: (context) => { return context.view && context.view.path ? true : false; },
-            label: (context) => { return !context.view || !context.view.get('show-horizontal') ? 'Show &Horizontal' : 'Show &Vertical'; }
+            label: (context) => { return !context.view || context.view.get('direction') === 'vertical' ? 'Show &Horizontal' : 'Show &Vertical'; }
+        });
+        commandTable.set('view.toggle-mousewheel', {
+            enabled: (context) => { return context.view && context.view.path ? true : false; },
+            label: (context) => { return !context.view || context.view.get('mousewheel') === 'scroll' ? '&Mouse Wheel: Zoom' : '&Mouse Wheel: Scroll'; }
         });
         commandTable.set('view.reload', {
             enabled: (context) => { return context.view && context.view.path ? true : false; }
@@ -709,7 +716,9 @@ class View {
         View._position = this._window.getPosition();
         this._updateCallback = (event, data) => {
             if (event.sender == this._window.webContents) {
-                this.update(data.name, data.value);
+                for (const entry of Object.entries(data)) {
+                    this.update(entry[0], entry[1]);
+                }
                 this._raise('updated');
             }
         };

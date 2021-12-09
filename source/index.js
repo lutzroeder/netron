@@ -138,24 +138,29 @@ host.BrowserHost = class {
         });
         this._menu.add({});
         this._menu.add({
-            label: () => this._view.showAttributes ? 'Hide Attributes' : 'Show Attributes',
+            label: () => this._view.options.attributes ? 'Hide Attributes' : 'Show Attributes',
             accelerator: 'CmdOrCtrl+D',
-            click: () => this._view.toggleAttributes()
+            click: () => this._view.toggle('attributes')
         });
         this._menu.add({
-            label: () => this._view.showInitializers ? 'Hide Initializers' : 'Show Initializers',
+            label: () => this._view.options.initializers ? 'Hide Initializers' : 'Show Initializers',
             accelerator: 'CmdOrCtrl+I',
-            click: () => this._view.toggleInitializers()
+            click: () => this._view.toggle('initializers')
         });
         this._menu.add({
-            label: () => this._view.showNames ? 'Hide Names' : 'Show Names',
+            label: () => this._view.options.names ? 'Hide Names' : 'Show Names',
             accelerator: 'CmdOrCtrl+U',
-            click: () => this._view.toggleNames()
+            click: () => this._view.toggle('names')
         });
         this._menu.add({
-            label: () => !this._view.showHorizontal ? 'Show Horizontal' : 'Show Vertical',
+            label: () => this._view.options.direction === 'vertical' ? 'Show Horizontal' : 'Show Vertical',
             accelerator: 'CmdOrCtrl+K',
-            click: () => this._view.toggleDirection()
+            click: () => this._view.toggle('direction')
+        });
+        this._menu.add({
+            label: () => this._view.options.mousewheel === 'scroll' ? 'Mouse Wheel: Zoom' : 'Mouse Wheel: Scroll',
+            accelerator: 'CmdOrCtrl+M',
+            click: () => this._view.toggle('mousewheel')
         });
         this._menu.add({});
         this._menu.add({

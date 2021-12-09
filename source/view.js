@@ -18,15 +18,18 @@ view.View = class {
     constructor(host, id) {
         this._host = host;
         this._id = id ? ('-' + id) : '';
+        this._options = {
+            initializers: true,
+            attributes: false,
+            names: false,
+            direction: 'vertical',
+            mousewheel: 'scroll'
+        };
         this._host.initialize(this).then(() => {
             this._model = null;
             this._graphs = [];
             this._selection = [];
             this._sidebar = new sidebar.Sidebar(this._host, id);
-            this._showAttributes = false;
-            this._showInitializers = true;
-            this._showNames = false;
-            this._showHorizontal = false;
             this._searchText = '';
             this._modelFactoryService = new view.ModelFactoryService(this._host);
             this._getElementById('zoom-in-button').addEventListener('click', () => {
@@ -51,7 +54,6 @@ view.View = class {
             const element = this._getElementById('graph');
             element.addEventListener('scroll', (e) => this._scrollHandler(e));
             element.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
-            // element.addEventListener('mousewheel', (e) => this._wheelHandler(e), { passive: false });
             element.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
             switch (this._host.agent) {
                 case 'safari':
@@ -130,40 +132,26 @@ view.View = class {
         return this._model;
     }
 
-    toggleAttributes() {
-        this._showAttributes = !this._showAttributes;
-        this._reload();
+    get options() {
+        return this._options;
     }
 
-    get showAttributes() {
-        return this._showAttributes;
-    }
-
-    toggleInitializers() {
-        this._showInitializers = !this._showInitializers;
-        this._reload();
-    }
-
-    get showInitializers() {
-        return this._showInitializers;
-    }
-
-    toggleNames() {
-        this._showNames = !this._showNames;
-        this._reload();
-    }
-
-    get showNames() {
-        return this._showNames;
-    }
-
-    toggleDirection() {
-        this._showHorizontal = !this._showHorizontal;
-        this._reload();
-    }
-
-    get showHorizontal() {
-        return this._showHorizontal;
+    toggle(name) {
+        switch (name) {
+            case 'names':
+            case 'attributes':
+            case 'initializers':
+                this._options[name] = !this._options[name];
+                this._reload();
+                break;
+            case 'direction':
+                this._options.direction = this._options.direction === 'vertical' ? 'horizontal' : 'vertical';
+                this._reload();
+                break;
+            case 'mousewheel':
+                this._options.mousewheel = this._options.mousewheel === 'scroll' ? 'zoom' : 'scroll';
+                break;
+        }
     }
 
     _reload() {
@@ -208,7 +196,7 @@ view.View = class {
     _updateZoom(zoom, e) {
         const graph = this._getElementById('graph');
         const canvas = this._getElementById('canvas');
-        const limit = this._showHorizontal ?
+        const limit = this._options.direction === 'horizontal' ?
             graph.clientWidth / this._width :
             graph.clientHeight / this._height;
         const min = Math.min(Math.max(limit, 0.15), 1);
@@ -343,7 +331,7 @@ view.View = class {
     }
 
     _wheelHandler(e) {
-        if (e.shiftKey || e.ctrlKey) {
+        if (e.shiftKey || e.ctrlKey || this._options.mousewheel === 'zoom') {
             const delta = -e.deltaY * (e.deltaMode === 1 ? 0.05 : e.deltaMode ? 1 : 0.002) * (e.ctrlKey ? 10 : 1);
             this._updateZoom(this._zoom * Math.pow(2, delta), e);
             e.preventDefault();
@@ -564,8 +552,8 @@ view.View = class {
                 options.nodesep = 20;
                 options.ranksep = 20;
                 const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-                const showHorizontal = rotate ? !this._showHorizontal : this._showHorizontal;
-                if (showHorizontal) {
+                const horizontal = rotate ? this._options.direction !== 'horizontal' : this._options.direction === 'horizontal';
+                if (horizontal) {
                     options.rankdir = "LR";
                 }
                 if (nodes.length > 3000) {
@@ -736,10 +724,7 @@ view.View = class {
                         if (ys.every(y => y === ys[0])) {
                             x = xs.reduce((a, b) => a + b, 0) / xs.length;
                         }
-                        // const canvasRect = graphElement.getBoundingClientRect();
                         const graphRect = container.getBoundingClientRect();
-                        // const sx = (canvasRect.width / (this._showHorizontal ? 4 : 2)) - x;
-                        // const sy = (canvasRect.height / (this._showHorizontal ? 2 : 4)) - y;
                         const left = (container.scrollLeft + x - graphRect.left) - (graphRect.width / 2);
                         const top = (container.scrollTop + y - graphRect.top) - (graphRect.height / 2);
                         container.scrollTo({ left: left, top: top, behavior: 'auto' });
@@ -1037,8 +1022,8 @@ view.Node = class extends grapher.Node {
             const identifier = this.context.model && this.context.model.identifier ? this.context.model.identifier : '?';
             throw new view.Error("Unknown node type '" + JSON.stringify(type.name) + "' in '" + identifier + "'.");
         }
-        const content = this.context.view.showNames && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
-        const tooltip = this.context.view.showNames && (node.name || node.location) ? type.name : (node.name || node.location);
+        const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
+        const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
         header.add(null, styles, content, tooltip, () => {
             this.context.view.showNodeProperties(node, null);
         });
@@ -1054,7 +1039,7 @@ view.Node = class extends grapher.Node {
         }
         const initializers = [];
         let hiddenInitializers = false;
-        if (this.context.view.showInitializers) {
+        if (this.context.view.options.initializers) {
             for (const input of node.inputs) {
                 if (input.visible && input.arguments.length === 1 && input.arguments[0].initializer != null) {
                     initializers.push(input);
@@ -1067,7 +1052,7 @@ view.Node = class extends grapher.Node {
         }
         let sortedAttributes = [];
         const attributes = node.attributes || [];
-        if (this.context.view.showAttributes) {
+        if (this.context.view.options.attributes) {
             sortedAttributes = attributes.filter((attribute) => attribute.visible).slice();
         }
         sortedAttributes.sort((a, b) => {
@@ -1225,7 +1210,7 @@ view.Argument = class {
                     content = type.shape.dimensions.map((dim) => dim || '?').join('\u00D7');
                     content = content.length > 16 ? '' : content;
                 }
-                if (this.context.view.showNames) {
+                if (this.context.view.options.names) {
                     content = this._argument.name.split('\n').shift(); // custom argument id
                 }
                 const edge = this.context.createEdge(this._from, to);

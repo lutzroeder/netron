@@ -126,21 +126,9 @@ host.ElectronHost = class {
         electron.ipcRenderer.on('selectall', () => {
             this._view.selectAll();
         });
-        electron.ipcRenderer.on('toggle-attributes', () => {
-            this._view.toggleAttributes();
-            this._update('show-attributes', this._view.showAttributes);
-        });
-        electron.ipcRenderer.on('toggle-initializers', () => {
-            this._view.toggleInitializers();
-            this._update('show-initializers', this._view.showInitializers);
-        });
-        electron.ipcRenderer.on('toggle-names', () => {
-            this._view.toggleNames();
-            this._update('show-names', this._view.showNames);
-        });
-        electron.ipcRenderer.on('toggle-direction', () => {
-            this._view.toggleDirection();
-            this._update('show-horizontal', this._view.showHorizontal);
+        electron.ipcRenderer.on('toggle', (sender, name) => {
+            this._view.toggle(name);
+            this._update(Object.assign({}, this._view.options));
         });
         electron.ipcRenderer.on('zoom-in', () => {
             this.document.getElementById('zoom-in-button').click();
@@ -398,24 +386,22 @@ host.ElectronHost = class {
             this._context(path).then((context) => {
                 this._view.open(context).then((model) => {
                     this._view.show(null);
+                    const options = Object.assign({}, this._view.options);
                     if (model) {
-                        this._update('path', path);
+                        options.path = path;
                     }
-                    this._update('show-attributes', this._view.showAttributes);
-                    this._update('show-initializers', this._view.showInitializers);
-                    this._update('show-names', this._view.showNames);
+                    this._update(options);
                 }).catch((error) => {
+                    const options = Object.assign({}, this._view.options);
                     if (error) {
                         this._view.error(error, null, null);
-                        this._update('path', null);
+                        options.path = null;
                     }
-                    this._update('show-attributes', this._view.showAttributes);
-                    this._update('show-initializers', this._view.showInitializers);
-                    this._update('show-names', this._view.showNames);
+                    this._update(options);
                 });
             }).catch((error) => {
                 this._view.error(error, 'Error while reading file.', null);
-                this._update('path', null);
+                this._update({ path: null });
             });
         }
     }
@@ -472,8 +458,8 @@ host.ElectronHost = class {
         electron.ipcRenderer.sendSync('set-configuration', { name: name, value: value });
     }
 
-    _update(name, value) {
-        electron.ipcRenderer.send('update', { name: name, value: value });
+    _update(data) {
+        electron.ipcRenderer.send('update', data);
     }
 };
 
