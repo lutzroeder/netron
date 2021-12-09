@@ -3995,7 +3995,7 @@ $root.mindspore.schema.QuantParam = class QuantParam {
 
     static decode(reader, position) {
         const $ = new $root.mindspore.schema.QuantParam();
-        $.scale = reader.float64_(position, 4, 0);
+        $.scale = reader.float64_(position, 4, 1);
         $.zeroPoint = reader.int32_(position, 6, 0);
         $.min = reader.float64_(position, 8, 0);
         $.max = reader.float64_(position, 10, 0);
@@ -4012,7 +4012,7 @@ $root.mindspore.schema.QuantParam = class QuantParam {
 
     static decodeText(reader, json) {
         const $ = new $root.mindspore.schema.QuantParam();
-        $.scale = reader.value(json.scale, 0);
+        $.scale = reader.value(json.scale, 1);
         $.zeroPoint = reader.value(json.zeroPoint, 0);
         $.min = reader.value(json.min, 0);
         $.max = reader.value(json.max, 0);
