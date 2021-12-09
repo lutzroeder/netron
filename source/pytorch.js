@@ -1233,6 +1233,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torchvision.ops.feature_pyramid_network.FeaturePyramidNetwork', class {});
         this.registerType('torchvision.ops.feature_pyramid_network.LastLevelMaxPool', class {});
         this.registerType('torchvision.ops.feature_pyramid_network.LastLevelP6P7', class {});
+        this.registerType('torchvision.ops.misc.ConvNormActivation', class {});
         this.registerType('torchvision.ops.misc.ConvTranspose2d', class {});
         this.registerType('torchvision.ops.misc.FrozenBatchNorm2d', class {});
         this.registerType('torchvision.ops.poolers.LevelMapper', class {});
