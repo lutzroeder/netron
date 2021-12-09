@@ -4924,6 +4924,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "torchscript_resnet50_fp32.pth",
+    "source": "https://github.com/lutzroeder/netron/files/7688572/torchscript_resnet50_fp32.pth.zip[torchscript_resnet50_fp32.pth]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/842"
+  },  
+  {
+    "type":   "pytorch",
     "target": "tutorial_bidirectional_recurrent_neural_network.pth",
     "source": "https://github.com/lutzroeder/netron/files/2587823/tutorial_models.zip[tutorial_bidirectional_recurrent_neural_network.pth]",
     "format": "PyTorch v0.1.10",

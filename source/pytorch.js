@@ -1561,10 +1561,16 @@ pytorch.Execution = class extends python.Execution {
                 return left === right;
             }
             if (typeof left === 'number' && typeof right === 'number') {
+                if (isNaN(left) && isNaN(right)) {
+                    return true;
+                }
                 return left === right;
             }
             if (left === undefined || right === undefined) {
                 return true;
+            }
+            if (Array.isArray(left) && Array.isArray(right)) {
+                return left.length === right.length && left.every((item, index) => item === right[index]);
             }
             throw new pytorch.Error("Unknown 'torch.eq' expression type.");
         });
@@ -2995,6 +3001,7 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                                         case 'torch.batch_norm':
                                         case 'torch.gelu':
                                         case 'torch.relu':
+                                        case 'torch.clamp_':
                                         case 'torch.hardswish_': {
                                             const input = this.expression(args[0], context);
                                             if (pytorch.Utility.isTensor(input) && Array.isArray(input.size())) {
@@ -3318,6 +3325,20 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
                 const tensor = this.expression(statement.expression.arguments[0], context);
                 if (pytorch.Utility.isTensor(tensor) && tensor.__origin__ === 'graph-input' && tensor.shape === undefined) {
                     tensor.resize_([ NaN, NaN, NaN, NaN ]);
+                }
+            }
+            if (statement.type === '=' &&
+                statement.expression.type === 'call' && statement.expression.arguments.length > 0 &&
+                pytorch.Utility.isCall(statement.expression.arguments[0], 'torch.size', 2)) {
+                const tensor = this.expression(statement.expression.arguments[0].arguments[0], context);
+                const dim = this.expression(statement.expression.arguments[0].arguments[1], context);
+                if (pytorch.Utility.isTensor(tensor) && Number.isInteger(dim)) {
+                    if (tensor.shape === undefined) {
+                        tensor.resize_(Array(dim + 1).fill(NaN));
+                    }
+                    else if (Array.isArray(tensor.shape) && tensor.shape.length <= dim) {
+                        tensor.resize_(tensor.shape.concat(Array(dim + 1 - tensor.shape.length).fill(NaN)));
+                    }
                 }
             }
             const value = this.statement(statement, context);
