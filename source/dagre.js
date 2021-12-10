@@ -27,7 +27,7 @@ dagre.layout = (graph, options) => {
     const buildLayoutGraph = (graph) => {
         const g = new dagre.Graph({ multigraph: true, compound: true });
         g.setGraph(Object.assign({}, { ranksep: 50, edgesep: 20, nodesep: 50, rankdir: 'tb' }, graph.graph()));
-        for (const v of graph.nodes()) {
+        for (const v of graph.nodes().keys()) {
             const node = graph.node(v);
             g.setNode(v, {
                 width: node.width || 0,
@@ -89,7 +89,7 @@ dagre.layout = (graph, options) => {
         const util_asNonCompoundGraph = (g) => {
             const graph = new dagre.Graph({ multigraph: g.isMultigraph() });
             graph.setGraph(g.graph());
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 if (g.children(v).length === 0) {
                     graph.setNode(v, g.node(v));
                 }
@@ -102,8 +102,8 @@ dagre.layout = (graph, options) => {
 
         const maxRank = (g) => {
             let rank = Number.NEGATIVE_INFINITY;
-            for (const v of g.nodes()) {
-                const x = g.node(v).rank;
+            for (const node of g.nodes().values()) {
+                const x = node.rank;
                 if (x !== undefined && x > rank) {
                     rank = x;
                 }
@@ -116,7 +116,7 @@ dagre.layout = (graph, options) => {
             const rank = maxRank(g);
             const length = rank === undefined ? 0 : rank + 1;
             const layering = Array.from(new Array(length), () => []);
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 const node = g.node(v);
                 const rank = node.rank;
                 if (rank !== undefined) {
@@ -223,7 +223,7 @@ dagre.layout = (graph, options) => {
                         stack.delete(v);
                     }
                 };
-                for (const v of g.nodes()) {
+                for (const v of g.nodes().keys()) {
                     dfs(v);
                 }
                 return fas;
@@ -303,7 +303,7 @@ dagre.layout = (graph, options) => {
             const feasibleTree = (g) => {
                 const t = new dagre.Graph({ directed: false });
                 // Choose arbitrary node from which to start our tree
-                const start = g.nodes()[0];
+                const start = g.nodes().keys().next().value;
                 const size = g.nodeCount();
                 t.setNode(start, {});
                 let edge;
@@ -325,7 +325,7 @@ dagre.layout = (graph, options) => {
                 };
                 // Finds a maximal tree of tight edges and returns the number of nodes in the tree.
                 const tightTree = (t, g) => {
-                    const stack = t.nodes().reverse();
+                    const stack = Array.from(t.nodes().keys()).reverse();
                     while (stack.length > 0) {
                         const v = stack.pop();
                         for (const e of g.nodeEdges(v)) {
@@ -343,7 +343,7 @@ dagre.layout = (graph, options) => {
                 while (tightTree(t, g) < size) {
                     edge = findMinSlackEdge(t, g);
                     delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
-                    for (const v of t.nodes()) {
+                    for (const v of t.nodes().keys()) {
                         g.node(v).rank += delta;
                     }
                 }
@@ -437,7 +437,7 @@ dagre.layout = (graph, options) => {
                 const simplify = (g) => {
                     const graph = new dagre.Graph();
                     graph.setGraph(g.graph());
-                    for (const v of g.nodes()) {
+                    for (const v of g.nodes().keys()) {
                         graph.setNode(v, g.node(v));
                     }
                     for (const e of g.edges()) {
@@ -454,7 +454,7 @@ dagre.layout = (graph, options) => {
                 longestPath(g);
                 const tree = feasibleTree(g);
                 const initLowLimValues = (tree, root) => {
-                    root = tree.nodes()[0];
+                    root = tree.nodes().keys().next().value;
                     const dfsAssignLowLim = (tree, visited, nextLim, v, parent) => {
                         const low = nextLim;
                         const label = tree.node(v);
@@ -515,7 +515,7 @@ dagre.layout = (graph, options) => {
                         const parent = childLab.parent;
                         t.edge(child, parent).cutvalue = calcCutValue(t, g, child);
                     };
-                    let vs = postorder(t, t.nodes());
+                    let vs = postorder(t, Array.from(t.nodes().keys()));
                     vs = vs.slice(0, vs.length - 1);
                     for (const v of vs) {
                         assignCutValue(t, g, v);
@@ -523,7 +523,7 @@ dagre.layout = (graph, options) => {
                 };
                 initCutValues(tree, g);
                 const leaveEdge = (tree) => {
-                    return tree.edges().find((e) => tree.edge(e).cutvalue < 0);
+                    return Array.from(tree.edges()).find((e) => tree.edge(e).cutvalue < 0);
                 };
                 const enterEdge = (t, g, edge) => {
                     let v = edge.v;
@@ -550,7 +550,7 @@ dagre.layout = (graph, options) => {
                     const isDescendant = (tree, vLabel, rootLabel) => {
                         return rootLabel.low <= vLabel.lim && vLabel.lim <= rootLabel.lim;
                     };
-                    const candidates = g.edges().filter((edge) => flip === isDescendant(t, t.node(edge.v), tailLabel) && flip !== isDescendant(t, t.node(edge.w), tailLabel));
+                    const candidates = Array.from(g.edges()).filter((edge) => flip === isDescendant(t, t.node(edge.v), tailLabel) && flip !== isDescendant(t, t.node(edge.w), tailLabel));
                     let minKey = Number.POSITIVE_INFINITY;
                     let minValue = undefined;
                     for (const edge of candidates) {
@@ -570,7 +570,7 @@ dagre.layout = (graph, options) => {
                     initLowLimValues(t);
                     initCutValues(t, g);
                     const updateRanks = (t, g) => {
-                        const root = t.nodes().find((v) => !g.node(v).parent);
+                        const root = Array.from(t.nodes().keys()).find((v) => !g.node(v).parent);
                         let vs = preorder(t, root);
                         vs = vs.slice(1);
                         for (const v of vs) {
@@ -627,11 +627,10 @@ dagre.layout = (graph, options) => {
 
         const removeEmptyRanks = (g) => {
             // Ranks may not start at 0, so we need to offset them
-            if (g.nodes().length > 0) {
+            if (g.nodes().size > 0) {
                 let minRank = Number.POSITIVE_INFINITY;
                 let maxRank = Number.NEGATIVE_INFINITY;
-                for (const v of g.nodes()) {
-                    const node = g.node(v);
+                for (const node of g.nodes().values()) {
                     if (node.rank !== undefined) {
                         if (node.rank < minRank) {
                             minRank = node.rank;
@@ -644,7 +643,7 @@ dagre.layout = (graph, options) => {
                 const size = maxRank - minRank;
                 if (size > 0) {
                     const layers = new Array(size);
-                    for (const v of g.nodes()) {
+                    for (const v of g.nodes().keys()) {
                         const node = g.node(v);
                         if (node.rank !== undefined) {
                             const rank = node.rank - minRank;
@@ -759,7 +758,7 @@ dagre.layout = (graph, options) => {
             }
             // Calculate a weight that is sufficient to keep subgraphs vertically compact
             const sumWeights = (g) => {
-                return g.edges().reduce((acc, e) => acc + g.edge(e).weight, 0);
+                return Array.from(g.edges()).reduce((acc, e) => acc + g.edge(e).weight, 0);
             };
             const weight = sumWeights(g) + 1;
             // Create border nodes and link them up
@@ -784,14 +783,13 @@ dagre.layout = (graph, options) => {
         // Adjusts the ranks for all nodes in the graph such that all nodes v have rank(v) >= 0 and at least one node w has rank(w) = 0.
         const normalizeRanks = (g) => {
             let min = Number.POSITIVE_INFINITY;
-            for (const v of g.nodes()) {
-                const rank = g.node(v).rank;
+            for (const node of g.nodes().values()) {
+                const rank = node.rank;
                 if (rank !== undefined && rank < min) {
                     min = rank;
                 }
             }
-            for (const v of g.nodes()) {
-                const node = g.node(v);
+            for (const node of g.nodes().values()) {
                 if (node.rank !== undefined) {
                     node.rank -= min;
                 }
@@ -800,8 +798,7 @@ dagre.layout = (graph, options) => {
 
         const assignRankMinMax = (g) => {
             let maxRank = 0;
-            for (const v of g.nodes()) {
-                const node = g.node(v);
+            for (const node of g.nodes().values()) {
                 if (node.borderTop) {
                     node.minRank = g.node(node.borderTop).rank;
                     node.maxRank = g.node(node.borderBottom).rank;
@@ -891,7 +888,7 @@ dagre.layout = (graph, options) => {
         };
 
         const removeEdgeLabelProxies = (g) => {
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 const node = g.node(v);
                 if (node.dummy === 'edge-proxy') {
                     g.edge(node.e).labelRank = node.rank;
@@ -1284,54 +1281,6 @@ dagre.layout = (graph, options) => {
                     addSubgraphConstraints(lg, cg, sorted.vs);
                 }
             };
-            const twoLayerCrossCount = (g, northLayer, southLayer) => {
-                // Sort all of the edges between the north and south layers by their position
-                // in the north layer and then the south. Map these edges to the position of
-                // their head in the south layer.
-                const southPos = {};
-                for (let i = 0; i < southLayer.length; i++) {
-                    southPos[southLayer[i]] = i;
-                }
-                const southEntries = [];
-                for (const v of northLayer) {
-                    const edges = g.outEdges(v);
-                    const entries = [];
-                    for (const e of edges) {
-                        entries.push({
-                            pos: southPos[e.w],
-                            weight: g.edge(e).weight
-                        });
-                    }
-                    entries.sort((a, b) => a.pos - b.pos);
-                    for (const entry of entries) {
-                        southEntries.push(entry);
-                    }
-                }
-                // Build the accumulator tree
-                let firstIndex = 1;
-                while (firstIndex < southLayer.length) {
-                    firstIndex <<= 1;
-                }
-                const treeSize = 2 * firstIndex - 1;
-                firstIndex -= 1;
-                const tree = Array.from(new Array(treeSize), () => 0);
-                // Calculate the weighted crossings
-                let cc = 0;
-                for (const entry of southEntries) {
-                    let index = entry.pos + firstIndex;
-                    tree[index] += entry.weight;
-                    let weightSum = 0;
-                    while (index > 0) {
-                        if (index % 2) {
-                            weightSum += tree[index + 1];
-                        }
-                        index = (index - 1) >> 1;
-                        tree[index] += entry.weight;
-                    }
-                    cc += entry.weight * weightSum;
-                }
-                return cc;
-            };
             /*
             * A function that takes a layering (an array of layers, each with an array of
             * ordererd nodes) and a graph and returns a weighted crossing count.
@@ -1351,7 +1300,52 @@ dagre.layout = (graph, options) => {
             const crossCount = (g, layering) => {
                 let count = 0;
                 for (let i = 1; i < layering.length; i++) {
-                    count += twoLayerCrossCount(g, layering[i - 1], layering[i]);
+                    const northLayer = layering[i - 1];
+                    const southLayer = layering[i];
+                    // Sort all of the edges between the north and south layers by their position
+                    // in the north layer and then the south. Map these edges to the position of
+                    // their head in the south layer.
+                    const southPos = {};
+                    for (let i = 0; i < southLayer.length; i++) {
+                        southPos[southLayer[i]] = i;
+                    }
+                    const southEntries = [];
+                    for (const v of northLayer) {
+                        const edges = g.outEdges(v);
+                        const entries = [];
+                        for (const e of edges) {
+                            entries.push({
+                                pos: southPos[e.w],
+                                weight: g.edge(e).weight
+                            });
+                        }
+                        entries.sort((a, b) => a.pos - b.pos);
+                        for (const entry of entries) {
+                            southEntries.push(entry);
+                        }
+                    }
+                    // Build the accumulator tree
+                    let firstIndex = 1;
+                    while (firstIndex < southLayer.length) {
+                        firstIndex <<= 1;
+                    }
+                    const treeSize = 2 * firstIndex - 1;
+                    firstIndex -= 1;
+                    const tree = Array.from(new Array(treeSize), () => 0);
+                    // Calculate the weighted crossings
+                    for (const entry of southEntries) {
+                        let index = entry.pos + firstIndex;
+                        tree[index] += entry.weight;
+                        let weightSum = 0;
+                        while (index > 0) {
+                            if (index % 2) {
+                                weightSum += tree[index + 1];
+                            }
+                            index = (index - 1) >> 1;
+                            tree[index] += entry.weight;
+                        }
+                        count += entry.weight * weightSum;
+                    }
                 }
                 return count;
             };
@@ -1368,7 +1362,7 @@ dagre.layout = (graph, options) => {
             */
             const initOrder = (g) => {
                 const visited = {};
-                const nodes = g.nodes().filter((v) => !g.children(v).length);
+                const nodes = Array.from(g.nodes().keys()).filter((v) => !g.children(v).length);
                 let maxRank = undefined;
                 for (const v of nodes) {
                     if (!g.children(v).length > 0) {
@@ -1432,18 +1426,22 @@ dagre.layout = (graph, options) => {
                 const graph = new dagre.Graph({ compound: true });
                 graph.setGraph({ root: root });
                 graph.setDefaultNodeLabel((v) => g.node(v));
-                for (const v of g.nodes()) {
+                for (const v of g.nodes().keys()) {
                     const node = g.node(v);
                     if (node.rank === rank || node.minRank <= rank && rank <= node.maxRank) {
                         graph.setNode(v);
                         const parent = g.parent(v);
                         graph.setParent(v, parent || root);
                         // This assumes we have only short edges!
-                        for (const e of g[relationship](v)) {
-                            const u = e.v === v ? e.w : e.v;
-                            const edge = graph.edge(u, v);
-                            const weight = edge !== undefined ? edge.weight : 0;
-                            graph.setEdge(u, v, { weight: g.edge(e).weight + weight });
+                        if (relationship) {
+                            for (const e of g.inEdges(v)) {
+                                graph.setEdge(e.v, v, { weight: g.edge(e).weight });
+                            }
+                        }
+                        else {
+                            for (const e of g.outEdges(v)) {
+                                graph.setEdge(e.w, v, { weight: g.edge(e).weight });
+                            }
                         }
                         if ('minRank' in node) {
                             graph.setNode(v, {
@@ -1455,13 +1453,6 @@ dagre.layout = (graph, options) => {
                 }
                 return graph;
             };
-            const rank = maxRank(g);
-            const downLayerGraphs = new Array(rank !== undefined ? rank : 0);
-            const upLayerGraphs = new Array(rank !== undefined ? rank : 0);
-            for (let i = 0; i < rank; i++) {
-                downLayerGraphs[i] = buildLayerGraph(g, i + 1, 'inEdges');
-                upLayerGraphs[i] = buildLayerGraph(g, rank - i - 1, 'outEdges');
-            }
             let layering = initOrder(g);
             const assignOrder = (g, layering) => {
                 for (const layer of layering) {
@@ -1471,6 +1462,14 @@ dagre.layout = (graph, options) => {
                 }
             };
             assignOrder(g, layering);
+
+            const rank = maxRank(g);
+            const downLayerGraphs = new Array(rank !== undefined ? rank : 0);
+            const upLayerGraphs = new Array(rank !== undefined ? rank : 0);
+            for (let i = 0; i < rank; i++) {
+                downLayerGraphs[i] = buildLayerGraph(g, i + 1, true);
+                upLayerGraphs[i] = buildLayerGraph(g, rank - i - 1, false);
+            }
             let bestCC = Number.POSITIVE_INFINITY;
             let best;
             for (let i = 0, lastBest = 0; lastBest < 4; ++i, ++lastBest) {
@@ -1528,8 +1527,8 @@ dagre.layout = (graph, options) => {
                     attrs.x = attrs.y;
                     attrs.y = x;
                 };
-                for (const v of g.nodes()) {
-                    swapXYOne(g.node(v));
+                for (const node of g.nodes().values()) {
+                    swapXYOne(node);
                 }
                 for (const e of g.edges()) {
                     const edge = g.edge(e);
@@ -1543,9 +1542,8 @@ dagre.layout = (graph, options) => {
             };
             const rankDir = g.graph().rankdir.toLowerCase();
             if (rankDir === 'bt' || rankDir === 'rl') {
-                for (const v of g.nodes()) {
-                    const attr = g.node(v);
-                    attr.y = -attr.y;
+                for (const node of g.nodes().values()) {
+                    node.y = -node.y;
                 }
                 for (const e of g.edges()) {
                     const edge = g.edge(e);
@@ -1563,16 +1561,16 @@ dagre.layout = (graph, options) => {
             }
         };
         const coordinateSystem_swapWidthHeight = (g) => {
-            const swapWidthHeightOne = (attrs) => {
-                const w = attrs.width;
-                attrs.width = attrs.height;
-                attrs.height = w;
-            };
-            for (const v of g.nodes()) {
-                swapWidthHeightOne(g.node(v));
+            for (const node of g.nodes().values()) {
+                const w = node.width;
+                node.width = node.height;
+                node.height = w;
             }
             for (const e of g.edges()) {
-                swapWidthHeightOne(g.edge(e));
+                const edge = g.edge(e);
+                const w = edge.width;
+                edge.width = edge.height;
+                edge.height = w;
             }
         };
 
@@ -1656,7 +1654,7 @@ dagre.layout = (graph, options) => {
                     const blockG = buildBlockGraph(g, layering, root, reverseSep);
                     const borderType = reverseSep ? 'borderLeft' : 'borderRight';
                     const iterate = (setXsFunc, nextNodesFunc) => {
-                        let stack = blockG.nodes();
+                        let stack = Array.from(blockG.nodes().keys());
                         let elem = stack.pop();
                         const visited = {};
                         while (elem) {
@@ -1956,7 +1954,7 @@ dagre.layout = (graph, options) => {
         };
 
         const positionSelfEdges = (g) => {
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 const node = g.node(v);
                 if (node.dummy === 'selfedge') {
                     const selfNode = g.node(node.e.v);
@@ -1980,7 +1978,7 @@ dagre.layout = (graph, options) => {
         };
 
         const removeBorderNodes = (g) => {
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 if (g.children(v).length) {
                     const node = g.node(v);
                     const t = g.node(node.borderTop);
@@ -1993,7 +1991,7 @@ dagre.layout = (graph, options) => {
                     node.y = t.y + node.height / 2;
                 }
             }
-            for (const v of g.nodes()) {
+            for (const v of g.nodes().keys()) {
                 if (g.node(v).dummy === 'border') {
                     g.removeNode(v);
                 }
@@ -2033,8 +2031,8 @@ dagre.layout = (graph, options) => {
                 minY = Math.min(minY, y - h / 2);
                 maxY = Math.max(maxY, y + h / 2);
             };
-            for (const v of g.nodes()) {
-                getExtremes(g.node(v));
+            for (const node of g.nodes().values()) {
+                getExtremes(node);
             }
             for (const e of g.edges()) {
                 const edge = g.edge(e);
@@ -2044,8 +2042,7 @@ dagre.layout = (graph, options) => {
             }
             minX -= marginX;
             minY -= marginY;
-            for (const v of g.nodes()) {
-                const node = g.node(v);
+            for (const node of g.nodes().values()) {
                 node.x -= minX;
                 node.y -= minY;
             }
@@ -2165,7 +2162,7 @@ dagre.layout = (graph, options) => {
     * attributes can influence layout.
     */
     const updateInputGraph = (inputGraph, layoutGraph) => {
-        for (const v of inputGraph.nodes()) {
+        for (const v of inputGraph.nodes().keys()) {
             const inputLabel = inputGraph.node(v);
             const layoutLabel = layoutGraph.node(v);
             if (inputLabel) {
@@ -2208,7 +2205,7 @@ dagre.Graph = class {
         this._label = undefined;
         this._defaultNodeLabelFn = () => undefined;
         this._defaultEdgeLabelFn = () => undefined;
-        this._nodes = {};
+        this._nodes = new Map();
         if (this._isCompound) {
             this._parent = {};
             this._children = {};
@@ -2218,8 +2215,8 @@ dagre.Graph = class {
         this._predecessors = {};
         this._out = {};
         this._successors = {};
-        this._edgeObjs = {};
-        this._edgeLabels = {};
+        this._edgeObjs = new Map();
+        this._edgeLabels = new Map();
         this._nodeCount = 0;
         this._edgeCount = 0;
     }
@@ -2254,24 +2251,24 @@ dagre.Graph = class {
     }
 
     nodes() {
-        return Object.keys(this._nodes);
+        return this._nodes;
     }
 
     sources() {
-        return this.nodes().filter((v) => {
+        return Array.from(this.nodes().keys()).filter((v) => {
             const value = this._in[v];
             return value && Object.keys(value).length === 0 && value.constructor === Object;
         });
     }
 
     setNode(v, value) {
-        if (v in this._nodes) {
+        if (this._nodes.has(v)) {
             if (arguments.length > 1) {
-                this._nodes[v] = value;
+                this._nodes.set(v, value);
             }
             return this;
         }
-        this._nodes[v] = arguments.length > 1 ? value : this._defaultNodeLabelFn(v);
+        this._nodes.set(v, arguments.length > 1 ? value : this._defaultNodeLabelFn(v));
         if (this._isCompound) {
             this._parent[v] = this.GRAPH_NODE;
             this._children[v] = {};
@@ -2286,16 +2283,16 @@ dagre.Graph = class {
     }
 
     node(v) {
-        return this._nodes[v];
+        return this._nodes.get(v);
     }
 
     hasNode(v) {
-        return v in this._nodes;
+        return this._nodes.has(v);
     }
 
     removeNode(v) {
-        if (v in this._nodes) {
-            delete this._nodes[v];
+        if (this._nodes.has(v)) {
+            delete this._nodes.delete(v);
             if (this._isCompound) {
                 delete this._children[this._parent[v]][v];
                 delete this._parent[v];
@@ -2305,12 +2302,12 @@ dagre.Graph = class {
                 delete this._children[v];
             }
             for (const e of Object.keys(this._in[v])) {
-                this.removeEdge(this._edgeObjs[e]);
+                this.removeEdge(this._edgeObjs.get(e));
             }
             delete this._in[v];
             delete this._predecessors[v];
             for (const e of Object.keys(this._out[v])) {
-                this.removeEdge(this._edgeObjs[e]);
+                this.removeEdge(this._edgeObjs.get(e));
             }
             delete this._out[v];
             delete this._successors[v];
@@ -2363,7 +2360,7 @@ dagre.Graph = class {
             }
         }
         else if (v === this.GRAPH_NODE) {
-            return this.nodes();
+            return this.nodes().keys();
         }
         else if (this.hasNode(v)) {
             return [];
@@ -2392,7 +2389,7 @@ dagre.Graph = class {
     }
 
     edges() {
-        return Object.values(this._edgeObjs);
+        return this._edgeObjs.values();
     }
 
     // setEdge(v, w, [value, [name]])
@@ -2428,9 +2425,9 @@ dagre.Graph = class {
             name = '' + name;
         }
         const e = this.edgeArgsToId(this._isDirected, v, w, name);
-        if (e in this._edgeLabels) {
+        if (this._edgeLabels.has(e)) {
             if (valueSpecified) {
-                this._edgeLabels[e] = value;
+                this._edgeLabels.set(e, value);
             }
             return this;
         }
@@ -2441,7 +2438,7 @@ dagre.Graph = class {
         // First ensure the nodes exist.
         this.setNode(v);
         this.setNode(w);
-        this._edgeLabels[e] = valueSpecified ? value : this._defaultEdgeLabelFn(v, w, name);
+        this._edgeLabels.set(e, valueSpecified ? value : this._defaultEdgeLabelFn(v, w, name));
         v = '' + v;
         w = '' + w;
         if (!this._isDirected && v > w) {
@@ -2451,7 +2448,7 @@ dagre.Graph = class {
         }
         const edgeObj = name ? { v: v, w: w, name: name } : { v: v, w: w };
         Object.freeze(edgeObj);
-        this._edgeObjs[e] = edgeObj;
+        this._edgeObjs.set(e, edgeObj);
         const incrementOrInitEntry = (map, k) => {
             if (map[k]) {
                 map[k]++;
@@ -2470,22 +2467,22 @@ dagre.Graph = class {
 
     edge(v, w, name) {
         const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
-        return this._edgeLabels[key];
+        return this._edgeLabels.get(key);
     }
 
     hasEdge(v, w, name) {
         const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
-        return key in this._edgeLabels;
+        return this._edgeLabels.has(key);
     }
 
     removeEdge(v, w, name) {
         const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
-        const edge = this._edgeObjs[key];
+        const edge = this._edgeObjs.get(key);
         if (edge) {
             v = edge.v;
             w = edge.w;
-            delete this._edgeLabels[key];
-            delete this._edgeObjs[key];
+            this._edgeLabels.delete(key);
+            this._edgeObjs.delete(key);
             const decrementOrRemoveEntry = (map, k) => {
                 if (!--map[k]) {
                     delete map[k];
@@ -2500,32 +2497,18 @@ dagre.Graph = class {
         return this;
     }
 
-    inEdges(v, u) {
-        const inV = this._in[v];
-        if (inV) {
-            const edges = Object.values(inV);
-            if (!u) {
-                return edges;
-            }
-            return edges.filter((edge) => edge.v === u);
-        }
+    inEdges(v) {
+        return Object.values(this._in[v]);
     }
 
-    outEdges(v, w) {
-        const outV = this._out[v];
-        if (outV) {
-            const edges = Object.values(outV);
-            if (!w) {
-                return edges;
-            }
-            return edges.filter((edge) => edge.w === w);
-        }
+    outEdges(v) {
+        return Object.values(this._out[v]);
     }
 
-    nodeEdges(v, w) {
-        const inEdges = this.inEdges(v, w);
+    nodeEdges(v) {
+        const inEdges = this.inEdges(v);
         if (inEdges) {
-            return inEdges.concat(this.outEdges(v, w));
+            return inEdges.concat(this.outEdges(v));
         }
     }
 

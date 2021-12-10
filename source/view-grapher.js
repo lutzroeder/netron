@@ -59,7 +59,7 @@ grapher.Graph = class {
     }
 
     nodes() {
-        return Array.from(this._nodes.keys());
+        return this._nodes;
     }
 
     hasNode(key) {
@@ -96,7 +96,7 @@ grapher.Graph = class {
             }
         }
         else if (key === '\x00') {
-            return this.nodes();
+            return this.nodes().keys();
         }
         else if (this.hasNode(key)) {
             return [];
@@ -142,7 +142,7 @@ grapher.Graph = class {
         edgePathGroupDefs.appendChild(marker("arrowhead-vee"));
         edgePathGroupDefs.appendChild(marker("arrowhead-vee-select"));
 
-        for (const nodeId of this.nodes()) {
+        for (const nodeId of this.nodes().keys()) {
             const node = this.node(nodeId);
             if (this.children(nodeId).length == 0) {
                 // node
@@ -174,7 +174,7 @@ grapher.Graph = class {
 
         dagre.layout(this);
 
-        for (const nodeId of this.nodes()) {
+        for (const nodeId of this.nodes().keys()) {
             const node = this.node(nodeId);
             if (this.children(nodeId).length == 0) {
                 // node
