@@ -438,21 +438,18 @@ view.View = class {
         });
     }
 
-    _updateActiveGraph(name) {
+    _updateActiveGraph(graph) {
         this._sidebar.close();
         if (this._model) {
             const model = this._model;
-            const graph = model.graphs.filter(graph => name === graph.name).shift();
-            if (graph) {
-                this.show('welcome spinner');
-                this._timeout(200).then(() => {
-                    return this._updateGraph(model, [ graph ]).catch((error) => {
-                        if (error) {
-                            this.error(error, 'Graph update failed.', 'welcome');
-                        }
-                    });
+            this.show('welcome spinner');
+            this._timeout(200).then(() => {
+                return this._updateGraph(model, [ graph ]).catch((error) => {
+                    if (error) {
+                        this.error(error, 'Graph update failed.', 'welcome');
+                    }
                 });
-            }
+            });
         }
     }
 
@@ -844,8 +841,8 @@ view.View = class {
         if (this._model) {
             try {
                 const modelSidebar = new sidebar.ModelSidebar(this._host, this._model, this.activeGraph);
-                modelSidebar.on('update-active-graph', (sender, name) => {
-                    this._updateActiveGraph(name);
+                modelSidebar.on('update-active-graph', (sender, graph) => {
+                    this._updateActiveGraph(graph);
                 });
                 const content = modelSidebar.render();
                 this._sidebar.open(content, 'Model Properties');
@@ -944,21 +941,21 @@ view.Graph = class extends grapher.Graph {
 
     createNode(node) {
         const value = new view.Node(this, node);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
         this.setNode(value);
         return value;
     }
 
     createInput(input) {
         const value = new view.Input(this, input);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
         this.setNode(value);
         return value;
     }
 
     createOutput(output) {
         const value = new view.Output(this, output);
-        value.name = this._nodeKey++;
+        value.name = (this._nodeKey++).toString();
         this.setNode(value);
         return value;
     }

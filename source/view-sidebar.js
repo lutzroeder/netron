@@ -417,17 +417,18 @@ sidebar.SelectView = class {
     constructor(host, values, selected) {
         this._host = host;
         this._elements = [];
+        this._values = values;
 
         const selectElement = this._host.document.createElement('select');
         selectElement.setAttribute('class', 'sidebar-view-item-select');
         selectElement.addEventListener('change', (e) => {
-            this._raise('change', e.target.value);
+            this._raise('change', this._values[e.target.selectedIndex]);
         });
         this._elements.push(selectElement);
 
         for (const value of values) {
             const optionElement = this._host.document.createElement('option');
-            optionElement.innerText = value;
+            optionElement.innerText = value.name || '';
             if (value == selected) {
                 optionElement.setAttribute('selected', 'selected');
             }
@@ -864,8 +865,7 @@ sidebar.ModelSidebar = class {
 
         const graphs = Array.isArray(model.graphs) ? model.graphs : [];
         if (graphs.length > 1) {
-            const name = graph && graph.name ? graph.name : '';
-            const graphSelector = new sidebar.SelectView(this._host, model.graphs.map((g) => g.name), name);
+            const graphSelector = new sidebar.SelectView(this._host, model.graphs, graph);
             graphSelector.on('change', (sender, data) => {
                 this._raise('update-active-graph', data);
             });
