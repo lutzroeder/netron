@@ -829,6 +829,7 @@ $root.MNN.TopKV2 = class TopKV2 {
         const $ = new $root.MNN.TopKV2();
         $.T = reader.int32_(position, 4, 1);
         $.sorted = reader.bool_(position, 6, false);
+        $.largest = reader.bool_(position, 8, true);
         return $;
     }
 };
