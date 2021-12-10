@@ -191,7 +191,7 @@ keras.ModelFactory = class {
                         if (rootKeys.size > 0 || root_group.value !== null) {
                             throw new keras.Error('File format is not HDF5 Weights');
                         }
-                        let format = 'HDF5 Weights';
+                        const format = 'HDF5 Weights';
                         let weights_group = root_group;
                         if (root_group.attributes.size === 0 && root_group.value === null && root_group.groups.size == 1) {
                             const group = root_group.groups.values().next().value;
@@ -237,9 +237,6 @@ keras.ModelFactory = class {
                             const subKeys = new Set([ 'index', 'need_grad' ]);
                             const attribtues = Array.from(group.attributes.keys());
                             const match = attribtues.filter((key) => !subKeys.has(key)).length === 0;
-                            if (match && attribtues.length !== 0) {
-                                format = 'nnabla HDF5 Weights';
-                            }
                             if (match && group.value !== null && group.groups.size === 0) {
                                 const variable = group.value;
                                 const variableName = group.path;

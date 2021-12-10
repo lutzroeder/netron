@@ -2291,6 +2291,13 @@
   },
   {
     "type":   "keras",
+    "target": "tecogan_model.h5",
+    "source": "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
+    "format": "HDF5 Weights",
+    "link":   "https://github.com/sony/nnabla-examples/issues/192"
+  },
+  {
+    "type":   "keras",
     "target": "time_distributed.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[time_distributed.h5]",
     "format": "Keras v2.1.2",
@@ -2847,13 +2854,6 @@
     "source": "https://github.com/lutzroeder/netron/files/6179223/vgg16.mar.zip[vgg16.mar]",
     "format": "MXNet Model Archive v1.0",
     "link":   "https://github.com/lutzroeder/netron/issues/286"
-  },
-  {
-    "type":   "nnabla",
-    "target": "tecogan_model.h5",
-    "source": "https://nnabla.org/pretrained-models/nnabla-examples/GANs/tecogan/tecogan_model.h5",
-    "format": "nnabla HDF5 Weights",
-    "link":   "https://github.com/sony/nnabla-examples/issues/192"
   },
   {
     "type":   "ncnn",
