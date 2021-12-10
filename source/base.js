@@ -96,8 +96,8 @@ base.Int64 = class Int64 {
     }
 
     toString(radix) {
-        radix = radix || 10;
-        if (radix < 2 || radix > 16) {
+        const r = radix || 10;
+        if (r < 2 || r > 16) {
             throw RangeError('radix');
         }
         if (this.isZero) {
@@ -108,11 +108,14 @@ base.Int64 = class Int64 {
                 const r = new Int64(radix, 0);
                 const div = this.divide(r);
                 const remainder = div.multiply(r).subtract(this);
-                return div.toString(radix) + (remainder.low >>> 0).toString(radix);
+                return div.toString(r) + (remainder.low >>> 0).toString(r);
             }
-            return '-' + this.negate().toString(radix);
+            return '-' + this.negate().toString(r);
         }
-        return base.Utility.text(this, false, radix);
+        if (this.high === 0) {
+            return this.low.toString(radix);
+        }
+        return base.Utility.text(this, false, r);
     }
 };
 
@@ -211,14 +214,17 @@ base.Uint64 = class Uint64 {
     }
 
     toString(radix) {
-        radix = radix || 10;
-        if (radix < 2 || 36 < radix) {
+        const r = radix || 10;
+        if (r < 2 || 36 < r) {
             throw RangeError('radix');
         }
         if (this.isZero) {
             return '0';
         }
-        return base.Utility.text(this, true, radix);
+        if (this.high === 0) {
+            return this.low.toString(radix);
+        }
+        return base.Utility.text(this, true, r);
     }
 };
 
