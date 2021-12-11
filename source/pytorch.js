@@ -1265,6 +1265,9 @@ pytorch.Execution = class extends python.Execution {
             return value;
         });
         this.registerFunction('bool', function(value) {
+            if (pytorch.Utility.isTensor(value)) {
+                return true;
+            }
             throw new pytorch.Error("Unknown bool expression '" + JSON.stringify(value) + "'.");
         });
         this.registerFunction('int', function(value) {
