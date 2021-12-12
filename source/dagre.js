@@ -37,7 +37,7 @@ dagre.layout = (graph, options) => {
         }
         for (const e of graph.edges()) {
             const edge = graph.edge(e);
-            g.setEdge(e, {
+            g.setEdge(e.v, e.w, {
                 minlen: edge.minlen || 1,
                 weight: edge.weight || 1,
                 width: edge.width || 0,
@@ -75,12 +75,11 @@ dagre.layout = (graph, options) => {
         };
 
         // Adds a dummy node to the graph and return v.
-        const util_addDummyNode = (g, type, attrs, name) => {
+        const addDummyNode = (g, type, attrs, name) => {
             let v;
             do {
                 v = uniqueId(name);
             } while (g.hasNode(v));
-
             attrs.dummy = type;
             g.setNode(v, attrs);
             return v;
@@ -95,7 +94,7 @@ dagre.layout = (graph, options) => {
                 }
             }
             for (const e of g.edges()) {
-                graph.setEdge(e, g.edge(e));
+                graph.setEdge(e.v, e.w, g.edge(e));
             }
             return graph;
         };
@@ -156,8 +155,8 @@ dagre.layout = (graph, options) => {
         */
         const dfs = (g, vs, order) => {
             const doDfs = (g, v, postorder, visited, navigation, acc) => {
-                if (!(v in visited)) {
-                    visited[v] = true;
+                if (!visited.has(v)) {
+                    visited.add(v);
                     if (!postorder) {
                         acc.push(v);
                     }
@@ -174,7 +173,7 @@ dagre.layout = (graph, options) => {
             }
             const navigation = (g.isDirected() ? g.successors : g.neighbors).bind(g);
             const acc = [];
-            const visited = {};
+            const visited = new Set();
             for (const v of vs) {
                 if (!g.hasNode(v)) {
                     throw new Error('Graph does not have node: ' + v);
@@ -304,10 +303,8 @@ dagre.layout = (graph, options) => {
                 const t = new dagre.Graph({ directed: false });
                 // Choose arbitrary node from which to start our tree
                 const start = g.nodes().keys().next().value;
-                const size = g.nodeCount();
+                const size = g.nodes().size;
                 t.setNode(start, {});
-                let edge;
-                let delta;
                 // Finds the edge with the smallest slack that is incident on tree and returns it.
                 const findMinSlackEdge = (t, g) => {
                     let minKey = Number.POSITIVE_INFINITY;
@@ -338,11 +335,11 @@ dagre.layout = (graph, options) => {
                             }
                         }
                     }
-                    return t.nodeCount();
+                    return t.nodes().size;
                 };
                 while (tightTree(t, g) < size) {
-                    edge = findMinSlackEdge(t, g);
-                    delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
+                    const edge = findMinSlackEdge(t, g);
+                    const delta = t.hasNode(edge.v) ? slack(g, edge) : -slack(g, edge);
                     for (const v of t.nodes().keys()) {
                         g.node(v).rank += delta;
                     }
@@ -371,13 +368,13 @@ dagre.layout = (graph, options) => {
             *    1. Each node will be assign an (unnormalized) 'rank' property.
             */
             const longestPath = (g) => {
-                const visited = {};
+                const visited = new Set();
                 const dfs = (v) => {
                     const label = g.node(v);
-                    if (visited[v] === true) {
+                    if (visited.has(v)) {
                         return label.rank;
                     }
-                    visited[v] = true;
+                    visited.add(v);
                     let rank = Number.POSITIVE_INFINITY;
                     for (const e of g.outEdges(v)) {
                         const x = dfs(e.w) - g.edge(e).minlen;
@@ -441,7 +438,7 @@ dagre.layout = (graph, options) => {
                         graph.setNode(v, g.node(v));
                     }
                     for (const e of g.edges()) {
-                        const simpleLabel = graph.edge(e.v, e.w) || { weight: 0, minlen: 1 };
+                        const simpleLabel = graph.edge(e) || { weight: 0, minlen: 1 };
                         const label = g.edge(e);
                         graph.setEdge(e.v, e.w, {
                             weight: simpleLabel.weight + label.weight,
@@ -458,9 +455,9 @@ dagre.layout = (graph, options) => {
                     const dfsAssignLowLim = (tree, visited, nextLim, v, parent) => {
                         const low = nextLim;
                         const label = tree.node(v);
-                        visited[v] = true;
+                        visited.add(v);
                         for (const w of tree.neighbors(v)) {
-                            if (!(w in visited)) {
+                            if (!visited.has(w)) {
                                 nextLim = dfsAssignLowLim(tree, visited, nextLim, w, v);
                             }
                         }
@@ -475,7 +472,8 @@ dagre.layout = (graph, options) => {
                         }
                         return nextLim;
                     };
-                    dfsAssignLowLim(tree, {}, 1, root);
+                    const visited = new Set();
+                    dfsAssignLowLim(tree, visited, 1, root);
                 };
                 initLowLimValues(tree);
                 // Initializes cut values for all edges in the tree.
@@ -563,9 +561,7 @@ dagre.layout = (graph, options) => {
                     return minValue;
                 };
                 const exchangeEdges = (t, g, e, f) => {
-                    const v = e.v;
-                    const w = e.w;
-                    t.removeEdge(v, w);
+                    t.removeEdge(e);
                     t.setEdge(f.v, f.w, {});
                     initLowLimValues(t);
                     initCutValues(t, g);
@@ -620,7 +616,7 @@ dagre.layout = (graph, options) => {
                     const v = g.node(e.v);
                     const w = g.node(e.w);
                     const label = { rank: (w.rank - v.rank) / 2 + v.rank, e: e };
-                    util_addDummyNode(g, 'edge-proxy', label, '_ep');
+                    addDummyNode(g, 'edge-proxy', label, '_ep');
                 }
             }
         };
@@ -694,7 +690,7 @@ dagre.layout = (graph, options) => {
         * Graphs.'
         */
         const nestingGraph_run = (g) => {
-            const root = util_addDummyNode(g, 'root', {}, '_root');
+            const root = addDummyNode(g, 'root', {}, '_root');
             const treeDepths = (g) => {
                 const depths = {};
                 const dfs = (v, depth) => {
@@ -719,8 +715,8 @@ dagre.layout = (graph, options) => {
                     }
                     return;
                 }
-                const top = util_addDummyNode(g, 'border', { width: 0, height: 0 }, '_bt');
-                const bottom = util_addDummyNode(g, 'border', { width: 0, height: 0 }, '_bb');
+                const top = addDummyNode(g, 'border', { width: 0, height: 0 }, '_bt');
+                const bottom = addDummyNode(g, 'border', { width: 0, height: 0 }, '_bb');
                 const label = g.node(v);
                 g.setParent(top, v);
                 label.borderTop = top;
@@ -733,16 +729,8 @@ dagre.layout = (graph, options) => {
                     const childBottom = childNode.borderBottom ? childNode.borderBottom : child;
                     const thisWeight = childNode.borderTop ? weight : 2 * weight;
                     const minlen = childTop !== childBottom ? 1 : height - depths[v] + 1;
-                    g.setEdge(top, childTop, {
-                        weight: thisWeight,
-                        minlen: minlen,
-                        nestingEdge: true
-                    });
-                    g.setEdge(childBottom, bottom, {
-                        weight: thisWeight,
-                        minlen: minlen,
-                        nestingEdge: true
-                    });
+                    g.setEdge(top, childTop, { weight: thisWeight, minlen: minlen, nestingEdge: true });
+                    g.setEdge(childBottom, bottom, { weight: thisWeight, minlen: minlen, nestingEdge: true });
                 }
                 if (!g.parent(v)) {
                     g.setEdge(root, top, { weight: 0, minlen: height + depths[v] });
@@ -838,15 +826,17 @@ dagre.layout = (graph, options) => {
                     g.removeEdge(e);
                     let dummy;
                     let attrs;
-                    let i;
-                    for (i = 0, ++vRank; vRank < wRank; ++i, ++vRank) {
+                    let first = true;
+                    vRank++;
+                    while (vRank < wRank) {
                         edgeLabel.points = [];
                         attrs = {
                             width: 0, height: 0,
-                            edgeLabel: edgeLabel, edgeObj: e,
+                            edgeLabel: edgeLabel,
+                            edgeObj: e,
                             rank: vRank
                         };
-                        dummy = util_addDummyNode(g, 'edge', attrs, '_d');
+                        dummy = addDummyNode(g, 'edge', attrs, '_d');
                         if (vRank === labelRank) {
                             attrs.width = edgeLabel.width;
                             attrs.height = edgeLabel.height;
@@ -854,10 +844,12 @@ dagre.layout = (graph, options) => {
                             attrs.labelpos = edgeLabel.labelpos;
                         }
                         g.setEdge(v, dummy, { weight: edgeLabel.weight }, name);
-                        if (i === 0) {
+                        if (first) {
                             g.graph().dummyChains.push(dummy);
+                            first = false;
                         }
                         v = dummy;
+                        vRank++;
                     }
                     g.setEdge(v, w, { weight: edgeLabel.weight }, name);
                 }
@@ -870,7 +862,8 @@ dagre.layout = (graph, options) => {
                 let node = g.node(v);
                 const origLabel = node.edgeLabel;
                 let w;
-                g.setEdge(node.edgeObj, origLabel);
+                const e = node.edgeObj;
+                g.setEdge(e.v, e.w, origLabel, e.name);
                 while (node.dummy) {
                     w = g.successors(v)[0];
                     g.removeNode(v);
@@ -973,7 +966,7 @@ dagre.layout = (graph, options) => {
             const addBorderNode = (g, prop, prefix, sg, sgNode, rank) => {
                 const label = { width: 0, height: 0, rank: rank, borderType: prop };
                 const prev = sgNode[prop][rank - 1];
-                const curr = util_addDummyNode(g, 'border', label, prefix);
+                const curr = addDummyNode(g, 'border', label, prefix);
                 sgNode[prop][rank] = curr;
                 g.setParent(curr, sg);
                 if (prev) {
@@ -1361,7 +1354,7 @@ dagre.layout = (graph, options) => {
             * the order of its nodes.
             */
             const initOrder = (g) => {
-                const visited = {};
+                const visited = new Set();
                 const nodes = Array.from(g.nodes().keys()).filter((v) => !g.children(v).length);
                 let maxRank = undefined;
                 for (const v of nodes) {
@@ -1378,8 +1371,8 @@ dagre.layout = (graph, options) => {
                         const queue = [ v ];
                         while (queue.length > 0) {
                             const v = queue.shift();
-                            if (visited[v] !== true) {
-                                visited[v] = true;
+                            if (!visited.has(v)) {
+                                visited.add(v);
                                 const rank = g.node(v).rank;
                                 layers[rank].push(v);
                                 queue.push(...g.successors(v));
@@ -1390,36 +1383,32 @@ dagre.layout = (graph, options) => {
                 }
                 return [];
             };
-            /*
-            * Constructs a graph that can be used to sort a layer of nodes. The graph will
-            * contain all base and subgraph nodes from the request layer in their original
-            * hierarchy and any edges that are incident on these nodes and are of the type
-            * requested by the 'relationship' parameter.
-            *
-            * Nodes from the requested rank that do not have parents are assigned a root
-            * node in the output graph, which is set in the root graph attribute. This
-            * makes it easy to walk the hierarchy of movable nodes during ordering.
-            *
-            * Pre-conditions:
-            *
-            *    1. Input graph is a DAG
-            *    2. Base nodes in the input graph have a rank attribute
-            *    3. Subgraph nodes in the input graph has minRank and maxRank attributes
-            *    4. Edges have an assigned weight
-            *
-            * Post-conditions:
-            *
-            *    1. Output graph has all nodes in the movable rank with preserved
-            *       hierarchy.
-            *    2. Root nodes in the movable layer are made children of the node
-            *       indicated by the root attribute of the graph.
-            *    3. Non-movable nodes incident on movable nodes, selected by the
-            *       relationship parameter, are included in the graph (without hierarchy).
-            *    4. Edges incident on movable nodes, selected by the relationship
-            *       parameter, are added to the output graph.
-            *    5. The weights for copied edges are aggregated as need, since the output
-            *       graph is not a multi-graph.
-            */
+            // Constructs a graph that can be used to sort a layer of nodes. The graph will
+            // contain all base and subgraph nodes from the request layer in their original
+            // hierarchy and any edges that are incident on these nodes and are of the type
+            // requested by the 'relationship' parameter.
+            //
+            // Nodes from the requested rank that do not have parents are assigned a root
+            // node in the output graph, which is set in the root graph attribute. This
+            // makes it easy to walk the hierarchy of movable nodes during ordering.
+            //
+            // Pre-conditions:
+            //    1. Input graph is a DAG
+            //    2. Base nodes in the input graph have a rank attribute
+            //    3. Subgraph nodes in the input graph has minRank and maxRank attributes
+            //    4. Edges have an assigned weight
+            //
+            // Post-conditions:
+            //    1. Output graph has all nodes in the movable rank with preserved
+            //       hierarchy.
+            //    2. Root nodes in the movable layer are made children of the node
+            //       indicated by the root attribute of the graph.
+            //    3. Non-movable nodes incident on movable nodes, selected by the
+            //       relationship parameter, are included in the graph (without hierarchy).
+            //    4. Edges incident on movable nodes, selected by the relationship
+            //       parameter, are added to the output graph.
+            //    5. The weights for copied edges are aggregated as need, since the output
+            //       graph is not a multi-graph.
             const buildLayerGraph = (g, rank, relationship) => {
                 let root;
                 while (g.hasNode((root = uniqueId('_root'))));
@@ -1498,7 +1487,7 @@ dagre.layout = (graph, options) => {
                     node.order = i + orderShift;
                     if (node.selfEdges) {
                         for (const selfEdge of node.selfEdges) {
-                            util_addDummyNode(g, 'selfedge', {
+                            addDummyNode(g, 'selfedge', {
                                 width: selfEdge.label.width,
                                 height: selfEdge.label.height,
                                 rank: node.rank,
@@ -1656,13 +1645,13 @@ dagre.layout = (graph, options) => {
                     const iterate = (setXsFunc, nextNodesFunc) => {
                         let stack = Array.from(blockG.nodes().keys());
                         let elem = stack.pop();
-                        const visited = {};
+                        const visited = new Set();
                         while (elem) {
-                            if (visited[elem]) {
+                            if (visited.has(elem)) {
                                 setXsFunc(elem);
                             }
                             else {
-                                visited[elem] = true;
+                                visited.add(elem);
                                 stack.push(elem);
                                 stack = stack.concat(nextNodesFunc(elem));
                             }
@@ -1962,7 +1951,7 @@ dagre.layout = (graph, options) => {
                     const y = selfNode.y;
                     const dx = node.x - x;
                     const dy = selfNode.height / 2;
-                    g.setEdge(node.e, node.label);
+                    g.setEdge(node.e.v, node.e.w, node.label);
                     g.removeNode(v);
                     node.label.points = [
                         { x: x + 2 * dx / 3, y: y - dy },
@@ -2217,8 +2206,6 @@ dagre.Graph = class {
         this._successors = {};
         this._edgeObjs = new Map();
         this._edgeLabels = new Map();
-        this._nodeCount = 0;
-        this._edgeCount = 0;
     }
 
     isDirected() {
@@ -2244,10 +2231,6 @@ dagre.Graph = class {
     setDefaultNodeLabel(newDefault) {
         this._defaultNodeLabelFn = newDefault;
         return this;
-    }
-
-    nodeCount() {
-        return this._nodeCount;
     }
 
     nodes() {
@@ -2278,7 +2261,6 @@ dagre.Graph = class {
         this._predecessors[v] = {};
         this._out[v] = {};
         this._successors[v] = {};
-        ++this._nodeCount;
         return this;
     }
 
@@ -2311,7 +2293,6 @@ dagre.Graph = class {
             }
             delete this._out[v];
             delete this._successors[v];
-            --this._nodeCount;
         }
         return this;
     }
@@ -2392,44 +2373,13 @@ dagre.Graph = class {
         return this._edgeObjs.values();
     }
 
-    // setEdge(v, w, [value, [name]])
-    // setEdge({ v, w, [name] }, [value])
-    setEdge() {
-        let v;
-        let w;
-        let name;
-        let value;
-        let valueSpecified = false;
-        const arg0 = arguments[0];
-        if (typeof arg0 === 'object' && arg0 !== null && 'v' in arg0) {
-            v = arg0.v;
-            w = arg0.w;
-            name = arg0.name;
-            if (arguments.length === 2) {
-                value = arguments[1];
-                valueSpecified = true;
-            }
-        }
-        else {
-            v = arg0;
-            w = arguments[1];
-            name = arguments[3];
-            if (arguments.length > 2) {
-                value = arguments[2];
-                valueSpecified = true;
-            }
-        }
-        v = '' + v;
-        w = '' + w;
-        if (name !== undefined) {
-            name = '' + name;
-        }
+    setEdge(v, w, value, name) {
+        const valueSpecified = value !== undefined;
         const e = this.edgeArgsToId(this._isDirected, v, w, name);
         if (this._edgeLabels.has(e)) {
             if (valueSpecified) {
                 this._edgeLabels.set(e, value);
             }
-            return this;
         }
         if (name !== undefined && !this._isMultigraph) {
             throw new Error('Cannot set a named edge when isMultigraph = false');
@@ -2439,8 +2389,6 @@ dagre.Graph = class {
         this.setNode(v);
         this.setNode(w);
         this._edgeLabels.set(e, valueSpecified ? value : this._defaultEdgeLabelFn(v, w, name));
-        v = '' + v;
-        w = '' + w;
         if (!this._isDirected && v > w) {
             const tmp = v;
             v = w;
@@ -2461,26 +2409,24 @@ dagre.Graph = class {
         incrementOrInitEntry(this._successors[v], w);
         this._in[w][e] = edgeObj;
         this._out[v][e] = edgeObj;
-        this._edgeCount++;
-        return this;
     }
 
-    edge(v, w, name) {
-        const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
+    edge(v, w) {
+        const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w));
         return this._edgeLabels.get(key);
     }
 
-    hasEdge(v, w, name) {
-        const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
+    hasEdge(v, w) {
+        const key = this.edgeArgsToId(this._isDirected, v, w);
         return this._edgeLabels.has(key);
     }
 
-    removeEdge(v, w, name) {
-        const key = (arguments.length === 1 ? this.edgeObjToId(this._isDirected, arguments[0]) : this.edgeArgsToId(this._isDirected, v, w, name));
+    removeEdge(e) {
+        const key = this.edgeObjToId(this._isDirected, e);
         const edge = this._edgeObjs.get(key);
         if (edge) {
-            v = edge.v;
-            w = edge.w;
+            const v = edge.v;
+            const w = edge.w;
             this._edgeLabels.delete(key);
             this._edgeObjs.delete(key);
             const decrementOrRemoveEntry = (map, k) => {
@@ -2492,7 +2438,6 @@ dagre.Graph = class {
             decrementOrRemoveEntry(this._successors[v], w);
             delete this._in[w][key];
             delete this._out[v][key];
-            this._edgeCount--;
         }
         return this;
     }
@@ -2512,9 +2457,7 @@ dagre.Graph = class {
         }
     }
 
-    edgeArgsToId(isDirected, v_, w_, name) {
-        let v = '' + v_;
-        let w = '' + w_;
+    edgeArgsToId(isDirected, v, w, name) {
         if (!isDirected && v > w) {
             const tmp = v;
             v = w;
