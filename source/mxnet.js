@@ -339,14 +339,14 @@ mxnet.Graph = class {
                 node.outputs = [];
             }
             for (const node of nodes) {
-                node.inputs = node.inputs.map((input) => {
+                node.inputs = (node.inputs || []).map((input) => {
                     return mxnet.Graph._updateOutput(nodes, input);
                 });
             }
 
             const outputCountMap = {};
             for (const node of nodes) {
-                for (const output of node.outputs) {
+                for (const output of node.outputs || []) {
                     outputCountMap[output] = (outputCountMap[output] || 0) + 1;
                 }
             }
