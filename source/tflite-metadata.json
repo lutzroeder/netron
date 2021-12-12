@@ -305,6 +305,13 @@
     ]
   },
   {
+    "name": "Gelu",
+    "category": "Activation",
+    "attributes": [
+      { "name": "approximate", "type": "boolean", "default": false }
+    ]
+  },
+  {
     "name": "HardSwish",
     "category": "Activation",
     "inputs": [

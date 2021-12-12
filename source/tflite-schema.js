@@ -368,7 +368,8 @@ $root.tflite.BuiltinOperator = {
     RANDOM_STANDARD_NORMAL: 146,
     BUCKETIZE: 147,
     RANDOM_UNIFORM: 148,
-    MULTINOMIAL: 149
+    MULTINOMIAL: 149,
+    GELU: 150
 };
 
 $root.tflite.BuiltinOptions = class {
@@ -490,6 +491,7 @@ $root.tflite.BuiltinOptions = class {
             case 113: return $root.tflite.AssignVariableOptions.decode(reader, position);
             case 114: return $root.tflite.RandomOptions.decode(reader, position);
             case 115: return $root.tflite.BucketizeOptions.decode(reader, position);
+            case 116: return $root.tflite.GeluOptions.decode(reader, position);
         }
         return undefined;
     }
@@ -611,6 +613,7 @@ $root.tflite.BuiltinOptions = class {
             case 'AssignVariableOptions': return $root.tflite.AssignVariableOptions.decodeText(reader, json);
             case 'RandomOptions': return $root.tflite.RandomOptions.decodeText(reader, json);
             case 'BucketizeOptions': return $root.tflite.BucketizeOptions.decodeText(reader, json);
+            case 'GeluOptions': return $root.tflite.GeluOptions.decodeText(reader, json);
         }
         return undefined;
     }
@@ -2434,6 +2437,21 @@ $root.tflite.BucketizeOptions = class BucketizeOptions {
     static decodeText(reader, json) {
         const $ = new $root.tflite.BucketizeOptions();
         $.boundaries = reader.typedArray(json.boundaries, Float32Array);
+        return $;
+    }
+};
+
+$root.tflite.GeluOptions = class GeluOptions {
+
+    static decode(reader, position) {
+        const $ = new $root.tflite.GeluOptions();
+        $.approximate = reader.bool_(position, 4, false);
+        return $;
+    }
+
+    static decodeText(reader, json) {
+        const $ = new $root.tflite.GeluOptions();
+        $.approximate = reader.value(json.approximate, false);
         return $;
     }
 };
