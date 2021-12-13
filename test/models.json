@@ -3193,13 +3193,6 @@
   },
   {
     "type":   "onnx",
-    "target": "emoji8.onnx",
-    "source": "https://raw.githubusercontent.com/Microsoft/Windows-Machine-Learning/master/Samples/Emoji8/UWP/cs/Emoji8/Models/model.onnx",
-    "format": "ONNX v3",
-    "link":   "https://github.com/Microsoft/Windows-Machine-Learning/tree/master/Samples/Emoji8/UWP/cs/Emoji8"
-  },
-  {
-    "type":   "onnx",
     "target": "emotion-ferplus-8.onnx",
     "source": "https://github.com/onnx/models/raw/master/vision/body_analysis/emotion_ferplus/model/emotion-ferplus-8.onnx",
     "format": "ONNX v3",
@@ -3508,13 +3501,6 @@
     "source": "https://raw.githubusercontent.com/onnx/onnx/master/onnx/backend/test/data/node/test_lstm_with_peepholes/model.onnx",
     "format": "ONNX v7",
     "link":   "https://github.com/onnx/onnx/tree/master/onnx/backend/test/data"
-  },
-  {
-    "type":   "onnx",
-    "target": "tinyyolov2-8.onnx",
-    "source": "https://github.com/onnx/models/raw/master/vision/object_detection_segmentation/tiny-yolov2/model/tinyyolov2-8.onnx",
-    "format": "ONNX v5",
-    "link":   "https://github.com/onnx/models/tree/master/vision/object_detection_segmentation/tiny-yolov2"
   },
   {
     "type":   "onnx",
