@@ -1350,8 +1350,7 @@ sidebar.FindSidebar = class {
         const nodes = new Set();
         const edges = new Set();
 
-        for (const v of this._graph.nodes()) {
-            const node = this._graph.node(v);
+        for (const node of this._graph.nodes().values()) {
             const initializers = [];
             if (node.class === 'graph-node' || node.class === 'graph-input') {
                 for (const input of node.inputs) {
@@ -1421,8 +1420,7 @@ sidebar.FindSidebar = class {
             }
         }
 
-        for (const v of this._graph.nodes()) {
-            const node = this._graph.node(v);
+        for (const node of this._graph.nodes().values()) {
             if (node.class === 'graph-node' || node.class === 'graph-output') {
                 for (const output of node.outputs) {
                     for (const argument of output.arguments) {
