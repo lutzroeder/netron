@@ -196,9 +196,9 @@ view.View = class {
     _updateZoom(zoom, e) {
         const graph = this._getElementById('graph');
         const canvas = this._getElementById('canvas');
-        const limit = this._options.direction === 'horizontal' ?
-            graph.clientWidth / this._width :
-            graph.clientHeight / this._height;
+        const limit = this._options.direction === 'vertical' ?
+            graph.clientHeight / this._height :
+            graph.clientWidth / this._width;
         const min = Math.min(Math.max(limit, 0.15), 1);
         zoom = Math.max(min, Math.min(zoom, 1.4));
         const scrollLeft = this._scrollLeft || graph.scrollLeft;
@@ -538,8 +538,19 @@ view.View = class {
             }
             else {
                 this._zoom = 1;
-                canvas.style.position = 'static';
-                canvas.style.margin = 'auto';
+
+                if (this._options.direction === 'vertical') {
+                    canvas.style.position = 'static';
+                    canvas.style.margin = 'auto';
+                    canvas.style.top = '';
+                    canvas.style.transform = '';
+                }
+                else {
+                    canvas.style.position = 'absolute';
+                    canvas.style.margin = '';
+                    canvas.style.top = '50%';
+                    canvas.style.transform = 'translateY(-50%)';
+                }
 
                 const groups = graph.groups;
                 const nodes = graph.nodes;
@@ -549,7 +560,7 @@ view.View = class {
                 options.nodesep = 20;
                 options.ranksep = 20;
                 const rotate = graph.nodes.every((node) => node.inputs.filter((input) => input.arguments.every((argument) => !argument.initializer)).length === 0 && node.outputs.length === 0);
-                const horizontal = rotate ? this._options.direction !== 'horizontal' : this._options.direction === 'horizontal';
+                const horizontal = rotate ? this._options.direction === 'vertical' : this._options.direction !== 'vertical';
                 if (horizontal) {
                     options.rankdir = "LR";
                 }
