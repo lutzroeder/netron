@@ -608,13 +608,6 @@
   },
   {
     "type":   "caffe",
-    "target": "ResNet-50-model.caffemodel",
-    "source": "https://deepdetect.com/models/resnet/ResNet-50-model.caffemodel",
-    "format": "Caffe v2",
-    "link":   "https://deepdetect.com/models/resnet/"
-  },
-  {
-    "type":   "caffe",
     "target": "ResNet-50-deploy.prototxt",
     "source": "https://deepdetect.com/models/resnet/ResNet-50-deploy.prototxt",
     "format": "Caffe v2",
