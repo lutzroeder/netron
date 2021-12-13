@@ -93,6 +93,7 @@ def update_attributes(schema, lines):
     index = 0
     while index < len(lines):
         line = lines[index]
+        line = re.sub(r',\s+', ', ', line)
         if line.endswith('.'):
             line = line[0:-1]
         colon = line.find(':')
@@ -149,7 +150,8 @@ def update_attributes(schema, lines):
             "float, default=np.finfo(float).eps",
             "int, float, str, np.nan or None, default=np.nan",
             "list of (str, transformer) tuples",
-            "int, float, str, np.nan, None or pandas.NA, default=np.nan"
+            "int, float, str, np.nan, None or pandas.NA, default=np.nan",
+            "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None"
         }
         if line == 'str':
             line = 'string'
