@@ -5405,13 +5405,6 @@
   },
   {
     "type":   "tf",
-    "target": "faster_rcnn_resnet50_lowproposals_coco_2017_11_08_saved_model.pb",
-    "source": "http://download.tensorflow.org/models/object_detection/faster_rcnn_resnet50_lowproposals_coco_2017_11_08.tar.gz[faster_rcnn_resnet50_lowproposals_coco_2017_11_08/saved_model/saved_model.pb]",
-    "action": "skip-render",
-    "format": "TensorFlow Saved Model v1"
-  },
-  {
-    "type":   "tf",
     "target": "graph_missing_function.pbtxt",
     "source": "https://github.com/lutzroeder/netron/files/7464813/graph_missing_function.pbtxt.zip[graph_missing_function.pbtxt]",
     "format": "TensorFlow Graph",
@@ -5643,13 +5636,6 @@
     "source": "https://github.com/lutzroeder/netron/files/2592463/readable_graph.meta.zip[readable_graph.meta]",
     "format": "TensorFlow MetaGraph",
     "link":   "https://github.com/lutzroeder/netron/issues/187"
-  },
-  {
-    "type":   "tf",
-    "target": "resnet_v1_50.pb",
-    "source": "https://deepdetect.com/models/tf/resnet_v1_50/resnet_v1_50.pb",
-    "format": "TensorFlow Graph",
-    "link":   "https://deepdetect.com/models/tf"
   },
   {
     "type":   "tf",
