@@ -4221,6 +4221,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "bert-base-uncased.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7705212/bert-base-uncased.pt.zip[bert-base-uncased.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":   "pytorch",
     "target": "blitz_neural_networks_tutorial_traced.pt",
     "source": "https://github.com/lutzroeder/netron/files/3748989/blitz_neural_networks_tutorial.zip[blitz_neural_networks_tutorial_traced.pt]",
     "format": "TorchScript v1.3",
