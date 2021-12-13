@@ -3060,6 +3060,13 @@
   },
   {
     "type":   "onnx",
+    "target": "bert-base-uncased.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7705191/bert-base-uncased.onnx.zip",
+    "format": "ONNX v7",
+    "link":   "https://github.com/lutzroeder/netron/issues/188"
+  },
+  {
+    "type":   "onnx",
     "target": "bertsquad-10.zip",
     "source": "https://github.com/lutzroeder/netron/files/5251086/bertsquad-10.zip",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
