@@ -1882,7 +1882,7 @@ view.ModelFactoryService = class {
                 return this._host.require(id).then((module) => {
                     const updateErrorContext = (error, context) => {
                         const content = " in '" + context.identifier + "'.";
-                        if (error && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
+                        if (error && typeof error.message === 'string' && !error.message.endsWith(content) && (error.context === undefined || error.context === true)) {
                             error.message = error.message.replace(/\.$/, '') + content;
                         }
                     };
