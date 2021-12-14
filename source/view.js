@@ -879,29 +879,82 @@ view.View = class {
                     this.pushGraph(graph);
                 });
                 nodeSidebar.on('export-tensor', (sender, tensor) => {
-                    this._host.require('./numpy').then((numpy) => {
-                        const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
-                        this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
-                            try {
-                                const dataTypeMap = new Map([
-                                    [ 'float16', 'f2' ], [ 'float32', 'f4' ], [ 'float64', 'f8' ],
-                                    [ 'int8', 'i1' ], [ 'int16', 'i2'], [ 'int32', 'i4' ], [ 'int64', 'i8' ],
-                                    [ 'uint8', 'u1' ], [ 'uint16', 'u2' ], [ 'uint32', 'u4' ], [ 'uint64', 'u8' ],
-                                    [ 'qint8', 'i1' ], [ 'qint16', 'i2' ],
-                                    [ 'quint8', 'u1' ], [ 'quint16', 'u2' ]
-                                ]);
-                                const array = new numpy.Array();
-                                array.shape = tensor.type.shape.dimensions;
-                                array.data = tensor.value;
-                                array.dataType = dataTypeMap.has(tensor.type.dataType) ? dataTypeMap.get(tensor.type.dataType) : tensor.type.dataType;
-                                const blob = new Blob([ array.toBuffer() ], { type: 'application/octet-stream' });
-                                this._host.export(file, blob);
-                            }
-                            catch (error) {
-                                this.error(error, 'Error saving NumPy tensor.', null);
-                            }
-                        });
-                    }).catch(() => {
+                    const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
+                    this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
+                        try {
+                            const encode = (context, data, dim) => {
+                                const size = context.shape[dim];
+                                const littleendian = context.littleendian;
+                                if (dim == context.shape.length - 1) {
+                                    for (let i = 0; i < size; i++) {
+                                        switch (context.dtype) {
+                                            case 'f2':
+                                                context.view.setFloat16(context.position, data[i], littleendian);
+                                                break;
+                                            case 'f4':
+                                                context.view.setFloat32(context.position, data[i], littleendian);
+                                                break;
+                                            case 'f8':
+                                                context.view.setFloat64(context.position, data[i], littleendian);
+                                                break;
+                                            case 'i1':
+                                                context.view.setInt8(context.position, data[i], littleendian);
+                                                break;
+                                            case 'i2':
+                                                context.view.setInt16(context.position, data[i], littleendian);
+                                                break;
+                                            case 'i4':
+                                                context.view.setInt32(context.position, data[i], littleendian);
+                                                break;
+                                            case 'i8':
+                                                context.view.setInt64(context.position, data[i], littleendian);
+                                                break;
+                                            case 'u1':
+                                                context.view.setUint8(context.position, data[i], littleendian);
+                                                break;
+                                            case 'u2':
+                                                context.view.setUint16(context.position, data[i], littleendian);
+                                                break;
+                                            case 'u4':
+                                                context.view.setUint32(context.position, data[i], littleendian);
+                                                break;
+                                            case 'u8':
+                                                context.view.setUint64(context.position, data[i], littleendian);
+                                                break;
+                                        }
+                                        context.position += context.itemsize;
+                                    }
+                                }
+                                else {
+                                    for (let j = 0; j < size; j++) {
+                                        encode(context, data[j], dim + 1);
+                                    }
+                                }
+                            };
+                            const execution = new python.Execution(null);
+                            const bytes = execution.invoke('io.BytesIO', []);
+                            const dtype = execution.invoke('numpy.dtype', [ tensor.type.dataType ]);
+                            const shape = tensor.type.shape.dimensions.map((dim) => dim instanceof base.Int64 || dim instanceof base.Uint64 ? dim.toNumber() : dim);
+                            const size = dtype.itemsize * shape.reduce((a, b) => a * b, 1);
+                            const context = {
+                                position: 0,
+                                itemsize: dtype.itemsize,
+                                dtype: dtype.str.substring(1),
+                                littleendian: dtype.str[0],
+                                shape: shape,
+                                data: new Uint8Array(size)
+                            };
+                            context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
+                            encode(context, tensor.value, 0);
+                            const array = execution.invoke('numpy.ndarray', [ tensor.type.shape.dimensions, dtype, context.data ]);
+                            execution.invoke('numpy.save', [ bytes, array ]);
+                            bytes.seek(0);
+                            const blob = new Blob([ bytes.read() ], { type: 'application/octet-stream' });
+                            this._host.export(file, blob);
+                        }
+                        catch (error) {
+                            this.error(error, 'Error saving NumPy tensor.', null);
+                        }
                     });
                 });
                 nodeSidebar.on('error', (sender, error) => {

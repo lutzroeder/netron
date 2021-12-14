@@ -1713,8 +1713,11 @@ python.Execution = class {
                 return this._buf.subarray(start, this._point);
             }
             write(data) {
-                this._buf = this._buf ? this._buf.concat(data) : data;
-                this._point = this._buf.length;
+                const src = this._buf || new Uint8Array();
+                this._point = src.length + data.length;
+                this._buf = new Uint8Array(this._point);
+                this._buf.set(src, 0);
+                this._buf.set(data, src.length);
             }
         });
         this.registerType('numpy.core._multiarray_umath.scalar', class {
@@ -1801,6 +1804,9 @@ python.Execution = class {
                 if (copy) {
                     this.copy = copy;
                 }
+            }
+            get str() {
+                return (this.byteorder === '=' ? '<' : this.byteorder) + this.kind + this.itemsize.toString();
             }
             __setstate__(state) {
                 switch (state.length) {
@@ -2561,8 +2567,37 @@ python.Execution = class {
             }
             return self.invoke('numpy.ndarray', [ shape, dtype, data ]);
         });
-        this.registerFunction('numpy.save', function(/* file, arr */) {
-            // TODO
+        this.registerFunction('numpy.save', function(file, arr) {
+            const descr = arr.dtype.str;
+            if (descr[0] !== '<' && descr[0] !== '>') {
+                throw new numpy.Error("Unknown byte order '" + descr + "'.");
+            }
+            if (descr.length !== 3 || (descr[1] !== 'f' && descr[1] !== 'i' && descr[1] !== 'u')) {
+                throw new numpy.Error("Unsupported data type '" + descr + "'.");
+            }
+            let shape = '';
+            switch (arr.shape.length) {
+                case 0:
+                    throw new numpy.Error('Invalid shape.');
+                case 1:
+                    shape = '(' + arr.shape[0].toString() + ',)';
+                    break;
+                default:
+                    shape = '(' + arr.shape.map((dimension) => dimension.toString()).join(', ') + ')';
+                    break;
+            }
+            const properties = [
+                "'descr': '" + descr + "'",
+                "'fortran_order': False",
+                "'shape': " + shape
+            ];
+            let header = '{ ' + properties.join(', ') + ' }';
+            header += ' '.repeat(64 - ((header.length + 2 + 8 + 1) & 0x3f)) + '\n';
+            const encoder = new TextEncoder('ascii');
+            file.write([ 0x93, 0x4E, 0x55, 0x4D, 0x50, 0x59, 0x01, 0x00 ]); // '\\x93NUMPY' + version
+            file.write([ header.length & 0xff, (header.length >> 8) & 0xff ]);
+            file.write(encoder.encode(header));
+            file.write(arr.tobytes());
         });
         this.registerFunction('numpy.ma.core._mareconstruct', function(subtype, baseclass, baseshape, basetype) {
             const data = self.invoke(baseclass, [ baseshape, basetype ]);
