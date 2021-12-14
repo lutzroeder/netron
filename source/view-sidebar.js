@@ -58,10 +58,10 @@ sidebar.Sidebar = class {
         if (sidebar) {
             sidebar.style.width = '0px';
         }
-        const graph = this._getElementById('graph');
-        if (graph) {
-            graph.style.marginRight = '0px';
-            graph.focus();
+        const container = this._getElementById('graph');
+        if (container) {
+            container.style.width = '100%';
+            container.focus();
         }
     }
 
@@ -79,7 +79,6 @@ sidebar.Sidebar = class {
     }
 
     _activate(item) {
-        const width = 'min(calc(100vw * 0.6), 500px)';
         const sidebar = this._getElementById('sidebar');
         if (sidebar) {
             sidebar.innerHTML = '';
@@ -113,13 +112,12 @@ sidebar.Sidebar = class {
             else {
                 content.appendChild(item.content);
             }
-
-            sidebar.style.width = width;
+            sidebar.style.width = 'min(calc(100% * 0.6), 500px)';
             this._host.document.addEventListener('keydown', this._closeSidebarKeyDownHandler);
         }
-        const graph = this._getElementById('graph');
-        if (graph) {
-            graph.style.marginRight = width;
+        const container = this._getElementById('graph');
+        if (container) {
+            container.style.width = 'max(40vw, calc(100vw - 500px))';
         }
     }
 };

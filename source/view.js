@@ -51,16 +51,16 @@ view.View = class {
                 this.clearSelection();
             });
             this._host.start();
-            const element = this._getElementById('graph');
-            element.addEventListener('scroll', (e) => this._scrollHandler(e));
-            element.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
-            element.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
+            const container = this._getElementById('graph');
+            container.addEventListener('scroll', (e) => this._scrollHandler(e));
+            container.addEventListener('wheel', (e) => this._wheelHandler(e), { passive: false });
+            container.addEventListener('mousedown', (e) => this._mouseDownHandler(e));
             switch (this._host.agent) {
                 case 'safari':
-                    element.addEventListener('gesturestart', (e) => this._gestureStartHandler(e), false);
+                    container.addEventListener('gesturestart', (e) => this._gestureStartHandler(e), false);
                     break;
                 default:
-                    element.addEventListener('touchstart', (e) => this._touchStartHandler(e), { passive: true });
+                    container.addEventListener('touchstart', (e) => this._touchStartHandler(e), { passive: true });
                     break;
             }
         }).catch((err) => {
@@ -79,9 +79,9 @@ view.View = class {
         this._host.document.body.setAttribute('class', page);
         switch (page) {
             case 'default': {
-                const element = this._getElementById('graph');
-                if (element) {
-                    element.focus();
+                const container = this._getElementById('graph');
+                if (container) {
+                    container.focus();
                 }
                 break;
             }
@@ -194,25 +194,25 @@ view.View = class {
     }
 
     _updateZoom(zoom, e) {
-        const graph = this._getElementById('graph');
+        const container = this._getElementById('graph');
         const canvas = this._getElementById('canvas');
         const limit = this._options.direction === 'vertical' ?
-            graph.clientHeight / this._height :
-            graph.clientWidth / this._width;
+            container.clientHeight / this._height :
+            container.clientWidth / this._width;
         const min = Math.min(Math.max(limit, 0.15), 1);
         zoom = Math.max(min, Math.min(zoom, 1.4));
-        const scrollLeft = this._scrollLeft || graph.scrollLeft;
-        const scrollTop = this._scrollTop || graph.scrollTop;
-        const x = (e ? e.pageX : (graph.clientWidth / 2)) + scrollLeft;
-        const y = (e ? e.pageY : (graph.clientHeight / 2)) + scrollTop;
+        const scrollLeft = this._scrollLeft || container.scrollLeft;
+        const scrollTop = this._scrollTop || container.scrollTop;
+        const x = (e ? e.pageX : (container.clientWidth / 2)) + scrollLeft;
+        const y = (e ? e.pageY : (container.clientHeight / 2)) + scrollTop;
         const width = zoom * this._width;
         const height = zoom * this._height;
         canvas.style.width = width + 'px';
         canvas.style.height = height + 'px';
         this._scrollLeft = Math.max(0, ((x * zoom) / this._zoom) - (x - scrollLeft));
         this._scrollTop = Math.max(0, ((y * zoom) / this._zoom) - (y - scrollTop));
-        graph.scrollLeft = this._scrollLeft;
-        graph.scrollTop = this._scrollTop;
+        container.scrollLeft = this._scrollLeft;
+        container.scrollTop = this._scrollTop;
         this._zoom = zoom;
     }
 
@@ -220,10 +220,10 @@ view.View = class {
         if (e.buttons === 1) {
             const document = this._host.document.documentElement;
             document.style.cursor = 'grabbing';
-            const element = this._getElementById('graph');
+            const container = this._getElementById('graph');
             this._mousePosition = {
-                left: element.scrollLeft,
-                top: element.scrollTop,
+                left: container.scrollLeft,
+                top: container.scrollTop,
                 x: e.clientX,
                 y: e.clientY
             };
@@ -235,16 +235,16 @@ view.View = class {
                 const dy = e.clientY - this._mousePosition.y;
                 this._mousePosition.moved = dx * dx + dy * dy > 0;
                 if (this._mousePosition.moved) {
-                    const element = this._getElementById('graph');
-                    element.scrollTop = this._mousePosition.top - dy;
-                    element.scrollLeft = this._mousePosition.left - dx;
+                    const container = this._getElementById('graph');
+                    container.scrollTop = this._mousePosition.top - dy;
+                    container.scrollLeft = this._mousePosition.left - dx;
                 }
             };
             const mouseUpHandler = () => {
                 document.style.cursor = null;
-                element.removeEventListener('mouseup', mouseUpHandler);
-                element.removeEventListener('mouseleave', mouseUpHandler);
-                element.removeEventListener('mousemove', mouseMoveHandler);
+                container.removeEventListener('mouseup', mouseUpHandler);
+                container.removeEventListener('mouseleave', mouseUpHandler);
+                container.removeEventListener('mousemove', mouseMoveHandler);
                 if (this._mousePosition && this._mousePosition.moved) {
                     e.preventDefault();
                     e.stopImmediatePropagation();
@@ -256,9 +256,9 @@ view.View = class {
                 e.stopPropagation();
                 document.removeEventListener('click', clickHandler, true);
             };
-            element.addEventListener('mousemove', mouseMoveHandler);
-            element.addEventListener('mouseup', mouseUpHandler);
-            element.addEventListener('mouseleave', mouseUpHandler);
+            container.addEventListener('mousemove', mouseMoveHandler);
+            container.addEventListener('mouseup', mouseUpHandler);
+            container.addEventListener('mouseleave', mouseUpHandler);
         }
     }
 
@@ -288,37 +288,37 @@ view.View = class {
             }
         };
         const touchEndHandler = () => {
-            element.removeEventListener('touchmove', touchMoveHandler, { passive: true });
-            element.removeEventListener('touchcancel', touchEndHandler, { passive: true });
-            element.removeEventListener('touchend', touchEndHandler, { passive: true });
+            container.removeEventListener('touchmove', touchMoveHandler, { passive: true });
+            container.removeEventListener('touchcancel', touchEndHandler, { passive: true });
+            container.removeEventListener('touchend', touchEndHandler, { passive: true });
             delete this._touchPoints;
             delete this._touchZoom;
         };
-        const element = this._getElementById('graph');
-        element.addEventListener('touchmove', touchMoveHandler, { passive: true });
-        element.addEventListener('touchcancel', touchEndHandler, { passive: true });
-        element.addEventListener('touchend', touchEndHandler, { passive: true });
+        const container = this._getElementById('graph');
+        container.addEventListener('touchmove', touchMoveHandler, { passive: true });
+        container.addEventListener('touchcancel', touchEndHandler, { passive: true });
+        container.addEventListener('touchend', touchEndHandler, { passive: true });
     }
 
     _gestureStartHandler(e) {
         e.preventDefault();
         this._gestureZoom = this._zoom;
-        const element = this._getElementById('graph');
+        const container = this._getElementById('graph');
         const gestureChangeHandler = (e) => {
             e.preventDefault();
             this._updateZoom(this._gestureZoom * e.scale, e);
         };
         const gestureEndHandler = (e) => {
-            element.removeEventListener('gesturechange', gestureChangeHandler, false);
-            element.removeEventListener('gestureend', gestureEndHandler, false);
+            container.removeEventListener('gesturechange', gestureChangeHandler, false);
+            container.removeEventListener('gestureend', gestureEndHandler, false);
             e.preventDefault();
             if (this._gestureZoom) {
                 this._updateZoom(this._gestureZoom * e.scale, e);
                 delete this._gestureZoom;
             }
         };
-        element.addEventListener('gesturechange', gestureChangeHandler, false);
-        element.addEventListener('gestureend', gestureEndHandler, false);
+        container.addEventListener('gesturechange', gestureChangeHandler, false);
+        container.addEventListener('gestureend', gestureEndHandler, false);
     }
 
     _scrollHandler(e) {
@@ -341,7 +341,7 @@ view.View = class {
     select(selection) {
         this.clearSelection();
         if (selection && selection.length > 0) {
-            const graphElement = this._getElementById('graph');
+            const container = this._getElementById('graph');
             let x = 0;
             let y = 0;
             for (const element of selection) {
@@ -353,10 +353,10 @@ view.View = class {
             }
             x = x / selection.length;
             y = y / selection.length;
-            const rect = graphElement.getBoundingClientRect();
-            const left = (graphElement.scrollLeft + x - rect.left) - (rect.width / 2);
-            const top = (graphElement.scrollTop + y - rect.top) - (rect.height / 2);
-            graphElement.scrollTo({ left: left, top: top, behavior: 'smooth' });
+            const rect = container.getBoundingClientRect();
+            const left = (container.scrollLeft + x - rect.left) - (rect.width / 2);
+            const top = (container.scrollTop + y - rect.top) - (rect.height / 2);
+            container.scrollTo({ left: left, top: top, behavior: 'smooth' });
         }
     }
 
@@ -528,7 +528,6 @@ view.View = class {
         try {
             this._graph = null;
 
-            const container = this._getElementById('graph');
             const canvas = this._getElementById('canvas');
             while (canvas.lastChild) {
                 canvas.removeChild(canvas.lastChild);
@@ -538,19 +537,6 @@ view.View = class {
             }
             else {
                 this._zoom = 1;
-
-                if (this._options.direction === 'vertical') {
-                    canvas.style.position = 'static';
-                    canvas.style.margin = 'auto';
-                    canvas.style.top = '';
-                    canvas.style.transform = '';
-                }
-                else {
-                    canvas.style.position = 'absolute';
-                    canvas.style.margin = '';
-                    canvas.style.top = '50%';
-                    canvas.style.transform = 'translateY(-50%)';
-                }
 
                 const groups = graph.groups;
                 const nodes = graph.nodes;
@@ -717,6 +703,7 @@ view.View = class {
                     this._zoom = 1;
                     this._updateZoom(this._zoom);
 
+                    const container = this._getElementById('graph');
                     if (elements && elements.length > 0) {
                         // Center view based on input elements
                         const xs = [];
@@ -744,9 +731,7 @@ view.View = class {
                         const top = (container.scrollTop + (canvasRect.height / 2) - graphRect.top) - (graphRect.height / 2);
                         container.scrollTo({ left: left, top: top, behavior: 'auto' });
                     }
-
                     this._graph = viewGraph;
-
                     return;
                 });
             }

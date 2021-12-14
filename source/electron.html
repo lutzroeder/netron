@@ -14,8 +14,8 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .center { position: absolute; margin: auto; top: 0; right: 0; bottom: 0; left: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .select { user-select: text; -webkit-user-select: text; -moz-user-select: text; }
 .open-file-dialog { display: none; }
-.graph { touch-action: pan-x pan-y; position: relative; overflow: auto; height: 100%; outline: none; }
-.canvas { display: block; position: absolute; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
+.graph { display: flex; height: 100%; width: 100%; overflow: auto; outline: none; touch-action: pan-x pan-y; }
+.canvas { margin: auto; flex-shrink: 0; text-rendering: geometricPrecision; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar { position: absolute; top: 10px; left: 10px; padding: 0; margin: 0; user-select: none; -webkit-user-select: none; -moz-user-select: none; }
 .toolbar button:focus { outline: 0; }
 .toolbar-button { float: left; background: None; border-radius: 6px; border: 0; margin: 0; margin-right: 1px; padding: 0; fill: None; stroke: #777; cursor: pointer; width: 24px; height: 24px; }
@@ -62,11 +62,11 @@ button { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI"
 .welcome.consent .github-button { opacity: 0; display: none; }
 .welcome.consent .consent-accept-button { opacity: 1; display: block; }
 .welcome.consent .consent-message { opacity: 1; display: block; }
-.welcome.spinner .graph { display: block; opacity: 0; }
+.welcome.spinner .graph { display: flex; opacity: 0; }
 .welcome .toolbar { display: none; }
 .default { background-color: #ffffff; }
 .default .logo { display: none; }
-.default .graph { display: block; opacity: 1; }
+.default .graph { display: flex; opacity: 1; }
 .default .toolbar { display: table; }
 @media (prefers-color-scheme: dark) {
 :root { color-scheme: dark; }
