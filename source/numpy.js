@@ -1,10 +1,10 @@
 
 // Experimental
 
-var npz = npz || {};
+var numpy = numpy || {};
 var python = python || require('./python');
 
-npz.ModelFactory = class {
+numpy.ModelFactory = class {
 
     match(context) {
         const stream = context.stream;
@@ -18,10 +18,10 @@ npz.ModelFactory = class {
         }
         const obj = context.open('pkl');
         if (obj) {
-            if (npz.Utility.isTensor(obj)) {
+            if (numpy.Utility.isTensor(obj)) {
                 return 'numpy.ndarray';
             }
-            if (npz.Utility.weights(obj)) {
+            if (numpy.Utility.weights(obj)) {
                 return 'pickle';
             }
         }
@@ -53,7 +53,7 @@ npz.ModelFactory = class {
                 const entries = context.entries('zip');
                 for (const entry of entries) {
                     if (!entry[0].endsWith('.npy')) {
-                        throw new npz.Error("Invalid file name '" + entry.name + "'.");
+                        throw new numpy.Error("Invalid file name '" + entry.name + "'.");
                     }
                     const name = entry[0].replace(/\.npy$/, '');
                     const parts = name.split('/');
@@ -69,7 +69,7 @@ npz.ModelFactory = class {
                     let array = execution.invoke('numpy.load', [ bytes ]);
                     if (array.dtype.byteorder === '|' && array.dtype.itemsize !== 1) {
                         if (array.dtype.kind !== 'O') {
-                            throw new npz.Error("Invalid data type '" + array.dataType + "'.");
+                            throw new numpy.Error("Invalid data type '" + array.dataType + "'.");
                         }
                         const unpickler = python.Unpickler.open(array.data);
                         array = unpickler.load((name, args) => execution.invoke(name, args));
@@ -84,7 +84,7 @@ npz.ModelFactory = class {
             case 'pickle': {
                 format = 'NumPy Weights';
                 const obj = context.open('pkl');
-                const weights = npz.Utility.weights(obj);
+                const weights = numpy.Utility.weights(obj);
                 let separator = '_';
                 if (Array.from(weights.keys()).every((key) => key.indexOf('.') !== -1) &&
                     !Array.from(weights.keys()).every((key) => key.indexOf('_') !== -1)) {
@@ -119,17 +119,17 @@ npz.ModelFactory = class {
                 break;
             }
         }
-        const model = new npz.Model(format, groups.values());
+        const model = new numpy.Model(format, groups.values());
         return Promise.resolve(model);
     }
 };
 
-npz.Model = class {
+numpy.Model = class {
 
     constructor(format, groups) {
         this._format = format;
         this._graphs = [];
-        this._graphs.push(new npz.Graph(groups));
+        this._graphs.push(new numpy.Graph(groups));
     }
 
     get format() {
@@ -141,12 +141,12 @@ npz.Model = class {
     }
 };
 
-npz.Graph = class {
+numpy.Graph = class {
 
     constructor(groups) {
         this._nodes = [];
         for (const group of groups) {
-            this._nodes.push(new npz.Node(group));
+            this._nodes.push(new numpy.Node(group));
         }
     }
 
@@ -163,7 +163,7 @@ npz.Graph = class {
     }
 };
 
-npz.Parameter = class {
+numpy.Parameter = class {
 
     constructor(name, args) {
         this._name = name;
@@ -183,11 +183,11 @@ npz.Parameter = class {
     }
 };
 
-npz.Argument = class {
+numpy.Argument = class {
 
     constructor(name, initializer) {
         if (typeof name !== 'string') {
-            throw new npz.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
+            throw new numpy.Error("Invalid argument identifier '" + JSON.stringify(name) + "'.");
         }
         this._name = name;
         this._initializer = initializer || null;
@@ -206,16 +206,16 @@ npz.Argument = class {
     }
 };
 
-npz.Node = class {
+numpy.Node = class {
 
     constructor(group) {
         this._name = group.name || '';
         this._type = { name: group.type || 'Module' };
         this._inputs = [];
         for (const parameter of group.parameters) {
-            const initializer = new npz.Tensor(parameter.tensor.array);
-            this._inputs.push(new npz.Parameter(parameter.name, [
-                new npz.Argument(parameter.tensor.name || '', initializer)
+            const initializer = new numpy.Tensor(parameter.tensor.array);
+            this._inputs.push(new numpy.Parameter(parameter.name, [
+                new numpy.Argument(parameter.tensor.name || '', initializer)
             ]));
         }
     }
@@ -241,10 +241,10 @@ npz.Node = class {
     }
 };
 
-npz.Tensor = class  {
+numpy.Tensor = class  {
 
     constructor(array) {
-        this._type = new npz.TensorType(array.dtype.name, new npz.TensorShape(array.shape));
+        this._type = new numpy.TensorType(array.dtype.name, new numpy.TensorShape(array.shape));
         this._data = array.tobytes();
         this._byteorder = array.dtype.byteorder;
         this._itemsize = array.dtype.itemsize;
@@ -274,7 +274,7 @@ npz.Tensor = class  {
         }
         context.limit = 10000;
         const value = this._decode(context, 0);
-        return npz.Tensor._stringify(value, '', '    ');
+        return numpy.Tensor._stringify(value, '', '    ');
     }
 
     _context() {
@@ -367,7 +367,7 @@ npz.Tensor = class  {
         if (Array.isArray(value)) {
             const result = [];
             result.push(indentation + '[');
-            const items = value.map((item) => npz.Tensor._stringify(item, indentation + indent, indent));
+            const items = value.map((item) => numpy.Tensor._stringify(item, indentation + indent, indent));
             if (items.length > 0) {
                 result.push(items.join(',\n'));
             }
@@ -390,7 +390,7 @@ npz.Tensor = class  {
     }
 };
 
-npz.TensorType = class {
+numpy.TensorType = class {
 
     constructor(dataType, shape) {
         this._dataType = dataType;
@@ -410,7 +410,7 @@ npz.TensorType = class {
     }
 };
 
-npz.TensorShape = class {
+numpy.TensorShape = class {
 
     constructor(dimensions) {
         this._dimensions = dimensions;
@@ -428,7 +428,7 @@ npz.TensorShape = class {
     }
 };
 
-npz.Utility = class {
+numpy.Utility = class {
 
     static isTensor(obj) {
         return obj && obj.__class__ &&
@@ -445,11 +445,11 @@ npz.Utility = class {
                     for (const pair of dict) {
                         const key = pair[0];
                         const obj = pair[1];
-                        if (npz.Utility.isTensor(obj)) {
+                        if (numpy.Utility.isTensor(obj)) {
                             weights.set(key, obj);
                             continue;
                         }
-                        else if (obj instanceof Map && Array.from(obj).every((pair) => npz.Utility.isTensor(pair[1]))) {
+                        else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
                             for (const pair of obj) {
                                 weights.set(key + '.' + pair[0], pair[1]);
                             }
@@ -465,14 +465,14 @@ npz.Utility = class {
                         const key = entry[0];
                         const value = entry[1];
                         if (key) {
-                            if (npz.Utility.isTensor(value)) {
+                            if (numpy.Utility.isTensor(value)) {
                                 weights.set(key, value);
                                 continue;
                             }
                             if (set.has(key)) {
                                 continue;
                             }
-                            if (value && !Array.isArray(value) && Object.entries(value).every((entry) => npz.Utility.isTensor(entry[1]))) {
+                            if (value && !Array.isArray(value) && Object.entries(value).every((entry) => numpy.Utility.isTensor(entry[1]))) {
                                 const name = key;
                                 for (const entry of Object.entries(value)) {
                                     weights.set(name + '.' + entry[0], entry[1]);
@@ -493,11 +493,11 @@ npz.Utility = class {
                 const weights = new Map();
                 for (let i = 0; i < list.length; i++) {
                     const obj = list[i];
-                    if (npz.Utility.isTensor(obj)) {
+                    if (numpy.Utility.isTensor(obj)) {
                         weights.set(i.toString(), obj);
                         continue;
                     }
-                    else if (obj instanceof Map && Array.from(obj).every((pair) => npz.Utility.isTensor(pair[1]))) {
+                    else if (obj instanceof Map && Array.from(obj).every((pair) => numpy.Utility.isTensor(pair[1]))) {
                         for (const pair of obj) {
                             weights.set(i.toString() + '.' + pair[0], pair[1]);
                         }
@@ -525,7 +525,7 @@ npz.Utility = class {
     }
 };
 
-npz.Error = class extends Error {
+numpy.Error = class extends Error {
 
     constructor(message) {
         super(message);
@@ -534,5 +534,5 @@ npz.Error = class extends Error {
 };
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
-    module.exports.ModelFactory = npz.ModelFactory;
+    module.exports.ModelFactory = numpy.ModelFactory;
 }
