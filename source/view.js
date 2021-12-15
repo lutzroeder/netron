@@ -572,6 +572,13 @@ view.View = class {
                     }
                 }
 
+                for (const input of graph.inputs) {
+                    const viewInput = viewGraph.createInput(input);
+                    for (const argument of input.arguments) {
+                        viewGraph.createArgument(argument).from(viewInput);
+                    }
+                }
+
                 for (const node of nodes) {
 
                     const viewNode = viewGraph.createNode(node);
@@ -640,13 +647,6 @@ view.View = class {
                                 viewGraph.setParent(viewNode.name, groupName);
                             }
                         }
-                    }
-                }
-
-                for (const input of graph.inputs) {
-                    const viewInput = viewGraph.createInput(input);
-                    for (const argument of input.arguments) {
-                        viewGraph.createArgument(argument).from(viewInput);
                     }
                 }
 
