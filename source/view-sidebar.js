@@ -765,7 +765,7 @@ sidebar.ArgumentView = class {
                         const state = initializer.state;
                         if (state === null && this._host.save &&
                             initializer.type.dataType && initializer.type.dataType != '?' &&
-                            initializer.type.shape && initializer.type.shape.dimensions && initializer.type.shape.dimensions.length > 0) {
+                            initializer.type.shape && initializer.type.shape.dimensions /*&& initializer.type.shape.dimensions.length > 0*/) {
                             this._saveButton = this._host.document.createElement('div');
                             this._saveButton.className = 'sidebar-view-item-value-expander';
                             this._saveButton.innerHTML = '&#x1F4BE;';

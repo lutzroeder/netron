@@ -867,71 +867,14 @@ view.View = class {
                     const defaultPath = tensor.name ? tensor.name.split('/').join('_').split(':').join('_').split('.').join('_') : 'tensor';
                     this._host.save('NumPy Array', 'npy', defaultPath, (file) => {
                         try {
-                            const encode = (context, data, dim) => {
-                                const size = context.shape[dim];
-                                const littleendian = context.littleendian;
-                                if (dim == context.shape.length - 1) {
-                                    for (let i = 0; i < size; i++) {
-                                        switch (context.dtype) {
-                                            case 'f2':
-                                                context.view.setFloat16(context.position, data[i], littleendian);
-                                                break;
-                                            case 'f4':
-                                                context.view.setFloat32(context.position, data[i], littleendian);
-                                                break;
-                                            case 'f8':
-                                                context.view.setFloat64(context.position, data[i], littleendian);
-                                                break;
-                                            case 'i1':
-                                                context.view.setInt8(context.position, data[i], littleendian);
-                                                break;
-                                            case 'i2':
-                                                context.view.setInt16(context.position, data[i], littleendian);
-                                                break;
-                                            case 'i4':
-                                                context.view.setInt32(context.position, data[i], littleendian);
-                                                break;
-                                            case 'i8':
-                                                context.view.setInt64(context.position, data[i], littleendian);
-                                                break;
-                                            case 'u1':
-                                                context.view.setUint8(context.position, data[i], littleendian);
-                                                break;
-                                            case 'u2':
-                                                context.view.setUint16(context.position, data[i], littleendian);
-                                                break;
-                                            case 'u4':
-                                                context.view.setUint32(context.position, data[i], littleendian);
-                                                break;
-                                            case 'u8':
-                                                context.view.setUint64(context.position, data[i], littleendian);
-                                                break;
-                                        }
-                                        context.position += context.itemsize;
-                                    }
-                                }
-                                else {
-                                    for (let j = 0; j < size; j++) {
-                                        encode(context, data[j], dim + 1);
-                                    }
-                                }
-                            };
+                            let data_type = tensor.type.dataType;
+                            switch (data_type) {
+                                case 'boolean': data_type = 'bool'; break;
+                            }
                             const execution = new python.Execution(null);
                             const bytes = execution.invoke('io.BytesIO', []);
-                            const dtype = execution.invoke('numpy.dtype', [ tensor.type.dataType ]);
-                            const shape = tensor.type.shape.dimensions.map((dim) => dim instanceof base.Int64 || dim instanceof base.Uint64 ? dim.toNumber() : dim);
-                            const size = dtype.itemsize * shape.reduce((a, b) => a * b, 1);
-                            const context = {
-                                position: 0,
-                                itemsize: dtype.itemsize,
-                                dtype: dtype.str.substring(1),
-                                littleendian: dtype.str[0],
-                                shape: shape,
-                                data: new Uint8Array(size)
-                            };
-                            context.view = new DataView(context.data.buffer, context.data.byteOffset, size);
-                            encode(context, tensor.value, 0);
-                            const array = execution.invoke('numpy.ndarray', [ tensor.type.shape.dimensions, dtype, context.data ]);
+                            const dtype = execution.invoke('numpy.dtype', [ data_type ]);
+                            const array = execution.invoke('numpy.asarray', [ tensor.value, dtype ]);
                             execution.invoke('numpy.save', [ bytes, array ]);
                             bytes.seek(0);
                             const blob = new Blob([ bytes.read() ], { type: 'application/octet-stream' });
