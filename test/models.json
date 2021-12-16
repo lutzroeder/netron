@@ -4385,6 +4385,13 @@
   },
   {
     "type":   "pytorch",
+    "target": "LMModel1.pt",
+    "source": "https://github.com/lutzroeder/netron/files/7726055/LMModel1.zip[LMModel1.pt]",
+    "format": "TorchScript v1.6",
+    "link":   "https://github.com/lutzroeder/netron/issues/842"
+  },
+  {
+    "type":   "pytorch",
     "target": "mask_depthwise_conv.pt",
     "source": "https://github.com/lutzroeder/netron/files/6186157/mask_depthwise_conv.pt.zip[mask_depthwise_conv.pt]",
     "format": "TorchScript v1.3",
