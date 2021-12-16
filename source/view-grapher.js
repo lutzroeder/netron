@@ -80,7 +80,7 @@ grapher.Graph = class {
 
     parent(key) {
         if (this._isCompound) {
-            var parent = this._parent[key];
+            const parent = this._parent[key];
             if (parent !== '\x00') {
                 return parent;
             }
@@ -747,7 +747,10 @@ grapher.Edge = class {
             sx = w;
             sy = dx === 0 ? 0 : w * dy / dx;
         }
-        return {x: x + sx, y: y + sy};
+        return {
+            x: x + sx,
+            y: y + sy
+        };
     }
 };
 
