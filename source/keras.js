@@ -101,6 +101,7 @@ keras.ModelFactory = class {
                         if (group.attributes.has('model_config')) {
                             const buffer = group.attributes.get('model_config');
                             const reader = json.TextReader.open(buffer);
+                            require('fs').writeFileSync('netron_issue_855.json', buffer);
                             if (reader) {
                                 return reader.read();
                             }
@@ -422,20 +423,32 @@ keras.Graph = class {
                         if (Array.isArray(inbound_node) && inbound_node.every((array) => Array.isArray(array) && array.every((item) => is_connection(item)))) {
                             inbound_node = inbound_node.flat();
                         }
-                        for (const inbound_connection of inbound_node) {
-                            let inputName = inbound_connection[0];
-                            const inputNode = nodeMap.get(inputName);
-                            if (inputNode) {
-                                const inputIndex = inbound_connection[2];
-                                if (inputIndex != 0) {
-                                    inputName += ':' + inputIndex.toString();
+                        const add_inbound_connection = (connection) => {
+                            let inputName = connection[0];
+                            if (inputName !== '_CONSTANT_VALUE') {
+                                const inputNode = nodeMap.get(inputName);
+                                if (inputNode) {
+                                    const inputIndex = connection[2];
+                                    if (inputIndex != 0) {
+                                        inputName += ':' + inputIndex.toString();
+                                    }
+                                    while (inputIndex >= inputNode._outputs.length) {
+                                        inputNode._outputs.push('');
+                                    }
+                                    inputNode._outputs[inputIndex] = inputName;
                                 }
-                                while (inputIndex >= inputNode._outputs.length) {
-                                    inputNode._outputs.push('');
-                                }
-                                inputNode._outputs[inputIndex] = inputName;
+                                layer._inputs.push(inputName);
                             }
-                            layer._inputs.push(inputName);
+                        };
+                        for (const inbound_connection of inbound_node) {
+                            add_inbound_connection(inbound_connection);
+                            if (inbound_connection[3]) {
+                                for (const entry of Object.entries(inbound_connection[3])) {
+                                    if (Array.isArray(entry[1]) && entry[1].length > 2) {
+                                        add_inbound_connection(entry[1]);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
