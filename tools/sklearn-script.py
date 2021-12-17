@@ -151,7 +151,8 @@ def update_attributes(schema, lines):
             "int, float, str, np.nan or None, default=np.nan",
             "list of (str, transformer) tuples",
             "int, float, str, np.nan, None or pandas.NA, default=np.nan",
-            "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None"
+            "{'first', 'if_binary'} or an array-like of shape (n_features,), default=None",
+            "{'first', 'if_binary'} or a array-like of shape (n_features,), default=None"
         }
         if line == 'str':
             line = 'string'
