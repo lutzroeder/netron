@@ -57155,6 +57155,8 @@
   },
   {
     "name": "TensorScatterMax",
+    "summary": "Apply a sparse update to a tensor taking the element-wise maximum.",
+    "description": "Returns a new tensor copied from `tensor` whose values are element-wise maximum between\ntensor and updates according to the indices.\n\n>>> tensor = [0, 0, 0, 0, 0, 0, 0, 0] \n>>> indices = [[1], [4], [5]]\n>>> updates = [1, -1, 1]\n>>> tf.tensor_scatter_nd_max(tensor, indices, updates).numpy()\narray([0, 1, 0, 0, 0, 1, 0, 0], dtype=int32)\n\nRefer to `tf.tensor_scatter_nd_update` for more details.",
     "attributes": [
       {
         "name": "T",
