@@ -1651,7 +1651,8 @@ view.ModelFactoryService = class {
                     { name: 'NPM package', tags: [ 'name', 'version', 'dependencies' ] },
                     { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] },
                     { name: 'Waifu2x data', tags: [ 'name', 'arch_name', 'channels' ] },
-                    { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] }
+                    { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] },
+                    { name: 'Brain.js data', tags: [ 'type', 'sizes', 'layers' ] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
