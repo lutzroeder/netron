@@ -1626,6 +1626,7 @@ python.Execution = class {
         this.registerModule('gensim');
         this.registerModule('io');
         this.registerModule('joblib');
+        this.registerModule('keras');
         this.registerModule('lightgbm');
         this.registerModule('numpy');
         this.registerModule('nolearn');
@@ -1876,6 +1877,7 @@ python.Execution = class {
                 return self.invoke(this.subclass, [ this.shape, this.dtype, this.data ]);
             }
         });
+        this.registerType('keras.engine.sequential.Sequential', class {});
         this.registerType('lightgbm.sklearn.LGBMRegressor', class {});
         this.registerType('lightgbm.sklearn.LGBMClassifier', class {});
         this.registerType('lightgbm.basic.Booster', class {

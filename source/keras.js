@@ -1,6 +1,7 @@
 
 var keras = keras || {};
 var json = json || require('./json');
+var python = python || require('./python');
 
 keras.ModelFactory = class {
 
@@ -10,8 +11,8 @@ keras.ModelFactory = class {
         if (stream.length > signature.length && stream.peek(signature.length).every((value, index) => value === signature[index])) {
             return 'keras.h5';
         }
-        const obj = context.open('json');
-        if (obj) {
+        if (context.open('json')) {
+            const obj = context.open('json');
             if (obj.mxnet_version || (obj.nodes && obj.arg_nodes && obj.heads)) {
                 return undefined;
             }
@@ -23,6 +24,12 @@ keras.ModelFactory = class {
             }
             if (Array.isArray(obj) && obj.every((item) => item.weights && item.paths)) {
                 return 'keras.json.tfjs.weights';
+            }
+        }
+        if (context.open('pkl')) {
+            const obj = context.open('pkl');
+            if (obj.__class__ && obj.__class__.__module__ === 'keras.engine.sequential' && obj.__class__.__name__ === 'Sequential') {
+                return 'keras.pickle';
             }
         }
         return undefined;
@@ -297,6 +304,36 @@ keras.ModelFactory = class {
                 return openManifests(manifests).then((weights) => {
                     return openModel(format, '', '', null, weights);
                 });
+            }
+            case 'keras.pickle': {
+                const execution = new python.Execution(null);
+                const obj = context.open('pkl');
+                const decoder = new TextDecoder('utf-8');
+                const format = 'Keras Pickle' + (obj.keras_version ? ' v' + decoder.decode(obj.keras_version) : '');
+                const backend = obj.backend ? decoder.decode(obj.backend) : '';
+                const reader = json.TextReader.open(obj.model_config);
+                const model_config = reader.read();
+                const weights = new keras.Weights();
+                const model_weights_group = obj.model_weights;
+                if (model_weights_group) {
+                    const layer_names = model_weights_group.layer_names.map((buffer) => decoder.decode(buffer));
+                    for (const layer_name of layer_names) {
+                        const layer_weights = model_weights_group[layer_name];
+                        if (layer_weights) {
+                            const weight_names = layer_weights.weight_names.map((buffer) => decoder.decode(buffer));
+                            if (Array.isArray(weight_names) && weight_names.length > 0) {
+                                for (const weight_name of weight_names) {
+                                    const buffer = layer_weights[weight_name];
+                                    const unpickler = python.Unpickler.open(buffer);
+                                    const variable = unpickler.load((name, args) => execution.invoke(name, args));
+                                    const tensor = new keras.Tensor(weight_name, variable.shape, variable.dtype.name, null, true, variable.data);
+                                    weights.add(layer_name, tensor);
+                                }
+                            }
+                        }
+                    }
+                }
+                return openModel(format, '', backend, model_config, weights);
             }
             default: {
                 throw new keras.Error("Unsupported Keras format '" + match + "'.");
