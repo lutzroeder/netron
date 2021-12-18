@@ -101,7 +101,6 @@ keras.ModelFactory = class {
                         if (group.attributes.has('model_config')) {
                             const buffer = group.attributes.get('model_config');
                             const reader = json.TextReader.open(buffer);
-                            require('fs').writeFileSync('netron_issue_855.json', buffer);
                             if (reader) {
                                 return reader.read();
                             }
