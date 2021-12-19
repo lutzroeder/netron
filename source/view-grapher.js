@@ -35,9 +35,9 @@ grapher.Graph = class {
         if (!this._nodes.has(edge.w)) {
             throw new grapher.Error();
         }
-        const key = edge.v + ' ' + edge.w + ' ';
+        const key = edge.v + ':' + edge.w;
         if (!this._edges.has(key)) {
-            this._edges.set(key, edge);
+            this._edges.set(key, { v: edge.v, w: edge.w, label: edge });
         }
         return this;
     }
@@ -71,11 +71,7 @@ grapher.Graph = class {
     }
 
     edges() {
-        return Array.from(this._edges.values());
-    }
-
-    edge(key) {
-        return key;
+        return this._edges;
     }
 
     parent(key) {
@@ -164,9 +160,8 @@ grapher.Graph = class {
             }
         }
 
-        for (const edgeId of this.edges()) {
-            const edge = this.edge(edgeId);
-            edge.build(document, edgePathGroup, edgeLabelGroup);
+        for (const edge of this.edges().values()) {
+            edge.label.build(document, edgePathGroup, edgeLabelGroup);
         }
     }
 
@@ -191,9 +186,8 @@ grapher.Graph = class {
             }
         }
 
-        for (const edgeId of this.edges()) {
-            const edge = this.edge(edgeId);
-            edge.layout();
+        for (const edge of this.edges().values()) {
+            edge.label.layout();
         }
     }
 };
