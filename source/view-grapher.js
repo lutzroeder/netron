@@ -214,19 +214,14 @@ grapher.Node = class {
         const createElement = (name) => {
             return document.createElementNS('http://www.w3.org/2000/svg', name);
         };
-        this.label = createElement('g');
-
         this.element = createElement('g');
         if (this.id) {
             this.element.setAttribute('id', this.id);
         }
         this.element.setAttribute('class', this.class ? 'node ' + this.class : 'node');
         this.element.style.opacity = 0;
-        this.element.appendChild(this.label);
 
         contextElement.appendChild(this.element);
-
-        // contextElement.appendChild(this.label);
 
         let width = 0;
         let height = 0;
@@ -234,7 +229,7 @@ grapher.Node = class {
 
         for (const block of this._blocks) {
             tops.push(height);
-            block.build(document, this.label);
+            block.build(document, this.element);
             if (width < block.width) {
                 width = block.width;
             }
@@ -243,24 +238,20 @@ grapher.Node = class {
 
         for (let i = 0; i < this._blocks.length; i++) {
             const top = tops.shift();
-            this._blocks[i].update(this.label, top, width, i == 0, i == this._blocks.length - 1);
+            this._blocks[i].update(this.element, top, width, i == 0, i == this._blocks.length - 1);
         }
 
         const borderElement = createElement('path');
         borderElement.setAttribute('class', [ 'node', 'border' ].join(' '));
         borderElement.setAttribute('d', grapher.Node.roundedRect(0, 0, width, height, true, true, true, true));
-        this.label.appendChild(borderElement);
-
-        const nodeBox = this.label.getBBox();
-        const nodeX = - nodeBox.width / 2;
-        const nodeY = - nodeBox.height / 2;
+        this.element.appendChild(borderElement);
+        const nodeBox = this.element.getBBox();
         this.width = nodeBox.width;
         this.height = nodeBox.height;
-        this.label.setAttribute('transform', 'translate(' + nodeX + ',' + nodeY + ')');
     }
 
     layout() {
-        this.element.setAttribute('transform', 'translate(' + this.x + ',' + this.y + ')');
+        this.element.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
         this.element.style.opacity = 1;
     }
 
@@ -505,23 +496,20 @@ grapher.Node.List = class {
     }
 
     update(parentElement, top, width , first, last) {
-
         this._element.setAttribute('transform', 'translate(0,' + top + ')');
-
         const r1 = first;
         const r2 = first;
         const r3 = last;
         const r4 = last;
         this._backgroundElement.setAttribute('d', grapher.Node.roundedRect(0, 0, width, this._height, r1, r2, r3, r4));
-
         if (!first) {
-            const lineElement = this.createElement('line');
-            lineElement.setAttribute('class', 'node');
-            lineElement.setAttribute('x1', 0);
-            lineElement.setAttribute('x2', width);
-            lineElement.setAttribute('y1', 0);
-            lineElement.setAttribute('y2', 0);
-            this._element.appendChild(lineElement);
+            const line = this.createElement('line');
+            line.setAttribute('class', 'node');
+            line.setAttribute('x1', 0);
+            line.setAttribute('x2', width);
+            line.setAttribute('y1', 0);
+            line.setAttribute('y2', 0);
+            this._element.appendChild(line);
         }
     }
 
@@ -529,114 +517,6 @@ grapher.Node.List = class {
         return this._document.createElementNS('http://www.w3.org/2000/svg', name);
     }
 };
-
-class Path {
-
-    constructor() {
-        this._x0 = null;
-        this._y0 = null;
-        this._x1 = null;
-        this._y1 = null;
-        this._data = '';
-    }
-
-    moveTo(x, y) {
-        this._data += "M" + (this._x0 = this._x1 = +x) + "," + (this._y0 = this._y1 = +y);
-    }
-
-    lineTo(x, y) {
-        this._data += "L" + (this._x1 = +x) + "," + (this._y1 = +y);
-    }
-
-    bezierCurveTo(x1, y1, x2, y2, x, y) {
-        this._data += "C" + (+x1) + "," + (+y1) + "," + (+x2) + "," + (+y2) + "," + (this._x1 = +x) + "," + (this._y1 = +y);
-    }
-
-    closePath() {
-        if (this._x1 !== null) {
-            this._x1 = this._x0;
-            this._y1 = this._y0;
-            this._data += "Z";
-        }
-    }
-
-    get data() {
-        return this._data;
-    }
-}
-
-class Curve {
-
-    constructor(context) {
-        this._context = context;
-    }
-
-    lineStart() {
-        this._x0 = NaN;
-        this._x1 = NaN;
-        this._y0 = NaN;
-        this._y1 = NaN;
-        this._point = 0;
-    }
-
-    lineEnd() {
-        switch (this._point) {
-            case 3:
-                this.curve(this._x1, this._y1);
-                this._context.lineTo(this._x1, this._y1);
-                break;
-            case 2:
-                this._context.lineTo(this._x1, this._y1);
-                break;
-        }
-        if (this._line || (this._line !== 0 && this._point === 1)) {
-            this._context.closePath();
-        }
-        this._line = 1 - this._line;
-    }
-
-    point(x, y) {
-        x = +x;
-        y = +y;
-        switch (this._point) {
-            case 0:
-                this._point = 1;
-                if (this._line) {
-                    this._context.lineTo(x, y);
-                }
-                else {
-                    this._context.moveTo(x, y);
-                }
-                break;
-            case 1:
-                this._point = 2;
-                break;
-            case 2:
-                this._point = 3;
-                this._context.lineTo((5 * this._x0 + this._x1) / 6, (5 * this._y0 + this._y1) / 6);
-                this.curve(x, y);
-                break;
-            default:
-                this.curve(x, y);
-                break;
-        }
-        this._x0 = this._x1;
-        this._x1 = x;
-        this._y0 = this._y1;
-        this._y1 = y;
-    }
-
-    curve(x, y) {
-        this._context.bezierCurveTo(
-            (2 * this._x0 + this._x1) / 3,
-            (2 * this._y0 + this._y1) / 3,
-            (this._x0 + 2 * this._x1) / 3,
-            (this._y0 + 2 * this._y1) / 3,
-            (this._x0 + 4 * this._x1 + x) / 6,
-            (this._y0 + 4 * this._y1 + y) / 6
-        );
-    }
-}
 
 grapher.Edge = class {
 
@@ -659,29 +539,21 @@ grapher.Edge = class {
         }
         this.element.setAttribute('class', this.class ? 'edge-path ' + this.class : 'edge-path');
         edgePathGroupElement.appendChild(this.element);
-
         if (this.label) {
             const tspan = createElement('tspan');
             tspan.setAttribute('xml:space', 'preserve');
             tspan.setAttribute('dy', '1em');
             tspan.setAttribute('x', '1');
             tspan.appendChild(document.createTextNode(this.label));
-            const text = createElement('text');
-            text.appendChild(tspan);
-            const textContainer = createElement('g');
-            textContainer.appendChild(text);
-            this.labelElement = createElement('g');
+            this.labelElement = createElement('text');
+            this.labelElement.appendChild(tspan);
             this.labelElement.style.opacity = 0;
             this.labelElement.setAttribute('class', 'edge-label');
             if (this.id) {
                 this.labelElement.setAttribute('id', 'edge-label-' + this.id);
             }
-            this.labelElement.appendChild(textContainer);
             edgeLabelGroupElement.appendChild(this.labelElement);
-            const edgeBox = textContainer.getBBox();
-            const edgeX = - edgeBox.width / 2;
-            const edgeY = - edgeBox.height / 2;
-            textContainer.setAttribute('transform', 'translate(' + edgeX + ',' + edgeY + ')');
+            const edgeBox = this.labelElement.getBBox();
             this.width = edgeBox.width;
             this.height = edgeBox.height;
         }
@@ -690,9 +562,8 @@ grapher.Edge = class {
     layout() {
         const edgePath = grapher.Edge._computeCurvePath(this, this.from, this.to);
         this.element.setAttribute('d', edgePath);
-
         if (this.labelElement) {
-            this.labelElement.setAttribute('transform', 'translate(' + this.x + ',' + this.y + ')');
+            this.labelElement.setAttribute('transform', 'translate(' + (this.x - (this.width / 2)) + ',' + (this.y - (this.height / 2)) + ')');
             this.labelElement.style.opacity = 1;
         }
     }
@@ -701,21 +572,8 @@ grapher.Edge = class {
         const points = edge.points.slice(1, edge.points.length - 1);
         points.unshift(grapher.Edge._intersectRect(tail, points[0]));
         points.push(grapher.Edge._intersectRect(head, points[points.length - 1]));
-
-        const path = new Path();
-        const curve = new Curve(path);
-        for (let i = 0; i < points.length; i++) {
-            const point = points[i];
-            if (i == 0) {
-                curve.lineStart();
-            }
-            curve.point(point.x, point.y);
-            if (i == points.length - 1) {
-                curve.lineEnd();
-            }
-        }
-
-        return path.data;
+        const curve = new grapher.Edge.Curve(points);
+        return curve.path.data;
     }
 
     static _intersectRect(node, point) {
@@ -748,6 +606,117 @@ grapher.Edge = class {
     }
 };
 
+grapher.Edge.Curve = class {
+
+    constructor(points) {
+        this._path = new grapher.Edge.Path();
+        this._x0 = NaN;
+        this._x1 = NaN;
+        this._y0 = NaN;
+        this._y1 = NaN;
+        this._state = 0;
+        for (let i = 0; i < points.length; i++) {
+            const point = points[i];
+            this.point(point.x, point.y);
+            if (i === points.length - 1) {
+                switch (this._state) {
+                    case 3:
+                        this.curve(this._x1, this._y1);
+                        this._path.lineTo(this._x1, this._y1);
+                        break;
+                    case 2:
+                        this._path.lineTo(this._x1, this._y1);
+                        break;
+                }
+                if (this._line || (this._line !== 0 && this._point === 1)) {
+                    this._path.closePath();
+                }
+                this._line = 1 - this._line;
+            }
+        }
+    }
+
+    get path() {
+        return this._path;
+    }
+
+    point(x, y) {
+        x = +x;
+        y = +y;
+        switch (this._state) {
+            case 0:
+                this._state = 1;
+                if (this._line) {
+                    this._path.lineTo(x, y);
+                }
+                else {
+                    this._path.moveTo(x, y);
+                }
+                break;
+            case 1:
+                this._state = 2;
+                break;
+            case 2:
+                this._state = 3;
+                this._path.lineTo((5 * this._x0 + this._x1) / 6, (5 * this._y0 + this._y1) / 6);
+                this.curve(x, y);
+                break;
+            default:
+                this.curve(x, y);
+                break;
+        }
+        this._x0 = this._x1;
+        this._x1 = x;
+        this._y0 = this._y1;
+        this._y1 = y;
+    }
+
+    curve(x, y) {
+        this._path.bezierCurveTo(
+            (2 * this._x0 + this._x1) / 3,
+            (2 * this._y0 + this._y1) / 3,
+            (this._x0 + 2 * this._x1) / 3,
+            (this._y0 + 2 * this._y1) / 3,
+            (this._x0 + 4 * this._x1 + x) / 6,
+            (this._y0 + 4 * this._y1 + y) / 6
+        );
+    }
+};
+
+grapher.Edge.Path = class {
+
+    constructor() {
+        this._x0 = null;
+        this._y0 = null;
+        this._x1 = null;
+        this._y1 = null;
+        this._data = '';
+    }
+
+    moveTo(x, y) {
+        this._data += "M" + (this._x0 = this._x1 = +x) + "," + (this._y0 = this._y1 = +y);
+    }
+
+    lineTo(x, y) {
+        this._data += "L" + (this._x1 = +x) + "," + (this._y1 = +y);
+    }
+
+    bezierCurveTo(x1, y1, x2, y2, x, y) {
+        this._data += "C" + (+x1) + "," + (+y1) + "," + (+x2) + "," + (+y2) + "," + (this._x1 = +x) + "," + (this._y1 = +y);
+    }
+
+    closePath() {
+        if (this._x1 !== null) {
+            this._x1 = this._x0;
+            this._y1 = this._y0;
+            this._data += "Z";
+        }
+    }
+
+    get data() {
+        return this._data;
+    }
+};
 
 if (typeof module !== 'undefined' && typeof module.exports === 'object') {
     module.exports.Graph = grapher.Graph;

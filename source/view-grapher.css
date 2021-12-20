@@ -63,7 +63,7 @@
 .graph-item-output:hover { cursor: pointer; }
 .graph-item-output:hover path { fill: #fff; }
 
-.edge-label text { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
+.edge-label { font-family: -apple-system, BlinkMacSystemFont, "Segoe WPC", "Segoe UI", "Ubuntu", "Droid Sans", sans-serif, "PingFang SC"; font-size: 10px; }
 .edge-path { stroke: #000; stroke-width: 1px; fill: none; marker-end: url("#arrowhead-vee"); }
 #arrowhead-vee { fill: #000; }
 .edge-path-control-dependency { stroke-dasharray: 3, 2; }
@@ -78,7 +78,7 @@
 
 @media (prefers-color-scheme: dark) {
 
-    .edge-label text { fill: #b2b2b2; }
+    .edge-label { fill: #b2b2b2; }
     .edge-path { stroke: #888; }
     #arrowhead-vee { fill: #888; }
 
