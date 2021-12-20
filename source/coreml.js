@@ -359,7 +359,7 @@ coreml.Graph = class {
             case 'neuralNetworkClassifier': {
                 const neuralNetworkClassifier = model.neuralNetworkClassifier;
                 for (const layer of neuralNetworkClassifier.layers) {
-                    this._createNode(scope, group, layer.layer, layer.name, description, layer[layer.layer], layer.input, layer.output);
+                    this._createNode(scope, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output);
                 }
                 this._updateClassifierOutput(group, neuralNetworkClassifier);
                 this._updatePreprocessing(scope, group, neuralNetworkClassifier.preprocessing);
@@ -368,7 +368,7 @@ coreml.Graph = class {
             case 'neuralNetwork': {
                 const neuralNetwork = model.neuralNetwork;
                 for (const layer of neuralNetwork.layers) {
-                    this._createNode(scope, group, layer.layer, layer.name, description, layer[layer.layer], layer.input, layer.output);
+                    this._createNode(scope, group, layer.layer, layer.name, group === '' ? '' : description, layer[layer.layer], layer.input, layer.output);
                 }
                 this._updatePreprocessing(scope, group, neuralNetwork.preprocessing);
                 return 'Neural Network';
