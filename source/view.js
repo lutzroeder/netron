@@ -555,107 +555,7 @@ view.View = class {
                 }
 
                 const viewGraph = new view.Graph(this, model, groups, options);
-
-                const clusters = new Set();
-                const clusterParentMap = new Map();
-
-                if (groups) {
-                    for (const node of nodes) {
-                        if (node.group) {
-                            const path = node.group.split('/');
-                            while (path.length > 0) {
-                                const name = path.join('/');
-                                path.pop();
-                                clusterParentMap.set(name, path.join('/'));
-                            }
-                        }
-                    }
-                }
-
-                for (const input of graph.inputs) {
-                    const viewInput = viewGraph.createInput(input);
-                    for (const argument of input.arguments) {
-                        viewGraph.createArgument(argument).from(viewInput);
-                    }
-                }
-
-                for (const node of nodes) {
-
-                    const viewNode = viewGraph.createNode(node);
-
-                    const inputs = node.inputs;
-                    for (const input of inputs) {
-                        for (const argument of input.arguments) {
-                            if (argument.name != '' && !argument.initializer) {
-                                viewGraph.createArgument(argument).to(viewNode);
-                            }
-                        }
-                    }
-                    let outputs = node.outputs;
-                    if (node.chain && node.chain.length > 0) {
-                        const chainOutputs = node.chain[node.chain.length - 1].outputs;
-                        if (chainOutputs.length > 0) {
-                            outputs = chainOutputs;
-                        }
-                    }
-                    for (const output of outputs) {
-                        for (const argument of output.arguments) {
-                            if (!argument) {
-                                throw new view.Error("Invalid null argument in '" + model.identifier + "'.");
-                            }
-                            if (argument.name != '') {
-                                viewGraph.createArgument(argument).from(viewNode);
-                            }
-                        }
-                    }
-
-                    if (node.controlDependencies && node.controlDependencies.length > 0) {
-                        for (const argument of node.controlDependencies) {
-                            viewGraph.createArgument(argument).to(viewNode, true);
-                        }
-                    }
-
-                    const createCluster = function(name) {
-                        if (!clusters.has(name)) {
-                            viewGraph.setNode({ name: name, rx: 5, ry: 5});
-                            clusters.add(name);
-                            const parent = clusterParentMap.get(name);
-                            if (parent) {
-                                createCluster(parent);
-                                viewGraph.setParent(name, parent);
-                            }
-                        }
-                    };
-
-                    if (groups) {
-                        let groupName = node.group;
-                        if (groupName && groupName.length > 0) {
-                            if (!clusterParentMap.has(groupName)) {
-                                const lastIndex = groupName.lastIndexOf('/');
-                                if (lastIndex != -1) {
-                                    groupName = groupName.substring(0, lastIndex);
-                                    if (!clusterParentMap.has(groupName)) {
-                                        groupName = null;
-                                    }
-                                }
-                                else {
-                                    groupName = null;
-                                }
-                            }
-                            if (groupName) {
-                                createCluster(groupName);
-                                viewGraph.setParent(viewNode.name, groupName);
-                            }
-                        }
-                    }
-                }
-
-                for (const output of graph.outputs) {
-                    const viewOutput = viewGraph.createOutput(output);
-                    for (const argument of output.arguments) {
-                        viewGraph.createArgument(argument).to(viewOutput);
-                    }
-                }
+                viewGraph.add(graph);
 
                 // Workaround for Safari background drag/zoom issue:
                 // https://stackoverflow.com/questions/40887193/d3-js-zoom-is-not-working-with-mousewheel-in-safari
@@ -675,7 +575,7 @@ view.View = class {
 
                 return this._timeout(20).then(() => {
 
-                    viewGraph.layout();
+                    viewGraph.update();
 
                     const elements = Array.from(canvas.getElementsByClassName('graph-input') || []);
                     if (elements.length === 0) {
@@ -965,13 +865,114 @@ view.Graph = class extends grapher.Graph {
         return value;
     }
 
-    build(document, originElement) {
+    add(graph) {
+        const clusters = new Set();
+        const clusterParentMap = new Map();
+        const groups = graph.groups;
+        if (groups) {
+            for (const node of graph.nodes) {
+                if (node.group) {
+                    const path = node.group.split('/');
+                    while (path.length > 0) {
+                        const name = path.join('/');
+                        path.pop();
+                        clusterParentMap.set(name, path.join('/'));
+                    }
+                }
+            }
+        }
 
+        for (const input of graph.inputs) {
+            const viewInput = this.createInput(input);
+            for (const argument of input.arguments) {
+                this.createArgument(argument).from(viewInput);
+            }
+        }
+
+        for (const node of graph.nodes) {
+
+            const viewNode = this.createNode(node);
+
+            const inputs = node.inputs;
+            for (const input of inputs) {
+                for (const argument of input.arguments) {
+                    if (argument.name != '' && !argument.initializer) {
+                        this.createArgument(argument).to(viewNode);
+                    }
+                }
+            }
+            let outputs = node.outputs;
+            if (node.chain && node.chain.length > 0) {
+                const chainOutputs = node.chain[node.chain.length - 1].outputs;
+                if (chainOutputs.length > 0) {
+                    outputs = chainOutputs;
+                }
+            }
+            for (const output of outputs) {
+                for (const argument of output.arguments) {
+                    if (!argument) {
+                        throw new view.Error("Invalid null argument in '" + this.model.identifier + "'.");
+                    }
+                    if (argument.name != '') {
+                        this.createArgument(argument).from(viewNode);
+                    }
+                }
+            }
+
+            if (node.controlDependencies && node.controlDependencies.length > 0) {
+                for (const argument of node.controlDependencies) {
+                    this.createArgument(argument).to(viewNode, true);
+                }
+            }
+
+            const createCluster = (name) => {
+                if (!clusters.has(name)) {
+                    this.setNode({ name: name, rx: 5, ry: 5});
+                    clusters.add(name);
+                    const parent = clusterParentMap.get(name);
+                    if (parent) {
+                        createCluster(parent);
+                        this.setParent(name, parent);
+                    }
+                }
+            };
+
+            if (groups) {
+                let groupName = node.group;
+                if (groupName && groupName.length > 0) {
+                    if (!clusterParentMap.has(groupName)) {
+                        const lastIndex = groupName.lastIndexOf('/');
+                        if (lastIndex != -1) {
+                            groupName = groupName.substring(0, lastIndex);
+                            if (!clusterParentMap.has(groupName)) {
+                                groupName = null;
+                            }
+                        }
+                        else {
+                            groupName = null;
+                        }
+                    }
+                    if (groupName) {
+                        createCluster(groupName);
+                        this.setParent(viewNode.name, groupName);
+                    }
+                }
+            }
+        }
+
+        for (const output of graph.outputs) {
+            const viewOutput = this.createOutput(output);
+            for (const argument of output.arguments) {
+                this.createArgument(argument).to(viewOutput);
+            }
+        }
+    }
+
+    build(document, origin) {
         for (const argument of this._arguments.values()) {
             argument.build();
         }
-
-        super.build(document, originElement);
+        super.build(document, origin);
     }
 };
 
@@ -999,7 +1000,6 @@ view.Node = class extends grapher.Node {
     }
 
     _add(node) {
-
         const header =  this.header();
         const styles = [ 'node-item-type' ];
         const type = node.type;
@@ -1013,18 +1013,15 @@ view.Node = class extends grapher.Node {
         }
         const content = this.context.view.options.names && (node.name || node.location) ? (node.name || node.location) : type.name.split('.').pop();
         const tooltip = this.context.view.options.names && (node.name || node.location) ? type.name : (node.name || node.location);
-        header.add(null, styles, content, tooltip, () => {
-            this.context.view.showNodeProperties(node, null);
-        });
+        const title = header.add(null, styles, content, tooltip);
+        title.on('click', () => this.context.view.showNodeProperties(node, null));
         if (node.type.nodes) {
-            header.add(null, styles, '\u0192', 'Show Function Definition', () => {
-                this.context.view.pushGraph(node.type);
-            });
+            const definition = header.add(null, styles, '\u0192', 'Show Function Definition');
+            definition.on('click', () => this.context.view.pushGraph(node.type));
         }
         if (node.nodes) {
-            header.add(null, styles, '+', null, () => {
-                // debugger;
-            });
+            // this._expand = header.add(null, styles, '+', null);
+            // this._expand.on('click', () => this.toggle());
         }
         const initializers = [];
         let hiddenInitializers = false;
@@ -1050,10 +1047,8 @@ view.Node = class extends grapher.Node {
             return (au < bu) ? -1 : (au > bu) ? 1 : 0;
         });
         if (initializers.length > 0 || hiddenInitializers || sortedAttributes.length > 0) {
-            const block = this.list();
-            block.handler = () => {
-                this.context.view.showNodeProperties(node);
-            };
+            const list = this.list();
+            list.on('click', () => this.context.view.showNodeProperties(node));
             for (const initializer of initializers) {
                 const argument = initializer.arguments[0];
                 const type = argument.type;
@@ -1082,10 +1077,10 @@ view.Node = class extends grapher.Node {
                         }
                     }
                 }
-                block.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
+                list.add(argument.name ? 'initializer-' + argument.name : '', initializer.name, shape, type ? type.toString() : '', separator);
             }
             if (hiddenInitializers) {
-                block.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
+                list.add(null, '\u3008' + '\u2026' + '\u3009', '', null, '');
             }
 
             for (const attribute of sortedAttributes) {
@@ -1094,7 +1089,7 @@ view.Node = class extends grapher.Node {
                     if (value && value.length > 25) {
                         value = value.substring(0, 25) + '\u2026';
                     }
-                    block.add(null, attribute.name, value, attribute.type, ' = ');
+                    list.add(null, attribute.name, value, attribute.type, ' = ');
                 }
             }
         }
@@ -1106,6 +1101,23 @@ view.Node = class extends grapher.Node {
         if (node.inner) {
             this._add(node.inner);
         }
+        if (node.nodes) {
+            this.canvas = this.canvas();
+        }
+    }
+
+    toggle() {
+        this._expand.content = '-';
+        this._graph = new view.Graph(this.context.view, this.context.model, false, {});
+        this._graph.add(this.value);
+        // const document = this.element.ownerDocument;
+        // const parent = this.element.parentElement;
+        // this._graph.build(document, parent);
+        // this._graph.update();
+        this.canvas.width = 300;
+        this.canvas.height = 300;
+        this.layout();
+        this.context.update();
     }
 };
 
@@ -1122,7 +1134,8 @@ view.Input = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-input' ], name, types, () => this.context.view.showModelProperties());
+        const title = header.add(null, [ 'graph-item-input' ], name, types);
+        title.on('click', () => this.context.view.showModelProperties());
         this.id = 'input-' + (name ? 'name-' + name : 'id-' + (view.Input.counter++).toString());
     }
 
@@ -1151,7 +1164,8 @@ view.Output = class extends grapher.Node {
             name = name.split('/').pop();
         }
         const header = this.header();
-        header.add(null, [ 'graph-item-output' ], name, types, () => this.context.view.showModelProperties());
+        const title = header.add(null, [ 'graph-item-output' ], name, types);
+        title.on('click', () => this.context.view.showModelProperties());
     }
 
     get inputs() {
