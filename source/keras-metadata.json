@@ -4354,18 +4354,17 @@
     "module": "tensorflow.keras.layers",
     "inputs": [
       {
-        "name": "query"
+        "name": "query",
+        "type": "Tensor[]"
       },
       {
-        "name": "value"
-      },
-      {
-        "name": "key"
+        "name": "value",
+        "type": "Tensor[]"
       }
     ],
     "outputs": [
       {
-        "name": "outputs"
+        "name": "output"
       }
     ],
     "description": "Dot-product attention layer, a.k.a. Luong-style attention.\n\nInputs are `query` tensor of shape `[batch_size, Tq, dim]`, `value` tensor of\nshape `[batch_size, Tv, dim]` and `key` tensor of shape\n`[batch_size, Tv, dim]`. The calculation follows the steps:\n\n1. Calculate scores with shape `[batch_size, Tq, Tv]` as a `query`-`key` dot\n   product: `scores = tf.matmul(query, key, transpose_b=True)`.\n2. Use scores to calculate a distribution with shape\n   `[batch_size, Tq, Tv]`: `distribution = tf.nn.softmax(scores)`.\n3. Use `distribution` to create a linear combination of `value` with\n   shape `[batch_size, Tq, dim]`:\n   `return tf.matmul(distribution, value)`.",
@@ -4397,6 +4396,155 @@
       {
         "name": "training",
         "description": "Python boolean indicating whether the layer should behave in\n    training mode (adding dropout) or in inference mode (no dropout).\n\nOutput:\n\n  Attention outputs of shape `[batch_size, Tq, dim]`.\n  [Optional] Attention scores after masking and softmax with shape\n    `[batch_size, Tq, Tv]`.\n\nThe meaning of `query`, `value` and `key` depend on the application. In the\ncase of text similarity, for example, `query` is the sequence embeddings of\nthe first piece of text and `value` is the sequence embeddings of the second\npiece of text. `key` is usually the same tensor as `value`.\n\nHere is a code example for using `Attention` in a CNN+Attention network:\n\n```python\n# Variable-length int sequences.\nquery_input = tf.keras.Input(shape=(None,), dtype='int32')\nvalue_input = tf.keras.Input(shape=(None,), dtype='int32')\n\n# Embedding lookup.\ntoken_embedding = tf.keras.layers.Embedding(input_dim=1000, output_dim=64)\n# Query embeddings of shape [batch_size, Tq, dimension].\nquery_embeddings = token_embedding(query_input)\n# Value embeddings of shape [batch_size, Tv, dimension].\nvalue_embeddings = token_embedding(value_input)\n\n# CNN layer.\ncnn_layer = tf.keras.layers.Conv1D(\n    filters=100,\n    kernel_size=4,\n    # Use 'same' padding so outputs have the same shape as inputs.\n    padding='same')\n# Query encoding of shape [batch_size, Tq, filters].\nquery_seq_encoding = cnn_layer(query_embeddings)\n# Value encoding of shape [batch_size, Tv, filters].\nvalue_seq_encoding = cnn_layer(value_embeddings)\n\n# Query-value attention of shape [batch_size, Tq, filters].\nquery_value_attention_seq = tf.keras.layers.Attention()(\n    [query_seq_encoding, value_seq_encoding])\n\n# Reduce over the sequence axis to produce encodings of shape\n# [batch_size, filters].\nquery_encoding = tf.keras.layers.GlobalAveragePooling1D()(\n    query_seq_encoding)\nquery_value_attention = tf.keras.layers.GlobalAveragePooling1D()(\n    query_value_attention_seq)\n\n# Concatenate query and document encodings to produce a DNN input layer.\ninput_layer = tf.keras.layers.Concatenate()(\n    [query_encoding, query_value_attention])\n\n# Add DNN layers, and create Model.\n# ...\n```"
+      }
+    ]
+  },
+  {
+    "name": "nn.relu",
+    "category": "Activation",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "math.add",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "Tensor"
+      },
+      {
+        "name": "y",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "__operators__.add",
+    "inputs": [
+      {
+        "name": "x",
+        "type": "Tensor"
+      },
+      {
+        "name": "y",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "z"
+      }
+    ]
+  },
+  {
+    "name": "linalg.matmul",
+    "attributes": [
+      {
+        "name": "transpose_a",
+        "type": "boolean"
+      },
+      {
+        "name": "transpose_b",
+        "type": "boolean"
+      }
+    ],
+    "inputs": [
+      {
+        "name": "a",
+        "type": "Tensor"
+      },
+      {
+        "name": "b",
+        "type": "Tensor"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "c",
+        "type": "Tensor"
+      }
+    ]
+  },
+  {
+    "name": "nn.abs",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "math.sigmoid",
+    "category": "Activation",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "reshape",
+    "category": "Shape",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "concat",
+    "category": "Tensor",
+    "inputs": [
+      {
+        "name": "inputs",
+        "list": true
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
+      }
+    ]
+  },
+  {
+    "name": "compat.v1.transpose",
+    "category": "Shape",
+    "inputs": [
+      {
+        "name": "input"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "output"
       }
     ]
   }
