@@ -2173,6 +2173,13 @@
   },
   {
     "type":   "keras",
+    "target": "model_float32.h5",
+    "source": "https://github.com/lutzroeder/netron/files/7759357/model_float32.h5.zip[model_float32.h5]",
+    "format": "Keras v2.7.0",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
+  },
+  {
+    "type":   "keras",
     "target": "NASNetMobile.h5.zip",
     "source": "https://github.com/lutzroeder/netron/files/6098153/NASNetMobile.h5.zip",
     "format": "Keras v2.4.0",
@@ -2212,20 +2219,6 @@
     "source": "https://github.com/lutzroeder/netron/files/4269953/netron_issue_435.zip[netron_issue_435.h5]",
     "format": "Keras v2.2.4",
     "link":   "https://github.com/lutzroeder/netron/issues/435"
-  },
-  {
-    "type":   "keras",
-    "target": "netron_issue_540_1.h5",
-    "source": "https://github.com/lutzroeder/netron/files/5748679/netron_issue_540_1.h5.zip[netron_issue_540_1.h5]",
-    "format": "Keras v2.4.0", "runtime": "tensorflow",
-    "link":   "https://github.com/lutzroeder/netron/issues/540"
-  },
-  {
-    "type":   "keras",
-    "target": "netron_issue_540_2.h5",
-    "source": "https://github.com/lutzroeder/netron/files/5748680/netron_issue_540_2.h5.zip[netron_issue_540_2.h5]",
-    "format": "Keras v2.4.0", "runtime": "tensorflow",
-    "link":   "https://github.com/lutzroeder/netron/issues/540"
   },
   {
     "type":   "keras",
@@ -2295,6 +2288,13 @@
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[time_distributed.h5]",
     "format": "Keras v2.1.2",
     "link":   "https://github.com/lutzroeder/netron/issues/57"
+  },
+  {
+    "type":   "keras",
+    "target": "thisnotworks.h5",
+    "source": "https://github.com/lutzroeder/netron/files/7764266/thisnotworks.h5.zip[thisnotworks.h5]",
+    "format": "Keras v2.4.0", "runtime": "tensorflow",
+    "link":   "https://github.com/lutzroeder/netron/issues/540"
   },
   {
     "type":   "keras",
