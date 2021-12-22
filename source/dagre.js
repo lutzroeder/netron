@@ -51,13 +51,11 @@ dagre.layout = (graph, options) => {
     };
 
     const runLayout = (g, time) => {
-
         let uniqueIdCounter = 0;
         const uniqueId = (prefix) => {
             const id = ++uniqueIdCounter;
             return prefix + id;
         };
-
         const flat = (list) => {
             if (Array.isArray(list) && list.every((item) => !Array.isArray(item))) {
                 return list;
@@ -148,15 +146,11 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        /*
-        * A helper that preforms a pre- or post-order traversal on the input graph
-        * and returns the nodes in the order they were visited. If the graph is
-        * undirected then this algorithm will navigate using neighbors. If the graph
-        * is directed then this algorithm will navigate using successors.
-        *
-        * Order must be one of 'pre' or 'post'.
-        */
-        const dfs = (g, vs, order) => {
+        // A helper that preforms a pre- or post-order traversal on the input graph and returns the nodes in the order they were visited.
+        // If the graph is undirected then this algorithm will navigate using neighbors.
+        // If the graph is directed then this algorithm will navigate using successors.
+        // Order must be one of 'pre' or 'post'.
+        const dfs = (g, vs, postorder) => {
             const doDfs = (g, v, postorder, visited, navigation, acc) => {
                 if (!visited.has(v)) {
                     visited.add(v);
@@ -181,15 +175,15 @@ dagre.layout = (graph, options) => {
                 if (!g.hasNode(v)) {
                     throw new Error('Graph does not have node: ' + v);
                 }
-                doDfs(g, v, order === 'post', visited, navigation, acc);
+                doDfs(g, v, postorder, visited, navigation, acc);
             }
             return acc;
         };
         const postorder = (g, vs) => {
-            return dfs(g, vs, 'post');
+            return dfs(g, vs, true);
         };
         const preorder = (g, vs) => {
-            return dfs(g, vs, 'pre');
+            return dfs(g, vs, false);
         };
 
         const removeSelfEdges = (g) => {
@@ -258,51 +252,36 @@ dagre.layout = (graph, options) => {
             return g.node(e.w).rank - g.node(e.v).rank - e.label.minlen;
         };
 
-        /*
-        * Assigns a rank to each node in the input graph that respects the 'minlen'
-        * constraint specified on edges between nodes.
-        *
-        * This basic structure is derived from Gansner, et al., 'A Technique for
-        * Drawing Directed Graphs.'
-        *
-        * Pre-conditions:
-        *
-        *    1. Graph must be a connected DAG
-        *    2. Graph nodes must be objects
-        *    3. Graph edges must have 'weight' and 'minlen' attributes
-        *
-        * Post-conditions:
-        *
-        *    1. Graph nodes will have a 'rank' attribute based on the results of the
-        *       algorithm. Ranks can start at any index (including negative), we'll
-        *       fix them up later.
-        */
+        // Assigns a rank to each node in the input graph that respects the 'minlen' constraint specified on edges between nodes.
+        // This basic structure is derived from Gansner, et al., 'A Technique for Drawing Directed Graphs.'
+        //
+        // Pre-conditions:
+        //    1. Graph must be a connected DAG
+        //    2. Graph nodes must be objects
+        //    3. Graph edges must have 'weight' and 'minlen' attributes
+        //
+        // Post-conditions:
+        //    1. Graph nodes will have a 'rank' attribute based on the results of the
+        //       algorithm. Ranks can start at any index (including negative), we'll
+        //       fix them up later.
         const rank = (g) => {
-            /*
-            * Constructs a spanning tree with tight edges and adjusted the input node's
-            * ranks to achieve this. A tight edge is one that is has a length that matches
-            * its 'minlen' attribute.
-            *
-            * The basic structure for this function is derived from Gansner, et al., 'A
-            * Technique for Drawing Directed Graphs.'
-            *
-            * Pre-conditions:
-            *
-            *    1. Graph must be a DAG.
-            *    2. Graph must be connected.
-            *    3. Graph must have at least one node.
-            *    5. Graph nodes must have been previously assigned a 'rank' property that
-            *       respects the 'minlen' property of incident edges.
-            *    6. Graph edges must have a 'minlen' property.
-            *
-            * Post-conditions:
-            *
-            *    - Graph nodes will have their rank adjusted to ensure that all edges are
-            *      tight.
-            *
-            * Returns a tree (undirected graph) that is constructed using only 'tight'
-            * edges.
-            */
+            // Constructs a spanning tree with tight edges and adjusted the input node's ranks to achieve this.
+            // A tight edge is one that is has a length that matches its 'minlen' attribute.
+            //
+            // The basic structure for this function is derived from Gansner, et al., 'A Technique for Drawing Directed Graphs.'
+            //
+            // Pre-conditions:
+            //
+            //    1. Graph must be a DAG.
+            //    2. Graph must be connected.
+            //    3. Graph must have at least one node.
+            //    5. Graph nodes must have been previously assigned a 'rank' property that respects the 'minlen' property of incident edges.
+            //    6. Graph edges must have a 'minlen' property.
+            //
+            // Post-conditions:
+            //    - Graph nodes will have their rank adjusted to ensure that all edges are tight.
+            //
+            // Returns a tree (undirected graph) that is constructed using only 'tight' edges.
             const feasibleTree = (g) => {
                 const t = new dagre.Graph({ directed: false });
                 // Choose arbitrary node from which to start our tree
@@ -350,27 +329,23 @@ dagre.layout = (graph, options) => {
                 }
                 return t;
             };
-            /*
-            * Initializes ranks for the input graph using the longest path algorithm. This
-            * algorithm scales well and is fast in practice, it yields rather poor
-            * solutions. Nodes are pushed to the lowest layer possible, leaving the bottom
-            * ranks wide and leaving edges longer than necessary. However, due to its
-            * speed, this algorithm is good for getting an initial ranking that can be fed
-            * into other algorithms.
-            *
-            * This algorithm does not normalize layers because it will be used by other
-            * algorithms in most cases. If using this algorithm directly, be sure to
-            * run normalize at the end.
-            *
-            * Pre-conditions:
-            *
-            *    1. Input graph is a DAG.
-            *    2. Input graph node labels can be assigned properties.
-            *
-            * Post-conditions:
-            *
-            *    1. Each node will be assign an (unnormalized) 'rank' property.
-            */
+            // Initializes ranks for the input graph using the longest path algorithm. This
+            // algorithm scales well and is fast in practice, it yields rather poor
+            // solutions. Nodes are pushed to the lowest layer possible, leaving the bottom
+            // ranks wide and leaving edges longer than necessary. However, due to its
+            // speed, this algorithm is good for getting an initial ranking that can be fed
+            // into other algorithms.
+            //
+            // This algorithm does not normalize layers because it will be used by other
+            // algorithms in most cases. If using this algorithm directly, be sure to
+            // run normalize at the end.
+            //
+            // Pre-conditions:
+            //    1. Input graph is a DAG.
+            //    2. Input graph node labels can be assigned properties.
+            //
+            // Post-conditions:
+            //    1. Each node will be assign an (unnormalized) 'rank' property.
             const longestPath = (g) => {
                 const visited = new Set();
                 const dfs = (v) => {
@@ -396,44 +371,35 @@ dagre.layout = (graph, options) => {
                     dfs(v);
                 }
             };
-            /*
-            * The network simplex algorithm assigns ranks to each node in the input graph
-            * and iteratively improves the ranking to reduce the length of edges.
-            *
-            * Preconditions:
-            *
-            *    1. The input graph must be a DAG.
-            *    2. All nodes in the graph must have an object value.
-            *    3. All edges in the graph must have 'minlen' and 'weight' attributes.
-            *
-            * Postconditions:
-            *
-            *    1. All nodes in the graph will have an assigned 'rank' attribute that has
-            *       been optimized by the network simplex algorithm. Ranks start at 0.
-            *
-            *
-            * A rough sketch of the algorithm is as follows:
-            *
-            *    1. Assign initial ranks to each node. We use the longest path algorithm,
-            *       which assigns ranks to the lowest position possible. In general this
-            *       leads to very wide bottom ranks and unnecessarily long edges.
-            *    2. Construct a feasible tight tree. A tight tree is one such that all
-            *       edges in the tree have no slack (difference between length of edge
-            *       and minlen for the edge). This by itself greatly improves the assigned
-            *       rankings by shorting edges.
-            *    3. Iteratively find edges that have negative cut values. Generally a
-            *       negative cut value indicates that the edge could be removed and a new
-            *       tree edge could be added to produce a more compact graph.
-            *
-            * Much of the algorithms here are derived from Gansner, et al., 'A Technique
-            * for Drawing Directed Graphs.' The structure of the file roughly follows the
-            * structure of the overall algorithm.
-            */
+            // The network simplex algorithm assigns ranks to each node in the input graph
+            // and iteratively improves the ranking to reduce the length of edges.
+            //
+            // Preconditions:
+            //    1. The input graph must be a DAG.
+            //    2. All nodes in the graph must have an object value.
+            //    3. All edges in the graph must have 'minlen' and 'weight' attributes.
+            //
+            // Postconditions:
+            //    1. All nodes in the graph will have an assigned 'rank' attribute that has
+            //       been optimized by the network simplex algorithm. Ranks start at 0.
+            //
+            // A rough sketch of the algorithm is as follows:
+            //    1. Assign initial ranks to each node. We use the longest path algorithm,
+            //       which assigns ranks to the lowest position possible. In general this
+            //       leads to very wide bottom ranks and unnecessarily long edges.
+            //    2. Construct a feasible tight tree. A tight tree is one such that all
+            //       edges in the tree have no slack (difference between length of edge
+            //       and minlen for the edge). This by itself greatly improves the assigned
+            //       rankings by shorting edges.
+            //    3. Iteratively find edges that have negative cut values. Generally a
+            //       negative cut value indicates that the edge could be removed and a new
+            //       tree edge could be added to produce a more compact graph.
+            //
+            // Much of the algorithms here are derived from Gansner, et al., 'A Technique
+            // for Drawing Directed Graphs.' The structure of the file roughly follows the
+            // structure of the overall algorithm.
             const networkSimplex = (g) => {
-                /*
-                * Returns a new graph with only simple edges. Handles aggregation of data
-                * associated with multi-edges.
-                */
+                // Returns a new graph with only simple edges. Handles aggregation of data associated with multi-edges.
                 const simplify = (g) => {
                     const graph = new dagre.Graph();
                     graph.setGraph(g.graph());
@@ -617,8 +583,7 @@ dagre.layout = (graph, options) => {
                 if (edge.width && edge.height) {
                     const v = g.node(e.v);
                     const w = g.node(e.w);
-                    const label = { rank: (w.rank - v.rank) / 2 + v.rank, e: e };
-                    addDummyNode(g, 'edge-proxy', label, '_ep');
+                    addDummyNode(g, 'edge-proxy', { rank: (w.rank - v.rank) / 2 + v.rank, e: e }, '_ep');
                 }
             }
         };
@@ -656,7 +621,7 @@ dagre.layout = (graph, options) => {
                     for (let i = 0; i < layers.length; i++) {
                         const vs = layers[i];
                         if (vs === undefined && i % nodeRankFactor !== 0) {
-                            --delta;
+                            delta--;
                         }
                         else if (delta && vs) {
                             for (const v of vs) {
@@ -668,29 +633,23 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        /*
-        * A nesting graph creates dummy nodes for the tops and bottoms of subgraphs,
-        * adds appropriate edges to ensure that all cluster nodes are placed between
-        * these boundries, and ensures that the graph is connected.
-        *
-        * In addition we ensure, through the use of the minlen property, that nodes
-        * and subgraph border nodes to not end up on the same rank.
-        *
-        * Preconditions:
-        *
-        *    1. Input graph is a DAG
-        *    2. Nodes in the input graph has a minlen attribute
-        *
-        * Postconditions:
-        *
-        *    1. Input graph is connected.
-        *    2. Dummy nodes are added for the tops and bottoms of subgraphs.
-        *    3. The minlen attribute for nodes is adjusted to ensure nodes do not
-        *       get placed on the same rank as subgraph border nodes.
-        *
-        * The nesting graph idea comes from Sander, 'Layout of Compound Directed
-        * Graphs.'
-        */
+        // A nesting graph creates dummy nodes for the tops and bottoms of subgraphs,
+        // adds appropriate edges to ensure that all cluster nodes are placed between
+        // these boundries, and ensures that the graph is connected.
+        // In addition we ensure, through the use of the minlen property, that nodes
+        // and subgraph border nodes do not end up on the same rank.
+        //
+        // Preconditions:
+        //    1. Input graph is a DAG
+        //    2. Nodes in the input graph has a minlen attribute
+        //
+        // Postconditions:
+        //   1. Input graph is connected.
+        //   2. Dummy nodes are added for the tops and bottoms of subgraphs.
+        //   3. The minlen attribute for nodes is adjusted to ensure nodes do not
+        //      get placed on the same rank as subgraph border nodes.
+        //
+        // The nesting graph idea comes from Sander, 'Layout of Compound Directed Graphs.'
         const nestingGraph_run = (g) => {
             const root = addDummyNode(g, 'root', {}, '_root');
             const treeDepths = (g) => {
@@ -769,8 +728,8 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        // Adjusts the ranks for all nodes in the graph such that all nodes v have rank(v) >= 0 and at least one node w has rank(w) = 0.
-        const normalizeRanks = (g) => {
+        const assignRankMinMax = (g) => {
+            // Adjusts the ranks for all nodes in the graph such that all nodes v have rank(v) >= 0 and at least one node w has rank(w) = 0.
             let min = Number.POSITIVE_INFINITY;
             for (const node of g.nodes().values()) {
                 const rank = node.rank;
@@ -783,9 +742,6 @@ dagre.layout = (graph, options) => {
                     node.rank -= min;
                 }
             }
-        };
-
-        const assignRankMinMax = (g) => {
             let maxRank = 0;
             for (const node of g.nodes().values()) {
                 if (node.borderTop) {
@@ -821,19 +777,17 @@ dagre.layout = (graph, options) => {
                 const labelRank = edgeLabel.labelRank;
                 if (wRank !== vRank + 1) {
                     g.removeEdge(e);
-                    let dummy;
-                    let attrs;
                     let first = true;
                     vRank++;
                     while (vRank < wRank) {
                         edgeLabel.points = [];
-                        attrs = {
+                        const attrs = {
                             width: 0, height: 0,
                             edgeLabel: edgeLabel,
                             edgeObj: e,
                             rank: vRank
                         };
-                        dummy = addDummyNode(g, 'edge', attrs, '_d');
+                        const dummy = addDummyNode(g, 'edge', attrs, '_d');
                         if (vRank === labelRank) {
                             attrs.width = edgeLabel.width;
                             attrs.height = edgeLabel.height;
@@ -856,19 +810,18 @@ dagre.layout = (graph, options) => {
         const denormalize = (g) => {
             for (let v of g.graph().dummyChains) {
                 let node = g.node(v);
-                const origLabel = node.edgeLabel;
-                let w;
+                const edgeLabel = node.edgeLabel;
                 const e = node.edgeObj;
-                g.setEdge(e.v, e.w, origLabel, e.name);
+                g.setEdge(e.v, e.w, edgeLabel, e.name);
                 while (node.dummy) {
-                    w = g.successors(v)[0];
+                    const w = g.successors(v)[0];
                     g.removeNode(v);
-                    origLabel.points.push({ x: node.x, y: node.y });
+                    edgeLabel.points.push({ x: node.x, y: node.y });
                     if (node.dummy === 'edge-label') {
-                        origLabel.x = node.x;
-                        origLabel.y = node.y;
-                        origLabel.width = node.width;
-                        origLabel.height = node.height;
+                        edgeLabel.x = node.x;
+                        edgeLabel.y = node.y;
+                        edgeLabel.width = node.width;
+                        edgeLabel.height = node.height;
                     }
                     v = w;
                     node = g.node(v);
@@ -925,7 +878,7 @@ dagre.layout = (graph, options) => {
             };
             const postorderNums = postorder(g);
             for (let v of g.graph().dummyChains || []) {
-                let node = g.node(v);
+                const node = g.node(v);
                 const edgeObj = node.edgeObj;
                 const pathData = findPath(g, postorderNums, edgeObj.v, edgeObj.w);
                 const path = pathData.path;
@@ -934,7 +887,7 @@ dagre.layout = (graph, options) => {
                 let pathV = path[pathIdx];
                 let ascending = true;
                 while (v !== edgeObj.w) {
-                    node = g.node(v);
+                    const node = g.node(v);
                     if (ascending) {
                         while ((pathV = path[pathIdx]) !== lca && g.node(pathV).maxRank < node.rank) {
                             pathIdx++;
@@ -977,7 +930,8 @@ dagre.layout = (graph, options) => {
                 if ('minRank' in node) {
                     node.borderLeft = [];
                     node.borderRight = [];
-                    for (let rank = node.minRank, maxRank = node.maxRank + 1; rank < maxRank; ++rank) {
+                    const maxRank = node.maxRank + 1;
+                    for (let rank = node.minRank; rank < maxRank; rank++) {
                         addBorderNode(g, 'borderLeft', '_bl', v, node, rank);
                         addBorderNode(g, 'borderRight', '_br', v, node, rank);
                     }
@@ -988,45 +942,37 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        /*
-        * Applies heuristics to minimize edge crossings in the graph and sets the best
-        * order solution as an order attribute on each node.
-        *
-        * Pre-conditions:
-        *
-        *    1. Graph must be DAG
-        *    2. Graph nodes must be objects with a 'rank' attribute
-        *    3. Graph edges must have the 'weight' attribute
-        *
-        * Post-conditions:
-        *
-        *    1. Graph nodes will have an 'order' attribute based on the results of the algorithm.
-        */
+        // Applies heuristics to minimize edge crossings in the graph and sets the best
+        // order solution as an order attribute on each node.
+        //
+        // Pre-conditions:
+        //    1. Graph must be DAG
+        //    2. Graph nodes must be objects with a 'rank' attribute
+        //    3. Graph edges must have the 'weight' attribute
+        //
+        // Post-conditions:
+        //    1. Graph nodes will have an 'order' attribute based on the results of the algorithm.
         const order = (g) => {
             const sortSubgraph = (g, v, cg, biasRight) => {
-                /*
-                * Given a list of entries of the form {v, barycenter, weight} and a
-                * constraint graph this function will resolve any conflicts between the
-                * constraint graph and the barycenters for the entries. If the barycenters for
-                * an entry would violate a constraint in the constraint graph then we coalesce
-                * the nodes in the conflict into a new node that respects the contraint and
-                * aggregates barycenter and weight information.
-                *
-                * This implementation is based on the description in Forster, 'A Fast and Simple Hueristic for Constrained Two-Level Crossing Reduction,' thought it differs in some specific details.
-                *
-                * Pre-conditions:
-                *
-                *    1. Each entry has the form {v, barycenter, weight}, or if the node has
-                *       no barycenter, then {v}.
-                *
-                * Returns:
-                *
-                *    A new list of entries of the form {vs, i, barycenter, weight}. The list
-                *    `vs` may either be a singleton or it may be an aggregation of nodes
-                *    ordered such that they do not violate constraints from the constraint
-                *    graph. The property `i` is the lowest original index of any of the
-                *    elements in `vs`.
-                */
+                // Given a list of entries of the form {v, barycenter, weight} and a
+                // constraint graph this function will resolve any conflicts between the
+                // constraint graph and the barycenters for the entries. If the barycenters for
+                // an entry would violate a constraint in the constraint graph then we coalesce
+                // the nodes in the conflict into a new node that respects the contraint and
+                // aggregates barycenter and weight information.
+                //
+                // This implementation is based on the description in Forster, 'A Fast and Simple Hueristic for Constrained Two-Level Crossing Reduction,' thought it differs in some specific details.
+                //
+                // Pre-conditions:
+                //    1. Each entry has the form {v, barycenter, weight}, or if the node has
+                //       no barycenter, then {v}.
+                //
+                // Returns:
+                //    A new list of entries of the form {vs, i, barycenter, weight}. The list
+                //    `vs` may either be a singleton or it may be an aggregation of nodes
+                //    ordered such that they do not violate constraints from the constraint
+                //    graph. The property `i` is the lowest original index of any of the
+                //    elements in `vs`.
                 const resolveConflicts = (entries, cg) => {
                     const mergeEntries = (target, source) => {
                         let sum = 0;
@@ -1046,7 +992,8 @@ dagre.layout = (graph, options) => {
                         source.merged = true;
                     };
                     const mappedEntries = {};
-                    entries.forEach(function(entry, i) {
+                    for (let i = 0; i < entries.length; i++) {
+                        const entry = entries[i];
                         const tmp = mappedEntries[entry.v] = {
                             indegree: 0,
                             'in': [],
@@ -1058,11 +1005,11 @@ dagre.layout = (graph, options) => {
                             tmp.barycenter = entry.barycenter;
                             tmp.weight = entry.weight;
                         }
-                    });
+                    }
                     for (const e of cg.edges().values()) {
                         const entryV = mappedEntries[e.v];
                         const entryW = mappedEntries[e.w];
-                        if (entryV !== undefined && entryW !== undefined) {
+                        if (entryV && entryW) {
                             entryW.indegree++;
                             entryV.out.push(mappedEntries[e.w]);
                         }
@@ -1229,30 +1176,6 @@ dagre.layout = (graph, options) => {
                 }
                 return result;
             };
-            const addSubgraphConstraints = (g, cg, vs) => {
-                const prev = {};
-                let rootPrev;
-                for (const v of vs) {
-                    let child = g.parent(v);
-                    let prevChild;
-                    while (child) {
-                        const parent = g.parent(child);
-                        if (parent) {
-                            prevChild = prev[parent];
-                            prev[parent] = child;
-                        }
-                        else {
-                            prevChild = rootPrev;
-                            rootPrev = child;
-                        }
-                        if (prevChild && prevChild !== child) {
-                            cg.setEdge(prevChild, child, null);
-                            return;
-                        }
-                        child = parent;
-                    }
-                }
-            };
             const sweepLayerGraphs = (layerGraphs, biasRight) => {
                 const cg = new dagre.Graph();
                 for (const lg of layerGraphs) {
@@ -1263,42 +1186,63 @@ dagre.layout = (graph, options) => {
                     for (let i = 0; i < length; i++) {
                         lg.node(vs[i]).order = i;
                     }
-                    addSubgraphConstraints(lg, cg, sorted.vs);
+                    // add subgraph constraints
+                    const prev = {};
+                    let rootPrev;
+                    let exit = false;
+                    for (const v of vs) {
+                        let child = lg.parent(v);
+                        let prevChild;
+                        while (child) {
+                            const parent = lg.parent(child);
+                            if (parent) {
+                                prevChild = prev[parent];
+                                prev[parent] = child;
+                            }
+                            else {
+                                prevChild = rootPrev;
+                                rootPrev = child;
+                            }
+                            if (prevChild && prevChild !== child) {
+                                cg.setEdge(prevChild, child, null);
+                                exit = true;
+                                break;
+                            }
+                            child = parent;
+                        }
+                        if (exit) {
+                            break;
+                        }
+                    }
                 }
             };
-            /*
-            * A function that takes a layering (an array of layers, each with an array of
-            * ordererd nodes) and a graph and returns a weighted crossing count.
-            *
-            * Pre-conditions:
-            *
-            *    1. Input graph must be simple (not a multigraph), directed, and include
-            *       only simple edges.
-            *    2. Edges in the input graph must have assigned weights.
-            *
-            * Post-conditions:
-            *
-            *    1. The graph and layering matrix are left unchanged.
-            *
-            * This algorithm is derived from Barth, et al., 'Bilayer Cross Counting.'
-            */
+            // A function that takes a layering (an array of layers, each with an array of
+            // ordererd nodes) and a graph and returns a weighted crossing count.
+            //
+            // Pre-conditions:
+            //    1. Input graph must be simple (not a multigraph), directed, and include
+            //       only simple edges.
+            //    2. Edges in the input graph must have assigned weights.
+            //
+            // Post-conditions:
+            //    1. The graph and layering matrix are left unchanged.
+            //
+            // This algorithm is derived from Barth, et al., 'Bilayer Cross Counting.'
             const crossCount = (g, layering) => {
                 let count = 0;
                 for (let i = 1; i < layering.length; i++) {
                     const northLayer = layering[i - 1];
                     const southLayer = layering[i];
-                    // Sort all of the edges between the north and south layers by their position
-                    // in the north layer and then the south. Map these edges to the position of
-                    // their head in the south layer.
+                    // Sort all of the edges between the north and south layers by their position in the north layer and then the south.
+                    // Map these edges to the position of their head in the south layer.
                     const southPos = {};
                     for (let i = 0; i < southLayer.length; i++) {
                         southPos[southLayer[i]] = i;
                     }
                     const southEntries = [];
                     for (const v of northLayer) {
-                        const edges = g.outEdges(v);
                         const entries = [];
-                        for (const e of edges) {
+                        for (const e of g.outEdges(v)) {
                             entries.push({
                                 pos: southPos[e.w],
                                 weight: e.label.weight
@@ -1334,17 +1278,15 @@ dagre.layout = (graph, options) => {
                 }
                 return count;
             };
-            /*
-            * Assigns an initial order value for each node by performing a DFS search
-            * starting from nodes in the first rank. Nodes are assigned an order in their
-            * rank as they are first visited.
-            *
-            * This approach comes from Gansner, et al., 'A Technique for Drawing Directed
-            * Graphs.'
-            *
-            * Returns a layering matrix with an array per layer and each layer sorted by
-            * the order of its nodes.
-            */
+            // Assigns an initial order value for each node by performing a DFS search
+            // starting from nodes in the first rank. Nodes are assigned an order in their
+            // rank as they are first visited.
+            //
+            // This approach comes from Gansner, et al., 'A Technique for Drawing Directed
+            // Graphs.'
+            //
+            // Returns a layering matrix with an array per layer and each layer sorted by
+            // the order of its nodes.
             const initOrder = (g) => {
                 const visited = new Set();
                 const nodes = Array.from(g.nodes().keys()).filter((v) => !g.children(v).length);
@@ -1375,14 +1317,13 @@ dagre.layout = (graph, options) => {
                 }
                 return [];
             };
-            // Constructs a graph that can be used to sort a layer of nodes. The graph will
-            // contain all base and subgraph nodes from the request layer in their original
-            // hierarchy and any edges that are incident on these nodes and are of the type
-            // requested by the 'relationship' parameter.
+            // Constructs a graph that can be used to sort a layer of nodes.
+            // The graph will contain all base and subgraph nodes from the request layer in their original
+            // hierarchy and any edges that are incident on these nodes and are of the type requested by the 'relationship' parameter.
             //
-            // Nodes from the requested rank that do not have parents are assigned a root
-            // node in the output graph, which is set in the root graph attribute. This
-            // makes it easy to walk the hierarchy of movable nodes during ordering.
+            // Nodes from the requested rank that do not have parents are assigned a root node in the output graph,
+            // which is set in the root graph attribute.
+            // This makes it easy to walk the hierarchy of movable nodes during ordering.
             //
             // Pre-conditions:
             //    1. Input graph is a DAG
@@ -1391,16 +1332,13 @@ dagre.layout = (graph, options) => {
             //    4. Edges have an assigned weight
             //
             // Post-conditions:
-            //    1. Output graph has all nodes in the movable rank with preserved
-            //       hierarchy.
+            //    1. Output graph has all nodes in the movable rank with preserved hierarchy.
             //    2. Root nodes in the movable layer are made children of the node
             //       indicated by the root attribute of the graph.
             //    3. Non-movable nodes incident on movable nodes, selected by the
             //       relationship parameter, are included in the graph (without hierarchy).
-            //    4. Edges incident on movable nodes, selected by the relationship
-            //       parameter, are added to the output graph.
-            //    5. The weights for copied edges are aggregated as need, since the output
-            //       graph is not a multi-graph.
+            //    4. Edges incident on movable nodes, selected by the relationship parameter, are added to the output graph.
+            //    5. The weights for copied edges are aggregated as need, since the output graph is not a multi-graph.
             const buildLayerGraph = (g, rank, relationship) => {
                 let root;
                 while (g.hasNode((root = uniqueId('_root'))));
@@ -1445,9 +1383,9 @@ dagre.layout = (graph, options) => {
             };
             assignOrder(g, layering);
 
-            const rank = maxRank(g);
-            const downLayerGraphs = new Array(rank !== undefined ? rank : 0);
-            const upLayerGraphs = new Array(rank !== undefined ? rank : 0);
+            const rank = maxRank(g) || 0;
+            const downLayerGraphs = new Array(rank);
+            const upLayerGraphs = new Array(rank);
             for (let i = 0; i < rank; i++) {
                 downLayerGraphs[i] = buildLayerGraph(g, i + 1, true);
                 upLayerGraphs[i] = buildLayerGraph(g, rank - i - 1, false);
@@ -1794,7 +1732,7 @@ dagre.layout = (graph, options) => {
                                         const uLabel = g.node(u);
                                         const uPos = uLabel.order;
                                         if ((uPos < k0 || k1 < uPos) && !(uLabel.dummy && g.node(scanNode).dummy)) {
-                                            // addConflict(conflicts, u, scanNode);
+                                            addConflict(conflicts, u, scanNode);
                                         }
                                     }
                                 }
@@ -1970,10 +1908,8 @@ dagre.layout = (graph, options) => {
                 }
             }
             for (const entry of g.nodes()) {
-                const node = entry[1];
-                if (node.dummy === 'border') {
-                    const v = entry[0];
-                    g.removeNode(v);
+                if (entry[1].dummy === 'border') {
+                    g.removeNode(entry[0]);
                 }
             }
         };
@@ -2101,7 +2037,6 @@ dagre.layout = (graph, options) => {
         time('    injectEdgeLabelProxies',        () => { injectEdgeLabelProxies(g); });
         time('    removeEmptyRanks',              () => { removeEmptyRanks(g); });
         time('    nestingGraph_cleanup',          () => { nestingGraph_cleanup(g); });
-        time('    normalizeRanks',                () => { normalizeRanks(g); });
         time('    assignRankMinMax',              () => { assignRankMinMax(g); });
         time('    removeEdgeLabelProxies',        () => { removeEdgeLabelProxies(g); });
         time('    normalize',                     () => { normalize(g); });
@@ -2121,44 +2056,40 @@ dagre.layout = (graph, options) => {
         time('    acyclic_undo',                  () => { acyclic_undo(g); });
     };
 
-    /*
-    * Copies final layout information from the layout graph back to the input
-    * graph. This process only copies whitelisted attributes from the layout graph
-    * to the input graph, so it serves as a good place to determine what
-    * attributes can influence layout.
-    */
-    const updateInputGraph = (inputGraph, layoutGraph) => {
-        for (const entry of inputGraph.nodes()) {
-            const inputLabel = entry[1];
-            if (inputLabel) {
+    // Copies final layout information from the layout graph back to the input graph.
+    // This process only copies whitelisted attributes from the layout graph to the input graph,
+    // so it serves as a good place to determine what attributes can influence layout.
+    const updateSourceGraph = (graph, g) => {
+        for (const entry of graph.nodes()) {
+            const node = entry[1];
+            if (node) {
                 const v = entry[0];
-                const layoutLabel = layoutGraph.node(v);
-                inputLabel.x = layoutLabel.x;
-                inputLabel.y = layoutLabel.y;
-                if (layoutGraph.children(v).length) {
-                    inputLabel.width = layoutLabel.width;
-                    inputLabel.height = layoutLabel.height;
+                const layoutLabel = g.node(v);
+                node.x = layoutLabel.x;
+                node.y = layoutLabel.y;
+                if (g.children(v).length) {
+                    node.width = layoutLabel.width;
+                    node.height = layoutLabel.height;
                 }
             }
         }
-        for (const e of inputGraph.edges().values()) {
-            const inputLabel = e.label;
-            const layoutLabel = layoutGraph.edge(e.v, e.w).label;
-            inputLabel.points = layoutLabel.points;
+        for (const e of graph.edges().values()) {
+            const layoutLabel = g.edge(e.v, e.w).label;
+            e.label.points = layoutLabel.points;
             if ('x' in layoutLabel) {
-                inputLabel.x = layoutLabel.x;
-                inputLabel.y = layoutLabel.y;
+                e.label.x = layoutLabel.x;
+                e.label.y = layoutLabel.y;
             }
         }
-        inputGraph.graph().width = layoutGraph.graph().width;
-        inputGraph.graph().height = layoutGraph.graph().height;
+        graph.graph().width = g.graph().width;
+        graph.graph().height = g.graph().height;
     };
 
     time('layout', () => {
         const layoutGraph =
-        time('  buildLayoutGraph', () => { return buildLayoutGraph(graph); });
-        time('  runLayout',        () => { runLayout(layoutGraph, time); });
-        time('  updateInputGraph', () => { updateInputGraph(graph, layoutGraph); });
+        time('  buildLayoutGraph',  () => { return buildLayoutGraph(graph); });
+        time('  runLayout',         () => { runLayout(layoutGraph, time); });
+        time('  updateSourceGraph', () => { updateSourceGraph(graph, layoutGraph); });
     });
 };
 
