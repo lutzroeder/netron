@@ -401,9 +401,10 @@ keras.Graph = class {
             }
         }
         else if (weights) {
-            for (const layer of weights.keys()) {
-                if (weights.get('', layer).length <= 6) {
-                    const node = new keras.Node(metadata, 'Weights', { name: layer }, [], [], '', weights);
+            for (const name of weights.keys()) {
+                if (weights.get('', name).length <= 6) {
+                    const layer = { class_name: 'Weights', config: { name: name } };
+                    const node = new keras.Node(metadata, layer, '', weights);
                     this._nodes.push(node);
                 }
             }
@@ -434,57 +435,95 @@ keras.Graph = class {
         if (group) {
             this._groups = true;
         }
-        const nodeMap = new Map();
+        const nodes = new Map();
         if (config.layers) {
             for (const layer of config.layers) {
-                layer._inputs = [];
-                layer._outputs = [];
-                if (layer.name) {
-                    if (!nodeMap.has(layer.name)) {
-                        nodeMap.set(layer.name, layer);
-                    }
+                layer.inputs = [];
+                layer.outputs = [];
+                layer.args = {};
+                if (layer.name && !nodes.has(layer.name)) {
+                    nodes.set(layer.name, layer);
                 }
             }
+            const is_connection = (item) => {
+                return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string' && Number.isInteger(item[1]) && Number.isInteger(item[2]);
+            };
+            const read_connection = (input_data) => {
+                let name = input_data[0];
+                const node = nodes.get(name);
+                if (node) {
+                    // const node_index = input_data[1];
+                    const tensor_index = input_data[2];
+                    if (tensor_index !== 0) {
+                        name += ':' + tensor_index.toString();
+                    }
+                    while (tensor_index >= node.outputs.length) {
+                        node.outputs.push('');
+                    }
+                    node.outputs[tensor_index] = name;
+                }
+                return { name: name };
+            };
+            const read_value = (input_data) => {
+                const array_size = (value) => {
+                    if (value.every((item) => item.length > 2 && item[0] === '_CONSTANT_VALUE' && item[1] === -1)) {
+                        for (let i = 0; i < value.length; i++) {
+                            value[i] = value[i][2];
+                        }
+                    }
+                    else if (value.every((item) => Array.isArray(item))) {
+                        const dims = value.map((item) => array_size(item));
+                        const dim = dims[0];
+                        for (let i = 1; i < dims.length; i++) {
+                            if (dim.length === dims[i].length) {
+                                if (!dims[i].every((value, i) => value ===dim[i])) {
+                                    throw new python.Error('Invalid array shape.');
+                                }
+                            }
+                        }
+                        return [ value.length ].concat(dim);
+                    }
+                    return [ value.length ];
+                };
+                if (Array.isArray(input_data)) {
+                    const shape = array_size(input_data);
+                    return { shape: shape, value: input_data };
+                }
+                return { value: input_data };
+            };
             for (const layer of config.layers) {
                 if (layer.inbound_nodes) {
-                    for (let inbound_node of layer.inbound_nodes) {
-                        const is_connection = (item) => {
-                            return Array.isArray(item) && (item.length === 3 || item.length === 4) && typeof item[0] === 'string';
-                        };
-                        // wrap
+                    for (const inbound_node of layer.inbound_nodes) {
                         if (is_connection(inbound_node)) {
-                            inbound_node = [ inbound_node ];
-                        }
-                        // unwrap
-                        if (Array.isArray(inbound_node) && inbound_node.every((array) => Array.isArray(array) && array.every((item) => is_connection(item)))) {
-                            inbound_node = inbound_node.flat();
-                        }
-                        const add_inbound_connection = (connection) => {
-                            let inputName = connection[0];
-                            if (inputName !== '_CONSTANT_VALUE') {
-                                const inputNode = nodeMap.get(inputName);
-                                if (inputNode) {
-                                    const inputIndex = connection[2];
-                                    if (inputIndex != 0) {
-                                        inputName += ':' + inputIndex.toString();
-                                    }
-                                    while (inputIndex >= inputNode._outputs.length) {
-                                        inputNode._outputs.push('');
-                                    }
-                                    inputNode._outputs[inputIndex] = inputName;
-                                }
-                                layer._inputs.push(inputName);
+                            layer.inputs.push(read_connection(inbound_node));
+                            const args = inbound_node[3] || {};
+                            layer.args = {};
+                            for (const entry of Object.entries(args)) {
+                                const key = entry[0];
+                                const value = entry[1];
+                                layer.args[key] = is_connection(value) ? read_connection(value) : read_value(value);
                             }
-                        };
-                        for (const inbound_connection of inbound_node) {
-                            add_inbound_connection(inbound_connection);
-                            if (inbound_connection[3]) {
-                                for (const entry of Object.entries(inbound_connection[3])) {
-                                    if (Array.isArray(entry[1]) && entry[1].length > 2) {
-                                        add_inbound_connection(entry[1]);
+                        }
+                        else if (Array.isArray(inbound_node)) {
+                            for (const input_data of inbound_node) {
+                                if (is_connection(input_data)) {
+                                    layer.inputs.push(read_connection(input_data));
+                                }
+                                else if (Array.isArray(input_data) && input_data.every((item) => is_connection(item))) {
+                                    for (const input of input_data) {
+                                        layer.inputs.push(read_connection(input));
                                     }
                                 }
+                                else if (Array.isArray(input_data)) {
+                                    layer.inputs.push(read_value(input_data));
+                                }
+                                else {
+                                    throw new keras.Error("Invalid inbound connection '" + JSON.stringify(input_data) + "'.");
+                                }
                             }
+                        }
+                        else {
+                            throw new keras.Error("Invalid inbound node '" + JSON.stringify(inbound_node) + "'.");
                         }
                     }
                 }
@@ -496,24 +535,26 @@ keras.Graph = class {
                 const input_layer = input_layers[i];
                 const name = input_layer[0];
                 let type = null;
-                const node = nodeMap.get(name);
+                const node = nodes.get(name);
                 if (node && node.class_name == 'InputLayer') {
                     type = this._getInputType(node);
-                    nodeMap.delete(name);
+                    nodes.delete(name);
                 }
                 if (inputs && i < inputs.length) {
                     if (config.layers) {
                         for (const layer of config.layers) {
-                            if (layer._inputs) {
-                                layer._inputs = layer._inputs.map((input) => {
-                                    return input === name ? inputs[i] : input;
+                            if (layer.inputs) {
+                                layer.inputs = layer.inputs.map((input) => {
+                                    return input.name === name ? inputs[i] : input;
                                 });
                             }
                         }
                     }
                 }
                 else {
-                    this._inputs.push(new keras.Parameter(name, true, [ new keras.Argument(name, type, null) ]));
+                    const argument = new keras.Argument(name, type, null);
+                    const parameter = new keras.Parameter(name, true, [ argument ]);
+                    this._inputs.push(parameter);
                 }
             }
         }
@@ -523,7 +564,7 @@ keras.Graph = class {
             for (let j = 0; j < output_layers.length; j++) {
                 const output_layer = output_layers[j];
                 let outputName = output_layer[0];
-                const outputNode = nodeMap.get(outputName);
+                const outputNode = nodes.get(outputName);
                 let addGraphOutput = true;
                 if (outputs && j < outputs.length) {
                     inputMap.set(outputName, outputs[j]);
@@ -535,10 +576,10 @@ keras.Graph = class {
                     if (outputIndex != 0) {
                         outputName += ':' + outputIndex.toString();
                     }
-                    while (outputIndex >= outputNode._outputs.length) {
-                        outputNode._outputs.push('');
+                    while (outputIndex >= outputNode.outputs.length) {
+                        outputNode.outputs.push('');
                     }
-                    outputNode._outputs[outputIndex] = outputName;
+                    outputNode.outputs[outputIndex] = outputName;
                 }
                 if (addGraphOutput) {
                     this._outputs.push(new keras.Parameter(outputName, true, [ new keras.Argument(outputName, null, null) ]));
@@ -548,8 +589,8 @@ keras.Graph = class {
 
         if (config.layers) {
             for (const layer of config.layers) {
-                if (nodeMap.has(layer.name)) {
-                    this._loadNode(layer, layer._inputs, layer._outputs, weights, group, inputMap);
+                if (nodes.has(layer.name)) {
+                    this._loadNode(layer, layer.inputs, layer.outputs, weights, group, inputMap);
                 }
             }
         }
@@ -566,7 +607,7 @@ keras.Graph = class {
         const layers = config.layers ? config.layers : config;
         for (const layer of layers) {
             let name = index.toString();
-            let nodeInputs = [ argument ];
+            let nodeInputs = [ { name: argument } ];
             if (index == 0) {
                 if (inputs && inputs.length > 0) {
                     nodeInputs = [ inputs[0] ];
@@ -599,8 +640,7 @@ keras.Graph = class {
     }
 
     _loadNode(layer, inputs, outputs, weights, group, inputMap) {
-        const class_name = layer.class_name;
-        switch (class_name) {
+        switch (layer.class_name) {
             case 'Sequential': {
                 const name = layer.name || (layer.config ? layer.config.name : '');
                 this._loadSequential(layer.config, weights, (group ? group + '/' : '') + name, inputs, outputs);
@@ -613,8 +653,10 @@ keras.Graph = class {
                 break;
             }
             default: {
-                inputs = inputs.map((input) => inputMap && inputMap.has(input) ? inputMap.get(input) : input);
-                const node = new keras.Node(this._metadata, class_name, layer.config, inputs, outputs, group, weights);
+                layer = Object.assign({}, layer);
+                layer.inputs = inputs.map((input) => inputMap && inputMap.has(input.name) ? { name: inputMap.get(input.name) } : input);
+                layer.outputs = outputs;
+                const node = new keras.Node(this._metadata, layer, group, weights);
                 this._nodes.push(node);
                 break;
             }
@@ -697,9 +739,14 @@ keras.Argument = class {
 
 keras.Node = class {
 
-    constructor(metadata, type, config, inputs, outputs, group, weights) {
+    constructor(metadata, layer, group, weights) {
         this._group = group || '';
+        let type = layer.class_name;
+        const config = layer.config || {};
+        const args = layer.args || {};
         const name = config && config.name ? config.name : '';
+        const inputs = layer.inputs || [];
+        const outputs = layer.outputs || [];
         this._name = (this._group ? this._group + '/' : '') + name;
         this._inputs = [];
         this._outputs = [];
@@ -710,7 +757,7 @@ keras.Node = class {
         if ((type == 'Bidirectional' || type == 'TimeDistributed') && (config && config.layer)) {
             const inner = config.layer;
             delete config.layer;
-            this._inner = new keras.Node(metadata, inner.class_name, inner.config, [], [], null, null);
+            this._inner = new keras.Node(metadata, inner, null, null);
             if (type == 'Bidirectional' && inner.config.name) {
                 names = [ name + '/forward_' + inner.config.name, name + '/backward_' + inner.config.name ];
                 if (!group) {
@@ -723,33 +770,37 @@ keras.Node = class {
         if (weights) {
             for (const name of names) {
                 for (const initializer of weights.get(group, name)) {
-                    inputs.push(initializer.name);
+                    inputs.push({ name: initializer.name });
                     initializers[initializer.name] = initializer;
                 }
             }
         }
 
-        if (config) {
-            for (const name of Object.keys(config)) {
-                const value = config[name];
-                if (name === 'activation' && value !== 'linear') {
-                    if (typeof value === 'string') {
-                        const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
-                        const type = set.has(value) ? set.get(value) : value;
-                        this.chain.push(new keras.Node(metadata, type, {}, [], [], null, null));
-                    }
-                    else if (value && typeof value.class_name === 'string' && value.config) {
-                        const type = value.class_name;
-                        if (!metadata.type(type)) {
-                            metadata.add(type, { category: 'Activation' });
-                        }
-                        this.chain.push(new keras.Node(metadata, type, value.config, [], [], null, null));
-                    }
+        if (type === 'TFOpLambda' && config && config.function) {
+            type = config.function;
+            delete config.function;
+        }
+
+        for (const entry of Object.entries(config)) {
+            const name = entry[0];
+            const value = entry[1];
+            if (name === 'activation' && value !== 'linear') {
+                if (typeof value === 'string') {
+                    const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
+                    const type = set.has(value) ? set.get(value) : value;
+                    this.chain.push(new keras.Node(metadata, { class_name: type }, null, null));
                 }
-                if (name !== 'name' && value !== null) {
-                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
-                    this._attributes.push(attribute);
+                else if (value && typeof value.class_name === 'string' && value.config) {
+                    const type = value.class_name;
+                    if (!metadata.type(type)) {
+                        metadata.add(type, { category: 'Activation' });
+                    }
+                    this.chain.push(new keras.Node(metadata, value, null, null));
                 }
+            }
+            if (name !== 'name') {
+                const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
+                this._attributes.push(attribute);
             }
         }
 
@@ -801,14 +852,15 @@ keras.Node = class {
                 }
             }
             const input = !list ? [ inputs.shift() ] : inputs.splice(0, inputs.length);
-            const inputArguments = input.map((id) => {
-                if (typeof id === 'string') {
-                    return new keras.Argument(id, null, initializers[id]);
+            const inputArguments = input.map((input) => {
+                if (input.name) {
+                    return new keras.Argument(input.name, null, initializers[input.name]);
                 }
-                if (Array.isArray(id) && id.every((item) => Array.isArray(item) && item.length === 4 && item[0] === '_CONSTANT_VALUE' && item[1] === -1)) {
-                    return new keras.Argument('', null, new keras.Tensor());
+                if (input.value) {
+                    const tensor = new keras.Tensor('', input.shape, config.dtype || '?', null, undefined, input.value);
+                    return new keras.Argument('', null, tensor);
                 }
-                throw new keras.Error("Invalid argument '" + JSON.stringify(id) + "'.");
+                throw new keras.Error("Invalid argument '" + JSON.stringify(input.name) + "'.");
             });
             if (!inputName && inputArguments.length == 1 && inputArguments[0].initializer && inputArguments[0].initializer.name) {
                 if (names.length === 1 && names[0] === '') {
@@ -833,6 +885,31 @@ keras.Node = class {
                     outputIndex.toString();
             return new keras.Parameter(outputName, true, [ new keras.Argument(output, null, null) ]);
         });
+
+        const inputTypes = new Map((this._type.inputs || []).map((input) => [ input.name, input.type ]));
+        for (const entry of Object.entries(args)) {
+            const name = entry[0];
+            const value = entry[1];
+            if (name !== 'name') {
+                if (value.name || (inputTypes.has(name) && inputTypes.get(name) === 'Tensor' && value)) {
+                    if (value.name) {
+                        const argument = new keras.Argument(value.name, null, null);
+                        const parameter = new keras.Parameter(name, true, [ argument ]);
+                        this._inputs.push(parameter);
+                    }
+                    else {
+                        const tensor = new keras.Tensor('', value.shape, config.dtype || '?', null, undefined, value.value);
+                        const argument = new keras.Argument('', null, tensor);
+                        const parameter = new keras.Parameter(name, true, [ argument ]);
+                        this._inputs.push(parameter);
+                    }
+                }
+                else {
+                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
+                    this._attributes.push(attribute);
+                }
+            }
+        }
 
         if (typeof this.type.name !== 'string' || !this.type.name.split) { // #416
             throw new keras.Error("Unknown node type '" + JSON.stringify(this.type.name) + "'.");
@@ -877,7 +954,7 @@ keras.Attribute = class {
     constructor(metadata, name, value) {
         this._name = name;
         this._value = value;
-        if (typeof value == 'object' && value.class_name && value.config) {
+        if (value && typeof value == 'object' && value.class_name && value.config) {
             this._value = keras.Attribute._convert(value);
         }
         switch (name) {
@@ -1032,10 +1109,16 @@ keras.Tensor = class {
     }
 
     get state() {
+        if (Array.isArray(this._data)) {
+            return '';
+        }
         return this._context().state;
     }
 
     get value() {
+        if (Array.isArray(this._data)) {
+            return this._data;
+        }
         const context = this._context();
         if (context.state) {
             return null;
@@ -1045,6 +1128,9 @@ keras.Tensor = class {
     }
 
     toString() {
+        if (Array.isArray(this._data)) {
+            return keras.Tensor._stringify(this._data, '', '    ');
+        }
         const context = this._context();
         if (context.state) {
             return '';
@@ -1072,7 +1158,7 @@ keras.Tensor = class {
             case 'int32':
             case 'int64':
                 context.dataType = this._type.dataType;
-                context.data = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
+                context.view = new DataView(this._data.buffer, this._data.byteOffset, this._data.byteLength);
                 context.littleEndian = this._littleEndian;
                 break;
             case 'string':
@@ -1100,35 +1186,35 @@ keras.Tensor = class {
                 }
                 switch (context.dataType) {
                     case 'float16':
-                        results.push(context.data.getFloat16(context.index, littleEndian));
+                        results.push(context.view.getFloat16(context.index, littleEndian));
                         context.index += 2;
                         break;
                     case 'float32':
-                        results.push(context.data.getFloat32(context.index, littleEndian));
+                        results.push(context.view.getFloat32(context.index, littleEndian));
                         context.index += 4;
                         break;
                     case 'float64':
-                        results.push(context.data.getFloat64(context.index, littleEndian));
+                        results.push(context.view.getFloat64(context.index, littleEndian));
                         context.index += 8;
                         break;
                     case 'boolean':
-                        results.push(context.data.getInt8(context.index) !== 0);
+                        results.push(context.view.getInt8(context.index) !== 0);
                         context.index += 1;
                         break;
                     case 'uint8':
-                        results.push(context.data.getUint8(context.index));
+                        results.push(context.view.getUint8(context.index));
                         context.index += 1;
                         break;
                     case 'int32':
-                        results.push(context.data.getInt32(context.index, littleEndian));
+                        results.push(context.view.getInt32(context.index, littleEndian));
                         context.index += 4;
                         break;
                     case 'int64':
-                        results.push(context.data.getInt64(context.index, littleEndian));
+                        results.push(context.view.getInt64(context.index, littleEndian));
                         context.index += 8;
                         break;
                     case 'string':
-                        results.push(context.data[context.index]);
+                        results.push(context.view[context.index]);
                         context.index++;
                         break;
                 }
