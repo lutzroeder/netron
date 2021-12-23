@@ -302,6 +302,7 @@ grapher.Node.Header = class {
     }
 
     update(parent, top, width) {
+        const document = this._document;
         const dx = width - this.width;
         for (let i = 0; i < this._entries.length; i++) {
             const entry = this._entries[i];
