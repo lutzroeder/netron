@@ -999,13 +999,6 @@
   },
   {
     "type":   "cntk",
-    "target": "Chalta.model",
-    "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/Chalta/Chalta.cntk.zip[Chalta.cntk]",
-    "format": "CNTK v2",
-    "link":   "https://github.com/Microsoft/ELL-models"
-  },
-  {
-    "type":   "cntk",
     "target": "d_I160x160x3CMCMCMCMCMCMC1AS.model",
     "source": "https://media.githubusercontent.com/media/Microsoft/ELL-models/master/models/ILSVRC2012/d_I160x160x3CMCMCMCMCMCMC1AS/d_I160x160x3CMCMCMCMCMCMC1AS.cntk.zip[d_I160x160x3CMCMCMCMCMCMC1AS.cntk]",
     "format": "CNTK v2",
@@ -1048,11 +1041,6 @@
   },
   {
     "type":   "cntk",
-    "target": "ResNet34_ImageNet_CNTK.model",
-    "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet34_ImageNet_CNTK.model"
-  },
-  {
-    "type":   "cntk",
     "target": "ResNet110_CIFAR10_CNTK.model",
     "source": "https://www.cntk.ai/Models/CNTK_Pretrained/ResNet110_CIFAR10_CNTK.model",
     "format": "CNTK v2",
@@ -1062,13 +1050,6 @@
     "type":   "cntk",
     "target": "SRGAN.model",
     "source": "https://www.cntk.ai/Models/SuperResolution/SRGAN.model",
-    "format": "CNTK v2",
-    "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
-  },
-  {
-    "type":   "cntk",
-    "target": "SRResNet.model",
-    "source": "https://www.cntk.ai/Models/SuperResolution/SRResNet.model",
     "format": "CNTK v2",
     "link":   "https://cntk.ai/pythondocs/CNTK_302A_Evaluation_of_Pretrained_Super-resolution_Models.html"
   },
