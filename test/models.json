@@ -5400,6 +5400,13 @@
   },
   {
     "type":   "tf",
+    "target": "gpt-2-124M.ckpt.meta",
+    "source": "https://github.com/lutzroeder/netron/files/7775216/gpt-2-124M.ckpt.meta.zip[gpt-2-124M.ckpt.meta]",
+    "format": "TensorFlow MetaGraph",
+    "link":   "https://github.com/lutzroeder/netron/issues/187"
+  },
+  {
+    "type":   "tf",
     "target": "half_plus_two_saved_model.pb",
     "source": "https://raw.githubusercontent.com/tensorflow/tensorflow/master/tensorflow/cc/saved_model/testdata/half_plus_two/00000123/saved_model.pb",
     "format": "TensorFlow Saved Model v1",
