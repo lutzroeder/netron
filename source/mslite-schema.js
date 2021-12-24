@@ -262,7 +262,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 86: return $root.mindspore.schema.LshProjection.decode(reader, position);
             case 87: return $root.mindspore.schema.LSTM.decode(reader, position);
             case 88: return $root.mindspore.schema.L2NormalizeFusion.decode(reader, position);
-            case 89: return $root.mindspore.schema.MatMul.decode(reader, position);
+            case 89: return $root.mindspore.schema.MatMulFusion.decode(reader, position);
             case 90: return $root.mindspore.schema.Maximum.decode(reader, position);
             case 91: return $root.mindspore.schema.MaximumGrad.decode(reader, position);
             case 92: return $root.mindspore.schema.MaxPoolFusion.decode(reader, position);
@@ -470,7 +470,7 @@ $root.mindspore.schema.PrimitiveType = class {
             case 'LshProjection': return $root.mindspore.schema.LshProjection.decodeText(reader, json);
             case 'LSTM': return $root.mindspore.schema.LSTM.decodeText(reader, json);
             case 'L2NormalizeFusion': return $root.mindspore.schema.L2NormalizeFusion.decodeText(reader, json);
-            case 'MatMul': return $root.mindspore.schema.MatMul.decodeText(reader, json);
+            case 'MatMulFusion': return $root.mindspore.schema.MatMulFusion.decodeText(reader, json);
             case 'Maximum': return $root.mindspore.schema.Maximum.decodeText(reader, json);
             case 'MaximumGrad': return $root.mindspore.schema.MaximumGrad.decodeText(reader, json);
             case 'MaxPoolFusion': return $root.mindspore.schema.MaxPoolFusion.decodeText(reader, json);
@@ -2134,19 +2134,21 @@ $root.mindspore.schema.L2NormalizeFusion = class L2NormalizeFusion {
     }
 };
 
-$root.mindspore.schema.MatMul = class MatMul {
+$root.mindspore.schema.MatMulFusion = class MatMulFusion {
 
     static decode(reader, position) {
-        const $ = new $root.mindspore.schema.MatMul();
+        const $ = new $root.mindspore.schema.MatMulFusion();
         $.transpose_a = reader.bool_(position, 4, false);
         $.transpose_b = reader.bool_(position, 6, false);
+        $.activation_type = reader.int8_(position, 8, 0);
         return $;
     }
 
     static decodeText(reader, json) {
-        const $ = new $root.mindspore.schema.MatMul();
+        const $ = new $root.mindspore.schema.MatMulFusion();
         $.transpose_a = reader.value(json.transpose_a, false);
         $.transpose_b = reader.value(json.transpose_b, false);
+        $.activation_type = $root.mindspore.schema.ActivationType[json.activation_type];
         return $;
     }
 };

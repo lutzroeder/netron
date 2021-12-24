@@ -1716,6 +1716,14 @@
     ]
   },
   {
+    "name": "MatMulFusion",
+    "attributes": [
+      { "name": "transpose_a", "type": "boolean", "default": false },
+      { "name": "transpose_b", "type": "boolean", "default": false },
+      { "name": "activation_type", "type": "ActivationType", "default": "NO_ACTIVATION" }
+    ]
+  },
+  {
     "name": "MatrixDiag",
     "attributes": [
       { "name": "k", "type": "int32", "default": 0 },
