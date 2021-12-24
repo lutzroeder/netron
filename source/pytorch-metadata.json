@@ -3798,6 +3798,36 @@
     ]
   },
   {
+    "name": "torch.unique_consecutive:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "return_inverse", "type": "boolean", "default": false },
+      { "name": "return_counts", "type": "boolean", "default": false },
+      { "name": "dim", "type": "int64", "optional": true, "default": null }
+    ],
+    "outputs": [
+      { "name": "output1", "type": "Tensor" },
+      { "name": "output2", "type": "Tensor" },
+      { "name": "output3", "type": "Tensor" }
+    ]
+  },
+  {
+    "name": "torch.unique_dim_consecutive:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "dim", "type": "int64" },
+      { "name": "return_inverse", "type": "boolean", "default": false },
+      { "name": "return_counts", "type": "boolean", "default": false }
+    ],
+    "outputs": [
+      { "name": "output1", "type": "Tensor" },
+      { "name": "output2", "type": "Tensor" },
+      { "name": "output3", "type": "Tensor" }
+    ]
+  },
+  {
     "name": "torch.upsample_bicubic2d",
     "category": "Layer",
     "inputs": [
