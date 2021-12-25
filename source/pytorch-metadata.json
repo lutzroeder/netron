@@ -3789,6 +3789,18 @@
     ]
   },
   {
+    "name": "torch.roll:",
+    "category": "Layer",
+    "inputs": [
+      { "name": "self", "type": "Tensor" },
+      { "name": "shifts", "type": "int64[]" },
+      { "name": "dims", "type": "int64[]", "default": [] }
+    ],
+    "outputs": [
+      { "name": "output" }
+    ]
+  },
+  {
     "name": "torch.detach",
     "inputs": [
       { "name": "self", "type": "Tensor" }
