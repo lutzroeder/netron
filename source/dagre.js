@@ -246,8 +246,8 @@ dagre.layout = (graph, options) => {
             }
         };
 
-        // Returns the amount of slack for the given edge. The slack is defined as the
-        // difference between the length of the edge and its minimum length.
+        // Returns the amount of slack for the given edge.
+        // The slack is defined as the difference between the length of the edge and its minimum length.
         const slack = (g, e) => {
             return g.node(e.w).rank - g.node(e.v).rank - e.label.minlen;
         };
@@ -267,11 +267,9 @@ dagre.layout = (graph, options) => {
         const rank = (g) => {
             // Constructs a spanning tree with tight edges and adjusted the input node's ranks to achieve this.
             // A tight edge is one that is has a length that matches its 'minlen' attribute.
-            //
             // The basic structure for this function is derived from Gansner, et al., 'A Technique for Drawing Directed Graphs.'
             //
             // Pre-conditions:
-            //
             //    1. Graph must be a DAG.
             //    2. Graph must be connected.
             //    3. Graph must have at least one node.
@@ -706,10 +704,7 @@ dagre.layout = (graph, options) => {
                 e.label.minlen *= nodeSep;
             }
             // Calculate a weight that is sufficient to keep subgraphs vertically compact
-            const sumWeights = (g) => {
-                return Array.from(g.edges().values()).reduce((acc, e) => acc + e.label.weight, 0);
-            };
-            const weight = sumWeights(g) + 1;
+            const weight = Array.from(g.edges().values()).reduce((acc, e) => acc + e.label.weight, 0) + 1;
             // Create border nodes and link them up
             for (const child of g.children()) {
                 dfs(g, root, nodeSep, weight, height, depths, child);
@@ -1515,13 +1510,64 @@ dagre.layout = (graph, options) => {
                 }
                 return conflicts[v] && w in conflicts[v];
             };
-            // Try to align nodes into vertical 'blocks' where possible. This algorithm
-            // attempts to align a node with one of its median neighbors. If the edge
-            // connecting a neighbor is a type-1 conflict then we ignore that possibility.
-            // If a previous node has already formed a block with a node after the node
-            // we're trying to form a block with, we also ignore that possibility - our
-            // blocks would be split in that scenario.
-            const verticalAlignment = (g, layering, conflicts, neighborFn) => {
+            const buildBlockGraph = (g, layering, root, reverseSep) => {
+                const nodeSep = g.graph().nodesep;
+                const edgeSep = g.graph().edgesep;
+                const blockGraph = new dagre.Graph();
+                for (const layer of layering) {
+                    let u;
+                    for (const v of layer) {
+                        const vRoot = root[v];
+                        blockGraph.setNode(vRoot, {});
+                        if (u) {
+                            const uRoot = root[u];
+                            const vLabel = g.node(v);
+                            const wLabel = g.node(u);
+                            let sum = 0;
+                            let delta;
+                            sum += vLabel.width / 2;
+                            if ('labelpos' in vLabel) {
+                                switch (vLabel.labelpos) {
+                                    case 'l': delta = -vLabel.width / 2; break;
+                                    case 'r': delta = vLabel.width / 2; break;
+                                }
+                            }
+                            if (delta) {
+                                sum += reverseSep ? delta : -delta;
+                            }
+                            delta = 0;
+                            sum += (vLabel.dummy ? edgeSep : nodeSep) / 2;
+                            sum += (wLabel.dummy ? edgeSep : nodeSep) / 2;
+                            sum += wLabel.width / 2;
+                            if ('labelpos' in wLabel) {
+                                switch (wLabel.labelpos) {
+                                    case 'l': delta = wLabel.width / 2; break;
+                                    case 'r': delta = -wLabel.width / 2; break;
+                                }
+                            }
+                            if (delta) {
+                                sum += reverseSep ? delta : -delta;
+                            }
+                            const edge = blockGraph.edge(uRoot, vRoot);
+                            const max = Math.max(sum, edge ? edge.label : 0);
+                            if (edge) {
+                                edge.label = max;
+                            }
+                            else {
+                                blockGraph.setEdge(uRoot, vRoot, max);
+                            }
+                        }
+                        u = v;
+                    }
+                }
+                return blockGraph;
+            };
+            // Try to align nodes into vertical 'blocks' where possible.
+            // This algorithm attempts to align a node with one of its median neighbors.
+            // If the edge connecting a neighbor is a type-1 conflict then we ignore that possibility.
+            // If a previous node has already formed a block with a node after the node we're trying to form a block with,
+            // we also ignore that possibility - our blocks would be split in that scenario.
+            const verticalAlignment = (layering, conflicts, neighborFn) => {
                 const root = {};
                 const align = {};
                 const pos = {};
@@ -1560,8 +1606,6 @@ dagre.layout = (graph, options) => {
             const horizontalCompaction = (g, layering, root, align, reverseSep) => {
                 // This portion of the algorithm differs from BK due to a number of problems.
                 // Instead of their algorithm we construct a new block graph and do two sweeps.
-                // The first sweep places blocks with the smallest possible coordinates.
-                // The second sweep removes unused space by moving blocks to the greatest coordinates without violating separation.
                 const xs = {};
                 const blockG = buildBlockGraph(g, layering, root, reverseSep);
                 const borderType = reverseSep ? 'borderLeft' : 'borderRight';
@@ -1580,7 +1624,7 @@ dagre.layout = (graph, options) => {
                         }
                     }
                 };
-                // First pass, assign smallest coordinates
+                // First pass, places blocks with the smallest possible coordinates.
                 const pass1 = (v) => {
                     let max = 0;
                     for (const e of blockG.inEdges(v)) {
@@ -1588,7 +1632,7 @@ dagre.layout = (graph, options) => {
                     }
                     xs[v] = max;
                 };
-                // Second pass, assign greatest coordinates
+                // Second pass, removes unused space by moving blocks to the greatest coordinates without violating separation.
                 const pass2 = (v) => {
                     let min = Number.POSITIVE_INFINITY;
                     for (const e of blockG.outEdges(v)) {
@@ -1607,59 +1651,9 @@ dagre.layout = (graph, options) => {
                 }
                 return xs;
             };
-            const buildBlockGraph = (g, layering, root, reverseSep) => {
-                const nodeSep = g.graph().nodesep;
-                const edgeSep = g.graph().edgesep;
-                const sep = (vLabel, wLabel) => {
-                    let sum = 0;
-                    let delta;
-                    sum += vLabel.width / 2;
-                    if ('labelpos' in vLabel) {
-                        switch (vLabel.labelpos) {
-                            case 'l': delta = -vLabel.width / 2; break;
-                            case 'r': delta = vLabel.width / 2; break;
-                        }
-                    }
-                    if (delta) {
-                        sum += reverseSep ? delta : -delta;
-                    }
-                    delta = 0;
-                    sum += (vLabel.dummy ? edgeSep : nodeSep) / 2;
-                    sum += (wLabel.dummy ? edgeSep : nodeSep) / 2;
-                    sum += wLabel.width / 2;
-                    if ('labelpos' in wLabel) {
-                        switch (wLabel.labelpos) {
-                            case 'l': delta = wLabel.width / 2; break;
-                            case 'r': delta = -wLabel.width / 2; break;
-                        }
-                    }
-                    if (delta) {
-                        sum += reverseSep ? delta : -delta;
-                    }
-                    delta = 0;
-                    return sum;
-                };
-                const blockGraph = new dagre.Graph();
-                for (const layer of layering) {
-                    let u;
-                    for (const v of layer) {
-                        const vRoot = root[v];
-                        blockGraph.setNode(vRoot, {});
-                        if (u) {
-                            const uRoot = root[u];
-                            const edge = blockGraph.edge(uRoot, vRoot);
-                            const prevMax = edge ? edge.label : 0;
-                            blockGraph.setEdge(uRoot, vRoot, Math.max(sep(g.node(v), g.node(u)), prevMax));
-                        }
-                        u = v;
-                    }
-                }
-                return blockGraph;
-            };
-
             // Returns the alignment that has the smallest width of the given alignments.
             const findSmallestWidthAlignment = (g, xss) => {
-                let minKey = Number.POSITIVE_INFINITY;
+                let minWidth = Number.POSITIVE_INFINITY;
                 let minValue = undefined;
                 for (const xs of Object.values(xss)) {
                     let max = Number.NEGATIVE_INFINITY;
@@ -1667,13 +1661,13 @@ dagre.layout = (graph, options) => {
                     for (const entry of Object.entries(xs)) {
                         const v = entry[0];
                         const x = entry[1];
-                        const halfWidth = g.node(v).width / 2.0;
+                        const halfWidth = g.node(v).width / 2;
                         max = Math.max(x + halfWidth, max);
                         min = Math.min(x - halfWidth, min);
                     }
-                    const key = max - min;
-                    if (key < minKey) {
-                        minKey = key;
+                    const width = max - min;
+                    if (width < minWidth) {
+                        minWidth = width;
                         minValue = xs;
                     }
                 }
@@ -1690,12 +1684,11 @@ dagre.layout = (graph, options) => {
                 else {
                     for (const v of Object.keys(xss.ul)) {
                         const xs = [ xss.ul[v], xss.ur[v], xss.dl[v], xss.dr[v] ].sort((a, b) => a - b);
-                        value[v] = (xs[1] + xs[2]) / 2.0;
+                        value[v] = (xs[1] + xs[2]) / 2;
                     }
                 }
                 return value;
             };
-
             // Marks all edges in the graph with a type-1 conflict with the 'type1Conflict' property.
             // A type-1 conflict is one where a non-inner segment crosses an inner segment.
             // An inner segment is an edge with both incident nodes marked with the 'dummy' property.
@@ -1746,7 +1739,6 @@ dagre.layout = (graph, options) => {
                 }
                 return conflicts;
             };
-
             const findType2Conflicts = (g, layering) => {
                 const conflicts = {};
                 const scan = (south, southPos, southEnd, prevNorthBorder, nextNorthBorder) => {
@@ -1807,14 +1799,14 @@ dagre.layout = (graph, options) => {
                     return [ min, max ];
                 };
                 const alignToRange = range(Object.values(alignTo));
-                for (const vert of ['u', 'd']) {
-                    for (const horiz of ['l', 'r']) {
-                        const alignment = vert + horiz;
+                for (const vertical of ['u', 'd']) {
+                    for (const horizontal of ['l', 'r']) {
+                        const alignment = vertical + horizontal;
                         const xs = xss[alignment];
                         let delta;
                         if (xs !== alignTo) {
                             const vsValsRange = range(Object.values(xs));
-                            delta = horiz === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
+                            delta = horizontal === 'l' ? alignToRange[0] - vsValsRange[0] : alignToRange[1] - vsValsRange[1];
                             if (delta) {
                                 const list = {};
                                 for (const key of Object.keys(xs)) {
@@ -1830,40 +1822,40 @@ dagre.layout = (graph, options) => {
             g = asNonCompoundGraph(g);
             const layering = buildLayerMatrix(g);
             const ranksep = g.graph().ranksep;
-            let prevY = 0;
+            // Assign y-coordinate based on rank
+            let y = 0;
             for (const layer of layering) {
-                const heights = layer.map((v) => g.node(v).height);
-                const maxHeight = Math.max(...heights);
+                const maxHeight = layer.reduce((a, v) => Math.max(a, g.node(v).height), 0);
                 for (const v of layer) {
-                    g.node(v).y = prevY + maxHeight / 2.0;
+                    g.node(v).y = y + maxHeight / 2;
                 }
-                prevY += maxHeight + ranksep;
+                y += maxHeight + ranksep;
             }
             // Coordinate assignment based on Brandes and Köpf, 'Fast and Simple Horizontal Coordinate Assignment.'
             const conflicts = Object.assign(findType1Conflicts(g, layering), findType2Conflicts(g, layering));
             const xss = {};
-            for (const vert of ['u', 'd']) {
-                let adjustedLayering = vert === 'u' ? layering : Object.values(layering).reverse();
-                for (const horiz of ['l', 'r']) {
-                    if (horiz === 'r') {
-                        adjustedLayering = adjustedLayering.map((inner) => Object.values(inner).reverse());
+            for (const vertical of ['u', 'd']) {
+                let adjustedLayering = vertical === 'u' ? layering : Object.values(layering).reverse();
+                for (const horizontal of ['l', 'r']) {
+                    if (horizontal === 'r') {
+                        adjustedLayering = adjustedLayering.map((layer) => Object.values(layer).reverse());
                     }
-                    const neighborFn = (vert === 'u' ? g.predecessors : g.successors).bind(g);
-                    const align = verticalAlignment(g, adjustedLayering, conflicts, neighborFn);
-                    const xs = horizontalCompaction(g, adjustedLayering, align.root, align.align, horiz === 'r');
-                    if (horiz === 'r') {
+                    const neighborFn = (vertical === 'u' ? g.predecessors : g.successors).bind(g);
+                    const align = verticalAlignment(adjustedLayering, conflicts, neighborFn);
+                    const xs = horizontalCompaction(g, adjustedLayering, align.root, align.align, horizontal === 'r');
+                    if (horizontal === 'r') {
                         for (const entry of Object.entries(xs)) {
                             xs[entry[0]] = -entry[1];
                         }
                     }
-                    xss[vert + horiz] = xs;
+                    xss[vertical + horizontal] = xs;
                 }
             }
-            const smallestWidth = findSmallestWidthAlignment(g, xss);
-            alignCoordinates(xss, smallestWidth);
+            alignCoordinates(xss, findSmallestWidthAlignment(g, xss));
             const xs = balance(xss, g.graph().align);
             for (const entry of Object.entries(xs)) {
-                g.node(entry[0]).x = entry[1];
+                const v = entry[0];
+                g.node(v).x = entry[1];
             }
         };
 
