@@ -4126,7 +4126,7 @@
     "target": "batches.meta",
     "source": "https://raw.githubusercontent.com/MadryLab/cifar10_challenge/master/cifar10_data/batches.meta",
     "format": "Pickle",
-    "error":  "Unknown Pickle object.",
+    "error":  "Unknown Pickle object in 'batches.meta'.",
     "link":   "https://github.com/MadryLab/cifar10_challenge"
   },
   {
@@ -4141,7 +4141,7 @@
     "target": "robinhood-portfolio_data_user.pkl.pkl",
     "source": "https://raw.githubusercontent.com/omdv/robinhood-portfolio/4622dc61e0556a85ce52c4de178d01a9838acbc5/data/user.pkl",
     "format": "Pickle",
-    "error":  "Unknown Pickle object.",
+    "error":  "Unknown Pickle object in 'robinhood-portfolio_data_user.pkl.pkl'.",
     "link":   "https://github.com/omdv/robinhood-portfolio/tree/4622dc61e0556a85ce52c4de178d01a9838acbc5"
   },
   {
