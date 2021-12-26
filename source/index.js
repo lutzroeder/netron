@@ -1002,12 +1002,14 @@ if (!HTMLCanvasElement.prototype.toBlob) {
 
 if (!('scrollBehavior' in window.document.documentElement.style)) {
     const __scrollTo__ = Element.prototype.scrollTo;
-    Element.prototype.scrollTo = function() {
-        if (arguments[0] === undefined) {
+    Element.prototype.scrollTo = function(options) {
+        if (options === undefined) {
             return;
         }
-        if (arguments[0] === null || typeof arguments[0] !== 'object' || arguments[0].behavior === undefined || arguments[0].behavior === 'auto' || arguments[0].behavior === 'instant') {
-            __scrollTo__.apply(this, arguments);
+        if (options === null || typeof options !== 'object' || options.behavior === undefined || arguments[0].behavior === 'auto' || options.behavior === 'instant') {
+            if (__scrollTo__) {
+                __scrollTo__.apply(this, arguments);
+            }
             return;
         }
         const now = () => {
@@ -1028,8 +1030,8 @@ if (!('scrollBehavior' in window.document.documentElement.style)) {
         };
         const context = {
             element: this,
-            x: typeof arguments[0].left === 'undefined' ? this.scrollLeft : ~~arguments[0].left,
-            y: typeof arguments[0].top === 'undefined' ? this.scrollTop : ~~arguments[0].top,
+            x: typeof options.left === 'undefined' ? this.scrollLeft : ~~options.left,
+            y: typeof options.top === 'undefined' ? this.scrollTop : ~~options.top,
             startX: this.scrollLeft,
             startY: this.scrollTop,
             startTime: now()
