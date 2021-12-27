@@ -126,10 +126,6 @@ mslite.Graph = class {
         return this._name;
     }
 
-    get groups() {
-        return false;
-    }
-
     get inputs() {
         return this._inputs;
     }

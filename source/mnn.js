@@ -118,10 +118,6 @@ mnn.Graph = class {
         return '';
     }
 
-    get groups() {
-        return false;
-    }
-
     get nodes() {
         return this._nodes;
     }
@@ -262,10 +258,6 @@ mnn.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get group() {
-        return null;
     }
 
     get inputs() {

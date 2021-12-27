@@ -250,10 +250,6 @@ circle.Graph = class {
         return this._name;
     }
 
-    get groups() {
-        return false;
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -383,10 +379,6 @@ circle.Node = class {
 
     get location() {
         return this._location;
-    }
-
-    get group() {
-        return null;
     }
 
     get inputs() {

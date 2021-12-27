@@ -501,10 +501,6 @@ onnx.Graph = class {
         return this._description;
     }
 
-    get groups() {
-        return false;
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -605,10 +601,6 @@ onnx.Node = class {
 
     get description() {
         return this._description;
-    }
-
-    get group() {
-        return null;
     }
 
     get attributes() {

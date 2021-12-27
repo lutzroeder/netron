@@ -153,10 +153,6 @@ armnn.Graph = class {
         return this._name;
     }
 
-    get groups() {
-        return false;
-    }
-
     get inputs() {
         return this._inputs;
     }
@@ -226,10 +222,6 @@ armnn.Node = class {
 
     get name() {
         return this._name;
-    }
-
-    get group() {
-        return null;
     }
 
     get inputs() {
