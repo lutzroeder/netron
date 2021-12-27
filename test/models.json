@@ -2237,6 +2237,13 @@
   },
   {
     "type":   "keras",
+    "target": "resnet50_csv_16.json",
+    "source": "https://github.com/lutzroeder/netron/files/4202466/resnet50_csv_16.json.zip[resnet50_csv_16.json]",
+    "format": "Keras",
+    "link":   "https://github.com/lutzroeder/netron/issues/426"
+  },
+  {
+    "type":   "keras",
     "target": "sentiment_model.h5",
     "source": "https://github.com/lutzroeder/netron/files/2592329/keras_models.zip[sentiment_model.h5]",
     "format": "Keras v2.1.3",
