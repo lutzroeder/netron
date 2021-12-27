@@ -3044,7 +3044,6 @@
     "target": "bertsquad-10.zip",
     "source": "https://github.com/lutzroeder/netron/files/5251086/bertsquad-10.zip",
     "format": "ONNX v5", "producer": "tf2onnx 1.5.2",
-    "action": "skip-render",
     "link":   "https://github.com/onnx/models/blob/master/text/machine_comprehension/bert-squad/README.md"
   },
   {
