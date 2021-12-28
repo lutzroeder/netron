@@ -19,13 +19,19 @@ grapher.Graph = class {
     }
 
     setNode(node) {
-        this._nodes.set(node.name, node);
-        if (this._isCompound) {
-            this._parent[node.name] = '\x00';
-            this._children[node.name] = {};
-            this._children['\x00'][node.name] = true;
+        const key = node.name;
+        const value = this._nodes.get(key);
+        if (value) {
+            value.label = node;
         }
-        return this;
+        else {
+            this._nodes.set(key, { v: key, label: node });
+            if (this._isCompound) {
+                this._parent[key] = '\x00';
+                this._children[key] = {};
+                this._children['\x00'][key] = true;
+            }
+        }
     }
 
     setEdge(edge) {
@@ -39,7 +45,6 @@ grapher.Graph = class {
         if (!this._edges.has(key)) {
             this._edges.set(key, { v: edge.v, w: edge.w, label: edge });
         }
-        return this;
     }
 
     setParent(node, parent) {
@@ -58,7 +63,7 @@ grapher.Graph = class {
         return this;
     }
 
-    nodes() {
+    get nodes() {
         return this._nodes;
     }
 
@@ -70,7 +75,7 @@ grapher.Graph = class {
         return this._nodes.get(key);
     }
 
-    edges() {
+    get edges() {
         return this._edges;
     }
 
@@ -92,7 +97,7 @@ grapher.Graph = class {
             }
         }
         else if (key === '\x00') {
-            return this.nodes().keys();
+            return this.nodes.keys();
         }
         else if (this.hasNode(key)) {
             return [];
@@ -134,52 +139,52 @@ grapher.Graph = class {
         edgePathGroupDefs.appendChild(marker("arrowhead-vee"));
         edgePathGroupDefs.appendChild(marker("arrowhead-vee-select"));
 
-        for (const nodeId of this.nodes().keys()) {
+        for (const nodeId of this.nodes.keys()) {
             const node = this.node(nodeId);
             if (this.children(nodeId).length == 0) {
                 // node
-                node.build(document, nodeGroup);
+                node.label.build(document, nodeGroup);
             }
             else {
                 // cluster
-                node.rectangle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
-                if (node.rx) {
-                    node.rectangle.setAttribute('rx', node.rx);
+                node.label.rectangle = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                if (node.label.rx) {
+                    node.label.rectangle.setAttribute('rx', node.rx);
                 }
-                if (node.ry) {
-                    node.rectangle.setAttribute('ry', node.ry);
+                if (node.label.ry) {
+                    node.label.rectangle.setAttribute('ry', node.ry);
                 }
-                node.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-                node.element.setAttribute('class', 'cluster');
-                node.element.appendChild(node.rectangle);
-                clusterGroup.appendChild(node.element);
+                node.label.element = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+                node.label.element.setAttribute('class', 'cluster');
+                node.label.element.appendChild(node.label.rectangle);
+                clusterGroup.appendChild(node.label.element);
             }
         }
 
-        for (const edge of this.edges().values()) {
+        for (const edge of this.edges.values()) {
             edge.label.build(document, edgePathGroup, edgeLabelGroup);
         }
     }
 
     update() {
         dagre.layout(this);
-        for (const nodeId of this.nodes().keys()) {
+        for (const nodeId of this.nodes.keys()) {
             const node = this.node(nodeId);
             if (this.children(nodeId).length == 0) {
                 // node
-                node.update();
+                node.label.update();
             }
             else {
                 // cluster
                 const node = this.node(nodeId);
-                node.element.setAttribute('transform', 'translate(' + node.x + ',' + node.y + ')');
-                node.rectangle.setAttribute('x', - node.width / 2);
-                node.rectangle.setAttribute('y', - node.height / 2 );
-                node.rectangle.setAttribute('width', node.width);
-                node.rectangle.setAttribute('height', node.height);
+                node.label.element.setAttribute('transform', 'translate(' + node.label.x + ',' + node.label.y + ')');
+                node.label.rectangle.setAttribute('x', - node.label.width / 2);
+                node.label.rectangle.setAttribute('y', - node.label.height / 2 );
+                node.label.rectangle.setAttribute('width', node.label.width);
+                node.label.rectangle.setAttribute('height', node.label.height);
             }
         }
-        for (const edge of this.edges().values()) {
+        for (const edge of this.edges.values()) {
             edge.label.update();
         }
     }
