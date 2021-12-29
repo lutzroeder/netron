@@ -2592,6 +2592,14 @@ pytorch.Container.Zip = class {
                 this._type = 'script';
                 return;
             }
+            if (this._data instanceof Map && this._data.has('engine')) {
+                // https://github.com/NVIDIA-AI-IOT/torch2trt/blob/master/torch2trt/torch2trt.py
+                const signature = [ 0x70, 0x74, 0x72, 0x74 ]; // ptrt
+                const buffer = this._data.get('engine');
+                if (buffer instanceof Uint8Array && buffer.length > signature.length && signature.every((value, index) => value === buffer[index])) {
+                    throw new pytorch.Error('Invalid file content. File contains undocumented PyTorch TensorRT engine data.');
+                }
+            }
             const root = pytorch.Utility.findModule(this._data);
             if (root) {
                 this._type = 'module';
