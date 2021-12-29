@@ -3146,7 +3146,7 @@
   {
     "type":   "onnx",
     "target": "EfficientDet-d0.onnx.zip",
-    "source": "https://github.com/lutzroeder/netron/files/5296050/EfficientDet-d0.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7786937/EfficientDet-d0.onnx.zip",
     "format": "ONNX v6",
     "link":   "https://github.com/lutzroeder/netron/issues/589"
   },
@@ -3208,7 +3208,7 @@
   {
     "type":   "onnx",
     "target": "gpt2-10.onnx.zip",
-    "source": "https://github.com/lutzroeder/netron/files/7697294/gpt2-10.onnx.zip",
+    "source": "https://github.com/lutzroeder/netron/files/7786929/gpt2-10.onnx.zip",
     "format": "ONNX v6",
     "link":   "https://github.com/lutzroeder/netron/issues/188"
   },
