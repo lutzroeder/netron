@@ -72,10 +72,6 @@ om.Graph = class {
         return this._name;
     }
 
-    get groups() {
-        return false;
-    }
-
     get nodes() {
         return this._nodes;
     }
