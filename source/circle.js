@@ -476,9 +476,9 @@ circle.Argument = class {
         if (quantization) {
             let value = 'q';
             const scale = (quantization.scale.length == 1) ? quantization.scale[0] : 0;
-            const zeroPoint = (quantization.zero_point.length == 1) ? quantization.zero_point[0] : 0;
-            if (scale != 0 || zeroPoint != 0) {
-                value = scale.toString() + ' * ' + (zeroPoint == 0 ? 'q' : ('(q - ' + zeroPoint.toString() + ')'));
+            const zeroPoint = ((quantization.zero_point.length == 1) ? quantization.zero_point[0] : 0).toString();
+            if (scale !== 0 || zeroPoint !== '0') {
+                value = scale.toString() + ' * ' + (zeroPoint === '0' ? 'q' : ('(q' + (!zeroPoint.startsWith('-') ? ' - ' + zeroPoint : ' + ' + zeroPoint.substring(1)) + ')'));
             }
             if (quantization.min.length == 1) {
                 value = quantization.min[0].toString() + ' \u2264 ' + value;
