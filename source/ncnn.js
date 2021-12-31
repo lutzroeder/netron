@@ -319,9 +319,9 @@ ncnn.Node = class {
             case 'Embed': {
                 const num_output = parseInt(attributes.get('0') || 0, 10);
                 const weight_data_size = parseInt(attributes.get('3') || 0, 10);
-                this._weight(blobReader, 'weight', [ weight_data_size ]);
+                this._weight(blobReader, 'weight', [ weight_data_size / num_output, num_output ]);
                 if (parseInt(attributes.get('2') || 0, 10) === 1) {
-                    this._weight(blobReader, 'bias', [ num_output], 'float32');
+                    this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
                 attributes.get('3');
                 break;
@@ -343,25 +343,76 @@ ncnn.Node = class {
                 const kernel_w = parseInt(attributes.get('1') || 0, 10);
                 const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
                 const weight_data_size = parseInt(attributes.get('6') || 0, 10);
-                this._weight(blobReader, 'weight', [ num_output, weight_data_size / ( num_output * kernel_w * kernel_h), kernel_h, kernel_w ]);
+                this._weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h), kernel_h, kernel_w ]);
                 if (parseInt(attributes.get('5') || 0, 10) === 1) {
                     this._weight(blobReader, 'bias', [ num_output ], 'float32');
                 }
                 attributes.delete('6');
                 break;
             }
-            case 'Dequantize': {
-                if (parseInt(attributes.get('1') || 0, 10) === 1) {
-                    const bias_data_size = parseInt(attributes.get('2') || 0, 10);
-                    this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
+            case 'Convolution1D':
+            case 'ConvolutionDepthWise1D': {
+                const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_type = parseInt(attributes.get('9') || 0, 10);
+                if (activation_type > 0 && activation_type < activation_names.length) {
+                    const layer = {
+                        type: activation_names[activation_type],
+                        attributes: new Map()
+                    };
+                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, arg));
                 }
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const kernel_w = parseInt(attributes.get('1') || 0, 10);
+                const weight_data_size = parseInt(attributes.get('6') || 0, 10);
+                this._weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w), kernel_w ]);
+                if (parseInt(attributes.get('5') || 0, 10) === 1) {
+                    this._weight(blobReader, 'bias', [ num_output ], 'float32');
+                }
+                attributes.delete('6');
+                break;
+            }
+            case 'Convolution3D':
+            case 'ConvolutionDepthWise3D': {
+                const activation_names = [ '', 'ReLU', 'LeakyReLU', 'Clip', 'Sigmoid', 'Mish', 'HardSwish' ];
+                const activation_type = parseInt(attributes.get('9') || 0, 10);
+                if (activation_type > 0 && activation_type < activation_names.length) {
+                    const layer = {
+                        type: activation_names[activation_type],
+                        attributes: new Map()
+                    };
+                    this._chain.push(new ncnn.Node(metadata, blobReader, layer, arg));
+                }
+                const num_output = parseInt(attributes.get('0') || 0, 10);
+                const kernel_w = parseInt(attributes.get('1') || 0, 10);
+                const kernel_h = parseInt(attributes.get('11') || kernel_w, 10);
+                const kernel_d = parseInt(attributes.get('21') || kernel_w, 10);
+                const weight_data_size = parseInt(attributes.get('6') || 0, 10);
+                this._weight(blobReader, 'weight', [ num_output, weight_data_size / (num_output * kernel_w * kernel_h * kernel_d), kernel_d, kernel_h, kernel_w ]);
+                if (parseInt(attributes.get('5') || 0, 10) === 1) {
+                    this._weight(blobReader, 'bias', [ num_output ], 'float32');
+                }
+                attributes.delete('6');
+                break;
+            }
+            case 'Quantize': {
+                const scale_data_size = parseInt(attributes.get('0') || 1, 10);
+                this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
+                break;
+            }
+            case 'Dequantize': {
+                const scale_data_size = parseInt(attributes.get('0') || 1, 10);
+                const bias_data_size = parseInt(attributes.get('1') || 0, 10);
+                this._weight(blobReader, 'scale', [ scale_data_size ], 'float32');
+                this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 break;
             }
             case 'Requantize': {
-                if (parseInt(attributes.get('2') || 0, 10) === 1) {
-                    const bias_data_size = parseInt(attributes.get('3') || 0, 10);
-                    this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
-                }
+                const scale_in_data_size = parseInt(attributes.get('0') || 1, 10);
+                const scale_out_data_size = parseInt(attributes.get('1') || 1, 10);
+                const bias_data_size = parseInt(attributes.get('2') || 0, 10);
+                this._weight(blobReader, 'scale_in', [ scale_in_data_size ], 'float32');
+                this._weight(blobReader, 'scale_out', [ scale_out_data_size ], 'float32');
+                this._weight(blobReader, 'bias', [ bias_data_size ], 'float32');
                 break;
             }
             case 'InstanceNorm': {
@@ -401,8 +452,12 @@ ncnn.Node = class {
             case 'MemoryData': {
                 const w = parseInt(attributes.get('0') || 0, 10);
                 const h = parseInt(attributes.get('1') || 0, 10);
+                const d = parseInt(attributes.get('11') || 0, 10);
                 const c = parseInt(attributes.get('2') || 0, 10);
-                if (c != 0) {
+                if (d != 0) {
+                    this._weight(blobReader, 'data', [ c, d, h, w ], 'float32');
+                }
+                else if (c != 0) {
                     this._weight(blobReader, 'data', [ c, h, w ], 'float32');
                 }
                 else if (h != 0) {
@@ -462,6 +517,21 @@ ncnn.Node = class {
                 this._weight(blobReader, 'bias_c', [ num_directions, 4, num_output ]);
                 this._weight(blobReader, 'weight_hc', [ num_directions, 3, num_output, num_output ]);
                 attributes.delete('1');
+                break;
+            }
+            case 'MultiHeadAttention': {
+                const embed_dim = parseInt(attributes.get('0') || 0, 10);
+                // const num_head = parseInt(attributes.get('1') || 0, 10);
+                // const weight_data_size = parseInt(attributes.get('2') || 0, 10);
+                this._weight(blobReader, 'weight_q', [ embed_dim, embed_dim ]);
+                this._weight(blobReader, 'bias_q', [ embed_dim ], 'float32');
+                this._weight(blobReader, 'weight_k', [ embed_dim, embed_dim ]);
+                this._weight(blobReader, 'bias_k', [ embed_dim ], 'float32');
+                this._weight(blobReader, 'weight_v', [ embed_dim, embed_dim ]);
+                this._weight(blobReader, 'bias_v', [ embed_dim ], 'float32');
+                this._weight(blobReader, 'weight_out', [ embed_dim, embed_dim ]);
+                this._weight(blobReader, 'bias_out', [ embed_dim ], 'float32');
+                attributes.delete('2');
                 break;
             }
         }
@@ -777,10 +847,14 @@ ncnn.Utility = class {
     static value(value, type) {
         ncnn.Utility._enum = ncnn.Utility._enum || new Map([
             [ 'BinaryOpType', [ 'Add', 'Sub', 'Mul', 'Div', 'Max', 'Min', 'Pow', 'RSub', 'RDiv' ] ],
+            [ 'CastOpType', [ 'Auto', 'Float32', 'Float16', 'Int8', 'BFloat16' ] ],
             [ 'EltwiseType', [ 'Prod', 'Sum', 'Max' ] ],
+            [ 'PaddingType', [ 'Constant', 'Replicate', 'Reflect' ] ],
             [ 'PoolingType', [ 'Max', 'Average' ] ],
             [ 'InterpResizeType', [ '', 'Nearest', 'Bilinear', 'Bicubic' ] ],
-            [ 'PermuteOrderType', [ 'WHC', 'HWC', 'WCH', 'CWH', 'HCW', 'CHW'] ]
+            [ 'PermuteOrderType', [ 'WH WHC WHDC', 'HW HWC HWDC', 'WCH WDHC', 'CWH DWHC', 'HCW HDWC', 'CHW DHWC', 'WHCD', 'HWCD', 'WCHD', 'CWHD', 'HCWD', 'CHWD', 'WDCH', 'DWCH', 'WCDH', 'CWDH', 'DCWH', 'CDWH', 'HDCW', 'DHCW', 'HCDW', 'CHDW', 'DCHW', 'CDHW' ] ],
+            [ 'ReductionOpType', [ 'Sum', 'ASum', 'SumSq', 'Mean', 'Max', 'Min', 'Prod', 'L1', 'L2', 'LogSum', 'LogSumExp' ] ],
+            [ 'UnaryOpType', [ 'Abs', 'Neg', 'Floor', 'Ceil', 'Square', 'Sqrt', 'Rsq', 'Exp', 'Log', 'Sin', 'Cos', 'Tan', 'ASin', 'ACos', 'ATan', 'Reciprocal', 'Tanh' ] ]
         ]);
         if (this._enum.has(type) && typeof value === 'string') {
             const index = parseInt(value, 10);

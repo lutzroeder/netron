@@ -2978,6 +2978,27 @@
   },
   {
     "type":   "ncnn",
+    "target": "test_nn_Conv1d.ncnn.param,test_nn_Conv1d.ncnn.bin",
+    "source": "https://github.com/lutzroeder/netron/files/7796942/ncnn-20211231.zip[test_nn_Conv3d.ncnn.param,test_nn_Conv3d.ncnn.bin]",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":   "ncnn",
+    "target": "test_nn_Conv3d.ncnn.param,test_nn_Conv3d.ncnn.bin",
+    "source": "https://github.com/lutzroeder/netron/files/7796942/ncnn-20211231.zip[test_nn_Conv3d.ncnn.param,test_nn_Conv3d.ncnn.bin]",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":   "ncnn",
+    "target": "test_nn_MultiheadAttention.ncnn.param,test_nn_MultiheadAttention.ncnn.bin",
+    "source": "https://github.com/lutzroeder/netron/files/7796942/ncnn-20211231.zip[test_nn_MultiheadAttention.ncnn.param,test_nn_MultiheadAttention.ncnn.bin]",
+    "format": "ncnn",
+    "link":   "https://github.com/lutzroeder/netron/issues/296"
+  },
+  {
+    "type":   "ncnn",
     "target": "vgg16.param",
     "source": "https://raw.githubusercontent.com/Tencent/ncnn/master/benchmark/vgg16.param",
     "format": "ncnn",
