@@ -758,26 +758,28 @@ keras.Node = class {
             }
         }
 
-        for (const entry of Object.entries(config)) {
-            const name = entry[0];
-            const value = entry[1];
-            if (name === 'activation' && value !== 'linear') {
-                if (typeof value === 'string') {
-                    const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
-                    const type = set.has(value) ? set.get(value) : value;
-                    this.chain.push(new keras.Node(metadata, { class_name: type }, null, null));
-                }
-                else if (value && typeof value.class_name === 'string' && value.config) {
-                    const type = value.class_name;
-                    if (!metadata.type(type)) {
-                        metadata.add(type, { category: 'Activation' });
+        if (config && !Array.isArray(config)) {
+            for (const entry of Object.entries(config)) {
+                const name = entry[0];
+                const value = entry[1];
+                if (name === 'activation' && value !== 'linear') {
+                    if (typeof value === 'string') {
+                        const set = new Map([ [ 'elu', 'ELU' ], [ 'exponential', 'Exponential' ], [ 'hard_sigmoid', 'HardSigmoid' ], [ 'linear', 'Linear' ], [ 'relu', 'ReLU' ], [ 'selu', 'SELU' ], [ 'softmax', 'Softmax'], [ 'sigmoid', 'Sigmoid' ], [ 'softplus', 'Softplus' ], [ 'softsign', 'Softsign' ], [ 'tanh', 'TanH' ] ]);
+                        const type = set.has(value) ? set.get(value) : value;
+                        this.chain.push(new keras.Node(metadata, { class_name: type }, null, null));
                     }
-                    this.chain.push(new keras.Node(metadata, value, null, null));
+                    else if (value && typeof value.class_name === 'string' && value.config) {
+                        const type = value.class_name;
+                        if (!metadata.type(type)) {
+                            metadata.add(type, { category: 'Activation' });
+                        }
+                        this.chain.push(new keras.Node(metadata, value, null, null));
+                    }
                 }
-            }
-            if (name !== 'name') {
-                const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
-                this._attributes.push(attribute);
+                if (name !== 'name') {
+                    const attribute = new keras.Attribute(metadata.attribute(type, name), name, value);
+                    this._attributes.push(attribute);
+                }
             }
         }
 
