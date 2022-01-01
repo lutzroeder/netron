@@ -426,13 +426,6 @@
   },
   {
     "type":   "caffe",
-    "target": "googlelet_places205_train_iter_2400000.caffemodel",
-    "source": "http://places.csail.mit.edu/model/googlenet_places205.tar.gz[googlenet_places205/googlelet_places205_train_iter_2400000.caffemodel]",
-    "format": "Caffe v2",
-    "link":   "http://places.csail.mit.edu/downloadCNN.html"
-  },
-  {
-    "type":   "caffe",
     "target": "inceptionv3.prototxt",
     "source": "https://raw.githubusercontent.com/cwlacewe/netscope/master/presets/inceptionv3.prototxt",
     "format": "Caffe v2",
