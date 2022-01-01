@@ -623,7 +623,18 @@ protobuf.TextReader = class {
             }
             if (first && !whitespace) {
                 first = false;
-                if (c === '#' || c === '[') {
+                if (c === '#') {
+                    let c;
+                    do {
+                        c = decoder.decode();
+                    }
+                    while (c !== undefined && c !== '\n');
+                    if (c === undefined) {
+                        break;
+                    }
+                    continue;
+                }
+                if (c === '[') {
                     continue;
                 }
                 if (c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z') {
