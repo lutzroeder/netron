@@ -284,8 +284,7 @@ onnx.Model = class {
     constructor(metadata, model, format) {
         this._graphs = [];
         this._format = format;
-        this._producerName = model.producer_name;
-        this._producerVersion = model.producer_version;
+        this._producer = model.producer_name && model.producer_name.length > 0 ? model.producer_name + (model.producer_version && model.producer_version.length > 0 ? ' ' + model.producer_version : '') : null;
         this._domain = model.domain;
         this._modelVersion = model.model_version;
         this._description = model.doc_string;
@@ -374,17 +373,7 @@ onnx.Model = class {
     }
 
     get producer() {
-        const producer = [];
-        if (this._producerName) {
-            producer.push(this._producerName);
-        }
-        if (this._producerVersion && this._producerVersion.length > 0) {
-            producer.push(this._producerVersion);
-        }
-        if (producer.length > 0) {
-            return producer.join(' ');
-        }
-        return null;
+        return this._producer;
     }
 
     get domain() {
