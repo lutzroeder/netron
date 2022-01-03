@@ -1667,7 +1667,8 @@ view.ModelFactoryService = class {
                     { name: 'NetworkX adjacency_data', tags: [ 'directed', 'graph', 'nodes' ] },
                     { name: 'Waifu2x data', tags: [ 'name', 'arch_name', 'channels' ] },
                     { name: 'Waifu2x data', tags: [ '[].nInputPlane', '[].nOutputPlane', '[].weight', '[].bias' ] },
-                    { name: 'Brain.js data', tags: [ 'type', 'sizes', 'layers' ] }
+                    { name: 'Brain.js data', tags: [ 'type', 'sizes', 'layers' ] },
+                    { name: 'Custom Vision metadata', tags: [ 'CustomVision.Metadata.Version' ] }
                 ];
                 const match = (obj, tag) => {
                     if (tag.startsWith('[].')) {
