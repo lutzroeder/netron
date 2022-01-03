@@ -3326,7 +3326,8 @@ pytorch.Container.Zip.Execution = class extends pytorch.Execution {
             // a, b = torch.unbind(size, 0)
             if (statement.type === '=' &&
                 statement.target.type === 'tuple' &&
-                pytorch.Utility.isCall(statement.expression, 'torch.unbind', 2)) {
+                (pytorch.Utility.isCall(statement.expression, 'torch.unbind', 1) ||
+                 pytorch.Utility.isCall(statement.expression, 'torch.unbind', 2))) {
                 statement.expression.arguments[0].__tuple__ = statement.target.value.length;
             }
             // x = torch.len(input)
