@@ -25,6 +25,9 @@ keras.ModelFactory = class {
             if (Array.isArray(obj) && obj.every((item) => item.weights && item.paths)) {
                 return 'keras.json.tfjs.weights';
             }
+            if (obj.tfjsVersion) {
+                return 'keras.json.tfjs.metadata';
+            }
         }
         if (context.open('pkl')) {
             const obj = context.open('pkl');
@@ -90,6 +93,22 @@ keras.ModelFactory = class {
             }).catch(() => {
                 shards.clear();
                 return openShards(manifests, shards);
+            });
+        };
+        const openModelJson = (context, obj) => {
+            const modelTopology = obj.modelTopology;
+            const backend = modelTopology.backend || '';
+            const format = 'TensorFlow.js ' + (obj.format ? obj.format : 'Keras' + (modelTopology.keras_version ? (' v' + modelTopology.keras_version) : ''));
+            const producer = obj.convertedBy || obj.generatedBy || '';
+            const manifests = obj.weightsManifest;
+            for (const manifest of manifests) {
+                for (const weight of manifest.weights) {
+                    weight.identifier = '';
+                }
+            }
+            const model_config = modelTopology.model_config ? modelTopology.model_config : modelTopology;
+            return openManifests(manifests).then((weights) => {
+                return openModel(format, producer, backend, model_config, weights);
             });
         };
         const stream = context.stream;
@@ -274,20 +293,7 @@ keras.ModelFactory = class {
             }
             case 'keras.json.tfjs': {
                 const obj = context.open('json');
-                const modelTopology = obj.modelTopology;
-                const backend = modelTopology.backend || '';
-                const format = 'TensorFlow.js ' + (obj.format ? obj.format : 'Keras' + (modelTopology.keras_version ? (' v' + modelTopology.keras_version) : ''));
-                const producer = obj.convertedBy || obj.generatedBy || '';
-                const manifests = obj.weightsManifest;
-                for (const manifest of manifests) {
-                    for (const weight of manifest.weights) {
-                        weight.identifier = '';
-                    }
-                }
-                const model_config = modelTopology.model_config ? modelTopology.model_config : modelTopology;
-                return openManifests(manifests).then((weights) => {
-                    return openModel(format, producer, backend, model_config, weights);
-                });
+                return openModelJson(context, obj);
             }
             case 'keras.json.tfjs.weights': {
                 const obj = context.open('json');
@@ -303,6 +309,13 @@ keras.ModelFactory = class {
                 }
                 return openManifests(manifests).then((weights) => {
                     return openModel(format, '', '', null, weights);
+                });
+            }
+            case 'keras.json.tfjs.metadata': {
+                return context.request('model.json').then((buffer) => {
+                    const reader = json.TextReader.open(buffer);
+                    const obj = reader.read();
+                    return openModelJson(context, obj);
                 });
             }
             case 'keras.pickle': {
@@ -751,9 +764,19 @@ keras.Node = class {
         const initializers = {};
         if (weights && !model) {
             for (const name of names) {
-                for (const initializer of weights.get(group, name)) {
-                    inputs.push({ name: initializer.name });
-                    initializers[initializer.name] = initializer;
+                let tensors = weights.get(group, name);
+                if (tensors.length > 0) {
+                    for (const initializer of tensors) {
+                        inputs.push({ name: initializer.name });
+                        initializers[initializer.name] = initializer;
+                    }
+                }
+                else {
+                    tensors = weights.get('', name);
+                    for (const initializer of tensors) {
+                        inputs.push({ name: initializer.name });
+                        initializers[initializer.name] = initializer;
+                    }
                 }
             }
         }
