@@ -5746,6 +5746,13 @@
   },
   {
     "type":   "tfjs",
+    "target": "iamgeai2/metadata.json,iamgeai2/model.json,iamgeai2/weights.bin",
+    "source": "https://github.com/lutzroeder/netron/files/7800435/iamgeai2.zip[metadata.json,model.json,weights.bin] ",
+    "format": "TensorFlow.js Keras vtfjs-layers 1.3.1",
+    "link":   "https://github.com/lutzroeder/netron/issues/294"
+  },
+  {
+    "type":   "tfjs",
     "target": "mnist_transfer_cnn_v1.zip",
     "source": "https://github.com/lutzroeder/netron/files/3361048/mnist_transfer_cnn_v1.zip",
     "format": "TensorFlow.js Keras v2.1.4",
