@@ -347,6 +347,7 @@ $root.MNN.LRN = class LRN {
         $.localSize = reader.int32_(position, 6, 0);
         $.alpha = reader.float32_(position, 8, 0);
         $.beta = reader.float32_(position, 10, 0);
+        $.bias = reader.float32_(position, 12, 1);
         return $;
     }
 };
@@ -615,6 +616,16 @@ $root.MNN.EltwiseInt8 = class EltwiseInt8 {
     }
 };
 
+$root.MNN.CumSum = class CumSum {
+
+    static decode(reader, position) {
+        const $ = new $root.MNN.CumSum();
+        $.exclusive = reader.bool_(position, 4, false);
+        $.reverse = reader.bool_(position, 6, false);
+        return $;
+    }
+};
+
 $root.MNN.BinaryOpOperation = {
     ADD: 0,
     SUB: 1,
@@ -637,7 +648,13 @@ $root.MNN.BinaryOpOperation = {
     MOD: 19,
     ATAN2: 20,
     LOGICALOR: 21,
-    NOTEQUAL: 22
+    NOTEQUAL: 22,
+    BITWISE_AND: 23,
+    BITWISE_OR: 24,
+    BITWISE_XOR: 25,
+    LOGICALXOR: 26,
+    LEFTSHIFT: 27,
+    RIGHTSHIFT: 28
 };
 
 $root.MNN.BinaryOp = class BinaryOp {
@@ -1059,7 +1076,8 @@ $root.MNN.OneHotParam = class OneHotParam {
 $root.MNN.PadValueMode = {
     CONSTANT: 0,
     REFLECT: 1,
-    SYMMETRIC: 2
+    SYMMETRIC: 2,
+    EDGE: 3
 };
 
 $root.MNN.PadParam = class PadParam {
@@ -1105,6 +1123,9 @@ $root.MNN.TensorArray = class TensorArray {
         $.identical_element_shapes = reader.bool_(position, 6, false);
         $.element_shape = reader.typedArray(position, 8, Int32Array);
         $.T = reader.int32_(position, 10, 1);
+        $.axis = reader.int32_(position, 12, 0);
+        $.keepdims = reader.bool_(position, 14, true);
+        $.new_axis = reader.bool_(position, 16, false);
         return $;
     }
 };
@@ -1408,7 +1429,8 @@ $root.MNN.ImageFormatType = {
     BGR565: 10,
     YUV_NV21: 11,
     YUV_NV12: 12,
-    YUV_I420: 13
+    YUV_I420: 13,
+    HSV_FULL: 14
 };
 
 $root.MNN.FilterType = {
@@ -1580,6 +1602,11 @@ $root.MNN.OpType = {
     LSTMBlockCell: 141,
     Reverse: 142,
     ROIAlign: 143,
+    RandomNormal: 144,
+    TensorArrayInsert: 145,
+    TensorArrayErase: 146,
+    EyeLike: 147,
+    CumSum: 148,
     Plugin: 256,
     Select: 257,
     ZerosLike: 258,
@@ -1789,6 +1816,7 @@ $root.MNN.OpParameter = class {
             case 91: return $root.MNN.GridSample.decode(reader, position);
             case 92: return $root.MNN.LoopParam.decode(reader, position);
             case 93: return $root.MNN.ImageProcessParam.decode(reader, position);
+            case 94: return $root.MNN.CumSum.decode(reader, position);
         }
         return undefined;
     }
@@ -1888,6 +1916,7 @@ $root.MNN.OpParameter = class {
             case 'GridSample': return $root.MNN.GridSample.decodeText(reader, json);
             case 'LoopParam': return $root.MNN.LoopParam.decodeText(reader, json);
             case 'ImageProcessParam': return $root.MNN.ImageProcessParam.decodeText(reader, json);
+            case 'CumSum': return $root.MNN.CumSum.decodeText(reader, json);
         }
         return undefined;
     }
