@@ -1056,6 +1056,7 @@ pytorch.Execution = class extends python.Execution {
         this.registerType('torch.nn.modules.padding.ConstantPad2d', class {});
         this.registerType('torch.nn.modules.padding.ConstantPad3d', class {});
         this.registerType('torch.nn.modules.pixelshuffle.PixelShuffle', class {});
+        this.registerType('torch.nn.modules.pixelshuffle.PixelUnshuffle', class {});
         this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool1d', class {});
         this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool2d', class {});
         this.registerType('torch.nn.modules.pooling.AdaptiveAvgPool3d', class {});
