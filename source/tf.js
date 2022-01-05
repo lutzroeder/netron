@@ -2174,7 +2174,7 @@ tf.Utility = class {
             return null;
         };
         const map_resource = (name, node, tensor) => {
-            if (node && node.op === 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+            if (node && node.op === 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.controlDependencies.length === 0) {
                 const dtype = node.attr.dtype.type;
                 if (dtype === tf.proto.tensorflow.DataType.DT_RESOURCE) {
                     return new tf.Argument(name, null, tensor);
@@ -2229,7 +2229,7 @@ tf.Utility = class {
         }
         const input_map = new Map();
         for (const node of node_map.values()) {
-            if (node.op == 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.output[0].to.length === 1 && node.controlDependencies.length === 0) {
+            if (node.op == 'Placeholder' && node.input.length === 0 && node.output.length === 1 && node.controlDependencies.length === 0) {
                 const dtype = node.attr.dtype;
                 const shape = node.attr.shape;
                 if (dtype && dtype.type && shape && shape.shape) {
