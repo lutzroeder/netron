@@ -406,6 +406,7 @@ xmodel.Utility = class {
             case 'bool': return { type: 'boolean', value: value };
             case 'int32': return { type: 'int32', value: value };
             case 'int32_vec': return { type: 'int32[]', value: value.value };
+            case 'int64': return { type: 'int64', value: value };
             case 'uint64': return { type: 'uint64', value: value };
             case 'float': return { type: 'float32', value: value };
             case 'float_vec': return { type: 'float32[]', value: value.value };
