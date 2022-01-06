@@ -18,32 +18,54 @@ sklearn.ModelFactory = class {
             return 'sklearn';
         }
         if (Array.isArray(obj) && obj.every((item) => validate(item))) {
-            return 'sklearn';
+            return 'sklearn.list';
+        }
+        if ((Object(obj) === obj) && Object.entries(obj).every((entry) => validate(entry[1]))) {
+            return 'sklearn.map';
         }
         return undefined;
     }
 
-    open(context) {
+    open(context, match) {
         return sklearn.Metadata.open(context).then((metadata) => {
             const obj = context.open('pkl');
-            return new sklearn.Model(metadata, obj);
+            return new sklearn.Model(metadata, match, obj);
         });
     }
 };
 
 sklearn.Model = class {
 
-    constructor(metadata, obj) {
+    constructor(metadata, match, obj) {
         this._format = 'scikit-learn';
         this._graphs = [];
-        if (!Array.isArray(obj)) {
-            this._format += obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '';
-            this._graphs.push(new sklearn.Graph(metadata, '', obj));
-        }
-        else {
-            for (let i = 0; i < obj.length; i++) {
-                this._graphs.push(new sklearn.Graph(metadata, i.toString(), obj[i]));
+        const version = [];
+        switch (match) {
+            case 'sklearn': {
+                version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                this._graphs.push(new sklearn.Graph(metadata, '', obj));
+                break;
             }
+            case 'sklearn.list': {
+                const list = obj;
+                for (let i = 0; i < list.length; i++) {
+                    const obj = list[i];
+                    this._graphs.push(new sklearn.Graph(metadata, i.toString(), obj));
+                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                }
+                break;
+            }
+            case 'sklearn.map': {
+                for (const entry of Object.entries(obj)) {
+                    const obj = entry[1];
+                    this._graphs.push(new sklearn.Graph(metadata, entry[0], obj));
+                    version.push(obj._sklearn_version ? ' v' + obj._sklearn_version.toString() : '');
+                }
+                break;
+            }
+        }
+        if (version.every((value) => value === version[0])) {
+            this._format += version[0];
         }
     }
 
@@ -98,7 +120,9 @@ sklearn.Graph = class {
                 const outputs = [];
                 this._add(subgroup, output, obj, inputs, [ output ]);
                 for (const transformer of obj.transformers){
-                    outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                    if (transformer[1] !== 'passthrough') {
+                        outputs.push(...this._process(subgroup, transformer[0], transformer[1], [ output ]));
+                    }
                 }
                 return outputs;
             }
