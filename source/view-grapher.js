@@ -14,7 +14,7 @@ grapher.Graph = class {
         this._parent = {};
     }
 
-    graph() {
+    get options() {
         return this._options;
     }
 
